@@ -259,8 +259,13 @@
             </div>
           </form>
 
-            <ButtonComponent type="button" :disabled="!!dateError || isLoading" @click="saveReservation">
-               {{ $t('AddBooking') }}
+            <ButtonComponent type="button" :disabled="!!dateError || isLoading" @click="handleSubmit">
+
+               <span v-if="!isLoading"> {{ isEditMode ? $t('update') :  $t('AddBooking') }}</span>
+              <span v-else class="flex items-center gap-2">
+                <Spinner class="w-4 h-4" />
+                {{ $t('Processing') }}...
+              </span>
              </ButtonComponent>
 
         </ComponentCard>
@@ -303,7 +308,7 @@
             </p>
           </div>
           <form  class="flex flex-col">
-          <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
+          <div class="custom-scrollbar h-[500px] overflow-y-auto p-2">
             <div class="space-y-8">
 
             <div class="border rounded-md p-4 text-sm text-gray-700 dark:text-gray-300">
@@ -370,37 +375,34 @@ import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
 import flatPickr from 'vue-flatpickr-component'
 import ButtonComponent from "@/components/buttons/ButtonComponent.vue";
-import { getServiceProduct,createReservation,getService,createPayment} from "@/services/api";
+import { getServiceProduct,createReservation,getService,createPayment,getReservationById,getUserId,putReservation} from "@/services/api";
 import type { ProductType} from '@/types/option'
 import 'flatpickr/dist/flatpickr.css'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'; // adapte le chemin
 import { useServiceStore } from '@/composables/serviceStore';
-const serviceStore = useServiceStore();
 import Modal from '@/components/profile/Modal.vue'
+import { defineProps } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/composables/user'
 
 
 
-
+const ServiceProduct = ref<ProductType[]>([]);
+const reservations = ref({})
+const route = useRoute()
 const isLoading = ref(false);
 const { t } = useI18n();
-
 const isPaymentModalOpen = ref(false);
 const toast = useToast()
-
-
-
-
-
-
 const showDropdown = ref(false)
 const adults = ref(1)
 const children = ref(0)
-
 const totalPersons = computed(() => adults.value + children.value)
 const currentPageTitle =computed(()=>t("AddBooking"));
 const selectedCountry = ref('GB')
+const serviceStore = useServiceStore();
 
 const Package = computed(() => [
   { value: 'Individual', label: t('Individual') },
@@ -433,15 +435,6 @@ const updatePhoneNumber = () => {
   form.value.phoneNumber = countryCodes[selectedCountry.value as keyof typeof countryCodes]
 }
 
-
-
-
-
-// const Payements  = ref([
-// {value: 'Especes', label: "Especes"},
-// {value: 'Carte bancaire', label: "Carte bancaire"},
-
-// ])
 
 
 const fetchServiceData = async () => {
@@ -487,8 +480,6 @@ const selectedRoomPrice = ref<number | null>(null);
 
 
 
-const ServiceProduct = ref<ProductType[]>([]);
-const reservations = ref({})
 
 const fetchServiceProduct = async () => {
   try {
@@ -574,7 +565,7 @@ const form = ref<ReservationForm>({
 const reservationId = ref<number | null>(null);
 
 const userId =  ref<number | null>(null)
-
+  const authStore = useAuthStore()
 const saveReservation = async () => {
   isLoading.value = true;
   try {
@@ -585,18 +576,15 @@ const saveReservation = async () => {
       last_name: form.value.lastName,
       email: form.value.email,
       phone_number: form.value.phoneNumber,
-      // role_id: 1,
-      // created_by: 2,
-      // last_modified_by: 2,
       service_id: serviceStore.serviceId,
       reservation_type: form.value.package,
       reservation_product:form.value.roomType,
-      status: 'pending',
       total_price: form.value.totalPrice,
       total_person: form.value.totalPerson,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
       comment: form.value.normalDescription,
+      role_id : authStore.roleId,
       payment : form.value.payment
     }
     console.log('✅ reservationPayload', reservationPayload)
@@ -630,6 +618,7 @@ const saveReservation = async () => {
       numberOfNights: totalPersons.value,
       payment:''
     }
+    toast.success(t('toast.reservationCreated'));
     isPaymentModalOpen.value = true;
     reservations.value=response.data
     console.log('✅ Réservation créée avec succès !', response.data)
@@ -662,14 +651,14 @@ const savePayment = async () => {
     console.log('payment',response.data)
 
     if (response.status === 201) {
-      toast.success('Paiement enregistré avec succès.');
+      toast.success(t('toast.paymentSucess'));
       isPaymentModalOpen.value = false;
     } else {
-      toast.error('Erreur lors de l’enregistrement du paiement.');
+      toast.error(t('toast.paymentError'));
     }
   } catch (error) {
     console.error(error);
-    toast.error('Une erreur est survenue pendant le paiement.');
+    toast.error('An error occurred during payment.');
   }finally{
     isLoading.value=false
   }
@@ -711,6 +700,94 @@ const numberOfNights = computed(() => {
 
   return diffDays > 0 ? diffDays : null
 })
+
+
+
+
+defineProps<{ id: string }>()
+
+
+const isEditMode=ref(false)
+
+onMounted(async () => {
+  const rawId = route.params.id;
+  if (rawId) {
+    isEditMode.value = true;
+    reservationId.value = Number(rawId);
+    const response = await getReservationById(reservationId.value);
+    const response1 = await getUserId(response.data.userId)
+
+    console.log('response',response)
+    console.log('userId',response.data.reservationProduct )
+    form.value = {
+      firstName: response1.data.firstName,
+      lastName: response1.data.lastName,
+      phoneNumber: response1.data.phoneNumber,
+      email: response1.data.email,
+      roomType: response.data.reservationProduct.toString(),
+      package: response.data.reservationType,
+      arrivalDate: response.data.arrivedDate,
+      departureDate: response.data.departDate,
+      normalDescription: response.data.comment,
+      totalPerson: response.data.totalPerson,
+      totalPrice: response.data.totalPrice,
+      numberOfNights: null,
+      payment: response.data.payment,
+    };
+  }
+});
+
+async function updateReservation() {
+  try {
+    if (!reservationId.value) throw new Error('Aucune réservation sélectionnée');
+
+    const payloadUpdate = {
+      first_name: form.value.firstName,
+      last_name: form.value.lastName,
+      email: form.value.email,
+      phone_number: form.value.phoneNumber,
+      service_id: serviceStore.serviceId,
+      reservation_type: form.value.package,
+      reservation_product: form.value.roomType,
+      total_price: form.value.totalPrice,
+      total_person: form.value.totalPerson,
+      arrived_date: form.value.arrivalDate,
+      depart_date: form.value.departureDate,
+      comment: form.value.normalDescription,
+      payment: form.value.payment
+    }
+
+    const response = await putReservation(reservationId.value, payloadUpdate)
+
+    if (response.status !== 200) {
+      throw new Error(response.data?.message || 'Error while updating')
+    }
+
+    toast.success(t('toast.updateReservation'))
+    console.log('✅ Update successful:', response.data)
+  } catch (error: any) {
+    console.error('❌ Erreur:', error.message || error)
+    toast.error(t('toast.Error'))
+  }
+}
+
+
+
+
+
+const handleSubmit = async () => {
+  isLoading.value = true
+  try {
+    if (isEditMode.value) {
+      await updateReservation()
+    } else {
+      await saveReservation()
+    }
+    // router.push('/reservations') // Redirige une fois terminé
+  } finally {
+    isLoading.value = false
+  }
+}
 
 
 

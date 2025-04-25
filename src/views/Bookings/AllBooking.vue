@@ -1,8 +1,8 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
-    <div class="space-y-5 sm:space-y-6 h-screen">
-      <!-- <ComponentCard title="All Booking"> -->
+    <div class="space-y-5 sm:space-y-6 h-screen ">
+
         <div class="flex justify-end ">
           <!-- Bouton qui ouvre/ferme le dropdown -->
           <button
@@ -20,24 +20,28 @@
         <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
           <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
             <li>
-              <a href="/add_booking" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">Add Booking </a>
+              <a href="/add_booking" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">{{$t('AddBooking')}} </a>
             </li>
           </ul>
         </div>
         </div>
+      <ComponentCard :title="$t('AllBooking')">
         <AllBooking/>
-      <!-- </ComponentCard> -->
+      </ComponentCard>
     </div>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref,computed } from "vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
-//   import ComponentCard from "@/components/common/ComponentCard.vue";
+import ComponentCard from "@/components/common/ComponentCard.vue";
 import AllBooking from "@/components/tables/booking-tables/AllBookingTable.vue";
-const currentPageTitle = ref("Booking Lists");
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+const currentPageTitle = computed(()=>t("BookingLists"));
 
 
 const isDropdownOpen = ref(false);

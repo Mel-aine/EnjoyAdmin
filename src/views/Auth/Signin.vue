@@ -35,10 +35,10 @@
                 <h1
                   class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md"
                 >
-                <strong>Sign In</strong>
+                <strong>{{ $t('SignIn') }}</strong>
                 </h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Enter your email and password to sign in!
+                 {{ $t('Enteryouremail') }}
                 </p>
               </div>
               <div>
@@ -70,25 +70,24 @@
                         fill="#EB4335"
                       />
                     </svg>
-                    Sign in with Google
+                    {{ $t('SigninwithGoogle') }}
                   </button>
                   <button
                     class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
                   >
-                    <svg
-                      width="21"
-                      class="fill-current"
-                      height="20"
-                      viewBox="0 0 21 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z"
-                      />
-                    </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="fill-current"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M16.36 1.97c0 1.15-.44 2.26-1.22 3.12-.87.95-2.16 1.6-3.42 1.5-.17-1.12.37-2.35 1.15-3.15.82-.86 2.19-1.52 3.49-1.47zm3.65 17.25c-.44.98-.96 1.94-1.67 2.75-.74.83-1.8 1.84-3.1 1.83-1.23-.02-1.71-.8-3.19-.8s-2 .78-3.22.82c-1.34.04-2.36-.99-3.1-1.83-.93-1.07-1.63-2.43-2.17-3.8C2.84 14.9 2 12.27 3.1 9.93c.6-1.3 1.67-2.3 2.95-2.34 1.17-.05 2.27.78 3.2.78s2.21-1 3.71-.85c.63.03 2.39.25 3.52 1.88-.09.06-2.1 1.23-2.08 3.64.03 2.9 2.57 3.87 2.6 3.88z" />
+                  </svg>
 
-                    Sign in with X
+
+                    {{ $t('SigninwithApple') }}
                   </button>
                 </div>
                 <div class="relative py-3 sm:py-5">
@@ -97,19 +96,30 @@
                   </div>
                   <div class="relative flex justify-center text-sm">
                     <span class="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2"
-                      >Or</span
+                      >{{ $t('Or') }}</span
                     >
                   </div>
                 </div>
                 <form @submit.prevent="handleSubmit">
+
                   <div class="space-y-5">
+                    <p
+                      v-if="error"
+                      class="text-red-500 bg-red-100 border border-red-300 px-4 py-2 rounded-md text-md flex items-center space-x-2 w-fit mx-auto shadow-sm"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{{ error }}</span>
+                    </p>
+
                     <!-- Email -->
                     <div>
                       <label
                         for="email"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Email<span class="text-error-500">*</span>
+                        {{ $t('Email') }}<span class="text-error-500">*</span>
                       </label>
                       <input
                         v-model="email"
@@ -119,6 +129,7 @@
                         name="email"
                         placeholder="info@gmail.com"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                        required
                       />
                     </div>
                     <!-- Password -->
@@ -127,7 +138,7 @@
                         for="password"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Password<span class="text-error-500">*</span>
+                        {{ $t('Password') }}<span class="text-error-500">*</span>
                       </label>
                       <div class="relative">
                         <input
@@ -135,9 +146,10 @@
                           :type="showPassword ? 'text' : 'password'"
                           id="password"
                           autocomplete="current-password"
-                          placeholder="Enter your password"
+                          :placeholder="$t('Enteryourpassword')"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                        />
+                          required
+                          />
                         <span
                           @click="togglePasswordVisibility"
                           class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400"
@@ -218,13 +230,13 @@
                               </span>
                             </div>
                           </div>
-                          Keep me logged in
+                          {{ $t('Keepmeloggedin') }}
                         </label>
                       </div>
                       <router-link
                         to="/reset-password"
                         class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                        >Forgot password?</router-link
+                        >{{$t('Forgotpassword')}}?</router-link
                       >
                     </div>
                     <!-- Button -->
@@ -234,10 +246,10 @@
                         class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-purple-500 shadow-theme-xs hover:bg-purple-600"
                       >
 
-                       <span v-if="!isLoading">Sign In</span>
+                       <span v-if="!isLoading">{{ $t('SignIn') }}</span>
                         <span v-else class="flex items-center gap-2">
                           <Spinner class="w-4 h-4" />
-                          Processing...
+                          {{ $t('Processing') }}...
                         </span>
                       </button>
                     </div>
@@ -247,11 +259,11 @@
                   <p
                     class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
                   >
-                    Don't have an account?
+                    {{$t('Donthaveanaccount')}}?
                     <router-link
                       to="/signup"
                       class="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                      >Sign Up</router-link
+                      >{{ $t('SignUp') }}</router-link
                     >
                   </p>
                 </div>
@@ -262,7 +274,7 @@
         <div
           class="relative items-center hidden w-full h-full lg:w-1/2 bg-purple-900 dark:bg-white/5 lg:grid"
         >
-          <div class="flex items-center justify-center z-1">
+          <div class="flex items-center justify-center z-50 shadow-xl">
             <common-grid-shape />
 
           <img
@@ -282,18 +294,23 @@ import { ref } from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import { useAuthStore } from '@/composables/user'
+import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
 import { auth } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
+import { validateEmail, validatePassword } from '@/services/api';
+
 const isLoading = ref(false);
 const authStore = useAuthStore()
+const serviceStore = useServiceStore()
 const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const keepLoggedIn = ref(false)
-const error = ref('')
+const error = ref<string | null>(null);
+
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
@@ -308,29 +325,78 @@ const togglePasswordVisibility = () => {
 //   })
 // }
 
+
+
+// const handleSubmit = async () => {
+//   isLoading.value=true
+//     try {
+//         const res = await auth({
+//             email: email.value,
+//             password: password.value,
+//         });
+
+//         const { user, user_token } = res.data.data;
+
+//         if (user && user_token) {
+//             authStore.login(user, user_token.token);
+//             router.push('/');
+//         } else {
+//             throw new Error('Données utilisateur manquantes');
+//         }
+//     } catch (err) {
+//         error.value = 'Incorrect Email or Password';
+//         console.error(err);
+//     }finally{
+//       isLoading.value=false
+//     }
+// };
+
+
 const handleSubmit = async () => {
-  isLoading.value=true
-    try {
-        const res = await auth({
-            email: email.value,
-            password: password.value,
-        });
+  isLoading.value = true;
+  error.value = null;
 
-        const { user, user_token } = res.data.data;
+  try {
+    // 1. Valider l'email
+    await validateEmail(email.value);
 
-        if (user && user_token) {
-            authStore.login(user, user_token.token);
-            router.push('/');
-        } else {
-            throw new Error('Données utilisateur manquantes');
-        }
-    } catch (err) {
-        error.value = 'Email ou mot de passe incorrect';
-        console.error(err);
-    }finally{
-      isLoading.value=false
+    // 2. Valider le mot de passe
+    await validatePassword(email.value, password.value);
+
+    // 3. Authentification réelle
+    const res = await auth({
+      email: email.value,
+      password: password.value,
+      keepLoggedIn: keepLoggedIn.value,
+    });
+
+    const { user, user_token } = res.data.data;
+    console.log('res',res.data.data)
+
+    if (keepLoggedIn.value) {
+      localStorage.setItem('auth_token', user_token.token);
+    } else {
+      sessionStorage.setItem('auth_token', user_token.token);
     }
+
+
+    if (user && user_token) {
+      authStore.login(user, user_token.token);
+      authStore.setRoleId(user.roleId)
+      authStore.setUserId(user.id)
+      serviceStore.setServiceId(user.serviceId)
+      router.push('/');
+    } else {
+      throw new Error('Missing user data');
+    }
+  } catch (err: any) {
+    error.value = err.response?.data?.message || 'Incorrect credentials';
+    console.error(err);
+  } finally {
+    isLoading.value = false;
+  }
 };
+
 
 
 </script>

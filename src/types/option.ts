@@ -84,7 +84,7 @@ export interface userDataType  {
   firstName: string
   lastName: string
   email: string
-  phone_number: string
+  phoneNumber: string
   roleId: number | null
 }
 

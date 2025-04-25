@@ -71,7 +71,7 @@ const props = defineProps({
   itemClass: {
     type: String,
     default:
-      'flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300',
+      'flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-sm hover:bg-purple-100 hover:text-purple-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300',
   },
 })
 

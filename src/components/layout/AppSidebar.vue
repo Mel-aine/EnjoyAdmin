@@ -7,16 +7,6 @@
     </svg>
 
 </div>
-
-  <!-- <div v-if="isLoading" class="fixed inset-0 z-[9999] bg-white/70 dark:bg-gray-900/70 flex items-center justify-center">
-    <div class="flex flex-col items-center gap-4">
-      <svg class="animate-spin h-12 w-12 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-      </svg>
-      <span class="text-gray-700 dark:text-gray-200 text-lg font-semibold">Chargement…</span>
-    </div>
-  </div> -->
   <aside>
 
     <div
@@ -66,7 +56,7 @@
       alt="Logo"
 
       />
-      <span v-if="isExpanded || isHovered || isMobileOpen" class="inline-flex text-2xl text-gray-900 font-bold">EnjoyAdmin</span>
+      <span v-if="isExpanded || isHovered || isMobileOpen" class="inline-flex text-xl text-gray-900 font-bold flex-wrap ">{{ serviceName }}</span>
     </router-link>
   </div>
   <div
@@ -76,7 +66,7 @@
   >
   <nav class="">
     <div class="flex flex-col gap-2">
-      <div v-for="(menuGroup, groupIndex) in menuGroups" :key="groupIndex">
+      <div v-for="(menuGroup, groupIndex) in filteredMenu" :key="groupIndex">
         <!-- <h2
         :class="[
         'mb-4 text-xs uppercase flex leading-[20px] text-gray-400',
@@ -93,7 +83,7 @@
       <ul class="flex flex-col gap-3 ">
         <li v-for="(item, index) in menuGroup.items" :key="item.name">
           <button
-          v-if="item.subItems"
+          v-if="item.subItems && item.subItems.length > 0"
           @click="toggleSubmenu(groupIndex, index)"
           :class="[
           'menu-item group text-md w-full ',
@@ -241,7 +231,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed,ref,watch } from "vue";
+import { computed,ref,watch,onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 
@@ -258,11 +248,44 @@ import {
 } from "../../icons";
 import { useSidebar } from "@/composables/useSidebar";
 import { isLoading } from '@/composables/spinner';
+import { CalendarCheck2 } from 'lucide-vue-next'
+import { useServiceStore } from '@/composables/serviceStore';
+import { getServices} from '@/services/api'
+import { useI18n } from "vue-i18n";
+import { useAuthStore } from '@/composables/user'
 
 const route = useRoute();
-
 const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar();
+const serviceStore = useServiceStore();
+const authStore = useAuthStore()
+const serviceName = ref('');
+const { t } = useI18n();
 
+const fetchService = async () => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getServices();
+
+    const foundService = response.data.data.find(
+      (service: any) => service.id === serviceId
+    );
+
+    if (foundService) {
+      serviceName.value = foundService.name;
+    } else {
+      serviceName.value = 'Unknown Service';
+    }
+
+    console.log("service", foundService);
+  } catch (error) {
+    console.error('fetch failed:', error);
+  }
+};
+
+
+onMounted(() => {
+  fetchService();
+});
 
 
 const startLoading = () => {
@@ -280,6 +303,7 @@ interface SubItem {
   name: string;
   path: string;
   pro?: boolean;
+  roles?: number[]
 }
 
 interface MenuItem {
@@ -287,93 +311,140 @@ interface MenuItem {
   name: string;
   path?: string;
   subItems?: SubItem[];
+  roles?: number[]
 }
 
 interface MenuGroup {
   title: string;
   items: MenuItem[];
+
 }
 
-// === Menu Data ===
+
 const menuGroups: MenuGroup[] = [
-{
-  title: 'Menu',
-  items: [
   {
-    icon: GridIcon,
-    name: 'Dashboard',
-    path: '/',
-  },
-  {
-    icon: CalenderIcon,
-    name: 'Bookings',
-    path: '/calendar1',
-    subItems: [
-    { name: 'All Booking', path: '/all_booking' },
-    { name: 'Add Booking', path: '/add_booking' },
-    { name: 'Edit Booking', path: '/edit_booking' },
+    title: 'Menu',
+    items: [
+      {
+        icon: GridIcon,
+        name: t('Dashboard'),
+        path: '/',
+        roles: [1, 2,3],
+
+      },
+      {
+        icon: CalendarCheck2,
+        name: t('Bookings'),
+        // path: '/calendar1',
+        roles: [1, 2,3],
+        subItems: [
+          { name: t('AllBooking'), path: '/all_booking', roles: [1, 2,3] },
+          { name: t('AddBooking'), path: '/add_booking', roles: [1,2,3] },
+        ],
+      },
+      {
+        icon: RoomIcon,
+        name: t('Room'),
+        // path: '/profile',
+        roles: [1,2,3],
+        subItems: [
+          { name: t('AllRooms'), path: '/all_room', roles: [1,2,3] },
+          { name: t('RoomTypes'), path: '/type_room', roles: [1,2] },
+        ],
+      },
+      {
+        name: t('Calendar'),
+        icon: CalenderIcon,
+        path: '/calendar',
+        roles: [1, 2,3],
+      },
+      {
+        name: t('Reports'),
+        icon: ListIcon,
+        roles: [1,2],
+        subItems: [
+          { name: t('Stocks'), path: '/stock', roles: [1,2] },
+          { name: t('Expenses'), path: '/expense', roles: [1,2] },
+          { name: t('Booking'), path: '/booking', roles: [1,2] },
+        ],
+      },
+      {
+        name: t('Customers'),
+        icon: UserGroupIcon,
+        path: '/customers',
+        roles: [1, 2,3],
+      },
+      {
+        name: t('Payments'),
+        icon: PaymentIcon,
+        roles: [1,2,3],
+        subItems: [
+          // { name: t('PaymentMethods'), path: '/payment', roles: [1,2,3] },
+          { name: t('InvoiceList'), path: '/allInvoice', roles: [1,2,3] },
+          { name: t('InvoiceDetails'), path: '/invoice', roles: [1,2,3] },
+        ],
+      },
+      {
+        name: t('User'),
+        icon: UserCircleIcon,
+        path: '/user',
+        roles: [1,2],
+      },
+      {
+        name: t('Setting'),
+        icon: SettingsIcon,
+        path: '/setting',
+        roles: [1,2],
+      },
     ],
   },
-  {
-    icon: RoomIcon,
-    name: 'Room',
-    path: '/profile',
-    subItems: [
-    { name: 'All Rooms', path: '/all_room' },
-    { name: 'Room Types', path: '/type_room' },
-    ],
-  },
-  {
-    name: 'Reports',
-    icon: ListIcon,
-    subItems: [
-    { name: 'Stocks', path: '/stock' },
-    { name: 'Expenses', path: '/expense' },
-    { name: 'Booking', path: '/booking' },
-    ],
-  },
-  {
-    name: 'Customers',
-    icon: UserGroupIcon,
-    path: '/customers',
-  },
-  {
-    name: 'Payements',
-    icon: PaymentIcon,
-    subItems: [
-    { name: 'Payment Methods', path: '/blank' },
-    { name: 'Invoice List', path: '/calendar' },
-    { name: 'Invoice Details', path: '/alerts' },
-    ],
-  },
-  {
-    name: 'User',
-    icon: UserCircleIcon,
-    path: '/user',
-  },
-  {
-    name: 'Setting',
-    icon: SettingsIcon,
-    path: '/setting',
-  },
-  ],
-},
-// {
-//   title: 'Others',
-//   items: [
-//     {
-//       icon: PlugInIcon,
-//       name: 'Authentication',
-//       subItems: [
-//         { name: 'Signin', path: '/signin', pro: false },
-//         { name: 'Signup', path: '/signup', pro: false },
-//       ],
-//     },
-//   ],
-// },
-];
+]
+
+const currentUserRoleId = authStore.roleId
+const filteredMenu = computed(() => {
+  if (currentUserRoleId == null) return [];
+
+  return menuGroups
+    .map((group) => {
+      const filteredItems = group.items
+        .map((item) => {
+          const filteredSubItems = item.subItems?.filter((subItem) =>
+            subItem.roles?.includes(currentUserRoleId!)
+          );
+
+          const isItemAllowed =
+            item.roles?.includes(currentUserRoleId!) || (filteredSubItems?.length ?? 0) > 0;
+
+          if (!isItemAllowed) return null;
+
+          return {
+            ...item,
+            subItems: filteredSubItems,
+          };
+        })
+        .filter(Boolean);
+
+      if (filteredItems.length === 0) return null;
+
+      return {
+        ...group,
+        items: filteredItems,
+      };
+    })
+    .filter(Boolean);
+});
 
 
+
+
+onMounted(() => {
+  console.log('authStore.roleId au mount:', authStore.roleId);
+});
+
+console.log('5555',filteredMenu.value)
+
+
+ console.log('5555',filteredMenu.value)
 
 
 // Vérifie si une route est active

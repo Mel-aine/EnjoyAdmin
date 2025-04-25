@@ -1,49 +1,44 @@
 <template>
-  <div>
+  <div class="">
     <AdminLayout>
+      <div class="min-h-screen">
       <PageBreadcrumb :pageTitle="currentPageTitle" />
       <!-- <div ref="dropdownRef"> -->
-        <div class="flex justify-end pb-5">
-          <!-- Bouton qui ouvre/ferme le dropdown -->
-          <button
+        <div class="flex justify-end pb-5 ">
+          <DropdownMenu :menu-items="menuItems">
+          <template #icon>
+            <button
           class="border border-gray-300 bg-purple-400 rounded-lg relative"
-          @click="toggleDropdown"
           >
           <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-        </button>
-
-        <!-- Dropdown menu -->
-        <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
-          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-            <li>
-              <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">Add Room </button>
-            </li>
-            <li>
-              <button class="block px-4 py-2 hover:text-purple-600 dark:hover:text-white">Import Room</button>
-            </li>
-          </ul>
-        </div>
+            </button>
+          </template>
+          </DropdownMenu>
         </div>
       <!-- </div> -->
-    <div class="space-y-5 sm:space-y-6 h-screen">
+    <ComponentCard title="">
+    <div class="space-y-5 sm:space-y-6">
       <ag-grid-vue class="ag-theme-quartz" :rowData="flattenServiceProducts" :columnDefs="columnDefs" rowHeight="50"
       :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
       :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-      @selectionChanged="getSelectedRows"></ag-grid-vue>
+      ></ag-grid-vue>
     </div>
+  </ComponentCard>
+  </div>
+
     </AdminLayout>
-  <Modal v-if="modalOpen" @close="modalOpen = false">
+  <Modal v-if="modalOpen" @close="closeModal()">
     <template #body>
       <div
       class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
       >
       <!-- close btn -->
       <button
-      @click="modalOpen = false"
+      @click="closeModal()"
       class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
       >
       <svg
@@ -64,16 +59,16 @@
       </button>
   <div class="px-2 pr-14">
     <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-      Add Room
+      {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}
     </h4>
 
   </div>
-  <form @submit.prevent="saveFormData" class="flex flex-col">
+  <form @submit.prevent="handleSubmit" class="flex flex-col">
     <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
       <div class="space-y-8">
         <!-- Section principale -->
         <div>
-          <h2 class="text-xl font-semibold text-gray-800 mb-4">Room Information</h2>
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ $t('RoomInformation') }}</h2>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Input
               :lb="'No.'"
@@ -87,14 +82,14 @@
               v-model="formData.roomType"
             /> -->
             <Input
-              :lb="'Rent'"
+              :lb="$t('Rent')"
               :placeholder="'Ex: 1000 FCFA'"
               :id="'rent'"
               :forLabel="'rent'"
               v-model="formData.rent"
             />
             <Select
-              :lb="'Status'"
+              :lb="$t('Status')"
               :options="status"
               v-model="formData.status"
             />
@@ -104,7 +99,7 @@
 
         <!-- Options par défaut -->
         <div>
-          <h2 class="text-xl font-semibold text-gray-800 mb-4">Default Options</h2>
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ $t('DefaultOptions') }}</h2>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div v-for="option in defaultOptions" :key="option.id">
               <Select
@@ -122,14 +117,14 @@
             @click.prevent="show = !show"
             class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
-            <span v-if="!show">➕ Add other options</span>
-            <span v-else>➖ Hide options</span>
+            <span v-if="!show">➕ {{ $t('Addotheroptions') }}</span>
+            <span v-else>➖ {{ $t('Hideoptions') }}</span>
           </button>
         </div>
 
   <!--  Options supplémentaires -->
         <div v-if="show">
-          <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-4">Additional Options</h2>
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-4">{{ $t('AdditionalOptions') }}</h2>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div v-for="option in hideOptions" :key="option.id">
               <Select
@@ -147,12 +142,12 @@
     <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
     <!-- Bouton Cancel -->
     <button
-      @click="modalOpen = false"
+      @click="closeModal()"
       type="button"
       class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
       :disabled="isLoading"
     >
-      Cancel
+      {{ $t('Cancel') }}
     </button>
 
     <!-- Bouton Add Room avec Spinner intégré -->
@@ -161,10 +156,10 @@
       :disabled="isLoading"
       class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto"
     >
-      <span v-if="!isLoading">Add Room</span>
+      <span v-if="!isLoading"> {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
       <span v-else class="flex items-center gap-2">
         <Spinner class="w-4 h-4" />
-        Processing...
+        {{ $t('Processing') }}...
       </span>
     </button>
     </div>
@@ -178,43 +173,59 @@
 <script setup lang="ts">
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
+import ComponentCard from "@/components/common/ComponentCard.vue";
 import Modal from '@/components/profile/Modal.vue'
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
-import { ref,onMounted,computed, } from 'vue'
+import { ref,onMounted,computed,nextTick ,watch} from 'vue'
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,ICellRendererParams} from 'ag-grid-community';
-import { getOptions,createRoom,createRoomOptions,getServiceProductWithOptions,getTypeProduct} from "@/services/api";
+import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
+import { getOptions,createRoom,createRoomOptions,getServiceProductWithOptions,getTypeProduct,updateRoom,updateRoomOptions,deleteServiceProduct} from "@/services/api";
 import type { OptionType,ServiceProductType,ProductOptionType,RoomTypeData } from '@/types/option'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
+import { useAuthStore } from '@/composables/user';
+import { useI18n } from "vue-i18n";
+import DropdownMenu from '@/components/common/DropdownMenu.vue'
+
+
+const { t, locale } = useI18n({ useScope: "global" });
 const serviceStore = useServiceStore();
-
-
+const userStore = useAuthStore();
 const isLoading = ref(false);
-
 const toast = useToast()
-
-
-
 const modalOpen = ref(false)
 const options = ref<OptionType[]>([])
 const roomTypeData = ref<RoomTypeData[]>([])
-
-// const productOptions = ref<ProductOptionType[]>([])
+const isDropdownOpen = ref(false);
 const show = ref(false)
+const ServiceProduct = ref<ServiceProductType[]>([]);
+const currentPageTitle = computed(()=>t("RoomList"));
+const selectedRoom = ref<any>(null);
+const isEditMode = ref(false);
+const menuItems = computed(()=> [
+  { label: t('AddRoom'), onClick: () => OpenModal() },
+])
+const formData = ref({
+  name: '',
+  status: '',
+  description: '',
+  rent: '',
+  options: {} as Record<number, any>,
+})
+const status = ref([
+{value: 'Open', label: "Open"},
+{value: 'Inactive', label: "Inactive"},
+{value: 'Booked', label: "Booked"},
+])
 
-// interface ServiceProductResponse {
-//   data: ServiceProductType[]
-// }
 
-// const ServiceProduct: Ref<ServiceProductResponse> = ref({ data: [] })
-  const ServiceProduct = ref<ServiceProductType[]>([]);
-
-
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
 const fetchOptions = async () => {
   try {
     const response = await getOptions()
@@ -260,13 +271,6 @@ const hideOptions = computed(() =>
   options.value.filter((option: OptionType) => option.isDefault === false)
 )
 
-const formData = ref({
-  name: '',
-  status: '',
-  description: '',
-  rent: '',
-  options: {} as Record<number, any>,
-})
 
 
 
@@ -293,8 +297,9 @@ const saveFormData = async () => {
       product_type: 'HotelSuite',
       description: formData.value.description,
       status: formData.value.status,
-      price: formData.value.rent
-      // created_by et last_modified
+      price: formData.value.rent,
+      created_by : userStore.UserId ,
+      last_modified_by: userStore.UserId
     };
     console.log('roomId',  roomPayload);
 
@@ -309,7 +314,9 @@ const saveFormData = async () => {
           service_product_id: roomId,
           option_id: Number(id),
           option_type: optionMeta?.type || null,
-          value: value
+          value: value,
+          created_by : userStore.UserId ,
+          last_modified_by : userStore.UserId
         };
       }
     );
@@ -328,7 +335,7 @@ const saveFormData = async () => {
       options: {}
     }
 
-    toast.success('Room registered successfully!')
+    toast.success(t('toast.roomCreated'))
     console.log('roomPayload', roomPayload);
     console.log('optionsResponse', optionsResponse);
     console.log('optionsPayload', optionsPayload);
@@ -342,57 +349,14 @@ const saveFormData = async () => {
 
 
 
-
-// const fetchServiceProduct = async () => {
-//   try {
-//     // Récupération des données des produits et des options
-//     const response = await getServiceProduct();
-//     const response2 = await getProductOption();
-
-//     const serviceProducts = response.data.data;
-//     const productOptions = response2.data.data;
-
-//     console.log("Service Products:", serviceProducts);
-//     console.log("Product Options:", productOptions);
-//     const serviceProductWithOptions = serviceProducts.map((product:any) => {
-//       const associatedOptions = productOptions.filter((option:any) => option.serviceProductId == product.id);
-//       console.log("Service Product avec Options1:", associatedOptions)
-//       return {
-//         ...product,
-//         options: associatedOptions
-//       };
-//     });
-
-//     ServiceProduct.value = serviceProductWithOptions;
-
-//     console.log("Service Product avec Options:", productOptions);
-
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération des options:', error);
-//   }
-// };
-
 const fetchServiceProduct = async () => {
   try {
     const serviceId = serviceStore.serviceId
     const response = await getServiceProductWithOptions(serviceId);
     const serviceProducts = response.data;
 
-    // ServiceProduct.value = serviceProducts.map((option: any) => ({ ...option }));
-    // console.log('ServiceProduct.value',ServiceProduct.value)
-
-    // const serviceProductWithOptions = serviceProducts.map((product:any) => {
-    //   const associatedOptions = product.options.filter((option:any) => option.serviceProductId == product.id);
-    //   console.log("Service Product avec Options1:", associatedOptions)
-    //   return {
-    //     ...product,
-    //     options: associatedOptions
-    //   };
-    // });
-
           if (Array.isArray(serviceProducts)) {
         console.log('response.data est un tableau');
-        // Tu peux maintenant utiliser map() sur serviceProducts
         const serviceProductWithOptions = serviceProducts.map((product: any) => {
           const associatedOptions = product.options.filter((option: any) => option.serviceProductId == product.id);
           return {
@@ -403,10 +367,9 @@ const fetchServiceProduct = async () => {
         ServiceProduct.value = serviceProductWithOptions;
       } else {
         console.error("response.data n'est pas un tableau.");
-        // Ici, tu peux afficher la structure complète de response.data pour l'analyser
         console.log(response.data);
       }
-          // ServiceProduct.value = serviceProductWithOptions;
+
 
 
     console.log("Service Products avec options (depuis backend):", ServiceProduct.value);
@@ -414,10 +377,6 @@ const fetchServiceProduct = async () => {
     console.error('Erreur lors de la récupération des produits:', error);
   }
 };
-
-
-
-
 
 onMounted(() => {
   fetchServiceProduct()
@@ -441,24 +400,12 @@ const flattenServiceProducts = computed(() => {
   });
 });
 
-
-
-
-const currentPageTitle = ref("Room List");
-
-const status = ref([
-{value: 'Open', label: "Open"},
-{value: 'Inactive', label: "Inactive"},
-{value: 'Booked', label: "Booked"},
-])
 const autoSizeStrategy = {
   type: "fitGridWidth",
   defaultMinWidth: 140,
 }
 const columnDefs = ref<ColDef[]>([
-{ headerName: 'No.', field: 'productName' ,
-checkboxSelection: true,
-headerCheckboxSelection: true,
+{ headerName: t('No.'), field: 'productName' ,
 
 },
 // {
@@ -471,9 +418,9 @@ headerCheckboxSelection: true,
 
 // },
 
-{ headerName: 'Rent', field: 'price' },
+{ headerName: t('Rent'), field: 'price' },
 {
-  headerName: 'Status',
+  headerName: t('Status'),
   field: 'status',
 
   cellRenderer: (params:ICellRendererParams) => {
@@ -488,135 +435,279 @@ headerCheckboxSelection: true,
 },
 
 {
-  headerName: 'Accommodation Type',
+  headerName: t('AccommodationType'),
   field: 'option_1',
 
 },
-{ headerName: 'Bed Type', field: 'option_2' },
-{ headerName: 'View', field: 'option_3' },
-{ headerName: 'Balcony', field: 'option_4' },
-{ headerName: 'Terrace', field: 'option_5' },
-{ headerName: 'Air Conditioning', field: 'option_6' },
-{ headerName: 'Wi-fi', field: 'option_7' },
-{ headerName: 'Breakfast Included', field: 'option_8' },
-{ headerName: 'Private Bathroom', field: 'option_9'},
-{ headerName: 'Kitchen / Kitchenette', field: 'option_10' },
-{ headerName: 'Washing Machine', field: 'option_11' },
-{ headerName: 'Room Size (sqm)', field: 'option_12' },
-{ headerName: 'Number of Rooms', field: 'option_13' },
-{ headerName: 'Maximum Occupancy', field: 'option_14' },
-{ headerName: 'TV', field: 'option_15' },
-{ headerName: 'Mini Bar', field: 'option_16' },
-{ headerName: 'Safe Deposit Box', field: 'option_17' },
-{ headerName: 'Extra Bed', field: 'option_18' },
-{ headerName: 'Wheelchair Accessible', field: 'option_19' },
-{ headerName: 'Private Pool', field: 'option_20' },
-{ headerName: 'Jacuzzi / Spa', field: 'option_21' },
-{ headerName: 'Smoking Allowed', field: 'option_22' },
-{ headerName: 'Pets Allowed', field: 'option_23' },
-{ headerName: 'Housekeeping', field: 'option_24' },
-{ headerName: 'Parking', field: 'option_25' },
-{ headerName: 'Room Service', field: 'option_26' },
-{ headerName: 'Self Check-in', field: 'option_27' },
-{ headerName: 'House Rules', field: 'option_30' },
-{ headerName: 'Check-in Time', field: 'option_28' },
-{ headerName: 'Check-out Time', field: 'option_29' },
-
-{
-  headerName: 'Actions',
-  cellRenderer: () => `
-                <div class="mt-2 space-x-4">
-                    <button class=" action-btn" data-action="download">
-                        <svg class="h-6 w-6 text-gray-500"  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />  <line x1="16" y1="5" x2="19" y2="8" /></svg>
-                    </button>
-                    <button class=" action-btn" data-action="delete">
-                        <svg class="h-6 w-6 text-gray-500"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-
-                    </button>
-                </div>
-            `,
-},
+{ headerName: t('BedType'), field: 'option_2' },
+{ headerName: t('View'), field: 'option_3' },
+{ headerName: t('Balcony'), field: 'option_4' },
+{ headerName: t('Terrace'), field: 'option_5' },
+{ headerName: t('AirConditioning'), field: 'option_6' },
+{ headerName: t('Wi-fi'), field: 'option_7' },
+{ headerName: t('BreakfastIncluded'), field: 'option_8' },
+{ headerName: t('PrivateBathroom'), field: 'option_9'},
+{ headerName: t('Kitchen / Kitchenette'), field: 'option_10' },
+{ headerName: t('WashingMachine'), field: 'option_11' },
+{ headerName: t('RoomSize(sqm)'), field: 'option_12' },
+{ headerName: t('NumberofRooms'), field: 'option_13' },
+{ headerName: t('MaximumOccupancy'), field: 'option_14' },
+{ headerName: t('TV'), field: 'option_15' },
+{ headerName: t('MiniBar'), field: 'option_16' },
+{ headerName: t('SafeDepositBox'), field: 'option_17' },
+{ headerName: t('ExtraBed'), field: 'option_18' },
+{ headerName: t('WheelchairAccessible'), field: 'option_19' },
+{ headerName: t('PrivatePool'), field: 'option_20' },
+{ headerName: t('Jacuzzi/Spa'), field: 'option_21' },
+{ headerName: t('SmokingAllowed'), field: 'option_22' },
+{ headerName: t('PetsAllowed'), field: 'option_23' },
+{ headerName: t('Housekeeping'), field: 'option_24' },
+{ headerName: t('Parking'), field: 'option_25' },
+{ headerName: t('RoomService'), field: 'option_26' },
+{ headerName: t('SelfCheck-in'), field: 'option_27' },
+{ headerName: t('HouseRules'), field: 'option_30' },
+{ headerName: t('Check-inTime'), field: 'option_28' },
+{ headerName: t('Check-outTime'), field: 'option_29' },
+{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
 
 ]);
 
 
+watch(() => locale.value, () => {
+      columnDefs.value = [
+
+    { headerName: t('No.'), field: 'productName' ,
+
+    },
+
+    { headerName: t('Rent'), field: 'price' },
+    {
+      headerName: t('Status'),
+      field: 'status',
+
+      cellRenderer: (params:ICellRendererParams) => {
+        if (params.value === 'Open') {
+          return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Open</span>`;
+        } else if (params.value === 'Booked') {
+          return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Booked</span>`;
+        } else {
+          return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+        }
+      }
+      },
+
+      {
+        headerName: t('AccommodationType'),
+        field: 'option_1',
+
+      },
+      { headerName: t('BedType'), field: 'option_2' },
+      { headerName: t('View'), field: 'option_3' },
+      { headerName: t('Balcony'), field: 'option_4' },
+      { headerName: t('Terrace'), field: 'option_5' },
+      { headerName: t('AirConditioning'), field: 'option_6' },
+      { headerName: t('Wi-fi'), field: 'option_7' },
+      { headerName: t('BreakfastIncluded'), field: 'option_8' },
+      { headerName: t('PrivateBathroom'), field: 'option_9'},
+      { headerName: t('Kitchen / Kitchenette'), field: 'option_10' },
+      { headerName: t('WashingMachine'), field: 'option_11' },
+      { headerName: t('RoomSize(sqm)'), field: 'option_12' },
+      { headerName: t('NumberofRooms'), field: 'option_13' },
+      { headerName: t('MaximumOccupancy'), field: 'option_14' },
+      { headerName: t('TV'), field: 'option_15' },
+      { headerName: t('MiniBar'), field: 'option_16' },
+      { headerName: t('SafeDepositBox'), field: 'option_17' },
+      { headerName: t('ExtraBed'), field: 'option_18' },
+      { headerName: t('WheelchairAccessible'), field: 'option_19' },
+      { headerName: t('PrivatePool'), field: 'option_20' },
+      { headerName: t('Jacuzzi/Spa'), field: 'option_21' },
+      { headerName: t('SmokingAllowed'), field: 'option_22' },
+      { headerName: t('PetsAllowed'), field: 'option_23' },
+      { headerName: t('Housekeeping'), field: 'option_24' },
+      { headerName: t('Parking'), field: 'option_25' },
+      { headerName: t('RoomService'), field: 'option_26' },
+      { headerName: t('SelfCheck-in'), field: 'option_27' },
+      { headerName: t('HouseRules'), field: 'option_30' },
+      { headerName: t('Check-inTime'), field: 'option_28' },
+      { headerName: t('Check-outTime'), field: 'option_29' },
+      { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) }
+
+
+      ];
+    }, { immediate: true });
+
+
+function getActionButtons(roomId: number): string {
+  return `
+    <div class="mt-2 space-x-4">
+      <button class="action-btn" data-action="edit" data-id="${roomId}">
+        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>
+      </button>
+      <button class="action-btn" data-action="delete" data-id="${roomId}">
+        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
 
 const onGridReady = (event: GridReadyEvent) => {
   console.log('Grid ready:', event);
 };
+const onCellClick = (event: any) => {
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
 
-const onCellClick = (event: CellClickedEvent) => {
-  console.log('Cell clicked:', event.data);
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const roomId = button.dataset.id;
+
+  console.log('Action:', action, 'Room ID:', roomId);
+
+  if (action === 'edit') {
+    const roomToEdit = flattenServiceProducts.value.find((r: any) => r.id === Number(roomId));
+
+    if (roomToEdit) {
+      selectedRoom.value = roomToEdit;
+      formData.value.name = roomToEdit.productName.toString();
+      formData.value.rent = roomToEdit.price.toString();
+      formData.value.status = roomToEdit.status.toString();
+      const optionsList: Record<number, string> = {};
+
+        if (Array.isArray(roomToEdit.options)) {
+          roomToEdit.options.forEach((opt: any) => {
+            optionsList[opt.optionId] = opt.value;
+          });
+        }
+
+        formData.value.options = optionsList;
+      console.log("Editing reservation:",  formData.value.options);
+
+      isEditMode.value = true;
+
+      nextTick(() => {
+        modalOpen.value = true;
+      });
+    }
+  } else if (action === 'delete') {
+    handleDeleteRoom(Number(roomId));
+  }
 };
 
-const getSelectedRows = (event: SelectionChangedEvent) => {
-  const selected = event.api.getSelectedRows();
-  console.log('Selected row:', selected);
-};
-// const roomData = [
-// {
-//   "room no": "101",
-//   "room type": "Single",
-//   "ac": "AC",
-//   "meal": "Breakfast ",
-//   "bed capacity": 1,
-//   "rent": "10000 FCFA",
-//   "status" : "Booked"
-// },
-// {
-//   "room no": "102",
-//   "room type": "Double",
-//   "ac": "None",
-//   "meal": "Two",
-//   "bed capacity": 2,
-//   "rent": "15000 FCFA",
-//   "status" : "Inactive"
-// },
-// {
-//   "room no": "103",
-//   "room type": "Suit",
-//   "ac": "AC",
-//   "meal": "All",
-//   "bed capacity": 3,
-//   "rent": "25000 FCFA",
-//   "status" : "Open"
-// },
-// {
-//   "room no": "104",
-//   "room type": "Single",
-//   "ac": "None",
-//   "meal": "Breakfast",
-//   "bed capacity": 1,
-//   "rent": "80000 FCFA",
-//   "status" : "Booked"
-// },
-// {
-//   "room no": "105",
-//   "room type": "Delux",
-//   "ac": "AC",
-//   "meal": "Lunch",
-//   "bed capacity": 4,
-//   "rent": "20000 FCFA",
-//   "status" : "Inactive"
-// },
-// {
-//   "room no": "106",
-//   "room type": "Double",
-//   "ac": "None",
-//   "meal": "All",
-//   "bed capacity": 2,
-//   "rent": "12000 FCFA",
-//   "status" : "Open"
-// },
-// ];
 
-const isDropdownOpen = ref(false);
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
+const handleDeleteRoom = async (roomId: number) => {
+  try {
+    console.log(`Suppression de la room avec ID: ${roomId}`);
+    deleteServiceProduct(roomId)
+    toast.success(t('toast.roomDelete'))
+    ServiceProduct.value = ServiceProduct.value.filter((r: any) => r.id !== roomId);
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error);
+  }
 };
+
+
+
+const updateFormData = async () => {
+  isLoading.value = true;
+  try {
+    const roomPayload = {
+      service_id: serviceStore.serviceId,
+      product_name: formData.value.name,
+      product_type: 'HotelSuite',
+      description: formData.value.description,
+      status: formData.value.status,
+      price: formData.value.rent
+    };
+
+    const roomId = selectedRoom.value?.id;
+    if (!roomId) {
+      throw new Error("Aucune chambre sélectionnée pour la mise à jour.");
+    }
+
+    console.log('Mise à jour de la chambre ID:', roomId);
+    await updateRoom(roomId, roomPayload);
+
+    const optionsPayload = Object.entries(formData.value.options).map(
+      ([id, value]: [string, any]) => {
+        const optionMeta = defaultOptionsMap.value[Number(id)];
+        return {
+          service_product_id: roomId,
+          option_id: Number(id),
+          option_type: optionMeta?.type || null,
+          value: value
+        };
+      }
+    );
+
+    console.log('Payload des options à mettre à jour:', optionsPayload);
+    await updateRoomOptions(roomId, optionsPayload);
+
+    toast.success(t('toast.updateRoom'));
+
+    // Réinitialisation du formulaire
+    formData.value = {
+      name: '',
+      status: '',
+      description: '',
+      rent: '',
+      options: {}
+    };
+    selectedRoom.value = null;
+    isEditMode.value = false;
+    modalOpen.value = false;
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+    toast.error(t('toast.Error'));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
+
+const handleSubmit = async () => {
+  isLoading.value = true
+  try {
+    if (isEditMode.value) {
+      await updateFormData()
+    } else {
+      await saveFormData()
+    }
+    // router.push('/reservations') // Redirige une fois terminé
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const closeModal = () => {
+  formData.value = {
+      name: '',
+      status: '',
+      description: '',
+      rent: '',
+      options: {}
+    };
+  isEditMode.value = false;
+  modalOpen.value = false;
+
+};
+
+const OpenModal = () =>{
+  modalOpen.value=true;
+  isEditMode.value = false;
+}
+
 </script>
 
 <style scoped>

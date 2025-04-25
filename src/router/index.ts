@@ -31,12 +31,10 @@ const router = createRouter({
       },
     },
     {
-      path: '/edit_booking',
-      name: 'Edit Booking',
-      component: () => import('../views/Bookings/EditBooking.vue'),
-      meta: {
-        title: 'Edit Booking',
-      },
+      path: '/add_booking/:id',
+      name: 'EditBooking',
+      component: () => import('../views/Bookings/AddBooking.vue'),
+      props: true
     },
     {
       path: '/all_room',
@@ -73,6 +71,27 @@ const router = createRouter({
       path: '/booking',
       name: 'Booking',
       component: () => import('../views/Reports/BookingTable.vue'),
+    },
+    {
+      path: '/payment',
+      name: 'payment',
+      component: () => import('../views/Payment/PaymentMethod.vue'),
+    },
+    {
+      path: '/allInvoice',
+      name: 'allInvoice',
+      component: () => import('../views/Payment/InvoiceList.vue'),
+    },
+    {
+      path: '/invoice',
+      name: 'invoice',
+      component: () => import('../views/Payment/InvoiceDetail.vue'),
+    },
+    {
+      path: '/invoice/:id',
+      name: 'ViewInvoice',
+      component: () => import('../views/Payment/InvoiceDetail.vue'),
+      props: true
     },
     {
       path: '/customers',
@@ -125,73 +144,6 @@ const router = createRouter({
       path: '/bar-chart',
       name: 'Bar Chart',
       component: () => import('../views/Chart/BarChart/BarChart.vue'),
-    },
-    {
-      path: '/alerts',
-      name: 'Alerts',
-      component: () => import('../views/UiElements/Alerts.vue'),
-      meta: {
-        title: 'Alerts',
-      },
-    },
-    {
-      path: '/avatars',
-      name: 'Avatars',
-      component: () => import('../views/UiElements/Avatars.vue'),
-      meta: {
-        title: 'Avatars',
-      },
-    },
-    {
-      path: '/badge',
-      name: 'Badge',
-      component: () => import('../views/UiElements/Badges.vue'),
-      meta: {
-        title: 'Badge',
-      },
-    },
-
-    {
-      path: '/buttons',
-      name: 'Buttons',
-      component: () => import('../views/UiElements/Buttons.vue'),
-      meta: {
-        title: 'Buttons',
-      },
-    },
-
-    {
-      path: '/images',
-      name: 'Images',
-      component: () => import('../views/UiElements/Images.vue'),
-      meta: {
-        title: 'Images',
-      },
-    },
-    {
-      path: '/videos',
-      name: 'Videos',
-      component: () => import('../views/UiElements/Videos.vue'),
-      meta: {
-        title: 'Videos',
-      },
-    },
-    {
-      path: '/blank',
-      name: 'Blank',
-      component: () => import('../views/Pages/BlankPage.vue'),
-      meta: {
-        title: 'Blank',
-      },
-    },
-
-    {
-      path: '/error-404',
-      name: '404 Error',
-      component: () => import('../views/Errors/FourZeroFour.vue'),
-      meta: {
-        title: '404 Error',
-      },
     },
 
     {

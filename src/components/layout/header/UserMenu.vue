@@ -62,6 +62,7 @@ import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIc
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted ,computed} from 'vue'
 import { useAuthStore } from '@/composables/user'
+import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 const dropdownOpen = ref(false)
@@ -77,6 +78,7 @@ const menuItems = [
 
 
 const authStore = useAuthStore()
+const serviceStore = useServiceStore()
 const router = useRouter()
 
 const fullName = computed(() => {
@@ -92,6 +94,9 @@ const Email = computed(() => {
 
 const signOut = () => {
   authStore.logout()
+  serviceStore.clearServiceId();
+  authStore.clearsetRoleId();
+  authStore.clearsetUserId()
   closeDropdown()
   router.push('/signin')
 }

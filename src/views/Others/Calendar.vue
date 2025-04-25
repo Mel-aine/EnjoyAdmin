@@ -5,11 +5,11 @@
       class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
     >
       <div class="custom-calendar">
-        <FullCalendar ref="calendarRef" class="min-h-screen" :options="calendarOptions" />
+        <FullCalendar ref="calendarRef" class="min-h-screen" :options="calendarOptions" :eventDidMount="handleTooltip" />
       </div>
 
       <!-- Modal -->
-      <Modal v-if="isOpen" @close="closeModal = false">
+      <Modal v-if="isOpen" @close="closeModal()">
         <template #body>
           <div
             class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
@@ -218,26 +218,35 @@
   </AdminLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { getReservation,getUser,getServiceProduct,deleteReservation} from "@/services/api";
+import { useServiceStore } from '@/composables/serviceStore';
+import type {ReservationType,userDataType,ServiceProductType} from '@/types/option'
 
 const currentPageTitle = ref('Calendar')
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted,computed } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Modal from '@/components/profile/Modal.vue'
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import { useI18n } from "vue-i18n";
+
 
 const calendarRef = ref(null)
 const isOpen = ref(false)
-const selectedEvent = ref(null)
+const selectedEvent = ref<any>(null)
 const eventTitle = ref('')
 const eventStartDate = ref('')
 const eventEndDate = ref('')
 const eventLevel = ref('')
-const events = ref([])
+// const events = ref<any[]>([])
+  const { t } = useI18n();
+const serviceStore = useServiceStore();
 
 const calendarsEvents = reactive({
   Danger: 'danger',
@@ -246,29 +255,120 @@ const calendarsEvents = reactive({
   Warning: 'warning',
 })
 
-onMounted(() => {
-  events.value = [
-    {
-      id: '1',
-      title: 'Event Conf.',
-      start: new Date().toISOString().split('T')[0],
-      extendedProps: { calendar: 'Danger' },
-    },
-    {
-      id: '2',
-      title: 'Meeting',
-      start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-      extendedProps: { calendar: 'Success' },
-    },
-    {
-      id: '3',
-      title: 'Workshop',
-      start: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-      end: new Date(Date.now() + 259200000).toISOString().split('T')[0],
-      extendedProps: { calendar: 'Primary' },
-    },
-  ]
-})
+const users = ref<userDataType[]>([])
+const selectedReservation = ref<any>(null);
+
+
+
+const fetchUsers = async () => {
+  const response = await getUser();
+  users.value = response.data.data;
+  console.log('userrr',users.value)
+}
+
+
+const serviceProducts = ref<ServiceProductType[]>([])
+const fetchServiceProduct = async () => {
+  try {
+    // const serviceId = serviceStore.serviceId
+    const serviceId = 4
+    const response = await getServiceProduct(serviceId);
+   serviceProducts.value = response.data;
+     console.log("hhh", serviceProducts.value)
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération des produits:', error);
+  }
+};
+
+const getCalendarColorByStatus = (status: string) => {
+  switch (status) {
+    case 'confirmed':
+      return 'Success';
+    case 'pending':
+      return 'Warning';
+    case 'cancelled':
+      return 'Danger';
+    default:
+      return 'Primary';
+  }
+};
+
+
+const reservations = ref<ReservationType[]>([])
+
+const calendarEvents = ref<any[]>([])
+
+const fetchReservation = async () => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getReservation(serviceId);
+
+    // Store raw reservations
+    reservations.value = response.data;
+
+    // Build calendar events
+    calendarEvents.value = response.data.map((res: any) => {
+      const user = users.value.find((u: any) => u.id === res.userId);
+      return {
+        id: res.id.toString(),
+        title: `${user ? user.firstName + ' ' + user.lastName : 'Inconnu'}- ${user?.email || ''}`,
+        start: res.arrivedDate,
+        end: res.departDate,
+        allDay: true,
+        extendedProps: {
+        calendar: getCalendarColorByStatus(res.status),
+        title: `${user?.firstName || 'Inconnu'} - ${user?.email || ''}`,
+        description: res.comment || 'No comment',
+        email :`${user?.email || ''}`,
+        room : res.reservationProduct,
+        reservationType:res.reservationType,
+
+
+          ...res,
+        },
+      }
+
+    });
+    console.log("calendar.value",calendarEvents.value)
+  } catch (error) {
+    console.error('fetch failed:', error);
+  }
+};
+
+const events = computed(() => calendarEvents.value)
+
+
+onMounted(async () => {
+  await fetchUsers();
+  await fetchServiceProduct();
+  await fetchReservation();
+});
+
+
+// onMounted(() => {
+//   // events.value = [
+//   //   {
+//   //     id: '1',
+//   //     title: 'Event Conf.',
+//   //     start: new Date().toISOString().split('T')[0],
+//   //     extendedProps: { calendar: 'Danger' },
+//   //   },
+//   //   {
+//   //     id: '2',
+//   //     title: 'Meeting',
+//   //     start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+//   //     extendedProps: { calendar: 'Success' },
+//   //   },
+//   //   {
+//   //     id: '3',
+//   //     title: 'Workshop',
+//   //     start: new Date(Date.now() + 172800000).toISOString().split('T')[0],
+//   //     end: new Date(Date.now() + 259200000).toISOString().split('T')[0],
+//   //     extendedProps: { calendar: 'Primary' },
+//   //   },
+//   // ]
+// })
 
 const openModal = () => {
   isOpen.value = true
@@ -287,14 +387,14 @@ const resetModalFields = () => {
   selectedEvent.value = null
 }
 
-const handleDateSelect = (selectInfo) => {
+const handleDateSelect = (selectInfo:any) => {
   resetModalFields()
   eventStartDate.value = selectInfo.startStr
   eventEndDate.value = selectInfo.endStr || selectInfo.startStr
   openModal()
 }
 
-const handleEventClick = (clickInfo) => {
+const handleEventClick = (clickInfo:any) => {
   const event = clickInfo.event
   selectedEvent.value = event
   eventTitle.value = event.title
@@ -307,7 +407,7 @@ const handleEventClick = (clickInfo) => {
 const handleAddOrUpdateEvent = () => {
   if (selectedEvent.value) {
     // Update existing event
-    events.value = events.value.map((event) =>
+    calendarEvents.value = calendarEvents.value.map((event:any) =>
       event.id === selectedEvent.value.id
         ? {
             ...event,
@@ -334,23 +434,38 @@ const handleAddOrUpdateEvent = () => {
 }
 const handleDeleteEvent = () => {
   if (selectedEvent.value) {
-    events.value = events.value.filter((event) => event.id !== selectedEvent.value.id)
+    calendarEvents.value = calendarEvents.value.filter((event:any) => event.id !== selectedEvent.value.id)
     closeModal()
   }
 }
 
-const renderEventContent = (eventInfo) => {
-  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`
+const renderEventContent = (eventInfo: any) => {
+  const calendarType = eventInfo.event.extendedProps.calendar?.toLowerCase() || 'default'
+  const title = eventInfo.event.title || 'Événement'
+
+  const bgColorMap: Record<string, string> = {
+    success: 'bg-green-500 text-white',
+    danger: 'bg-red-500 text-white',
+    warning: 'bg-orange-200 text-black',
+    primary: 'bg-blue-500 text-white',
+    default: 'bg-gray-500 text-white'
+  }
+
+  const colorClass = bgColorMap[calendarType] || bgColorMap.default
+
   return {
     html: `
-      <div class="event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm">
-        <div class="fc-daygrid-event-dot"></div>
-        <div class="fc-event-time">${eventInfo.timeText}</div>
-        <div class="fc-event-title">${eventInfo.event.title}</div>
+      <div class="text-sm font-medium px-2 py-1 lg:w-33 w-15 text-center rounded-md whitespace-normal leading-tight overflow-hidden text-ellipsis ${colorClass}">
+        ${title}
       </div>
-    `,
+    `
   }
 }
+
+
+
+
+
 
 const calendarOptions = reactive({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -371,5 +486,51 @@ const calendarOptions = reactive({
       click: openModal,
     },
   },
+height: "auto",
+  dayMaxEventRows: true,
+  views: {
+    dayGridMonth: {
+      dayMaxEventRows: 3,
+    }
+  },
+  eventDidMount: (info: any) => {
+    // Tooltip responsive
+    tippy(info.el, {
+      content: `
+       <div class="tooltip-content text-sm leading-relaxed text-white">
+        <div class="mb-1 font-semibold text-base text-purple-600">${info.event.title}</div>
+
+        <div><strong>📧 ${t('tooltip.email')}  :</strong> ${info.event.extendedProps.email}</div>
+        <div><strong>🚪 ${t('tooltip.room')}:</strong> ${info.event.extendedProps.room}</div>
+        <div><strong>👤 ${t('tooltip.reservationType')} :</strong> ${info.event.extendedProps.reservationType}</div>
+        <div><strong>🛬 ${t('tooltip.arrival')} :</strong> ${info.event.start?.toISOString().split('T')[0] || ''}</div>
+        <div><strong>🛫 ${t('tooltip.departure')} :</strong> ${info.event.end?.toISOString().split('T')[0] || ''}</div>
+
+        ${info.event.extendedProps.comment
+          ? `<div><strong>📝 ${t('tooltip.comment')} :</strong> ${info.event.extendedProps.comment}</div>`
+          : ''}
+      </div>
+
+      `,
+      allowHTML: true,
+      placement: 'top',
+      theme: 'light-border',
+      arrow: true,
+    })
+  },
 })
+
+const handleTooltip = (info: any) => {
+  const comment = info.event.extendedProps.comment || 'no comment';
+  tippy(info.el, {
+    content: comment,
+    placement: 'top',
+    theme: 'light-border',
+    arrow: true,
+    delay: [100, 0],
+  });
+};
+
+
 </script>
+

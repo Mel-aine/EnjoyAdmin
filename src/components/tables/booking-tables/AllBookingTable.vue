@@ -1,27 +1,43 @@
 <template>
   <div>
-    <ag-grid-vue class="ag-theme-quartz" :rowData="reservations" :columnDefs="columnDefs" :rowHeight="50"
-    :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
-    :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-    @selectionChanged="getSelectedRows"></ag-grid-vue>
+  <ag-grid-vue
+      class="ag-theme-quartz"
+      :rowData="reservations"
+      :columnDefs="columnDefs"
+      :rowHeight="50"
+      :rowSelection="'single'"
+      :domLayout="'autoHeight'"
+      :autoSizeStrategy="autoSizeStrategy"
+      :pagination="true"
+      @cellClicked="onCellClick"
+      @gridReady="onGridReady"
+    ></ag-grid-vue>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted } from 'vue'
+import { ref,onMounted,watch } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent, SelectionChangedEvent,ICellRendererParams} from 'ag-grid-community';
-import { getReservation,getUser,getServiceProduct} from "@/services/api";
+import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
+import { getReservation,getUser,getServiceProduct,deleteReservation} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import type {ReservationType,userDataType,ServiceProductType} from '@/types/option'
+import { useRouter } from 'vue-router'
+import { useI18n } from "vue-i18n";
+import { useToast } from 'vue-toastification'
 
+
+const router = useRouter()
+const { t, locale } = useI18n({ useScope: "global" });
 const serviceStore = useServiceStore();
-
+const toast = useToast()
 
 const users = ref<userDataType[]>([])
+const selectedReservation = ref<any>(null);
+
 
 
 const fetchUsers = async () => {
@@ -61,13 +77,13 @@ const fetchReservation = async () => {
 
       return {
         ...res,
-        ...user,
+        email : user? `${user.email}`: ' ',
         userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-        // productName: product ? product.productName : 'Inconnu'
+
       };
     });
 
-    console.log(".....", reservations.value);
+    console.log(".....reservation", reservations.value);
   } catch (error) {
     console.error('fetch failed:', error);
   }
@@ -85,35 +101,26 @@ onMounted(async () => {
 
 
 const columnDefs = ref<ColDef[]>([
-{ headerName: 'ID', field: 'id' ,
-checkboxSelection: true,
-headerCheckboxSelection: true,
+{ headerName: t('ID'), field: 'id' ,
 },
 {
-  headerName: 'Name',
+  headerName: t('Name'),
   field: 'userFullName',
 },
- { headerName: 'Email', field: 'email' },
-{ headerName: 'Check In', field: 'arrivedDate' },
-{ headerName: 'Check Out', field: 'departDate' },
+ { headerName: t('Email'), field: 'email' },
+{ headerName: t('CheckIn'), field: 'arrivedDate' },
+{ headerName: t('CheckOut'), field: 'departDate' },
 {
-  headerName: 'Status', field: 'status',
-  cellRenderer: (params:ICellRendererParams) => {
-    if (params.value === 'inactive') {
-      return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Confirmed</span>`;
-    } else if (params.value === 'active') {
-      return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Pending</span>`;
-    } else {
-      return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Cancel</span>`;
-    }
-  }
-},
-{ headerName: 'Reservation Type', field: 'reservationType',
+  headerName: t('Status'), field: 'status',
+  cellRenderer: (params: ICellRendererParams) => getStatusBadge(params.value)
 
 },
-{ headerName: 'Room', field: 'reservationProduct'},
+{ headerName: t('ReservationType'), field: 'reservationType',
+
+},
+{ headerName: t('Room'), field: 'reservationProduct'},
 {
-  headerName: 'Payment', field: 'payment',
+  headerName: t('Payment'), field: 'payment',
   cellRenderer: (params:ICellRendererParams) => {
     if (params.value === 'paid') {
       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Paid</span>`;
@@ -122,40 +129,62 @@ headerCheckboxSelection: true,
       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">pending</span>`;
     }
   }
-  // cellRenderer: (params: ICellRendererParams) => {
-  // return `
-  //   <div class="mt-1">
-  //     <button class="rounded-xl px-2 bg-emerald-400 action-btn" data-action="open-payment" data-id="${params.data.id}">
-  //       Paid
-  //     </button>
-  //   </div>
-  // `;
-//}
 
 },
-{
-  headerName: 'Actions',
-  cellRenderer: () => `
-                <div class="mt-2 space-x-4">
-                    <button class=" action-btn" data-action="download">
-                        <svg class="h-6 w-6 text-gray-500"  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />  <line x1="16" y1="5" x2="19" y2="8" /></svg>
-                    </button>
-                    <button class=" action-btn" data-action="delete">
-                        <svg class="h-6 w-6 text-gray-500"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
 
-                    </button>
-                </div>
-            `,
-},
-
-
+{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
 
 
 
 ]);
 
+watch(() => locale.value, () => {
+      columnDefs.value = [
+      { headerName: t('ID'), field: 'id' ,},
+      {
+        headerName: t('Name'),
+        field: 'userFullName',
+      },
+      { headerName: t('Email'), field: 'email' },
+      { headerName: t('CheckIn'), field: 'arrivedDate' },
+      { headerName: t('CheckOut'), field: 'departDate' },
+      {
+        headerName: t('Status'), field: 'status',
+        cellRenderer: (params: ICellRendererParams) => getStatusBadge(params.value)
+
+      },
+      { headerName: t('ReservationType'), field: 'reservationType',
+
+      },
+      { headerName: t('Room'), field: 'reservationProduct'},
+      {
+        headerName: t('Payment'), field: 'payment',
+        cellRenderer: (params:ICellRendererParams) => {
+          if (params.value === 'paid') {
+            return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Paid</span>`;
+          }
+          else {
+            return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">pending</span>`;
+          }
+        }
+
+      },
+
+      { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
+      ];
+    }, { immediate: true });
+
+
+function getStatusBadge(value: string): string {
+  const badgeMap: Record<string, string> = {
+    confirmed: 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-500',
+    pending: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
+    cancelled: 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500',
+  };
+
+  const badgeClass = badgeMap[value] || 'bg-gray-200 text-gray-700 dark:bg-gray-700/15 dark:text-gray-400';
+  return `<span class="${badgeClass} px-2 rounded-full capitalize">${value}</span>`;
+}
 
 
 const onGridReady = (event: GridReadyEvent) => {
@@ -166,26 +195,70 @@ const onGridReady = (event: GridReadyEvent) => {
 //   console.log('Cell clicked:', event.data);
 // };
 
-const isPaymentModalOpen = ref(false);
-const selectedReservation = ref<any>(null);
+function getActionButtons(reservationId: number): string {
+  return `
+    <div class="mt-2 space-x-4">
+      <button class="action-btn" data-action="edit" data-id="${reservationId}">
+        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>
+      </button>
+      <button class="action-btn" data-action="delete" data-id="${reservationId}">
+        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
 
 
 const onCellClick = (event: any) => {
-  const action = event.event?.target?.dataset?.action;
-  const reservationId = event.event?.target?.dataset?.id;
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
 
-  if (action === 'open-payment') {
-    const reservation = reservations.value.find((r : any)=> r.id === Number(reservationId));
-    selectedReservation.value = reservation;
-    isPaymentModalOpen.value = true;
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const reservationId = button.dataset.id;
+
+  console.log('Action:', action, 'Reservation ID:', reservationId);
+
+  if (action === 'edit') {
+    selectedReservation.value = reservations.value.find((r: any) => r.id === Number(reservationId));
+    router.push({ name: 'EditBooking', params: { id: reservationId } })
+    console.log("Editing reservation:", selectedReservation.value);
+  } else if (action === 'delete') {
+    handleDeleteReservation(Number(reservationId));
   }
 };
 
 
-const getSelectedRows = (event: SelectionChangedEvent) => {
-  const selected = event.api.getSelectedRows();
-  console.log('Selected row:', selected);
+
+const handleDeleteReservation = async (reservationId: number) => {
+  try {
+
+    deleteReservation(reservationId)
+    toast.success(t('toast.reservationDelete'))
+    console.log(`Suppression de la réservation avec ID: ${reservationId}`);
+    reservations.value = reservations.value.filter((r:any )=> r.id !== reservationId);
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error);
+  }
 };
+
+
+
+
+// const getSelectedRows = (event: SelectionChangedEvent) => {
+//   const selected = event.api.getSelectedRows();
+//   console.log('Selected row:', selected);
+// };
 const autoSizeStrategy = {
   type: "fitGridWidth",
   defaultMinWidth: 100,

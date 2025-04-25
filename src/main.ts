@@ -9,6 +9,7 @@ import Toast from 'vue-toastification'
 import type { PluginOptions } from 'vue-toastification'
 import  {  POSITION } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -22,7 +23,7 @@ import messages from '@/lang/index';
 
 const i18n = createI18n({
     legacy: false,
-    locale: 'fr', // set locale
+    locale: 'en', // set locale
     fallbackLocale: 'en', // set fallback locale
     messages,
 })
@@ -34,6 +35,7 @@ const options: PluginOptions = {
 
 const app = createApp(App)
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(i18n)

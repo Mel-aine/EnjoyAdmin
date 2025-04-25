@@ -5,43 +5,59 @@
     <div class="space-y-5 sm:space-y-6 h-screen">
       <!-- <ComponentCard title="All Booking"> -->
         <div class="flex justify-end ">
-          <!-- Bouton qui ouvre/ferme le dropdown -->
-          <button
+          <DropdownMenu :menu-items="menuItems">
+          <template #icon>
+            <button
           class="border border-gray-300 bg-purple-400 rounded-lg relative"
-          @click="toggleDropdown"
           >
           <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-        </button>
+            </button>
+          </template>
+          </DropdownMenu>
+              <!-- Bouton qui ouvre/ferme le dropdown -->
+              <!-- <button
+              class="border border-gray-300 bg-purple-400 rounded-lg relative"
+              @click="toggleDropdown"
+              >
+              <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z"/>
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button> -->
 
-        <!-- Dropdown menu -->
-        <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
+            <!-- Dropdown menu -->
+            <!-- <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
           <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
             <li>
-              <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">Add User </button>
+              <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">{{ $t('AddUser') }} </button>
             </li>
           </ul>
+        </div> -->
         </div>
-        </div>
-    <ag-grid-vue class="ag-theme-quartz" :rowData="users" :columnDefs="columnDefs" :rowHeight="50"
-    :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
-    :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-    @selectionChanged="getSelectedRows"></ag-grid-vue>
 
+
+        <ComponentCard title="">
+            <ag-grid-vue class="ag-theme-quartz" :rowData="users" :columnDefs="columnDefs" :rowHeight="50"
+            :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
+            :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
+           ></ag-grid-vue>
+        </ComponentCard>
   </div>
 </AdminLayout>
 
-<Modal v-if="modalOpen" @close="modalOpen = false">
+<Modal v-if="modalOpen" @close="closeModal()">
     <template #body>
       <div
       class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
       >
       <!-- close btn -->
       <button
-      @click="modalOpen = false"
+      @click="OpenModal()"
       class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
       >
       <svg
@@ -62,11 +78,11 @@
       </button>
   <div class="px-2 pr-14">
     <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-      New User
+     {{ isEditMode ? $t('EditUser') : $t('NewUser') }}
     </h4>
 
   </div>
-  <form @submit.prevent="saveUser" class="flex flex-col">
+  <form @submit.prevent="handleSubmit" class="flex flex-col">
     <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
       <div class="space-y-8">
         <!-- Section principale -->
@@ -74,20 +90,20 @@
 
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
             <Input
-              :lb="'First Name'"
+              :lb="$t('FirstName')"
               :id="'name'"
               :forLabel="'name'"
               v-model="form.firstName"
             />
 
             <Input
-              :lb="'Last Name'"
+              :lb="$t('LastName')"
               :id="'last'"
               :forLabel="'last'"
                v-model="form.lastName"
             />
             <Input
-              :lb="'Phone'"
+              :lb="$t('Phone')"
               :id="'phone'"
               :forLabel="'phone'"
               :inputType="'phone'"
@@ -96,7 +112,7 @@
 
               <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Email
+                  {{ $t('Email') }}
                 </label>
                 <div class="relative">
                   <span
@@ -126,13 +142,13 @@
                 </div>
               </div>
               <Input
-              :lb="'Password'"
+              :lb="$t('Password')"
               :id="'word'"
               :forLabel="'word'"
               v-model="form.password"
             />
             <Select
-              :lb="'Role'"
+              :lb="$t('Role')"
               :options="roles"
               v-model="form.role"
             />
@@ -149,12 +165,12 @@
     <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
     <!-- Bouton Cancel -->
     <button
-      @click="modalOpen = false"
+      @click="closeModal()"
       type="button"
       class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
       :disabled="isLoading"
     >
-      Cancel
+      {{ $t('Cancel') }}
     </button>
 
     <!-- Bouton Add Room avec Spinner intégré -->
@@ -163,10 +179,10 @@
       :disabled="isLoading"
       class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto"
     >
-      <span v-if="!isLoading">Save</span>
+      <span v-if="!isLoading"> {{ isEditMode ? $t('EditUser') : $t('Save') }}</span>
       <span v-else class="flex items-center gap-2">
         <Spinner class="w-4 h-4" />
-        Processing...
+        {{ $t('Processing') }}...
       </span>
     </button>
     </div>
@@ -178,42 +194,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref , watch,computed} from 'vue'
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent} from 'ag-grid-community';
+import type { ColDef, GridReadyEvent} from 'ag-grid-community';
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
+import ComponentCard from "@/components/common/ComponentCard.vue";
 import Modal from '@/components/profile/Modal.vue'
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue';
-import { createUser,getUser} from "@/services/api";
+import { useServiceStore } from '@/composables/serviceStore'
+import { createUser,getUser, deleteUser,updateUser} from "@/services/api";
+import { useI18n } from "vue-i18n";
+import DropdownMenu from '@/components/common/DropdownMenu.vue'
+import { useAuthStore } from '@/composables/user';
+
+
+
+
+const { t, locale } = useI18n({ useScope: "global" });
 import type {userDataType} from "@/types/option"
 
 const isLoading = ref(false);
-
+const serviceStore = useServiceStore()
 const toast = useToast()
-
+const userStore = useAuthStore();
+const menuItems = computed(()=>[
+  { label: t('AddUser'), onClick: () => OpenModal() },
+])
 
 
 const modalOpen = ref(false)
-const currentPageTitle = ref("Users Lists");
+const currentPageTitle = computed(()=>t("UsersLists"));
 const users = ref<userDataType[]>([])
+const selectedUser = ref<any>(null);
+const isEditMode = ref(false);
 
-const isDropdownOpen = ref(false);
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
-
-
-const roles = ref([
-  {value: '2', label: "Admin"},
-  {value: '3', label: "Reception staff"},
-])
+const roles = ref<{ value: string; label: string }[]>([
+  { value: '2', label: 'Admin' },
+  { value: '3', label: 'Reception staff' },
+]);
 
 
 interface Form {
@@ -222,14 +246,14 @@ interface Form {
   phoneNumber: string
   email: string
   password:string
-  role: number | null
+  role: string | undefined
 }
 
 
 const form = ref<Form>({
   firstName: '',
   lastName: '',
-  role: null,
+  role: '',
   phoneNumber: '',
   email: '',
   password:'',
@@ -239,29 +263,37 @@ const form = ref<Form>({
 const saveUser = async () => {
   isLoading.value = true;
   try {
-
+    const serviceId = serviceStore.serviceId;
     const userPayload = {
-
+      service_id : serviceId,
       first_name: form.value.firstName,
       last_name: form.value.lastName,
       email: form.value.email,
       phone_number: form.value.phoneNumber,
       role_id: form.value.role,
-      password:form.value.password
+      password:form.value.password,
+      created_by : userStore.UserId ,
+      last_modified_by: userStore.UserId
 
 
     }
     console.log('✅ userPayload', userPayload)
 
     const response = await createUser(userPayload)
+    modalOpen.value = false;
 
     form.value = {
       firstName: '',
       lastName: '',
-      role: null,
+      role: '',
       phoneNumber: '',
       email: '',
       password:''
+    }
+    if (response.status === 201) {
+      toast.success(t('toast.userCreated'));
+    } else {
+      toast.error(t('toast.userErrorCreated'));
     }
     console.log('✅ Réservation créée avec succès !', response.data)
   } catch (error: any) {
@@ -273,48 +305,110 @@ const saveUser = async () => {
 
 const fetchUser = async () => {
   try {
-    const response = await getUser()
-    console.log(response.data.data)
+    const serviceId = serviceStore.serviceId;
+
+    if (!serviceId) {
+      throw new Error('Service ID is not defined');
+    }
+
+    const response = await getUser();
+    console.log("All users:", response.data.data);
     users.value = response.data.data.filter((user: any) =>
-     [2, 3].includes(user.roleId)
+      [2, 3].includes(user.roleId) && user.serviceId === serviceId
     );
 
-
-    console.log(".....",users.value)
+    console.log("Filtered users:", users.value);
   } catch (error) {
-    console.error('fetch failed:', error)
+    console.error('fetch failed:', error);
   }
-}
+};
+
 fetchUser()
 
 
 
 const columnDefs = ref<ColDef[]>([
-{ headerName: 'ID', field: 'id' ,
-checkboxSelection: true,
-headerCheckboxSelection: true,
+{ headerName: t('ID'), field: 'id'
 },
 {
-  headerName: 'First Name',
+  headerName: t('FirstName'),
   field: 'firstName',
 },
 {
-  headerName: 'Last Name',
+  headerName: t('LastName'),
   field: 'lastName',
 },
 { headerName: 'Email', field: 'email' },
 { headerName: 'Phone', field: 'phoneNumber' },
 
-// {
-//   headerName: 'Role',
-//   field: 'roleId',
-//   valueFormatter: params => {
-//     return ['2', '3'].includes(params.value) ? params.value : 'Unknown';
-//   }
-// },
+
 
 {
-  headerName: 'Role',
+  headerName: t('Role'),
+  field: 'roleId',
+  cellRenderer: (params:any) => {
+    const roleLabels: Record<string, string> = {
+      '1': 'Super Admin',
+      '2': 'Admin',
+      '3': 'Reception staff'
+    };
+
+    const roleClasses: Record<string, string> = {
+      '1': 'bg-green-50 text-green-700 px-2 rounded-full',
+      '2': 'bg-red-50 text-red-700 px-2 rounded-full',
+      '3': 'bg-blue-50 text-blue-700 px-2 rounded-full'
+    };
+
+    const role = params.value;
+    const label = roleLabels[role] || 'Unknown';
+    const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full';
+
+    return `<span class="${cssClass} text-sm font-medium">${label}</span>`;
+  }
+},
+
+{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
+
+]);
+
+function getActionButtons(userId: number): string {
+  return `
+    <div class="mt-2 space-x-4">
+      <button class="action-btn" data-action="edit" data-id="${userId}">
+        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>
+      </button>
+      <button class="action-btn" data-action="delete" data-id="${userId}">
+        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
+
+watch(() => locale.value, () => {
+  columnDefs.value = [
+  { headerName: t('ID'), field: 'id'
+},
+{
+  headerName: t('FirstName'),
+  field: 'firstName',
+},
+{
+  headerName: t('LastName'),
+  field: 'lastName',
+},
+{ headerName: 'Email', field: 'email' },
+{ headerName: 'Phone', field: 'phoneNumber' },
+
+
+
+{
+  headerName: t('Role'),
   field: 'roleId',
   cellRenderer: (params:any) => {
     const roleLabels: Record<string, string> = {
@@ -338,49 +432,158 @@ headerCheckboxSelection: true,
 },
 
 
-{
-  headerName: 'Actions',
-  width: 180,
-  cellRenderer: () => `
-                <div class="mt-2 space-x-4">
-                    <button class=" action-btn" data-action="download">
-                        <svg class="h-6 w-6 text-gray-500"  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />  <line x1="16" y1="5" x2="19" y2="8" /></svg>
-                    </button>
-                    <button class=" action-btn" data-action="delete">
-                        <svg class="h-6 w-6 text-gray-500"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-</svg>
+{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
 
-                    </button>
-                </div>
-            `,
-},
-
-
-
-
-
-]);
-
-
+  ]},{ immediate: true })
 
 const onGridReady = (event: GridReadyEvent) => {
   console.log('Grid ready:', event);
 };
 
-const onCellClick = (event: CellClickedEvent) => {
-  console.log('Cell clicked:', event.data);
-};
 
-const getSelectedRows = (event: SelectionChangedEvent) => {
-  const selected = event.api.getSelectedRows();
-  console.log('Selected row:', selected);
-};
 const autoSizeStrategy = {
   type: "fitGridWidth",
   defaultMinWidth: 100,
 }
 
+const onCellClick = (event: any) => {
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
+
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const userId = button.dataset.id;
+
+  console.log('Action:', action, 'user ID:', userId);
+
+  if (action === 'edit') {
+    const userToEdit = users.value.find((r: any) => r.id === Number(userId));
+    console.log("Editing reservation:",  userToEdit);
+
+    if (userToEdit) {
+      selectedUser.value = userToEdit;
+      form.value.firstName = userToEdit.firstName;
+      form.value.lastName = userToEdit.lastName;
+      form.value.phoneNumber = userToEdit.phoneNumber;
+      form.value.email = userToEdit.email;
+      form.value.role = roles.value.find((r:any)=> r.value === String(userToEdit.roleId))?.value;
+
+      console.log("Editing reservation:",   roles.value);
+
+      isEditMode.value = true;
+      modalOpen.value = true;
+
+    }
+  } else if (action === 'delete') {
+     handleDeleteUser(Number(userId));
+  }
+};
+
+
+
+const handleDeleteUser = async (userId: number) => {
+  try {
+    console.log(`Suppression de la room avec ID: ${userId}`);
+    deleteUser(userId)
+    toast.success(t('toast.userDeleted'))
+    users.value = users.value.filter((r: any) => r.id !== userId);
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error);
+    toast.error(t('toast.userDeleteError'))
+  }
+};
+
+
+
+const updateFormData = async () => {
+  isLoading.value = true;
+
+  try {
+    const serviceId = serviceStore.serviceId;
+    const userId = selectedUser.value?.id;
+
+    if (!userId) {
+      toast.error("Aucun utilisateur sélectionné pour la mise à jour.");
+      return;
+    }
+
+    const userPayload = {
+      service_id: serviceId,
+      first_name: form.value.firstName,
+      last_name: form.value.lastName,
+      email: form.value.email,
+      phone_number: form.value.phoneNumber,
+      role_id: Number(form.value.role),
+      password: form.value.password,
+      created_by: userStore.UserId,
+      last_modified_by: userStore.UserId,
+    };
+
+    console.log('Payload envoyé :', userPayload);
+    await updateUser(userId, userPayload);
+
+    toast.success(t('toast.userUpdatedSuccess'));
+
+    // Réinitialisation du formulaire
+    form.value = {
+      firstName: '',
+      lastName: '',
+      role: '',
+      phoneNumber: '',
+      email: '',
+      password: '',
+    };
+    selectedUser.value = null;
+    isEditMode.value = false;
+    modalOpen.value = false;
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+    toast.error(t('toast.updateError'));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
+
+
+const handleSubmit = async () => {
+  isLoading.value = true
+  try {
+    if (isEditMode.value) {
+      await updateFormData()
+    } else {
+      await saveUser()
+    }
+    // router.push('/reservations') // Redirige une fois terminé
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const closeModal = () => {
+  form.value = {
+  firstName: '',
+  lastName: '',
+  role: '',
+  phoneNumber: '',
+  email: '',
+  password:'',
+  };
+  isEditMode.value = false;
+  modalOpen.value = false;
+
+};
+
+const OpenModal = () =>{
+  modalOpen.value=true;
+  isEditMode.value = false;
+}
 
 </script>
 
