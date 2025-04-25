@@ -321,7 +321,7 @@ interface MenuGroup {
 }
 
 
-const menuGroups: MenuGroup[] = [
+const menuGroups: any[]  = [
   {
     title: 'Menu',
     items: [
@@ -405,10 +405,10 @@ const filteredMenu = computed(() => {
   if (currentUserRoleId == null) return [];
 
   return menuGroups
-    .map((group) => {
+    .map((group:any) => {
       const filteredItems = group.items
-        .map((item) => {
-          const filteredSubItems = item.subItems?.filter((subItem) =>
+        .map((item:any) => {
+          const filteredSubItems = item.subItems?.filter((subItem:any) =>
             subItem.roles?.includes(currentUserRoleId!)
           );
 
@@ -460,8 +460,8 @@ const toggleSubmenu = (groupIndex: number, itemIndex: number): void => {
 const isAnySubmenuRouteActive = computed<boolean>(() => {
   return menuGroups.some((group) =>
   group.items.some(
-  (item) =>
-  item.subItems?.some((subItem) => isActive(subItem.path))
+  (item:any) =>
+  item.subItems?.some((subItem:any) => isActive(subItem.path))
   )
   );
 });
@@ -474,7 +474,7 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean|undefined
   return (
   openSubmenu.value === key ||
   (isAnySubmenuRouteActive.value &&
-  item.subItems?.some((subItem) => isActive(subItem.path)))
+  item.subItems?.some((subItem:any) => isActive(subItem.path)))
   );
 };
 
