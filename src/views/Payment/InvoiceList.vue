@@ -38,7 +38,7 @@ import { useToast } from 'vue-toastification'
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
-const currentPageTitle = computed(()=>t("RoomTypes"));
+const currentPageTitle = computed(()=>t("InvoiceList"));
 const selectedPayment = ref<any>(null)
 const Payments = ref<any[]>([])
 
@@ -65,11 +65,11 @@ onMounted(async () => {
 
 
 const columnDefs = ref<ColDef[]>([
-  { headerName: t('Payment ID'), field: 'id' },
+  { headerName: t('PaymentID'), field: 'id' },
   {
     headerName: t('Date'),
     field: 'date',
-    valueFormatter: ({ value }) => new Date(value).toLocaleString('fr-FR', {
+    valueFormatter: ({ value } : { value: string }) => new Date(value).toLocaleString('fr-FR', {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     })
@@ -92,7 +92,7 @@ const columnDefs = ref<ColDef[]>([
 
 watch(() => locale.value, () => {
       columnDefs.value = [
-      { headerName: t('Payment ID'), field: 'id' },
+      { headerName: t('PaymentID'), field: 'id' },
   {
     headerName: t('Date'),
     field: 'date',
@@ -102,7 +102,7 @@ watch(() => locale.value, () => {
     })
   },
   {
-    headerName: t('Amount (FCFA)'),
+    headerName: t('Amount'),
     field: 'amountPaid',
   },
   {

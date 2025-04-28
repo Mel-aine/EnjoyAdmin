@@ -52,7 +52,7 @@
     "RoomTypes" : "Room Types",
     "SignIn": "Sign In",
     "Enteryouremail" : "Enter your email and password to sign in!",
-    "SigninwithGoogle" : "Connectez-vous avec Google",
+    "SigninwithGoogle" : "Sign in with Google",
     "SigninwithApple" : "Sign in with Apple",
     "Password" : "Password",
     "Enteryourpassword" : "Enter your password",
@@ -177,14 +177,31 @@
     "roomTypeUpdatedSuccess" : "Room Type successfully updated ✅",
     "roomTypeDeleted" : "Room Type successfully delete ✅",
     "roomTypeDeleteError" : "Error while deleting room type ❌",
-    "selectError" : "No users selected for update."
+    "selectError" : "No users selected for update.",
+    "roomtypesuccess" : "Room Type created successfully ✅"
     },
     "EditRoomType" : "Edit Room Type",
    "detailsCustomers":"Customer Details",
    "reservationType" : "Reservation Type",
    "personNumber": "Number of people",
    "Createdon" : "Created on",
-   "Modifiedon" : "Modified on"
-
-  
+   "Modifiedon" : "Modified on",
+   "Customers" : "Customers",
+   "yesDelete": "Yes, Delete",
+   "youaresure": "Are you sure you want to delete",
+   "thisAction" : "This action is irreversible",
+   "confirmDelete" : "Confirm deletion",
+   "Date" : "Date",
+   "Amount" : "Amount (FCFA)",
+   "PaymentID" : "Payment ID",
+   "Invoice" : "Invoice",
+   "Transaction": "Transaction",
+   "CreatedAt" : "Created At",
+   "Back" : "Back",
+   "InvoiceNumber" : "Invoice n°",
+   "InvoiceTo" : "Invoice To",
+   "print" : "Print",
+   "subtotal" : "Subtotal",
+   "thankyou" : "Thank you for your stay at",
+   "pleaseContactUs" : "For any questions, please contact us"
 }

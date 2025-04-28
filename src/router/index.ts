@@ -73,11 +73,6 @@ const router = createRouter({
       component: () => import('../views/Reports/BookingTable.vue'),
     },
     {
-      path: '/payment',
-      name: 'payment',
-      component: () => import('../views/Payment/PaymentMethod.vue'),
-    },
-    {
       path: '/allInvoice',
       name: 'allInvoice',
       component: () => import('../views/Payment/InvoiceList.vue'),

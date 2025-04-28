@@ -112,7 +112,13 @@
 </div>
 </template>
 </Modal>
+
 </div>
+
+<ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
+
 </template>
 
 <script setup lang="ts">
@@ -135,6 +141,7 @@ import type { RoomTypeData } from '@/types/option'
 import { useServiceStore } from '@/composables/serviceStore'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import { updateRoomType,deleteRoomType} from "@/services/api";
+import ModalDelete from "@/components/modal/ModalDelete.vue";
 
 
 
@@ -144,6 +151,9 @@ import { updateRoomType,deleteRoomType} from "@/services/api";
 
 
 const isLoading = ref(false);
+const loadingDelete = ref(false)
+const selectedRoomTypeId = ref<number | null>(null)
+const show=ref(false)
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore()
@@ -271,7 +281,7 @@ const SaveRoomType = async () => {
       description: '',
 
     }
-    toast.success('Chambre enregistrée avec succès !')
+    toast.success(t('toast.roomtypesuccess'))
     console.log('Payload', Payload)
 
   } catch (error) {
@@ -330,23 +340,50 @@ const onCellClick = (event: any) => {
 
     }
   } else if (action === 'delete') {
-     handleDeleteUser(Number(id));
+    selectedRoomTypeId.value = id
+    show.value = true
   }
 };
 
 
 
-const handleDeleteUser = async (id: number) => {
-  try {
-    console.log(`Suppression de la room avec ID: ${id}`);
-     deleteRoomType(id)
-    toast.success(t('toast.roomTypeDeleted'))
-    roomTypeData.value = roomTypeData.value.filter((r: any) => r.id !== id);
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error);
-    toast.error(t('toast.roomTypeDeleteError'))
+
+
+
+const confirmDelete = async () => {
+  if (selectedRoomTypeId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteRoomType(selectedRoomTypeId.value)
+      toast.success(t('toast.roomTypeDeleted'))
+      roomTypeData.value = roomTypeData.value.filter((r: any) => r.id !== selectedRoomTypeId.value);
+      console.log(`Suppression du room type ID: ${selectedRoomTypeId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.roomTypeDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+      selectedRoomTypeId.value = null
+    }
   }
-};
+}
+
+
+
+
+
+// const handleDeleteUser = async (id: number) => {
+//   try {
+//     console.log(`Suppression de la room avec ID: ${id}`);
+//      deleteRoomType(id)
+//     toast.success(t('toast.roomTypeDeleted'))
+//     roomTypeData.value = roomTypeData.value.filter((r: any) => r.id !== id);
+//   } catch (error) {
+//     console.error('Erreur lors de la suppression:', error);
+//     toast.error(t('toast.roomTypeDeleteError'))
+//   }
+// };
 
 
 

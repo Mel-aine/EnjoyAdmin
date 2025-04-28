@@ -57,7 +57,7 @@
       >
       <!-- close btn -->
       <button
-      @click="OpenModal()"
+      @click="closeModal()"
       class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
       >
       <svg
@@ -189,7 +189,10 @@
   </form>
       </div>
     </template>
-  </Modal>
+</Modal>
+<ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
   </div>
 </template>
 
@@ -212,6 +215,7 @@ import { createUser,getUser, deleteUser,updateUser} from "@/services/api";
 import { useI18n } from "vue-i18n";
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import { useAuthStore } from '@/composables/user';
+import ModalDelete from '@/components/modal/ModalDelete.vue';
 
 
 
@@ -220,9 +224,12 @@ const { t, locale } = useI18n({ useScope: "global" });
 import type {userDataType} from "@/types/option"
 
 const isLoading = ref(false);
+const loadingDelete = ref(false)
 const serviceStore = useServiceStore()
 const toast = useToast()
 const userStore = useAuthStore();
+const selectedUserId = ref<number | null>(null)
+const show=ref(false)
 const menuItems = computed(()=>[
   { label: t('AddUser'), onClick: () => OpenModal() },
 ])
@@ -479,23 +486,34 @@ const onCellClick = (event: any) => {
 
     }
   } else if (action === 'delete') {
-     handleDeleteUser(Number(userId));
+
+    selectedUserId.value = userId
+    show.value = true
+
   }
 };
 
 
 
-const handleDeleteUser = async (userId: number) => {
-  try {
-    console.log(`Suppression de la room avec ID: ${userId}`);
-    deleteUser(userId)
-    toast.success(t('toast.userDeleted'))
-    users.value = users.value.filter((r: any) => r.id !== userId);
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error);
-    toast.error(t('toast.userDeleteError'))
+const confirmDelete = async () => {
+  if (selectedUserId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteUser(selectedUserId.value)
+      toast.success(t('toast.userDeleted'))
+      users.value = users.value.filter((r: any) => r.id !== selectedUserId.value);
+      console.log(`Suppression du user ID: ${selectedUserId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.userDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+    selectedUserId.value = null
+    }
   }
-};
+}
+
 
 
 
@@ -567,6 +585,9 @@ const handleSubmit = async () => {
 }
 
 const closeModal = () => {
+  modalOpen.value = false;
+  isEditMode.value = false;
+
   form.value = {
   firstName: '',
   lastName: '',
@@ -575,8 +596,7 @@ const closeModal = () => {
   email: '',
   password:'',
   };
-  isEditMode.value = false;
-  modalOpen.value = false;
+
 
 };
 

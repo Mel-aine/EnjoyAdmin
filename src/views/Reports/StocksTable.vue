@@ -127,7 +127,7 @@ import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,IC
 
 
 const modalOpen = ref(false)
-const currentPageTitle = ref("Stock Details");
+const currentPageTitle = ref("Booking Details");
 const defaultColDef = {
   sortable: true,
   filter: true,

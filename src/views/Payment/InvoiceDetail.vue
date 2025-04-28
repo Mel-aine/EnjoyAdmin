@@ -5,13 +5,13 @@
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <!-- Left: Title & Description -->
         <div>
-          <span class="text-purple-500 font-normal">ID de paiement : {{ invoice.paymentId }}</span>
-          <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">Invoice</h3>
-          <p>Transaction : {{ invoice.transactionId }}</p>
+          <span class="text-purple-500 font-normal">{{ $t('PaymentID') }} : {{ invoice.paymentId }}</span>
+          <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">{{ $t('Invoice') }}</h3>
+          <p>{{ $t('Transaction') }} : {{ invoice.transactionId }}</p>
           <div class="text-gray-500 text-sm mt-1">
             <ul class="flex flex-wrap space-x-4">
               <li>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Created At:</span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">{{ $t('CreatedAt') }}:</span>
                 <span class="text-base text-gray-700 dark:text-gray-300 ml-1">{{ invoice.createdAt }}</span>
               </li>
             </ul>
@@ -25,7 +25,7 @@
             <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            <span>Back</span>
+            <span>{{ $t('Back') }}</span>
           </a>
 
           <!-- Mobile Icon Button -->
@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-
+  <div class="print-area" ref="componentRef">
     <div class="max-w-5xl mx-auto bg-white dark:bg-gray-900 shadow-2xl rounded-2xl overflow-hidden print:bg-white print:shadow-none print:rounded-none print:overflow-visible font-sans">
       <!-- Header -->
       <div class="bg-[#be8ecd] text-white px-8 py-6 flex justify-between items-center print:bg-white print:text-black">
@@ -47,16 +47,16 @@
           <p class="text-sm"><a href="" class="underline">{{ invoice.serviceEmail }}</a></p>
         </div>
         <div class="text-right">
-          <p class="uppercase text-xs">Facture n°</p>
+          <p class="uppercase text-xs">{{ $t('InvoiceNumber') }}</p>
           <p class="text-lg font-bold">{{ invoice.invoiceNumber }}</p>
-          <p class="text-xs mt-1">Date : {{ invoice.date }}</p>
+          <p class="text-xs mt-1">{{ $t('Date') }} : {{ invoice.date }}</p>
         </div>
       </div>
 
       <!-- Infos client -->
       <div class="px-8 py-6 grid grid-cols-1 sm:grid-cols-2 gap-6 border-b border-gray-200 dark:border-gray-700">
         <div>
-          <p class="uppercase text-sm font-semibold text-gray-500">Facturé à :</p>
+          <p class="uppercase text-sm font-semibold text-gray-500">{{ $t('InvoiceTo') }} :</p>
           <p class="font-medium text-gray-800 dark:text-gray-100 mt-1">{{ invoice.customerName }}</p>
           <p class="text-gray-600 dark:text-gray-400">{{ invoice.customerAddress }}</p>
           <p class="text-gray-600 dark:text-gray-400">{{ invoice.customerEmail }}</p>
@@ -66,7 +66,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6m-6-4v8m6-4h-6" />
             </svg>
-            Imprimer / Télécharger
+            {{ $t('print') }}
           </button>
         </div>
       </div>
@@ -76,8 +76,8 @@
         <table class="min-w-full text-sm mt-4">
           <thead class="bg-[#F3EAF8] dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase tracking-wide">
             <tr>
-              <th class="px-6 py-3 text-left font-semibold">Description</th>
-              <th class="px-6 py-3 text-right font-semibold">Montant (FCFA)</th>
+              <th class="px-6 py-3 text-left font-semibold">{{ $t('Description') }}</th>
+              <th class="px-6 py-3 text-right font-semibold">{{ $t('Amount') }}</th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -88,15 +88,15 @@
           </tbody>
           <tfoot class="bg-gray-50 dark:bg-gray-800 font-medium">
             <tr>
-              <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">Sous-total</td>
-              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ subtotal.toFixed(2) }} €</td>
+              <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">{{ $t('subtotal') }}</td>
+              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ subtotal.toFixed(2) }} FCFA</td>
             </tr>
             <tr>
               <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">TVA (10%)</td>
-              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ tax.toFixed(2) }} €</td>
+              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ tax.toFixed(2) }} FCFA</td>
             </tr>
             <tr class="text-base text-gray-900 dark:text-gray-100 font-bold">
-              <td class="px-6 py-3 text-right">Total</td>
+              <td class="px-6 py-3 text-right">{{ $t('Total') }}</td>
                <td class="px-6 py-3 text-right">{{ total.toFixed(2) }}FCFA</td>
             </tr>
           </tfoot>
@@ -105,10 +105,12 @@
 
       <!-- Notes -->
       <div class="px-8 py-6 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 print:text-gray-700">
-        <p class="mb-2">Merci pour votre séjour à {{ invoice.serviceName }}.</p>
-        <p>Pour toute question, veuillez nous contacter.</p>
+        <p class="mb-2">{{ $t('thankyou') }} {{ invoice.serviceName }}.</p>
+        <p>{{ $t('pleaseContactUs') }}.</p>
       </div>
     </div>
+  </div>
+
   </div>
   </AdminLayout>
 </template>
@@ -117,60 +119,85 @@
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import {ref,onMounted,computed} from 'vue'
 import { defineProps } from "vue";
-import { useI18n } from "vue-i18n";
 import { useRoute } from 'vue-router'
 import { getPaymentById,getUserId,getServiceById,getReservationById} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
+import { useVueToPrint } from 'vue-to-print';
 
 defineProps<{ id: string }>()
 const route = useRoute()
 const serviceStore = useServiceStore();
-// interface InvoiceData {
-//   paymentId: number;
-//   createdAt: string;
-//   customerName: string;
-//   customerAddress: string;
-//   customerEmail: string;
-//   invoiceNumber: string;
-//   date: string;
-// }
 const invoice = ref<any>({} as any);
 const paymentId = ref<number | null>(null);
-// interface InvoiceItem {
-//   description: string;
-//   amount: number;
-// }
+const componentRef = ref<HTMLDivElement | null>(null);
 
-// interface InvoiceData {
-//   customerName: string;
-//   customerAddress: string;
-//   customerEmail: string;
-//   invoiceNumber: string;
-//   date: string;
-//   items: InvoiceItem[];
-// }
-
-// const invoice: InvoiceData = {
-//   customerName: "Jean Dupont",
-//   customerAddress: "45 Rue de Paris, 75001 Paris",
-//   customerEmail: "jean.dupont@email.com",
-//   invoiceNumber: "INV-20250424",
-//   date: new Date().toLocaleDateString("fr-FR", { year: 'numeric', month: 'long', day: 'numeric' }),
-//   items: [
-//     { description: "Nuitée - Chambre Double (2 nuits)", amount: 180 },
-//     { description: "Petit-déjeuner (2 pers. x 2 jours)", amount: 40 },
-//     { description: "Taxe de séjour", amount: 12 },
-//   ],
+// const printInvoice = () => {
+//   window.print();
 // };
-// const invoice = ref<any>({} as any)
-
-
-
+// const { printInvoice } = useVueToPrint({
+//   content: () => componentRef.value,
+//   documentTitle: 'facture',
+// });
 const printInvoice = () => {
-  window.print();
+  if (componentRef.value) {
+    const printContents = componentRef.value.innerHTML;
+    const printWindow = window.open('', '', 'height=1000,width=1000');
+    if (printWindow) {
+      // Création d'un document dans la fenêtre
+      printWindow.document.open();
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Facture</title>
+            <style>
+              @page {
+                size: auto;
+                margin: 0;
+              }
+              body {
+                font-family: 'Arial', sans-serif;
+                margin: 20px;
+                padding: 0;
+                background: white;
+                color: black;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                padding: 12px;
+                border: 1px solid #ddd;
+              }
+              th {
+                background-color: #f9f9f9;
+                font-weight: bold;
+              }
+            </style>
+          </head>
+          <body>
+            <!-- Ici on place dynamiquement le contenu -->
+          </body>
+        </html>
+      `);
+
+      // Attendre que le document soit complètement chargé avant d'ajouter le contenu
+      printWindow.document.close();
+
+      // Ajouter le contenu de la facture dans le body de la nouvelle fenêtre
+      printWindow.document.body.innerHTML = printContents;
+
+      printWindow.focus();
+      printWindow.print();
+
+      // Ferme la fenêtre après 500ms pour laisser le temps d'imprimer
+      setTimeout(() => {
+        printWindow.close();
+      }, 500);
+    }
+  }
 };
-
-
 
 
 
@@ -238,7 +265,7 @@ const total = computed(() => subtotal.value + tax.value);
 </script>
 
 <style scoped>
-@media print {
+/* @media print {
   .print\:hidden {
     display: none !important;
   }
@@ -252,4 +279,53 @@ const total = computed(() => subtotal.value + tax.value);
     border-radius: 0 !important;
   }
 }
+@media print {
+  body * {
+    visibility: hidden; /* Cache tout */
+ /*.px-8 }
+
+  .print-area, .print-area * {
+    visibility: visible; /* Montre seulement la facture */
+ /* }
+
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+} */
+@media print {
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: auto;
+  }
+
+  body * {
+    display: none !important; /* Cache tout */
+  }
+
+  .print-area, .print-area * {
+    display: block !important; /* Affiche uniquement la facture */
+  }
+
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: white; /* Pour éviter des background dark */
+    color: black;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  /* Supprime padding inutiles */
+  .print-area .px-8, .print-area .py-6 {
+    padding: 0 !important;
+  }
+}
+
+
 </style>

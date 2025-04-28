@@ -19,7 +19,7 @@
       <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
           <li>
-            <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">Add Stock </button>
+            <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">Add Expense </button>
           </li>
           <li>
             <button class="block px-4 py-2 hover:text-purple-600 dark:hover:text-white">Import</button>
@@ -156,7 +156,7 @@ import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,IC
 
 
 const modalOpen = ref(false)
-const currentPageTitle = ref("Stock Details");
+const currentPageTitle = ref("Expenses Details");
 const defaultColDef = {
   sortable: true,
   filter: true,

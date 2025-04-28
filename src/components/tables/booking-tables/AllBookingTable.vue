@@ -12,7 +12,12 @@
       @cellClicked="onCellClick"
       @gridReady="onGridReady"
     ></ag-grid-vue>
-
+    <ModalDelete
+      v-if="modalShow"
+      @close="modalShow = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"
+    />
   </div>
 </template>
 
@@ -28,15 +33,18 @@ import type {ReservationType,userDataType,ServiceProductType} from '@/types/opti
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification'
+import ModalDelete from '@/components/modal/ModalDelete.vue';
 
 
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: "global" });
 const serviceStore = useServiceStore();
 const toast = useToast()
-
+const modalShow = ref(false)
 const users = ref<userDataType[]>([])
 const selectedReservation = ref<any>(null);
+const selectedReservationId = ref<number | null>(null)
+const loadingDelete = ref(false)
 
 
 
@@ -234,26 +242,44 @@ const onCellClick = (event: any) => {
     router.push({ name: 'EditBooking', params: { id: reservationId } })
     console.log("Editing reservation:", selectedReservation.value);
   } else if (action === 'delete') {
-    handleDeleteReservation(Number(reservationId));
+    selectedReservationId.value = reservationId
+    modalShow.value = true
+
   }
 };
 
 
 
-const handleDeleteReservation = async (reservationId: number) => {
-  try {
+// const handleDeleteReservation = async (reservationId: number) => {
+//   try {
 
-    deleteReservation(reservationId)
-    toast.success(t('toast.reservationDelete'))
-    console.log(`Suppression de la réservation avec ID: ${reservationId}`);
-    reservations.value = reservations.value.filter((r:any )=> r.id !== reservationId);
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error);
+//     deleteReservation(reservationId)
+//     toast.success(t('toast.reservationDelete'))
+//     console.log(`Suppression de la réservation avec ID: ${reservationId}`);
+//     reservations.value = reservations.value.filter((r:any )=> r.id !== reservationId);
+//   } catch (error) {
+//     console.error('Erreur lors de la suppression:', error);
+//   }
+// };
+
+
+const confirmDelete = async () => {
+  if (selectedReservationId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteReservation(selectedReservationId.value)
+      toast.success(t('toast.reservationDelete'))
+      reservations.value = reservations.value.filter((r:any ) => r.id !== selectedReservationId.value)
+      console.log(`Suppression de la réservation ID: ${selectedReservationId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    } finally {
+      loadingDelete.value = false
+      modalShow.value = false
+      selectedReservationId.value = null
+    }
   }
-};
-
-
-
+}
 
 // const getSelectedRows = (event: SelectionChangedEvent) => {
 //   const selected = event.api.getSelectedRows();

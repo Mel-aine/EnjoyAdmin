@@ -168,6 +168,9 @@
     </template>
   </Modal>
 </div>
+<ModalDelete v-if="Show" @close="Show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
 </template>
 
 <script setup lang="ts">
@@ -190,12 +193,16 @@ import { useServiceStore } from '@/composables/serviceStore';
 import { useAuthStore } from '@/composables/user';
 import { useI18n } from "vue-i18n";
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
+import ModalDelete from "@/components/modal/ModalDelete.vue";
 
 
 const { t, locale } = useI18n({ useScope: "global" });
 const serviceStore = useServiceStore();
 const userStore = useAuthStore();
 const isLoading = ref(false);
+const loadingDelete = ref(false)
+const selectedRoomId = ref<number | null>(null)
+const Show=ref(false)
 const toast = useToast()
 const modalOpen = ref(false)
 const options = ref<OptionType[]>([])
@@ -599,21 +606,29 @@ const onCellClick = (event: any) => {
       });
     }
   } else if (action === 'delete') {
-    handleDeleteRoom(Number(roomId));
+    selectedRoomId.value = roomId
+    Show.value=true
   }
 };
 
-
-const handleDeleteRoom = async (roomId: number) => {
-  try {
-    console.log(`Suppression de la room avec ID: ${roomId}`);
-    deleteServiceProduct(roomId)
-    toast.success(t('toast.roomDelete'))
-    ServiceProduct.value = ServiceProduct.value.filter((r: any) => r.id !== roomId);
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error);
+const confirmDelete = async () => {
+  if (selectedRoomId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteServiceProduct(selectedRoomId.value)
+      toast.success(t('toast.roomDelete'))
+      ServiceProduct.value = ServiceProduct.value.filter((r: any) => r.id !== selectedRoomId.value);
+      console.log(`Suppression du room  ID: ${selectedRoomId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    } finally {
+      loadingDelete.value = false
+      Show.value = false
+      selectedRoomId.value = null
+    }
   }
-};
+}
+
 
 
 

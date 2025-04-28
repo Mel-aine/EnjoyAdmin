@@ -52,6 +52,7 @@
     "SignIn": "Se Connecter",
     "Enteryouremail" : "Entrez votre email et votre mot de passe pour vous connecter !",
     "SigninwithApple" : "Connectez-vous avec Apple",
+    "SigninwithGoogle" : "Connectez-vous avec Google",
     "Password" : "Mot de passe",
     "Enteryourpassword" : "Entrez votre mot de passe",
     "Keepmeloggedin" : "Rester connecté",
@@ -175,7 +176,8 @@
     "roomTypeUpdatedSuccess" : "Type de chambre mis à jour avec succès ✅",
     "roomTypeDeleted" : "Le type de chambre a été supprimé avec succès ✅",
     "roomTypeDeleteError" : "Erreur lors de la suppression du type de chambre ❌",
-    "selectError" : "Aucun utilisateur sélectionné pour la mise à jour."
+    "selectError" : "Aucun utilisateur sélectionné pour la mise à jour.",
+    "roomtypesuccess" : "Type de chambre créé avec succès ✅"
 
     },
     "EditRoomType" : "Modifier le type de chambre",
@@ -183,6 +185,24 @@
     "personNumber": "Nombre de personnes",
     "reservationType" : "Type de réservation",
     "Createdon" : "Créé le",
-    "Modifiedon" : "Modifié le"
+    "Modifiedon" : "Modifié le",
+    "Customers": "Clients",
+    "yesDelete": "Oui, Supprimer",
+    "youaresure" : "Es-tu sûr de vouloir supprimer",
+    "thisAction" : "Cette action est irréversible",
+    "confirmDelete" : "Confirmer la suppression",
+    "Date" : "Date",
+    "Amount" : "Montant (FCFA)",
+    "PaymentID" : "Paiement ID",
+    "Invoice" : "Facture",
+    "Transaction": "Transaction",
+    "CreatedAt": "Créé le",
+    "Back" : "Retour",
+    "InvoiceNumber" : "Facture n°",
+    "InvoiceTo" : "Facturé à",
+    "print": "Imprimer",
+    "subtotal" : "Sous-total",
+    "thankyou" : "Merci pour votre séjour à",
+    "pleaseContactUs" : "Pour toute question, veuillez nous contacter"
   
 }

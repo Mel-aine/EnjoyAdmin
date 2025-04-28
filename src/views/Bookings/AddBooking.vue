@@ -93,13 +93,6 @@
                   />
                 </div>
               </div>
-              <!-- <div>
-                <Input :lb="'Address'"  :placeholder="'Address'" :id="'address'" :forLabel="'address'" v-model="form.address" />
-              </div> -->
-              <!-- <div>
-                <Select :lb="'Customer type'" :options="CustomerTypes" v-model="form.customType"/>
-              </div> -->
-              <!-- <div><FileInput/></div> -->
               <div>
                 <Select :lb="$t('SelectReservationType')" :options="Package" v-model="form.package"/>
               </div>
@@ -267,6 +260,14 @@
                 {{ $t('Processing') }}...
               </span>
              </ButtonComponent>
+             <button
+             v-if="isEditMode"
+              type="button"
+              class="w-full rounded-xl ml-8 border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] sm:w-auto"
+              @click="closeUpdate"
+            >
+              {{ $t('Cancel') }}
+            </button>
 
         </ComponentCard>
       </div>
@@ -400,9 +401,10 @@ const showDropdown = ref(false)
 const adults = ref(1)
 const children = ref(0)
 const totalPersons = computed(() => adults.value + children.value)
-const currentPageTitle =computed(()=>t("AddBooking"));
 const selectedCountry = ref('GB')
 const serviceStore = useServiceStore();
+defineProps<{ id: string }>()
+const isEditMode=ref(false)
 
 const Package = computed(() => [
   { value: 'Individual', label: t('Individual') },
@@ -434,6 +436,10 @@ const Payements = ref<any[]>([]);
 const updatePhoneNumber = () => {
   form.value.phoneNumber = countryCodes[selectedCountry.value as keyof typeof countryCodes]
 }
+
+const currentPageTitle = computed(() =>
+   t('Booking')
+)
 
 
 
@@ -704,10 +710,7 @@ const numberOfNights = computed(() => {
 
 
 
-defineProps<{ id: string }>()
 
-
-const isEditMode=ref(false)
 
 onMounted(async () => {
   const rawId = route.params.id;
@@ -789,7 +792,25 @@ const handleSubmit = async () => {
   }
 }
 
+const closeUpdate = () =>{
+  isEditMode.value = false;
+   form.value = {
+  firstName: '',
+  lastName: '',
+  phoneNumber: '',
+  email: '',
+  roomType: null,
+  package:'',
+  arrivalDate: '',
+  departureDate: '',
+  normalDescription:'',
+  totalPerson: totalPersons.value,
+  totalPrice:null,
+  numberOfNights: totalPersons.value,
+  payment: ' '
+}
 
+}
 
 
   </script>
