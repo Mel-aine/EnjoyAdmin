@@ -52,10 +52,30 @@ const router = createRouter({
         title: 'Room Type',
       },
     },
+    // {
+    //   path: '/stock/list',
+    //   name: 'stock',
+    //   component: () => import('../views/Reports/Stocks/StocksTable.vue'),
+    // },
     {
-      path: '/stock',
-      name: 'stock',
-      component: () => import('../views/Reports/StocksTable.vue'),
+      path: '/stock/product',
+      name: 'stock product',
+      component: () => import('../views/Reports/Stocks/ProductList.vue'),
+    },
+    {
+      path: '/stock/movements',
+      name: 'stock movement',
+      component: () => import('../views/Reports/Stocks/StockMovement.vue'),
+    },
+    {
+      path: '/stock/categorie',
+      name: 'stock categorie',
+      component: () => import('../views/Reports/Stocks/StockCategorie.vue'),
+    },
+    {
+      path: '/stock/suppliers',
+      name: 'supplier',
+      component: () => import('../views/Reports/Stocks/SupplierList.vue'),
     },
     {
       path: '/user',

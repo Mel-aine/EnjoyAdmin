@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="space-y-5 sm:space-y-6 h-screen">
-      <ag-grid-vue class="ag-theme-quartz" :rowData="roomTypeData" :columnDefs="columnDefs" rowHeight="50"
+      <ag-grid-vue class="ag-theme-quartz" :rowData="stockData" :columnDefs="columnDefs" rowHeight="50"
       :rowSelection="'single'"  :domLayout="'autoHeight'"
       :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady" :autoSizeStrategy="autoSizeStrategy"
       @selectionChanged="getSelectedRows" :defaultColDef="defaultColDef"></ag-grid-vue>
@@ -59,7 +59,7 @@
       fill=""
       />
     </svg>
-  </button>
+    </button>
   <div class="px-2 pr-14">
     <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
       Add Stock Details
@@ -67,9 +67,12 @@
 
   </div>
   <form class="flex flex-col">
-    <div class="custom-scrollbar h-[200px] overflow-y-auto p-2">
+    <div class="custom-scrollbar h-[350px] overflow-y-auto p-2">
       <div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+          <div>
+            <Input :lb="'Product Code'"  :placeholder="'Product Code'" :id="'code'" :forLabel="'code'" />
+          </div>
           <div>
             <Input :lb="'Product Name'"  :placeholder="'Product Name'" :id="'name'" :forLabel="'name'" />
           </div>
@@ -83,6 +86,9 @@
           </div>
           <div>
             <Select :lb="'Status'" :options="status"/>
+          </div>
+          <div>
+            <Select :lb="'Categories'" :options="Categories"/>
           </div>
         </div>
       </div>
@@ -127,7 +133,7 @@ import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,IC
 
 
 const modalOpen = ref(false)
-const currentPageTitle = ref("Booking Details");
+const currentPageTitle = ref("Stock");
 const defaultColDef = {
   sortable: true,
   filter: true,
@@ -136,14 +142,27 @@ const defaultColDef = {
 };
 
 const status = ref([
-{value: 'Active', label: "Active"},
-{value: 'Inactive', label: "Inactive"},
+{value: 'En Stock', label: "En Stock"},
+{value: 'Faible Stock', label: "Faible Stock"},
+{value: 'En rupture de Stock', label: "En rupture de Stock"},
 
 ])
+
+const Categories = ref([
+{value: 'service de chambre', label: "En Stock"},
+{value: 'Faible Stock', label: "Faible Stock"},
+{value: 'En rupture de Stock', label: "En rupture de Stock"},
+
+])
+
 const columnDefs = ref<ColDef[]>([
 { headerName: 'ID', field: 'id' ,
 checkboxSelection: true,
 headerCheckboxSelection: true
+},
+{
+  headerName: 'Product Code',
+  field: 'code',
 },
 {
   headerName: 'Product Name',
@@ -151,6 +170,10 @@ headerCheckboxSelection: true
 },
 { headerName: 'Quantity', field: 'quantity' },
 { headerName: 'Price(pcs/KG)', field: 'price' },
+{
+  headerName: 'Categories',
+  field: 'category',
+},
 {
   headerName: 'Status',
   field: 'status',
@@ -198,50 +221,50 @@ const autoSizeStrategy = {
   type: "fitGridWidth",
   defaultMinWidth: 100,
 }
-const roomTypeData = [
-{
-  "id": "01",
-  "name": "Soup spoon",
-  "quantity": "70 pcs",
-  "price": "205000",
-  "status" : "Active",
-},
-{
-  "id": "02",
-  "name": "Rocking Chairs",
-  "quantity": "00 pcs",
-  "price": "15000 FCFA",
-  "status" : "Inactive"
-},
-{
-  "id": "03",
-  "name": "Bed",
-  "quantity": "70 pcs",
-  "price": "25000 FCFA",
-  "status" : "Active"
-},
-{
-  "id": "04",
-  "name": "Door",
-  "quantity": "40 pcs",
-  "price": "80000 FCFA",
-  "status" : "Active"
-},
-{
-  "id": "05",
-  "name": "Chicken",
-  "quantity": "70 pcs",
-  "price": "20000 FCFA",
-  "status" : "Inactive"
-},
-{
-  "id": "06",
-  "name": "Chairs",
-  "quantity": "50 pcs",
-  "price": "12000 FCFA",
-  "status" : "Active"
-},
-];
+// const roomTypeData = [
+// {
+//   "id": "01",
+//   "name": "Soup spoon",
+//   "quantity": "70 pcs",
+//   "price": "205000",
+//   "status" : "Active",
+// },
+// {
+//   "id": "02",
+//   "name": "Rocking Chairs",
+//   "quantity": "00 pcs",
+//   "price": "15000 FCFA",
+//   "status" : "Inactive"
+// },
+// {
+//   "id": "03",
+//   "name": "Bed",
+//   "quantity": "70 pcs",
+//   "price": "25000 FCFA",
+//   "status" : "Active"
+// },
+// {
+//   "id": "04",
+//   "name": "Door",
+//   "quantity": "40 pcs",
+//   "price": "80000 FCFA",
+//   "status" : "Active"
+// },
+// {
+//   "id": "05",
+//   "name": "Chicken",
+//   "quantity": "70 pcs",
+//   "price": "20000 FCFA",
+//   "status" : "Inactive"
+// },
+// {
+//   "id": "06",
+//   "name": "Chairs",
+//   "quantity": "50 pcs",
+//   "price": "12000 FCFA",
+//   "status" : "Active"
+// },
+// ];
 
 const isDropdownOpen = ref(false);
 

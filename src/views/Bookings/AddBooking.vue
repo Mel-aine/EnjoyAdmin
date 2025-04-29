@@ -309,7 +309,7 @@
             </p>
           </div>
           <form  class="flex flex-col">
-          <div class="custom-scrollbar h-[500px] overflow-y-auto p-2">
+          <div class="custom-scrollbar h-[400px] overflow-y-auto p-2">
             <div class="space-y-8">
 
             <div class="border rounded-md p-4 text-sm text-gray-700 dark:text-gray-300">
@@ -401,7 +401,7 @@ const showDropdown = ref(false)
 const adults = ref(1)
 const children = ref(0)
 const totalPersons = computed(() => adults.value + children.value)
-const selectedCountry = ref('GB')
+const selectedCountry = ref('CM')
 const serviceStore = useServiceStore();
 defineProps<{ id: string }>()
 const isEditMode=ref(false)
@@ -441,7 +441,9 @@ const currentPageTitle = computed(() =>
    t('Booking')
 )
 
-
+onMounted(() => {
+  updatePhoneNumber()
+})
 
 const fetchServiceData = async () => {
   try {
@@ -640,6 +642,7 @@ const saveReservation = async () => {
 
 const savePayment = async () => {
   isLoading.value=true
+  const paymentStatus = selectedPaymentMethod.value === 'Cash' ? 'pending' : 'succeeded';
   try {
     const payload = {
       user_id: userId.value,
@@ -648,6 +651,7 @@ const savePayment = async () => {
       payment_method: selectedPaymentMethod.value,
       payment_date: new Date().toISOString(),
       transaction_id : '#TRAN-001',
+      status : paymentStatus,
       created_by : userId.value,
       last_modified_by : userId.value
     };
