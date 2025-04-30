@@ -52,11 +52,7 @@ const router = createRouter({
         title: 'Room Type',
       },
     },
-    // {
-    //   path: '/stock',
-    //   name: 'stockll',
-    //   component: () => import('../views/Reports/Stocks/StocksTable.vue'),
-    // },
+
     {
       path: '/stock/product',
       name: 'stock product',

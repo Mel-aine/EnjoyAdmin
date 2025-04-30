@@ -478,11 +478,11 @@
   const isSubSubmenuOpen = (groupIndex: number, itemIndex: number, subItemName: string): boolean => {
     const key = `${groupIndex}-${itemIndex}-${subItemName}`;
     const item = menuGroups[groupIndex]?.items[itemIndex];
-    const subItem = item?.subItems?.find(si => si.name === subItemName);
+    const subItem = item?.subItems?.find((si:any) => si.name === subItemName);
 
     return (
       openSubSubmenu.value === key ||
-      (subItem?.subItems?.some(subSubItem => isActive(subSubItem.path)) ?? false)
+      (subItem?.subItems?.some((subSubItem:any) => isActive(subSubItem.path)) ?? false)
     );
   };
 
