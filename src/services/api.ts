@@ -223,4 +223,36 @@ export const  deleteUser= (id: number | null ): Promise<AxiosResponse<any>> => {
 export const  deleteRoomType = (id: number | null ): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/product/${id}`);
 };
+ //create stock category
+ export const createCategory = (categoryData: any ):Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/stockCategory`, categoryData);
+};
+
+ //create stock category
+ export const createSupplier = (supplierData: any ):Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/supplier`, supplierData);
+};
+
+
+ //create stock product
+ export const createProduct = (productData: any ):Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/prooductService`, productData);
+};
+
+ //create stock product movement
+ export const movementService = (Data: any ):Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/movement`, Data);
+};
+
+export const  getCategory= (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/stockCategory/${serviceId}`);
+};
+
+export const  getSupplier= (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/supplier/${serviceId}`);
+};
+
+export const  getProduct= (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/prooductService/${serviceId}`);
+};
 

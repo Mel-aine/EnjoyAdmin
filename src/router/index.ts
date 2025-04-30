@@ -53,8 +53,8 @@ const router = createRouter({
       },
     },
     // {
-    //   path: '/stock/list',
-    //   name: 'stock',
+    //   path: '/stock',
+    //   name: 'stockll',
     //   component: () => import('../views/Reports/Stocks/StocksTable.vue'),
     // },
     {

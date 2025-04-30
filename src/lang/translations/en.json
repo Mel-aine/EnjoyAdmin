@@ -178,7 +178,9 @@
     "roomTypeDeleted" : "Room Type successfully delete ✅",
     "roomTypeDeleteError" : "Error while deleting room type ❌",
     "selectError" : "No users selected for update.",
-    "roomtypesuccess" : "Room Type created successfully ✅"
+    "roomtypesuccess" : "Room Type created successfully ✅",
+    "Sucess" : "created successfully ✅",
+    "error" : "Error saving  ❌"
     },
     "EditRoomType" : "Edit Room Type",
    "detailsCustomers":"Customer Details",
@@ -203,5 +205,27 @@
    "print" : "Print",
    "subtotal" : "Subtotal",
    "thankyou" : "Thank you for your stay at",
-   "pleaseContactUs" : "For any questions, please contact us"
+   "pleaseContactUs" : "For any questions, please contact us",
+   "StockList" : "Stock List",
+   "Suppliers" : "Suppliers",
+   "StockMovements" : "Stock Movements",
+   "StockCategory" : "Product category",
+   "addCategory" : "Add Category",
+   "NewCategory" : "New Category",
+   "addSupplier" : "Add Supplier",
+   "newSupplier" : "New Supplier",
+   "import" : "Import",
+   "addProduct": "Add Product",
+   "addProductDetail" : "Add Product Details",
+   "productCode" : "Product Code",
+   "productName" : "Product Name",
+   "quantity" : "Quantity",
+   "price" : "Price",
+   "category" : "Category",
+   "Code" : "Code",
+   "inStock" : "In Stock",
+   "lowStock" : "Low Stock",
+   "outofstock" : "Out of stock"
+   
+   
 }

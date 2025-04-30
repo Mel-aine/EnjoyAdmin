@@ -1,14 +1,14 @@
 <template>
   <div >
     <AdminLayout>
-      <PageBreadcrumb :pageTitle="'Catégories de Stock'" />
+      <PageBreadcrumb :pageTitle="$t('StockCategory')" />
 
       <div class="flex justify-end my-10">
         <button
           class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
           @click="modalOpen = true"
         >
-          Ajouter une catégorie
+         {{ $t('addCategory') }}
         </button>
       </div>
       <div class="h-screen mt-10">
@@ -53,20 +53,26 @@
               />
             </svg>
             </button>
-            <h2 class="text-lg font-semibold mb-4">Nouvelle Catégorie</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ $t('NewCategory') }}</h2>
             <form @submit.prevent="addCategory">
               <Input
-                :lb="'Nom de la catégorie'"
+                :lb="t('Name')"
                 v-model="newCategoryName"
                 :id="'categoryName'"
                 :forLabel="'categoryName'"
               />
               <div class="flex justify-end mt-4">
                 <button
+                :disabled="isLoading"
                   type="submit"
                   class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"
                 >
-                  Enregistrer
+
+              <span v-if="!isLoading">{{ $t('Save') }}</span>
+              <span v-else class="flex items-center gap-2">
+                <Spinner class="w-4 h-4" />
+                {{ $t('Processing') }}...
+              </span>
                 </button>
               </div>
             </form>
@@ -78,38 +84,60 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref ,watch} from "vue";
 import { AgGridVue } from "ag-grid-vue3";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
-
+import { createCategory,getCategory} from "@/services/api";
+import { useToast } from 'vue-toastification'
+import { useI18n } from "vue-i18n";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-
+import Spinner from '@/components/spinner/Spinner.vue';
+import { useServiceStore } from '@/composables/serviceStore';
 // Données simulées
-const categories = ref([
-  { id: 1, name: "Cuisine" },
-  { id: 2, name: "Minibar" },
-  { id: 3, name: "Lingerie" },
+const categories = ref<any[]>([]);
+const isLoading = ref(false)
+const { t, locale } = useI18n({ useScope: "global" });
+const toast = useToast()
+const serviceStore = useServiceStore();
+
+
+
+function getActionButtons(Id: number): string {
+  return `
+    <div class="mt-2 space-x-4">
+      <button class="action-btn" data-action="edit" data-id="${Id}">
+        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>
+      </button>
+      <button class="action-btn" data-action="delete" data-id="${Id}">
+        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
+const columnDefs = ref<ColDef[]>([
+  { headerName: t('ID'), field: "id", width: 60 },
+  { headerName: t('Name'), field: "name" , width: 80},
+  { headerName: t('Actions'),width: 60, cellRenderer: (params:any) => getActionButtons(params.data.id) }
 ]);
 
-const columnDefs = ref<ColDef[]>([
-  { headerName: "ID", field: "id", width: 90 },
-  { headerName: "Nom de la Catégorie", field: "name" },
-  {
-    headerName: "Actions",
-    cellRenderer: () => `
-      <div>
-        <button class="text-blue-500 hover:underline mr-2">Modifier</button>
-        <button class="text-red-500 hover:underline">Supprimer</button>
-      </div>
-    `,
-  },
-]);
+watch(() => locale.value, () => {
+      columnDefs.value = [
+      { headerName: t('ID'), field: "id", width: 60 },
+  { headerName: t('Name'), field: "name", width: 80 },
+  { headerName: t('Actions'),width: 60, cellRenderer: (params:any) => getActionButtons(params.data.id) }
+]})
 
 const defaultColDef = {
   resizable: true,
@@ -121,16 +149,52 @@ const defaultColDef = {
 const modalOpen = ref(false);
 const newCategoryName = ref("");
 
-const addCategory = () => {
-  if (newCategoryName.value.trim()) {
-    categories.value.push({
-      id: categories.value.length + 1,
-      name: newCategoryName.value,
-    });
-    newCategoryName.value = "";
-    modalOpen.value = false;
+
+
+const addCategory = async () => {
+  isLoading.value=true
+  const serviceId = serviceStore.serviceId;
+
+  try {
+    const payload = {
+     name:newCategoryName.value,
+     service_id : serviceId
+
+    };
+
+    console.log("cate",payload)
+    const response = await createCategory(payload);
+    console.log('cat',response.data)
+
+    if (response.status === 201) {
+      toast.success(t('toast.Sucess'));
+      modalOpen.value = false;
+    } else {
+      toast.error(t('toast.error'));
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error(t('toast.error'));
+  }finally{
+    isLoading.value=false
   }
 };
+
+const fetchCategorie = async() => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getCategory(serviceId);
+
+    categories.value = response.data;
+    console.log('cate:', categories.value);
+  } catch (error) {
+    console.error('Erreur lors de la récupération :', error);
+  }
+
+}
+onMounted(()=>{
+  fetchCategorie()
+})
 
 const onGridReady = (params: GridReadyEvent) => {
   console.log("Categories grid ready");

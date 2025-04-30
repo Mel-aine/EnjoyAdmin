@@ -177,7 +177,9 @@
     "roomTypeDeleted" : "Le type de chambre a été supprimé avec succès ✅",
     "roomTypeDeleteError" : "Erreur lors de la suppression du type de chambre ❌",
     "selectError" : "Aucun utilisateur sélectionné pour la mise à jour.",
-    "roomtypesuccess" : "Type de chambre créé avec succès ✅"
+    "roomtypesuccess" : "Type de chambre créé avec succès ✅",
+    "Sucess" : "créé avec succès ✅",
+    "error" : "Erreur lors de l'enregistrement ❌"
 
     },
     "EditRoomType" : "Modifier le type de chambre",
@@ -203,6 +205,28 @@
     "print": "Imprimer",
     "subtotal" : "Sous-total",
     "thankyou" : "Merci pour votre séjour à",
-    "pleaseContactUs" : "Pour toute question, veuillez nous contacter"
+    "pleaseContactUs" : "Pour toute question, veuillez nous contacter",
+    "StockList" : "Liste des stocks",
+   "Suppliers" : "Fournisseurs",
+   "StockCategories": "Catégorie de produit",
+   "StockMovements" : "Mouvements de stock",
+   "StockCategory": "Catégories de stock",
+   "addCategory" : "Ajouter une Categorie",
+   "NewCategory" : "Nouvelle Catégorie",
+   "addSupplier" : "Ajouter un fournisseur",
+   "newSupplier" : "Nouveau Fournisseur",
+   "import" : "Importer",
+   "addProduct": "Ajouter un produit",
+    "addProductDetail": "Ajouter les détails du produit",
+    "productCode": "Code produit",
+    "productName": "Nom du produit",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "category": "Catégorie",
+    "Code" : "Code",
+    "inStock" : "En stock",
+    "lowStock" : "Stock faible",
+    "outofstock" : "En rupture de stock"
+    
   
 }

@@ -368,10 +368,10 @@
               path: '/stock',
               roles: [1, 2],
               subItems: [
-                // { name: t('StockList'), path: '/stock/list', roles: [1, 2] },
-                { name: t('Product'), path: '/stock/product', roles: [1, 2] },
+                //  { name: t('Stock'), path: '/stock', roles: [1, 2] },
+                { name: t('StockList'), path: '/stock/product', roles: [1, 2] },
                 { name: t('StockMovements'), path: '/stock/movements', roles: [1, 2] },
-                { name: t('StockCategories'), path: '/stock/categorie', roles: [1, 2] },
+                { name: t('StockCategory'), path: '/stock/categorie', roles: [1, 2] },
                 { name: t('Suppliers'), path: '/stock/suppliers', roles: [1,2] }, // Fournisseurs
                 // { name: t('Orders'), path: '/stock/orders', roles: [1, 2] },     // Commandes
                 // { name: t('Alerts'), path: '/stock/alerts', roles: [1, 2] },     // Alertes de seuil
