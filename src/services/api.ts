@@ -256,3 +256,6 @@ export const  getProduct= (serviceId: number | null): Promise<AxiosResponse<any>
   return axios.get(`${API_URL}/prooductService/${serviceId}`);
 };
 
+export const getMovementService = (serviceId: number | null):Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/movement/${serviceId}`);
+};

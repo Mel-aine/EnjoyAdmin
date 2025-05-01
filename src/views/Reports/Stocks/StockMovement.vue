@@ -191,7 +191,7 @@
 <script setup lang="ts">
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-import { ref, reactive, onMounted,computed } from "vue";
+import { ref, reactive, onMounted,computed,watch } from "vue";
 import { AgGridVue } from "ag-grid-vue3";
 import type { GridReadyEvent, ColDef, CellClickedEvent } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
@@ -200,7 +200,7 @@ import { useToast } from 'vue-toastification'
 import Modal from '@/components/profile/Modal.vue'
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
-import {getProduct,movementService} from "@/services/api";
+import {getProduct,movementService,getMovementService} from "@/services/api";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useAuthStore } from '@/composables/user';
@@ -297,7 +297,7 @@ const locations = ref([
 // Configuration de la grille AG Grid
 const columnDefs = ref<ColDef[]>([
   { headerName: "Date", field: "date", filter: true, sortable: true },
-  { headerName: "Produit", field: "product", filter: true },
+  { headerName: "Produit", field: "productId", filter: true,valueGetter: (params: any) => getProductName(params.data.productId) },
   {
     headerName: "Type",
     field: "type",
@@ -336,6 +336,10 @@ const columnDefs = ref<ColDef[]>([
   }
 ]);
 
+
+watch(() => locale.value, () => {
+  columnDefs.value = []})
+
 const defaultColDef = {
   resizable: true,
   sortable: true,
@@ -360,7 +364,7 @@ const onCellClicked = (event: CellClickedEvent) => {
   if (action === "edit") {
     editMovement(event.data);
   } else if (action === "delete") {
-    confirmDelete(event.data);
+    // confirmDelete(event.data);
   }
 };
 
@@ -440,11 +444,12 @@ const saveMovement = async() => {
   try {
     if (isEditing.value) {
       // Mise à jour d'un mouvement existant
-      const index = movements.value.findIndex((m:any )=> m.id === currentMovement.id);
-      if (index !== -1) {
-        movements.value[index] = { ...currentMovement };
-        // showSuccess("Mouvement mis à jour avec succès");
-      }
+      //const index = movements.value.findIndex((m:any )=> m.id === currentMovement.id);
+      // if (index !== -1) {
+      //   movements.value[index] = { ...currentMovement };
+
+      //   // showSuccess("Mouvement mis à jour avec succès");
+      // }
     } else {
       // Création d'un nouveau mouvement
       console.log ("........",currentMovement)
@@ -456,7 +461,8 @@ const saveMovement = async() => {
         destination: currentMovement.destination,
         user:currentMovement.user ,
         notes: currentMovement.notes,
-        service_id : serviceId
+        service_id : serviceId,
+        date:currentMovement.date
 
         };
       const response = await movementService(payload);
@@ -502,22 +508,22 @@ const exportToExcel = () => {
 
 // Récupération des données (à remplacer par un appel API)
 onMounted(async () => {
+  const serviceId = serviceStore.serviceId;
   try {
-    // Dans une application réelle:
-    // const response = await movementService.getAll();
-    // movements.value = response.data;
 
-    // Dans une application réelle:
-    // const productsResponse = await productService.getAll();
-    // products.value = productsResponse.data.map(p => p.name);
+     const response = await getMovementService( serviceId);
+     movements.value = response.data;
+     console.log('movement',movements.value)
 
-    // Dans une application réelle:
-    // const locationsResponse = await locationService.getAll();
-    // locations.value = locationsResponse.data.map(l => l.name);
+
 
   } catch (error) {
     console.error("Erreur lors du chargement des données:", error);
-    // showError("Erreur lors du chargement des données");
   }
 });
+
+const getProductName = (id: number) => {
+  const found = productData.value.find((s:any) => s.value === id);
+  return found ? found.label : '';
+};
 </script>
