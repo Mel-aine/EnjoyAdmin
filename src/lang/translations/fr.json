@@ -179,7 +179,9 @@
     "selectError" : "Aucun utilisateur sélectionné pour la mise à jour.",
     "roomtypesuccess" : "Type de chambre créé avec succès ✅",
     "Sucess" : "créé avec succès ✅",
-    "error" : "Erreur lors de l'enregistrement ❌"
+    "error" : "Erreur lors de l'enregistrement ❌",
+    "SucessUpdate": "mis à jour avec succès ✅",
+    "DeletedSuccess": "Supprimer avec Success"
 
     },
     "EditRoomType" : "Modifier le type de chambre",
@@ -226,7 +228,38 @@
     "Code" : "Code",
     "inStock" : "En stock",
     "lowStock" : "Stock faible",
-    "outofstock" : "En rupture de stock"
+    "outofstock" : "En rupture de stock",
+    "addMovement": "Nouveau Mouvement",
+    "export": "Exporter",
+    "edit": "Modifier",
+    "new": "Nouveau",
+    "stockMovement": "Mouvement de stock",
+    "source": "Source",
+    "destination": "Destination",
+    "product": "Produit",
+    "user": "Utilisateur",
+    "movement": {
+    "entry": "Entrée",
+    "exit": "Sortie",
+    "transfer": "Transfert",
+    "adjustment": "Ajustement"
+    },
+    "location": {
+    "centralWarehouse": "Entrepôt Central",
+    "reception": "Réception",
+    "spa": "Spa",
+    "restaurant": "Restaurant",
+    "bar": "Bar",
+    "room101": "Chambre 101",
+    "room102": "Chambre 102",
+    "room103": "Chambre 103",
+    "room201": "Chambre 201",
+    "room202": "Chambre 202",
+    "room203": "Chambre 203"
+  },
+  "editProduct" : "Editer le Produit",
+  "Externalsupplier" : "Fournisseur externe",
+  "Department" : "Départements"
     
   
 }

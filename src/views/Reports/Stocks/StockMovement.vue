@@ -17,7 +17,7 @@
               >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                Nouveau mouvement
+                {{ $t('addMovement') }}
               </button>
 
               <!-- Exporter -->
@@ -27,7 +27,7 @@
               >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4 4m0 0l4-4m-4 4V4" /></svg>
-                Exporter
+                {{ $t('export') }}
               </button>
             </div>
           </div>
@@ -44,7 +44,7 @@
               :paginationPageSize="10"
               :domLayout="'autoHeight'"
               @gridReady="onGridReady"
-              @cellClicked="onCellClicked"
+              @cellClicked="onCellClick"
             />
           </div>
         </div>
@@ -79,7 +79,7 @@
               </svg>
               </button>
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">{{ isEditing ? 'Modifier' : 'Nouveau' }} mouvement de stock</h3>
+            <h3 class="text-lg font-semibold">{{ isEditing ? $t('edit') : $t('new') }} {{ $t('stockMovement') }}</h3>
           </div>
 
           <form @submit.prevent="saveMovement">
@@ -107,9 +107,9 @@
 
               <div class="mb-4">
                 <Select
-                  :lb="$t('Product')"
+                  :lb="$t('product')"
                   :options="productData"
-                  v-model="currentMovement.product"
+                  v-model="currentMovement.productId"
                 />
 
               </div>
@@ -129,7 +129,7 @@
               <div class="mb-4">
                 <Select
                   v-model="currentMovement.source"
-                  :lb="$t('Source')"
+                  :lb="$t('source')"
                   :options="sourceOptions"
                   required
                 />
@@ -140,7 +140,7 @@
 
               <div class="mb-4">
                 <Select
-                  :lb="$t('Destination')"
+                  :lb="$t('destination')"
                   :options="destinationOptions"
                   v-model="currentMovement.destination"
                   required
@@ -186,6 +186,9 @@
     </Modal>
     </AdminLayout>
   </div>
+  <ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
 </template>
 
 <script setup lang="ts">
@@ -193,23 +196,24 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import { ref, reactive, onMounted,computed,watch } from "vue";
 import { AgGridVue } from "ag-grid-vue3";
-import type { GridReadyEvent, ColDef, CellClickedEvent } from "ag-grid-community";
+import type { GridReadyEvent, ColDef } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useToast } from 'vue-toastification'
 import Modal from '@/components/profile/Modal.vue'
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
-import {getProduct,movementService,getMovementService} from "@/services/api";
+import {getProduct,movementService,getMovementService,updateMovementService,deleteMovement} from "@/services/api";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useAuthStore } from '@/composables/user';
 import { useI18n } from "vue-i18n";
+import ModalDelete from "@/components/modal/ModalDelete.vue";
 
 interface StockMovement {
   id?: number;
   date: string;
-  product: number | null;
+  productId: number | any  ;
   type: string;
   quantity: number;
   source: string;
@@ -223,15 +227,18 @@ const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore();
 const authStore = useAuthStore();
-// Data pour le modal
 const showModal = ref(false);
+const show=ref(false)
 const isEditing = ref(false);
-const mouvementTypes = [
-  { label: 'Entrée', value: 'Entrée' },
-  { label: 'Sortie', value: 'Sortie' },
-  { label: 'Transfert', value: 'Transfert' },
-  { label: 'Ajustement', value: 'Ajustement' }
-];
+const selectedId = ref<number | null>(null)
+const loadingDelete = ref(false)
+const mouvementTypes = computed(() => [
+  { label: t('movement.entry'), value: 'Entry' },
+  { label: t('movement.exit'), value: 'Exit' },
+  { label: t('movement.transfer'), value: 'Transfer' },
+  { label: t('movement.adjustment'), value: 'Adjustment' }
+]);
+
 // const roleId = roleStore.roleId
 
 const userData = authStore.user
@@ -239,7 +246,7 @@ const user = JSON.parse(userData);
 
 const currentMovement = reactive<StockMovement>({
   date: new Date().toISOString().split('T')[0],
-  product: null,
+  productId: null,
   type: "Entrée",
   quantity: 1,
   source: "",
@@ -250,95 +257,91 @@ const currentMovement = reactive<StockMovement>({
 
 
 const movements = ref<StockMovement[]>([])
-// Données mockées - à remplacer par des appels API réels
-// const movements = ref<StockMovement[]>([
-//   {
-//     id: 1,
-//     date: "2025-04-27",
-//     product: "Savon",
-//     type: "Entrée",
-//     quantity: 100,
-//     source: "Fournisseur - UNILEVER",
-//     destination: "Entrepôt Central",
-//     user: "Admin",
-//     notes: "Livraison mensuelle"
-//   },
-//   {
-//     id: 2,
-//     date: "2025-04-28",
-//     product: "Shampoing",
-//     type: "Sortie",
-//     quantity: 30,
-//     source: "Entrepôt Central",
-//     destination: "Chambre 205",
-//     user: "Marie Dupont",
-//     notes: "Pour réapprovisionner les chambres"
-//   },
-//   {
-//     id: 3,
-//     date: "2025-04-29",
-//     product: "Serviettes",
-//     type: "Transfert",
-//     quantity: 50,
-//     source: "Entrepôt Central",
-//     destination: "Spa",
-//     user: "Thomas Martin",
-//     notes: "Demande du service spa"
-//   }
-// ]);
 
 const productData = ref<any[]>([])
 
-const locations = ref([
-  "Entrepôt Central", "Réception", "Spa", "Restaurant", "Bar",
-  "Chambre 101", "Chambre 102", "Chambre 103", "Chambre 201", "Chambre 202", "Chambre 203"
+const locations = computed(() => [
+  t('location.centralWarehouse'),
+  t('location.reception'),
+  t('location.spa'),
+  t('location.restaurant'),
+  t('location.bar'),
+  t('location.room101'),
+  t('location.room102'),
+  t('location.room103'),
+  t('location.room201'),
+  t('location.room202'),
+  t('location.room203')
 ]);
+
 
 // Configuration de la grille AG Grid
 const columnDefs = ref<ColDef[]>([
-  { headerName: "Date", field: "date", filter: true, sortable: true },
-  { headerName: "Produit", field: "productId", filter: true,valueGetter: (params: any) => getProductName(params.data.productId) },
+  { headerName: t('Date'), field: "date", filter: true, sortable: true },
+  { headerName: t('product'), field: "productId", filter: true,valueGetter: (params: any) => getProductName(params.data.productId) },
   {
-    headerName: "Type",
+    headerName: t('Type'),
     field: "type",
     filter: true,
     cellRenderer: ({ value }:any) => {
       let color = "gray";
-      if (value === "Entrée") color = "green";
-      else if (value === "Sortie") color = "red";
-      else if (value === "Transfert") color = "blue";
-      else if (value === "Ajustement") color = "orange";
+      if (value === "Entry") color = "green";
+      else if (value === "Exit") color = "red";
+      else if (value === "Transfer") color = "blue";
+      else if (value === "Adjustment") color = "orange";
 
       return `<span class="text-${color}-600 font-semibold">${value}</span>`;
     },
   },
-  { headerName: "Quantité", field: "quantity", filter: true },
-  { headerName: "Source", field: "source", filter: true },
-  { headerName: "Destination", field: "destination", filter: true },
-  { headerName: "Utilisateur", field: "user", filter: true },
-  {
-    headerName: "Actions",
-    sortable: false,
-    filter: false,
-    width: 120,
-    cellRenderer: () => {
-      return `
-        <div class="flex gap-2">
-          <button data-action="edit" class="text-blue-600 hover:text-blue-800">
-            ✏️
-          </button>
-          <button data-action="delete" class="text-red-600 hover:text-red-800">
-            🗑️
-          </button>
-        </div>
-      `;
-    }
-  }
+  { headerName: t('quantity'), field: "quantity", filter: true },
+  { headerName: t('source'), field: "source", filter: true },
+  { headerName: t('destination'), field: "destination", filter: true },
+  { headerName: t('user'), field: "user", filter: true },
+  {headerName: t('Actions'),width: 120,sortable: false,  filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id) }
 ]);
-
+function getActionButtons(id: number): string {
+  return `
+    <div class="mt-2 space-x-4">
+      <button class="action-btn" data-action="edit" data-id="${id}">
+        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>
+      </button>
+      <button class="action-btn" data-action="delete" data-id="${id}">
+        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
 
 watch(() => locale.value, () => {
-  columnDefs.value = []})
+  columnDefs.value = [
+  { headerName: t('Date'), field: "date", filter: true, sortable: true },
+  { headerName: t('product'), field: "productId", filter: true,valueGetter: (params: any) => getProductName(params.data.productId) },
+  {
+    headerName: t('Type'),
+    field: "type",
+    filter: true,
+    cellRenderer: ({ value }:any) => {
+      let color = "gray";
+      if (value === "Entry") color = "green";
+      else if (value === "Exit") color = "red";
+      else if (value === "Transfer") color = "blue";
+      else if (value === "Adjustment") color = "orange";
+
+      return `<span class="text-${color}-600 font-semibold">${value}</span>`;
+    },
+  },
+  { headerName: t('quantity'), field: "quantity", filter: true },
+  { headerName: t('source'), field: "source", filter: true },
+  { headerName: t('destination'), field: "destination", filter: true },
+  { headerName: t('user'), field: "user", filter: true },
+  {headerName: t('Actions'),width: 120,sortable: false,  filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id) }
+  ]})
 
 const defaultColDef = {
   resizable: true,
@@ -351,23 +354,6 @@ const defaultColDef = {
 const onGridReady = (params: GridReadyEvent) => {
   console.log("Grid ready:", params);
 };
-
-
-const onCellClicked = (event: CellClickedEvent) => {
-  if (!event.column.getColDef().cellRenderer) return;
-  if (!event.event || !(event.event.target instanceof HTMLElement)) return;
-
-    const action = event.event.target.dataset?.action;
-
-  if (!action) return;
-
-  if (action === "edit") {
-    editMovement(event.data);
-  } else if (action === "delete") {
-    // confirmDelete(event.data);
-  }
-};
-
 
 
 const fetchProduct = async() => {
@@ -389,6 +375,88 @@ const fetchProduct = async() => {
 onMounted(()=>{
   fetchProduct()
 })
+
+const selected = ref<any>(null);
+
+const onCellClick = (event: any) => {
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
+
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  console.log('Action:', action, ' ID:', id);
+
+  if (action === 'edit') {
+    const movementEdit = movements.value.find((r: any) => r.id === id);
+    console.log("Editing :",  movementEdit);
+
+    if (movementEdit) {
+      selected.value = movementEdit;
+      currentMovement.date = movementEdit.date
+      currentMovement.destination = movementEdit.destination
+      currentMovement.notes = movementEdit.notes
+      currentMovement.productId = movementEdit.productId
+      currentMovement.quantity = movementEdit.quantity
+      currentMovement.source = movementEdit.source
+      currentMovement.type = movementEdit.type
+      isEditing.value = true;
+      showModal.value = true;
+
+    }
+  } else if (action === 'delete') {
+    selectedId.value = id
+    show.value = true
+  }
+};
+
+
+
+const updateData = async () => {
+  isLoading.value = true;
+
+  try {
+    const serviceId = serviceStore.serviceId;
+    const id = selected.value?.id;
+
+    if (!id) {
+      toast.error(t('toast.selectError'));
+      return;
+    }
+
+    const Payload = {
+      service_id: serviceId,
+      date :currentMovement.date,
+      destination :currentMovement.destination,
+      notes : currentMovement.notes,
+      product_id : currentMovement.productId,
+      quantity :currentMovement.quantity,
+      source : currentMovement.source,
+      type : currentMovement.type,
+
+
+
+    };
+
+    await updateMovementService(id, Payload);
+
+    resetForm ()
+    selected.value = null;
+    isEditing.value = false;
+    showModal.value = false;
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 
 // Gestion du modal
@@ -417,44 +485,35 @@ const resetForm = () => {
 
 const sourceOptions = computed(() => {
   const options = locations.value.map((l:any) => ({ label: l, value: l }))
-  if (currentMovement.type === 'Entrée') {
-    options.unshift({ label: 'Fournisseur externe', value: 'externe' })
+  if (currentMovement.type === 'Entry') {
+    options.unshift({ label: t('Externalsupplier'), value: 'externe' })
   }
   return options
 })
 
 const destinationOptions = computed(() => {
   const options = locations.value.map((l:any) => ({ label: l, value: l }))
-  if (currentMovement.type === 'Sortie') {
-    options.push({ label: 'Client', value: 'client' })
+  if (currentMovement.type === 'Exit') {
+    options.push({ label: t('Customer'), value: 'customer' })
   }
   return options
 })
 
 
-const editMovement = (movement: StockMovement) => {
-  isEditing.value = true;
-  Object.assign(currentMovement, { ...movement });
-  showModal.value = true;
-};
 
 const saveMovement = async() => {
   isLoading.value=true
   const serviceId = serviceStore.serviceId;
   try {
     if (isEditing.value) {
-      // Mise à jour d'un mouvement existant
-      //const index = movements.value.findIndex((m:any )=> m.id === currentMovement.id);
-      // if (index !== -1) {
-      //   movements.value[index] = { ...currentMovement };
+      await updateData ()
+      toast.success(t('toast.SucessUpdate'));
 
-      //   // showSuccess("Mouvement mis à jour avec succès");
-      // }
     } else {
       // Création d'un nouveau mouvement
       console.log ("........",currentMovement)
       const payload = {
-        product_id: currentMovement.product,
+        product_id: currentMovement.productId,
         type: currentMovement.type,
         quantity: currentMovement.quantity,
         source: currentMovement.source,
@@ -468,8 +527,9 @@ const saveMovement = async() => {
       const response = await movementService(payload);
       console.log('mouvement stock',payload)
       console.log('response',response)
+      toast.success(t('toast.Sucess'));
     }
-    toast.success(t('toast.Sucess'));
+
     closeModal();
 
   } catch (error) {
@@ -479,26 +539,25 @@ const saveMovement = async() => {
     isLoading.value=false
   }
 };
+const confirmDelete = async () => {
+  if (selectedId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteMovement(selectedId.value)
+      toast.success(t('toast.DeletedSuccess'))
+      movements.value = movements.value.filter((r: any) => r.id !== selectedId.value);
+      console.log(`Suppression du room type ID: ${selectedId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.userDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+      selectedId.value = null
+    }
+  }
+}
 
-// const confirmDelete = (movement: StockMovement) => {
-//   if (confirm(`Êtes-vous sûr de vouloir supprimer ce mouvement de stock?`)) {
-//     deleteMovement(movement);
-//   }
-// };
-
-// const deleteMovement = (movement: StockMovement) => {
-//   try {
-//     movements.value = movements.value.filter(m => m.id !== movement.id);
-//     showSuccess("Mouvement supprimé avec succès");
-
-//     // Dans une application réelle: appel API pour supprimer
-//     // await movementService.delete(movement.id);
-
-//   } catch (error) {
-//     console.error("Erreur lors de la suppression:", error);
-//     showError("Une erreur est survenue");
-//   }
-// };
 
 // Export des données
 const exportToExcel = () => {
@@ -506,7 +565,7 @@ const exportToExcel = () => {
   // alert("Fonctionnalité d'export à implémenter");
 };
 
-// Récupération des données (à remplacer par un appel API)
+
 onMounted(async () => {
   const serviceId = serviceStore.serviceId;
   try {
@@ -526,4 +585,6 @@ const getProductName = (id: number) => {
   const found = productData.value.find((s:any) => s.value === id);
   return found ? found.label : '';
 };
+
+
 </script>

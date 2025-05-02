@@ -180,7 +180,9 @@
     "selectError" : "No users selected for update.",
     "roomtypesuccess" : "Room Type created successfully ✅",
     "Sucess" : "created successfully ✅",
-    "error" : "Error saving  ❌"
+    "error" : "Error saving  ❌",
+    "SucessUpdate": "successfully updated ✅",
+    "DeletedSuccess": "Delete with success"
     },
     "EditRoomType" : "Edit Room Type",
    "detailsCustomers":"Customer Details",
@@ -225,7 +227,39 @@
    "Code" : "Code",
    "inStock" : "In Stock",
    "lowStock" : "Low Stock",
-   "outofstock" : "Out of stock"
+   "outofstock" : "Out of stock",
+   "addMovement": "New Movement",
+   "export" : "Export",
+   "edit" : "Edit",
+   "new" : "New",
+   "stockMovement": "Stock Movement",
+   "source" : "Source",
+   "destination" : "Destination",
+   "product" : "Product",
+   "user" : "User",
+   "movement": {
+   "entry": "Entry",
+   "exit": "Exit",
+   "transfer": "Transfer",
+   "adjustment": "Adjustment"
+   },
+   "location": {
+    "centralWarehouse": "Central Warehouse",
+    "reception": "Reception",
+    "spa": "Spa",
+    "restaurant": "Restaurant",
+    "bar": "Bar",
+    "room101": "Room 101",
+    "room102": "Room 102",
+    "room103": "Room 103",
+    "room201": "Room 201",
+    "room202": "Room 202",
+    "room203": "Room 203"
+  },
+  "editProduct" : "Edit Product",
+  "Externalsupplier" : "External Supplier",
+  "Department" : "Departments"
+    
    
    
 }

@@ -81,23 +81,23 @@ onBeforeUnmount(() => {
 <template>
   <div ref="selectWrapper" class="w-full">
     <label for="floating_select" class="text-base"
-        :class="['mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400', isDropdownOpen ? '  text-blue-500' : 'text-gray-500']">
+        :class="['mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400', isDropdownOpen ? '  text-purple-500' : 'text-gray-500']">
         {{ lb }}<span v-if="isRequired" class="text-red-500">*</span>
       </label>
     <div :class="['relative font-sans cursor-pointer', disabled ? 'cursor-not-allowed text opacity-50' : '']"
       @click="handleDropdownToggle">
       <div
-        :class="['flex justify-between dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800', isDropdownOpen ? ' border-blue-500 text-gray-900' : 'bg-transparent border-gray-400']">
+        :class="['flex justify-between dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500/10 focus:outline-none  focus:ring-purple-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800', isDropdownOpen ? ' border-purple-500  text-gray-900' : 'bg-transparent border-gray-300']">
         <span>{{ selectedOption ? selectedOption.label : " " }}</span>
 
-        <span :class="[isDropdownOpen ? ' text-blue-500' : ' text-gray-500']">▼</span>
+        <span :class="[isDropdownOpen ? ' text-purple-500' : ' text-gray-500']">▼</span>
       </div>
 
       <input type="hidden" :required="isRequired" :value="selectedOption ? selectedOption.value : ''" class="" />
       <ul v-if="isDropdownOpen"
-        class="custom-scrollbar text-lg sm:text-base absolute top-full left-0 right-0 bg-white border-2 border-gray-300 border-t-0 rounded-b-lg max-h-40 overflow-y-auto z-50 mt-1">
+      :class="['custom-scrollbar absolute top-full left-0 right-0 z-50 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0', isDropdownOpen ? 'border-purple-100' : 'border-gray-300']">
         <li v-for="option in options" :key="option.value" @click="!disabled && selectOption(option)"
-          :class="['px-5 py-2 cursor-pointer hover:bg-gray-200', disabled ? 'cursor-not-allowed text-gray-400' : '']">
+          :class="['px-5 py-2 cursor-pointer hover:bg-purple-100', disabled ? 'cursor-not-allowed text-gray-400' : '']">
           {{ option.label }}
         </li>
       </ul>
@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
 .custom-scrollbar {
   scrollbar-width: thin;
   /* Pour Firefox */
-  scrollbar-color: #3b82f6 #e5e7eb;
+  scrollbar-color: #b654c7e2 #e5e7eb;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

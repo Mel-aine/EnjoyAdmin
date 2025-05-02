@@ -23,6 +23,7 @@
           :domLayout="'autoHeight'"
           :autoSizeStrategy="autoSizeStrategy"
           @gridReady="onGridReady"
+          @cellClicked="onCellClick"
         />
       </div>
     </ComponentCard>
@@ -34,7 +35,7 @@
           <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                     <!-- close btn -->
               <button
-              @click="modalOpen = false"
+              @click="close"
               class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
               >
               <svg
@@ -53,7 +54,7 @@
               />
             </svg>
             </button>
-            <h2 class="text-lg font-semibold mb-4">{{ $t('NewCategory') }}</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ isEditing ? $t('edit'): $t('NewCategory') }}</h2>
             <form @submit.prevent="addCategory">
               <Input
                 :lb="t('Name')"
@@ -68,7 +69,7 @@
                   class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"
                 >
 
-              <span v-if="!isLoading">{{ $t('Save') }}</span>
+              <span v-if="!isLoading">{{ isEditing ? $t('edit'): $t('Save') }}</span>
               <span v-else class="flex items-center gap-2">
                 <Spinner class="w-4 h-4" />
                 {{ $t('Processing') }}...
@@ -81,6 +82,9 @@
       </Modal>
     </AdminLayout>
   </div>
+  <ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
 </template>
 
 <script setup lang="ts">
@@ -91,7 +95,7 @@ import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
-import { createCategory,getCategory} from "@/services/api";
+import { createCategory,getCategory,deleteCategory,updateCategory} from "@/services/api";
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
@@ -99,13 +103,21 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
+import ModalDelete from "@/components/modal/ModalDelete.vue";
 // Données simulées
 const categories = ref<any[]>([]);
 const isLoading = ref(false)
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore();
+const modalOpen = ref(false);
+const newCategoryName = ref("");
+const isEditing = ref(false)
+const show=ref(false)
+const selectedId = ref<number | null>(null)
+const loadingDelete = ref(false)
 
+const selected = ref<any>(null);
 
 
 function getActionButtons(Id: number): string {
@@ -129,14 +141,14 @@ function getActionButtons(Id: number): string {
 const columnDefs = ref<ColDef[]>([
   { headerName: t('ID'), field: "id", width: 60 },
   { headerName: t('Name'), field: "name" , width: 80},
-  { headerName: t('Actions'),width: 60, cellRenderer: (params:any) => getActionButtons(params.data.id) }
+  { headerName: t('Actions'),width: 60 ,filter: false, sortable: false  , cellRenderer: (params:any) => getActionButtons(params.data.id) }
 ]);
 
 watch(() => locale.value, () => {
       columnDefs.value = [
       { headerName: t('ID'), field: "id", width: 60 },
   { headerName: t('Name'), field: "name", width: 80 },
-  { headerName: t('Actions'),width: 60, cellRenderer: (params:any) => getActionButtons(params.data.id) }
+  { headerName: t('Actions'),width: 60,filter: false, sortable: false , cellRenderer: (params:any) => getActionButtons(params.data.id) }
 ]})
 
 const defaultColDef = {
@@ -146,9 +158,71 @@ const defaultColDef = {
   floatingFilter: true,
 };
 
-const modalOpen = ref(false);
-const newCategoryName = ref("");
 
+
+const onCellClick = (event: any) => {
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
+
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  console.log('Action:', action, ' ID:', id);
+
+  if (action === 'edit') {
+    const categorieEdit = categories.value.find((r: any) => r.id === id);
+    console.log("Editing :", categorieEdit);
+
+    if (categorieEdit) {
+      selected.value = categorieEdit;
+      newCategoryName.value = categorieEdit.name
+
+      isEditing.value = true;
+      modalOpen.value = true;
+
+    }
+  } else if (action === 'delete') {
+    selectedId.value = id
+    show.value = true
+  }
+};
+
+
+const updateData = async () => {
+  isLoading.value = true;
+
+  try {
+    const serviceId = serviceStore.serviceId;
+    const id = selected.value?.id;
+
+    if (!id) {
+      toast.error(t('toast.selectError'));
+      return;
+    }
+
+    const Payload = {
+      service_id: serviceId,
+      name : newCategoryName.value
+    };
+
+    await updateCategory(id, Payload);
+    newCategoryName.value = ''
+    selected.value = null;
+    isEditing.value = false;
+    modalOpen.value = false;
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 
 const addCategory = async () => {
@@ -156,6 +230,10 @@ const addCategory = async () => {
   const serviceId = serviceStore.serviceId;
 
   try {
+    if(isEditing.value){
+      await updateData ()
+      toast.success(t('toast.SucessUpdate'));
+    } else{
     const payload = {
      name:newCategoryName.value,
      service_id : serviceId
@@ -172,7 +250,8 @@ const addCategory = async () => {
     } else {
       toast.error(t('toast.error'));
     }
-  } catch (error) {
+  }
+} catch (error) {
     console.error(error);
     toast.error(t('toast.error'));
   }finally{
@@ -203,4 +282,29 @@ const autoSizeStrategy = {
   type: "fitGridWidth",
   defaultMinWidth: 100,
 }
+
+const confirmDelete = async () => {
+  if (selectedId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteCategory(selectedId.value)
+      toast.success(t('toast.DeletedSuccess'))
+      categories.value = categories.value.filter((r: any) => r.id !== selectedId.value);
+      console.log(`Suppression du room type ID: ${selectedId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.userDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+      selectedId.value = null
+    }
+  }
+}
+const close = () =>{
+  modalOpen.value = false
+  isEditing.value = false
+  newCategoryName.value = ''
+}
+
 </script>

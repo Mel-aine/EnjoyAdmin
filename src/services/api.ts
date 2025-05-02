@@ -259,3 +259,35 @@ export const  getProduct= (serviceId: number | null): Promise<AxiosResponse<any>
 export const getMovementService = (serviceId: number | null):Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/movement/${serviceId}`);
 };
+
+export const updateMovementService= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/movement/${id}`, Payload);
+};
+
+export const deleteMovement = (id: number | null ): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/movement/${id}`);
+};
+
+export const updateProduct= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/prooductService/${id}`, Payload);
+};
+
+export const deleteProduct = (id: number | null ): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/prooductService/${id}`);
+};
+
+export const deleteCategory = (id: number | null ): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/stockCategory/${id}`);
+};
+
+export const updateCategory= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/stockCategory/${id}`, Payload);
+};
+
+export const deleteSupplier = (id: number | null ): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/supplier/${id}`);
+};
+
+export const updateSupplier= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/supplier/${id}`, Payload);
+};

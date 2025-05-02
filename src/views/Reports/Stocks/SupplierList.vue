@@ -22,6 +22,7 @@
           :pagination="true"
           :domLayout="'autoHeight'"
           @gridReady="onGridReady"
+          @cellClicked="onCellClick"
         />
       </div>
       </ComponentCard>
@@ -30,7 +31,7 @@
         <template #body>
           <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <button
-              @click="modalOpen = false"
+              @click="close"
               class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
               >
               <svg
@@ -49,7 +50,7 @@
               />
             </svg>
             </button>
-            <h2 class="text-lg font-semibold mb-4">{{ $t('newSupplier') }}</h2>
+            <h2 class="text-lg font-semibold mb-4">{{isEditing? $t('edit') : $t('newSupplier') }}</h2>
             <form @submit.prevent="addSupplier">
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Input :lb="t('Name')" v-model="newSupplier.name" :id="'name'" :forLabel="'name'" />
@@ -63,7 +64,7 @@
                   type="submit"
                   class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"
                 >
-                <span v-if="!isLoading">{{ $t('Save') }}</span>
+                <span v-if="!isLoading">{{ isEditing? $t('edit') : $t('Save') }}</span>
                 <span v-else class="flex items-center gap-2">
                   <Spinner class="w-4 h-4" />
                   {{ $t('Processing') }}...
@@ -76,6 +77,9 @@
       </Modal>
     </AdminLayout>
   </div>
+  <ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
 </template>
 
 <script setup lang="ts">
@@ -86,7 +90,7 @@ import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
-import { createSupplier,getSupplier} from "@/services/api";
+import { createSupplier,getSupplier,deleteSupplier,updateSupplier} from "@/services/api";
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
@@ -94,6 +98,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
+import ModalDelete from "@/components/modal/ModalDelete.vue";
 
 
 
@@ -103,7 +108,11 @@ const toast = useToast()
 const serviceStore = useServiceStore();
 const isLoading = ref(false)
 const suppliers = ref<any[]>([]);
-
+const isEditing = ref(false)
+const show=ref(false)
+const selectedId = ref<number | null>(null)
+const loadingDelete = ref(false)
+const selected = ref<any>(null);
 
 
 
@@ -132,7 +141,7 @@ const columnDefs = ref<ColDef[]>([
   { headerName: t('Email'), field: "email" },
   { headerName: t('Phone'), field: "phone" },
   { headerName: t('Address'), field: "address" },
-  { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) }
+  { headerName: t('Actions') ,filter: false, sortable: false, cellRenderer: (params:any) => getActionButtons(params.data.id) }
 ]);
 
 watch(() => locale.value, () => {
@@ -142,7 +151,7 @@ watch(() => locale.value, () => {
       { headerName: t('Email'), field: "email" },
       { headerName: t('Phone'), field: "phone" },
       { headerName: t('Address'), field: "address" },
-      { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) }
+      { headerName: t('Actions'),filter: false, sortable: false , cellRenderer: (params:any) => getActionButtons(params.data.id) }
 ]})
 
 
@@ -162,12 +171,86 @@ const newSupplier = ref({
   address: "",
 });
 
+const onCellClick = (event: any) => {
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
+
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  console.log('Action:', action, ' ID:', id);
+
+  if (action === 'edit') {
+    const supplierEdit = suppliers.value.find((r: any) => r.id === id);
+    console.log("Editing :", supplierEdit);
+
+    if (supplierEdit) {
+      selected.value = supplierEdit;
+      newSupplier.value.name = supplierEdit.name
+      newSupplier.value.email = supplierEdit.email
+      newSupplier.value.phone = supplierEdit.phone
+      newSupplier.value.address = supplierEdit.address
+
+      isEditing.value = true;
+      modalOpen.value = true;
+    }
+  } else if (action === 'delete') {
+    selectedId.value = id
+    show.value = true
+  }
+};
+
+const updateData = async () => {
+  isLoading.value = true;
+
+  try {
+    const serviceId = serviceStore.serviceId;
+    const id = selected.value?.id;
+
+    if (!id) {
+      toast.error(t('toast.selectError'));
+      return;
+    }
+
+    const Payload = {
+      service_id: serviceId,
+      name : newSupplier.value.name,
+      email : newSupplier.value.email,
+      phone : newSupplier.value.phone,
+      address : newSupplier.value.address,
+    };
+
+    await updateSupplier(id, Payload);
+
+    selected.value = null;
+    isEditing.value = false;
+    modalOpen.value = false;
+    newSupplier.value = { name: "", email: "", phone: "", address: "" }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 
 const addSupplier = async () => {
   isLoading.value=true
   const serviceId = serviceStore.serviceId;
 
   try {
+
+    if(isEditing.value){
+      await updateData ()
+      toast.success(t('toast.SucessUpdate'));
+    } else{
+
     const payload = {
       name: newSupplier.value.name ,
       email: newSupplier.value.email,
@@ -188,7 +271,8 @@ const addSupplier = async () => {
     } else {
       toast.error(t('toast.error'));
     }
-  } catch (error) {
+    }
+  }catch (error) {
     console.error(error);
     toast.error(t('toast.error'));
   }finally{
@@ -212,7 +296,32 @@ onMounted(()=>{
   fetchSupplier()
 })
 
+const confirmDelete = async () => {
+  if (selectedId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteSupplier(selectedId.value)
+      toast.success(t('toast.DeletedSuccess'))
+      suppliers.value = suppliers.value.filter((r: any) => r.id !== selectedId.value);
+      console.log(`Suppression du room type ID: ${selectedId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.userDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+      selectedId.value = null
+    }
+  }
+}
+
 const onGridReady = (params: GridReadyEvent) => {
   console.log("Suppliers grid ready");
 };
+
+const close = () =>{
+  isEditing.value = false
+  modalOpen.value = false
+  newSupplier.value = { name: "", email: "", phone: "", address: "" }
+}
 </script>

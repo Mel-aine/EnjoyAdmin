@@ -84,9 +84,9 @@ const router = createRouter({
       component: () => import('../views/Reports/ExpensesTable.vue'),
     },
     {
-      path: '/booking',
-      name: 'Booking',
-      component: () => import('../views/Reports/BookingTable.vue'),
+      path: '/department',
+      name: 'department',
+      component: () => import('../views/DepartmentView.vue'),
     },
     {
       path: '/allInvoice',

@@ -642,7 +642,7 @@ const saveReservation = async () => {
 
 const savePayment = async () => {
   isLoading.value=true
-  const paymentStatus = selectedPaymentMethod.value === 'Cash' ? 'pending' : 'succeeded';
+  const paymentStatus = selectedPaymentMethod.value === 'Cash' ? 'pending' : 'pending';
   try {
     const payload = {
       user_id: userId.value,

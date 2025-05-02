@@ -246,6 +246,8 @@
     RoomIcon,
     PaymentIcon
   } from "../../icons";
+  import { Building2 } from 'lucide-vue-next'
+
   import { useSidebar } from "@/composables/useSidebar";
   import { isLoading } from '@/composables/spinner';
   import { CalendarCheck2 } from 'lucide-vue-next'
@@ -297,32 +299,32 @@
   });
 
   // === Interfaces de typage ===
-  interface SubSubItem {
-    name: string;
-    path: string;
-    roles?: number[]
-  }
+  // interface SubSubItem {
+  //   name: string;
+  //   path: string;
+  //   roles?: number[]
+  // }
 
-  interface SubItem {
-    name: string;
-    path: string;
-    pro?: boolean;
-    roles?: number[];
-    subItems?: SubSubItem[];
-  }
+  // interface SubItem {
+  //   name: string;
+  //   path: string;
+  //   pro?: boolean;
+  //   roles?: number[];
+  //   subItems?: SubSubItem[];
+  // }
 
-  interface MenuItem {
-    icon?: any;
-    name: string;
-    path?: string;
-    subItems?: SubItem[];
-    roles?: number[]
-  }
+  // interface MenuItem {
+  //   icon?: any;
+  //   name: string;
+  //   path?: string;
+  //   subItems?: SubItem[];
+  //   roles?: number[]
+  // }
 
-  interface MenuGroup {
-    title: string;
-    items: MenuItem[];
-  }
+  // interface MenuGroup {
+  //   title: string;
+  //   items: MenuItem[];
+  // }
 
   const menuGroups: any[] = [
     {
@@ -359,6 +361,12 @@
           roles: [1, 2, 3],
         },
         {
+          name: t('Department'),
+          icon: Building2,
+          path: '/department',
+          roles: [1, 2],
+        },
+        {
           name: t('Reports'),
           icon: ListIcon,
           roles: [1, 2],
@@ -379,7 +387,7 @@
               ]
             },
             { name: t('Expenses'), path: '/expense', roles: [1, 2] },
-            { name: t('Booking'), path: '/booking', roles: [1, 2] },
+            // { name: t('Booking'), path: '/booking', roles: [1, 2] },
           ],
         },
         {

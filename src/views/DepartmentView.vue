@@ -41,7 +41,7 @@ import { ref } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,ICellRendererParams} from 'ag-grid-community';
+import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent} from 'ag-grid-community';
 
 
 

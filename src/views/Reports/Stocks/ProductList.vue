@@ -31,7 +31,6 @@
           :domLayout="'autoHeight'"
           @cellClicked="onCellClick"
           @gridReady="onGridReady"
-          @selectionChanged="getSelectedRows"
           :defaultColDef="defaultColDef"
           :autoSizeStrategy="autoSizeStrategy"
         />
@@ -55,7 +54,7 @@
             </svg>
           </button>
 
-          <h4 class="text-2xl font-semibold text-gray-800 mb-6">{{ $t('addProductDetail') }}</h4>
+          <h4 class="text-2xl font-semibold text-gray-800 mb-6">{{ isEditing ? $t('editProduct') : $t('addProductDetail') }}</h4>
 
           <form class="flex flex-col space-y-4" @submit.prevent = "addProduct">
             <div class="custom-scrollbar h-[500px] overflow-y-auto p-2">
@@ -82,7 +81,7 @@
                 class="rounded-lg bg-purple-500 px-4 py-2.5 text-sm text-white hover:bg-purple-600"
               >
 
-                <span v-if="!isLoading">{{ $t('addProduct') }}</span>
+                <span v-if="!isLoading">{{ isEditing ? $t('edit') : $t('addProduct')  }}</span>
                 <span v-else class="flex items-center gap-2">
                   <Spinner class="w-4 h-4" />
                   {{ $t('Processing') }}...
@@ -94,6 +93,9 @@
       </template>
     </Modal>
   </div>
+  <ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
 </template>
 
 <script setup lang="ts">
@@ -102,7 +104,7 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
-import { createProduct,getCategory,getSupplier,getProduct} from "@/services/api";
+import { createProduct,getCategory,getSupplier,getProduct,updateProduct,deleteProduct} from "@/services/api";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useToast } from 'vue-toastification'
@@ -112,11 +114,10 @@ import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import ComponentCard from "@/components/common/ComponentCard.vue";
+import ModalDelete from "@/components/modal/ModalDelete.vue";
 import type {
   ColDef,
   GridReadyEvent,
-  CellClickedEvent,
-  SelectionChangedEvent,
   ICellRendererParams
 } from 'ag-grid-community';
 
@@ -127,6 +128,11 @@ const isLoading= ref(false)
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore();
+const selected = ref<any>(null);
+const selectedId = ref<number | null>(null);
+const isEditing = ref(false)
+const show = ref(false)
+const loadingDelete = ref(false)
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
 };
@@ -268,6 +274,11 @@ const addProduct = async () => {
   const serviceId = serviceStore.serviceId;
 
   try {
+    if (isEditing.value) {
+      await updateData ()
+      toast.success(t('toast.SucessUpdate'));
+
+    }else{
     const payload = {
       code: newProduct.value.code,
       name:newProduct.value.name,
@@ -299,7 +310,8 @@ const addProduct = async () => {
     } else {
       toast.error(t('toast.error'));
     }
-  } catch (error) {
+  }
+} catch (error) {
     console.error(error);
     toast.error(t('toast.error'));
   }finally{
@@ -332,6 +344,7 @@ const getCategoryName = (id: number) => {
 
 const close = () =>{
   modalOpen.value = false;
+  isEditing.value = false
       newProduct.value = {
         name: "",
         code:"",
@@ -344,11 +357,117 @@ const close = () =>{
 }
 
 const onGridReady = (params: GridReadyEvent) => console.log('Grid Ready', params);
-const onCellClick = (event: CellClickedEvent) => console.log('Clicked', event.data);
-const getSelectedRows = (event: SelectionChangedEvent) => {
-  const selected = event.api.getSelectedRows();
-  console.log('Selected row:', selected);
+// const onCellClick = (event: CellClickedEvent) => console.log('Clicked', event.data);
+// const getSelectedRows = (event: SelectionChangedEvent) => {
+//   const selected = event.api.getSelectedRows();
+//   console.log('Selected row:', selected);
+// };
+
+
+
+const onCellClick = (event: any) => {
+  const button = event.event.target.closest('button');
+  console.log('Button clicked:', button);
+
+  if (!button) {
+    console.error('No button found');
+    return;
+  }
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  console.log('Action:', action, ' ID:', id);
+
+  if (action === 'edit') {
+    const productEdit = productData.value.find((r: any) => r.id === id);
+    console.log("Editing :",  productEdit);
+
+    if (productEdit) {
+      selected.value = productEdit;
+      newProduct.value.name =  productEdit.name
+      newProduct.value.code =  productEdit.code
+      newProduct.value.quantity =  productEdit.quantity
+      newProduct.value.supplier=  productEdit.supplierId
+      newProduct.value.status=  productEdit.status
+      newProduct.value.category=  productEdit.stockCategoryId
+      newProduct.value.price=  productEdit.price
+
+      isEditing.value = true;
+      modalOpen.value = true;
+
+    }
+  } else if (action === 'delete') {
+    selectedId.value = id
+    show.value = true
+  }
 };
+
+const updateData = async () => {
+  isLoading.value = true;
+
+  try {
+    const serviceId = serviceStore.serviceId;
+    const id = selected.value?.id;
+
+    if (!id) {
+      toast.error(t('toast.selectError'));
+      return;
+    }
+
+    const Payload = {
+      service_id: serviceId,
+      name:newProduct.value.name ,
+      code:newProduct.value.code ,
+      quantity:newProduct.value.quantity,
+      supplier_id:newProduct.value.supplier,
+      status:newProduct.value.status,
+      stock_category_id:newProduct.value.category,
+      price:newProduct.value.price,
+
+    };
+
+    await updateProduct(id, Payload);
+    newProduct.value = {
+        name: "",
+        code:"",
+        quantity: null,
+        supplier: null,
+        status: "",
+        category: null,
+        price:null
+       }
+    selected.value = null;
+    isEditing.value = false;
+    modalOpen.value = false;
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const confirmDelete = async () => {
+  if (selectedId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteProduct(selectedId.value)
+      toast.success(t('toast.DeletedSuccess'))
+      productData.value = productData.value.filter((r: any) => r.id !== selectedId.value);
+      console.log(`Suppression du room type ID: ${selectedId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.userDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+      selectedId.value = null
+    }
+  }
+}
+
 </script>
 
 <style scoped>
