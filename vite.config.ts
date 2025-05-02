@@ -44,4 +44,16 @@ export default defineConfig({
     port: parseInt(process.env.PORT || '4173'),
     allowedHosts: ['enjoyadmin.onrender.com']
   },
+  build: {
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ['vue', 'vue-router', 'pinia'],
+          aggrid: ['ag-grid-vue3', 'ag-grid-community'],
+          libs: ['axios', 'luxon'],
+        },
+      },
+    },
+  }
 })
