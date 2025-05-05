@@ -1,88 +1,129 @@
 <template>
   <div>
     <AdminLayout>
-      <PageBreadcrumb :pageTitle="currentPageTitle" />
+      <PageBreadcrumb :pageTitle="$t('department')" />
       <div class="flex justify-end pb-5">
-        <!-- Bouton qui ouvre/ferme le dropdown -->
+       
         <button
-          class="border border-gray-300 bg-purple-400 rounded-lg relative"
-          @click="toggleDropdown"
-        >
-          <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-
-        <!-- Dropdown menu -->
-        <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
-          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-            <li>
-              <button class="block px-4 py-2 hover:text-purple-600 dark:hover:text-white" >Ajouter un département</button>
-            </li>
-          </ul>
-        </div>
+                @click="openAddDepartmentModal()"
+                class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow hover:bg-orange-700 transition flex items-center"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                {{ $t('addDepartment') }}
+              </button>
       </div>
+
+
 
       <!-- Modal pour ajouter un département -->
-      <div v-if="isAddModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-96">
-          <h2 class="text-xl font-semibold mb-4">Ajouter un département</h2>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nom du département</label>
-            <input
-              type="text"
-              v-model="newDepartment.name"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Ex: Restauration, Entretien, etc."
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              v-model="newDepartment.description"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Description du département"
-              rows="3"
-            ></textarea>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
-            <input
-              type="text"
-              v-model="newDepartment.manager"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Nom du responsable"
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre d'employés</label>
-            <input
-              type="number"
-              v-model="newDepartment.employeeCount"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              min="0"
-            />
-          </div>
-          <div class="flex justify-end space-x-3">
+      <Modal v-if="isAddModalOpen" @close="isAddModalOpen = false">
+        <template #body>
+          <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <button
               @click="closeAddDepartmentModal"
-              class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-            >
-              Annuler
+              class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
+              >
+              <svg
+              class="fill-current"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              >
+              <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+              fill=""
+              />
+            </svg>
             </button>
-            <button
-              @click="addDepartment"
-              class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
-            >
-              Ajouter
-            </button>
+            <h2 class="text-lg font-semibold mb-4">{{ isEditing? $t('edit'):$t('addDepartment') }}</h2>
+            <form @submit.prevent="addDepartment">
+              <div class="mb-4">
+                <Input :lb="$t('departmentName')" v-model="newDepartment.name" />
+              </div>
+              <div class="mb-4">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('Description') }}</label>
+                <textarea
+                  v-model="newDepartment.description"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-900 bg-transparent text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                  placeholder="Description du département"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="mb-4">
+              <Input :lb="$t('manager')" v-model="newDepartment.manager" :placeholder="$t('name')"/>
+              </div>
+              <div class="mb-4">
+                <Input :lb="$t('numberEmployee')" :inputType="'number'" v-model="newDepartment.employeeCount" min="0" />
+              </div>
+              <div class="flex justify-end space-x-3">
+                <button
+                  @click="closeAddDepartmentModal"
+                  class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                >
+                  {{ $t('Cancel') }}
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
+                >
+                  <span v-if="!isLoading"> {{ isEditing ? $t('update') : $t('Save') }}</span>
+                  <span v-else class="flex items-center gap-2">
+                    <Spinner class="w-4 h-4" />
+                    {{ $t('Processing') }}...
+                  </span>
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
-      </div>
+        </template>
+      </Modal>
+      <Modal v-if="showModal" @close="showModal = false">
+        <template #body>
+          <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+            <button
+              @click="showModal = false"
+              class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
+            >
+              <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+                  fill=""
+                />
+              </svg>
+            </button>
 
-      <div class="space-y-5 pt-10 sm:space-y-6">
+            <h2 class="text-lg font-semibold mb-6">{{ $t('departmentDetails') }}</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800 dark:text-white/80">
+            <div class="flex flex-col">
+              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('departmentName') }}</span>
+              <span class="mt-1">{{ selectedDepartment?.name || '-' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('manager') }}</span>
+              <span class="mt-1">{{ selectedDepartment?.responsible || '-' }}</span>
+            </div>
+            <div class="flex flex-col sm:col-span-2">
+              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('Description') }}</span>
+              <span class="mt-1">{{ selectedDepartment?.description || '-' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('numberEmployee') }}</span>
+              <span class="mt-1">{{ selectedDepartment?.numberEmployees ?? 0 }}</span>
+            </div>
+          </div>
+
+          </div>
+        </template>
+      </Modal>
+
+      <div class="space-y-5 pt-10 sm:space-y-6 min-h-screen">
         <ag-grid-vue
           class="ag-theme-quartz"
           :rowData="departmentsData"
@@ -100,69 +141,168 @@
       </div>
     </AdminLayout>
   </div>
+  <ModalDelete v-if="show" @close="show = false"
+      @delete="confirmDelete"
+      :isLoading="loadingDelete"/>
 </template>
 
 <script setup lang="ts">
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-import AdminLayout from "@/components/layout/AdminLayout.vue";
-import { ref } from 'vue';
+import { defineAsyncComponent, ref, onMounted, watch } from 'vue';
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import type { ColDef, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
+import { createDepartment, getDepartment ,updateDpt,deleteDpt} from "@/services/api";
+import { useServiceStore } from '@/composables/serviceStore';
+import { useI18n } from "vue-i18n";
+import { useToast } from 'vue-toastification';
 
-const currentPageTitle = ref("Départements");
-const isDropdownOpen = ref(false);
+
+// Lazy-loaded components
+const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'));
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'));
+const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
+const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'));
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'));
+
+
 const isAddModalOpen = ref(false);
-
+const isLoading = ref(false)
+const { t, locale } = useI18n({ useScope: "global" });
+const toast = useToast()
+const serviceStore = useServiceStore();
+const isEditing = ref(false);
+const departmentsData = ref<any[]>([])
+const show = ref(false)
+const loadingDelete = ref(false)
+const selectedId = ref<number | null>(null)
+const showModal = ref(false)
+const selectedDepartment = ref<any | null>(null)
+const selected = ref<any>(null);
 const newDepartment = ref({
-  id: '',
   name: '',
   description: '',
   manager: '',
   employeeCount: 0,
-  budget: '',
-  status: 'Actif'
+  status: 'active'
 });
 
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
+
 
 const openAddDepartmentModal = () => {
   isAddModalOpen.value = true;
-  isDropdownOpen.value = false;
+  
 };
 
 const closeAddDepartmentModal = () => {
   isAddModalOpen.value = false;
-  // Réinitialiser le formulaire
+  isEditing.value=false
   newDepartment.value = {
-    id: '',
+    
     name: '',
     description: '',
     manager: '',
     employeeCount: 0,
-    budget: '',
-    status: 'Actif'
+    status: 'active'
   };
 };
 
-const addDepartment = () => {
-  // Générer un ID unique
-  newDepartment.value.id = '#' + Math.floor(Math.random() * 900000 + 100000);
-  // Ajouter un budget fictif
-  newDepartment.value.budget = Math.floor(Math.random() * 500000 + 100000) + ' FCFA';
+const updateData = async () => {
+  isLoading.value = true;
 
-  // Ajouter le département à la liste
-  departmentsData.value.unshift({ ...newDepartment.value });
+  try {
+    const serviceId = serviceStore.serviceId;
+    const id = selected.value?.id;
 
-  // Fermer le modal et réinitialiser
-  closeAddDepartmentModal();
+    if (!id) {
+      toast.error(t('toast.selectError'));
+      return;
+    }
 
-  // Notification de succès (à implémenter selon votre système)
-  alert('Département ajouté avec succès!');
+    const Payload = {
+      service_id: serviceId,
+      name:newDepartment.value.name,
+      description:newDepartment.value.description,
+      responsible:newDepartment.value.manager,
+      number_employees:newDepartment.value.employeeCount
+
+    };
+
+    await updateDpt(id, Payload);
+
+    newDepartment.value = {
+    name: '',
+    description: '',
+    manager: '',
+    employeeCount: 0,
+    status: 'active'
+     };
+    selected.value = null;
+    isEditing.value = false;
+    showModal.value = false;
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+
+  } finally {
+    isLoading.value = false;
+  }
 };
+
+const addDepartment = async() => {
+  // Ajouter un budget fictif
+  //newDepartment.value.budget = Math.floor(Math.random() * 500000 + 100000) + ' FCFA';
+  isLoading.value=true
+  const serviceId = serviceStore.serviceId;
+  try {
+    if (isEditing.value) {
+       await updateData()
+       toast.success(t('toast.SucessUpdate'));
+
+    } else {
+      // Création d'un nouveau mouvement
+      const payload = {
+        name: newDepartment.value.name,
+        description: newDepartment.value.description,
+        responsible: newDepartment.value.manager,
+        number_employees: newDepartment.value.employeeCount,
+        status : 'active',
+        service_id : serviceId,
+    
+        };
+      const response = await createDepartment(payload);
+      console.log('response',response)
+      toast.success(t('toast.Sucess'));
+    }
+
+    closeAddDepartmentModal();
+
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement:", error);
+    toast.error(t('toast.error'));
+  }finally{
+    isLoading.value=false
+  }
+
+}
+
+const fetchDepartment = async() => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getDepartment(serviceId);
+
+    departmentsData.value = response.data
+    console.log('dpt:', departmentsData.value);
+  } catch (error) {
+    console.error('Erreur lors de la récupération :', error);
+  }
+
+}
+
+onMounted(()=>{
+  fetchDepartment()
+})
 
 const defaultColDef = {
   sortable: true,
@@ -173,46 +313,41 @@ const defaultColDef = {
 
 const columnDefs = ref<ColDef[]>([
   {
-    headerName: 'ID',
+    headerName: t('ID'),
     field: 'id',
     checkboxSelection: true,
     headerCheckboxSelection: true,
     width: 110
   },
   {
-    headerName: 'Nom du département',
+    headerName: t('departmentName'),
     field: 'name',
     flex: 2
   },
   {
-    headerName: 'Description',
+    headerName: t('Description'),
     field: 'description',
     flex: 3
   },
   {
-    headerName: 'Responsable',
-    field: 'manager',
+    headerName: t('manager'),
+    field: 'responsible',
     flex: 2
   },
   {
-    headerName: 'Employés',
-    field: 'employeeCount',
+    headerName: t('employees'),
+    field: 'numberEmployees',
     width: 120
   },
   {
-    headerName: 'Budget',
-    field: 'budget',
-    width: 150
-  },
-  {
-    headerName: 'Statut',
+    headerName: t('Status'),
     field: 'status',
     width: 120,
     cellRenderer: (params: any) => {
       const status = params.value;
       let bgColor = 'bg-green-100 text-green-800';
 
-      if (status === 'Inactif') {
+      if (status === 'inactif') {
         bgColor = 'bg-red-100 text-red-800';
       } else if (status === 'En révision') {
         bgColor = 'bg-yellow-100 text-yellow-800';
@@ -222,10 +357,70 @@ const columnDefs = ref<ColDef[]>([
     }
   },
   {
-    headerName: 'Actions',
-    cellRenderer: () => `
-      <div class="flex space-x-2">
-        <button class="p-1" data-action="edit">
+    headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id),
+    width: 130
+  },
+]);
+
+
+watch(() => locale.value, () => {
+  columnDefs.value = [
+  {
+    headerName: t('ID'),
+    field: 'id',
+    checkboxSelection: true,
+    headerCheckboxSelection: true,
+    width: 110
+  },
+  {
+    headerName: t('departmentName'),
+    field: 'name',
+    flex: 2
+  },
+  {
+    headerName: t('Description'),
+    field: 'description',
+    flex: 3
+  },
+  {
+    headerName: t('manager'),
+    field: 'responsible',
+    flex: 2
+  },
+  {
+    headerName: t('employees'),
+    field: 'numberEmployees',
+    width: 120
+  },
+  {
+    headerName: t('Status'),
+    field: 'status',
+    width: 120,
+    cellRenderer: (params: any) => {
+      const status = params.value;
+      let bgColor = 'bg-green-100 text-green-800';
+
+      if (status === 'inactif') {
+        bgColor = 'bg-red-100 text-red-800';
+      } else if (status === 'En révision') {
+        bgColor = 'bg-yellow-100 text-yellow-800';
+      }
+
+      return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${bgColor}">${status}</span>`;
+    }
+  },
+  {
+    headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id),
+    width: 130
+  },
+  ]}
+)
+
+
+function getActionButtons(id: number): string {
+  return `
+    <div class="flex space-x-2 mt-2">
+        <button class="p-1" data-action="edit" data-id="${id}">
           <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
             <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
@@ -233,7 +428,7 @@ const columnDefs = ref<ColDef[]>([
             <line x1="16" y1="5" x2="19" y2="8" />
           </svg>
         </button>
-        <button class="p-1" data-action="delete">
+        <button class="p-1" data-action="delete" data-id="${id}">
           <svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
             <line x1="4" y1="7" x2="20" y2="7" />
@@ -243,7 +438,7 @@ const columnDefs = ref<ColDef[]>([
             <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
           </svg>
         </button>
-        <button class="p-1" data-action="view">
+        <button class="p-1" data-action="view" data-id="${id}">
           <svg class="h-5 w-5 text-slate-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
             <circle cx="12" cy="12" r="2" />
@@ -252,10 +447,8 @@ const columnDefs = ref<ColDef[]>([
           </svg>
         </button>
       </div>
-    `,
-    width: 130
-  },
-]);
+  `;
+}
 
 const onGridReady = (event: GridReadyEvent) => {
   console.log('Grid ready:', event);
@@ -275,18 +468,30 @@ const onCellClick = (event: any) => {
   }
 
   const action = button.dataset.action;
+  const id = button.dataset.id;
+
 
     if (action === 'edit') {
-      // alert(`Éditer le département: ${event.data.name}`);
-      // Implémenter la logique d'édition
+      const deptEdit = departmentsData.value.find((r: any) => r.id === id);
+      console.log("deptEdit",deptEdit)
+      if(deptEdit){
+        selected.value = deptEdit;
+        newDepartment.value.name=deptEdit.name
+        newDepartment.value.description=deptEdit.description
+        newDepartment.value.employeeCount=deptEdit.numberEmployees
+        newDepartment.value.manager=deptEdit.responsible
+      }
+      isAddModalOpen.value = true
+      isEditing.value = true
     } else if (action === 'delete') {
-      // if (confirm(`Êtes-vous sûr de vouloir supprimer le département: ${event.data.name}?`)) {
-      //   // Logique de suppression
-      //   departmentsData.value = departmentsData.value.filter((dept:any) => dept.id !== event.data.id);
-      // }
+      selectedId.value = id
+      show.value = true
     } else if (action === 'view') {
-      //alert(`Afficher les détails du département: ${event.data.name}`);
-      // Implémenter la logique d'affichage détaillé
+      const dept = departmentsData.value.find((d:any) => d.id === id)
+    if (dept) {
+      selectedDepartment.value = dept
+      showModal.value = true
+    }
     }
   }
 };
@@ -301,90 +506,25 @@ const autoSizeStrategy = {
   defaultMinWidth: 100,
 };
 
-// Données des départements
-const departmentsData = ref([
-  {
-    id: "#D10001",
-    name: "Restauration",
-    description: "Gestion des restaurants et des services de repas",
-    manager: "Marie Dupont",
-    employeeCount: 25,
-    budget: "350000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10002",
-    name: "Housekeeping",
-    description: "Entretien des chambres et des espaces communs",
-    manager: "Jean Kouamé",
-    employeeCount: 30,
-    budget: "280000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10003",
-    name: "Réception",
-    description: "Accueil des clients et gestion des réservations",
-    manager: "Sophie Traoré",
-    employeeCount: 12,
-    budget: "220000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10004",
-    name: "Maintenance",
-    description: "Entretien technique et réparations",
-    manager: "Pierre Koné",
-    employeeCount: 8,
-    budget: "180000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10005",
-    name: "Spa & Bien-être",
-    description: "Services de spa, massage et soins",
-    manager: "Amina Diallo",
-    employeeCount: 10,
-    budget: "250000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10006",
-    name: "Événementiel",
-    description: "Organisation de conférences et événements",
-    manager: "Ibrahim Touré",
-    employeeCount: 6,
-    budget: "300000 FCFA",
-    status: "En révision"
-  },
-  {
-    id: "#D10007",
-    name: "Comptabilité",
-    description: "Gestion financière et comptable",
-    manager: "Fatou Sanogo",
-    employeeCount: 5,
-    budget: "180000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10008",
-    name: "Sécurité",
-    description: "Surveillance et sécurité de l'établissement",
-    manager: "Moussa Camara",
-    employeeCount: 12,
-    budget: "220000 FCFA",
-    status: "Actif"
-  },
-  {
-    id: "#D10009",
-    name: "Marketing",
-    description: "Promotion et communication de l'hôtel",
-    manager: "Aya Konaté",
-    employeeCount: 4,
-    budget: "280000 FCFA",
-    status: "Actif"
-  },
-]);
+const confirmDelete = async () => {
+  if (selectedId.value !== null) {
+    loadingDelete.value = true
+    try {
+      await deleteDpt(selectedId.value)
+      toast.success(t('toast.DeletedSuccess'))
+      departmentsData.value = departmentsData.value.filter((r: any) => r.id !== selectedId.value);
+      console.log(`Suppression du room type ID: ${selectedId.value}`)
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error(t('toast.userDeleteError'))
+    } finally {
+      loadingDelete.value = false
+      show.value = false
+      selectedId.value = null
+    }
+  }
+}
+
 </script>
 
 <style scoped>

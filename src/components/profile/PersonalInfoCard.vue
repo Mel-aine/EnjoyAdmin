@@ -10,12 +10,12 @@
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">First Name</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Musharof</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ firstname }}</p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Last Name</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Chowdhury</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ lastname }}</p>
             </div>
 
             <div>
@@ -23,19 +23,19 @@
                 Email address
               </p>
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {{ email }}
               </p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Phone</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">+09 363 398 46</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ phone }}</p>
             </div>
 
-            <div>
+            <!-- <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Bio</p>
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">Team Manager</p>
-            </div>
+            </div> -->
           </div>
         </div>
 
@@ -250,15 +250,22 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import Modal from './Modal.vue'
+<script setup lang="ts">
+import { ref,defineAsyncComponent,defineProps } from 'vue'
+
 
 const isProfileInfoModal = ref(false)
-
+const Modal  = defineAsyncComponent(() => import('./Modal.vue'));
 const saveProfile = () => {
   // Implement save profile logic here
   console.log('Profile saved')
   isProfileInfoModal.value = false
 }
+defineProps({
+  firstname:String,
+  lastname:String,
+  email:String,
+  phone:String,
+
+})
 </script>

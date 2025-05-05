@@ -1,17 +1,20 @@
 <template>
+  
   <div>
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
   <ag-grid-vue
-      class="ag-theme-quartz"
+      class="ag-theme-quartz h-[600px] overflow-y-auto overflow-x-hidden "
       :rowData="reservations"
       :columnDefs="columnDefs"
       :rowHeight="50"
       :rowSelection="'single'"
-      :domLayout="'autoHeight'"
       :autoSizeStrategy="autoSizeStrategy"
       :pagination="true"
       @cellClicked="onCellClick"
       @gridReady="onGridReady"
     ></ag-grid-vue>
+  </div>
+
     <ModalDelete
       v-if="modalShow"
       @close="modalShow = false"
@@ -19,6 +22,7 @@
       :isLoading="loadingDelete"
     />
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -34,6 +38,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification'
 import ModalDelete from '@/components/modal/ModalDelete.vue';
+
 
 
 const router = useRouter()
@@ -195,13 +200,48 @@ function getStatusBadge(value: string): string {
 }
 
 
-const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event);
+
+let gridApi: any;
+let gridColumnApi: any;  
+
+const onGridReady = (params: any) => {
+  gridApi = params.api;
+  gridColumnApi = params.columnApi;
+
+  // Hide a specific column by updating and setting column state
+  const columnState = gridColumnApi.getColumnState().map((col: any) => {
+    if (col.colId === 'someColumnId') {
+      return { ...col, hide: true };
+    }
+    return col;
+  });
+  gridColumnApi.setColumnState(columnState);
+
+  // Auto size columns
+  gridApi?.sizeColumnsToFit();
 };
 
-// const onCellClick = (event: CellClickedEvent) => {
-//   console.log('Cell clicked:', event.data);
-// };
+
+window.addEventListener('resize', () => {
+  if (gridApi) {
+    gridApi.sizeColumnsToFit();
+  }
+});
+
+const observer = new ResizeObserver(() => {
+  if (gridApi) {
+    gridApi.sizeColumnsToFit();
+  }
+});
+
+onMounted(() => {
+  const gridContainer = document.querySelector('.ag-theme-quartz');
+  if (gridContainer) {
+    observer.observe(gridContainer);
+  }
+});
+
+
 
 function getActionButtons(reservationId: number): string {
   return `
@@ -289,6 +329,8 @@ const autoSizeStrategy = {
   type: "fitGridWidth",
   defaultMinWidth: 100,
 }
+
+
 
 </script>
 

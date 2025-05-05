@@ -12,14 +12,14 @@
             <h4
               class="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left"
             >
-              Musharof Chowdhury
+              {{ fullName }}
             </h4>
             <div
               class="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left"
             >
-              <p class="text-sm text-gray-500 dark:text-gray-400">Team Manager</p>
-              <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ Email }}</p>
+             <!--  <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p> -->
             </div>
           </div>
           <div class="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -100,7 +100,7 @@
             </a>
           </div>
         </div>
-        <button @click="isProfileInfoModal = true" class="edit-button">
+        <!-- <button @click="isProfileInfoModal = true" class="edit-button">
           <svg
             class="fill-current"
             width="18"
@@ -117,15 +117,15 @@
             />
           </svg>
           Edit
-        </button>
+        </button> -->
       </div>
     </div>
-    <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
+    <!-- <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
         >
-          <!-- close btn -->
+          
           <button
             @click="isProfileInfoModal = false"
             class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
@@ -307,19 +307,27 @@
           </form>
         </div>
       </template>
-    </Modal>
+    </Modal> -->
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import Modal from './Modal.vue'
+<script setup lang="ts">
+import { defineProps } from 'vue'
 
-const isProfileInfoModal = ref(false)
 
-const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
-  isProfileInfoModal.value = false
-}
+
+// const Modal  = defineAsyncComponent(() => import('./Modal.vue'));
+// const isProfileInfoModal = ref(false)
+
+// const saveProfile = () => {
+//   // Implement save profile logic here
+//   console.log('Profile saved')
+//   isProfileInfoModal.value = false
+// }
+
+defineProps({
+fullName : String,
+Email : String
+})
+
 </script>

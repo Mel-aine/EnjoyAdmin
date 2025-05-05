@@ -1,7 +1,7 @@
 <template>
     <AdminLayout>
       <PageBreadcrumb :pageTitle="currentPageTitle" />
-      <div class="space-y-5 sm:space-y-6">
+      <div class="space-y-5 sm:space-y-6 h-screen">
         <ComponentCard title="">
           <form class="space-y-4" >
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">

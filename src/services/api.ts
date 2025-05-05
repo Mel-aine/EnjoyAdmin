@@ -239,6 +239,18 @@ export const  deleteRoomType = (id: number | null ): Promise<AxiosResponse<any>>
   return axios.post(`${API_URL}/prooductService`, productData);
 };
 
+//create department
+export const createDepartment = (departmentData: any ):Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/department`, departmentData);
+};
+
+export const createExpense = (expenseData: any ):Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/expenses`, expenseData);
+};
+
+export const  getExpense= (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/expenses/${serviceId}`);
+};
  //create stock product movement
  export const movementService = (Data: any ):Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/movement`, Data);
@@ -254,6 +266,10 @@ export const  getSupplier= (serviceId: number | null): Promise<AxiosResponse<any
 
 export const  getProduct= (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/prooductService/${serviceId}`);
+};
+
+export const  getDepartment= (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/department/${serviceId}`);
 };
 
 export const getMovementService = (serviceId: number | null):Promise<AxiosResponse<any>> => {
@@ -290,4 +306,20 @@ export const deleteSupplier = (id: number | null ): Promise<AxiosResponse<any>> 
 
 export const updateSupplier= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/supplier/${id}`, Payload);
+};
+
+export const updateDpt= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/department/${id}`, Payload);
+};
+
+export const deleteDpt = (id: number | null ): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/department/${id}`);
+};
+
+export const updateExpense= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/expenses/${id}`, Payload);
+};
+
+export const deleteExpense = (id: number | null ): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/expenses/${id}`);
 };

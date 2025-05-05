@@ -23,6 +23,7 @@
           :domLayout="'autoHeight'"
           @gridReady="onGridReady"
           @cellClicked="onCellClick"
+          :autoSizeStrategy="autoSizeStrategy"
         />
       </div>
       </ComponentCard>
@@ -155,6 +156,10 @@ watch(() => locale.value, () => {
 ]})
 
 
+const autoSizeStrategy = {
+  type: "fitGridWidth",
+  defaultMinWidth: 100,
+}
 
 const defaultColDef = {
   resizable: true,
