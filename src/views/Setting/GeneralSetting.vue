@@ -103,7 +103,9 @@
 import { ref,computed,defineAsyncComponent,onMounted } from 'vue';
 import { useTheme } from '@/components/layout/ThemeProvider.vue'
 
-const { toggleTheme} = useTheme()
+
+const { toggleTheme }: any = useTheme()
+
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/composables/user'
 import {updateUser,getUserId} from '@/services/api'

@@ -14,11 +14,11 @@
           </button>
         </div>
       </div>
-  
+
       <div class="h-64">
         <canvas ref="occupancyChart"></canvas>
       </div>
-  
+
       <div class="grid grid-cols-7 gap-2 mt-4">
         <div v-for="(day, index) in weekDays" :key="index" class="text-center">
           <div class="text-sm font-medium">{{ day.name }}</div>
@@ -29,18 +29,18 @@
       </div>
     </div>
   </template>
-  
+
   <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { Chart, registerables } from 'chart.js'
-  
+
   Chart.register(...registerables)
-  
+
   interface DayRate {
     name: string
     rate: number
   }
-  
+
   const weekDays = ref<DayRate[]>([
     { name: 'Lun', rate: 65 },
     { name: 'Mar', rate: 72 },
@@ -50,29 +50,29 @@
     { name: 'Sam', rate: 98 },
     { name: 'Dim', rate: 75 }
   ])
-  
+
   const occupancyChart = ref<HTMLCanvasElement | null>(null)
   const chart = ref<Chart | null>(null)
-  
+
   const getOccupancyColor = (rate: number): string => {
     if (rate < 60) return 'text-red-500'
     if (rate < 80) return 'text-yellow-500'
     return 'text-green-500'
   }
-  
+
   const initChart = () => {
     if (!occupancyChart.value) return
     const ctx = occupancyChart.value.getContext('2d')
     if (!ctx) return
-  
+
     chart.value = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: weekDays.value.map(day => day.name),
+        labels: weekDays.value.map((day:any) => day.name),
         datasets: [
           {
             label: "Taux d'occupation",
-            data: weekDays.value.map(day => day.rate),
+            data: weekDays.value.map((day:any) => day.rate),
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             borderColor: 'rgba(59, 130, 246, 1)',
             borderWidth: 2,
@@ -134,8 +134,8 @@
             max: 100,
             ticks: {
               stepSize: 20,
-              callback: function (value: number) {
-                return value + '%'
+              callback: function (tickValue: string | number, index: number, ticks: any[]) {
+                return tickValue + '%';
               }
             }
           }
@@ -143,9 +143,8 @@
       }
     })
   }
-  
+
   onMounted(() => {
     initChart()
   })
   </script>
-  

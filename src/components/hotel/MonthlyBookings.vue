@@ -17,11 +17,11 @@
           </div>
         </div>
       </div>
-  
+
       <div class="relative h-64">
         <canvas ref="bookingsChart"></canvas>
       </div>
-  
+
       <div class="mt-6 space-y-3">
         <div class="flex items-center justify-between border-b pb-3">
           <div class="flex items-center">
@@ -33,7 +33,7 @@
             <span class="text-xs text-green-500">+12%</span>
           </div>
         </div>
-  
+
         <div class="flex items-center justify-between border-b pb-3">
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
@@ -44,7 +44,7 @@
             <span class="text-xs text-green-500">+5%</span>
           </div>
         </div>
-  
+
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
@@ -56,7 +56,7 @@
           </div>
         </div>
       </div>
-  
+
       <div class="flex justify-center mt-6">
         <div class="px-4 py-2 text-sm text-center">
           <div class="text-3xl font-bold text-blue-600">214</div>
@@ -69,17 +69,17 @@
       </div>
     </div>
   </template>
-  
+
   <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { Chart, registerables } from 'chart.js'
-  
+
   Chart.register(...registerables)
-  
+
   const bookingsChart = ref<HTMLCanvasElement | null>(null)
   const chart = ref<Chart | null>(null)
   const selectedMonth = ref('Mai 2025')
-  
+
   const bookingsData: Record<string, { direct: number[], ota: number[], group: number[] }> = {
     'Mai 2025': {
       direct: [12, 15, 18, 13],
@@ -102,11 +102,11 @@
       group: [4, 5, 6, 6]
     }
   }
-  
+
   const initChart = () => {
     const ctx = bookingsChart.value?.getContext('2d')
     if (!ctx) return
-  
+
     chart.value = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -156,26 +156,25 @@
           y: {
             beginAtZero: true,
             grid: {
-              borderDash: [2, 2]
+              // borderDash: [2, 2]
             }
           }
         }
       }
     })
   }
-  
+
   const updateChartData = () => {
     if (!chart.value) return
-  
+
     const data = bookingsData[selectedMonth.value]
     chart.value.data.datasets[0].data = data.direct
     chart.value.data.datasets[1].data = data.ota
     chart.value.data.datasets[2].data = data.group
     chart.value.update()
   }
-  
+
   onMounted(() => {
     initChart()
   })
   </script>
-  

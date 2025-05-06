@@ -9,7 +9,7 @@
           <button class="px-3 py-1 text-sm rounded-full text-gray-500 hover:bg-gray-100">Mois</button>
         </div>
       </div>
-  
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <!-- Revenu total -->
         <div class="bg-blue-50 rounded-lg p-4">
@@ -25,7 +25,7 @@
             <span class="text-xs text-gray-500 ml-2">vs année précédente</span>
           </div>
         </div>
-  
+
         <!-- Taux d'occupation moyen -->
         <div class="bg-green-50 rounded-lg p-4">
           <div class="text-green-600 text-sm font-medium mb-1">Taux d'occupation moyen</div>
@@ -40,7 +40,7 @@
             <span class="text-xs text-gray-500 ml-2">vs année précédente</span>
           </div>
         </div>
-  
+
         <!-- ADR -->
         <div class="bg-purple-50 rounded-lg p-4">
           <div class="text-purple-600 text-sm font-medium mb-1">Prix moyen (ADR)</div>
@@ -56,11 +56,11 @@
           </div>
         </div>
       </div>
-  
+
       <div class="h-72">
         <canvas ref="revenueChart"></canvas>
       </div>
-  
+
       <div class="flex justify-center mt-4 space-x-8">
         <div class="flex items-center">
           <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
@@ -77,32 +77,32 @@
       </div>
     </div>
   </template>
-  
+
   <script lang="ts">
   import { defineComponent, onMounted, ref } from 'vue';
   import { Chart, registerables } from 'chart.js';
-  
+
   Chart.register(...registerables);
-  
+
   export default defineComponent({
     name: 'RevenueChart',
     setup() {
       const revenueChart = ref<HTMLCanvasElement | null>(null);
       let chart: Chart | null = null;
-  
+
       const monthlyData = {
         months: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
         revenue2025: [98500, 105200, 120500, 115800, 125600, 135000, 158000, 167500, 145200, 130500, null, null],
         revenue2024: [92000, 98500, 110200, 108500, 120000, 126500, 150200, 162000, 138500, 122000, 118000, 128500],
         occupancy2025: [65, 68, 72, 70, 75, 82, 95, 98, 85, 78, null, null]
       };
-  
+
       const initChart = () => {
         if (!revenueChart.value) return;
-  
+
         const ctx = revenueChart.value.getContext('2d');
         if (!ctx) return;
-  
+
         chart = new Chart(ctx, {
           type: 'bar',
           data: {
@@ -151,7 +151,7 @@
                 padding: 12,
                 titleFont: { weight: 'bold' },
                 callbacks: {
-                  label(context) {
+                  label(context:any) {
                     if (context.dataset.yAxisID === 'y1') {
                       return `Taux d'occupation: ${context.parsed.y}%`;
                     } else {
@@ -168,7 +168,7 @@
                 position: 'left',
                 title: { display: true, text: 'Revenu (€)' },
                 ticks: {
-                  callback: (value: number) => `${value.toLocaleString()} €`
+                  callback: (value: string | number) => `${value.toLocaleString()} €`
                 }
               },
               y1: {
@@ -177,7 +177,7 @@
                 position: 'right',
                 title: { display: true, text: "Taux d'occupation (%)" },
                 ticks: {
-                  callback: (value: number) => `${value}%`
+                   callback: (tickValue: string | number) => `${tickValue}%`
                 },
                 grid: { display: false }
               }
@@ -185,15 +185,14 @@
           }
         });
       };
-  
+
       onMounted(() => {
         initChart();
       });
-  
+
       return {
         revenueChart
       };
     }
   });
   </script>
-  
