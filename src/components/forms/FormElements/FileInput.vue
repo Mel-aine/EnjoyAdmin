@@ -3,7 +3,7 @@
     <!-- Elements -->
     <div>
       <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-        Upload file
+       {{ name }}
       </label>
       <input
         type="file"
@@ -12,3 +12,10 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { defineProps } from 'vue';
+
+defineProps({
+  name:String
+})
+</script>

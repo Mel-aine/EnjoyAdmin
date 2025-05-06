@@ -16,6 +16,8 @@ const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light'
 }
 
+
+
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme') as Theme | null
   const initialTheme = savedTheme || 'light' // Default to light theme
@@ -24,7 +26,7 @@ onMounted(() => {
   isInitialized.value = true
 })
 
-watch([theme, isInitialized], ([newTheme, newIsInitialized]) => {
+watch([theme, isInitialized], ([newTheme, newIsInitialized]:any) => {
   if (newIsInitialized) {
     localStorage.setItem('theme', newTheme)
     if (newTheme === 'dark') {

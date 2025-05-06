@@ -39,7 +39,7 @@
           </div>
         </div>
 
-        <button class="edit-button" @click="isProfileInfoModal = true">
+        <a href="/setting" class="edit-button">
           <svg
             class="fill-current"
             width="18"
@@ -55,16 +55,17 @@
               fill=""
             />
           </svg>
-          Edit
-        </button>
+          {{ $t('edit') }}
+        </a>
       </div>
     </div>
-    <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
+
+    <!-- <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
         >
-          <!-- close btn -->
+
           <button
             @click="isProfileInfoModal = false"
             class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
@@ -212,18 +213,7 @@
                     />
                   </div>
 
-                  <div class="col-span-2">
-                    <label
-                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    >
-                      Bio
-                    </label>
-                    <input
-                      type="text"
-                      value="Team Manager"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                    />
-                  </div>
+
                 </div>
               </div>
             </div>
@@ -246,7 +236,7 @@
           </form>
         </div>
       </template>
-    </Modal>
+    </Modal> -->
   </div>
 </template>
 
@@ -255,12 +245,7 @@ import { ref,defineAsyncComponent,defineProps } from 'vue'
 
 
 const isProfileInfoModal = ref(false)
-const Modal  = defineAsyncComponent(() => import('./Modal.vue'));
-const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
-  isProfileInfoModal.value = false
-}
+
 defineProps({
   firstname:String,
   lastname:String,

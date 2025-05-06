@@ -15,7 +15,7 @@
   </div>
 
   <!-- Dropdown Menu -->
-  <ul v-if="show"  class="absolute right-0 translate-x-20 lg:translate-x-0 mt-[25px] flex w-[160px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark transition-all duration-300 ease-in-out"
+  <ul v-if="show"  class="z-9999 absolute right-0 translate-x-20 lg:translate-x-0 mt-[25px] flex w-[160px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark transition-all duration-300 ease-in-out"
     tabindex="-1" role="listbox" aria-labelledby="language-select">
     <!-- Options -->
     <li v-for="(language, i) in languages" :key="i"

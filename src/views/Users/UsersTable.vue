@@ -197,17 +197,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref , watch,computed} from 'vue'
+import { ref , watch,computed,defineAsyncComponent} from 'vue'
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import type { ColDef, GridReadyEvent} from 'ag-grid-community';
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
-import ComponentCard from "@/components/common/ComponentCard.vue";
-import Modal from '@/components/profile/Modal.vue'
-import Input from "@/components/forms/FormElements/Input.vue";
-import Select from "@/components/forms/FormElements/Select.vue";
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore'
@@ -215,13 +211,17 @@ import { createUser,getUser, deleteUser,updateUser} from "@/services/api";
 import { useI18n } from "vue-i18n";
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import { useAuthStore } from '@/composables/user';
-import ModalDelete from '@/components/modal/ModalDelete.vue';
-
-
-
-
-const { t, locale } = useI18n({ useScope: "global" });
 import type {userDataType} from "@/types/option"
+
+
+
+const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
+const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
+const ComponentCard = defineAsyncComponent(() => import('@/components/common/ComponentCard.vue'))
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
+const { t, locale } = useI18n({ useScope: "global" });
+
 
 const isLoading = ref(false);
 const loadingDelete = ref(false)

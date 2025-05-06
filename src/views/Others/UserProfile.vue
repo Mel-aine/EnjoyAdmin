@@ -7,7 +7,7 @@
     >
       <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">{{ $t('profile') }}</h3>
       <profile-card :fullName="fullName"  :Email="Email"/>
-      <personal-info-card />
+      <personal-info-card :email="Email" :firstname="Firstname" :lastname="LastName" :phone="Phone" />
       <!-- <address-card /> -->
     </div>
   </div>
@@ -36,6 +36,22 @@ const Email = computed(() => {
   const userData = authStore.user
   const user = JSON.parse(userData);
   return `${user?.email ?? ''}`
+})
+const Firstname = computed(() => {
+  const userData = authStore.user
+  const user = JSON.parse(userData);
+  return `${user?.firstName ?? ''}`
+})
+const LastName = computed(() => {
+  const userData = authStore.user
+  const user = JSON.parse(userData);
+  return `${user?.lastName ?? ''}`
+})
+
+const Phone = computed(() => {
+  const userData = authStore.user
+  const user = JSON.parse(userData);
+  return `${user?.phoneNumber ?? ''}`
 })
 
 </script>

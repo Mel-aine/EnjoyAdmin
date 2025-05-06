@@ -102,6 +102,9 @@ export const getServiceProductWithOptions = (
   return axios.get(url)
 }
 
+export const updateService= (id: number | null , Payload:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/services/${id}`, Payload);
+};
 
 export const getTypeProduct = (): Promise<AxiosResponse<{ data: RoomTypeData[] }>> => {
   return axios.get(`${API_URL}/product`);
@@ -110,6 +113,7 @@ export const getTypeProduct = (): Promise<AxiosResponse<{ data: RoomTypeData[] }
 export const getUser = (): Promise<AxiosResponse<{ data: userDataType[] }>> => {
   return axios.get(`${API_URL}/users`);
 };
+
 //get reservation by serviceId
 export const getReservation = (serviceId: number | null): Promise<AxiosResponse<ReservationType[]>> => {
   return axios.get(`${API_URL}/reservations/${serviceId}`);
@@ -323,3 +327,14 @@ export const updateExpense= (id: number | null , Payload:any): Promise<AxiosResp
 export const deleteExpense = (id: number | null ): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/expenses/${id}`);
 };
+
+
+export function user_update(userId: number | null, data: { password: string, password_confirmation: string }, token: string | null) {
+  return axios.put(`${API_URL}/auth/${userId}`, data, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : ''
+    }
+  });
+}
+
+

@@ -11,7 +11,7 @@
             class="text-md font-sans font-medium flex items-center gap-2 leading-normal cursor-pointer px-4 py-2 rounded-lg text-center w-full flex-wrap"
             @click="selectTab(index + 1)"
             :class="{
-              'bg-white text-gray-950': openTab !== index + 1,
+              'bg-white text-gray-950 dark:text-white dark:bg-gray-950': openTab !== index + 1,
               'bg-purple-100 text-purple-500': openTab === index + 1
             }"
           >
