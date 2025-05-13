@@ -352,18 +352,61 @@ const togglePasswordVisibility = () => {
 // };
 
 
+// const handleSubmit = async () => {
+//   isLoading.value = true;
+//   error.value = null;
+
+//   try {
+//     // 1. Valider l'email
+//     await validateEmail(email.value);
+
+//     // 2. Valider le mot de passe
+//     await validatePassword(email.value, password.value);
+
+//     // 3. Authentification réelle
+//     const res = await auth({
+//       email: email.value,
+//       password: password.value,
+//       keepLoggedIn: keepLoggedIn.value,
+//     });
+
+//     const { user, user_token } = res.data.data;
+//     console.log('res',res.data.data)
+
+//     if (keepLoggedIn.value) {
+//       localStorage.setItem('auth_token', user_token.token);
+//     } else {
+//       sessionStorage.setItem('auth_token', user_token.token);
+//     }
+
+
+//     if (user && user_token) {
+//       authStore.login(user, user_token.token);
+//       authStore.setRoleId(user.roleId)
+//       authStore.setUserId(user.id)
+//       serviceStore.setServiceId(user.serviceId)
+//       router.push('/');
+//     } else {
+//       throw new Error('Missing user data');
+//     }
+//   } catch (err: any) {
+//     error.value = err.response?.data?.message || 'Incorrect credentials';
+//     console.error(err);
+//   } finally {
+//     isLoading.value = false;
+//   }
+// };
+
 const handleSubmit = async () => {
   isLoading.value = true;
   error.value = null;
 
   try {
-    // 1. Valider l'email
+    // Validation
     await validateEmail(email.value);
+    await validatePassword(email.value,password.value);
 
-    // 2. Valider le mot de passe
-    await validatePassword(email.value, password.value);
-
-    // 3. Authentification réelle
+    // Requête de login
     const res = await auth({
       email: email.value,
       password: password.value,
@@ -371,31 +414,106 @@ const handleSubmit = async () => {
     });
 
     const { user, user_token } = res.data.data;
-    console.log('res',res.data.data)
 
+    // Stockage du token
+    const token = user_token.token;
     if (keepLoggedIn.value) {
-      localStorage.setItem('auth_token', user_token.token);
+      localStorage.setItem('auth_token', token);
     } else {
-      sessionStorage.setItem('auth_token', user_token.token);
+      sessionStorage.setItem('auth_token', token);
     }
 
+    // MAJ des stores
+    authStore.login(user, token);
+    authStore.setRoleId(user.roleId);
+    authStore.setUserId(user.id);
+    serviceStore.setServiceId(user.serviceId);
 
-    if (user && user_token) {
-      authStore.login(user, user_token.token);
-      authStore.setRoleId(user.roleId)
-      authStore.setUserId(user.id)
-      serviceStore.setServiceId(user.serviceId)
-      router.push('/');
-    } else {
-      throw new Error('Missing user data');
-    }
+    const categoryName = user?.Services?.category?.categoryName;
+    serviceStore.setServiceCategory(categoryName);
+    console.log('Category name:', categoryName);
+    console.log('Lowercased:', categoryName?.toLowerCase());
+
+    // Redirection après connexion
+    if (categoryName) {
+  const category = categoryName.toLowerCase();
+  if (category === 'hotels & stays') {
+    await router.push('/');
+  } else if (category === 'restaurants') {
+    await router.push('/dashboard');
+  }
+
+} else {
+  console.warn('No category found, redirecting to home');
+  await router.push('/');
+}
+
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Incorrect credentials';
+    error.value = err.response?.data?.message || 'Identifiants incorrects';
     console.error(err);
   } finally {
     isLoading.value = false;
   }
 };
+
+
+// const handleSubmit = async () => {
+//   isLoading.value = true;
+//   error.value = null;
+
+//   try {
+//     // Validation de l'email et du mot de passe
+//     await validateEmail(email.value);
+//     await validatePassword(email.value, password.value);
+
+//     // Authentification
+//     const res = await auth({
+//       email: email.value,
+//       password: password.value,
+//       keepLoggedIn: keepLoggedIn.value,
+//     });
+
+//     const { user, user_token } = res.data.data;
+//     console.log('res', res.data.data);
+
+//     // Récupération de la catégorie du service (hotel ou restaurant)
+//     const categoryName = user?.Services?.category?.categoryName;
+//       console.log("mmm",categoryName)
+//     if (keepLoggedIn.value) {
+//       localStorage.setItem('auth_token', user_token.token);
+//     } else {
+//       sessionStorage.setItem('auth_token', user_token.token);
+//     }
+
+//     if (user && user_token) {
+//       authStore.login(user, user_token.token);
+//       authStore.setRoleId(user.roleId);
+//       authStore.setUserId(user.id);
+//       serviceStore.setServiceId(user.serviceId);
+
+//       // Stockage de la catégorie dans le store
+//       serviceStore.setServiceCategory(categoryName);
+
+//       switch (categoryName?.toLowerCase()) {
+//       case 'hotel':
+//         router.push('/');
+//         break;
+//       case 'restaurant':
+//         router.push('/dashboard');
+//         break;
+//       default:
+//         router.push('/');
+//     }
+//     } else {
+//       throw new Error('Missing user data');
+//     }
+//   } catch (err: any) {
+//     error.value = err.response?.data?.message || 'Incorrect credentials';
+//     console.error(err);
+//   } finally {
+//     isLoading.value = false;
+//   }
+// };
 
 
 

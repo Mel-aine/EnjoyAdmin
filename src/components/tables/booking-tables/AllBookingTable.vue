@@ -1,5 +1,5 @@
 <template>
-  
+
   <div>
     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
   <ag-grid-vue
@@ -11,7 +11,7 @@
       :autoSizeStrategy="autoSizeStrategy"
       :pagination="true"
       @cellClicked="onCellClick"
-      @gridReady="onGridReady"
+
     ></ag-grid-vue>
   </div>
 
@@ -63,8 +63,8 @@ const fetchUsers = async () => {
 const serviceProducts = ref<ServiceProductType[]>([])
 const fetchServiceProduct = async () => {
   try {
-    // const serviceId = serviceStore.serviceId
-    const serviceId = 4
+    const serviceId = serviceStore.serviceId
+
     const response = await getServiceProduct(serviceId);
    serviceProducts.value = response.data;
      console.log("hhh", serviceProducts.value)
@@ -201,45 +201,45 @@ function getStatusBadge(value: string): string {
 
 
 
-let gridApi: any;
-let gridColumnApi: any;  
+// let gridApi: any;
+// let gridColumnApi: any;
 
-const onGridReady = (params: any) => {
-  gridApi = params.api;
-  gridColumnApi = params.columnApi;
+// const onGridReady = (params: any) => {
+//   gridApi = params.api;
+//   gridColumnApi = params.columnApi;
 
-  // Hide a specific column by updating and setting column state
-  const columnState = gridColumnApi.getColumnState().map((col: any) => {
-    if (col.colId === 'someColumnId') {
-      return { ...col, hide: true };
-    }
-    return col;
-  });
-  gridColumnApi.setColumnState(columnState);
+//   // Hide a specific column by updating and setting column state
+//   const columnState = gridColumnApi.getColumnState().map((col: any) => {
+//     if (col.colId === 'someColumnId') {
+//       return { ...col, hide: true };
+//     }
+//     return col;
+//   });
+//   gridColumnApi.setColumnState(columnState);
 
-  // Auto size columns
-  gridApi?.sizeColumnsToFit();
-};
+//   // Auto size columns
+//   gridApi?.sizeColumnsToFit();
+// };
 
 
-window.addEventListener('resize', () => {
-  if (gridApi) {
-    gridApi.sizeColumnsToFit();
-  }
-});
+// window.addEventListener('resize', () => {
+//   if (gridApi) {
+//     gridApi.sizeColumnsToFit();
+//   }
+// });
 
-const observer = new ResizeObserver(() => {
-  if (gridApi) {
-    gridApi.sizeColumnsToFit();
-  }
-});
+// const observer = new ResizeObserver(() => {
+//   if (gridApi) {
+//     gridApi.sizeColumnsToFit();
+//   }
+// });
 
-onMounted(() => {
-  const gridContainer = document.querySelector('.ag-theme-quartz');
-  if (gridContainer) {
-    observer.observe(gridContainer);
-  }
-});
+// onMounted(() => {
+//   const gridContainer = document.querySelector('.ag-theme-quartz');
+//   if (gridContainer) {
+//     observer.observe(gridContainer);
+//   }
+// });
 
 
 

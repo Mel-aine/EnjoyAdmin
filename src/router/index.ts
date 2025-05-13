@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { isLoading } from '@/composables/spinner'
+import { useServiceStore } from '@/composables/serviceStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -174,29 +175,115 @@ const router = createRouter({
         title: 'Signup',
       },
     },
+    //restaurants
+    {
+      path: '/dashboard',
+      name: 'dashboard restau',
+      component: () => import('../views/Restaurants/Rdashboard.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/customer',
+      name: 'Customer',
+      component: () => import('../views/Customers/CustomerTable.vue'),
+    },
+    {
+      path: '/order',
+      name: 'order',
+      component: () => import('../views/Restaurants/OrderView.vue'),
+    },
+    {
+      path: '/menu',
+      name: 'menu',
+      component: () => import('../views/Restaurants/Menus/MenuView.vue'),
+    },
+    {
+      path: '/products',
+      name: 'product',
+      component: () => import('../views/Restaurants/ProductView/ProductView.vue')
+    },
+    {
+      path: '/products/:productcode/:action',
+      name: 'productaction',
+      component: () => import('../views/Restaurants/ProductView/ProductDetails.vue'),
+      meta: {
+        title: 'Users',
+      }
+    },
+    {
+      path: '/Stocks',
+      name: 'EntreeStocks',
+      component: () => import('../views/Restaurants/Stocks/StocksEntree.vue')
+    },
+    {
+      path: '/plates',
+      name: 'plates',
+      component: () => import('../views/Restaurants/PlateView/PlateView.vue')
+    },
+    {
+      path: '/plates/:platecode/:action',
+      name: 'platetaction',
+      component: () => import('../views/Restaurants/PlateView/PlateDetail.vue'),
+      meta: {
+        title: 'Users',
+      }
+    },
+    {
+      path: '/menus/:menucode/:action',
+      name: 'menuaction',
+      component: () => import('../views/Restaurants/Menus/MenuDetails.vue'),
+      meta: {
+        title: 'Users',
+      }
+    },
+    {
+      path: '/tickets/:ticketcode/:action',
+      name: 'ticket',
+      component: () => import('../views/Restaurants/TicketView/TicketDetail.vue')
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: () => import('../views/Users/UserTableResto.vue'),
+    },
   ],
 })
 router.beforeEach(async (to, from, next) => {
   isLoading.value = true;
+
   const authStore = useAuthStore();
+  // const serviceStore = useServiceStore();
 
-  // Si on a un token mais pas d'utilisateur, on essaie de récupérer l'utilisateur
-  if (authStore.token && !authStore.user) {
-    console.log("We have a token but no user. You should fetch the user data here.");
-  }
+  try {
+    // Si on a un token mais pas encore de données utilisateur, on les récupère
+    if (authStore.token && !authStore.user) {
+      // await authStore.fetchUser(); // Implémente cette méthode dans ton store
+    }
 
-  // Si la route nécessite une authentification et qu'on a pas de token
-  if (to.meta.requiresAuth && !authStore.token) {
+    // Si la route nécessite une auth mais qu’on n’est pas connecté
+    if (to.meta.requiresAuth && !authStore.token) {
+      return next('/signin');
+    }
+
+    // if (to.path === '/signin' && authStore.token) {
+    //   const category = serviceStore.serviceCategory?.toLowerCase();
+
+    //   switch (category) {
+    //     case 'hotel':
+    //       return next('/');
+    //     case 'restaurant':
+    //       return next('/dashboard');
+    //     default:
+    //       return next('/');
+    //   }
+    // }
+    return next();
+  } catch (error) {
+    console.error('Error in navigation guard:', error);
     return next('/signin');
   }
-
-  // Si on va vers /signin et qu'on est déjà connecté
-  if (to.path === '/signin' && authStore.token) {
-    return next('/');
-  }
-
-  next();
 });
+
 
 router.afterEach(() => {
   setTimeout(() => {

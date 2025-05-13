@@ -263,10 +263,10 @@ const fetchCategorie = async() => {
   }
 
 }
-onMounted(()=>{
-  fetchSupplier()
-  fetchCategorie ()
-  fetchProduct ()
+onMounted(async()=>{
+  await fetchSupplier()
+  await fetchCategorie ()
+  await fetchProduct ()
 })
 
 const addProduct = async () => {

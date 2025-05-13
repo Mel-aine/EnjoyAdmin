@@ -372,8 +372,8 @@ const fetchProduct = async() => {
 
 }
 
-onMounted(()=>{
-  fetchProduct()
+onMounted(async()=>{
+  await fetchProduct()
 })
 
 const selected = ref<any>(null);

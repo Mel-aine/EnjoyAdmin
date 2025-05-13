@@ -95,6 +95,7 @@ const Email = computed(() => {
 const signOut = () => {
   authStore.logout()
   serviceStore.clearServiceId();
+  serviceStore.clearServiceCategory();
   authStore.clearsetRoleId();
   authStore.clearsetUserId()
   closeDropdown()

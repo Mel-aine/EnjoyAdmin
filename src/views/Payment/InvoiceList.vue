@@ -38,13 +38,16 @@ import { useToast } from 'vue-toastification'
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
+const serviceStore = useServiceStore();
 const currentPageTitle = computed(()=>t("InvoiceList"));
 const selectedPayment = ref<any>(null)
 const Payments = ref<any[]>([])
 
 const fetchPayment = async () => {
+  const serviceId = serviceStore.serviceId;
+
   try {
-    const response = await getPayment();
+    const response = await getPayment(serviceId);
     console.log("....", response.data);
     Payments.value = Array.isArray(response.data) ? response.data : response.data.data;
 

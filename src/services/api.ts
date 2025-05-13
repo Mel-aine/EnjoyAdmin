@@ -131,9 +131,10 @@ export const getUserId= (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/users/${id}`);
 };
 //get payment
-export const  getPayment= (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/payment`);
+export const  getPayment= (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/payments/${serviceId}`);
 };
+
 
 export const  getPaymentById= (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/payment/${id}`);
@@ -175,7 +176,7 @@ export const createPayment = (paymentData: any ):Promise<AxiosResponse<any>> => 
 // services/authService.ts
 
 export function auth(credentials: { email: string, password: string ,keepLoggedIn?: boolean}) {
-  return axios.post(`${API_URL}/auth`, credentials)
+  return axios.post(`${API_URL}/authLogin`, credentials)
 }
 export function validateEmail(email: string) {
   return axios.post(`${API_URL}/validateEmail`, { email });

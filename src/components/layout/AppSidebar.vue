@@ -64,8 +64,8 @@
     @mouseenter="!isExpanded && (isHovered = true)"
     @mouseleave="isHovered = false"
     >
-    <nav class="">
-      <div class="flex flex-col gap-2">
+    <nav class="" >
+      <div class="flex flex-col gap-2" >
         <div v-for="(menuGroup, groupIndex) in filteredMenu" :key="groupIndex">
           <ul class="flex flex-col gap-3 ">
             <li v-for="(item, index) in menuGroup.items" :key="item.name">
@@ -234,23 +234,28 @@
   <script setup lang="ts">
   import { computed, ref, watch, onMounted } from "vue";
   import { useRoute } from "vue-router";
+  import { getMenuByCategoryName } from '@/menus';
 
+  // import {
+  //   GridIcon,
+  //   CalenderIcon,
+  //   UserCircleIcon,
+  //   ChevronDownIcon,
+  //   ListIcon,
+  //   SettingsIcon,
+  //   UserGroupIcon,
+  //   RoomIcon,
+  //   PaymentIcon
+  // } from "../../icons";
   import {
-    GridIcon,
-    CalenderIcon,
-    UserCircleIcon,
-    ChevronDownIcon,
-    ListIcon,
-    SettingsIcon,
-    UserGroupIcon,
-    RoomIcon,
-    PaymentIcon
+
+    ChevronDownIcon
   } from "../../icons";
-  import { Building2 } from 'lucide-vue-next'
+  // import { Building2 } from 'lucide-vue-next'
 
   import { useSidebar } from "@/composables/useSidebar";
   import { isLoading } from '@/composables/spinner';
-  import { CalendarCheck2 } from 'lucide-vue-next'
+  // import { CalendarCheck2 } from 'lucide-vue-next'
   import { useServiceStore } from '@/composables/serviceStore';
   import { getServices} from '@/services/api'
   import { useI18n } from "vue-i18n";
@@ -326,146 +331,250 @@
   //   items: MenuItem[];
   // }
 
-  const menuGroups: any[] = [
-    {
-      title: 'Menu',
-      items: [
-        {
-          icon: GridIcon,
-          name: t('Dashboard'),
-          path: '/',
-          roles: [1, 2, 3],
-        },
-        {
-          icon: CalendarCheck2,
-          name: t('Bookings'),
-          roles: [1, 2, 3],
-          subItems: [
-            { name: t('AllBooking'), path: '/all_booking', roles: [1, 2, 3] },
-            { name: t('AddBooking'), path: '/add_booking', roles: [1, 2, 3] },
-          ],
-        },
-        {
-          icon: RoomIcon,
-          name: t('Room'),
-          roles: [1, 2, 3],
-          subItems: [
-            { name: t('AllRooms'), path: '/all_room', roles: [1, 2, 3] },
-            { name: t('RoomTypes'), path: '/type_room', roles: [1, 2] },
-          ],
-        },
-        {
-          name: t('Calendar'),
-          icon: CalenderIcon,
-          path: '/calendar',
-          roles: [1, 2, 3],
-        },
-        {
-          name: t('Department'),
-          icon: Building2,
-          path: '/department',
-          roles: [1, 2],
-        },
-        {
-          name: t('Reports'),
-          icon: ListIcon,
-          roles: [1, 2],
-          subItems: [
-            {
-              name: t('Stocks'),
-              path: '/stock',
-              roles: [1, 2],
-              subItems: [
-                //  { name: t('Stock'), path: '/stock', roles: [1, 2] },
-                { name: t('StockList'), path: '/stock/product', roles: [1, 2] },
-                { name: t('StockMovements'), path: '/stock/movements', roles: [1, 2] },
-                { name: t('StockCategory'), path: '/stock/categorie', roles: [1, 2] },
-                { name: t('Suppliers'), path: '/stock/suppliers', roles: [1,2] }, // Fournisseurs
-                // { name: t('Orders'), path: '/stock/orders', roles: [1, 2] },     // Commandes
-                // { name: t('Alerts'), path: '/stock/alerts', roles: [1, 2] },     // Alertes de seuil
-                // { name: t('StockReports'), path: '/stock/reports', roles: [1,2] }  // Rapports ou export Excel/PDF
-              ]
-            },
-            { name: t('Expenses'), path: '/expense', roles: [1, 2] },
-            // { name: t('Booking'), path: '/booking', roles: [1, 2] },
-          ],
-        },
-        {
-          name: t('Customers'),
-          icon: UserGroupIcon,
-          path: '/customers',
-          roles: [1, 2, 3],
-        },
-        {
-          name: t('Payments'),
-          icon: PaymentIcon,
-          roles: [1, 2, 3],
-          subItems: [
-            { name: t('InvoiceList'), path: '/allInvoice', roles: [1, 2, 3] },
-            { name: t('InvoiceDetails'), path: '/invoice', roles: [1, 2, 3] },
-          ],
-        },
-        {
-          name: t('User'),
-          icon: UserCircleIcon,
-          path: '/user',
-          roles: [1, 2],
-        },
-        {
-          name: t('Setting'),
-          icon: SettingsIcon,
-          path: '/setting',
-          roles: [1, 2],
-        },
-      ],
-    },
-  ];
+  // const menuGroups: any[] = [
+  //   {
+  //     title: 'Menu',
+  //     items: [
+  //       {
+  //         icon: GridIcon,
+  //         name: t('Dashboard'),
+  //         path: '/',
+  //         roles: [1, 2, 3],
+  //       },
+  //       {
+  //         icon: CalendarCheck2,
+  //         name: t('Bookings'),
+  //         roles: [1, 2, 3],
+  //         subItems: [
+  //           { name: t('AllBooking'), path: '/all_booking', roles: [1, 2, 3] },
+  //           { name: t('AddBooking'), path: '/add_booking', roles: [1, 2, 3] },
+  //         ],
+  //       },
+  //       {
+  //         icon: RoomIcon,
+  //         name: t('Room'),
+  //         roles: [1, 2, 3],
+  //         subItems: [
+  //           { name: t('AllRooms'), path: '/all_room', roles: [1, 2, 3] },
+  //           { name: t('RoomTypes'), path: '/type_room', roles: [1, 2] },
+  //         ],
+  //       },
+  //       {
+  //         name: t('Calendar'),
+  //         icon: CalenderIcon,
+  //         path: '/calendar',
+  //         roles: [1, 2, 3],
+  //       },
+  //       {
+  //         name: t('Department'),
+  //         icon: Building2,
+  //         path: '/department',
+  //         roles: [1, 2],
+  //       },
+  //       {
+  //         name: t('Reports'),
+  //         icon: ListIcon,
+  //         roles: [1, 2],
+  //         subItems: [
+  //           {
+  //             name: t('Stocks'),
+  //             path: '/stock',
+  //             roles: [1, 2],
+  //             subItems: [
+  //               //  { name: t('Stock'), path: '/stock', roles: [1, 2] },
+  //               { name: t('StockList'), path: '/stock/product', roles: [1, 2] },
+  //               { name: t('StockMovements'), path: '/stock/movements', roles: [1, 2] },
+  //               { name: t('StockCategory'), path: '/stock/categorie', roles: [1, 2] },
+  //               { name: t('Suppliers'), path: '/stock/suppliers', roles: [1,2] }, // Fournisseurs
+  //               // { name: t('Orders'), path: '/stock/orders', roles: [1, 2] },     // Commandes
+  //               // { name: t('Alerts'), path: '/stock/alerts', roles: [1, 2] },     // Alertes de seuil
+  //               // { name: t('StockReports'), path: '/stock/reports', roles: [1,2] }  // Rapports ou export Excel/PDF
+  //             ]
+  //           },
+  //           { name: t('Expenses'), path: '/expense', roles: [1, 2] },
+  //           // { name: t('Booking'), path: '/booking', roles: [1, 2] },
+  //         ],
+  //       },
+  //       {
+  //         name: t('Customers'),
+  //         icon: UserGroupIcon,
+  //         path: '/customers',
+  //         roles: [1, 2, 3],
+  //       },
+  //       {
+  //         name: t('Payments'),
+  //         icon: PaymentIcon,
+  //         roles: [1, 2, 3],
+  //         subItems: [
+  //           { name: t('InvoiceList'), path: '/allInvoice', roles: [1, 2, 3] },
+  //           { name: t('InvoiceDetails'), path: '/invoice', roles: [1, 2, 3] },
+  //         ],
+  //       },
+  //       {
+  //         name: t('User'),
+  //         icon: UserCircleIcon,
+  //         path: '/user',
+  //         roles: [1, 2],
+  //       },
+  //       {
+  //         name: t('Setting'),
+  //         icon: SettingsIcon,
+  //         path: '/setting',
+  //         roles: [1, 2],
+  //       },
+  //     ],
+  //   },
+  // ];
 
-  const currentUserRoleId = authStore.roleId;
-  const filteredMenu = computed(() => {
-    if (currentUserRoleId == null) return [];
+  // const currentUserRoleId = authStore.roleId;
+  // const filteredMenu = computed(() => {
+  //   if (currentUserRoleId == null) return [];
 
-    return menuGroups
-      .map((group: any) => {
-        const filteredItems = group.items
-          .map((item: any) => {
-            const filteredSubItems = item.subItems?.map((subItem: any) => {
-              const filteredSubSubItems = subItem.subItems?.filter((subSubItem: any) =>
-                subSubItem.roles?.includes(currentUserRoleId!)
-              );
+  //   return menuGroups
+  //     .map((group: any) => {
+  //       const filteredItems = group.items
+  //         .map((item: any) => {
+  //           const filteredSubItems = item.subItems?.map((subItem: any) => {
+  //             const filteredSubSubItems = subItem.subItems?.filter((subSubItem: any) =>
+  //               subSubItem.roles?.includes(currentUserRoleId!)
+  //             );
 
-              const isSubItemAllowed =
-                subItem.roles?.includes(currentUserRoleId!) || (filteredSubSubItems?.length ?? 0) > 0;
+  //             const isSubItemAllowed =
+  //               subItem.roles?.includes(currentUserRoleId!) || (filteredSubSubItems?.length ?? 0) > 0;
 
-              if (!isSubItemAllowed) return null;
+  //             if (!isSubItemAllowed) return null;
 
-              return {
-                ...subItem,
-                subItems: filteredSubSubItems,
-              };
-            }).filter(Boolean);
+  //             return {
+  //               ...subItem,
+  //               subItems: filteredSubSubItems,
+  //             };
+  //           }).filter(Boolean);
 
-            const isItemAllowed =
-              item.roles?.includes(currentUserRoleId!) || (filteredSubItems?.length ?? 0) > 0;
+  //           const isItemAllowed =
+  //             item.roles?.includes(currentUserRoleId!) || (filteredSubItems?.length ?? 0) > 0;
 
-            if (!isItemAllowed) return null;
+  //           if (!isItemAllowed) return null;
+
+  //           return {
+  //             ...item,
+  //             subItems: filteredSubItems,
+  //           };
+  //         })
+  //         .filter(Boolean);
+
+  //       if (filteredItems.length === 0) return null;
+
+  //       return {
+  //         ...group,
+  //         items: filteredItems,
+  //       };
+  //     })
+  //     .filter(Boolean);
+  // });
+
+
+  export interface BaseMenuItem {
+  name: string;
+  roles: number[];
+  icon?: any;
+}
+
+export interface MenuLink extends BaseMenuItem {
+  path: string;
+  subItems?: never;
+}
+
+export interface MenuGroup extends BaseMenuItem {
+  path?: string;
+  subItems: (MenuLink | MenuGroup)[];
+}
+
+export type MenuItem = MenuLink | MenuGroup;
+
+export interface MenuGroupWrapper {
+  title: string;
+  items: MenuItem[];
+}
+
+
+// const currentUserRoleId = computed(() => authStore.roleId);
+// const currentCategoryName = computed(() => serviceStore.serviceCategory);
+
+
+// // const rawMenu = computed(() => getMenuByCategoryName(currentCategoryName));
+// const rawMenu = computed(() =>
+//   getMenuByCategoryName(currentCategoryName.value)
+// );
+
+
+
+const filteredMenu = computed(() => {
+  if (currentUserRoleId.value === null) return [];
+
+  // Convertir le rôle utilisateur en nombre
+  const userRoleId = Number(currentUserRoleId.value);
+
+  return rawMenu.value
+    .map((group: any) => {
+      const filteredItems = group.items
+        .map((item: any) => {
+          const filteredSubItems = item.subItems?.map((subItem: any) => {
+            const filteredSubSubItems = subItem.subItems?.filter((subSubItem: any) =>
+              subSubItem.roles?.includes(userRoleId) // Utiliser userRoleId ici
+            );
+
+            const isSubItemAllowed =
+              subItem.roles?.includes(userRoleId) || (filteredSubSubItems?.length ?? 0) > 0;
+
+            if (!isSubItemAllowed) return null;
 
             return {
-              ...item,
-              subItems: filteredSubItems,
+              ...subItem,
+              subItems: filteredSubSubItems,
             };
-          })
-          .filter(Boolean);
+          }).filter(Boolean);
 
-        if (filteredItems.length === 0) return null;
+          const isItemAllowed =
+            item.roles?.includes(userRoleId) || (filteredSubItems?.length ?? 0) > 0;
 
-        return {
-          ...group,
-          items: filteredItems,
-        };
-      })
-      .filter(Boolean);
-  });
+          if (!isItemAllowed) return null;
+
+          return {
+            ...item,
+            subItems: filteredSubItems,
+          };
+        })
+        .filter(Boolean);
+
+      if (filteredItems.length === 0) return null;
+
+      return {
+        ...group,
+        items: filteredItems,
+      };
+    })
+    .filter(Boolean);
+});
+
+
+
+const currentUserRoleId = computed(() => authStore.roleId || 0);
+const currentCategoryName = computed(() => serviceStore.serviceCategory || '');
+
+// const rawMenu = computed(() => getMenuByCategoryName(currentCategoryName.value));
+const rawMenu = computed(() => {
+  const menu = getMenuByCategoryName(currentCategoryName.value,t);
+  console.log("Raw Menu:", menu);
+  return menu;
+});
+
+console.log("User Role ID:", currentUserRoleId.value);
+console.log("Category Name:", currentCategoryName.value);
+
+
+
+console.log("Type of Current User Role ID:", typeof currentUserRoleId.value);
+
 
   // Vérifie si une route est active
   const isActive = (path: string): boolean => route.path === path;
@@ -483,20 +592,68 @@
   };
 
   // Vérifie si un sous-sous-menu est ouvert
-  const isSubSubmenuOpen = (groupIndex: number, itemIndex: number, subItemName: string): boolean => {
-    const key = `${groupIndex}-${itemIndex}-${subItemName}`;
-    const item = menuGroups[groupIndex]?.items[itemIndex];
-    const subItem = item?.subItems?.find((si:any) => si.name === subItemName);
+  const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
+  const key = `${groupIndex}-${itemIndex}`;
+  const item = rawMenu.value[groupIndex]?.items[itemIndex];
 
-    return (
-      openSubSubmenu.value === key ||
-      (subItem?.subItems?.some((subSubItem:any) => isActive(subSubItem.path)) ?? false)
-    );
-  };
+  if (!item || !('subItems' in item) || !Array.isArray(item.subItems)) return false;
+
+  const isSubSubmenuActive = item.subItems.some(
+    (subItem:any) =>
+      Array.isArray(subItem.subItems) &&
+      subItem.subItems.some((subSubItem:any) => isActive(subSubItem.path))
+  );
+
+  return (
+    openSubmenu.value === key ||
+    (isAnySubmenuRouteActive.value &&
+      (item.subItems.some((subItem:any) => isActive(subItem.path)) || isSubSubmenuActive))
+  );
+};
+
+// const isSubSubmenuOpen = (groupIndex: number, itemIndex: number, subItemName: string): boolean => {
+//   const key = `${groupIndex}-${itemIndex}-${subItemName}`;
+//   const item = rawMenu.value[groupIndex]?.items[itemIndex];
+
+//   if (!item || !('subItems' in item) || !Array.isArray(item.subItems)) return false;
+
+//   const subItem = item.subItems.find((si:any) => si.name === subItemName);
+
+//   return (
+//     openSubSubmenu.value === key ||
+//     (subItem?.subItems?.some((subSubItem:any) => isActive(subSubItem.path)) ?? false)
+//   );
+// };
+const isSubSubmenuOpen = (
+  groupIndex: number,
+  itemIndex: number,
+  subItemName: string
+): boolean => {
+  const key = `${groupIndex}-${itemIndex}-${subItemName}`;
+  const item = rawMenu.value[groupIndex]?.items[itemIndex];
+
+  // Vérifie que l'item a bien des sous-éléments
+  if (!item || typeof item !== 'object' || !('subItems' in item) || !Array.isArray((item as any).subItems)) {
+    return false;
+  }
+
+  // Accès au sous-menu correspondant au nom
+  const subItem = (item as any).subItems.find((si: any) => si.name === subItemName);
+
+  // Vérifie que le sous-élément a lui-même des sous-éléments actifs
+  return (
+    openSubSubmenu.value === key ||
+    (subItem?.subItems?.some((subSubItem: any) => isActive(subSubItem.path)) ?? false)
+  );
+};
+
+
+
+
 
   // Vérifie si un des sous-menus contient une route active
   const isAnySubmenuRouteActive = computed<boolean>(() => {
-    return menuGroups.some((group) =>
+    return rawMenu.value.some((group:any) =>
       group.items.some((item: any) =>
         item.subItems?.some((subItem: any) =>
           isActive(subItem.path) || subItem.subItems?.some((subSubItem: any) => isActive(subSubItem.path))
@@ -506,22 +663,22 @@
   });
 
   // Vérifie si le sous-menu est ouvert ou contient une route active
-  const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean | undefined => {
-    const key = `${groupIndex}-${itemIndex}`;
-    const item = menuGroups[groupIndex]?.items[itemIndex];
+  // const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean | undefined => {
+  //   const key = `${groupIndex}-${itemIndex}`;
+  //   const item = rawMenu.value[groupIndex]?.items[itemIndex];
 
-    if (!item) return false;
+  //   if (!item) return false;
 
-    const isSubSubmenuActive = item.subItems?.some((subItem: any) =>
-      subItem.subItems?.some((subSubItem: any) => isActive(subSubItem.path))
-    );
+  //   const isSubSubmenuActive = item.subItems?.some((subItem: any) =>
+  //     subItem.subItems?.some((subSubItem: any) => isActive(subSubItem.path))
+  //   );
 
-    return (
-      openSubmenu.value === key ||
-      (isAnySubmenuRouteActive.value &&
-        (item.subItems?.some((subItem: any) => isActive(subItem.path)) || isSubSubmenuActive))
-    );
-  };
+  //   return (
+  //     openSubmenu.value === key ||
+  //     (isAnySubmenuRouteActive.value &&
+  //       (item.subItems?.some((subItem: any) => isActive(subItem.path)) || isSubSubmenuActive))
+  //   );
+  // };
 
   // Transition pour ouvrir le menu avec animation
   const startTransition = (el: Element): void => {

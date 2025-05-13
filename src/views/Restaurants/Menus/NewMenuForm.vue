@@ -1,0 +1,1113 @@
+<!-- <script setup lang="ts">
+import AdminLayout from '@/components/layout/AdminLayout.vue';
+import DefaultCard from '@/components/common/DefaultCard.vue';
+import SelectGroupSearchable from '@/components/forms/FormElements/SelectGroupSearchable.vue';
+import { defineAsyncComponent, onBeforeMount, ref } from 'vue';
+import InputGroup2 from '@/components/forms/FormElements/InputGroup2.vue';
+import TableOne from '@/components/Tables/TableOne.vue';
+import Flatpickr from 'vue-flatpickr-component'
+import 'flatpickr/dist/flatpickr.css'
+import { French } from 'flatpickr/dist/l10n/fr.js'
+
+
+
+// Types
+import type PlateOption from '../../components/Utilities/interfaceModel';
+import type { MenuRequest, FormattedDates } from '../../services/serviceInterface';
+import type ToastPayload from '@/types/Toast';
+
+const emits = defineEmits(['cancel', "save"]);
+const props = defineProps({
+    action: {
+        type: String,
+    },
+    menu: {
+        type: Object
+    },
+    plats: {
+        type: Object
+    }
+});
+
+const reloadView = ref(false);
+const plateList = ref<Array<PlateOption>>([]);
+const plateListToadd = ref<Array<any>>([]);
+const isSaving = ref<Boolean>(false);
+const selectedItem = ref<any>(null);
+const menuInfo = ref<MenuRequest>({
+    Code: "",
+    Title: "",
+    Description: "",
+    StartDate: "",
+    EndDate: "",
+});
+const quantity = ref<number>(1);
+const titles = ref([
+    {
+        label: 'Title',
+        name: "name",
+        type: 'url',
+        event: "view",
+        filterable: false,
+    },
+    {
+        name: 'price',
+        type: "text",
+        label: 'Price',
+        filterable: true,
+    },
+    {
+        name: 'quantity',
+        type: "text",
+        label: 'Quantity',
+        filterable: true,
+    },
+    {
+        name: 'Actions',
+        type: 'action',
+        label: 'Actions',
+        actions: [
+            {
+                name: "Increment",
+                icone: `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                        <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                    </svg>
+                    `,
+                event: 'increment'
+            },
+            {
+                name: "Decrement",
+                icone: `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                        <path fill-rule="evenodd" d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" clip-rule="evenodd" />
+                    </svg>
+                `,
+                event: 'decrement'
+            },
+            {
+                name: "Remove",
+                icone: `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                        <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                `,
+                event: 'remove'
+            },
+        ]
+    }
+]);
+const filterOptions = ref([]);
+const resetInput = ref<boolean>(false);
+const disableStartDate = ref<boolean>(false);
+const disableEndDate = ref<boolean>(false);
+
+// Tes variables
+const configDate = {
+  dateFormat: 'Y-m-d',
+  locale: French
+}
+
+const configTime = {
+  enableTime: true,
+  noCalendar: true,
+  dateFormat: 'H:i',
+  time_24hr: true,
+  locale: French
+}
+
+// Initialisation des dates/heures par défaut
+const currentDate = new Date();
+
+const startDate = new Date(currentDate.getTime());
+startDate.setMinutes(currentDate.getMinutes() + 10);
+
+const endDate = new Date(currentDate.getTime());
+endDate.setHours(currentDate.getHours() + 6);
+
+const startTime = ref<string>(`${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`);
+const endTime = ref<string>(`${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`);
+
+const range = ref<FormattedDates>({
+    startDate: "",
+    endDate: ""
+});
+
+const handleSelection = (item: any) => {
+    selectedItem.value = item;
+}
+
+const stopAction = () => {
+    emits('cancel', reloadView.value);
+}
+
+// const saveMenu = async () => {
+//     isSaving.value = true;
+//     try {
+//         let code: string = "";
+
+//         if (menuInfo.value.Title) {
+//             code = props.action === "update" ? menuInfo.value.Code : generateCode(menuInfo.value.Title);
+//         }
+
+//         // Préparation des plats existants et nouveaux
+//         const existingPlates: any[] = [];
+//         const newPlates: any[] = [];
+
+//         plateListToadd.value.forEach(plate => {
+//             // Vérifie si le plat existe déjà dans la base de données
+//             const isExisting = props.plats?.some((existingPlate: any) => existingPlate.api === plate.api);
+
+//             if (isExisting) {
+//                 // Plat existant
+//                 existingPlates.push({
+//                     PlateCode: plate.api,
+//                     QuantityAvailable: plate.quantity,
+//                     MenuCode: code
+//                 });
+//             } else {
+//                 // Nouveau plat
+//                 newPlates.push({
+//                     PlateCode: plate.api,
+//                     QuantityAvailable: plate.quantity,
+//                     MenuCode: code
+//                 });
+//             }
+//         });
+
+//         // Format uniforme pour l'API
+//         const plates = plateListToadd.value.map(i => ({
+//             PlateCode: i.api,
+//             QuantityAvailable: i.quantity
+//         }));
+
+//         const payload = {
+//             "Code": props.action === "update" ? code : code.replace(/\s+/g, ''),
+//             "Title": menuInfo.value.Title,
+//             "Description": menuInfo.value.Description,
+//             "StartDate": menuInfo.value.StartDate + ' ' + startTime.value + ':00',
+//             "EndDate": menuInfo.value.EndDate + ' ' + endTime.value + ':00',
+//             "items": plates
+//         };
+
+//         const validation = validateMenu(payload, props.action);
+
+//         if (validation.isValid) {
+//             let result: any;
+
+//             if (props.action === "update") {
+//                 result = await updateMenu(payload);
+
+//                 if (existingPlates.length > 0) {
+//                     await updateMenuItem(existingPlates);
+//                 }
+
+//                 if (newPlates.length > 0) {
+//                     await addMenuItem(newPlates);
+//                 }
+//             } else if (props.action === "clone") {
+//                 result = await cloneMenu(payload, menuInfo.value.Code);
+//             } else {
+//                 result = await createMenu(payload);
+//             }
+
+//             const toastPayload: ToastPayload = {
+//                 type: "success",
+//                 message: `Menu ${props.action === "update" ? "Updated" : "Created"} successfully! 🍕`
+//             };
+
+//             // Réinitialisation du formulaire
+//             menuInfo.value = {
+//                 Code: "",
+//                 Title: "",
+//                 Description: "",
+//                 StartDate: "",
+//                 EndDate: "",
+//             };
+
+//             plateListToadd.value = [];
+//             reloadView.value = true;
+//             EventBus.emit('showToast', toastPayload);
+//         } else {
+//             throw new Error(validation.message);
+//         }
+//     } catch (error: any) {
+//         console.error('Error:', error);
+
+//         const errMsg = error?.message || "Oops, something went wrong during processing";
+//         const payload: ToastPayload = {
+//             type: "danger",
+//             message: errMsg
+//         };
+
+//         EventBus.emit('showToast', payload);
+//     } finally {
+//         isSaving.value = false;
+//     }
+// }
+
+// const getPlate = async () => {
+//     try {
+//         const result = await fetchPlate();
+
+//         plateList.value = result.map((item: any) => ({
+//             name: item.Title,
+//             api: item.Code,
+//             price: item.BasePrice
+//         }));
+
+//         plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+//     } catch (error) {
+//         console.error('Error fetching plates:', error);
+
+//         const payload: ToastPayload = {
+//             type: "danger",
+//             message: "Failed to load plates. Please try again."
+//         };
+
+//         EventBus.emit('showToast', payload);
+//     }
+// }
+
+const handleRemovePlace = (ts: any) => {
+    plateList.value.push(ts);
+    plateListToadd.value = plateListToadd.value.filter((item:any) => item.api !== ts.api);
+
+    plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+    plateListToadd.value.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const handleIncrement = (ts: any) => {
+    plateListToadd.value = plateListToadd.value.map((item:any)  => {
+        if (item.api === ts.api) {
+            return {
+                ...item,
+                quantity: item.quantity + 1
+            };
+        }
+        return item;
+    });
+}
+
+const handleDecrement = (ts: any) => {
+    if (ts.quantity <= 1) {
+        handleRemovePlace(ts);
+        return;
+    }
+
+    plateListToadd.value = plateListToadd.value.map((item:any)  => {
+        if (item.api === ts.api && item.quantity > 1) {
+            return {
+                ...item,
+                quantity: item.quantity - 1
+            };
+        }
+        return item;
+    });
+}
+
+const handdleAddPlate = () => {
+    if (plateList.value.length <= 0 || !selectedItem.value) {
+        return;
+    }
+
+    const plateToAdd = {
+        ...selectedItem.value,
+        quantity: quantity.value
+    };
+
+    // Vérifie si le plat existe déjà
+    const existingPlateIndex = plateListToadd.value.findIndex(plate => plate.api === selectedItem.value.api);
+
+    if (existingPlateIndex !== -1) {
+        // Met à jour la quantité si le plat existe déjà
+        plateListToadd.value[existingPlateIndex].quantity += quantity.value;
+    } else {
+        // Ajoute le plat s'il n'existe pas
+        plateListToadd.value.push(plateToAdd);
+    }
+
+    // Retire le plat de la liste disponible
+    plateList.value = plateList.value.filter(item1 =>
+        !plateListToadd.value.some(item2 => item2.api === item1.api)
+    );
+
+    // Tri des listes
+    plateListToadd.value.sort((a, b) => a.name.localeCompare(b.name));
+    plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Réinitialisation
+    selectedItem.value = null;
+    resetInput.value = !resetInput.value;
+    quantity.value = 1;
+};
+
+const validateMenu = (payload: any, action: string | undefined): { isValid: boolean, message: string } => {
+    const currentDate = new Date();
+
+    // Fonction helper pour valider les dates
+    const validateDate = (dateString: string, disable: boolean, fieldName: string): { isValid: boolean, message: string } => {
+        if (!dateString) return { isValid: true, message: '' };
+
+        const date = new Date(dateString);
+
+        if (disable) return { isValid: true, message: '' };
+        if (date < currentDate) return { isValid: false, message: `${fieldName} cannot be in the past.` };
+
+        return { isValid: true, message: '' };
+    };
+
+    // Validation selon le type d'action
+    if (action === 'create' || action === 'clone') {
+        // Pour création/clônage, valider toutes les dates
+        const startDateValidation = validateDate(payload.StartDate, false, 'Start date');
+        const endDateValidation = validateDate(payload.EndDate, false, 'End date');
+
+        if (!startDateValidation.isValid) return startDateValidation;
+        if (!endDateValidation.isValid) return endDateValidation;
+
+        if (new Date(payload.EndDate) < new Date(payload.StartDate)) {
+            return { isValid: false, message: 'End date must be after start date.' };
+        }
+
+        return { isValid: true, message: '' };
+    } else if (action === 'update') {
+        // Pour mise à jour, respecter les états disabled
+        const startDateValidation = validateDate(payload.StartDate, disableStartDate.value, 'Start date');
+        const endDateValidation = validateDate(payload.EndDate, disableEndDate.value, 'End date');
+
+        if (!startDateValidation.isValid) return startDateValidation;
+        if (!endDateValidation.isValid) return endDateValidation;
+
+        return { isValid: true, message: '' };
+    }
+
+    return { isValid: false, message: 'Unknown validation error.' };
+};
+
+const updateDisabledDates = (_menuInfo: any): void => {
+    const currentDate = new Date();
+
+    if (_menuInfo.StartDate) {
+        const startDate = new Date(_menuInfo.StartDate);
+        disableStartDate.value = startDate < currentDate;
+    } else {
+        disableStartDate.value = false;
+    }
+
+    if (_menuInfo.EndDate) {
+        const endDate = new Date(_menuInfo.EndDate);
+        disableEndDate.value = endDate < currentDate;
+    } else {
+        disableEndDate.value = false;
+    }
+};
+
+// onBeforeMount(async () => {
+//     await getPlate();
+
+//     if (props.action === "update" || props.action === "clone") {
+//         if (props.action === "update") {
+//             updateDisabledDates(props.menu);
+//         }
+
+//         range.value = formatDates(props.menu);
+//         startTime.value = range.value.startDate;
+//         endTime.value = range.value.endDate;
+
+//         if (props.plats) {
+//             plateListToadd.value = props.plats.map((item: any) => ({
+//                 name: item.Title,
+//                 quantity: item.QuantityAvailable,
+//                 price: item.BasePrice,
+//                 api: item.api
+//             }));
+
+//             plateList.value = plateList.value.filter((item1:any) =>
+//                 !plateListToadd.value.some((item2: any) => item2.api === item1.api)
+//             );
+
+//             menuInfo.value = props.menu as MenuRequest;
+
+//             if (menuInfo.value.EndDate) {
+//                 const formattedDate = menuInfo.value.EndDate.split(" ")[0];
+//                 menuInfo.value.EndDate = formattedDate;
+//             }
+//         }
+//     }
+
+//     if (menuInfo.value.EndDate) {
+//         menuInfo.value.EndDate = getDate(menuInfo.value.EndDate);
+//     }
+
+//     if (menuInfo.value.StartDate) {
+//         menuInfo.value.StartDate = getDate(menuInfo.value.StartDate);
+//     }
+// });
+
+// const getDate = (rawDate: string | undefined): string => {
+//     if (!rawDate) return '';
+
+//     const res = rawDate.split(" ");
+//     return res[0];
+// };
+
+const getAction = (act: string | undefined): string => {
+    switch (act) {
+        case "update":
+            return "Update";
+        case "clone":
+            return "Clone";
+        case "create":
+            return "Save";
+        default:
+            return "Update";
+    }
+};
+
+// const formatDates = (obj: any): FormattedDates => {
+//     // Helper function to format time in "HH:mm" format
+//     const formatTime = (date: Date): string => {
+//         return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+//     };
+
+//     // Parse StartDate and EndDate into Date objects
+//     const startDate = new Date(obj.StartDate);
+//     const endDate = obj.EndDate ? new Date(obj.EndDate) : null;
+
+//     // Format startDate's time
+//     const formattedStartDate = formatTime(startDate);
+
+//     let formattedEndDate: string;
+
+//     if (endDate && !isNaN(endDate.getTime())) {
+//         // If EndDate is valid, format its time
+//         formattedEndDate = formatTime(endDate);
+//     } else {
+//         // Otherwise, calculate EndDate as StartDate + 10 minutes
+//         const calculatedEndDate = new Date(startDate);
+//         calculatedEndDate.setMinutes(startDate.getMinutes() + 10);
+//         formattedEndDate = formatTime(calculatedEndDate);
+//     }
+
+//     return {
+//         startDate: formattedStartDate,
+//         endDate: formattedEndDate,
+//     };
+// };
+</script>-->
+
+<script setup lang="ts">
+
+    import { createMenu, fetchPlate, formatedDate, generateCode, updateMenu, cloneMenu, updateMenuItem,addMenuItem } from '@/services/database';
+    import { defineAsyncComponent, onBeforeMount, ref } from 'vue';
+    import DefaultCard from '@/components/common/DefaultCard.vue';
+    import SelectGroupSearchable from '@/components/forms/FormElements/SelectGroupSearchable.vue';
+    import InputGroup2 from '@/components/forms/FormElements/InputGroup2.vue';
+    import TableOne from '@/components/Tables/TableOne.vue';
+    import Flatpickr from 'vue-flatpickr-component'
+    import 'flatpickr/dist/flatpickr.css'
+    import { French } from 'flatpickr/dist/l10n/fr.js'
+    import { useI18n } from 'vue-i18n';
+    // const SpinnerOverPage = defineAsyncComponent(() => import('@/components/Utilities/SpinnerOverPage.vue'));
+    // const Spinner = defineAsyncComponent(() => import('@/components/Utilities/Spinner.vue'));
+
+    // import EventBus from '@/EventBus';
+    import type PlateOption from '../../components/Utilities/interfaceModel';
+    import type { MenuRequest, FormattedDates } from '../../services/serviceInterface';
+    // import type ToastPayload from '@/types/Toast';
+
+    const emits = defineEmits(['cancel', "save",'back']);
+    const props = defineProps({
+        action: {
+            type: String,
+        },
+        menu: {
+            type: Object
+        },
+        plats: {
+            type: Object
+        }
+    });
+
+    const reloadView = ref(false);
+    const {t} = useI18n()
+    const plateList = ref<Array<PlateOption>>([])
+    const plateListToadd = ref<Array<any>>([])
+    const isSaving = ref<Boolean>(false);
+    const selectedItem = ref<any>(null);
+    const menuInfo = ref<MenuRequest>({
+        Code: "",
+        Title: "",
+        Description: "",
+        StartDate: "",
+        EndDate: "",
+    });
+    const quantity = ref<number>(1)
+    const titles = ref([
+        {
+            label: 'Title',
+            name: "name",
+            type: 'url',
+            event: "view",
+            filterable: false,
+        },
+        {
+            name: 'price',
+            type: "text",
+            label: 'Price',
+            filterable: true,
+        },
+        {
+            name: 'quantity',
+            type: "text",
+            label: 'Quantity',
+            filterable: true,
+        },
+        {
+            name: 'Actions',
+            type: 'action',
+            label: 'Actions',
+            actions: [
+                {
+                    name: "Increment",
+                    icone: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                        </svg>
+                        `,
+                    event: 'increment'
+                },
+                {
+                    name: "Decrement",
+                    icone: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                            <path fill-rule="evenodd" d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" clip-rule="evenodd" />
+                        </svg>
+                    `,
+                    event: 'decrement'
+                },
+                {
+                    name: "Remove",
+                    icone: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                        </svg>
+                    `,
+                    event: 'remove'
+                },
+            ]
+        }
+    ]);
+    const filterOptions = ref([]);
+    const resetInput = ref<boolean>(false);
+    const disableStartDate = ref<boolean>(false);
+    const disableEndDate = ref<boolean>(false);
+
+    const configDate = {
+      dateFormat: 'Y-m-d',
+      locale: French
+    }
+
+    const configTime = {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: 'H:i',
+      time_24hr: true,
+      locale: French
+    }
+
+
+    const currentDate = new Date();
+
+    const startDate = new Date(currentDate.getTime());
+    startDate.setMinutes(currentDate.getMinutes() + 10);
+
+    const endDate = new Date(currentDate.getTime());
+    endDate.setHours(currentDate.getHours() + 6);
+
+
+    const startTime = ref<string>(`${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`);
+    const endTime = ref<string>(`${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`);
+
+    const range = ref<FormattedDates>({
+        startDate: "",
+        endDate: ""
+    });
+
+    const handleSelection = (item: string) => {
+        selectedItem.value = item
+    }
+    const stopAction = () => {
+        emits('cancel', reloadView);
+    }
+    const saveMenu = async () => {
+        isSaving.value = true;
+        try {
+            let code: string | undefined = "";
+            console.log('props.action', props.action)
+
+            if(menuInfo.value.Title){
+                code = props.action == "update" ? menuInfo.value.Code : generateCode(menuInfo.value.Title);
+            }
+            const existingPlates: any[] = [];
+            const newPlates: any[] = [];
+
+            plateListToadd.value.forEach(plate => {
+                // Vérifie si le plat existe déjà dans la base de données (via plateListToadd)
+            const isExisting = props.plats?.some((existingPlate: any) => existingPlate.api === plate.api);
+                if (isExisting) {
+                    // Plat existant (a un Id)
+                    existingPlates.push({
+                    PlateCode: plate.api,
+                    QuantityAvailable: plate.quantity,
+                    MenuCode: code // Inclure le code du menu
+                    });
+                } else {
+                    // Nouveau plat (n'a pas d'Id)
+                    // Nouveau plat
+                    newPlates.push({
+                        PlateCode: plate.api,
+                        QuantityAvailable: plate.quantity,
+                        MenuCode: code // Inclure le code du menu
+                    });
+                }
+            });
+
+
+            const plates = plateListToadd.value.map(i => {
+                return {
+                    PlateCode: i.api,
+                    QuantityAvailable: i.quantity
+                }
+            });
+
+
+            const payload = {
+                "Code": props.action == "update" ? code : code!.replace(/\s+/g, ''),
+                "Title": menuInfo.value.Title,
+                "Description": menuInfo.value.Description,
+                "StartDate": menuInfo.value.StartDate + ' ' + startTime.value + ':00',
+                "EndDate": menuInfo.value.EndDate + ' ' + endTime.value + ':00',
+                "items":plates
+            }
+
+            const validation = validateMenu(payload, props.action);
+            console.log('**validation', validation)
+            if(validation.isValid){
+                let result: any = "";
+                let itemResult: any = "";
+                if(props.action == "update"){
+                    result = await updateMenu(payload)
+                    if (existingPlates.length > 0) {
+                    itemResult = await updateMenuItem(existingPlates);
+                    }
+
+                    // Ajouter les nouveaux plats
+                    if (newPlates.length > 0) {
+                        itemResult = await addMenuItem(newPlates);
+                    }
+                } else if(props.action == "clone"){
+                    result = await cloneMenu(payload, menuInfo.value.Code)
+                } else {
+                    result = await createMenu(payload)
+                }
+
+                const toastPayload: ToastPayload = {
+                    type: "success",
+                    message: `Menu ${props.action == "update" ? "Updated" : "Created"} successfully ! 🍕`
+                }
+                menuInfo.value = {
+                    Code: "",
+                    Title: "",
+                    Description: "",
+                    StartDate: "",
+                    EndDate: "",
+                };
+                plateListToadd.value = [];
+                reloadView.value = true;
+                EventBus.emit('showToast', toastPayload);
+                reloadView.value = true;
+
+            } else {
+                throw new Error(validation.message);
+            }
+
+        } catch (error:any) {
+            console.log('error: ', error);
+            console.log('Trace', error.stack)
+            const errMsg = error ? error : "Oups, something went wrong during the processing";
+            const payload: ToastPayload = {
+                type: "danger",
+                message: errMsg
+            }
+            EventBus.emit('showToast', payload);
+        } finally {
+            isSaving.value = false;
+        }
+    }
+    const getPlate = async () => {
+        const result = await fetchPlate();
+        plateList.value = result.map((item:any) => {
+            return {
+                name: item.Title,
+                api: item.Code,
+                price: item.BasePrice
+            }
+        })
+        plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    const handleRemovePlace = (ts: any) => {
+        plateList.value.push(ts);
+
+        plateListToadd.value = plateListToadd.value.filter(item => item.api!= ts.api);
+        plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+        plateListToadd.value.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    const handleIncrement = (ts: any) => {
+        plateListToadd.value = plateListToadd.value.map(item => {
+            if(item.api == ts.api){
+                return {
+                   ...item,
+                    quantity: item.quantity + 1
+                }
+            }
+            return item;
+        })
+        console.log('plateListToadd.value', plateListToadd.value)
+    }
+    const handleDecrement = (ts: any) => {
+        if(ts.quantity <= 1) {
+            handleRemovePlace(ts);
+        }
+        plateListToadd.value = plateListToadd.value.map(item => {
+            if(item.api == ts.api && item.quantity > 1){
+                return {
+                   ...item,
+                    quantity: item.quantity - 1
+                }
+            }
+            return item;
+        })
+    }
+    const handdleAddPlate = () => {
+    if (plateList.value.length <= 0 || !selectedItem.value) { return }
+
+    const plateToAdd = {
+        ...selectedItem.value,
+        quantity: quantity.value
+    };
+
+    // Vérifie si le plat existe déjà dans plateListToadd
+    const existingPlateIndex = plateListToadd.value.findIndex(plate => plate.api === selectedItem.value.api);
+
+
+    if (existingPlateIndex !== -1) {
+        // Si le plat existe déjà, mettez à jour la quantité
+        plateListToadd.value[existingPlateIndex].quantity += quantity.value;
+    } else {
+        // Sinon, ajoutez le plat à plateListToadd
+        plateListToadd.value.push(plateToAdd);
+    }
+
+    // Retire le plat ajouté de plateList
+    plateList.value = plateList.value.filter(item1 =>
+        !plateListToadd.value.some(item2 => item2.api == item1.api)
+    );
+
+    // Trie les listes par ordre alphabétique
+    plateListToadd.value.sort((a, b) => a.name.localeCompare(b.name));
+    plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Réinitialise les valeurs
+    selectedItem.value = null;
+    resetInput.value = !resetInput.value;
+    quantity.value = 1;
+};
+
+
+    const validateMenu = (payload: any, action: string | undefined): { isValid: boolean, message: string } => {
+        const currentDate = new Date();
+
+        const validateDate = (dateString: string, disable: boolean, fieldName: string): { isValid: boolean, message: string } => {
+            if (!dateString) return { isValid: true, message: '' };
+            const date = new Date(dateString);
+            if (disable) return { isValid: true, message: '' };
+            if (date < currentDate) return { isValid: false, message: `${fieldName} ne peut pas être dans le passé.` };
+            return { isValid: true, message: '' };
+        };
+
+        if (action === 'create' || action === 'clone') {
+            const startDateValidation = validateDate(payload.StartDate, false, 'Date de début');
+            const endDateValidation = validateDate(payload.EndDate, false, 'Date de fin');
+            if (!startDateValidation.isValid) return startDateValidation;
+            if (!endDateValidation.isValid) return endDateValidation;
+            if (new Date(payload.EndDate) < new Date(payload.StartDate)) {
+                return { isValid: false, message: 'La date de fin doit être après la date de début.' };
+            }
+            return { isValid: true, message: '' };
+        } else if (action === 'update') {
+            const startDateValidation = validateDate(payload.StartDate, disableStartDate.value, 'Date de début');
+            const endDateValidation = validateDate(payload.EndDate, disableEndDate.value, 'Date de fin');
+            if (!startDateValidation.isValid) return startDateValidation;
+            if (!endDateValidation.isValid) return endDateValidation;
+            return { isValid: true, message: '' };
+        }
+
+        return { isValid: false, message: 'Erreur de validation inconnue.' };
+    };
+
+
+
+    const updateDisabledDates = (_menuInfo: any): void => {
+        console.log('_menuInfo', _menuInfo)
+        const currentDate = new Date();
+
+        if (_menuInfo.StartDate) {
+            const startDate = new Date(_menuInfo.StartDate);
+            disableStartDate.value = startDate < currentDate; // Désactive si date antérieure à maintenant
+        } else {
+            disableStartDate.value = false; // Réinitialiser si pas de StartDate
+        }
+
+        if (_menuInfo.EndDate) {
+            const endDate = new Date(_menuInfo.EndDate);
+            disableEndDate.value = endDate < currentDate; // Désactive si date antérieure à maintenant
+        } else {
+            disableEndDate.value = false; // Réinitialiser si pas de EndDate
+        }
+    };
+
+    onBeforeMount(async () => {
+        await getPlate();
+        if(props.action == "update" || props.action == "clone"){
+            if(props.action == "update"){updateDisabledDates(props.menu);}
+            range.value = formatDates(props.menu);
+            startTime.value = range.value.startDate;
+            endTime.value = range.value.endDate;
+
+            if(props.plats){
+                plateListToadd.value = props.plats.map((item: any) => {
+                    return {
+                        name: item.Title,
+                        quantity: item.QuantityAvailable,
+                        price: item.BasePrice,
+                        api: item.api
+                    }
+                });
+                plateList.value = plateList.value.filter(item1 => !plateListToadd.value.some((item2: any) => item2.api == item1.api));
+                menuInfo.value = props.menu as MenuRequest;
+                if(menuInfo.value.EndDate){
+                    let formattedDate = menuInfo.value.EndDate.split(" ")[0]
+                    menuInfo.value.EndDate = formattedDate;
+                }
+            }
+        }
+        menuInfo.value.EndDate = getDate(menuInfo.value.EndDate);
+        menuInfo.value.StartDate = getDate(menuInfo.value.StartDate);
+    });
+
+    const getDate = (rawDate: string | undefined) => {
+        const res = rawDate!.split(" ");
+        return res[0];
+    };
+
+
+
+    const getAction = (act: string | undefined) => {
+    switch (act) {
+      case 'edit':
+        return t('actions.update');
+      case 'clone':
+        return t('actions.clone');
+      case 'create':
+        return t('actions.save');
+      default:
+        return t('actions.update');
+    }
+    };
+
+
+    const formatDates = (obj: any): FormattedDates => {
+        // Helper function to format time in "HH:mm" format
+        const formatTime = (date: Date): string => {
+            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        };
+
+        // Parse StartDate and EndDate into Date objects
+        const startDate = new Date(obj.StartDate);
+        const endDate = obj.EndDate ? new Date(obj.EndDate) : null;
+
+        // Format startDate's time
+        const formattedStartDate = formatTime(startDate);
+
+        let formattedEndDate: string;
+
+        if (endDate && !isNaN(endDate.getTime())) {
+            // If EndDate is valid, format its time
+            formattedEndDate = formatTime(endDate);
+        } else {
+            // Otherwise, calculate EndDate as StartDate + 10 minutes
+            const calculatedEndDate = new Date(startDate);
+            calculatedEndDate.setMinutes(startDate.getMinutes() + 10);
+            formattedEndDate = formatTime(calculatedEndDate);
+        }
+
+        return {
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+        };
+    }
+    const goBack = () => {
+      emits('cancel', false);
+    }
+
+</script>
+
+
+
+
+<template class="">
+    <!-- ====== Form Elements Section Start -->
+    <div class="grid grid-cols-1 gap-12 sm:grid-cols-1 py-20 ">
+        <div class="flex flex-col gap-9">
+            <!-- Input Fields Start -->
+            <DefaultCard :cardTitle="`${getAction(props.action)} Menu`">
+                <template v-slot:button>
+                    <button class="flex items-center" @click="goBack">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                        </svg>&nbsp;&nbsp;
+                        <span class="text-nowrap">{{ $t('Goback') }}</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                    </button>
+                </template>
+
+
+                <form @submit.prevent="saveMenu">
+                    <div class="p-6.5">
+                        <!-- <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                            <InputGroup2 label="Title" type="text" placeholder="Enter the menu title" customClasses="w-full xl:w-1/2" v-model="menuInfo.Title" required />
+                            <div class="flex justify-between items-end w-full xl:w-1/2">
+                                <InputGroup2 label="Start Date" type="date" placeholder=""
+                                    customClasses="w-5/6" v-model="menuInfo.StartDate" required :disabled="disableStartDate"/>
+                                <input type="time" id="sdtime" name="sdtime" class="h-10" v-model="startTime" :disabled="disableStartDate">
+                            </div>
+                        </div>
+
+
+                        <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                            <div class="flex justify-between items-end w-full xl:w-1/2">
+                                <InputGroup2 label="End Date" :type="'date'" placeholder=""
+                                    customClasses="w-5/6" v-model="menuInfo.EndDate" required :disabled="disableEndDate" />
+                                <input type="time" id="edtime" name="edtime" class="h-10" v-model="endTime" :disabled="disableEndDate">
+                            </div>
+                            <InputGroup2 label="Describe the menu" type="textarea" placeholder="Enter the description of your menu" customClasses="xl:w-1/2" v-model="menuInfo.Description" required />
+                        </div> -->
+
+
+
+                        <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                          <InputGroup2
+                            :label="$t('Title')"
+                            type="text"
+                            :placeholder="$t('Enterthemenutitle')"
+                            customClasses="w-full xl:w-1/2"
+                            v-model="menuInfo.Title"
+                            required
+                          />
+
+                          <div class="flex justify-between items-end w-full xl:w-1/2">
+                            <div class="w-5/6">
+                              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('StartDate') }}</label>
+                              <Flatpickr
+                                v-model="menuInfo.StartDate"
+                                :config="configDate"
+                                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                                :disabled="disableStartDate"
+                              />
+                            </div>
+                            <div class="ml-2">
+                              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('StartTime') }}</label>
+                              <Flatpickr
+                                v-model="startTime"
+                                :config="configTime"
+                                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                                :disabled="disableStartDate"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                          <div class="flex justify-between items-end w-full xl:w-1/2">
+                            <div class="w-5/6">
+                              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('EndDate') }}</label>
+                              <Flatpickr
+                                v-model="menuInfo.EndDate"
+                                :config="configDate"
+                                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                                :disabled="disableEndDate"
+                              />
+                            </div>
+                            <div class="ml-2">
+                              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('EndTime') }}</label>
+                              <Flatpickr
+                                v-model="endTime"
+                                :config="configTime"
+                                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                                :disabled="disableEndDate"
+                              />
+                            </div>
+                          </div>
+
+                          <InputGroup2
+                            :label="$t('Describethemenu')"
+                            type="textarea"
+                            :placeholder="$t('Enterthedescriptionofyourmenu')"
+                            customClasses="xl:w-1/2"
+                            v-model="menuInfo.Description"
+                            required
+                          />
+                        </div>
+
+                        <template v-if="props.action !== 'clone'">
+                            <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                                <SelectGroupSearchable customClasses="w-full xl:w-1/2" :items="plateList" @item-selected="handleSelection" :label="$t('Selectaplate')" :placeholder="$t('Selectaplate')" :required="false" :resetTrigger="resetInput">
+                                    <template v-slot:action>
+                                        <input min="1" type="number" v-model="quantity" required class="w-15 h-10 rounded border-[1.5px] text-black border-stroke bg-transparent ml-2 py-1.5 px-1 font-normal outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-slate-50 dark:disabled:bg-black  dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
+                                        <button @click='handdleAddPlate' type="button" class="mx-2 px-4 h-10 text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-orange-300 dark:focus:ring-orange-800 font-medium rounded-lg text-sm mr-0 py-2.5 text-center">
+                                            {{ $t('add') }}
+                                        </button>
+                                    </template>
+                                </SelectGroupSearchable>
+                            </div>
+
+                            <div class="w-full px-6 font-bold gap-2.5 py-2 mb-10 mt-8 hover:bg-opacity-90 lg:px-6 xl:px-6 text-white bg-gradient-to-r from-purple-800 to-orange-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 text-sm me-2">
+                                {{ $t('PLATELIST') }}
+                            </div>
+
+                            <div v-if="plateListToadd.length > 0">
+                                <TableOne :items="titles" :datas="plateListToadd" :options="filterOptions" @remove="handleRemovePlace" @increment="handleIncrement" @decrement="handleDecrement" :filterable="false" :pagination="false"/>
+                            </div>
+                            <div v-else class="text-center py-4">
+                               {{ $t('pleaseadd') }}
+                            </div>
+                        </template>
+
+                        <div class="flex justify-end mt-10">
+                            <button @click="stopAction" type="button" class="text-white bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-rose-300 dark:focus:ring-rose-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                                {{ $t('Cancel') }}
+                            </button>
+                            <button type="submit" class="flex flex-nowrap text-white bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                                <Spinner v-if="isSaving" /> {{ getAction(props.action) }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </DefaultCard>
+            <!-- Input Fields End -->
+        </div>
+    </div>
+    <!-- ====== Form Elements Section End -->
+</template>

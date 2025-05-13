@@ -410,15 +410,15 @@
     "CHF": "Franc suisse",
     "CAD": "Dollar canadien"
   },
-    "managingHotel": "Gestion des paramètres de l'hôtel",
+    "managingHotel": "Gestion des paramètres",
     "generalInfo": "Informations générales",
-    "hotelName": "Nom de l'hôtel",
+    "hotelName": "Nom",
     "logo": "Logo",
     "images": "Images",
-    "hotelAddress": "Adresse de l'hôtel",
+    "hotelAddress": "Adresse",
     "Numberofstars": "Nombre d'étoiles",
-    "hotelPhone": "Numéro de téléphone de l'hôtel",
-    "hotelEmail": "Email de l'hôtel",
+    "hotelPhone": "Numéro de téléphone",
+    "hotelEmail": "Email",
     "ServiceSettings": "Paramètres des services",
     "servicesOffered": "Services proposés",
     "pricingSettings": "Paramètres de tarification",
@@ -435,7 +435,12 @@
         "bar": "Bar",
         "pool": "Piscine",
         "airport_shuttle": "Navette aéroport"
-      }
+      },
+    "order": "Commandes",
+    "menus": "Menus",
+    "plat": "Plat",
+    "plate" : "Plat(s)"
+
 
     
   
