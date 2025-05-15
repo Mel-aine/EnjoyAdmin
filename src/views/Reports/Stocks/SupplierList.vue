@@ -291,6 +291,7 @@ const fetchSupplier = async() => {
     const response = await getSupplier(serviceId);
 
     suppliers.value = response.data;
+    suppliers.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     console.log('cate:', suppliers.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);

@@ -3,14 +3,14 @@
     import DefaultCard from '@/components/common/DefaultCard.vue';
     import InputGroup2 from '@/components/forms/FormElements/InputGroup2.vue';
     //import type { Content, Product } from '@/services/serviceInterface';
-   // import { useConfigStore } from '@/stores/config';
-    //import type Option from '../../../src/components/Utilities/interfaceModel';
+    import { useConfigStore } from '@/composables/config';
+    import type {Option} from '@/components/utilities/interfaceModel';
     // import { createProduct, generateCode, createContent, updateProduct, uploadContent } from '@/services/database';
     // import EventBus from '@/EventBus';
     // import type ToastPayload from '@/types/Toast';
     const SelectGroupOne = defineAsyncComponent(() => import('@/components/forms/FormElements/SelectGroupOne.vue'));
 
-    //const configStore = useConfigStore();
+    const configStore = useConfigStore();
     const isSaving = ref<Boolean>(false);
     const emits = defineEmits(['cancel', "save", "back", "created"]);
     const props = defineProps({
@@ -22,7 +22,7 @@
         }
     });
 
-    const productInfo = ref<Product>({
+    const productInfo = ref<any>({
         "Code": "",
         "Title": "",
         "Description": "",
@@ -93,12 +93,12 @@
     //    }
     // }
 
-    // const categoryOption = computed(() => {
-    //     return configStore.productCategories.map((prodCat: any) => ({
-    //         name: prodCat.Title,
-    //         api: prodCat.Code
-    //     })) as Option[];
-    // });
+    const categoryOption = computed(() => {
+        return configStore.productCategories.map((prodCat: any) => ({
+            name: prodCat.Title,
+            api: prodCat.Code
+        })) as Option[];
+    });
 
     const unitOptions : Option[] = [
         { "name": "Unité", "api": "UNIT" },
@@ -136,6 +136,9 @@
             productInfo.value.DateEntrée = new Date().toISOString().split('T')[0];
         }
     });
+    const saveProduct = async () => {
+      console.log('hhh')
+    }
 </script>
 
 <template>

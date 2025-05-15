@@ -301,7 +301,7 @@ const fetchRoomType = async () => {
     const response = await getTypeProduct()
 
     roomTypeData.value = response.data.data.filter((el:any)=> el.serviceId === serviceId )
-
+    roomTypeData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     console.log(";;;;",roomTypeData.value)
   } catch (error) {
     console.error('Erreur lors de la récupération des options:', error)

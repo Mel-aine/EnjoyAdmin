@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref,computed } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue';
-import TableOne from '@/components/Tables/TableOne.vue';
+import TableOne from '@/components/tables/TableOne.vue';
 import Flatpickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
+import { French } from 'flatpickr/dist/l10n/fr';
 
-    import router from '@/router';
 
     const NewProductForm = defineAsyncComponent(() => import('@/views/Restaurants/Stocks/NewsStocks.vue'));
 
@@ -165,20 +165,18 @@ import 'flatpickr/dist/flatpickr.css'
 
 const selectedDate = ref(null)
 
+
 const flatpickrConfig = {
   dateFormat: 'Y-m-d',
-  locale: 'fr', // facultatif, si tu veux la localisation française
-}
-
+  locale: French
+};
 
 const filters = ['all', 'entry', 'exit']
 const activeFilter = ref('all')
-
-
-const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1)
+const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
 const filteredMovements = computed(() => {
-  return stockMovements.value.filter((movement) => {
+  return stockMovements.value.filter((movement:any) => {
     const matchType = activeFilter.value === 'all' || movement.type === activeFilter.value
     const matchDate = !selectedDate.value || movement.date === formatDate(selectedDate.value)
     return matchType && matchDate
@@ -186,7 +184,7 @@ const filteredMovements = computed(() => {
 })
 
 // Format date pour comparer avec ton champ "movement.date"
-function formatDate(date) {
+function formatDate(date: string | Date): string {
   if (!date) return ''
   return new Date(date).toISOString().split('T')[0] // format YYYY-MM-DD
 }

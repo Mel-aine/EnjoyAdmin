@@ -483,6 +483,27 @@
     "MenuCode" : "Menu Code",
     "areyou" : "Are you sure you want to delete this Menu ? This action cannot be undone.",
     "Menudeletion" : "Menu deletion",
-    "addPlat" : " Add Plat"
+    "addPlat" : " Add Plat",
+    "ingredient" : "INGREDIENT(S)",
+    "enterTheProductTitle" : "Enter the product title",
+    "Selectthecategory" : "Select the category",
+    "cover" : "Cover",
+    "Selectaproduct" : "Select a product",
+    "Selectaproduct..." : "Select a product...",
+    "Describetheplate" : "Describe the plate",
+    "describeyou..." : "Enter the description of your plate",
+    "ingredientList" : "INGEDIENTS LIST",
+    "AddProduct" : "Add Product",
+    "ProductName" : "Product Name",
+    "ProductCategory" : "Product Category",
+    "AvailableQuantity" : "Available Quantity",
+    "Entertheproducttitle" : "Enter the product title",
+    "Unit" : "Unit",
+    "Selecttheunit" : "Select the unit",
+    "image" : "Image",
+    "Describetheproduct" : "Describe the product",
+    "enter..." : "Enter the description of your product"
+    
+
     
 }

@@ -1,6 +1,7 @@
 // menu/index.ts (ou où tu déclares cette fonction)
 import { getHotelMenu } from './hotel';
 import { getRestaurantMenu } from './restaurant';
+import {getBusAgencyMenu} from './travel'
 
 // export const getMenuByCategoryName = (categoryName: string | null) => {
 //   if (!categoryName) return [];
@@ -29,8 +30,11 @@ export const getMenuByCategoryName = (
     return getHotelMenu(t);
   }
 
+  // if (lowerName.includes('restaurant')) {
+  //   return getRestaurantMenu(t);
+  // }
   if (lowerName.includes('restaurant')) {
-    return getRestaurantMenu(t);
+    return getBusAgencyMenu(t);
   }
 
   return [];

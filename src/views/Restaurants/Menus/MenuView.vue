@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { defineAsyncComponent, onBeforeMount, ref,computed } from 'vue'
-    import TableOne from '@/components/Tables/TableOne.vue';
+    import TableOne from '@/components/tables/TableOne.vue';
     import AdminLayout from '@/components/layout/AdminLayout.vue';
     import { fetchMenu } from '@/services/database';
     import { useI18n } from 'vue-i18n';

@@ -3,7 +3,7 @@
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('department')" />
       <div class="flex justify-end pb-5">
-       
+
         <button
                 @click="openAddDepartmentModal()"
                 class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow hover:bg-orange-700 transition flex items-center"
@@ -192,14 +192,14 @@ const newDepartment = ref({
 
 const openAddDepartmentModal = () => {
   isAddModalOpen.value = true;
-  
+
 };
 
 const closeAddDepartmentModal = () => {
   isAddModalOpen.value = false;
   isEditing.value=false
   newDepartment.value = {
-    
+
     name: '',
     description: '',
     manager: '',
@@ -269,7 +269,7 @@ const addDepartment = async() => {
         number_employees: newDepartment.value.employeeCount,
         status : 'active',
         service_id : serviceId,
-    
+
         };
       const response = await createDepartment(payload);
       console.log('response',response)
@@ -293,6 +293,7 @@ const fetchDepartment = async() => {
     const response = await getDepartment(serviceId);
 
     departmentsData.value = response.data
+    departmentsData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     console.log('dpt:', departmentsData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);

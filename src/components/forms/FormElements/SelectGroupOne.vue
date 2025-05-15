@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { onBeforeMount, ref, watch } from 'vue'
-  import type Option from '../../Utilities/interfaceModel';
+  import type {Option} from '@/components/utilities/interfaceModel';
 
   const selectedOption = ref<string>('')
   const isOptionSelected = ref<boolean>(false)

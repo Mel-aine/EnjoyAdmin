@@ -19,13 +19,12 @@
         productcode: string
     }
     const productCode = ref('');
-    const productInfo = ref<Product>({
+    const productInfo = ref<any>({
         "Code": "",
         "Title": "",
         "Description": "",
         "QuantityUnitCode": "",
         "AvailableQuantity": 0,
-        "image": "",
         "CategoryCode": ""
     });
     const contentList = ref<Content []>([])
@@ -143,7 +142,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>&nbsp;&nbsp;
-                        <span class="text-nowrap">{{ 'Go back' }}</span>
+                        <span class="text-nowrap">{{ $t('Goback' )}}</span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                     </button>
                 </template>
@@ -151,22 +150,22 @@
                     <div class="flex items-center justify-between w-full">
                         <img :src="cover" :alt="productInfo.Title" class="mb-1 ml-3 w-11 h-11 object-cover aspect-square rounded-lg">
                         <span>
-                            <button @click='handleEditProduct' class="text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-orange-300 dark:focus:ring-orange-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Edit</button>
-                            <button @click="handleDeleteProduct" class="text-white bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-rose-300 dark:focus:ring-rose-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Delete</button>
+                            <button @click='handleEditProduct' class="text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-orange-300 dark:focus:ring-orange-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">{{ $t('edit') }}</button>
+                            <button @click="handleDeleteProduct" class="text-white bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-rose-300 dark:focus:ring-rose-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">{{ $t('Delete') }}</button>
                         </span>
                     </div>
                 </template>
                 <form @submit.prevent="">
                     <div class="p-6.5">
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
-                            <input-group2 label="Product Name" type="text" customClasses="w-full xl:w-1/2" disabled v-model="productInfo.Title" />
+                            <input-group2 :label="$t('ProductName')" type="text" customClasses="w-full xl:w-1/2" disabled v-model="productInfo.Title" />
 
-                            <input-group2 label="Product Category" type="text" customClasses="w-full xl:w-1/2" disabled v-model="category" />
+                            <input-group2 :label="$t('ProductCategory')" type="text" customClasses="w-full xl:w-1/2" disabled v-model="category" />
                         </div>
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
-                            <input-group2 label="Available Quantity" type="text" customClasses="w-full xl:w-1/2" disabled v-model="quantity" />
+                            <input-group2 :label="$t('AvailableQuantity')" type="text" customClasses="w-full xl:w-1/2" disabled v-model="quantity" />
 
-                            <input-group2 label="Description" type="textarea" customClasses="w-full xl:w-1/2" disabled v-model="productInfo.Description" />
+                            <input-group2 :label="$t('Description')" type="textarea" customClasses="w-full xl:w-1/2" disabled v-model="productInfo.Description" />
                         </div>
 
                     </div>

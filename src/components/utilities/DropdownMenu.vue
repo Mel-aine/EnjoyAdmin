@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
 import { onBeforeMount, defineEmits, ref ,defineProps} from 'vue'
+import type { Option } from './interfaceModel'
 
 
 const target = ref(null)

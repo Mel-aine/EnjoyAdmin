@@ -200,13 +200,12 @@ const saveProduct = async () => {
 </script> -->
 <script setup lang="ts">
     import { ref, defineAsyncComponent, computed, onMounted } from 'vue';
-    import SelectGroupSearchable from '@/components/Forms/SelectGroup/SelectGroupSearchable.vue';
     import DefaultCard from '@/components/common/DefaultCard.vue';
     import InputGroup2 from '@/components/forms/FormElements/InputGroup2.vue';
     import type { Content, Product } from '@/services/serviceInterface';
     import { useConfigStore } from '@/composables/config';
     import Spinner from '@/components/spinner/Spinner.vue';
-    import type Option from '@/components/utilities/interfaceModel';
+    import type {Option} from '@/components/utilities/interfaceModel';
     import { createProduct, generateCode, createContent, updateProduct, uploadContent } from '@/services/database';
     const SelectGroupOne = defineAsyncComponent(() => import('@/components/forms/FormElements/SelectGroupOne.vue'));
     import { useToast } from 'vue-toastification'
@@ -231,7 +230,7 @@ const saveProduct = async () => {
             type: Object
         }
     });
-    const productInfo = ref<Product>({
+    const productInfo = ref<any>({
         "Code": "",
         "Title": "",
         "Description": "",
@@ -408,7 +407,7 @@ const saveProduct = async () => {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>&nbsp;&nbsp;
-                        <span class="text-nowrap">{{ 'Go back' }}</span>
+                        <span class="text-nowrap">{{ $t('Goback' )}}</span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                     </button>
                 </template>
@@ -416,23 +415,23 @@ const saveProduct = async () => {
                 <form @submit.prevent="saveProduct">
                     <div class="p-6.5">
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row items-start">
-                            <input-group2 label="Title" type="text" placeholder="Enter the product title"
+                            <input-group2 l:abel="$t('Title')" type="text" :placeholder="$t('Entertheproducttitle')"
                                 customClasses="w-full xl:w-1/2" v-model="productInfo.Title" required />
-                            <select-group-one label="category" :options="categoryOption" :placeholder="'Select the category'"
+                            <select-group-one :label="$t('category')" :options="categoryOption" :placeholder="$t('Selectthecategory')"
                                 class="w-full xl:w-1/2" v-model="productInfo.CategoryCode" required/>
                         </div>
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row items-start">
 
-                              <input-group2 label="Quantity" type="number" min="1"
+                              <input-group2 :label="$t('quantity')" type="number" min="1"
                                 customClasses="w-full xl:w-1/2 md:w-full" v-model="productInfo.AvailableQuantity" required />
 
-                            <select-group-one label="Unit" :options="kitchenOption" :placeholder="'Select the unit'"
+                            <select-group-one :label="$t('Unit')" :options="kitchenOption" :placeholder="$t('Selecttheunit')"
                                     class="w-full xl:w-1/2" v-model="productInfo.QuantityUnitCode" required/>
                         </div>
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row items-start">
-                            <input-group2 label="Image" type="file" placeholder=""
+                            <input-group2 :label="$t('image')" type="file" placeholder=""
                                 customClasses="w-full xl:w-1/2"  />
-                            <input-group2 label="Describe the product" type="textarea" placeholder="Enter the description of your product"
+                            <input-group2 :label="$t('Describetheproduct')" type="textarea" :placeholder="$t('enter...')"
                                 customClasses="xl:w-1/2 md:w-full" v-model="productInfo.Description" required />
                         </div>
 
@@ -460,7 +459,7 @@ const saveProduct = async () => {
 
                         <div class="flex justify-end mt-10">
                             <button @click="stopAction" type="button" class="text-white bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-rose-300 dark:focus:ring-rose-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                                {{ 'Cancel' }}
+                                {{ $t('Cancel') }}
                             </button>
                             <button type="submit" class="flex flex-nowrap text-white bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref, watch,computed } from 'vue';
-import TableOne from '@/components/Tables/TableOne.vue';
+import TableOne from '@/components/tables/TableOne.vue';
 import { fetchPlate } from '@/services/database';
 import type { PlateOption } from '@/services/serviceInterface';
 import { useConfigStore } from '@/composables/config';

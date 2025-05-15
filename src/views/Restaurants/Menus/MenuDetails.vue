@@ -4,7 +4,7 @@
     const NewMenuForm = defineAsyncComponent(() => import('./NewMenuForm.vue'));
     const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'));
     import { defineAsyncComponent, onBeforeMount, ref,computed } from 'vue';
-    import TableOne from '@/components/Tables/TableOne.vue';
+    import TableOne from '@/components/tables/TableOne.vue';
     import router from '@/router';
     const PopupModal = defineAsyncComponent(() => import('@/components/modal/PopupModal.vue'));
     import { fetchSingleMenu, deleteMenu, deleteMenuItem } from '@/services/database';

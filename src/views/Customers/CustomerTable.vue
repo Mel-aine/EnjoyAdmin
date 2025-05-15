@@ -319,7 +319,9 @@ const phoneNumber = ref('')
 const updatePhoneNumber = () => {
   phoneNumber.value = countryCodes[selectedCountry.value as keyof typeof countryCodes]
 }
-
+onMounted(() => {
+  updatePhoneNumber()
+})
 const fetchUsers = async () => {
   const response = await getUser();
   users.value = response.data.data;
@@ -486,25 +488,7 @@ const filterOptions = computed(()=>([
 
   ]));
 
-  const onViewCustomer = () => handleUserAction('edit', user);
 
-
-
-const handleUserAction = (action: string, user: User) => {
-  if (action === 'edit') {
-    selectedUser.value = user;
-    form.value.firstName = user.firstName;
-    form.value.lastName = user.lastName;
-    form.value.phoneNumber = user.phoneNumber;
-    form.value.email = user.email;
-    form.value.role = roles.value.find((r: any) => r.value === String(user.roleId))?.value;
-    isEditMode.value = true;
-    modalOpen.value = true;
-  } else if (action === 'delete') {
-    selectedUserId.value = user.id;
-    show.value = true;
-  }
-};
 
   </script>
 

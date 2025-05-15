@@ -325,6 +325,7 @@ const fetchProduct = async() => {
     const response = await getProduct(serviceId);
 
     productData.value = response.data;
+    productData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     console.log('prod:', productData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);

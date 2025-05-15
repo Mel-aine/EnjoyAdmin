@@ -11,14 +11,14 @@
         <Input :lb="t('hotelName')" :id="'hotelName'" :forLabel="'hotelName'" v-model="hotelInfo.name" />
       </div>
 
-      <div class="flex justify-between gap-4 mb-4">
-        <div>
+
+        <div class="mb-4">
           <FileInput :name="t('logo')"/>
         </div>
-        <div>
+        <div class="mb-4">
           <FileInput :name="t('images')"/>
         </div>
-      </div>
+
       <div class="mb-4">
         <Input :lb="t('hotelAddress')" :id="'hotelAddress'" :forLabel="'hotelAddress'" v-model="hotelInfo.address" />
       </div>

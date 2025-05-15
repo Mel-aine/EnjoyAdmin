@@ -148,16 +148,7 @@ const router = createRouter({
         title: 'Basic Tables',
       },
     },
-    {
-      path: '/line-chart',
-      name: 'Line Chart',
-      component: () => import('../views/Chart/LineChart/LineChart.vue'),
-    },
-    {
-      path: '/bar-chart',
-      name: 'Bar Chart',
-      component: () => import('../views/Chart/BarChart/BarChart.vue'),
-    },
+
 
     {
       path: '/signin',
@@ -246,6 +237,13 @@ const router = createRouter({
       name: 'users',
       component: () => import('../views/Users/UserTableResto.vue'),
     },
+
+    //travel
+    {
+      path: '/all_routes',
+      name:'all routes',
+      component : ()=>import ('../views/Travel/ItineraryView.vue')
+    }
   ],
 })
 router.beforeEach(async (to, from, next) => {

@@ -323,7 +323,7 @@ const fetchUser = async () => {
     users.value = response.data.data.filter((user: any) =>
       [2, 3].includes(user.roleId) && user.serviceId === serviceId
     );
-
+    users.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     console.log("Filtered users:", users.value);
   } catch (error) {
     console.error('fetch failed:', error);

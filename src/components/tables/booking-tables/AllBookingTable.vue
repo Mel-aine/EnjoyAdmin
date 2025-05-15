@@ -95,6 +95,7 @@ const fetchReservation = async () => {
 
       };
     });
+    reservations.value.sort((a:any, b:any) => a.userFullName.localeCompare(b.userFullName));
 
     console.log(".....reservation", reservations.value);
   } catch (error) {

@@ -18,7 +18,7 @@
           </template>
           </DropdownMenu>
       </div>
-  <ComponentCard title=" ">
+    <ComponentCard title=" ">
       <div class="space-y-5 sm:space-y-6 ">
     <ag-grid-vue class="ag-theme-quartz" :rowData="customers" :columnDefs="columnDefs" rowHeight="50"
             :rowSelection="'single'"  :domLayout="'autoHeight'"
@@ -434,7 +434,9 @@ const phoneNumber = ref('')
 const updatePhoneNumber = () => {
   phoneNumber.value = countryCodes[selectedCountry.value as keyof typeof countryCodes]
 }
-
+onMounted(() => {
+  updatePhoneNumber()
+})
 const fetchUsers = async () => {
   const response = await getUser();
   users.value = response.data.data;
@@ -458,6 +460,7 @@ const fetchReservation = async () => {
         // productName: product ? product.productName : 'Inconnu'
       };
     });
+    customers.value.sort((a:any, b:any) => a.userFullName.localeCompare(b.userFullName));
     console.log("////",customers.value)
   } catch (error) {
     console.error('fetch failed:', error);

@@ -265,6 +265,7 @@ const fetchCategorie = async() => {
     const response = await getCategory(serviceId);
 
     categories.value = response.data;
+    categories.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     console.log('cate:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);

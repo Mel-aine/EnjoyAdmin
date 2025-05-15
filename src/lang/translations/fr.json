@@ -484,7 +484,26 @@
     "MenuCode": "Code menu",
     "areyou": "Êtes-vous sûr de vouloir supprimer ce menu ? Cette action est irréversible.",
     "Menudeletion": "Suppression du menu",
-    "addPlat": "Ajouter un plat"
+    "addPlat": "Ajouter un plat",
+    "ingredient": "INGRÉDIENT(S)",
+    "enterTheProductTitle": "Entrez le titre du produit",
+    "Selectthecategory": "Sélectionnez la catégorie",
+    "cover": "Couverture",
+    "Selectaproduct": "Sélectionnez un produit",
+    "Selectaproduct...": "Sélectionnez un produit...",
+    "Describetheplate": "Décrivez le plat",
+    "describeyou...": "Entrez la description de votre plat",
+    "ingredientList": "LISTE DES INGRÉDIENTS",
+    "AddProduct": "Ajouter un produit",
+    "ProductName": "Nom du produit",
+    "ProductCategory": "Catégorie du produit",
+    "AvailableQuantity": "Quantité disponible",
+    "Entertheproducttitle": "Entrez le titre du produit",
+    "Unit": "Unité",
+    "Selecttheunit": "Sélectionnez l'unité",
+    "image": "Image",
+    "Describetheproduct": "Décrivez le produit",
+    "enter...": "Entrez la description de votre produit"
 
 
     

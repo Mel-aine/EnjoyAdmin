@@ -38,7 +38,8 @@ export interface Content {
   "Body"?: string,
   "DisplayOrder"?: number,
   "TypeCode"?: string,
-  "Id"?:number
+  "Id"?:number,
+  "Title"?:string
 }
 
 export interface PlateContent {
@@ -56,6 +57,7 @@ export interface Product {
   Likes: number;
   AvailableQuantity: number;
   QuantityUnitCode: string;
+
 }
 export interface Composition {
   Id: number,

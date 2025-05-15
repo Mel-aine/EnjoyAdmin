@@ -3,7 +3,7 @@
   import InputGroup2 from "@/components/forms/FormElements/InputGroup2.vue";
   import { onBeforeMount, onMounted, ref,defineProps,defineEmits ,computed} from 'vue';
   import { useI18n } from "vue-i18n";
-  import type Option from "../Utilities/interfaceModel";
+  import type {Option }from "../utilities/interfaceModel";
   import Pagination from '@/components/utilities/Pagination.vue'
 
   const { t} = useI18n();

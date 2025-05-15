@@ -504,7 +504,7 @@ const getAction = (act: string | undefined): string => {
     import DefaultCard from '@/components/common/DefaultCard.vue';
     import SelectGroupSearchable from '@/components/forms/FormElements/SelectGroupSearchable.vue';
     import InputGroup2 from '@/components/forms/FormElements/InputGroup2.vue';
-    import TableOne from '@/components/Tables/TableOne.vue';
+    import TableOne from '@/components/tables/TableOne.vue';
     import Flatpickr from 'vue-flatpickr-component'
     import 'flatpickr/dist/flatpickr.css'
     import { French } from 'flatpickr/dist/l10n/fr.js'
@@ -513,8 +513,8 @@ const getAction = (act: string | undefined): string => {
     // const Spinner = defineAsyncComponent(() => import('@/components/Utilities/Spinner.vue'));
 
     // import EventBus from '@/EventBus';
-    import type PlateOption from '../../components/Utilities/interfaceModel';
-    import type { MenuRequest, FormattedDates } from '../../services/serviceInterface';
+    import type {PlateOption} from '@/components/utilities/interfaceModel';
+    import type { MenuRequest, FormattedDates } from '@/services/serviceInterface';
     // import type ToastPayload from '@/types/Toast';
 
     const emits = defineEmits(['cancel', "save",'back']);
@@ -536,12 +536,12 @@ const getAction = (act: string | undefined): string => {
     const plateListToadd = ref<Array<any>>([])
     const isSaving = ref<Boolean>(false);
     const selectedItem = ref<any>(null);
-    const menuInfo = ref<MenuRequest>({
+    const menuInfo = ref<any>({
         Code: "",
         Title: "",
         Description: "",
         StartDate: "",
-        EndDate: "",
+        EndDate: ""
     });
     const quantity = ref<number>(1)
     const titles = ref([
@@ -653,7 +653,7 @@ const getAction = (act: string | undefined): string => {
             const existingPlates: any[] = [];
             const newPlates: any[] = [];
 
-            plateListToadd.value.forEach(plate => {
+            plateListToadd.value.forEach((plate:any) => {
                 // Vérifie si le plat existe déjà dans la base de données (via plateListToadd)
             const isExisting = props.plats?.some((existingPlate: any) => existingPlate.api === plate.api);
                 if (isExisting) {
@@ -675,7 +675,7 @@ const getAction = (act: string | undefined): string => {
             });
 
 
-            const plates = plateListToadd.value.map(i => {
+            const plates = plateListToadd.value.map((i:any) => {
                 return {
                     PlateCode: i.api,
                     QuantityAvailable: i.quantity
@@ -713,10 +713,10 @@ const getAction = (act: string | undefined): string => {
                     result = await createMenu(payload)
                 }
 
-                const toastPayload: ToastPayload = {
-                    type: "success",
-                    message: `Menu ${props.action == "update" ? "Updated" : "Created"} successfully ! 🍕`
-                }
+                // const toastPayload: ToastPayload = {
+                //     type: "success",
+                //     message: `Menu ${props.action == "update" ? "Updated" : "Created"} successfully ! 🍕`
+                // }
                 menuInfo.value = {
                     Code: "",
                     Title: "",
@@ -726,7 +726,7 @@ const getAction = (act: string | undefined): string => {
                 };
                 plateListToadd.value = [];
                 reloadView.value = true;
-                EventBus.emit('showToast', toastPayload);
+                // EventBus.emit('showToast', toastPayload);
                 reloadView.value = true;
 
             } else {
@@ -736,12 +736,12 @@ const getAction = (act: string | undefined): string => {
         } catch (error:any) {
             console.log('error: ', error);
             console.log('Trace', error.stack)
-            const errMsg = error ? error : "Oups, something went wrong during the processing";
-            const payload: ToastPayload = {
-                type: "danger",
-                message: errMsg
-            }
-            EventBus.emit('showToast', payload);
+            // const errMsg = error ? error : "Oups, something went wrong during the processing";
+            // const payload: ToastPayload = {
+            //     type: "danger",
+            //     message: errMsg
+            // }
+            // EventBus.emit('showToast', payload);
         } finally {
             isSaving.value = false;
         }
@@ -755,17 +755,17 @@ const getAction = (act: string | undefined): string => {
                 price: item.BasePrice
             }
         })
-        plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+        plateList.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     }
     const handleRemovePlace = (ts: any) => {
         plateList.value.push(ts);
 
-        plateListToadd.value = plateListToadd.value.filter(item => item.api!= ts.api);
-        plateList.value.sort((a, b) => a.name.localeCompare(b.name));
-        plateListToadd.value.sort((a, b) => a.name.localeCompare(b.name));
+        plateListToadd.value = plateListToadd.value.filter((item:any) => item.api!= ts.api);
+        plateList.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
+        plateListToadd.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
     }
     const handleIncrement = (ts: any) => {
-        plateListToadd.value = plateListToadd.value.map(item => {
+        plateListToadd.value = plateListToadd.value.map((item:any) => {
             if(item.api == ts.api){
                 return {
                    ...item,
@@ -780,7 +780,7 @@ const getAction = (act: string | undefined): string => {
         if(ts.quantity <= 1) {
             handleRemovePlace(ts);
         }
-        plateListToadd.value = plateListToadd.value.map(item => {
+        plateListToadd.value = plateListToadd.value.map((item:any) => {
             if(item.api == ts.api && item.quantity > 1){
                 return {
                    ...item,
@@ -799,7 +799,7 @@ const getAction = (act: string | undefined): string => {
     };
 
     // Vérifie si le plat existe déjà dans plateListToadd
-    const existingPlateIndex = plateListToadd.value.findIndex(plate => plate.api === selectedItem.value.api);
+    const existingPlateIndex = plateListToadd.value.findIndex((plate:any) => plate.api === selectedItem.value.api);
 
 
     if (existingPlateIndex !== -1) {
@@ -811,13 +811,13 @@ const getAction = (act: string | undefined): string => {
     }
 
     // Retire le plat ajouté de plateList
-    plateList.value = plateList.value.filter(item1 =>
-        !plateListToadd.value.some(item2 => item2.api == item1.api)
+    plateList.value = plateList.value.filter((item1:any) =>
+        !plateListToadd.value.some((item2:any) => item2.api == item1.api)
     );
 
     // Trie les listes par ordre alphabétique
-    plateListToadd.value.sort((a, b) => a.name.localeCompare(b.name));
-    plateList.value.sort((a, b) => a.name.localeCompare(b.name));
+    plateListToadd.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
+    plateList.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
 
     // Réinitialise les valeurs
     selectedItem.value = null;
@@ -895,7 +895,7 @@ const getAction = (act: string | undefined): string => {
                         api: item.api
                     }
                 });
-                plateList.value = plateList.value.filter(item1 => !plateListToadd.value.some((item2: any) => item2.api == item1.api));
+                plateList.value = plateList.value.filter((item1:any) => !plateListToadd.value.some((item2: any) => item2.api == item1.api));
                 menuInfo.value = props.menu as MenuRequest;
                 if(menuInfo.value.EndDate){
                     let formattedDate = menuInfo.value.EndDate.split(" ")[0]

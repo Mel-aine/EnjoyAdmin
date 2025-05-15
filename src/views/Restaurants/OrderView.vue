@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { computed, defineAsyncComponent, onBeforeMount, ref } from 'vue'
-  import TableOne from '@/components/Tables/TableOne.vue';
+  import TableOne from '@/components/tables/TableOne.vue';
   import { fetchOrder, updateOrder } from '@/services/database';
   import { useI18n } from "vue-i18n";
   const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));

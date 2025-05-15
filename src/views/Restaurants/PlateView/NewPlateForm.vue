@@ -662,17 +662,17 @@ onBeforeMount(async () => {
     import DefaultCard from '@/components/common/DefaultCard.vue';
     import { useConfigStore } from '@/composables/config';
     import type { PlateOption, Content, Composition,Compositions, ProductOption , ResultItem, ApiResponse, composition } from '@/services/serviceInterface';
-    import { Cloudinary } from "@cloudinary/url-gen";
-    import { AdvancedImage, placeholder } from "@cloudinary/vue";
-    import { fill } from "@cloudinary/url-gen/actions/resize";
+    // import { Cloudinary } from "@cloudinary/url-gen";
+    // import { AdvancedImage, placeholder } from "@cloudinary/vue";
+    // import { fill } from "@cloudinary/url-gen/actions/resize";
     import InputGroup2 from '@/components/forms/FormElements/InputGroup2.vue';
     import SelectGroupSearchable from '@/components/forms/FormElements/SelectGroupSearchable.vue';
-    import type Option from '@/components/utilities/interfaceModel';
+    import type {Option} from '@/components/utilities/interfaceModel';
     const SelectGroupOne = defineAsyncComponent(() => import('@/components/forms/FormElements/SelectGroupOne.vue'));
     import { fetchContent ,uploadContent, createPlate, generateCode, createContent, fetchProduct, updatePlate, getConsistency,createConsistency, fetchPlate, UpdateConsistency, updateContent} from '@/services/database';
     // import type ToastPayload from '@/types/Toast';
     // import EventBus from '@/EventBus';
-    import TableOne from '@/components/Tables/TableOne.vue';
+    import TableOne from '@/components/tables/TableOne.vue';
     import { useToast } from 'vue-toastification'
     import { useI18n } from "vue-i18n";
 
@@ -820,8 +820,8 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
                     //Composition
                     if(plateInfo.value.Code != undefined){
                         const ctnList1: Compositions[] = [];
-                    productListToadd.value.forEach(p1 => {
-                        rawProduct.value.forEach(p2 => {
+                    productListToadd.value.forEach((p1:any) => {
+                        rawProduct.value.forEach((p2:any) => {
                             if(p1.api === p2.Code){
                                 if(plateInfo.value.Code){
                                     ctnList1.push({
@@ -842,8 +842,8 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
                     //Content de type ING
                     const CtnList2: Content [] = [];
                     let ingredients = '';
-                    productListToadd.value.forEach(p1 => {
-                        rawProduct.value.forEach(p2 => {
+                    productListToadd.value.forEach((p1:any) => {
+                        rawProduct.value.forEach((p2:any) => {
 
                             if(p1.api == p2.Code){
                                 const inputFieldValue = p1.inputField || ''; // Utilisation du placeholder
@@ -891,8 +891,8 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
             if (plateInfo.value.Code !== undefined) {
 
 
-                productListToadd.value.forEach(p1 => {
-                const matchingProduct = rawProduct.value.find(p2 => p1.api === p2.Code);
+                productListToadd.value.forEach((p1:any) => {
+                const matchingProduct = rawProduct.value.find((p2:any)=> p1.api === p2.Code);
                 if (matchingProduct) {
                     if (plateInfo.value.Code) {
                         // Vérifier si le produit existe déjà dans la liste des produits associés au plat
@@ -955,8 +955,8 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
                 //Ingredient
                 const ctnList2: Content [] = [];
                 let ingredients = '';
-                productListToadd.value.forEach(p1 => {
-                    rawProduct.value.forEach(p2 => {
+                productListToadd.value.forEach((p1:any) => {
+                    rawProduct.value.forEach((p2:any) => {
                         if(p1.api == p2.Code){
                             const inputFieldValue = p1.inputField || ''; // Utilisation du placeholder
                             ingredients += (ingredients ? '; ' : '') + `${p2.Title} : ${inputFieldValue}`; // Ajouter le produit et la quantité
@@ -994,10 +994,10 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
             console.log('createdCtn2', createdCtn2);
             console.log('createdPlate', result);
 
-            const toastPayload: ToastPayload = {
-                type: "success",
-                message: `Plate ${props.action == "update" ? "Updated" : "Created"} successfully. Happy meal ;P`
-            }
+            // const toastPayload: ToastPayload = {
+            //     type: "success",
+            //     message: `Plate ${props.action == "update" ? "Updated" : "Created"} successfully. Happy meal ;P`
+            // }
             plateInfo.value = {
                 "Code": '',
                 "Title": '',
@@ -1009,18 +1009,18 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
             };
             productListToadd.value = [];
             reloadView.value = true;
-            EventBus.emit('showToast', toastPayload);
+            // EventBus.emit('showToast', toastPayload);
 
             console.log("createdPlate", result)
         }catch(error:any){
             console.log('error: ', error);
             console.log('Trace', error.stack)
-            const errMsg = error ? error : "Oups, something went wrong during the processing";
-            const payload: ToastPayload = {
-                type: "danger",
-                message: errMsg
-            }
-            EventBus.emit('showToast', payload);
+           //const errMsg = error ? error : "Oups, something went wrong during the processing";
+            // const payload: ToastPayload = {
+            //     type: "danger",
+            //     message: errMsg
+            // }
+            // EventBus.emit('showToast', payload);
         } finally {
             isSaving.value = false;
         }
@@ -1034,7 +1034,7 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
     const handdleAddProduct = () => {
         if(productList.value.length <= 0 || !selectedItem.value){return}
 
-        const existingProduct = productListToadd.value.find(item => item.api === selectedItem.value.api);
+        const existingProduct = productListToadd.value.find((item:any) => item.api === selectedItem.value.api);
 
       if (existingProduct) {
         // Mettre à jour la quantité du produit existant
@@ -1050,18 +1050,18 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
         selectedItem.value = null;
         isProductList.value = true;
         //retrait du produit ajouté de la liste des produits.
-        productList.value = productList.value.filter(item1 => !productListToadd.value.some(item2 => item2.api == item1.api));
+        productList.value = productList.value.filter((item1:any) => !productListToadd.value.some((item2:any) => item2.api == item1.api));
 
 
         //trie par ordre alphabétique
-        productListToadd.value.sort((a, b) => {
+        productListToadd.value.sort((a:any, b:any) => {
             const nameA = a.name ?? '';
             const nameB = b.name ?? '';
             return nameA.localeCompare(nameB);
         });
 
         //trie par ordre alphabétique
-        productList.value.sort((a, b) => {
+        productList.value.sort((a:any, b:any) => {
             const nameA = a.name ?? '';
             const nameB = b.name ?? '';
             return nameA.localeCompare(nameB);
@@ -1075,24 +1075,24 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
     const handleRemovePlace = (ts: any) => {
         productList.value.push(ts);
 
-        productListToadd.value = productListToadd.value.filter(item => item.api!= ts.api);
+        productListToadd.value = productListToadd.value.filter((item:any) => item.api!= ts.api);
 
         //trie par ordre alphabétique
-        productListToadd.value.sort((a, b) => {
+        productListToadd.value.sort((a:any, b:any) => {
             const nameA = a.name ?? '';
             const nameB = b.name ?? '';
             return nameA.localeCompare(nameB);
         });
 
         //trie par ordre alphabétique
-        productList.value.sort((a, b) => {
+        productList.value.sort((a:any, b:any) => {
             const nameA = a.name ?? '';
             const nameB = b.name ?? '';
             return nameA.localeCompare(nameB);
         });
     }
     const handleIncrement = (ts: any) => {
-        productListToadd.value = productListToadd.value.map(item => {
+        productListToadd.value = productListToadd.value.map((item:any) => {
             if(item.api == ts.api){
                 return {
                     ...item,
@@ -1107,7 +1107,7 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
         if(ts.quantity <= 1) {
             handleRemovePlace(ts);
         }
-        productListToadd.value = productListToadd.value.map(item => {
+        productListToadd.value = productListToadd.value.map((item:any) => {
             if(item.api == ts.api && item.quantity > 1){
                 return {
                    ...item,
@@ -1143,7 +1143,7 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
                 price: item.BasePrice
             }
         })
-        productList.value.sort((a, b) => {
+        productList.value.sort((a:any, b:any) => {
             const nameA = a.name ?? '';
             const nameB = b.name ?? '';
             return nameA.localeCompare(nameB);
@@ -1211,8 +1211,8 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
             }
 
             // Mettre à jour la liste des produits disponibles
-            productList.value = productList.value.filter(item =>
-                !productListToadd.value.some(p => p.api === item.api)
+            productList.value = productList.value.filter((item:any) =>
+                !productListToadd.value.some((p:any) => p.api === item.api)
             );
         }
     }
@@ -1231,7 +1231,7 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>&nbsp;&nbsp;
-                        <span class="text-nowrap">{{ 'Go back' }}</span>
+                        <span class="text-nowrap">{{ $t('Goback') }}</span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                     </button>
                 </template>
@@ -1241,34 +1241,34 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
                 <form @submit.prevent="savePlate">
                     <div class="p-6.5">
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row items-start">
-                            <input-group2 label="Title" type="text" placeholder="Enter the product title"
+                            <input-group2 :label="$t('Title')" type="text" :placeholder="$t('enterTheProductTitle')"
                                 customClasses="w-full xl:w-1/2" v-model="plateInfo.Title" required />
 
                             <div class="w-full xl:w-1/2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Price <span class="text-red-500">*</span>
+                                    {{ $t('price') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input min="1" type="number" v-model="plateInfo.BasePrice" required class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                             </div>
                         </div>
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row items-start">
-                            <select-group-one label="Category" :options="categoryOption" :placeholder="'Select the category'"
+                            <select-group-one :label="$t('category')" :options="categoryOption" :placeholder="$t('Selectthecategory')"
                                 class="w-full xl:w-1/2" v-model="plateInfo.CategoryCode" required/>
-                            <input-group2 label="Cover" type="file" placeholder=""
+                            <input-group2 :label="$t('cover')" type="file" placeholder=""
                                 customClasses="w-full xl:w-1/2" v-model="plateInfo.Image"/>
                         </div>
                         <div class="mb-4.5 flex flex-col gap-6 xl:flex-row items-start">
 
-                            <SelectGroupSearchable customClasses="w-full xl:w-1/2" :items="productList" v-model="selectedItem" @item-selected="handleSelection" label="Select a product" placeholder="Select a product ..." :required="false" :resetTrigger="resetInput">
+                            <SelectGroupSearchable customClasses="w-full xl:w-1/2" :items="productList" v-model="selectedItem" @item-selected="handleSelection" :label="$t('Selectaproduct')" :placeholder="$t('Selectaproduct...')" :required="false" :resetTrigger="resetInput">
                                 <template v-slot:action>
                                     <input min="1" type="number" v-model="producQuantity" required class="w-15 h-11 rounded-lg border-[1.5px] text-black border-stroke bg-transparent ml-2 py-1.5 px-1 font-normal outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-slate-50 dark:disabled:bg-black  dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
                                     <button @click='handdleAddProduct' type="button" class=" mx-2 p-4 h-10 text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-orange-300 dark:focus:ring-orange-800 font-medium rounded-lg text-sm mr-0 py-2.5 text-center">
-                                        add
+                                        {{ $t('add') }}
                                     </button>
                                 </template>
                             </SelectGroupSearchable>
 
-                            <input-group2 label="Describe the plate" type="textarea" placeholder="Enter the description of your plate"
+                            <input-group2 :label="$t('Describetheplate')" type="textarea" :placeholder="$t('describeyou...')"
                                 customClasses="w-full xl:w-1/2" v-model="plateInfo.Description" required />
                         </div>
 
@@ -1277,22 +1277,22 @@ onMounted(()=>console.log("categoryOption",categoryOption.value))
 
 
                         <div class="w-full px-6 font-bold gap-2.5 py-2  mb-10 mt-8 hover:bg-opacity-90 lg:px-6 xl:px-6 text-white bg-gradient-to-r from-rose-800 to-rose-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-rose-300 dark:focus:ring-rose-800 text-sm me-2">
-                          INGEDIENTS LIST
+                          {{ $t('ingredientList') }}
                         </div>
                         <div v-if="productListToadd.length > 0">
                             <TableOne :items="titles" :datas="productListToadd" :options="filterOptions" :inputField="''" @remove="handleRemovePlace" @increment="handleIncrement" @decrement="handleDecrement" :filterable="false" :pagination="false"/>
                         </div>
                         <div v-else class="text-center py-4">
-                            Please add a plate;
+                            {{ $t('pleaseadd') }}
                         </div>
 
 
                         <div class="flex justify-end mt-10">
                             <button @click="stopAction" type="button" class="text-white bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-rose-300 dark:focus:ring-rose-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                                {{ 'Cancel' }}
+                                {{ $t('Cancel') }}
                             </button>
                             <button type="submit" class="flex flex-nowrap text-white bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                              <span v-if="!isSaving">{{ 'Save' }} </span>
+                              <span v-if="!isSaving">{{ $t('Save') }} </span>
                                 <span v-else class="flex items-center gap-2">
                                   <Spinner class="w-4 h-4" />
                                   {{ $t('Processing') }}...

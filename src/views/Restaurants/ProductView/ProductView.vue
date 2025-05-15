@@ -144,26 +144,26 @@ const autoSizeStrategy = {
 </script> -->
 
 <script setup lang="ts">
-    import { defineAsyncComponent, onBeforeMount, ref } from 'vue'
-    import TableOne from '@/components/Tables/TableOne.vue';
+    import { defineAsyncComponent, onBeforeMount, ref,computed } from 'vue'
+    import TableOne from '@/components/tables/TableOne.vue';
     import { fetchConfig, fetchProduct } from '@/services/database';
     import router from '@/router';
     import { useConfigStore } from '@/composables/config';
     import AdminLayout from '@/components/layout/AdminLayout.vue';
-
+    import { useI18n } from "vue-i18n";
     const pageTitle = 'Product';
-
+    const { t} = useI18n();
     const NewProductForm = defineAsyncComponent(() => import('@/views/Restaurants/ProductView/NewProductForm.vue'));
-    const titles = ref([
+    const titles = computed(()=>([
         {
             name: 'Image',
-            label: 'image',
+            label: t('images'),
             type: 'image',
             event: "view",
         },
         {
             name: 'Title',
-            label: 'Title',
+            label: t('Title'),
             type: 'url',
             event: "view",
             filterable: true,
@@ -171,36 +171,44 @@ const autoSizeStrategy = {
         {
             name: 'Description',
             type: "text",
-            label: 'Description',
+            label: t('Description'),
         },
         {
             name: 'Category',
             type: "text",
-            label: 'Category',
+            label: t('category'),
             filterable: true,
         },
         {
             name: 'AvailableQuantity',
             type: "text",
-            label: 'Quantity',
+            label: t('quantity'),
             filterable: false,
         }
-    ]);
-    const filterOptions = ref([
-        {
-            name: 'All',
-            api: '',
-        },
-        {
-            name: 'Name',
-            api: 'name',
-        },
-        {
-            name: 'Category',
-            api: 'category',
-        }
+    ]));
+    const filterOptions = computed(()=>([
+      {
+          name: t('All'),
+          api: '',
+      },
+      {
+          name: t('today'),
+          api: 'today',
+      },
+      {
+          name: t('thisweek'),
+          api: 'thisweek',
+      },
+      {
+          name: t('lastweek'),
+          api: 'lastweek',
+      },
+      {
+          name: t('thismonth'),
+          api: 'thismonth',
+      }
 
-    ]);
+  ]));
     const isloading = ref(false);
     const products = ref([]);
     const rawProducts = ref([]);
@@ -273,7 +281,7 @@ const autoSizeStrategy = {
             <TableOne :items="titles" :datas="products" :options="filterOptions" @view="viewProduct" :filterable="true" :pagination="true">
                 <template v-slot:headerButton>
                     <button @click="handleAddProduct" class="text-white bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                        Add Product
+                        {{ $t('AddProduct') }}
                     </button>
                 </template>
             </TableOne>

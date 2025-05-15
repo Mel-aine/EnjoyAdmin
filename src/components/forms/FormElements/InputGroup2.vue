@@ -15,7 +15,7 @@
       default: false
     },
     modelValue: {
-      type: [String, Number, File] as PropType<string | number | File>,
+      type: [String, Number] as PropType<string | number >,
     },
     max: Number
   });

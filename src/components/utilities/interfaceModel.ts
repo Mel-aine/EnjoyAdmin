@@ -1,8 +1,9 @@
-export default interface Option {
+export  interface Option {
   name: string,
-  api: string
+  api: string,
+  price?:number
 }
-export default interface PlateOption {
+export interface PlateOption {
   name: string,
   api: string,
   price?: number
