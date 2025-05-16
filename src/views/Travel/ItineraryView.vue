@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref, onMounted,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import {PlusCircle } from 'lucide-vue-next';
 import { Route as RouteIcon } from 'lucide-vue-next';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import TableOne from '@/components/tables/TableOne.vue'
@@ -99,7 +100,7 @@ const titles = computed(()=>([
               {
                 name: "edit",
                 icone: `
-                    <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                       <path stroke="none" d="M0 0h24v24H0z"/>
                       <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
                       <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
@@ -111,7 +112,7 @@ const titles = computed(()=>([
               {
                   name: "delete",
                   icone: `
-                  <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                   `,
@@ -192,9 +193,10 @@ const datas = computed(() =>
     distance: `${route.distance} km`,
     duration: route.duration,
     stops: route.stops,
-    status: route.status,
+    status: getStatusBadge(route.status)
   }))
 );
+
 
 
 // Filtrer les itinéraires en fonction de la recherche et des filtres
@@ -217,18 +219,31 @@ const filteredRoutes = computed(() => {
 });
 
 // Déterminer la couleur du badge en fonction du statut
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'bg-green-100 text-green-800';
-    case 'inactive':
-      return 'bg-gray-100 text-gray-800';
-    case 'maintenance':
-      return 'bg-yellow-100 text-yellow-800';
-    default:
-      return 'bg-blue-100 text-blue-800';
-  }
+const getStatusBadge = (status: string) => {
+  const map: Record<string, { bg: string; text: string; label: string }> = {
+    active: {
+      label: 'Actif',
+      bg: 'bg-green-100',
+      text: 'text-green-800'
+    },
+    inactive: {
+      label: 'Inactif',
+      bg: 'bg-gray-100',
+      text: 'text-gray-800'
+    },
+    maintenance: {
+      label: 'Maintenance',
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-800'
+    }
+  };
+  return map[status] || {
+    label: status,
+    bg: 'bg-blue-100',
+    text: 'text-blue-800'
+  };
 };
+
 
 // Fonction pour afficher les détails d'un itinéraire
 const viewRouteDetails = (routeId: number) => {
@@ -287,9 +302,10 @@ const filterOptions = computed(()=>([
           @click="modalOpen=true"
           class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-          </svg>
+          </svg> -->
+          <PlusCircle class="mr-2"/>
           {{ t('Ajouter un itinéraire') }}
         </button>
       </div>

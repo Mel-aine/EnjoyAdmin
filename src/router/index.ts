@@ -243,6 +243,16 @@ const router = createRouter({
       path: '/all_routes',
       name:'all routes',
       component : ()=>import ('../views/Travel/ItineraryView.vue')
+    },
+    {
+      path: '/vehicle_fleet',
+      name:'vehicle fleet',
+      component : ()=>import ('../views/Travel/Equipement/VehicleView.vue')
+    },
+    {
+      path: '/scheduled_trips',
+      name:'scheduled trips',
+      component : ()=>import ('../views/Travel/TravelManagement.vue/TravelList.vue')
     }
   ],
 })

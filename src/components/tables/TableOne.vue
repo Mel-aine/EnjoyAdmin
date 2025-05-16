@@ -109,6 +109,19 @@ const paginatedData = computed(() => {
                   class="w-full h-8 rounded border-[1.5px] text-black border-stroke bg-transparent py-1.5 px-1 font-normal outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-slate-50 dark:disabled:bg-black  dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"/>
 
                 </template>
+                <template v-else-if="it.type === 'badge' && typeof dt[it.name] === 'object'">
+                  <span
+                    :class="[
+                      dt[it.name].bg,
+                      dt[it.name].text,
+                      'px-2 py-1 rounded-full text-xs font-semibold capitalize'
+                    ]"
+                  >
+                    {{ dt[it.name].label }}
+                  </span>
+                </template>
+
+
                 <template v-else-if="it.type === 'percentage'">
                   {{ dt[it.name] }} <span>%</span>
                 </template>

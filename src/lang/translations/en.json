@@ -312,7 +312,7 @@
     "mt": "Mountain Time (MT)",
     "pt": "Pacific Time (PT)",
     "cet": "Central European Time (CET)"
-  },
+    },
     "SaveChanges" : "Save Changes",
     "receiveemailnotifications" : "Receive email notifications",
     "emailNotifications" : "Email Notifications",
@@ -445,7 +445,7 @@
     "thisweek" : "This Week",
     "lastweek" : "Last Week",
     "thismonth" : "This Month",
-    "noRow" : "No row to display 🍕",
+    "noRow" : "No row to display",
     "next" : "Next",
     "previous" : "Previous",
     "showing" : "Showing",

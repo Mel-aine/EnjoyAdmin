@@ -147,10 +147,10 @@
               :forLabel="'word'"
               v-model="form.password"
             />
-            <Select
+            <Input
               :lb="$t('Role')"
-              :options="roles"
-              v-model="form.role"
+              :inputType="'text'"
+              v-model="form.roleName"
             />
 
           </div>
@@ -253,38 +253,34 @@ interface Form {
   phoneNumber: string
   email: string
   password:string
-  role: string | undefined
+  roleName: string | undefined
 }
 
 
 const form = ref<Form>({
   firstName: '',
   lastName: '',
-  role: '',
+  roleName: '',
   phoneNumber: '',
   email: '',
   password:'',
 })
-
 
 const saveUser = async () => {
   isLoading.value = true;
   try {
     const serviceId = serviceStore.serviceId;
     const userPayload = {
-      service_id : serviceId,
+      service_id: serviceId,
       first_name: form.value.firstName,
       last_name: form.value.lastName,
       email: form.value.email,
       phone_number: form.value.phoneNumber,
-      role_id: form.value.role,
-      password:form.value.password,
-      created_by : userStore.UserId ,
+      role_name: form.value.roleName,
+      password: form.value.password,
+      created_by: userStore.UserId,
       last_modified_by: userStore.UserId
-
-
     }
-    console.log('✅ userPayload', userPayload)
 
     const response = await createUser(userPayload)
     modalOpen.value = false;
@@ -292,23 +288,24 @@ const saveUser = async () => {
     form.value = {
       firstName: '',
       lastName: '',
-      role: '',
+      roleName: '',
       phoneNumber: '',
       email: '',
-      password:''
+      password: ''
     }
+
     if (response.status === 201) {
       toast.success(t('toast.userCreated'));
     } else {
       toast.error(t('toast.userErrorCreated'));
     }
-    console.log('✅ Réservation créée avec succès !', response.data)
   } catch (error: any) {
     console.error('❌ Error while saving:', error.response?.data || error.message)
-  }finally {
+  } finally {
     isLoading.value = false;
   }
 }
+
 
 const fetchUser = async () => {
   try {
