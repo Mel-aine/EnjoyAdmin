@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { PlusCircle } from 'lucide-vue-next';
+import {  PlusCircle } from 'lucide-vue-next';
+import { Car} from 'lucide-vue-next';
 // import { format, parseISO } from 'date-fns';
 // import { fr } from 'date-fns/locale';
-
+import Input from '@/components/forms/FormElements/Input.vue';
+import Select from '@/components/forms/FormElements/Select.vue';
 import TableOne from '@/components/tables/TableOne.vue';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import Modal from '@/components/profile/Modal.vue';
@@ -40,7 +42,7 @@ const toggleStatusDropdown = () => {
   isStatusDropdownOpen.value = !isStatusDropdownOpen.value;
 };
 
-const setStatusFilter = (status: any) => {
+const setStatusFilter = (status:any) => {
   statusFilter.value = status;
   isStatusDropdownOpen.value = false;
 };
@@ -68,12 +70,13 @@ onMounted(() => {
   }, 500);
 });
 
-const statusLabels = {
-  all: t('Tous les statuts'),
-  planned: t('Prévu'),
-  ongoing: t('En cours'),
-  completed: t('Terminé'),
-};
+
+const status = computed(()=>[
+  { value: 'all', label: t('All') },
+  { value: 'planned', label: t('planned') },
+  { value: 'ongoing', label:t('ongoing') },
+  { value: 'completed', label:t('complete') },
+]);
 
 const titles = computed(() => ([
   { name: 'departureDate', label: t('Date de départ'), type: 'date', filterable: true },
@@ -142,7 +145,7 @@ const datas = computed(() =>
     itinerary: v.itinerary,
     driver: v.driver,
     duration: `${v.duration} jours`,
-    status: v.status,
+    status: getStatusBadge(v.status),
   }))
 );
 
@@ -212,80 +215,171 @@ const handleAction = ({ event, row }: { event: string; row: any }) => {
   if (event === 'edit') openEditModal(voyage);
   if (event === 'delete') deleteVoyage(voyage.id);
 };
-</script>
 
+const filterOptions = computed(()=>([
+      {
+          name: t('All'),
+          api: '',
+      },
+      {
+          name: t('today'),
+          api: 'today',
+      },
+      {
+          name: t('thisweek'),
+          api: 'thisweek',
+      },
+      {
+          name: t('lastweek'),
+          api: 'lastweek',
+      },
+      {
+          name: t('thismonth'),
+          api: 'thismonth',
+      }
+
+  ]));
+
+  const getStatusBadge = (status: string) => {
+  const map: Record<string, { bg: string; text: string; label: string }> = {
+    completed: {
+      label: 'Complete',
+      bg: 'bg-green-100',
+      text: 'text-green-800'
+    },
+    planned: {
+      label: 'Prévu',
+      bg: 'bg-pink-100',
+      text: 'text-pink-800'
+    },
+    ongoing: {
+      label: 'En cours',
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-800'
+    }
+  };
+  return map[status] || {
+    label: status,
+    bg: 'bg-blue-100',
+    text: 'text-blue-800'
+  };
+};
+</script>
 <template>
   <AdminLayout>
-    <div class="p-6 min-h-screen flex flex-col">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Gestion des Voyages</h1>
-        <button @click="openAddModal" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md flex items-center">
-          <PlusCircle class="mr-2" />
-          Ajouter un voyage
+    <div class="p-6 min-h-screen">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <h1 class="text-2xl font-semibold text-gray-900 flex items-center">
+          <Car class="h-8 w-8 mr-2 text-orange-600" />
+          {{ t('Tous les voyages') }}
+        </h1>
+        <button
+          @click="openAddModal"
+          class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+        >
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg> -->
+          <PlusCircle class="mr-2"/>
+          {{ t('Ajouter un voyage') }}
         </button>
       </div>
 
+      <!-- Filtres et recherche -->
       <div class="mb-6 bg-white p-4 rounded-lg shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div class="relative w-full md:w-1/3">
+          <div class="relative">
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Recherche par itinéraire"
-              class="w-full rounded border px-3 py-2"
-              aria-label="Recherche par itinéraire"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+              :placeholder="t('Rechercher par itinéraire...')"
             />
-          </div>
-          <div class="relative" @click="isStatusDropdownOpen = false">
-            <button
-              @click="toggleStatusDropdown"
-              class="px-4 py-2 border rounded cursor-pointer w-full md:w-auto flex justify-between items-center"
-              aria-haspopup="listbox"
-              :aria-expanded="isStatusDropdownOpen.toString()"
-            >
-              {{ statusLabels[statusFilter] }}
-              <svg
-                class="w-4 h-4 ml-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
-            </button>
-            <ul
-              v-if="isStatusDropdownOpen"
-              class="absolute z-10 bg-white border rounded mt-1 w-full md:w-48"
-              role="listbox"
-              tabindex="-1"
-            >
-              <li
-                v-for="status in ['all', 'planned', 'ongoing', 'completed']"
-                :key="status"
-                @click="setStatusFilter(status)"
-                class="px-4 py-2 hover:bg-purple-100 cursor-pointer"
-                role="option"
-                :aria-selected="statusFilter === status"
+            </div>
+          </div>
+
+          <div class="flex space-x-2">
+            <div class="relative">
+              <button
+                class="border border-purple-500 bg-white rounded-lg text-purple-500 px-4 py-2 flex items-center gap-2"
+                @click="toggleStatusDropdown"
               >
-                {{ statusLabels[status] }}
-              </li>
-            </ul>
+                <span>
+                  {{ $t(
+                    statusFilter === 'all' ? 'Tous les statuts'
+                    : statusFilter === 'ongoing' ? 'En cours'
+                    : statusFilter === 'planned' ? 'Prévu'
+                    : 'Complete'
+                  ) }}
+                </span>
+                <svg class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z"/>
+                  <path d="M6 9l6 6l6 -6"/>
+                </svg>
+              </button>
+
+            <div v-if="isStatusDropdownOpen" class="z-10 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-56 absolute right-0">
+              <ul class="py-2 text-sm text-gray-700">
+                <li>
+                  <button @click="setStatusFilter('all')" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600">
+                    {{ $t('Tous les statuts') }}
+                  </button>
+                </li>
+                <li>
+                  <button @click="setStatusFilter('ongoing')" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600">
+                    {{ $t('En cours ') }}
+                  </button>
+                </li>
+                <li>
+                  <button @click="setStatusFilter('planned')" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600">
+                    {{ $t('Prévu') }}
+                  </button>
+                </li>
+                <li>
+                  <button @click="setStatusFilter('completed')" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600">
+                    {{ $t('Complete') }}
+                  </button>
+                </li>
+              </ul>
+            </div>
+            </div>
+
           </div>
         </div>
       </div>
 
-      <TableOne
-        :items="titles"
-        :datas="datas"
-        :filterable="true"
-        :loading="loading"
-        @action="handleAction"
-        class="bg-white rounded shadow-sm"
-      />
+      <!-- Tableau des voyages -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+        <div v-if="loading" class="p-6 text-center">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-orange-500 border-gray-200"></div>
+          <p class="mt-2 text-gray-500">{{ t('Chargement...') }}</p>
+        </div>
 
-      <!-- Modal Ajout -->
-      <Modal v-if="isAddModalOpen" @close="closeAddModal" title="Ajouter un voyage">
-        <template #body>
+        <div v-else-if="filteredVoyages.length === 0" class="p-6 text-center">
+          <p class="text-gray-500">{{ t('Aucun itinéraire trouvé.') }}</p>
+        </div>
+        <div v-else>
+      
+            <TableOne
+              :items="titles"
+              :datas="datas"
+              :filterable="true"
+              :loading="loading"
+              :options="filterOptions"
+              :pagination="true"
+              @action="handleAction"
+              class="bg-white rounded shadow-sm"
+            />
+        </div>
+      </div>
+    </div>
+  </AdminLayout>
+  <Modal v-if="isAddModalOpen" @close="closeAddModal">
+      <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
         >
@@ -310,101 +404,68 @@ const handleAction = ({ event, row }: { event: string; row: any }) => {
               />
             </svg>
           </button>
-        <form @submit.prevent="addVoyage" class="space-y-4">
-          <div>
-            <label for="departureDate" class="block font-medium">Date de départ</label>
-            <input id="departureDate" v-model="newVoyage.departureDate" type="date" required class="w-full border rounded px-3 py-2" />
+          <div class="px-2 pr-14">
+            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              {{ $t('Add Travel') }}
+            </h4>
+
           </div>
-          <div>
-            <label for="arrivalDate" class="block font-medium">Date d'arrivée</label>
-            <input id="arrivalDate" v-model="newVoyage.arrivalDate" type="date" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="vehicle" class="block font-medium">Véhicule</label>
-            <input id="vehicle" v-model="newVoyage.vehicle" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="price" class="block font-medium">Prix</label>
-            <input id="price" v-model.number="newVoyage.price" type="number" min="0" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="itinerary" class="block font-medium">Itinéraire</label>
-            <input id="itinerary" v-model="newVoyage.itinerary" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="driver" class="block font-medium">Chauffeur</label>
-            <input id="driver" v-model="newVoyage.driver" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="duration" class="block font-medium">Durée (jours)</label>
-            <input id="duration" v-model.number="newVoyage.duration" type="number" min="1" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="status" class="block font-medium">Statut</label>
-            <select id="status" v-model="newVoyage.status" required class="w-full border rounded px-3 py-2">
-              <option value="planned">Prévu</option>
-              <option value="ongoing">En cours</option>
-              <option value="completed">Terminé</option>
-            </select>
-          </div>
-          <div class="flex justify-end space-x-2">
-            <button type="button" @click="closeAddModal" class="px-4 py-2 border rounded">Annuler</button>
-            <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">Ajouter</button>
-          </div>
-        </form>
+          <form class="flex flex-col">
+            <div class="custom-scrollbar h-[520px] overflow-y-auto p-2">
+              <div>
+                <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                  <div>
+                    <Input :lb="$t('Date de depart')"  :inputType="'date'"  :id="'name'" :forLabel="'name'" />
+                  </div>
+
+                  <div>
+                    <Input :lb="$t('Date d arrivee')"  :inputType="'date'"  :id="'date'" :forLabel="'date'" />
+                  </div>
+                  <div>
+                    <Select :lb="$t('vehicule')" />
+                  </div>
+                  <div>
+                    <Input :lb="$t('price')"  :inputType="'number'" :id="'last'" :forLabel="'last'" />
+                  </div>
+
+                  <div>
+                    <Select :lb="$t('itineraire')" />
+                  </div>
+                  <div>
+                    <Select :lb="$t('driver')"  />
+                  </div>
+                  <div>
+                    <Input :lb="$t('duree')" :inputType = "'number'"   :id="'stop'" :forLabel="'stop'" :min="'1'" />
+                  </div>
+                  <div>
+                    <Select :lb="$t('status')" :options="status" />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="flex items-center gap-3 px-2 mt-2 lg:justify-end">
+              <button
+                @click="isAddModalOpen = false"
+                type="button"
+                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+              >
+                {{ $t('Cancel') }}
+              </button>
+              <button
+
+                type="button"
+                class="flex w-full justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 sm:w-auto"
+              >
+               {{ $t('Save') }}
+              </button>
+            </div>
+          </form>
         </div>
-        </template>
-      </Modal>
-
-      <!-- Modal Édition -->
-      <Modal v-if="isEditModalOpen" @close="closeEditModal" title="Modifier le voyage">
-        <form @submit.prevent="saveEdit" class="space-y-4" v-if="currentVoyage">
-          <div>
-            <label for="editDepartureDate" class="block font-medium">Date de départ</label>
-            <input id="editDepartureDate" v-model="currentVoyage.departureDate" type="date" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editArrivalDate" class="block font-medium">Date d'arrivée</label>
-            <input id="editArrivalDate" v-model="currentVoyage.arrivalDate" type="date" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editVehicle" class="block font-medium">Véhicule</label>
-            <input id="editVehicle" v-model="currentVoyage.vehicle" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editPrice" class="block font-medium">Prix</label>
-            <input id="editPrice" v-model.number="currentVoyage.price" type="number" min="0" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editItinerary" class="block font-medium">Itinéraire</label>
-            <input id="editItinerary" v-model="currentVoyage.itinerary" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editDriver" class="block font-medium">Chauffeur</label>
-            <input id="editDriver" v-model="currentVoyage.driver" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editDuration" class="block font-medium">Durée (jours)</label>
-            <input id="editDuration" v-model.number="currentVoyage.duration" type="number" min="1" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label for="editStatus" class="block font-medium">Statut</label>
-            <select id="editStatus" v-model="currentVoyage.status" required class="w-full border rounded px-3 py-2">
-              <option value="planned">Prévu</option>
-              <option value="ongoing">En cours</option>
-              <option value="completed">Terminé</option>
-            </select>
-          </div>
-          <div class="flex justify-end space-x-2">
-            <button type="button" @click="closeEditModal" class="px-4 py-2 border rounded">Annuler</button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Enregistrer</button>
-          </div>
-        </form>
-
-      </Modal>
-    </div>
-  </AdminLayout>
+      </template>
+    </Modal>
 </template>
+
 
 <style scoped>
 /* Ajoute ici des styles si besoin */

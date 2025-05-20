@@ -442,6 +442,9 @@ const handleSubmit = async () => {
   } else if (category === 'restaurants') {
     await router.push('/dashboard');
   }
+  else if (category === 'travel') {
+    await router.push('/dashboardTravel');
+  }
 
 } else {
   console.warn('No category found, redirecting to home');

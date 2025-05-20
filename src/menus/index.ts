@@ -30,10 +30,10 @@ export const getMenuByCategoryName = (
     return getHotelMenu(t);
   }
 
-  // if (lowerName.includes('restaurant')) {
-  //   return getRestaurantMenu(t);
-  // }
   if (lowerName.includes('restaurant')) {
+    return getRestaurantMenu(t);
+  }
+  if (lowerName.includes('travel')) {
     return getBusAgencyMenu(t);
   }
 

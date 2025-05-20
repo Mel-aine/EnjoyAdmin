@@ -93,9 +93,9 @@
                   />
                 </div>
               </div>
-              <div>
+              <!-- <div>
                 <Select :lb="$t('SelectReservationType')" :options="Package" v-model="form.package"/>
-              </div>
+              </div> -->
 
               <div>
                 <Select :lb="$t('SelectRoom')" :options="ServiceProduct" v-model="form.roomType" @change="handleRoomSelection()" />
@@ -427,7 +427,7 @@ const countryCodes = {
 const Payements = ref<any[]>([]);
   const reservationSummary = ref({
   clientName: '',
-  room: 0,
+  room: '',
   type: '',
   total: 0,
 });
@@ -443,6 +443,7 @@ const currentPageTitle = computed(() =>
 
 onMounted(() => {
   updatePhoneNumber()
+  fetchServiceData()
 })
 
 const fetchServiceData = async () => {
@@ -451,26 +452,30 @@ const fetchServiceData = async () => {
     const response = await getService(serviceId);
 
     const service = response.data;
+    console.log("Service brut :", service);
 
-    const parsedMethods: string[] = JSON.parse(service.paymentMethods || '[]');
+    // Vérifie si paymentMethods est déjà un tableau ou une string JSON
+    const parsedMethods: string[] = Array.isArray(service.paymentMethods)
+      ? service.paymentMethods
+      : JSON.parse(service.paymentMethods || '[]');
 
+    // Structure les méthodes de paiement pour affichage (ex: dans un select)
     const paymentMethods = parsedMethods.map(method => ({
       label: method,
       value: method
     }));
 
+    // Construit l'objet final avec les méthodes de paiement formatées
     Payements.value = [{
       ...service,
       paymentMethods
     }];
 
-
-    console.log('Service formaté:', Payements.value);
+    console.log('Service formaté avec méthodes de paiement :', Payements.value);
   } catch (error) {
-    console.error('Erreur lors de la récupération du service:', error);
+    console.error('Erreur lors de la récupération du service :', error);
   }
 };
-
 
 
 const selectedRoomPrice = ref<number | null>(null);
@@ -541,7 +546,7 @@ interface ReservationForm {
   lastName: string
   phoneNumber: string
   email: string
-  roomType:number | null
+  roomType:string | null
   package:string
   arrivalDate: string
   departureDate: string
@@ -585,10 +590,10 @@ const saveReservation = async () => {
       email: form.value.email,
       phone_number: form.value.phoneNumber,
       service_id: serviceStore.serviceId,
-      reservation_type: form.value.package,
+      reservation_type: 'Hotels & Stays',
       reservation_product:form.value.roomType,
-      total_price: form.value.totalPrice,
-      total_person: form.value.totalPerson,
+      total_amount: form.value.totalPrice,
+      guest_count: form.value.totalPerson,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
       comment: form.value.normalDescription,
@@ -600,8 +605,8 @@ const saveReservation = async () => {
     const response = await createReservation(reservationPayload)
     reservationSummary.value = {
       clientName: `${form.value.firstName} ${form.value.lastName}`,
-      room: Number(form.value.roomType ?? 0),
-      type: form.value.package ?? '',
+      room: form.value.roomType ?? '',
+      type: form.value.package ?? 'Hotels & Stays',
       total: Number(form.value.totalPrice ?? 0),
   }
   reservationId.value = response.data.reservation.id;

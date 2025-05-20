@@ -775,7 +775,7 @@ const columnDefs = ref<ColDef[]>([
   },
   {
     headerName: t('supplier'),
-    field: 'supplierName',
+    field: 'supplierId',
     width: 150,
   },
   {
@@ -785,12 +785,12 @@ const columnDefs = ref<ColDef[]>([
   },
   {
     headerName: t('category'),
-    field: 'category',
+    field: 'expenseCategoryId',
     width: 140,
   },
   {
     headerName: t('department'),
-    field: 'department',
+    field: 'departmentId',
     width: 150,
   },
   {
@@ -803,7 +803,7 @@ const columnDefs = ref<ColDef[]>([
   },
   {
     headerName: t('Date'),
-    field: 'date',
+    field: 'expenseDate',
     width: 120,
     // cellRenderer: (params: ICellRendererParams) => {
     //   return formatDate(params.value);
@@ -855,7 +855,7 @@ watch(() => locale.value, () => {
   },
   {
     headerName: t('supplier'),
-    field: 'supplierName',
+    field: 'supplierId',
     width: 150,
   },
   {
@@ -865,12 +865,12 @@ watch(() => locale.value, () => {
   },
   {
     headerName: t('category'),
-    field: 'category',
+    field: 'expenseCategoryId',
     width: 140,
   },
   {
     headerName: t('department'),
-    field: 'department',
+    field: 'departmentId',
     width: 150,
   },
   {
@@ -883,7 +883,7 @@ watch(() => locale.value, () => {
   },
   {
     headerName: t('Date'),
-    field: 'date',
+    field: 'expenseDate',
     width: 120,
     // cellRenderer: (params: ICellRendererParams) => {
     //   return formatDate(params.value);
@@ -971,15 +971,15 @@ const onCellClick = (event: any) => {
   console.log('Button clickedid:', id);
 
     if (action === 'edit') {
-      const expensetEdit = expenses.value.find((r: any) => r.id == id);
+      const expensetEdit = expenses.value.find((r: any) => r.id == Number(id));
       console.log("expensetEdit",expensetEdit)
       if(expensetEdit){
         selected.value = expensetEdit;
-        newExpense.value.supplierName = expensetEdit.supplierName;
+        newExpense.value.supplierName = expensetEdit.supplierId;
         newExpense.value.invoiceNumber = expensetEdit.invoiceNumber;
-        newExpense.value.category = expensetEdit.category;
-        newExpense.value.department = expensetEdit.department;
-        newExpense.value.date = expensetEdit.date;
+        newExpense.value.category = expensetEdit.expenseCategoryId;
+        newExpense.value.department = expensetEdit.departmentId;
+        newExpense.value.date = expensetEdit.expense_date;
         newExpense.value.dueDate = expensetEdit.dueDate;
         newExpense.value.description = expensetEdit.description;
         newExpense.value.amountBeforeTax = expensetEdit.amountBeforeTax;
@@ -1011,11 +1011,11 @@ const updateData = async () => {
 
     const Payload = {
       service_id: serviceId,
-      supplier_name:newExpense.value.supplierName,
+      supplier_id:newExpense.value.supplierName,
       invoice_number:newExpense.value.invoiceNumber,
-      category:newExpense.value.category,
+      expense_category_id:newExpense.value.category,
       department:newExpense.value.department,
-      date:newExpense.value.date,
+      expense_date:newExpense.value.date,
       due_date : newExpense.value.dueDate,
       description:newExpense.value.description,
       amount_before_tax : newExpense.value.amountBeforeTax,
@@ -1099,20 +1099,20 @@ onMounted(async() => {
      const response = await getDepartment(serviceId);
      departments.value = response.data.map((d:any)=>({
       label:d.name,
-      value:d.name
+      value:d.id
      }));
      console.log('dpt',departments.value)
 
      const responseData = await getCategory(serviceId);
      expenseCategories.value = responseData.data.map((c:any)=>({
       label:c.name,
-      value:c.name
+      value:c.id
      }));
 
      const responseDatas = await getSupplier(serviceId);
      Suppliers.value = responseDatas.data.map((s:any)=>({
       label:s.name,
-      value:s.name
+      value:s.id
      }));
 
      const responseExpense = await getExpense(serviceId);
@@ -1135,11 +1135,11 @@ const addExpense = async () => {
 
     } else {
     const payload = {
-      supplier_name: newExpense.value.supplierName,
+      supplier_id: newExpense.value.supplierName,
       invoice_number: newExpense.value.invoiceNumber,
-      category: newExpense.value.category,
-      department: newExpense.value.department,
-      date: newExpense.value.date,
+      expense_category_id: newExpense.value.category,
+      department_id: newExpense.value.department,
+      expense_date: newExpense.value.date,
       due_date: newExpense.value.dueDate,
       description: newExpense.value.description,
       amount_before_tax: parseFloat(newExpense.value.amountBeforeTax), 

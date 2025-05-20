@@ -175,7 +175,7 @@ const onCellClick = (event: any) => {
   console.log('Action:', action, ' ID:', id);
 
   if (action === 'edit') {
-    const categorieEdit = categories.value.find((r: any) => r.id === id);
+    const categorieEdit = categories.value.find((r: any) => r.id === Number(id));
     console.log("Editing :", categorieEdit);
 
     if (categorieEdit) {
@@ -236,7 +236,8 @@ const addCategory = async () => {
     } else{
     const payload = {
      name:newCategoryName.value,
-     service_id : serviceId
+     service_id : serviceId,
+     parent_category_id : 14
 
     };
 

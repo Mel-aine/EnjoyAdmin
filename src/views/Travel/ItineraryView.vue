@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted,computed ,watch} from 'vue';
 import { useI18n } from 'vue-i18n';
 import {PlusCircle } from 'lucide-vue-next';
 import { Route as RouteIcon } from 'lucide-vue-next';
@@ -12,23 +12,20 @@ import Select from '@/components/forms/FormElements/Select.vue';
 
 
 interface Route {
-  id: number;
+   id: number;
   name: string;
   startPoint: string;
   endPoint: string;
   distance: number;
   duration: string;
-  stops: number;
-  status: 'active' | 'inactive' | 'maintenance';
+  // stops: number;
+  status: string;
 }
 
 const { t } = useI18n();
 const routes = ref<Route[]>([]);
 const loading = ref(true);
 const searchQuery = ref('');
-const ORANGE = 'bg-orange-300 rounded';
-const BLUE = 'bg-blue-300 rounded';
-const GREEN = 'bg-green-300 rounded';
 const statusFilter = ref('all');
 const isStatusDropdownOpen = ref(false);
 const modalOpen = ref(false)
@@ -42,7 +39,22 @@ const setStatusFilter = (status:any) => {
   isStatusDropdownOpen.value = false;
 };
 
+const formData = ref<Route>({
+  id: 0,
+  name : '',
+  startPoint: '',
+  endPoint: '',
+  distance : 0,
+  duration : '',
+  status : ''
+})
 
+watch(
+  () => [formData.value.startPoint, formData.value.endPoint],
+  ([start, end]) => {
+    formData.value.name = `${start} - ${end}`
+  }
+)
 const titles = computed(()=>([
       {
           name: 'name',
@@ -69,12 +81,12 @@ const titles = computed(()=>([
           label: t('duration'),
           filterable: false,
       },
-      {
-          name: 'stops',
-          type: "text",
-          label: t('arret'),
-          filterable: false,
-      },
+      // {
+      //     name: 'stops',
+      //     type: "text",
+      //     label: t('arret'),
+      //     filterable: false,
+      // },
       {
         name: 'status',
         label: t('Statut'),
@@ -95,7 +107,6 @@ const titles = computed(()=>([
                   `
                   ,
                   event: 'view',
-                  color: ORANGE,
               },
               {
                 name: "edit",
@@ -107,7 +118,6 @@ const titles = computed(()=>([
                     </svg>
                             `,
                 event: 'edit',
-                color: GREEN,
               },
               {
                   name: "delete",
@@ -117,7 +127,6 @@ const titles = computed(()=>([
                   </svg>
                   `,
                   event: 'delete',
-                  color: BLUE,
               }
 
           ]
@@ -446,24 +455,27 @@ const filterOptions = computed(()=>([
               <div>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
-                    <Input :lb="$t('Name')"  :placeholder="$t('Name')"  :id="'name'" :forLabel="'name'" />
+                    <Input :lb="$t('Name')"  :placeholder="$t('Name')"  :id="'name'" :forLabel="'name'" v-model="formData.name"  :disabled="true" />
                   </div>
 
                   <div>
-                    <Input :lb="$t('trajet')"  :placeholder="$t('trajet')" :id="'last'" :forLabel="'last'" />
+                    <Input :lb="$t('depart')"  :placeholder="$t('depart')" :id="'last'" :forLabel="'last'" v-model="formData.startPoint" />
+                  </div>
+                  <div>
+                    <Input :lb="$t('destination')"  :placeholder="$t('destination')" :id="'last'" :forLabel="'last'" v-model="formData.endPoint" />
                   </div>
 
                   <div>
-                    <Input :lb="$t('distance')"  :placeholder="$t('distance')" :id="'code'" :forLabel="'code'" />
+                    <Input :lb="$t('distance')"  :placeholder="$t('distance')" :id="'code'" :forLabel="'code'" v-model="formData.distance"/>
                   </div>
                   <div>
-                    <Input :lb="$t('duration')" :inputType = "'time'"  :placeholder="$t('duration')" :id="'duree'" :forLabel="'duree'" />
+                    <Input :lb="$t('duration')" :inputType = "'time'"  :placeholder="$t('duration')" :id="'duree'" :forLabel="'duree'" v-model="formData.duration" />
                   </div>
                   <div>
                     <Input :lb="$t('arret')" :inputType = "'number'"  :placeholder="$t('arret')" :id="'stop'" :forLabel="'stop'" :min="'1'" />
                   </div>
                   <div>
-                    <Select :lb="$t('status')"  />
+                    <Select :lb="$t('status')" v-model="formData.status" />
                   </div>
                 </div>
               </div>

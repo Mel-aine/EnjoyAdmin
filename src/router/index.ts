@@ -240,6 +240,12 @@ const router = createRouter({
 
     //travel
     {
+      path: '/dashboardTravel',
+      name: 'dashboard travel',
+      component: () => import('../views/Travel/DashboardTravel.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/all_routes',
       name:'all routes',
       component : ()=>import ('../views/Travel/ItineraryView.vue')
@@ -253,6 +259,21 @@ const router = createRouter({
       path: '/scheduled_trips',
       name:'scheduled trips',
       component : ()=>import ('../views/Travel/TravelManagement.vue/TravelList.vue')
+    },
+    {
+      path: '/schedules',
+      name:'schedules',
+      component : ()=>import ('../views/Travel/Planning/ScheduleView.vue')
+    },
+    {
+      path: '/driver',
+      name:'driver',
+      component : ()=>import ('../views/Travel/DriverView.vue')
+    },
+    {
+      path: '/vehicle_assignment',
+      name:'vehicle assigment',
+      component : ()=>import ('../views/Travel/Planning/VehicleAssignement.vue')
     }
   ],
 })

@@ -271,11 +271,11 @@ const fetchRoomType = async () => {
 
 
 const defaultOptions = computed(() =>
-  options.value.filter((option: OptionType) => option.isDefault === true)
+  options.value.filter((option: OptionType) => option.isDefault === false)
 )
 
 const hideOptions = computed(() =>
-  options.value.filter((option: OptionType) => option.isDefault === false)
+  options.value.filter((option: OptionType) => option.isDefault === true)
 )
 
 

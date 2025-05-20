@@ -156,12 +156,12 @@
               />
             </div>
                   </div>
-                  <div>
+                  <!-- <div>
                     <Select :lb="$t('LastPackage')" :options="Package"/>
                   </div>
                   <div>
                     <Select :lb="$t('Group')" :options="Group"/>
-                  </div>
+                  </div> -->
                   <div>
                     <Input :lb="$t('Address')"  :placeholder="$t('Address')" :id="'code'" :forLabel="'code'" />
                   </div>

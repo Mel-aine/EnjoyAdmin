@@ -191,7 +191,7 @@ const onCellClick = (event: any) => {
   console.log('Action:', action, ' ID:', id);
 
   if (action === 'edit') {
-    const supplierEdit = suppliers.value.find((r: any) => r.id === id);
+    const supplierEdit = suppliers.value.find((r: any) => r.id === Number(id));
     console.log("Editing :", supplierEdit);
 
     if (supplierEdit) {
@@ -228,6 +228,7 @@ const updateData = async () => {
       email : newSupplier.value.email,
       phone : newSupplier.value.phone,
       address : newSupplier.value.address,
+      category: "Hotel",
     };
 
     await updateSupplier(id, Payload);

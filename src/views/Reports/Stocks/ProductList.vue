@@ -146,10 +146,10 @@ const newProduct = ref({
   price:null
 });
 const defaultColDef = {
-  sortable: true,
-  filter: true,
-  floatingFilter: true,
-  resizable: true,
+  // sortable: true,
+  // filter: true,
+  // floatingFilter: true,
+  // resizable: true,
 };
 const suppliers = ref<any[]>([]);
 const categories = ref<any[]>([]);
@@ -160,9 +160,9 @@ const autoSizeStrategy = {
 
 const productData = ref<any[]>([])
 const statusOptions = computed(()=>[
-  { value: 'In stock', label: t('inStock') },
-  { value: 'Low Stock', label: t('lowStock') },
-  { value: 'Out of stock', label:t('outofstock') },
+  { value: 'coming_soon', label: t('coming_soon') },
+  { value: 'active', label: t('active') },
+  { value: 'out_of_stock', label:t('outofstock') },
 ]);
 
 
@@ -190,9 +190,10 @@ const columnDefs = ref<ColDef[]>([
   { headerName: t('ID'), field: 'id'},
   { headerName: t('Code'), field: 'code' },
   { headerName: t('Name'), field: 'name' },
-  { headerName: t('quantity'), field: 'quantity' },
+  { headerName: t('quantity'), field: 'quantityAvailable' },
   { headerName: t('price'), field: 'price' },
-  { headerName: t('Suppliers'), field: 'supplierId',valueGetter: (params: any) => getSupplierName(params.data.supplierId) },
+  // { headerName: t('Suppliers'), field: 'supplierId',valueGetter: (params: any) => getSupplierName(params.data.supplierId) },
+  { headerName: t('Suppliers'), field: 'supplierName'},
   { headerName: t('category'), field: 'stockCategoryId',valueGetter: (params: any) => getCategoryName(params.data.stockCategoryId) },
   {
     headerName: t('Status'),
@@ -213,9 +214,9 @@ watch(() => locale.value, () => {
       { headerName: t('ID'), field: 'id'},
       { headerName: t('Code'), field: 'code' },
       { headerName: t('Name'), field: 'name' },
-      { headerName: t('quantity'), field: 'quantity' },
+      { headerName: t('quantity'), field: 'quantityAvailable' },
       { headerName: t('price'), field: 'price' },
-      { headerName: t('Suppliers'), field: 'supplierId',valueGetter: (params: any) => getSupplierName(params.data.supplierId) },
+      { headerName: t('Suppliers'), field: 'supplierName'},,
       { headerName: t('category'), field: 'stockCategoryId',valueGetter: (params: any) => getCategoryName(params.data.stockCategoryId) },
       {
         headerName: t('Status'),
@@ -238,7 +239,7 @@ const fetchSupplier = async() => {
 
     suppliers.value = response.data.map((item: any) => ({
       label: item.name,
-      value: item.id
+      value: item.name
     }))
 
     console.log('cate:', suppliers.value);
@@ -282,11 +283,12 @@ const addProduct = async () => {
     const payload = {
       code: newProduct.value.code,
       name:newProduct.value.name,
-      quantity:newProduct.value.quantity,
+      quantity_available:newProduct.value.quantity,
       service_id : serviceId,
       stock_category_id : newProduct.value.category,
       price:newProduct.value.price,
-      supplier_id : newProduct.value.supplier,
+      supplier_name : newProduct.value.supplier,
+      // supplier_id : 1,
       status:newProduct.value.status
 
     };
@@ -334,7 +336,7 @@ const fetchProduct = async() => {
 }
 
 const getSupplierName = (id: number) => {
-  const found = suppliers.value.find((s:any) => s.value === id);
+  const found = suppliers.value.find((s:any) => s.value === Number(id));
   return found ? found.label : '';
 };
 
@@ -381,14 +383,14 @@ const onCellClick = (event: any) => {
   console.log('Action:', action, ' ID:', id);
 
   if (action === 'edit') {
-    const productEdit = productData.value.find((r: any) => r.id === id);
+    const productEdit = productData.value.find((r: any) => r.id === Number(id));
     console.log("Editing :",  productEdit);
 
     if (productEdit) {
       selected.value = productEdit;
       newProduct.value.name =  productEdit.name
       newProduct.value.code =  productEdit.code
-      newProduct.value.quantity =  productEdit.quantity
+      newProduct.value.quantity =  productEdit.quantityAvailable
       newProduct.value.supplier=  productEdit.supplierId
       newProduct.value.status=  productEdit.status
       newProduct.value.category=  productEdit.stockCategoryId

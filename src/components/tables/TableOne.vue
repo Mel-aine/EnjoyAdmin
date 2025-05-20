@@ -114,7 +114,7 @@ const paginatedData = computed(() => {
                     :class="[
                       dt[it.name].bg,
                       dt[it.name].text,
-                      'px-2 py-1 rounded-full text-xs font-semibold capitalize'
+                      'px-2 py-1 rounded-full text-sm font-semibold capitalize'
                     ]"
                   >
                     {{ dt[it.name].label }}

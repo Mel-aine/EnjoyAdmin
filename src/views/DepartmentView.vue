@@ -55,7 +55,7 @@
                 ></textarea>
               </div>
               <div class="mb-4">
-              <Input :lb="$t('manager')" v-model="newDepartment.manager" :placeholder="$t('name')"/>
+              <Select :lb="$t('manager')" v-model="newDepartment.manager" :options="Users"/>
               </div>
               <div class="mb-4">
                 <Input :lb="$t('numberEmployee')" :inputType="'number'" v-model="newDepartment.employeeCount" min="0" />
@@ -152,7 +152,7 @@ import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import type { ColDef, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
-import { createDepartment, getDepartment ,updateDpt,deleteDpt} from "@/services/api";
+import { createDepartment, getDepartment ,updateDpt,deleteDpt,getUser} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
@@ -163,6 +163,7 @@ const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/Pa
 const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'));
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
+const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
 const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'));
 const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'));
 
@@ -174,6 +175,7 @@ const toast = useToast()
 const serviceStore = useServiceStore();
 const isEditing = ref(false);
 const departmentsData = ref<any[]>([])
+const Users = ref<any[]>([])
 const show = ref(false)
 const loadingDelete = ref(false)
 const selectedId = ref<number | null>(null)
@@ -250,6 +252,32 @@ const updateData = async () => {
   }
 };
 
+const fetchUser = async () => {
+  try {
+    const serviceId = serviceStore.serviceId;
+
+    if (!serviceId) {
+      throw new Error('Service ID is not defined');
+    }
+
+    const response = await getUser();
+    console.log("All users:", response.data.data);
+    Users.value = response.data.data
+    .filter((user: any) => user.serviceId === serviceId)
+    .map((item: any) => ({
+      label: item.firstName + ' ' + item.lastName,
+      value: item.id
+    }));
+
+    
+    console.log("Filtered users:", Users.value);
+  } catch (error) {
+    console.error('fetch failed:', error);
+  }
+};
+
+
+
 const addDepartment = async() => {
   // Ajouter un budget fictif
   //newDepartment.value.budget = Math.floor(Math.random() * 500000 + 100000) + ' FCFA';
@@ -265,12 +293,13 @@ const addDepartment = async() => {
       const payload = {
         name: newDepartment.value.name,
         description: newDepartment.value.description,
-        responsible: newDepartment.value.manager,
+        responsible_user_id: newDepartment.value.manager,
         number_employees: newDepartment.value.employeeCount,
         status : 'active',
         service_id : serviceId,
 
         };
+        console.log('response',payload)
       const response = await createDepartment(payload);
       console.log('response',response)
       toast.success(t('toast.Sucess'));
@@ -287,22 +316,64 @@ const addDepartment = async() => {
 
 }
 
-const fetchDepartment = async() => {
+// const fetchDepartment = async() => {
+//   try {
+//     const serviceId = serviceStore.serviceId;
+//     const response = await getDepartment(serviceId);
+
+//     departmentsData.value = response.data
+//     departmentsData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
+//     console.log('dpt:', departmentsData.value);
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération :', error);
+//   }
+
+// }
+const fetchDepartment = async () => {
   try {
     const serviceId = serviceStore.serviceId;
-    const response = await getDepartment(serviceId);
+    console.log('Service ID:', serviceId);
 
-    departmentsData.value = response.data
-    departmentsData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
-    console.log('dpt:', departmentsData.value);
+    const departmentsResponse = await getDepartment(serviceId);
+    const departments = departmentsResponse.data;
+    console.log('Departments:', departments);
+
+    const usersResponse = await getUser();
+    const users = usersResponse.data.data.filter(
+      (user: any) => Number(user.serviceId) === Number(serviceId)
+    );
+    console.log('Filtered users:', users);
+
+    departments.forEach((dept: any) => {
+      console.log('Processing dept:', dept.name, 'Responsible ID:', dept.responsibleUserId);
+
+      const responsibleUser = users.find(
+        (user: any) => Number(user.id) === Number(dept.responsibleUserId)
+      );
+
+      if (responsibleUser) {
+        console.log('Found responsible user:', responsibleUser.firstName ?? responsibleUser.firstName, responsibleUser.lastName ?? responsibleUser.lastName);
+        dept.responsibleUserName = `${responsibleUser.firstName ?? responsibleUser.firstName} ${responsibleUser.lastName ?? responsibleUser.lastName}`;
+      } else {
+        console.log('No responsible user found for dept:', dept.name);
+        dept.responsibleUserName = 'Unknown';
+      }
+    });
+
+    departments.sort((a: any, b: any) => a.name.localeCompare(b.name));
+    departmentsData.value = departments;
+    console.log('Final departments data:', departmentsData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);
   }
+};
 
-}
 
-onMounted(()=>{
-  fetchDepartment()
+
+
+onMounted(async()=>{
+  await fetchDepartment()
+ await fetchUser()
 })
 
 const defaultColDef = {
@@ -316,8 +387,6 @@ const columnDefs = ref<ColDef[]>([
   {
     headerName: t('ID'),
     field: 'id',
-    checkboxSelection: true,
-    headerCheckboxSelection: true,
     width: 110
   },
   {
@@ -332,7 +401,7 @@ const columnDefs = ref<ColDef[]>([
   },
   {
     headerName: t('manager'),
-    field: 'responsible',
+    field: 'responsibleUserName',
     flex: 2
   },
   {
@@ -358,7 +427,7 @@ const columnDefs = ref<ColDef[]>([
     }
   },
   {
-    headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id),
+    headerName: t('Actions'), sortable: false,filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id),
     width: 130
   },
 ]);
@@ -385,7 +454,7 @@ watch(() => locale.value, () => {
   },
   {
     headerName: t('manager'),
-    field: 'responsible',
+    field: 'responsibleUserName',
     flex: 2
   },
   {
@@ -473,14 +542,14 @@ const onCellClick = (event: any) => {
 
 
     if (action === 'edit') {
-      const deptEdit = departmentsData.value.find((r: any) => r.id === id);
-      console.log("deptEdit",deptEdit)
+      const deptEdit = departmentsData.value.find((r: any) => r.id === Number(id));
+      console.log("deptEdit",departmentsData.value)
       if(deptEdit){
         selected.value = deptEdit;
         newDepartment.value.name=deptEdit.name
         newDepartment.value.description=deptEdit.description
         newDepartment.value.employeeCount=deptEdit.numberEmployees
-        newDepartment.value.manager=deptEdit.responsible
+        newDepartment.value.manager=deptEdit.responsibleUserId
       }
       isAddModalOpen.value = true
       isEditing.value = true
@@ -488,7 +557,7 @@ const onCellClick = (event: any) => {
       selectedId.value = id
       show.value = true
     } else if (action === 'view') {
-      const dept = departmentsData.value.find((d:any) => d.id === id)
+      const dept = departmentsData.value.find((d:any) => d.id === Number(id))
     if (dept) {
       selectedDepartment.value = dept
       showModal.value = true
