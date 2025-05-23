@@ -79,7 +79,7 @@ const paginatedData = computed(() => {
     <table class="w-full text-base text-left rtl:text-right text-slate-500 dark:text-slate-400 mb-2">
       <thead class="text-sm text-slate-700 bg-orange-50 dark:bg-slate-700 dark:text-slate-400">
         <tr>
-          <th scope="col" class="px-6 py-3" v-for="(it, i) in items" :key="i">
+          <th scope="col" class="px-3 py-3" v-for="(it, i) in items" :key="i">
            <div class="flex items-center">
               <h5 class="text-sm font-medium xsm:text-base">{{ it.label }}</h5>
 

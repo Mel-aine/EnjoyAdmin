@@ -1,8 +1,8 @@
 <template>
   <AdminLayout>
-    
+
     <PageBreadcrumb :pageTitle="currentPageTitle" />
-    <div class="space-y-5 sm:space-y-6 h-screen ">
+    <div class="space-y-5 sm:space-y-6  ">
 
         <div class="flex justify-end ">
           <!-- Bouton qui ouvre/ferme le dropdown -->
@@ -26,14 +26,14 @@
           </ul>
         </div>
         </div>
-        
+
       <ComponentCard :title="$t('AllBooking')">
-        
+
         <AllBooking/>
-     
+
       </ComponentCard>
     </div>
-  
+
   </AdminLayout>
 </template>
 

@@ -3,50 +3,8 @@
       <AdminLayout>
       <PageBreadcrumb :pageTitle="currentPageTitle" />
       <div class="space-y-5 sm:space-y-6 h-screen">
-        <!-- <ComponentCard title="All Booking"> -->
-          <div class="flex justify-end ">
-            <DropdownMenu :menu-items="menuItems">
-            <template #icon>
-              <button
-            class="border border-gray-300 bg-purple-400 rounded-lg relative"
-            >
-            <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z"/>
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-              </button>
-            </template>
-            </DropdownMenu>
-                <!-- Bouton qui ouvre/ferme le dropdown -->
-                <!-- <button
-                class="border border-gray-300 bg-purple-400 rounded-lg relative"
-                @click="toggleDropdown"
-                >
-                <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z"/>
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </button> -->
-  
-              <!-- Dropdown menu -->
-              <!-- <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
-            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-              <li>
-                <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">{{ $t('AddUser') }} </button>
-              </li>
-            </ul>
-          </div> -->
-          </div>
-  
-  
-          <!-- <DefaultCard :cardTitle="'User'"> -->
-              <!-- <ag-grid-vue class="ag-theme-quartz" :rowData="users" :columnDefs="columnDefs" :rowHeight="50"
-              :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
-              :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-             ></ag-grid-vue> -->
-             <div class="flex flex-col gap-10 mt-20 ">
+
+            <div class="flex flex-col gap-10 mt-10 ">
               <TableOne
                 :items="titles"
                 :datas="usersWithRoleLabels"
@@ -56,14 +14,11 @@
                 @edit="onEditUser"
                 @delete="onDeleteUser"
               />
-  
-  
-  
           </div>
           <!-- </DefaultCard> -->
     </div>
   </AdminLayout>
-  
+
   <Modal v-if="modalOpen" @close="closeModal()">
       <template #body>
         <div
@@ -94,14 +49,14 @@
       <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
        {{ isEditMode ? $t('EditUser') : $t('New Driver') }}
       </h4>
-  
+
     </div>
     <form @submit.prevent="handleSubmit" class="flex flex-col">
       <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
         <div class="space-y-8">
           <!-- Section principale -->
           <div>
-  
+
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
               <Input
                 :lb="$t('FirstName')"
@@ -109,7 +64,7 @@
                 :forLabel="'name'"
                 v-model="form.firstName"
               />
-  
+
               <Input
                 :lb="$t('LastName')"
                 :id="'last'"
@@ -123,7 +78,7 @@
                 :inputType="'phone'"
                  v-model="form.phoneNumber"
               />
-  
+
                 <div>
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {{ $t('Email') }}
@@ -166,15 +121,15 @@
                 :options="roles"
                 v-model="form.role"
               /> -->
-  
+
             </div>
           </div>
         </div>
-  
-  
-  
-  
-  
+
+
+
+
+
       </div>
       <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
       <!-- Bouton Cancel -->
@@ -186,7 +141,7 @@
       >
         {{ $t('Cancel') }}
       </button>
-  
+
       <!-- Bouton Add Room avec Spinner intégré -->
       <button
         type="submit"
@@ -209,31 +164,31 @@
         :isLoading="loadingDelete"/>
     </div>
   </template>
-  
+
   <script setup lang="ts">
-  import { ref ,computed,defineAsyncComponent} from 'vue'
+  import { ref ,computed,defineAsyncComponent,onMounted} from 'vue'
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
   import AdminLayout from "@/components/layout/AdminLayout.vue";
   import { useToast } from 'vue-toastification'
   import Spinner from '@/components/spinner/Spinner.vue';
   import { useServiceStore } from '@/composables/serviceStore'
-  import { createUser,getUser, deleteUser,updateUser} from "@/services/api";
+  import { createUser,getUser, deleteUser,updateUser,getRole } from "@/services/api";
   import { useI18n } from "vue-i18n";
   import DropdownMenu from '@/components/common/DropdownMenu.vue'
   import { useAuthStore } from '@/composables/user';
   import type {userDataType} from "@/types/option"
   import TableOne from '@/components/tables/TableOne.vue'
-  
-  
-  
+
+
+
   const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
   const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
   const DefaultCard = defineAsyncComponent(() => import('@/components/common/DefaultCard.vue'))
   const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
   const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
   const { t, locale } = useI18n({ useScope: "global" });
-  
-  
+
+
   const isLoading = ref(false);
   const loadingDelete = ref(false)
   const serviceStore = useServiceStore()
@@ -244,19 +199,15 @@
   const menuItems = computed(()=>[
     { label: t('Add Driver'), onClick: () => OpenModal() },
   ])
-  
-  const ORANGE = 'bg-orange-300 rounded';
+
+
   const modalOpen = ref(false)
   const currentPageTitle = computed(()=>t("Driver List"));
   const users = ref<userDataType[]>([])
   const selectedUser = ref<any>(null);
   const isEditMode = ref(false);
-  
-  const roles = ref<{ value: string; label: string }[]>([
-    { value: '2', label: 'Admin' },
-    { value: '3', label: 'Reception staff' },
-  ]);
-  
+  const roles = ref<any[]>([])
+
   interface User {
     id: number;
     firstName: string;
@@ -266,8 +217,8 @@
     roleId: number;
     // autres propriétés si nécessaire
   }
-  
-  
+
+
   interface Form {
     firstName: string
     lastName: string
@@ -276,8 +227,8 @@
     password:string
     role: number | undefined
   }
-  
-  
+
+
   const form = ref<Form>({
     firstName: '',
     lastName: '',
@@ -286,8 +237,8 @@
     email: '',
     password:'',
   })
-  
-  
+
+
   const saveUser = async () => {
     isLoading.value = true;
     try {
@@ -298,18 +249,18 @@
         last_name: form.value.lastName,
         email: form.value.email,
         phone_number: form.value.phoneNumber,
-        role_id: 5 ,
+        role_id: Number(form.value.role),
         password:form.value.password,
         created_by : userStore.UserId ,
-        last_modified_by: userStore.UserId
-  
-  
+
+
+
       }
       console.log('✅ userPayload', userPayload)
-  
+
       const response = await createUser(userPayload)
       modalOpen.value = false;
-  
+
       form.value = {
         firstName: '',
         lastName: '',
@@ -330,29 +281,39 @@
       isLoading.value = false;
     }
   }
-  
+
   const fetchUser = async () => {
     try {
       const serviceId = serviceStore.serviceId;
-  
+
       if (!serviceId) {
         throw new Error('Service ID is not defined');
       }
-  
+
       const response = await getUser();
       console.log("All users:", response.data.data);
-      users.value = response.data.data.filter((user: any) =>
-        [5].includes(user.roleId) && user.serviceId === serviceId
-      );
-  
+      // users.value = response.data.data.filter((user: any) =>
+      // [6].includes(user.roleId) && user.serviceId === serviceId
+      // );
+      users.value = response.data.data.filter((user: any) => {
+        const role = roles.value.find((r: any) => Number(r.id) === Number(user.roleId))
+        console.log('user:', user, 'role:', role)
+        return (
+          role?.roleName.toLowerCase() === 'driver' &&
+          user.serviceId === serviceId
+        )
+      })
+
+
       console.log("Filtered users:", users.value);
     } catch (error) {
       console.error('fetch failed:', error);
     }
   };
-  
-  fetchUser()
-  
+  onMounted(async()=>{
+  await fetchRole()
+  await fetchUser()
+})
   const titles = computed(() => [
     {
       name: 'id',
@@ -390,7 +351,7 @@
     //   label: t('Role'),
     //   type: 'text',
     //   filterable: false,
-  
+
     // },
     {
       name: 'actions',
@@ -400,27 +361,26 @@
       {
         name: 'Edit',
         event: 'edit',
-        icone: ` <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
             <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
             <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-          </svg>`, // Ton SVG ici
-          color: ORANGE,
+          </svg>`,
       },
       {
         name: 'Delete',
         event: 'delete',
-        icone: `<svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>`, // Ton SVG ici
+          </svg>`,
         color: 'bg-red-100 text-red-600 px-2 py-1 rounded-full'
       }
     ],
     colored: true
     }
   ]);
-  
-  
+
+
   const filterOptions = computed(()=>([
         {
             name: t('All'),
@@ -442,21 +402,65 @@
             name: t('thismonth'),
             api: 'thismonth',
         }
-  
+
     ]));
-  
-  
-    const usersWithRoleLabels = computed(() =>
-    users.value.map((user:any) => ({
+
+const fetchRole = async() =>{
+  try {
+  const response =  await getRole()
+  roles.value = response.data.data
+  console.log("response",response.data.data)
+  } catch (error) {
+    console.error('fetch failed:', error)
+  }
+}
+
+const getRoleBadge = (roleName: string) => {
+  const roleMap: Record<string, { bg: string; text: string; label: string }> = {
+    admin: {
+      label: 'Administrator',
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+    },
+    user: {
+      label: 'User',
+      bg: 'bg-green-100',
+      text: 'text-green-800',
+    },
+    driver: {
+      label: 'Driver',
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-800',
+    },
+    guest: {
+      label: 'Guest',
+      bg: 'bg-gray-100',
+      text: 'text-gray-800',
+    },
+  }
+
+  return roleMap[roleName] || {
+    label: roleName,
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+  }
+}
+
+const usersWithRoleLabels = computed(() =>
+  users.value.map((user: any) => {
+    const role = roles.value.find((r: any) => r.id === user.roleId)?.roleName || 'Unknown'
+    return {
       ...user,
-      roleLabel: roles.value.find((r:any) => r.value === String(user.roleId))?.label || 'Unknown',
-    }))
-  );
-  
+      roleLabel: role,
+      roleBadge: getRoleBadge(role),
+    }
+  })
+)
+
   const onEditUser = (user: User) => handleUserAction('edit', user);
   const onDeleteUser = (user: User) => handleUserAction('delete', user);
-  
-  
+
+
   const handleUserAction = (action: string, user: User) => {
     if (action === 'edit') {
       selectedUser.value = user;
@@ -472,10 +476,10 @@
       show.value = true;
     }
   };
-  
-  
-  
-  
+
+
+
+
   const confirmDelete = async () => {
     if (selectedUserId.value !== null) {
       loadingDelete.value = true
@@ -494,22 +498,22 @@
       }
     }
   }
-  
-  
-  
-  
+
+
+
+
   const updateFormData = async () => {
     isLoading.value = true;
-  
+
     try {
       const serviceId = serviceStore.serviceId;
       const userId = selectedUser.value?.id;
-  
+
       if (!userId) {
         toast.error("Aucun utilisateur sélectionné pour la mise à jour.");
         return;
       }
-  
+
       const userPayload = {
         service_id: serviceId,
         first_name: form.value.firstName,
@@ -518,15 +522,14 @@
         phone_number: form.value.phoneNumber,
         role_id: Number(form.value.role),
         password: form.value.password,
-        created_by: userStore.UserId,
         last_modified_by: userStore.UserId,
       };
-  
+
       console.log('Payload envoyé :', userPayload);
       await updateUser(userId, userPayload);
-  
+
       toast.success(t('toast.userUpdatedSuccess'));
-  
+
       // Réinitialisation du formulaire
       form.value = {
         firstName: '',
@@ -539,7 +542,7 @@
       selectedUser.value = null;
       isEditMode.value = false;
       modalOpen.value = false;
-  
+
     } catch (error) {
       console.error('Erreur lors de la mise à jour:', error);
       toast.error(t('toast.updateError'));
@@ -547,10 +550,10 @@
       isLoading.value = false;
     }
   };
-  
-  
-  
-  
+
+
+
+
   const handleSubmit = async () => {
     isLoading.value = true
     try {
@@ -564,11 +567,11 @@
       isLoading.value = false
     }
   }
-  
+
   const closeModal = () => {
     modalOpen.value = false;
     isEditMode.value = false;
-  
+
     form.value = {
     firstName: '',
     lastName: '',
@@ -577,18 +580,17 @@
     email: '',
     password:'',
     };
-  
-  
+
+
   };
-  
+
   const OpenModal = () =>{
     modalOpen.value=true;
     isEditMode.value = false;
   }
-  
+
   </script>
-  
+
   <style scoped>
-  
+
   </style>
-  

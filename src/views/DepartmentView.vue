@@ -50,7 +50,7 @@
                 <textarea
                   v-model="newDepartment.description"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-900 bg-transparent text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  placeholder="Description du département"
+
                   rows="3"
                 ></textarea>
               </div>
@@ -269,7 +269,7 @@ const fetchUser = async () => {
       value: item.id
     }));
 
-    
+
     console.log("Filtered users:", Users.value);
   } catch (error) {
     console.error('fetch failed:', error);

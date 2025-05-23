@@ -1,25 +1,33 @@
 <template>
   <div>
     <AdminLayout>
-    <PageBreadcrumb :pageTitle="currentPageTitle" />
-    <div class="space-y-5 sm:space-y-6 h-screen">
-      <!-- <ComponentCard title="All Booking"> -->
-        <div class="flex justify-end ">
+      <PageBreadcrumb :pageTitle="currentPageTitle" />
+      <div class="space-y-5 sm:space-y-6 h-screen">
+        <!-- <ComponentCard title="All Booking"> -->
+        <div class="flex justify-end">
           <DropdownMenu :menu-items="menuItems">
-          <template #icon>
-            <button
-          class="border border-gray-300 bg-purple-400 rounded-lg relative"
-          >
-          <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-            </button>
-          </template>
+            <template #icon>
+              <button class="border border-gray-300 bg-purple-400 rounded-lg relative">
+                <svg
+                  class="h-8 w-8 text-white"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" />
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </button>
+            </template>
           </DropdownMenu>
-              <!-- Bouton qui ouvre/ferme le dropdown -->
-              <!-- <button
+          <!-- Bouton qui ouvre/ferme le dropdown -->
+          <!-- <button
               class="border border-gray-300 bg-purple-400 rounded-lg relative"
               @click="toggleDropdown"
               >
@@ -30,8 +38,8 @@
               </svg>
             </button> -->
 
-            <!-- Dropdown menu -->
-            <!-- <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
+          <!-- Dropdown menu -->
+          <!-- <div v-if="isDropdownOpen" class="z-10 mt-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute">
           <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
             <li>
               <button @click="modalOpen=true" class="block px-4 py-2  hover:text-purple-600 dark:hover:text-white">{{ $t('AddUser') }} </button>
@@ -40,222 +48,214 @@
         </div> -->
         </div>
 
-
         <ComponentCard title="">
-            <ag-grid-vue class="ag-theme-quartz" :rowData="users" :columnDefs="columnDefs" :rowHeight="50"
-            :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
-            :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-           ></ag-grid-vue>
+          <ag-grid-vue
+            class="ag-theme-quartz"
+            :rowData="users"
+            :columnDefs="columnDefs"
+            :rowHeight="50"
+            :rowSelection="'single'"
+            :domLayout="'autoHeight'"
+            :autoSizeStrategy="autoSizeStrategy"
+            :pagination="true"
+            @cellClicked="onCellClick"
+            @gridReady="onGridReady"
+          ></ag-grid-vue>
         </ComponentCard>
-  </div>
-</AdminLayout>
+      </div>
+    </AdminLayout>
 
-<Modal v-if="modalOpen" @close="closeModal()">
-    <template #body>
-      <div
-      class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-      >
-      <!-- close btn -->
-      <button
-      @click="closeModal()"
-      class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-      >
-      <svg
-      class="fill-current"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      >
-      <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
-      d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-      fill=""
-      />
-      </svg>
-      </button>
-  <div class="px-2 pr-14">
-    <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-     {{ isEditMode ? $t('EditUser') : $t('NewUser') }}
-    </h4>
+    <Modal v-if="modalOpen" @close="closeModal()">
+      <template #body>
+        <div
+          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
+        >
+          <!-- close btn -->
+          <button
+            @click="closeModal()"
+            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
+          >
+            <svg
+              class="fill-current"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+                fill=""
+              />
+            </svg>
+          </button>
+          <div class="px-2 pr-14">
+            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              {{ isEditMode ? $t('EditUser') : $t('NewUser') }}
+            </h4>
+          </div>
+          <form @submit.prevent="handleSubmit" class="flex flex-col">
+            <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
+              <div class="space-y-8">
+                <!-- Section principale -->
+                <div>
+                  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
+                    <Input
+                      :lb="$t('FirstName')"
+                      :id="'name'"
+                      :forLabel="'name'"
+                      v-model="form.firstName"
+                    />
 
-  </div>
-  <form @submit.prevent="handleSubmit" class="flex flex-col">
-    <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
-      <div class="space-y-8">
-        <!-- Section principale -->
-        <div>
+                    <Input
+                      :lb="$t('LastName')"
+                      :id="'last'"
+                      :forLabel="'last'"
+                      v-model="form.lastName"
+                    />
+                    <Input
+                      :lb="$t('Phone')"
+                      :id="'phone'"
+                      :forLabel="'phone'"
+                      :inputType="'phone'"
+                      v-model="form.phoneNumber"
+                    />
 
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
-            <Input
-              :lb="$t('FirstName')"
-              :id="'name'"
-              :forLabel="'name'"
-              v-model="form.firstName"
-            />
-
-            <Input
-              :lb="$t('LastName')"
-              :id="'last'"
-              :forLabel="'last'"
-               v-model="form.lastName"
-            />
-            <Input
-              :lb="$t('Phone')"
-              :id="'phone'"
-              :forLabel="'phone'"
-              :inputType="'phone'"
-               v-model="form.phoneNumber"
-            />
-
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  {{ $t('Email') }}
-                </label>
-                <div class="relative">
-                  <span
-                    class="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400"
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M3.04175 7.06206V14.375C3.04175 14.6511 3.26561 14.875 3.54175 14.875H16.4584C16.7346 14.875 16.9584 14.6511 16.9584 14.375V7.06245L11.1443 11.1168C10.457 11.5961 9.54373 11.5961 8.85638 11.1168L3.04175 7.06206ZM16.9584 5.19262C16.9584 5.19341 16.9584 5.1942 16.9584 5.19498V5.20026C16.9572 5.22216 16.946 5.24239 16.9279 5.25501L10.2864 9.88638C10.1145 10.0062 9.8862 10.0062 9.71437 9.88638L3.07255 5.25485C3.05342 5.24151 3.04202 5.21967 3.04202 5.19636C3.042 5.15695 3.07394 5.125 3.11335 5.125H16.8871C16.9253 5.125 16.9564 5.15494 16.9584 5.19262ZM18.4584 5.21428V14.375C18.4584 15.4796 17.563 16.375 16.4584 16.375H3.54175C2.43718 16.375 1.54175 15.4796 1.54175 14.375V5.19498C1.54175 5.1852 1.54194 5.17546 1.54231 5.16577C1.55858 4.31209 2.25571 3.625 3.11335 3.625H16.8871C17.7549 3.625 18.4584 4.32843 18.4585 5.19622C18.4585 5.20225 18.4585 5.20826 18.4584 5.21428Z"
-                        fill="#667085"
-                      />
-                    </svg>
-                  </span>
-                  <input
-                    type="email"
-                    v-model="form.email"
-                    placeholder="info@gmail.com"
-                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                    <div>
+                      <label
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >
+                        {{ $t('Email') }}
+                      </label>
+                      <div class="relative">
+                        <span
+                          class="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400"
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M3.04175 7.06206V14.375C3.04175 14.6511 3.26561 14.875 3.54175 14.875H16.4584C16.7346 14.875 16.9584 14.6511 16.9584 14.375V7.06245L11.1443 11.1168C10.457 11.5961 9.54373 11.5961 8.85638 11.1168L3.04175 7.06206ZM16.9584 5.19262C16.9584 5.19341 16.9584 5.1942 16.9584 5.19498V5.20026C16.9572 5.22216 16.946 5.24239 16.9279 5.25501L10.2864 9.88638C10.1145 10.0062 9.8862 10.0062 9.71437 9.88638L3.07255 5.25485C3.05342 5.24151 3.04202 5.21967 3.04202 5.19636C3.042 5.15695 3.07394 5.125 3.11335 5.125H16.8871C16.9253 5.125 16.9564 5.15494 16.9584 5.19262ZM18.4584 5.21428V14.375C18.4584 15.4796 17.563 16.375 16.4584 16.375H3.54175C2.43718 16.375 1.54175 15.4796 1.54175 14.375V5.19498C1.54175 5.1852 1.54194 5.17546 1.54231 5.16577C1.55858 4.31209 2.25571 3.625 3.11335 3.625H16.8871C17.7549 3.625 18.4584 4.32843 18.4585 5.19622C18.4585 5.20225 18.4585 5.20826 18.4584 5.21428Z"
+                              fill="#667085"
+                            />
+                          </svg>
+                        </span>
+                        <input
+                          type="email"
+                          v-model="form.email"
+                          placeholder="info@gmail.com"
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                        />
+                      </div>
+                    </div>
+                    <Input
+                      :lb="$t('Password')"
+                      :id="'word'"
+                      :forLabel="'word'"
+                      v-model="form.password"
+                    />
+                    <Input :lb="$t('Role')" :inputType="'text'" v-model="form.roleName" />
+                  </div>
                 </div>
               </div>
-              <Input
-              :lb="$t('Password')"
-              :id="'word'"
-              :forLabel="'word'"
-              v-model="form.password"
-            />
-            <Input
-              :lb="$t('Role')"
-              :inputType="'text'"
-              v-model="form.roleName"
-            />
+            </div>
+            <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+              <!-- Bouton Cancel -->
+              <button
+                @click="closeModal()"
+                type="button"
+                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+                :disabled="isLoading"
+              >
+                {{ $t('Cancel') }}
+              </button>
 
-          </div>
+              <!-- Bouton Add Room avec Spinner intégré -->
+              <button
+                type="submit"
+                :disabled="isLoading"
+                class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto"
+              >
+                <span v-if="!isLoading"> {{ isEditMode ? $t('EditUser') : $t('Save') }}</span>
+                <span v-else class="flex items-center gap-2">
+                  <Spinner class="w-4 h-4" />
+                  {{ $t('Processing') }}...
+                </span>
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
-
-
-
-
-
-    </div>
-    <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-    <!-- Bouton Cancel -->
-    <button
-      @click="closeModal()"
-      type="button"
-      class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-      :disabled="isLoading"
-    >
-      {{ $t('Cancel') }}
-    </button>
-
-    <!-- Bouton Add Room avec Spinner intégré -->
-    <button
-      type="submit"
-      :disabled="isLoading"
-      class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto"
-    >
-      <span v-if="!isLoading"> {{ isEditMode ? $t('EditUser') : $t('Save') }}</span>
-      <span v-else class="flex items-center gap-2">
-        <Spinner class="w-4 h-4" />
-        {{ $t('Processing') }}...
-      </span>
-    </button>
-    </div>
-  </form>
-      </div>
-    </template>
-</Modal>
-<ModalDelete v-if="show" @close="show = false"
+      </template>
+    </Modal>
+    <ModalDelete
+      v-if="show"
+      @close="show = false"
       @delete="confirmDelete"
-      :isLoading="loadingDelete"/>
+      :isLoading="loadingDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref , watch,computed,defineAsyncComponent} from 'vue'
-import { AgGridVue } from 'ag-grid-vue3';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent} from 'ag-grid-community';
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import { ref, watch, computed, defineAsyncComponent } from 'vue'
+import { AgGridVue } from 'ag-grid-vue3'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-quartz.css'
+import type { ColDef, GridReadyEvent } from 'ag-grid-community'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useToast } from 'vue-toastification'
-import Spinner from '@/components/spinner/Spinner.vue';
+import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { createUser,getUser, deleteUser,updateUser} from "@/services/api";
-import { useI18n } from "vue-i18n";
+import { createUser, getUser, deleteUser, updateUser } from '@/services/api'
+import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
-import { useAuthStore } from '@/composables/user';
-import type {userDataType} from "@/types/option"
+import { useAuthStore } from '@/composables/user'
+import type { userDataType } from '@/types/option'
 
-
-
-const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
-const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
+const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
+const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 const ComponentCard = defineAsyncComponent(() => import('@/components/common/ComponentCard.vue'))
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
-const { t, locale } = useI18n({ useScope: "global" });
+const { t, locale } = useI18n({ useScope: 'global' })
 
-
-const isLoading = ref(false);
+const isLoading = ref(false)
 const loadingDelete = ref(false)
 const serviceStore = useServiceStore()
 const toast = useToast()
-const userStore = useAuthStore();
+const userStore = useAuthStore()
 const selectedUserId = ref<number | null>(null)
-const show=ref(false)
-const menuItems = computed(()=>[
-  { label: t('AddUser'), onClick: () => OpenModal() },
-])
-
+const show = ref(false)
+const menuItems = computed(() => [{ label: t('AddUser'), onClick: () => OpenModal() }])
 
 const modalOpen = ref(false)
-const currentPageTitle = computed(()=>t("UsersLists"));
+const currentPageTitle = computed(() => t('UsersLists'))
 const users = ref<userDataType[]>([])
-const selectedUser = ref<any>(null);
-const isEditMode = ref(false);
+const selectedUser = ref<any>(null)
+const isEditMode = ref(false)
 
 const roles = ref<{ value: string; label: string }[]>([
   { value: '2', label: 'Admin' },
   { value: '3', label: 'Reception staff' },
-]);
-
+])
 
 interface Form {
   firstName: string
   lastName: string
   phoneNumber: string
   email: string
-  password:string
+  password: string
   roleName: string | undefined
 }
-
 
 const form = ref<Form>({
   firstName: '',
@@ -263,13 +263,13 @@ const form = ref<Form>({
   roleName: '',
   phoneNumber: '',
   email: '',
-  password:'',
+  password: '',
 })
 
 const saveUser = async () => {
-  isLoading.value = true; 
+  isLoading.value = true
   try {
-    const serviceId = serviceStore.serviceId;
+    const serviceId = serviceStore.serviceId
     const userPayload = {
       service_id: serviceId,
       first_name: form.value.firstName,
@@ -279,11 +279,11 @@ const saveUser = async () => {
       role_name: form.value.roleName,
       password: form.value.password,
       created_by: userStore.UserId,
-      last_modified_by: userStore.UserId
+      last_modified_by: userStore.UserId,
     }
 
     const response = await createUser(userPayload)
-    modalOpen.value = false;
+    modalOpen.value = false
 
     form.value = {
       firstName: '',
@@ -291,89 +291,82 @@ const saveUser = async () => {
       roleName: '',
       phoneNumber: '',
       email: '',
-      password: ''
+      password: '',
     }
 
     if (response.status === 201) {
-      toast.success(t('toast.userCreated'));
+      toast.success(t('toast.userCreated'))
     } else {
-      toast.error(t('toast.userErrorCreated'));
+      toast.error(t('toast.userErrorCreated'))
     }
   } catch (error: any) {
     console.error('❌ Error while saving:', error.response?.data || error.message)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
-
 const fetchUser = async () => {
   try {
-    const serviceId = serviceStore.serviceId;
+    const serviceId = serviceStore.serviceId
 
     if (!serviceId) {
-      throw new Error('Service ID is not defined');
+      throw new Error('Service ID is not defined')
     }
 
-    const response = await getUser();
-    console.log("All users:", response.data.data);
-    users.value = response.data.data.filter((user: any) =>
-      [2, 3].includes(user.roleId) && user.serviceId === serviceId
-    );
-    users.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
-    console.log("Filtered users:", users.value);
+    const response = await getUser()
+    console.log('All users:', response.data.data)
+    users.value = response.data.data.filter(
+      (user: any) => [2, 3].includes(user.roleId) && user.serviceId === serviceId,
+    )
+    users.value.sort((a: any, b: any) => a.name.localeCompare(b.name))
+    console.log('Filtered users:', users.value)
   } catch (error) {
-    console.error('fetch failed:', error);
+    console.error('fetch failed:', error)
   }
-};
+}
 
 fetchUser()
 
-
-
 const columnDefs = ref<ColDef[]>([
-{ headerName: t('ID'), field: 'id'
-},
-{
-  headerName: t('FirstName'),
-  field: 'firstName',
-},
-{
-  headerName: t('LastName'),
-  field: 'lastName',
-},
-{ headerName: 'Email', field: 'email' },
-{ headerName: 'Phone', field: 'phoneNumber' },
+  { headerName: t('ID'), field: 'id' },
+  {
+    headerName: t('FirstName'),
+    field: 'firstName',
+  },
+  {
+    headerName: t('LastName'),
+    field: 'lastName',
+  },
+  { headerName: 'Email', field: 'email' },
+  { headerName: 'Phone', field: 'phoneNumber' },
 
+  {
+    headerName: t('Role'),
+    field: 'roleId',
+    cellRenderer: (params: any) => {
+      const roleLabels: Record<string, string> = {
+        '1': 'Super Admin',
+        '2': 'Admin',
+        '3': 'Reception staff',
+      }
 
+      const roleClasses: Record<string, string> = {
+        '1': 'bg-green-50 text-green-700 px-2 rounded-full',
+        '2': 'bg-red-50 text-red-700 px-2 rounded-full',
+        '3': 'bg-blue-50 text-blue-700 px-2 rounded-full',
+      }
 
-{
-  headerName: t('Role'),
-  field: 'roleId',
-  cellRenderer: (params:any) => {
-    const roleLabels: Record<string, string> = {
-      '1': 'Super Admin',
-      '2': 'Admin',
-      '3': 'Reception staff'
-    };
+      const role = params.value
+      const label = roleLabels[role] || 'Unknown'
+      const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full'
 
-    const roleClasses: Record<string, string> = {
-      '1': 'bg-green-50 text-green-700 px-2 rounded-full',
-      '2': 'bg-red-50 text-red-700 px-2 rounded-full',
-      '3': 'bg-blue-50 text-blue-700 px-2 rounded-full'
-    };
+      return `<span class="${cssClass} text-sm font-medium">${label}</span>`
+    },
+  },
 
-    const role = params.value;
-    const label = roleLabels[role] || 'Unknown';
-    const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full';
-
-    return `<span class="${cssClass} text-sm font-medium">${label}</span>`;
-  }
-},
-
-{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-
-]);
+  { headerName: t('Actions'), cellRenderer: (params: any) => getActionButtons(params.data.id) },
+])
 
 function getActionButtons(userId: number): string {
   return `
@@ -391,106 +384,102 @@ function getActionButtons(userId: number): string {
         </svg>
       </button>
     </div>
-  `;
+  `
 }
 
-watch(() => locale.value, () => {
-  columnDefs.value = [
-  { headerName: t('ID'), field: 'id'
-},
-{
-  headerName: t('FirstName'),
-  field: 'firstName',
-},
-{
-  headerName: t('LastName'),
-  field: 'lastName',
-},
-{ headerName: 'Email', field: 'email' },
-{ headerName: 'Phone', field: 'phoneNumber' },
+watch(
+  () => locale.value,
+  () => {
+    columnDefs.value = [
+      { headerName: t('ID'), field: 'id' },
+      {
+        headerName: t('FirstName'),
+        field: 'firstName',
+      },
+      {
+        headerName: t('LastName'),
+        field: 'lastName',
+      },
+      { headerName: 'Email', field: 'email' },
+      { headerName: 'Phone', field: 'phoneNumber' },
 
+      {
+        headerName: t('Role'),
+        field: 'roleId',
+        cellRenderer: (params: any) => {
+          const roleLabels: Record<string, string> = {
+            '1': 'Super Admin',
+            '2': 'Admin',
+            '3': 'Reception staff',
+          }
 
+          const roleClasses: Record<string, string> = {
+            '1': 'bg-green-50 text-green-700 px-2 rounded-full',
+            '2': 'bg-red-50 text-red-700 px-2 rounded-full',
+            '3': 'bg-blue-50 text-blue-700 px-2 rounded-full',
+          }
 
-{
-  headerName: t('Role'),
-  field: 'roleId',
-  cellRenderer: (params:any) => {
-    const roleLabels: Record<string, string> = {
-      '1': 'Super Admin',
-      '2': 'Admin',
-      '3': 'Reception staff'
-    };
+          const role = params.value
+          const label = roleLabels[role] || 'Unknown'
+          const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full'
 
-    const roleClasses: Record<string, string> = {
-      '1': 'bg-green-50 text-green-700 px-2 rounded-full',
-      '2': 'bg-red-50 text-red-700 px-2 rounded-full',
-      '3': 'bg-blue-50 text-blue-700 px-2 rounded-full'
-    };
+          return `<span class="${cssClass} text-sm font-medium">${label}</span>`
+        },
+      },
 
-    const role = params.value;
-    const label = roleLabels[role] || 'Unknown';
-    const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full';
-
-    return `<span class="${cssClass} text-sm font-medium">${label}</span>`;
-  }
-},
-
-
-{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-
-  ]},{ immediate: true })
+      { headerName: t('Actions'), cellRenderer: (params: any) => getActionButtons(params.data.id) },
+    ]
+  },
+  { immediate: true },
+)
 
 const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event);
-};
-
+  console.log('Grid ready:', event)
+}
 
 const autoSizeStrategy = {
-  type: "fitGridWidth",
+  type: 'fitGridWidth',
   defaultMinWidth: 100,
 }
 
 const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
+  const button = event.event.target.closest('button')
+  console.log('Button clicked:', button)
 
   if (!button) {
-    console.error('No button found');
-    return;
+    console.error('No button found')
+    return
   }
 
-  const action = button.dataset.action;
-  const userId = button.dataset.id;
+  const action = button.dataset.action
+  const userId = button.dataset.id
 
-  console.log('Action:', action, 'user ID:', userId);
+  console.log('Action:', action, 'user ID:', userId)
 
   if (action === 'edit') {
-    const userToEdit = users.value.find((r: any) => r.id === Number(userId));
-    console.log("Editing reservation:",  userToEdit);
+    const userToEdit = users.value.find((r: any) => r.id === Number(userId))
+    console.log('Editing reservation:', userToEdit)
 
     if (userToEdit) {
-      selectedUser.value = userToEdit;
-      form.value.firstName = userToEdit.firstName;
-      form.value.lastName = userToEdit.lastName;
-      form.value.phoneNumber = userToEdit.phoneNumber;
-      form.value.email = userToEdit.email;
-      form.value.role = roles.value.find((r:any)=> r.value === String(userToEdit.roleId))?.value;
+      selectedUser.value = userToEdit
+      form.value.firstName = userToEdit.firstName
+      form.value.lastName = userToEdit.lastName
+      form.value.phoneNumber = userToEdit.phoneNumber
+      form.value.email = userToEdit.email
+      form.value.roleName = roles.value.find(
+        (r: any) => r.value === String(userToEdit.roleId),
+      )?.value
 
-      console.log("Editing reservation:",   roles.value);
+      console.log('Editing reservation:', roles.value)
 
-      isEditMode.value = true;
-      modalOpen.value = true;
-
+      isEditMode.value = true
+      modalOpen.value = true
     }
   } else if (action === 'delete') {
-
     selectedUserId.value = userId
     show.value = true
-
   }
-};
-
-
+}
 
 const confirmDelete = async () => {
   if (selectedUserId.value !== null) {
@@ -498,7 +487,7 @@ const confirmDelete = async () => {
     try {
       await deleteUser(selectedUserId.value)
       toast.success(t('toast.userDeleted'))
-      users.value = users.value.filter((r: any) => r.id !== selectedUserId.value);
+      users.value = users.value.filter((r: any) => r.id !== selectedUserId.value)
       console.log(`Suppression du user ID: ${selectedUserId.value}`)
     } catch (error) {
       console.error('Erreur lors de la suppression:', error)
@@ -506,24 +495,21 @@ const confirmDelete = async () => {
     } finally {
       loadingDelete.value = false
       show.value = false
-    selectedUserId.value = null
+      selectedUserId.value = null
     }
   }
 }
 
-
-
-
 const updateFormData = async () => {
-  isLoading.value = true;
+  isLoading.value = true
 
   try {
-    const serviceId = serviceStore.serviceId;
-    const userId = selectedUser.value?.id;
+    const serviceId = serviceStore.serviceId
+    const userId = selectedUser.value?.id
 
     if (!userId) {
-      toast.error("Aucun utilisateur sélectionné pour la mise à jour.");
-      return;
+      toast.error('Aucun utilisateur sélectionné pour la mise à jour.')
+      return
     }
 
     const userPayload = {
@@ -532,40 +518,36 @@ const updateFormData = async () => {
       last_name: form.value.lastName,
       email: form.value.email,
       phone_number: form.value.phoneNumber,
-      role_id: Number(form.value.role),
+      role_id: form.value.roleName,
       password: form.value.password,
       created_by: userStore.UserId,
       last_modified_by: userStore.UserId,
-    };
+    }
 
-    console.log('Payload envoyé :', userPayload);
-    await updateUser(userId, userPayload);
+    console.log('Payload envoyé :', userPayload)
+    await updateUser(userId, userPayload)
 
-    toast.success(t('toast.userUpdatedSuccess'));
+    toast.success(t('toast.userUpdatedSuccess'))
 
     // Réinitialisation du formulaire
     form.value = {
       firstName: '',
       lastName: '',
-      role: '',
+      roleName: '',
       phoneNumber: '',
       email: '',
       password: '',
-    };
-    selectedUser.value = null;
-    isEditMode.value = false;
-    modalOpen.value = false;
-
+    }
+    selectedUser.value = null
+    isEditMode.value = false
+    modalOpen.value = false
   } catch (error) {
-    console.error('Erreur lors de la mise à jour:', error);
-    toast.error(t('toast.updateError'));
+    console.error('Erreur lors de la mise à jour:', error)
+    toast.error(t('toast.updateError'))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
-
-
-
+}
 
 const handleSubmit = async () => {
   isLoading.value = true
@@ -582,28 +564,23 @@ const handleSubmit = async () => {
 }
 
 const closeModal = () => {
-  modalOpen.value = false;
-  isEditMode.value = false;
+  modalOpen.value = false
+  isEditMode.value = false
 
   form.value = {
-  firstName: '',
-  lastName: '',
-  role: '',
-  phoneNumber: '',
-  email: '',
-  password:'',
-  };
-
-
-};
-
-const OpenModal = () =>{
-  modalOpen.value=true;
-  isEditMode.value = false;
+    firstName: '',
+    lastName: '',
+    roleName: '',
+    phoneNumber: '',
+    email: '',
+    password: '',
+  }
 }
 
+const OpenModal = () => {
+  modalOpen.value = true
+  isEditMode.value = false
+}
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

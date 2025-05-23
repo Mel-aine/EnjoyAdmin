@@ -72,9 +72,9 @@
                 {{ category.name }}
               </option>
             </select> -->
-            
+
                 <Select :lb="$t('category')" :options="expenseCategories"  v-model="filters.category"/>
-              
+
           </div>
 
           <div class="w-64">
@@ -85,9 +85,9 @@
                 {{ dept.name }}
               </option>
             </select> -->
-          
+
                 <Select :lb="$t('department')" :options="departments"  v-model="filters.department"/>
-              
+
           </div>
 
           <div class="w-64">
@@ -124,7 +124,7 @@
                 class="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
-          </div> 
+          </div>
 
           <div class="flex gap-2 ">
             <button class="h-10 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
@@ -775,7 +775,7 @@ const columnDefs = ref<ColDef[]>([
   },
   {
     headerName: t('supplier'),
-    field: 'supplierId',
+    field: 'supplierId', valueGetter: (params: any) => getSupplierName(params.data.supplierId),
     width: 150,
   },
   {
@@ -785,12 +785,12 @@ const columnDefs = ref<ColDef[]>([
   },
   {
     headerName: t('category'),
-    field: 'expenseCategoryId',
+    field: 'expenseCategoryId',valueGetter: (params: any) => getCategoryName(params.data.expenseCategoryId) ,
     width: 140,
   },
   {
     headerName: t('department'),
-    field: 'departmentId',
+    field: 'departmentId',valueGetter: (params: any) => getDepartmentName(params.data.departmentId) ,
     width: 150,
   },
   {
@@ -855,7 +855,7 @@ watch(() => locale.value, () => {
   },
   {
     headerName: t('supplier'),
-    field: 'supplierId',
+    field: 'supplierId', valueGetter: (params: any) => getSupplierName(params.data.supplierId),
     width: 150,
   },
   {
@@ -865,12 +865,12 @@ watch(() => locale.value, () => {
   },
   {
     headerName: t('category'),
-    field: 'expenseCategoryId',
+    field: 'expenseCategoryId',valueGetter: (params: any) => getCategoryName(params.data.expenseCategoryId) ,
     width: 140,
   },
   {
     headerName: t('department'),
-    field: 'departmentId',
+    field: 'departmentId' ,valueGetter: (params: any) => getDepartmentName(params.data.departmentId) ,
     width: 150,
   },
   {
@@ -1117,18 +1117,33 @@ onMounted(async() => {
 
      const responseExpense = await getExpense(serviceId);
      expenses.value = responseExpense.data
-     
+
 
   } catch (error) {
     console.error("Erreur lors du chargement des données:", error);
   }
 });
 
+const getDepartmentName = (id: number) => {
+  const found = departments.value.find((s:any) => s.value === Number(id));
+  return found ? found.label : '';
+};
+
+const getCategoryName = (id: number) => {
+  const found = expenseCategories.value.find((s:any) => s.value === Number(id));
+  return found ? found.label : '';
+};
+
+const getSupplierName = (id: number) => {
+  const found = Suppliers.value.find((s:any) => s.value === Number(id));
+  return found ? found.label : '';
+};
+
 const addExpense = async () => {
   isLoading.value=true
   const serviceId = serviceStore.serviceId;
   try {
-  
+
     if (isEditing.value) {
        await updateData()
        toast.success(t('toast.SucessUpdate'));
@@ -1142,14 +1157,14 @@ const addExpense = async () => {
       expense_date: newExpense.value.date,
       due_date: newExpense.value.dueDate,
       description: newExpense.value.description,
-      amount_before_tax: parseFloat(newExpense.value.amountBeforeTax), 
+      amount_before_tax: parseFloat(newExpense.value.amountBeforeTax),
       tax_rate: newExpense.value.taxRate,
       status: newExpense.value.status,
       payment_method: newExpense.value.paymentMethod,
       service_id : serviceId
     };
     console.log("bbb",payload)
-    await createExpense(payload); 
+    await createExpense(payload);
     closeModal()
     toast.success(t('toast.Sucess'));
     // Optionnel : toast, reset form, fermeture modale, etc.

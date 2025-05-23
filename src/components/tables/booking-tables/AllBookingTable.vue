@@ -132,7 +132,7 @@ const columnDefs = ref<ColDef[]>([
 { headerName: t('ReservationType'), field: 'reservationType',
 
 },
-{ headerName: t('Room'), field: 'reservationProduct'},
+// { headerName: t('Room'), field: 'reservationProduct'},
 {
   headerName: t('Payment'), field: 'payment',
   cellRenderer: (params:ICellRendererParams) => {
@@ -170,7 +170,7 @@ watch(() => locale.value, () => {
       { headerName: t('ReservationType'), field: 'reservationType',
 
       },
-      { headerName: t('Room'), field: 'reservationProduct'},
+      // { headerName: t('Room'), field: 'reservationProduct'},
       {
         headerName: t('Payment'), field: 'payment',
         cellRenderer: (params:ICellRendererParams) => {

@@ -4,6 +4,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue';
 import TableOne from '@/components/tables/TableOne.vue';
 import { useI18n } from 'vue-i18n';
 import {PlusCircle } from 'lucide-vue-next';
+import { CornerUpRight } from 'lucide-vue-next';
 
 
 
@@ -95,14 +96,14 @@ const filterOptions = computed(()=>([
     itineraire: 'Yaoundé - Douala',
     driver: 'jean',
     vehicle: 'bus 101',
-   
+
     },
     {
 
     itineraire: 'Yaoundé - Douala',
     driver: 'jean',
     vehicle: 'bus 101',
-   
+
     },
     ];
     loading.value = false;
@@ -125,8 +126,8 @@ const filteredVehicles = computed(() => {
     // Filtre de recherche
     const matchesSearch =
       searchQuery.value === '' ||
-        s.trajet.toLowerCase().includes(searchQuery.value.toLowerCase()) 
-      
+        s.trajet.toLowerCase().includes(searchQuery.value.toLowerCase())
+
 
 
     return matchesSearch ;
@@ -140,15 +141,15 @@ const filteredVehicles = computed(() => {
   <div class="p-6 h-screen">
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-semibold text-gray-900 flex items-center">
-          <RouteIcon class="h-6 w-6 mr-2 text-orange-600" />
-          {{ t('Tous les horaires') }}
+          <CornerUpRight class="h-6 w-6 mr-2 text-orange-600" />
+          {{ t('Assignment') }}
         </h1>
         <button
           @click="modalOpen=true"
           class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
         >
           <PlusCircle class="mr-2"/>
-          {{ t('Ajouter un Conducteur') }} 
+          {{ t('Ajouter un Conducteur') }}
         </button>
       </div>
 
@@ -157,7 +158,7 @@ const filteredVehicles = computed(() => {
         <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div class="relative">
             <input
-              
+
               type="text"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
               :placeholder="t('Rechercher ...')"
@@ -170,7 +171,7 @@ const filteredVehicles = computed(() => {
           </div>
         </div>
       </div>
-    
+
     <div class="bg-white overflow-hidden shadow-sm rounded-lg">
         <div v-if="loading" class="p-6 text-center">
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-orange-500 border-gray-200"></div>
