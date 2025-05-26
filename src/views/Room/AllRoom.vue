@@ -71,7 +71,7 @@
           <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ $t('RoomInformation') }}</h2>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Input
-              :lb="'No.'"
+              :lb="$t('Name')"
               :id="'name'"
               :forLabel="'name'"
               v-model="formData.name"
@@ -224,9 +224,9 @@ const formData = ref({
   options: {} as Record<number, any>,
 })
 const status = ref([
-{value: 'Open', label: "Open"},
-{value: 'Inactive', label: "Inactive"},
-{value: 'Booked', label: "Booked"},
+{value: 'avalaible', label: t('Available')},
+{value: 'maintenance', label: t('Maintenance')},
+{value: 'booked', label: t('Booked')},
 ])
 
 
@@ -412,7 +412,7 @@ const autoSizeStrategy = {
   defaultMinWidth: 140,
 }
 const columnDefs = ref<ColDef[]>([
-{ headerName: t('No.'), field: 'productName' ,
+{ headerName: t('Name'), field: 'productName' ,
 
 },
 // {
@@ -483,7 +483,7 @@ const columnDefs = ref<ColDef[]>([
 watch(() => locale.value, () => {
       columnDefs.value = [
 
-    { headerName: t('No.'), field: 'productName' ,
+    { headerName: t('Name'), field: 'productName' ,
 
     },
 
@@ -493,12 +493,12 @@ watch(() => locale.value, () => {
       field: 'status',
 
       cellRenderer: (params:ICellRendererParams) => {
-        if (params.value === 'Open') {
-          return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Open</span>`;
+        if (params.value === 'available') {
+          return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
         } else if (params.value === 'Booked') {
           return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Booked</span>`;
         } else {
-          return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+          return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Maintenance</span>`;
         }
       }
       },

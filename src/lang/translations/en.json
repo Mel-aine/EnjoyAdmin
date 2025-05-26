@@ -502,7 +502,21 @@
     "Selecttheunit" : "Select the unit",
     "image" : "Image",
     "Describetheproduct" : "Describe the product",
-    "enter..." : "Enter the description of your product"
+    "enter..." : "Enter the description of your product",
+    "Available" : "Available",
+    "Availables" : "Availables",
+    "Booked" : "Booked",
+    "Maintenance" : "Maintenance",
+    "occupancy" : "Occupancy",
+    "PleaseSelectRoom" : "Please Select Room",
+    "RemoveRoom" : "Remove Room",
+    "AddAnotherRoom" : "Add Another Room",
+    "OccupancyofRooms" : "Occupancy of Rooms",
+    "Allstatuses" : "All statuses",
+    "Occupied" : "Occupied",
+    "Release" : "Release",
+    "Cleaning" : "Cleaning",
+    "no room" : "No rooms match the selected criteria"
     
 
     

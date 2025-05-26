@@ -419,7 +419,7 @@
 
             <!-- Room Selection Component -->
             <RoomSector
-              :availableRooms="ServiceProduct"
+              :availableRooms="availableRooms"
               @update:roomSelections="updateRoomSelections"
               @update:totalPrice="updateTotalPrice"
             />
@@ -583,9 +583,13 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import RoomSector from "./RoomSector.vue";
+import { useBookingStore } from '@/composables/booking'
 
 
 
+
+const store = useBookingStore()
+const room = store.selectedRoom
 const ServiceProduct = ref<ProductType[]>([]);
 const reservations = ref({})
 const route = useRoute()
@@ -617,15 +621,22 @@ const updateTotalPrice = (newPrice:any) => {
   console.log('Updated total price:', totalPrice.value)
 }
 
-const Package = computed(() => [
-  { value: 'Individual', label: t('Individual') },
-  { value: 'Group', label: t('Group') },
-  { value: 'Corporate', label: t('Corporate') },
-  { value: 'Wedding', label: t('Wedding') },
-  { value: 'Honeymoon', label: t('Honeymoon') },
-  { value: 'Standard', label: t('Standard') },
-]);
+// const availableRooms = computed(() => {
+//   console.log("@@@2",store.selectedRoom)
+//   if (store.selectedRoom) {
+//     return [store.selectedRoom]
+//   } 
+//   // Sinon, on passe le tableau complet
+//   return ServiceProduct.value
+// })
 
+const availableRooms = computed(() => {
+  const rooms = store.selectedRoom ? [store.selectedRoom] : ServiceProduct.value
+  return rooms.map(room => ({
+    ...room,
+    label: room.productName // créer une propriété `label` basée sur `productName`
+  }))
+})
 
 
 const countryCodes = {
@@ -711,7 +722,7 @@ const fetchServiceProduct = async () => {
     const response = await getServiceProduct(serviceId);
     const serviceProducts = response.data;
     console.log("hhh", response)
-    ServiceProduct.value = serviceProducts.filter((product:any)=>product.status == 'Open').map((products: any) => {
+    ServiceProduct.value = serviceProducts.filter((product:any)=>product.status == 'available').map((products: any) => {
       return {
         ...products,
         value: products.productName,

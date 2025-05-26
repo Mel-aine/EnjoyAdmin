@@ -53,6 +53,11 @@ const router = createRouter({
         title: 'Room Type',
       },
     },
+    {
+      path: '/occupancy',
+      name: 'Occupancy',
+      component: () => import('../views/Room/OccupancyView.vue'),
+    },
 
     {
       path: '/stock/product',
