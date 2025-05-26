@@ -186,7 +186,7 @@ function getActionButtons(Id: number): string {
   `;
 }
 
-const columnDefs = ref<ColDef[]>([
+const columnDefs = ref<any[]>([
   { headerName: t('ID'), field: 'id'},
   { headerName: t('Code'), field: 'code' },
   { headerName: t('Name'), field: 'name' },

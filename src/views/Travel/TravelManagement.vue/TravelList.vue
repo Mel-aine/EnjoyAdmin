@@ -121,14 +121,14 @@ const titles = computed(() => ([
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '';
   try {
-    return format(parseISO(dateStr), 'dd MMM yyyy', { locale: fr });
+  //  return format(parseISO(dateStr), 'dd MMM yyyy', { locale: fr });
   } catch {
     return dateStr;
   }
 };
 
 const filteredVoyages = computed(() => {
-  return voyages.value.filter(voyage => {
+  return voyages.value.filter((voyage:any) => {
     const matchesSearch = voyage.itinerary.toLowerCase().includes(searchQuery.value.toLowerCase());
     const matchesStatus = statusFilter.value === 'all' || voyage.status === statusFilter.value;
     return matchesSearch && matchesStatus;
@@ -363,7 +363,7 @@ const filterOptions = computed(()=>([
           <p class="text-gray-500">{{ t('Aucun itinéraire trouvé.') }}</p>
         </div>
         <div v-else>
-      
+
             <TableOne
               :items="titles"
               :datas="datas"

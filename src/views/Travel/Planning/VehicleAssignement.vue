@@ -111,7 +111,7 @@ const filterOptions = computed(()=>([
 });
 
 const datas = computed(() =>
-filteredVehicles.value.map(s => ({
+filteredVehicles.value.map((s:any) => ({
     trajet : s.trajet,
    heure:s.heure,
    frequence:s.frequence
@@ -122,7 +122,7 @@ filteredVehicles.value.map(s => ({
 
 // Filtrer les itinéraires en fonction de la recherche et des filtres
 const filteredVehicles = computed(() => {
-  return assignments.value.filter(s => {
+  return assignments.value.filter((s:any) => {
     // Filtre de recherche
     const matchesSearch =
       searchQuery.value === '' ||
@@ -145,7 +145,7 @@ const filteredVehicles = computed(() => {
           {{ t('Assignment') }}
         </h1>
         <button
-          @click="modalOpen=true"
+
           class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
         >
           <PlusCircle class="mr-2"/>

@@ -226,7 +226,7 @@ const formData = ref({
 const status = ref([
 {value: 'avalaible', label: t('Available')},
 {value: 'maintenance', label: t('Maintenance')},
-{value: 'booked', label: t('Booked')},
+{value: 'occupied', label: t('Occupied')},
 ])
 
 
@@ -431,10 +431,10 @@ const columnDefs = ref<ColDef[]>([
   field: 'status',
 
   cellRenderer: (params:ICellRendererParams) => {
-    if (params.value === 'Open') {
-      return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Open</span>`;
-    } else if (params.value === 'Booked') {
-      return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Booked</span>`;
+    if (params.value === 'available') {
+      return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
+    } else if (params.value === 'occupied') {
+      return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Occupied</span>`;
     } else {
       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
     }
@@ -495,8 +495,8 @@ watch(() => locale.value, () => {
       cellRenderer: (params:ICellRendererParams) => {
         if (params.value === 'available') {
           return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
-        } else if (params.value === 'Booked') {
-          return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Booked</span>`;
+        } else if (params.value === 'occupied') {
+          return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Occupied</span>`;
         } else {
           return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Maintenance</span>`;
         }

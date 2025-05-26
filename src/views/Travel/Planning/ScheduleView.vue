@@ -166,7 +166,7 @@ const filterOptions = computed(()=>([
 });
 
 const datas = computed(() =>
-  filteredSchedules.value.map(s => ({
+  filteredSchedules.value.map((s:any)=> ({
     trajet : s.trajet,
    heure:s.heure,
    frequence:s.frequence
@@ -198,7 +198,7 @@ const closeAddModal = () => {
 
 // Filtrer les itinéraires en fonction de la recherche et des filtres
 const filteredSchedules = computed(() => {
-  return schedules.value.filter(s => {
+  return schedules.value.filter((s:any) => {
     // Filtre de recherche
     const matchesSearch =
       searchQuery.value === '' ||
@@ -301,7 +301,7 @@ const filteredSchedules = computed(() => {
             {{ isEditMode ? $t('Edit') : $t('Add Schedule') }}
           </h4>
         </div>
-        <form @submit.prevent="saveSchedule" class="flex flex-col">
+        <form @submit.prevent="" class="flex flex-col">
           <div class="custom-scrollbar h-[400px] overflow-y-auto p-2">
             <div>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">

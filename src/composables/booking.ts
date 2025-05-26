@@ -5,7 +5,7 @@ export const useBookingStore = defineStore('booking', {
     selectedRoom: null
   }),
   actions: {
-    setRoom(room) {
+    setRoom(room:any) {
       this.selectedRoom = room
     }
   }

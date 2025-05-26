@@ -3,11 +3,11 @@
     <section class="p-8 bg-gradient-to-br from-white via-purple-50 to-white min-h-screen rounded-lg">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-tech text-purple-500">{{ $t('OccupancyofRooms') }}</h1>
-        
+
         <!-- Status Filter -->
         <div class="flex items-center space-x-4">
-          <select 
-            v-model="statusFilter" 
+          <select
+            v-model="statusFilter"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
           >
             <option value="">{{ $t('Allstatuses') }}</option>
@@ -18,7 +18,7 @@
             <option value="cleaning">{{ $t('Cleaning') }}</option>
             <option value="maintenance">{{ $t('Maintenance') }}</option>
           </select>
-          
+
           <!-- Stats Summary -->
           <div class="flex items-center space-x-4 text-sm">
             <div class="flex items-center space-x-1">
@@ -42,9 +42,10 @@
           v-for="room in filteredRooms"
           :key="room.id"
           :room="room"
-          @change="handleStatusChange"
-          @checkin="handleCheckIn"
-          @checkout="handleCheckOut"
+          @change=" handleStatusChange"
+          @checkin="handleCheckIn(room)"
+          @checkout="handleCheckOut(room)"
+          @cleaned=handleMarkCleaned(room)
         />
       </div>
 
@@ -62,7 +63,7 @@ import { ref, computed, onMounted } from 'vue'
 import RoomCard from './RoomCard.vue'
 import { useServiceStore } from '@/composables/serviceStore';
 import { getServiceProductWithOptions } from "@/services/api";
-import { checkInReservation, checkOutReservation, getRoomReservations } from "@/services/reservation";
+import { checkInReservation, checkOutReservation, getRoomReservations,setAvailable  } from "@/services/reservation";
 
 // State variables
 const serviceProducts = ref<any[]>([]);
@@ -75,22 +76,23 @@ const error = ref('');
 const fetchServiceProduct = async () => {
   loading.value = true;
   error.value = '';
-  
+
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getServiceProductWithOptions(serviceId);
     const serviceProductsData = response.data;
+    console.log("@@@@@",response.data)
 
     if (Array.isArray(serviceProductsData)) {
       console.log('response.data est un tableau');
-      
+
       // Enrichir chaque produit avec ses réservations
       const serviceProductWithOptions = await Promise.all(
         serviceProductsData.map(async (product: any) => {
-          const associatedOptions = product.options?.filter((option: any) => 
+          const associatedOptions = product.options?.filter((option: any) =>
             option.serviceProductId === product.id
           ) || [];
-          
+
           let reservations: any[] = [];
 
           try {
@@ -102,16 +104,29 @@ const fetchServiceProduct = async () => {
                 console.warn(`Erreur lors de la récupération des réservations pour ${product.id}:`, error);
                 }
 
-          
+
+                let nextAvailable = null;
+
+                if (reservations.length > 0) {
+                  const sortedReservations = reservations
+                    .filter(r => r.reservation?.departDate)
+                    .sort((a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime());
+
+                  nextAvailable = sortedReservations[0]?.reservation?.departDate || null;
+                }
+
+
+
           return {
             ...product,
             options: associatedOptions,
             reservations: reservations,
+            nextAvailable ,
             status: product.status || 'available'
           };
         })
       );
-      
+
       serviceProducts.value = serviceProductWithOptions;
     } else {
       console.error("response.data n'est pas un tableau.");
@@ -131,6 +146,7 @@ const fetchServiceProduct = async () => {
 onMounted(async () => {
   try {
     await fetchServiceProduct();
+    console.log('Chambres disponibles :', filteredRooms.value)
   } catch (e) {
     console.error("Erreur lors du fetch des produits:", e);
   }
@@ -140,7 +156,8 @@ onMounted(async () => {
 // Flatten service products for display
 const flattenServiceProducts = computed(() => {
   const products = serviceProducts.value.length > 0 ? serviceProducts.value : [];
-  
+  console.log("@@@@@4444",products)
+
   return products.map((product: any) => {
     const flatProduct: any = {
       ...product,
@@ -168,7 +185,7 @@ const filteredRooms = computed(() => {
 const roomStats = computed(() => {
   const stats = {
     available: 0,
-    booking: 0,
+    booked: 0,
     occupied: 0,
     maintenance: 0,
     cleaning: 0,
@@ -186,32 +203,33 @@ const roomStats = computed(() => {
 });
 
 // Handle status changes
-const handleStatusChange = (room: any, newStatus: string) => {
-  const roomToUpdate = serviceProducts.value.find(r => r.id === room.id);
+const handleStatusChange = ({ room, status }:any) => {
+  const roomToUpdate = serviceProducts.value.find((r:any) => r.id === room.id)
 
   if (roomToUpdate) {
-    roomToUpdate.status = newStatus;
+    roomToUpdate.status = status
 
-    // Si on passe en nettoyage, programmer le retour à disponible après 30 minutes
-    if (newStatus === 'cleaning') {
+    // Programmation retour à 'available' après 30 minutes si nettoyage
+    if (status === 'cleaning') {
       setTimeout(() => {
         if (roomToUpdate.status === 'cleaning') {
-          roomToUpdate.status = 'available';
+          roomToUpdate.status = 'available'
         }
-      }, 1800000); // 30 minutes en millisecondes
+      }, 1800000)
     }
 
-    // Si on passe en maintenance, nettoyer les données client
-    if (newStatus === 'maintenance') {
-      delete roomToUpdate.guestName;
-      delete roomToUpdate.checkInTime;
-      delete roomToUpdate.checkOutTime;
-      delete roomToUpdate.nextAvailable;
+    // Nettoyage des données client si maintenance
+    if (status === 'maintenance') {
+      delete roomToUpdate.guestName
+      delete roomToUpdate.checkInTime
+      delete roomToUpdate.checkOutTime
+      delete roomToUpdate.nextAvailable
     }
 
-    console.log(`Chambre ${room.name || room.productName} - Nouveau statut: ${newStatus}`);
+    console.log(`Chambre ${room.name || room.productName} - Nouveau statut: ${status}`)
   }
-};
+}
+
 
 // Handle check-in
 const handleCheckIn = async (room: any) => {
@@ -224,17 +242,17 @@ const handleCheckIn = async (room: any) => {
 
     let guestName = '';
     if (confirmedReservation) {
-      guestName = confirmedReservation.guest_name;
+      guestName = confirmedReservation.creator.firstName;
       console.log(`[handleCheckIn] Nom du client trouvé dans la réservation:`, guestName);
 
       try {
-        console.log(`[handleCheckIn] Appel API checkInReservation avec l'ID:`, confirmedReservation.id);
-        await checkInReservation(confirmedReservation.id);
+        console.log(`[handleCheckIn] Appel API checkInReservation avec l'ID:`, confirmedReservation.reservationId);
+        await checkInReservation(confirmedReservation.reservationId);
 
         // Mise à jour réactive locale : remplacer l’élément dans room.reservations
         const index = room.reservations.findIndex((res: any) => res.id === confirmedReservation.id);
         if (index !== -1) {
-          room.reservations[index] = { ...confirmedReservation, status: 'checked_in' };
+          room.reservations[index] = { ...confirmedReservation, status: 'checked-in' };
           console.log('[handleCheckIn] Statut réservation local mis à jour en checked_in');
         }
 
@@ -270,10 +288,10 @@ const handleCheckIn = async (room: any) => {
 
       const checkoutDateInput = prompt('Date/heure de départ prévue (YYYY-MM-DDTHH:mm:ss):');
       console.log(`[handleCheckIn] Date/heure de départ prévue saisie:`, checkoutDateInput);
-      if (checkoutDateInput) {
-        roomToUpdate.nextAvailable = checkoutDateInput;
-        console.log(`[handleCheckIn] Mise à jour de la date de disponibilité suivante:`, roomToUpdate.nextAvailable);
-      }
+      // if (checkoutDateInput) {
+      //   roomToUpdate.nextAvailable = checkoutDateInput;
+      //   console.log(`[handleCheckIn] Mise à jour de la date de disponibilité suivante:`, roomToUpdate.nextAvailable);
+      // }
     } else {
       console.warn(`[handleCheckIn] Chambre non trouvée dans serviceProducts pour l'ID:`, room.id);
     }
@@ -290,45 +308,86 @@ const handleCheckIn = async (room: any) => {
 // Handle check-out
 const handleCheckOut = async (room: any) => {
   try {
-    console.log(`Check-out pour la chambre ${room.name || room.productName}`);
-    
-    // Vérifier s'il y a une réservation en cours
-    const checkedInReservation = room.reservations?.find((res: any) => res.status === 'checked_in');
-    
+    console.log(`Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
+
+    // Vérification des réservations en cours sur cette chambre
+    if (!room.reservations) {
+      console.log("Aucune réservation trouvée pour cette chambre.");
+    } else {
+      console.log(`Nombre de réservations associées à cette chambre : ${room.reservations.length}`);
+    }
+
+    const checkedInReservation = room.reservations?.find(
+      (res: any) => res.reservation.status === 'checked-in'
+    );
+
+    if (!checkedInReservation) {
+      console.log("Aucune réservation en cours (status 'checked-in') trouvée.");
+    } else {
+      console.log(`Réservation en cours trouvée : ID ${checkedInReservation.reservationId}, status ${checkedInReservation.reservation.status}`);
+    }
+
     if (checkedInReservation) {
       try {
-        await checkOutReservation(checkedInReservation.id);
-        checkedInReservation.status = 'completed';
+        console.log(`Appel à l'API pour check-out de la réservation ID ${checkedInReservation.reservationId}...`);
+        await checkOutReservation(checkedInReservation.reservationId);
+        checkedInReservation.reservation.status = 'checked-out';
+        console.log("Check-out de la réservation effectué avec succès.");
       } catch (apiError) {
-        console.error('Erreur API check-out:', apiError);
+        console.error('Erreur API lors du check-out de la réservation:', apiError);
       }
     }
-    
-    const roomToUpdate = serviceProducts.value.find(r => r.id === room.id);
-    
-    if (roomToUpdate) {
-      // Passer d'abord en mode "checkout" pour inspection
-      roomToUpdate.status = 'checkout';
-      roomToUpdate.checkOutTime = new Date().toISOString();
-      
-      // Après 5 minutes, passer automatiquement en nettoyage (simulation)
-      setTimeout(() => {
-        if (roomToUpdate.status === 'checkout') {
-          roomToUpdate.status = 'cleaning';
-          // Nettoyer les données de l'ancien client
-          delete roomToUpdate.guestName;
-          delete roomToUpdate.checkInTime;
-          delete roomToUpdate.checkOutTime;
-          delete roomToUpdate.nextAvailable;
-        }
-      }, 300000); // 5 minutes
+
+    // Recherche de la chambre à mettre à jour dans la liste globale
+    const roomToUpdate = serviceProducts.value.find(r => r.id === Number(room.id));
+    if (!roomToUpdate) {
+      console.warn(`La chambre avec l'ID ${room.id} n'a pas été trouvée dans serviceProducts.`);
+      return;
     }
-    
+    console.log("Chambre trouvée dans serviceProducts :", roomToUpdate);
+
+    // Mise à jour du statut et de l'heure de check-out
+    roomToUpdate.status = 'checked-out';
+    roomToUpdate.checkOutTime = new Date().toISOString();
+    console.log(`Statut chambre mis à jour à 'checked-out' avec checkOutTime = ${roomToUpdate.checkOutTime}`);
+
+    // Timer pour passage automatique au statut nettoyage
+    setTimeout(() => {
+      if (roomToUpdate.status === 'checked-out') {
+        roomToUpdate.status = 'cleaning';
+        console.log(`Statut chambre changé automatiquement à 'cleaning' après 1 minute.`);
+        // Suppression des données de l'ancien client
+        delete roomToUpdate.guestName;
+        delete roomToUpdate.checkInTime;
+        delete roomToUpdate.checkOutTime;
+        delete roomToUpdate.nextAvailable;
+        console.log("Données client nettoyées de la chambre.");
+      } else {
+        console.log(`Le statut de la chambre n'était plus 'checked-out' au moment du timeout, statut actuel : ${roomToUpdate.status}`);
+      }
+    }, 60000); // 1 minute
+
   } catch (error) {
-    console.error("Erreur lors du check-out :", error);
+    console.error("Erreur générale lors du check-out :", error);
     alert("Erreur lors du check-out. Veuillez réessayer.");
   }
 };
+
+
+const handleMarkCleaned = async (room: any) => {
+  const roomToUpdate = serviceProducts.value.find(r => r.id === room.id);
+
+  if (roomToUpdate && roomToUpdate.status === 'cleaning') {
+    const result = await setAvailable(roomToUpdate.id);
+
+    if (result) {
+      roomToUpdate.status = 'available';
+
+    }
+  }
+}
+
+
 
 </script>
 

@@ -36,10 +36,10 @@ const handleApiError = (error: any): never => {
 }
 
 // Check-in d'une réservation
-export const checkInReservation = async (id: number): Promise<ApiResponse | undefined> => {
+export const checkInReservation = async (reservationId: number): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${id}/check-in`,
+      `/reservations/${reservationId}/check-in`,
     )
     return response.data
   } catch (error) {
@@ -58,6 +58,18 @@ export const checkOutReservation = async (reservationId: number): Promise<ApiRes
     handleApiError(error)
   }
 }
+
+export const setAvailable = async (id: number): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.put(
+      `/service-products/${id}/set-available`,
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 
 // Récupérer les réservations pour une chambre
 export const getRoomReservations = async (serviceProductId: number): Promise<any> => {

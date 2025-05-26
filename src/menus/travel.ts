@@ -123,7 +123,7 @@ export const getBusAgencyMenu = (t: (key: string) => string) => {
           subItems: [
             { name: t('Horaires'), path: '/schedules', roles: [1, 2, 3] },
             // { name: t('Gestion des trajets'), path: '/route_management', roles: [1, 2] },
-            { name: t('Affectation des véhicules'), path: '/vehicle_assignment', roles: [1, 2] },
+            //{ name: t('Affectation des véhicules'), path: '/vehicle_assignment', roles: [1, 2] },
           ],
         },
         // {

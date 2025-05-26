@@ -516,7 +516,17 @@
     "Occupied" : "Occupied",
     "Release" : "Release",
     "Cleaning" : "Cleaning",
-    "no room" : "No rooms match the selected criteria"
+    "no room" : "No rooms match the selected criteria",
+    "roomStatus": {
+    "available": "Available",
+    "booked": "Booked",
+    "occupied": "Occupied",
+    "checked-in": "Check-in",
+    "checkout": "Check-out",
+    "cleaning": "Cleaning",
+    "maintenance": "Maintenance",
+    "unknown": "Unknown"
+  }
     
 
     

@@ -503,7 +503,31 @@
     "Selecttheunit": "Sélectionnez l'unité",
     "image": "Image",
     "Describetheproduct": "Décrivez le produit",
-    "enter...": "Entrez la description de votre produit"
+    "enter...": "Entrez la description de votre produit",
+    "Available": "Disponible",
+    "Availables": "Disponibles",
+    "Booked": "Réservé",
+    "Maintenance": "Entretien",
+    "occupancy": "Occupation",
+    "PleaseSelectRoom": "Veuillez sélectionner une chambre",
+    "RemoveRoom": "Supprimer la chambre",
+    "AddAnotherRoom": "Ajouter une autre chambre",
+    "OccupancyofRooms": "Occupation des chambres",
+    "Allstatuses": "Tous les statuts",
+    "Occupied": "Occupé",
+    "Release": "Libération",
+    "Cleaning": "Nettoyage",
+    "no room": "Aucune chambre ne correspond aux critères sélectionnés",
+    "roomStatus": {
+    "available": "Disponible",
+    "booked": "Réservé",
+    "occupied": "Occupé",
+    "checked-in": "Vérification",
+    "checkout": "Libération",
+    "cleaning": "Nettoyage",
+    "maintenance": "Entretien",
+    "unknown": "Inconnu"
+  }
 
 
     
