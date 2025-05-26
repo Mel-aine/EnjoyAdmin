@@ -629,7 +629,7 @@ const status = computed(() => [
                   <Select :lb="$t('status')" v-model="formData.status" :options="status" />
                 </div>
               </div>
-              <div class="mt-4>
+              <div class="mt-4">
                 <label
                   :for="'stops'"
                   class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
