@@ -71,7 +71,7 @@ const columnDefs = ref<ColDef[]>([
   { headerName: t('PaymentID'), field: 'id' },
   {
     headerName: t('Date'),
-    field: 'date',
+    field: 'paymentDate',
     valueFormatter: ({ value } : { value: string }) => new Date(value).toLocaleString('fr-FR', {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
@@ -98,7 +98,7 @@ watch(() => locale.value, () => {
       { headerName: t('PaymentID'), field: 'id' },
   {
     headerName: t('Date'),
-    field: 'date',
+    field: 'paymentDate',
     valueFormatter: ({ value }: { value: string })=> new Date(value).toLocaleString('fr-FR', {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'

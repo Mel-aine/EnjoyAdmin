@@ -83,21 +83,21 @@
           <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             <tr v-for="item in invoice.items" :key="item.description">
               <td class="px-6 py-4 text-gray-800 dark:text-gray-100">{{ item.description }}</td>
-              <td class="px-6 py-4 text-right text-gray-800 dark:text-gray-100">{{ item.amount.toFixed(2) }}</td>
+              <td class="px-6 py-4 text-right text-gray-800 dark:text-gray-100">{{ item.amount }}</td>
             </tr>
           </tbody>
           <tfoot class="bg-gray-50 dark:bg-gray-800 font-medium">
             <tr>
               <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">{{ $t('subtotal') }}</td>
-              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ subtotal.toFixed(2) }} FCFA</td>
+              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ subtotal }} FCFA</td>
             </tr>
             <tr>
               <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">TVA (10%)</td>
-              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ tax.toFixed(2) }} FCFA</td>
+              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ tax }} FCFA</td>
             </tr>
             <tr class="text-base text-gray-900 dark:text-gray-100 font-bold">
               <td class="px-6 py-3 text-right">{{ $t('Total') }}</td>
-               <td class="px-6 py-3 text-right">{{ total.toFixed(2) }}FCFA</td>
+               <td class="px-6 py-3 text-right">{{ total}}FCFA</td>
             </tr>
           </tfoot>
         </table>
@@ -213,6 +213,7 @@ onMounted(async () => {
       const userResponse = await getUserId(response.data.userId);
       const serviceResponse = await getServiceById (serviceId);
       const reservationResponse = await getReservationById(response.data.reservationId);
+      console.log("response",reservationResponse)
 
       invoice.value = {
         paymentId: response.data.id,
@@ -230,16 +231,16 @@ onMounted(async () => {
           day: 'numeric'
         }),
         serviceName:serviceResponse.data.name,
-        serviceEmail:serviceResponse.data.email,
-        serviceAddress: JSON.parse(serviceResponse.data.address).text,
-        serviceReservationProduct:serviceResponse.data.reservationProduct,
+        serviceEmail:serviceResponse.data.emailService,
+        //serviceAddress: JSON.parse(serviceResponse.data.addressService).text,
+       // serviceReservationProduct:serviceResponse.data.reservationProduct,
         paymentMethod: response.data.paymentMethod,
         transactionId: response.data.transactionId,
         status: response.data.status,
         items: [
           {
-        description: `Réservation ${reservationResponse.data.reservationType} (${reservationResponse.data.totalPerson} personne${reservationResponse.data.totalPerson > 1 ? 's' : ''}) - ${new Date(reservationResponse.data.arrivedDate).toLocaleDateString("fr-FR")} au ${new Date(reservationResponse.data.departDate).toLocaleDateString("fr-FR")}`,
-        amount: reservationResponse.data.totalPrice,
+        description: `Réservation ${reservationResponse.data.reservationType} (${reservationResponse.data.guestCount} personne${reservationResponse.data.guestCount > 1 ? 's' : ''}) - ${new Date(reservationResponse.data.arrivedDate).toLocaleDateString("fr-FR")} au ${new Date(reservationResponse.data.departDate).toLocaleDateString("fr-FR")}`,
+        amount: reservationResponse.data.totalAmount,
       }
     ]
       };
@@ -259,7 +260,9 @@ const subtotal = computed(() => {
 });
 
 const tax = computed(() => subtotal.value * 0.1);
-const total = computed(() => subtotal.value + tax.value);
+// const total = computed(() => subtotal.value + tax.value);
+const total = computed(() => Number(subtotal.value + tax.value).toFixed(2));
+
 
 
 </script>
