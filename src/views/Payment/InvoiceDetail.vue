@@ -27,7 +27,14 @@
             </svg>
             <span>{{ $t('Back') }}</span>
           </a>
-
+          <div class="text-right print:hidden">
+          <button @click="printInvoice" class="bg-[#FFA94D] text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-orange-500 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6m-6-4v8m6-4h-6" />
+            </svg>
+            {{ $t('print') }}
+          </button>
+        </div>
           <!-- Mobile Icon Button -->
           <a href="/allInvoice" class="sm:hidden inline-flex items-center justify-center p-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -61,14 +68,7 @@
           <p class="text-gray-600 dark:text-gray-400">{{ invoice.customerAddress }}</p>
           <p class="text-gray-600 dark:text-gray-400">{{ invoice.customerEmail }}</p>
         </div>
-        <div class="text-right print:hidden">
-          <button @click="printInvoice" class="bg-[#FFA94D] text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-orange-500 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6m-6-4v8m6-4h-6" />
-            </svg>
-            {{ $t('print') }}
-          </button>
-        </div>
+
       </div>
 
       <!-- Tableau facture -->
@@ -138,67 +138,123 @@ const componentRef = ref<HTMLDivElement | null>(null);
 //   content: () => componentRef.value,
 //   documentTitle: 'facture',
 // });
+// const printInvoice = () => {
+//   if (componentRef.value) {
+//     const printContents = componentRef.value.innerHTML;
+//     const printWindow = window.open('', '', 'height=1000,width=1000');
+//     if (printWindow) {
+//       // Création d'un document dans la fenêtre
+//       printWindow.document.open();
+//       printWindow.document.write(`
+//         <!DOCTYPE html>
+//         <html>
+//           <head>
+//             <title>Facture</title>
+//             <style>
+//               @page {
+//                 size: auto;
+//                 margin: 0;
+//               }
+//               body {
+//                 font-family: 'Arial', sans-serif;
+//                 margin: 20px;
+//                 padding: 0;
+//                 background: white;
+//                 color: black;
+//               }
+//               table {
+//                 width: 100%;
+//                 border-collapse: collapse;
+//               }
+//               th, td {
+//                 padding: 12px;
+//                 border: 1px solid #ddd;
+//               }
+//               th {
+//                 background-color: #f9f9f9;
+//                 font-weight: bold;
+//               }
+//             </style>
+//           </head>
+//           <body>
+//             <!-- Ici on place dynamiquement le contenu -->
+//           </body>
+//         </html>
+//       `);
+
+//       // Attendre que le document soit complètement chargé avant d'ajouter le contenu
+//       printWindow.document.close();
+
+//       // Ajouter le contenu de la facture dans le body de la nouvelle fenêtre
+//       printWindow.document.body.innerHTML = printContents;
+
+//       printWindow.focus();
+//       printWindow.print();
+
+//       // Ferme la fenêtre après 500ms pour laisser le temps d'imprimer
+//       setTimeout(() => {
+//         printWindow.close();
+//       }, 200);
+//     }
+//   }
+// };
+
 const printInvoice = () => {
-  if (componentRef.value) {
-    const printContents = componentRef.value.innerHTML;
-    const printWindow = window.open('', '', 'height=1000,width=1000');
-    if (printWindow) {
-      // Création d'un document dans la fenêtre
-      printWindow.document.open();
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Facture</title>
-            <style>
-              @page {
-                size: auto;
-                margin: 0;
-              }
-              body {
-                font-family: 'Arial', sans-serif;
-                margin: 20px;
-                padding: 0;
-                background: white;
-                color: black;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-              }
-              th, td {
-                padding: 12px;
-                border: 1px solid #ddd;
-              }
-              th {
-                background-color: #f9f9f9;
-                font-weight: bold;
-              }
-            </style>
-          </head>
-          <body>
-            <!-- Ici on place dynamiquement le contenu -->
-          </body>
-        </html>
-      `);
+  if (!componentRef.value) return;
 
-      // Attendre que le document soit complètement chargé avant d'ajouter le contenu
-      printWindow.document.close();
+  const printContents = componentRef.value.innerHTML;
+  const printWindow = window.open('', '_blank', 'width=1024,height=768');
 
-      // Ajouter le contenu de la facture dans le body de la nouvelle fenêtre
-      printWindow.document.body.innerHTML = printContents;
+  if (!printWindow) return;
 
-      printWindow.focus();
-      printWindow.print();
+  // Récupère les styles de la page actuelle
+  const styles = Array.from(document.styleSheets)
+    .map((styleSheet) => {
+      try {
+        return Array.from(styleSheet.cssRules || [])
+          .map(rule => rule.cssText)
+          .join('\n');
+      } catch (e) {
+        return '';
+      }
+    })
+    .join('\n');
 
-      // Ferme la fenêtre après 500ms pour laisser le temps d'imprimer
-      setTimeout(() => {
-        printWindow.close();
-      }, 500);
-    }
-  }
+  printWindow.document.open();
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="fr">
+      <head>
+        <meta charset="UTF-8">
+        <title>Facture</title>
+        <style>
+          ${styles}
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
+        </style>
+      </head>
+      <body class="print-area bg-white dark:bg-gray-900 text-black">
+        ${printContents}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+
+  // Attendre que tout soit chargé avant d’imprimer
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+
+    // Ferme après un délai pour éviter les conflits
+    setTimeout(() => {
+      printWindow.close();
+    }, 100);
+  };
 };
-
 
 
 

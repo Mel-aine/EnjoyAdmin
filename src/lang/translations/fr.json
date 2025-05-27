@@ -527,7 +527,10 @@
     "cleaning": "Nettoyage",
     "maintenance": "Entretien",
     "unknown": "Inconnu"
-  }
+  },
+  "ConfirmPayment" : "Confirmer le Paiement",
+  "ConfirmPaymentMessage": "Veuillez confirmer que vous avez bien reçu le paiement suivant."
+
 
 
     

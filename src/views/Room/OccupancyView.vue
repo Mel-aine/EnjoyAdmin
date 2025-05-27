@@ -71,6 +71,8 @@ const serviceStore = useServiceStore();
 const statusFilter = ref('');
 const loading = ref(false);
 const error = ref('');
+const isCheckingIn = ref(false)
+const isCheckingout = ref(false)
 
 
 const fetchServiceProduct = async () => {
@@ -202,102 +204,91 @@ const roomStats = computed(() => {
   return stats;
 });
 
-// Handle status changes
-const handleStatusChange = ({ room, status }:any) => {
-  const roomToUpdate = serviceProducts.value.find((r:any) => r.id === room.id)
-
-  if (roomToUpdate) {
-    roomToUpdate.status = status
-
-    // Programmation retour à 'available' après 30 minutes si nettoyage
-    if (status === 'cleaning') {
-      setTimeout(() => {
-        if (roomToUpdate.status === 'cleaning') {
-          roomToUpdate.status = 'available'
-        }
-      }, 1800000)
-    }
-
-    // Nettoyage des données client si maintenance
-    if (status === 'maintenance') {
-      delete roomToUpdate.guestName
-      delete roomToUpdate.checkInTime
-      delete roomToUpdate.checkOutTime
-      delete roomToUpdate.nextAvailable
-    }
-
-    console.log(`Chambre ${room.name || room.productName} - Nouveau statut: ${status}`)
+const handleStatusChange = (payload: any) => {
+  if (!payload || !payload.room || !payload.status) {
+    console.error("handleStatusChange appelé avec un payload invalide :", payload)
+    return
   }
+
+  const { room, status } = payload
+
+  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === room.id)
+  if (!roomToUpdate) {
+    console.warn(`Chambre avec ID ${room.id} non trouvée dans serviceProducts.`)
+    return
+  }
+
+  roomToUpdate.status = status
+
+  if (status === 'cleaning') {
+    setTimeout(() => {
+      if (roomToUpdate.status === 'cleaning') {
+        roomToUpdate.status = 'available'
+        console.log(`Chambre ${roomToUpdate.id} changée automatiquement à 'available' après nettoyage.`)
+      }
+    }, 1800000)
+  }
+
+  if (status === 'maintenance') {
+    delete roomToUpdate.guestName
+    delete roomToUpdate.checkInTime
+    delete roomToUpdate.checkOutTime
+    delete roomToUpdate.nextAvailable
+    console.log(`Données client supprimées pour la chambre ${roomToUpdate.id} (maintenance).`)
+  }
+
+  console.log(`Chambre ${room.name || room.productName} - Nouveau statut: ${status}`)
 }
+
 
 
 // Handle check-in
 const handleCheckIn = async (room: any) => {
   try {
     console.log(`[handleCheckIn] Début du check-in pour la chambre:`, room.name || room.productName);
-    console.log('[handleCheckIn] Réservations rechargées depuis l’API:', room.reservations);
-    // Trouver la réservation confirmée
-    const confirmedReservation = room.reservations?.find((res: any) => res.reservation.status === 'confirmed');
+
+    const confirmedReservation = room.reservations?.find(
+      (res: any) => res.reservation.status === 'confirmed'
+    );
     console.log(`[handleCheckIn] Réservation confirmée trouvée:`, confirmedReservation);
 
     let guestName = '';
     if (confirmedReservation) {
       guestName = confirmedReservation.creator.firstName;
-      console.log(`[handleCheckIn] Nom du client trouvé dans la réservation:`, guestName);
+      console.log(`[handleCheckIn] Nom du client trouvé:`, guestName);
 
       try {
-        console.log(`[handleCheckIn] Appel API checkInReservation avec l'ID:`, confirmedReservation.reservationId);
-        await checkInReservation(confirmedReservation.reservationId);
+        console.log(`[handleCheckIn] Appel API checkInReservation avec ID:`, confirmedReservation.reservationId);
 
-        // Mise à jour réactive locale : remplacer l’élément dans room.reservations
+        const result = await checkInReservation(confirmedReservation.reservationId);
+        const updatedProduct = result.reservationProducts;
+
         const index = room.reservations.findIndex((res: any) => res.id === confirmedReservation.id);
         if (index !== -1) {
           room.reservations[index] = { ...confirmedReservation, status: 'checked-in' };
-          console.log('[handleCheckIn] Statut réservation local mis à jour en checked_in');
         }
 
-        // Recharger les réservations depuis l'API pour être sûr d'avoir les données à jour
-        room.reservations = await getRoomReservations(room.id);
-        console.log('[handleCheckIn] Réservations rechargées depuis l’API:', room.reservations);
+        // ✅ Mise à jour réactive du serviceProduct
+        const roomToUpdate = serviceProducts.value.find((r) => r.id === room.id);
+        if (roomToUpdate) {
+          roomToUpdate.status = updatedProduct.status;
+          roomToUpdate.guestName = guestName;
+          roomToUpdate.checkInTime = new Date().toISOString();
+          console.log(`[handleCheckIn] Chambre mise à jour:`, roomToUpdate);
+        }
+
+        await fetchServiceProduct();
 
       } catch (apiError) {
         console.error('[handleCheckIn] Erreur API check-in:', apiError);
       }
     } else {
-      guestName = prompt('Nom du client:') || '';
-      console.log(`[handleCheckIn] Nom client saisi manuellement:`, guestName);
-      if (!guestName) {
-        console.log(`[handleCheckIn] Aucun nom client saisi, annulation du check-in.`);
-        return;
-      }
-    }
-
-    // Trouver la chambre dans le store réactif
-    const roomToUpdate = serviceProducts.value.find(r => r.id === room.id);
-    console.log(`[handleCheckIn] Chambre trouvée dans serviceProducts:`, roomToUpdate);
-
-    if (roomToUpdate) {
-      roomToUpdate.status = 'booking';
-      roomToUpdate.guestName = guestName;
-      roomToUpdate.checkInTime = new Date().toISOString();
-      console.log(`[handleCheckIn] Mise à jour de la chambre :`, {
-        status: roomToUpdate.status,
-        guestName: roomToUpdate.guestName,
-        checkInTime: roomToUpdate.checkInTime,
-      });
-
-      const checkoutDateInput = prompt('Date/heure de départ prévue (YYYY-MM-DDTHH:mm:ss):');
-      console.log(`[handleCheckIn] Date/heure de départ prévue saisie:`, checkoutDateInput);
-      // if (checkoutDateInput) {
-      //   roomToUpdate.nextAvailable = checkoutDateInput;
-      //   console.log(`[handleCheckIn] Mise à jour de la date de disponibilité suivante:`, roomToUpdate.nextAvailable);
-      // }
-    } else {
-      console.warn(`[handleCheckIn] Chambre non trouvée dans serviceProducts pour l'ID:`, room.id);
+      console.log(`[handleCheckIn] Aucune réservation confirmée`);
+      return;
     }
 
   } catch (error) {
-    console.error("[handleCheckIn] Erreur lors du check-in :", error);
+    console.error("[handleCheckIn] Erreur générale :", error);
     alert("Erreur lors du check-in. Veuillez réessayer.");
   }
 };
@@ -305,67 +296,70 @@ const handleCheckIn = async (room: any) => {
 
 
 
-// Handle check-out
+
 const handleCheckOut = async (room: any) => {
   try {
-    console.log(`Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
+    console.log(` Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
 
-    // Vérification des réservations en cours sur cette chambre
-    if (!room.reservations) {
-      console.log("Aucune réservation trouvée pour cette chambre.");
-    } else {
-      console.log(`Nombre de réservations associées à cette chambre : ${room.reservations.length}`);
+    if (!room.reservations?.length) {
+      console.log(" Aucune réservation trouvée pour cette chambre.");
+      return;
     }
 
-    const checkedInReservation = room.reservations?.find(
+    const checkedInReservation = room.reservations.find(
       (res: any) => res.reservation.status === 'checked-in'
     );
 
     if (!checkedInReservation) {
-      console.log("Aucune réservation en cours (status 'checked-in') trouvée.");
-    } else {
-      console.log(`Réservation en cours trouvée : ID ${checkedInReservation.reservationId}, status ${checkedInReservation.reservation.status}`);
-    }
-
-    if (checkedInReservation) {
-      try {
-        console.log(`Appel à l'API pour check-out de la réservation ID ${checkedInReservation.reservationId}...`);
-        await checkOutReservation(checkedInReservation.reservationId);
-        checkedInReservation.reservation.status = 'checked-out';
-        console.log("Check-out de la réservation effectué avec succès.");
-      } catch (apiError) {
-        console.error('Erreur API lors du check-out de la réservation:', apiError);
-      }
-    }
-
-    // Recherche de la chambre à mettre à jour dans la liste globale
-    const roomToUpdate = serviceProducts.value.find(r => r.id === Number(room.id));
-    if (!roomToUpdate) {
-      console.warn(`La chambre avec l'ID ${room.id} n'a pas été trouvée dans serviceProducts.`);
+      console.log(" Aucune réservation en cours (status 'checked-in') trouvée.");
       return;
     }
-    console.log("Chambre trouvée dans serviceProducts :", roomToUpdate);
 
-    // Mise à jour du statut et de l'heure de check-out
+    console.log(` Réservation trouvée : ID ${checkedInReservation.reservationId}, statut ${checkedInReservation.reservation.status}`);
+
+    try {
+      console.log(` Appel API pour check-out de la réservation ID ${checkedInReservation.reservationId}...`);
+      await checkOutReservation(checkedInReservation.reservationId);
+      checkedInReservation.reservation.status = 'checked-out';
+      console.log(" Check-out effectué avec succès.");
+    } catch (apiError) {
+      console.error(' Erreur API lors du check-out de la réservation:', apiError);
+      alert("Erreur lors du check-out à l'API. Veuillez réessayer.");
+      return;
+    }
+
+    const roomToUpdate = serviceProducts.value.find(r => r.id === Number(room.id));
+    if (!roomToUpdate) {
+      console.warn(` La chambre avec l'ID ${room.id} n'a pas été trouvée dans serviceProducts.`);
+      return;
+    }
+
+    console.log(" Chambre trouvée :", roomToUpdate);
+
+    // Mise à jour de l'état local
     roomToUpdate.status = 'checked-out';
     roomToUpdate.checkOutTime = new Date().toISOString();
-    console.log(`Statut chambre mis à jour à 'checked-out' avec checkOutTime = ${roomToUpdate.checkOutTime}`);
+    console.log(` Statut chambre => 'checked-out', checkOutTime = ${roomToUpdate.checkOutTime}`);
 
-    // Timer pour passage automatique au statut nettoyage
+    // Auto-reset vers 'cleaning' après 1 minute
     setTimeout(() => {
       if (roomToUpdate.status === 'checked-out') {
         roomToUpdate.status = 'cleaning';
-        console.log(`Statut chambre changé automatiquement à 'cleaning' après 1 minute.`);
-        // Suppression des données de l'ancien client
+        console.log(` Statut chambre auto-changé à 'cleaning' après 1 minute.`);
+
+        // Nettoyage des données client
         delete roomToUpdate.guestName;
         delete roomToUpdate.checkInTime;
         delete roomToUpdate.checkOutTime;
         delete roomToUpdate.nextAvailable;
-        console.log("Données client nettoyées de la chambre.");
+
+        console.log(" Données client nettoyées.");
       } else {
-        console.log(`Le statut de la chambre n'était plus 'checked-out' au moment du timeout, statut actuel : ${roomToUpdate.status}`);
+        console.log(`La chambre n'était plus en 'checked-out' (actuel : ${roomToUpdate.status}). Aucun changement effectué.`);
       }
-    }, 60000); // 1 minute
+    }, 60000);
+
+    await fetchServiceProduct();
 
   } catch (error) {
     console.error("Erreur générale lors du check-out :", error);

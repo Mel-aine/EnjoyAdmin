@@ -134,7 +134,7 @@ const columnDefs = ref<ColDef[]>([
 },
 // { headerName: t('Room'), field: 'reservationProduct'},
 {
-  headerName: t('Payment'), field: 'payment',
+  headerName: t('Payment'), field: 'paymentStatus',
   cellRenderer: (params:ICellRendererParams) => {
     if (params.value === 'paid') {
       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Paid</span>`;
@@ -172,7 +172,7 @@ watch(() => locale.value, () => {
       },
       // { headerName: t('Room'), field: 'reservationProduct'},
       {
-        headerName: t('Payment'), field: 'payment',
+        headerName: t('Payment'), field: 'paymentStatus',
         cellRenderer: (params:ICellRendererParams) => {
           if (params.value === 'paid') {
             return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Paid</span>`;

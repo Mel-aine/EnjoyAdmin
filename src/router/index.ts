@@ -10,7 +10,7 @@ const router = createRouter({
   },
   routes: [
     {
-      path: '/',
+      path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
       meta: { requiresAuth: true }
@@ -156,7 +156,7 @@ const router = createRouter({
 
 
     {
-      path: '/signin',
+      path: '/',
       name: 'Signin',
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
@@ -296,7 +296,7 @@ router.beforeEach(async (to, from, next) => {
 
     // Si la route nécessite une auth mais qu’on n’est pas connecté
     if (to.meta.requiresAuth && !authStore.token) {
-      return next('/signin');
+      return next('/');
     }
 
     // if (to.path === '/signin' && authStore.token) {
@@ -314,7 +314,7 @@ router.beforeEach(async (to, from, next) => {
     return next();
   } catch (error) {
     console.error('Error in navigation guard:', error);
-    return next('/signin');
+    return next('/');
   }
 });
 

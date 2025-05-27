@@ -69,18 +69,14 @@
         <!-- Section principale -->
         <div>
           <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ $t('RoomInformation') }}</h2>
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
             <Input
               :lb="$t('Name')"
               :id="'name'"
               :forLabel="'name'"
               v-model="formData.name"
             />
-            <!-- <Select
-              :lb="'Room Type'"
-              :options="roomTypeData"
-              v-model="formData.roomType"
-            /> -->
+
             <Input
               :lb="$t('Rent')"
               :placeholder="'Ex: 1000 FCFA'"
@@ -93,6 +89,18 @@
               :options="status"
               v-model="formData.status"
             />
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                {{ $t('Description') }}
+              </label>
+              <textarea
+                 v-model="formData.description"
+                :placeholder="$t('Largetext')"
+                rows="6"
+                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+
+              ></textarea>
+            </div>
 
           </div>
         </div>
@@ -224,7 +232,7 @@ const formData = ref({
   options: {} as Record<number, any>,
 })
 const status = ref([
-{value: 'avalaible', label: t('Available')},
+{value: 'available', label: t('Available')},
 {value: 'maintenance', label: t('Maintenance')},
 {value: 'occupied', label: t('Occupied')},
 ])
@@ -281,10 +289,10 @@ const hideOptions = computed(() =>
 
 
 
-onMounted(() => {
-  fetchOptions()
-  fetchRoomType()
-})
+// onMounted(() => {
+//   fetchOptions()
+//   fetchRoomType()
+// })
 
 const defaultOptionsMap = computed(() => {
   const map: Record<number, OptionType> = {};
@@ -333,6 +341,9 @@ const saveFormData = async () => {
     const optionsResponse = await createRoomOptions({
       data: optionsPayload
     });
+    closeModal()
+    fetchServiceProduct()
+
     //renitialisation des champs
     formData.value = {
       name: '',
@@ -385,8 +396,9 @@ const fetchServiceProduct = async () => {
   }
 };
 
-onMounted(() => {
-  fetchServiceProduct()
+onMounted(async() => {
+  await fetchOptions()
+ await fetchServiceProduct()
 
 })
 
@@ -433,10 +445,13 @@ const columnDefs = ref<ColDef[]>([
   cellRenderer: (params:ICellRendererParams) => {
     if (params.value === 'available') {
       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
-    } else if (params.value === 'occupied') {
+    } else if (params.value === 'booked') {
+      return `<span class="bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 rounded-full px-2">Booked</span>`;
+    }
+    else if (params.value === 'occupied') {
       return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Occupied</span>`;
     } else {
-      return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+      return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Maintenance</span>`;
     }
   }
 },
@@ -495,7 +510,10 @@ watch(() => locale.value, () => {
       cellRenderer: (params:ICellRendererParams) => {
         if (params.value === 'available') {
           return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
-        } else if (params.value === 'occupied') {
+        }else if (params.value === 'booked') {
+          return `<span class="bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 rounded-full px-2">Booked</span>`;
+        }
+         else if (params.value === 'occupied') {
           return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Occupied</span>`;
         } else {
           return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Maintenance</span>`;
@@ -586,6 +604,7 @@ const onCellClick = (event: any) => {
     if (roomToEdit) {
       selectedRoom.value = roomToEdit;
       formData.value.name = roomToEdit.productName.toString();
+      formData.value.description = roomToEdit.description.toString();
       formData.value.rent = roomToEdit.price.toString();
       formData.value.status = roomToEdit.status.toString();
       const optionsList: Record<number, string> = {};
@@ -618,6 +637,7 @@ const confirmDelete = async () => {
       await deleteServiceProduct(selectedRoomId.value)
       toast.success(t('toast.roomDelete'))
       ServiceProduct.value = ServiceProduct.value.filter((r: any) => r.id !== selectedRoomId.value);
+      fetchServiceProduct()
       console.log(`Suppression du room  ID: ${selectedRoomId.value}`)
     } catch (error) {
       console.error('Erreur lors de la suppression:', error)
@@ -677,6 +697,7 @@ const updateFormData = async () => {
       rent: '',
       options: {}
     };
+    fetchServiceProduct()
     selectedRoom.value = null;
     isEditMode.value = false;
     modalOpen.value = false;

@@ -526,7 +526,9 @@
     "cleaning": "Cleaning",
     "maintenance": "Maintenance",
     "unknown": "Unknown"
-  }
+  },
+  "ConfirmPayment" : "Confirm Payment",
+  "ConfirmPaymentMessage": "Please confirm that you have received the following payment."
     
 
     

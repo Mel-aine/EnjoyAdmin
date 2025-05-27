@@ -343,7 +343,7 @@
                 <flat-pickr
                   v-model="form.arrivalDate"
                   :config="flatpickrConfig"
-                  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                  :placeholder="$t('Selectdate')"
                 />
                 <span
@@ -375,7 +375,7 @@
                   <flat-pickr
                     v-model="form.departureDate"
                     :config="flatpickrConfig"
-                    class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                    class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                     :placeholder="$t('Selectdate')"
                   />
                   <span
@@ -511,7 +511,7 @@
               <div class="space-y-2">
                 <div><strong>{{ $t('Customer') }}:</strong> {{ reservationSummary.clientName }}</div>
                 <!-- <div><strong>{{ $t('Room') }}:</strong> {{ reservationSummary.room }}</div> -->
-                <div><strong>{{ $t('Type') }}:</strong> {{ reservationSummary.type }}</div>
+                <!-- <div><strong>{{ $t('Type') }}:</strong> {{ reservationSummary.type }}</div> -->
                 <div><strong>{{ $t('Total') }}:</strong> {{ reservationSummary.total }} FCFA</div>
 
               </div>
@@ -575,7 +575,7 @@ import { getServiceProduct,createReservation,getService,createPayment,getReserva
 import type { ProductType} from '@/types/option'
 import 'flatpickr/dist/flatpickr.css'
 import { useToast } from 'vue-toastification'
-import Spinner from '@/components/spinner/Spinner.vue'; // adapte le chemin
+import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import Modal from '@/components/profile/Modal.vue'
 import { defineProps } from "vue";
@@ -584,7 +584,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import RoomSector from "./RoomSector.vue";
 import { useBookingStore } from '@/composables/booking'
-
+import { useRouter } from 'vue-router'
 
 
 
@@ -604,6 +604,7 @@ const totalPersons = computed(() => adults.value + children.value)
 const selectedCountry = ref('CM')
 const serviceStore = useServiceStore();
 
+const router = useRouter()
 defineProps<{ id: string }>()
 const isEditMode=ref(false)
 const selectedProducts = ref([])
@@ -625,7 +626,7 @@ const updateTotalPrice = (newPrice:any) => {
 //   console.log("@@@2",store.selectedRoom)
 //   if (store.selectedRoom) {
 //     return [store.selectedRoom]
-//   } 
+//   }
 //   // Sinon, on passe le tableau complet
 //   return ServiceProduct.value
 // })
@@ -878,7 +879,7 @@ const saveReservation = async () => {
 
 const savePayment = async () => {
   isLoading.value=true
-  const paymentStatus = selectedPaymentMethod.value === 'Cash' ? 'pending' : 'pending';
+  const paymentStatus = selectedPaymentMethod.value === 'Cash' ? 'pending' : 'paid';
   try {
     const payload = {
       user_id: userId.value,
@@ -889,7 +890,8 @@ const savePayment = async () => {
       transaction_id : '#TRAN-001',
       status : paymentStatus,
       created_by : userId.value,
-      last_modified_by : userId.value
+      last_modified_by : userId.value,
+      service_id: serviceStore.serviceId,
     };
 
     console.log("payment",payload)
@@ -899,6 +901,7 @@ const savePayment = async () => {
     if (response.status === 201) {
       toast.success(t('toast.paymentSucess'));
       isPaymentModalOpen.value = false;
+      router.push({ name: 'ViewInvoice', params: { id: response.data.id } })
     } else {
       toast.error(t('toast.paymentError'));
     }

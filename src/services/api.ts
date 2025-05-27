@@ -354,6 +354,9 @@ export const updateVehicle = (id: number | null, Payload: any): Promise<AxiosRes
 export const updateRoute = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/route/${id}`, Payload)
 }
+export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/payment/${id}/confirm`, Payload)
+}
 
 //----- SERVICE API Delete ----//
 
