@@ -273,6 +273,7 @@ const addSupplier = async () => {
     if (response.status === 201) {
       toast.success(t('toast.Sucess'));
       modalOpen.value = false;
+      fetchSupplier()
       newSupplier.value = { name: "", email: "", phone: "", address: "" }
     } else {
       toast.error(t('toast.error'));

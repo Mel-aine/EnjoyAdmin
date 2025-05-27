@@ -299,6 +299,7 @@ const addProduct = async () => {
 
     if (response.status === 201) {
       toast.success(t('toast.Sucess'));
+      fetchProduct()
       modalOpen.value = false;
       newProduct.value = {
         name: "",

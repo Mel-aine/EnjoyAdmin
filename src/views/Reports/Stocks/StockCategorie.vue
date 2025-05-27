@@ -247,6 +247,7 @@ const addCategory = async () => {
 
     if (response.status === 201) {
       toast.success(t('toast.Sucess'));
+      fetchCategorie ()
       modalOpen.value = false;
     } else {
       toast.error(t('toast.error'));

@@ -308,28 +308,57 @@ const fetchReservation = async () => {
     reservations.value = response.data;
 
     // Build calendar events
+    // calendarEvents.value = response.data.map((res: any) => {
+    //   const user = users.value.find((u: any) => u.id === res.userId);
+    //   const arrivedDate = res.arrivedDate ? new Date(res.arrivedDate) : null;
+    //   const departDate = res.departDate ? new Date(res.departDate) : null;
+    //   return {
+    //     id: res.id.toString(),
+    //     title: `${user ? user.firstName + ' ' + user.lastName : 'Inconnu'}- ${user?.email || ''}`,
+    //     start: arrivedDate ? arrivedDate.toISOString().split('T')[0] : null,
+    //     end: departDate ? departDate.toISOString().split('T')[0] : null,
+    //     // end: new Date(new Date(res.departDate).setDate(new Date(res.departDate).getDate() + 1)).toISOString().split('T')[0],
+    //     allDay: true,
+    //     extendedProps: {
+    //     calendar: getCalendarColorByStatus(res.status),
+    //     title: `${user?.firstName || 'Inconnu'} - ${user?.email || ''}`,
+    //     description: res.comment || 'No comment',
+    //     email :`${user?.email || ''}`,
+    //     room : res.reservationProduct,
+    //     reservationType:res.reservationType,
+
+
+    //       ...res,
+    //     },
+    //   }
+
+    // });
     calendarEvents.value = response.data.map((res: any) => {
       const user = users.value.find((u: any) => u.id === res.userId);
+
+      const start = new Date(res.arrivedDate).toISOString().split('T')[0];
+      const endDate = new Date(res.departDate);
+      endDate.setDate(endDate.getDate() + 1);
+      const end = endDate.toISOString().split('T')[0];
+
       return {
         id: res.id.toString(),
-        title: `${user ? user.firstName + ' ' + user.lastName : 'Inconnu'}- ${user?.email || ''}`,
-        start: res.arrivedDate,
-        end: res.departDate,
+        title: `${user ? user.firstName + ' ' + user.lastName : 'Inconnu'} - ${user?.email || ''}`,
+        start: start,
+        end: end,
         allDay: true,
         extendedProps: {
-        calendar: getCalendarColorByStatus(res.status),
-        title: `${user?.firstName || 'Inconnu'} - ${user?.email || ''}`,
-        description: res.comment || 'No comment',
-        email :`${user?.email || ''}`,
-        room : res.reservationProduct,
-        reservationType:res.reservationType,
-
-
+          calendar: getCalendarColorByStatus(res.status),
+          title: `${user?.firstName || 'Inconnu'} - ${user?.email || ''}`,
+          description: res.comment || 'No comment',
+          email: `${user?.email || ''}`,
+          room: res.reservationProduct,
+          reservationType: res.reservationType,
           ...res,
         },
-      }
-
+      };
     });
+
     console.log("calendar.value",calendarEvents.value)
   } catch (error) {
     console.error('fetch failed:', error);
@@ -439,6 +468,29 @@ const handleDeleteEvent = () => {
   }
 }
 
+// const renderEventContent = (eventInfo: any) => {
+//   const calendarType = eventInfo.event.extendedProps.calendar?.toLowerCase() || 'default'
+//   const title = eventInfo.event.title || 'Événement'
+
+//   const bgColorMap: Record<string, string> = {
+//     success: 'bg-green-500 text-white',
+//     danger: 'bg-red-500 text-white',
+//     warning: 'bg-orange-200 text-black',
+//     primary: 'bg-blue-500 text-white',
+//     default: 'bg-gray-500 text-white'
+//   }
+
+//   const colorClass = bgColorMap[calendarType] || bgColorMap.default
+
+//   return {
+//     html: `
+//       <div class="text-sm font-medium px-2 py-1 lg:w-33 w-15 text-center rounded-md whitespace-normal leading-tight overflow-hidden text-ellipsis ${colorClass}">
+//         ${title}
+//       </div>
+//     `
+//   }
+// }
+
 const renderEventContent = (eventInfo: any) => {
   const calendarType = eventInfo.event.extendedProps.calendar?.toLowerCase() || 'default'
   const title = eventInfo.event.title || 'Événement'
@@ -455,13 +507,12 @@ const renderEventContent = (eventInfo: any) => {
 
   return {
     html: `
-      <div class="text-sm font-medium px-2 py-1 lg:w-33 w-15 text-center rounded-md whitespace-normal leading-tight overflow-hidden text-ellipsis ${colorClass}">
+      <div class="w-full h-full text-sm font-semibold px-2 py-1 rounded-lg shadow-md ${colorClass} flex items-center justify-center">
         ${title}
       </div>
     `
   }
 }
-
 
 
 
@@ -480,6 +531,9 @@ const calendarOptions = reactive({
   select: handleDateSelect,
   eventClick: handleEventClick,
   eventContent: renderEventContent,
+  eventDisplay: 'block',
+  eventOrder: 'start,title',
+  eventClassNames: (arg: any) => ['text-sm', 'rounded', 'shadow', 'px-2', 'py-1'],
   customButtons: {
     addEventButton: {
       text: 'Add Event +',
@@ -490,7 +544,7 @@ height: "auto",
   dayMaxEventRows: true,
   views: {
     dayGridMonth: {
-      dayMaxEventRows: 3,
+      dayMaxEventRows: 6,
     }
   },
   eventDidMount: (info: any) => {

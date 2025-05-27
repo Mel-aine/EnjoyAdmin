@@ -372,9 +372,7 @@ const fetchProduct = async() => {
 
 }
 
-onMounted(async()=>{
-  await fetchProduct()
-})
+
 
 const selected = ref<any>(null);
 
@@ -449,7 +447,7 @@ const updateData = async () => {
     selected.value = null;
     isEditing.value = false;
     showModal.value = false;
-
+    fetchMovements()
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error);
 
@@ -530,7 +528,9 @@ const saveMovement = async() => {
       toast.success(t('toast.Sucess'));
     }
 
+
     closeModal();
+    await fetchMovements()
 
   } catch (error) {
     console.error("Erreur lors de l'enregistrement:", error);
@@ -567,19 +567,21 @@ const exportToExcel = () => {
 
 
 onMounted(async () => {
-  const serviceId = serviceStore.serviceId;
-  try {
-
-     const response = await getMovementService( serviceId);
-     movements.value = response.data;
-     console.log('movement',movements.value)
-
-
-
-  } catch (error) {
-    console.error("Erreur lors du chargement des données:", error);
-  }
+  await fetchProduct();
+  await fetchMovements();
 });
+
+
+const fetchMovements = async () => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getMovementService(serviceId);
+    movements.value = response.data;
+  } catch (error) {
+    console.error('Erreur lors du chargement des mouvements :', error);
+  }
+};
+
 
 const getProductName = (id: number) => {
   const found = productData.value.find((s:any) => s.value === id);

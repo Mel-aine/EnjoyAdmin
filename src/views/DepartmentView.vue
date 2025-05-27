@@ -302,6 +302,7 @@ const addDepartment = async() => {
         console.log('response',payload)
       const response = await createDepartment(payload);
       console.log('response',response)
+      fetchDepartment()
       toast.success(t('toast.Sucess'));
     }
 
