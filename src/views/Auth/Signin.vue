@@ -278,7 +278,8 @@
             <common-grid-shape />
 
           <img
-          src="@/assets/images/header/undraw_secure-login_m11a.svg"
+          src="@/assets/images/header/Tablet login-amico.svg"
+
           alt="Background"
           class="w-full h-full object-cover rounded-lg"
           />

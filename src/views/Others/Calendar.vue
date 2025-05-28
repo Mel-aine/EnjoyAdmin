@@ -418,6 +418,7 @@ const resetModalFields = () => {
 
 const handleDateSelect = (selectInfo:any) => {
   resetModalFields()
+  console.log("selectInfo",selectInfo.startStr)
   eventStartDate.value = selectInfo.startStr
   eventEndDate.value = selectInfo.endStr || selectInfo.startStr
   openModal()
@@ -426,8 +427,9 @@ const handleDateSelect = (selectInfo:any) => {
 const handleEventClick = (clickInfo:any) => {
   const event = clickInfo.event
   selectedEvent.value = event
+  console.log("event",event.start)
   eventTitle.value = event.title
-  eventStartDate.value = event.start?.toISOString().split('T')[0] || ''
+  eventStartDate.value = event.start?.toLocaleDateString('fr-CA') || ''
   eventEndDate.value = event.end?.toISOString().split('T')[0] || ''
   eventLevel.value = event.extendedProps.calendar
   openModal()
