@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref,watch } from 'vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import { getUser, getReservation } from '@/services/api'
@@ -8,12 +8,39 @@ import { defineEmits } from 'vue'
 
 const props = defineProps({
   customer_id: String,
+  modelValue: Object
 })
-const emit = defineEmits(['customerSelected'])
+//const emit = defineEmits(['customerSelected'])
+const emit = defineEmits<{
+  (e: 'customerSelected', payload: any): void
+  (e: 'update:modelValue', value: any): void
+}>()
+
 const customers = ref<any[]>([])
 const users = ref<any[]>([])
 const serviceStore = useServiceStore()
-const selectedCustomer = ref<any>({})
+// const selectedCustomer = ref<any>({})
+const selectedCustomer = ref<any>({ ...props.modelValue })
+
+// watch(() => props.modelValue, (newVal) => {
+//   selectedCustomer.value = { ...newVal }
+// })
+
+// watch(selectedCustomer, (newVal) => {
+//   emit('update:modelValue', newVal)
+// }, { deep: true })
+
+watch(() => props.modelValue, (newVal) => {
+  if (JSON.stringify(newVal) !== JSON.stringify(selectedCustomer.value)) {
+    selectedCustomer.value = { ...newVal }
+  }
+})
+
+watch(selectedCustomer, (newVal) => {
+  if (JSON.stringify(newVal) !== JSON.stringify(props.modelValue)) {
+    emit('update:modelValue', newVal)
+  }
+}, { deep: true })
 
 
 const selectCustomer = (customer: any) => {
@@ -56,7 +83,7 @@ onMounted(async () => {
 <template>
   <div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-      <CustomerSarch @customer-selected="selectCustomer" />
+      <CustomerSarch @customer-selected="selectCustomer"  />
       <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
       <Input
         :lb="$t('Phone')"
@@ -64,7 +91,7 @@ onMounted(async () => {
         inputType="tel"
 
       />
-      <Input :lb="$t('Email')" v-model="selectedCustomer.email" />
+      <Input :lb="$t('Email')" v-model="selectedCustomer.email" required />
     </div>
   </div>
 </template>

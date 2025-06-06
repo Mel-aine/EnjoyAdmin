@@ -81,10 +81,11 @@ export const getHotelMenu = (t: (key: string) => string) => {
           icon:  Banknote,
           name: t('Payments'),
           roles: [1, 2, 3],
-          subItems: [
-            { name: t('InvoiceList'), path: '/allInvoice', roles: [1, 2, 3] },
-            { name: t('InvoiceDetails'), path: '/invoice', roles: [1, 2, 3] },
-          ],
+          path: '/allInvoice'
+          // subItems: [
+          //   { name: t('InvoiceList'), path: '/allInvoice', roles: [1, 2, 3] },
+          //   { name: t('InvoiceDetails'), path: '/invoice', roles: [1, 2, 3] },
+          // ],
         },
         {
           icon: UserCircleIcon,

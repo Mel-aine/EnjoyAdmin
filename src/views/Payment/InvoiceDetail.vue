@@ -310,10 +310,12 @@ onMounted(async () => {
 
 const subtotal = computed(() => {
   return (invoice.value.items || []).reduce(
-    (sum: number, item: { amount: number }) => sum + (item?.amount || 0),
+    (sum: number, item: { amount: any }) => sum + (Number(item?.amount) || 0),
     0
   );
 });
+
+
 
 const tax = computed(() => subtotal.value * 0.1);
 // const total = computed(() => subtotal.value + tax.value);

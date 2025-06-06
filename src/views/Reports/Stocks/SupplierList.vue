@@ -12,7 +12,7 @@
         </button>
       </div>
       <div class="h-screen">
-      <ComponentCard title="" >
+      <!-- <ComponentCard title="" >
       <div class="ag-theme-quartz">
         <ag-grid-vue
           :rowData="suppliers"
@@ -26,7 +26,21 @@
           :autoSizeStrategy="autoSizeStrategy"
         />
       </div>
-      </ComponentCard>
+      </ComponentCard> -->
+      <TableComponent
+            :items="titles"
+            :datas="suppliers"
+            :filterable="true"
+            :pagination="true"
+            :loading="loading"
+            :showHeader="true"
+            :title="$t('Suppliers')"
+            :pageSize="15"
+            :showButtonAllElement="true"
+            @edit="onEditSupplier"
+            @delete="onDeleteSupplier"
+            class="modern-table"
+        />
     </div>
       <Modal v-if="modalOpen" @close="modalOpen = false">
         <template #body>
@@ -84,8 +98,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted,watch } from "vue";
-import { AgGridVue } from "ag-grid-vue3";
+import { ref,onMounted,watch,computed } from "vue";
+// import { AgGridVue } from "ag-grid-vue3";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import Modal from "@/components/profile/Modal.vue";
@@ -94,12 +108,13 @@ import ComponentCard from "@/components/common/ComponentCard.vue";
 import { createSupplier,getSupplier,deleteSupplier,updateSupplier} from "@/services/api";
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
-import type { ColDef, GridReadyEvent } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+// import type { ColDef, GridReadyEvent } from "ag-grid-community";
+// import "ag-grid-community/styles/ag-grid.css";
+// import "ag-grid-community/styles/ag-theme-quartz.css";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import ModalDelete from "@/components/modal/ModalDelete.vue";
+import TableComponent from "@/components/tables/TableComponent.vue";
 
 
 
@@ -114,59 +129,69 @@ const show=ref(false)
 const selectedId = ref<number | null>(null)
 const loadingDelete = ref(false)
 const selected = ref<any>(null);
+const loading = ref(false)
 
 
 
-function getActionButtons(Id: number): string {
-  return `
-    <div class="mt-2 space-x-4">
-      <button class="action-btn" data-action="edit" data-id="${Id}">
-        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+const titles = computed(() => [
+  {
+    name: 'id',
+    label: t('ID'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'name',
+    label: t('Name'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'email',
+    label: t('Email'),
+    type: 'url',
+    event: 'view',
+    filterable: true,
+  },
+  {
+    name: 'phone',
+    label: t('Phone'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'address',
+    label: t('Address'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+      {
+        name: 'Edit',
+        event: 'edit',
+        icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <path stroke="none" d="M0 0h24v24H0z"/>
           <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
           <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-        </svg>
-      </button>
-      <button class="action-btn" data-action="delete" data-id="${Id}">
-        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        </svg>`,
+      },
+      {
+        name: 'Delete',
+        event: 'delete',
+        icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </button>
-    </div>
-  `;
-}
+        </svg>`,
+      },
+    ],
 
-const columnDefs = ref<ColDef[]>([
-  { headerName: t('ID'), field: "id" },
-  { headerName: t('Name'), field: "name" },
-  { headerName: t('Email'), field: "email" },
-  { headerName: t('Phone'), field: "phone" },
-  { headerName: t('Address'), field: "address" },
-  { headerName: t('Actions') ,filter: false, sortable: false, cellRenderer: (params:any) => getActionButtons(params.data.id) }
-]);
+  },
+])
 
-watch(() => locale.value, () => {
-      columnDefs.value = [
-      { headerName: t('ID'), field: "id" },
-      { headerName: t('Name'), field: "name" },
-      { headerName: t('Email'), field: "email" },
-      { headerName: t('Phone'), field: "phone" },
-      { headerName: t('Address'), field: "address" },
-      { headerName: t('Actions'),filter: false, sortable: false , cellRenderer: (params:any) => getActionButtons(params.data.id) }
-]})
-
-
-const autoSizeStrategy = {
-  type: "fitGridWidth",
-  defaultMinWidth: 100,
-}
-
-const defaultColDef = {
-  resizable: true,
-  sortable: true,
-  filter: true,
-  floatingFilter: true,
-};
 
 const modalOpen = ref(false);
 const newSupplier = ref({
@@ -176,22 +201,12 @@ const newSupplier = ref({
   address: "",
 });
 
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
+const onEditSupplier = (s: any) => handleSupplierAction('edit', s)
+const onDeleteSupplier = (s: any) => handleSupplierAction('delete', s)
 
-  if (!button) {
-    console.error('No button found');
-    return;
-  }
-
-  const action = button.dataset.action;
-  const id = button.dataset.id;
-
-  console.log('Action:', action, ' ID:', id);
-
+const handleSupplierAction = (action: string, s: any) => {
   if (action === 'edit') {
-    const supplierEdit = suppliers.value.find((r: any) => r.id === Number(id));
+    const supplierEdit = suppliers.value.find((r: any) => r.id === Number(s.id));
     console.log("Editing :", supplierEdit);
 
     if (supplierEdit) {
@@ -205,10 +220,13 @@ const onCellClick = (event: any) => {
       modalOpen.value = true;
     }
   } else if (action === 'delete') {
-    selectedId.value = id
+    selectedId.value = s.id
     show.value = true
   }
-};
+}
+
+
+
 
 const updateData = async () => {
   isLoading.value = true;
@@ -300,8 +318,12 @@ const fetchSupplier = async() => {
   }
 
 }
-onMounted(()=>{
-  fetchSupplier()
+
+onMounted(async () => {
+  await fetchSupplier()
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  loading.value = false
 })
 
 const confirmDelete = async () => {
@@ -323,9 +345,6 @@ const confirmDelete = async () => {
   }
 }
 
-const onGridReady = (params: GridReadyEvent) => {
-  console.log("Suppliers grid ready");
-};
 
 const close = () =>{
   isEditing.value = false

@@ -12,7 +12,7 @@
         </button>
       </div>
       <div class="h-screen mt-10">
-        <ComponentCard title="">
+        <!-- <ComponentCard title="">
       <div class="ag-theme-quartz">
         <ag-grid-vue
           :rowData="categories"
@@ -26,8 +26,21 @@
           @cellClicked="onCellClick"
         />
       </div>
-    </ComponentCard>
-
+    </ComponentCard> -->
+    <TableComponent
+          :items="titles"
+          :datas="categories"
+          :filterable="true"
+          :pagination="true"
+          :loading="loading"
+          :showHeader="true"
+          :title="$t('StockCategory')"
+          :pageSize="15"
+          :showButtonAllElement="true"
+          @edit="onEditCategory"
+          @delete="onDeleteCategory"
+          class="modern-table"
+        />
     </div>
 
       <Modal v-if="modalOpen" @close="modalOpen = false">
@@ -88,8 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref ,watch} from "vue";
-import { AgGridVue } from "ag-grid-vue3";
+import { onMounted, ref ,watch,computed} from "vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
@@ -98,9 +110,7 @@ import Input from "@/components/forms/FormElements/Input.vue";
 import { createCategory,getCategory,deleteCategory,updateCategory} from "@/services/api";
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
-import type { ColDef, GridReadyEvent } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+import TableComponent from "@/components/tables/TableComponent.vue";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import ModalDelete from "@/components/modal/ModalDelete.vue";
@@ -116,66 +126,60 @@ const isEditing = ref(false)
 const show=ref(false)
 const selectedId = ref<number | null>(null)
 const loadingDelete = ref(false)
+const loading = ref(false)
 
 const selected = ref<any>(null);
+const titles = computed(() => [
+  {
+    name: 'id',
+    label: t('ID'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'name',
+    label: t('Name'),
+    type: 'text',
+    filterable: true,
+  },
 
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+      {
+        name: 'Edit',
+        event: 'edit',
+        icone: ` <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+            <line x1="16" y1="5" x2="19" y2="8" />
+          </svg>`,
+      },
+      {
+        name: 'Delete',
+        event: 'delete',
+        icone: `<svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+          </svg>`,
+      },
+    ],
+  },
+])
 
-function getActionButtons(Id: number): string {
-  return `
-    <div class="mt-2 space-x-4">
-      <button class="action-btn" data-action="edit" data-id="${Id}">
-        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z"/>
-          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-        </svg>
-      </button>
-      <button class="action-btn" data-action="delete" data-id="${Id}">
-        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </button>
-    </div>
-  `;
-}
-const columnDefs = ref<ColDef[]>([
-  { headerName: t('ID'), field: "id", width: 60 },
-  { headerName: t('Name'), field: "name" , width: 80},
-  { headerName: t('Actions'),width: 60 ,filter: false, sortable: false  , cellRenderer: (params:any) => getActionButtons(params.data.id) }
-]);
+const onEditCategory = (cat:any) => handleCategoryAction('edit',cat)
+ const onDeleteCategory = (cat:any) =>  handleCategoryAction('delete',cat)
 
-watch(() => locale.value, () => {
-      columnDefs.value = [
-      { headerName: t('ID'), field: "id", width: 60 },
-  { headerName: t('Name'), field: "name", width: 80 },
-  { headerName: t('Actions'),width: 60,filter: false, sortable: false , cellRenderer: (params:any) => getActionButtons(params.data.id) }
-]})
-
-const defaultColDef = {
-  resizable: true,
-  sortable: true,
-  filter: true,
-  floatingFilter: true,
-};
-
-
-
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
-
-  if (!button) {
-    console.error('No button found');
-    return;
-  }
-
-  const action = button.dataset.action;
-  const id = button.dataset.id;
-
-  console.log('Action:', action, ' ID:', id);
-
+ const handleCategoryAction = (action: string, cat: any) => {
   if (action === 'edit') {
-    const categorieEdit = categories.value.find((r: any) => r.id === Number(id));
+    const categorieEdit = categories.value.find((r: any) => r.id === Number(cat.id));
     console.log("Editing :", categorieEdit);
 
     if (categorieEdit) {
@@ -187,10 +191,42 @@ const onCellClick = (event: any) => {
 
     }
   } else if (action === 'delete') {
-    selectedId.value = id
+    selectedId.value = cat.id
     show.value = true
   }
-};
+}
+
+// const onCellClick = (event: any) => {
+//   const button = event.event.target.closest('button');
+//   console.log('Button clicked:', button);
+
+//   if (!button) {
+//     console.error('No button found');
+//     return;
+//   }
+
+//   const action = button.dataset.action;
+//   const id = button.dataset.id;
+
+//   console.log('Action:', action, ' ID:', id);
+
+//   if (action === 'edit') {
+//     const categorieEdit = categories.value.find((r: any) => r.id === Number(id));
+//     console.log("Editing :", categorieEdit);
+
+//     if (categorieEdit) {
+//       selected.value = categorieEdit;
+//       newCategoryName.value = categorieEdit.name
+
+//       isEditing.value = true;
+//       modalOpen.value = true;
+
+//     }
+//   } else if (action === 'delete') {
+//     selectedId.value = id
+//     show.value = true
+//   }
+// };
 
 
 const updateData = async () => {
@@ -274,17 +310,16 @@ const fetchCategorie = async() => {
   }
 
 }
-onMounted(()=>{
+
+onMounted(async () => {
   fetchCategorie()
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  loading.value = false
 })
 
-const onGridReady = (params: GridReadyEvent) => {
-  console.log("Categories grid ready");
-};
-const autoSizeStrategy = {
-  type: "fitGridWidth",
-  defaultMinWidth: 100,
-}
+
+
 
 const confirmDelete = async () => {
   if (selectedId.value !== null) {

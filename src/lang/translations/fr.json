@@ -17,6 +17,7 @@
     "RoomPrice" : "Prix de la Chambre",
     "TotalPrice" : "Prix Total",
     "Note" : "Note",
+    "SaveBooking" : "Enregistrer une réservation",
     "AddBooking" : "Ajouter une réservation",
     "ConfirmBookingPayment" : "Confirmer la réservation & le paiement",
     "Reviewthereservationdetailsbeforeconfirming." : "Vérifiez les détails de la réservation avant de confirmer.",
@@ -529,7 +530,15 @@
     "unknown": "Inconnu"
   },
   "ConfirmPayment" : "Confirmer le Paiement",
-  "ConfirmPaymentMessage": "Veuillez confirmer que vous avez bien reçu le paiement suivant."
+  "ConfirmPaymentMessage": "Veuillez confirmer que vous avez bien reçu le paiement suivant.",
+  "loadingInProgress" : "Chargement en cours",
+  "datas" : "Données",
+  "item" : "Elément",
+  "search..." : "Rechercher...",
+  "noData" : "Aucune donnée disponible",
+  "try..." : "Essayez de modifier votre recherche",
+  "thedata" : "Les données apparaîtront ici",
+  "Rooms" : "Chambres"
 
 
 

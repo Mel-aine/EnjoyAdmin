@@ -21,20 +21,20 @@
               </button>
 
               <!-- Exporter -->
-              <button
+              <!-- <button
                 @click="exportToExcel"
                 class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition flex items-center"
               >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4 4m0 0l4-4m-4 4V4" /></svg>
                 {{ $t('export') }}
-              </button>
+              </button> -->
             </div>
           </div>
 
           <!-- Tableau -->
           <div class="space-y-5 p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
-            <ag-grid-vue
+            <!-- <ag-grid-vue
               class="ag-theme-quartz"
               :rowData="movements"
               :columnDefs="columnDefs"
@@ -45,6 +45,20 @@
               :domLayout="'autoHeight'"
               @gridReady="onGridReady"
               @cellClicked="onCellClick"
+            /> -->
+            <TableComponent
+              :items="titles"
+              :datas="movements"
+              :filterable="true"
+              :pagination="true"
+              :loading="loading"
+              :showHeader="true"
+              :title="$t('StockMovements')"
+              :pageSize="15"
+              :showButtonAllElement="true"
+              @edit="onEditMovement"
+              @delete="onDeleteMovement"
+              class="modern-table"
             />
           </div>
         </div>
@@ -195,10 +209,10 @@
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import { ref, reactive, onMounted,computed,watch } from "vue";
-import { AgGridVue } from "ag-grid-vue3";
-import type { GridReadyEvent, ColDef } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+// import { AgGridVue } from "ag-grid-vue3";
+// import type { GridReadyEvent, ColDef } from "ag-grid-community";
+// import "ag-grid-community/styles/ag-grid.css";
+// import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useToast } from 'vue-toastification'
 import Modal from '@/components/profile/Modal.vue'
 import Input from "@/components/forms/FormElements/Input.vue";
@@ -209,6 +223,7 @@ import { useServiceStore } from '@/composables/serviceStore';
 import { useAuthStore } from '@/composables/user';
 import { useI18n } from "vue-i18n";
 import ModalDelete from "@/components/modal/ModalDelete.vue";
+import TableComponent from "@/components/tables/TableComponent.vue";
 
 interface StockMovement {
   id?: number;
@@ -223,6 +238,7 @@ interface StockMovement {
 }
 
 const isLoading = ref(false)
+const loading = ref(false)
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore();
@@ -275,85 +291,110 @@ const locations = computed(() => [
 ]);
 
 
-// Configuration de la grille AG Grid
-const columnDefs = ref<ColDef[]>([
-  { headerName: t('Date'), field: "date", filter: true, sortable: true },
-  { headerName: t('product'), field: "productId", filter: true,valueGetter: (params: any) => getProductName(params.data.productId) },
-  {
-    headerName: t('Type'),
-    field: "type",
-    filter: true,
-    cellRenderer: ({ value }:any) => {
-      let color = "gray";
-      if (value === "Entry") color = "green";
-      else if (value === "Exit") color = "red";
-      else if (value === "Transfer") color = "blue";
-      else if (value === "Adjustment") color = "orange";
 
-      return `<span class="text-${color}-600 font-semibold">${value}</span>`;
-    },
+
+
+
+  const titles = computed(() => [
+  {
+    name: 'date',
+    label: t('Date'),
+    type: 'date',
+    filterable: false,
   },
-  { headerName: t('quantity'), field: "quantity", filter: true },
-  { headerName: t('source'), field: "source", filter: true },
-  { headerName: t('destination'), field: "destination", filter: true },
-  { headerName: t('user'), field: "user", filter: true },
-  {headerName: t('Actions'),width: 120,sortable: false,  filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id) }
-]);
-function getActionButtons(id: number): string {
-  return `
-    <div class="mt-2 space-x-4">
-      <button class="action-btn" data-action="edit" data-id="${id}">
-        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z"/>
-          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-        </svg>
-      </button>
-      <button class="action-btn" data-action="delete" data-id="${id}">
-        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </button>
-    </div>
-  `;
+  {
+    name: 'productName',
+    label: t('product'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'statusColor',
+    label: t('Type'),
+    type: 'badge',
+    filterable: false,
+  },
+  {
+    name: 'quantity',
+    label: t('quantity'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'source',
+    label: t('source'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'destination',
+    label: t('destination'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'user',
+    label: t('user'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+      {
+        name: 'Edit',
+        event: 'edit',
+        icone: ` <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+            <line x1="16" y1="5" x2="19" y2="8" />
+          </svg>`,
+      },
+      {
+        name: 'Delete',
+        event: 'delete',
+        icone: `<svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+          </svg>`,
+      },
+    ],
+  },
+])
+
+const onEditMovement = (m: any) => handleMovementAction('edit', m)
+const onDeleteMovement = (m: any) => handleMovementAction('delete', m)
+
+const handleMovementAction = (action: string, m: any) => {
+  if (action === 'edit') {
+    const movementEdit = movements.value.find((r: any) => r.id === m.id);
+    console.log("Editing :",  movementEdit);
+
+    if (movementEdit) {
+      selected.value = movementEdit;
+      currentMovement.date = movementEdit.date
+      currentMovement.destination = movementEdit.destination
+      currentMovement.notes = movementEdit.notes
+      currentMovement.productId = movementEdit.productId
+      currentMovement.quantity = movementEdit.quantity
+      currentMovement.source = movementEdit.source
+      currentMovement.type = movementEdit.type
+      isEditing.value = true;
+      showModal.value = true;
+
+    }
+  } else if (action === 'delete') {
+    selectedId.value = m.id
+    show.value = true
+  }
 }
-
-watch(() => locale.value, () => {
-  columnDefs.value = [
-  { headerName: t('Date'), field: "date", filter: true, sortable: true },
-  { headerName: t('product'), field: "productId", filter: true,valueGetter: (params: any) => getProductName(params.data.productId) },
-  {
-    headerName: t('Type'),
-    field: "type",
-    filter: true,
-    cellRenderer: ({ value }:any) => {
-      let color = "gray";
-      if (value === "Entry") color = "green";
-      else if (value === "Exit") color = "red";
-      else if (value === "Transfer") color = "blue";
-      else if (value === "Adjustment") color = "orange";
-
-      return `<span class="text-${color}-600 font-semibold">${value}</span>`;
-    },
-  },
-  { headerName: t('quantity'), field: "quantity", filter: true },
-  { headerName: t('source'), field: "source", filter: true },
-  { headerName: t('destination'), field: "destination", filter: true },
-  { headerName: t('user'), field: "user", filter: true },
-  {headerName: t('Actions'),width: 120,sortable: false,  filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id) }
-  ]})
-
-const defaultColDef = {
-  resizable: true,
-  sortable: true,
-  filter: true,
-  floatingFilter: true,
-};
-
-// Méthodes
-const onGridReady = (params: GridReadyEvent) => {
-  console.log("Grid ready:", params);
-};
 
 
 const fetchProduct = async() => {
@@ -375,45 +416,6 @@ const fetchProduct = async() => {
 
 
 const selected = ref<any>(null);
-
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
-
-  if (!button) {
-    console.error('No button found');
-    return;
-  }
-
-  const action = button.dataset.action;
-  const id = button.dataset.id;
-
-  console.log('Action:', action, ' ID:', id);
-
-  if (action === 'edit') {
-    const movementEdit = movements.value.find((r: any) => r.id === id);
-    console.log("Editing :",  movementEdit);
-
-    if (movementEdit) {
-      selected.value = movementEdit;
-      currentMovement.date = movementEdit.date
-      currentMovement.destination = movementEdit.destination
-      currentMovement.notes = movementEdit.notes
-      currentMovement.productId = movementEdit.productId
-      currentMovement.quantity = movementEdit.quantity
-      currentMovement.source = movementEdit.source
-      currentMovement.type = movementEdit.type
-      isEditing.value = true;
-      showModal.value = true;
-
-    }
-  } else if (action === 'delete') {
-    selectedId.value = id
-    show.value = true
-  }
-};
-
-
 
 const updateData = async () => {
   isLoading.value = true;
@@ -566,17 +568,44 @@ const exportToExcel = () => {
 };
 
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Entry':
+      return 'bg-green-100 text-green-700';
+    case 'Ajustment':
+      return 'bg-yellow-100 text-yellow-700';
+    case 'Exit':
+      return 'bg-red-100 text-red-700';
+    default:
+      return 'bg-gray-100 text-gray-700';
+  }
+};
+
 onMounted(async () => {
   await fetchProduct();
   await fetchMovements();
-});
+  await new Promise(resolve => setTimeout(resolve, 500))
 
+  loading.value = false
+})
 
 const fetchMovements = async () => {
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getMovementService(serviceId);
-    movements.value = response.data;
+    movements.value = response.data.map((m:any)=>{
+      const statusClasses = getStatusColor(m.type).split(' ');
+      return {
+        ...m,
+        statusColor: {
+        label: m.type,
+        bg: statusClasses[0],
+        text: statusClasses[1]
+        },
+        productName:getProductName(m.productId)
+
+      }
+    });
   } catch (error) {
     console.error('Erreur lors du chargement des mouvements :', error);
   }

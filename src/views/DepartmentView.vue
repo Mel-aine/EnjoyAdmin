@@ -124,7 +124,7 @@
       </Modal>
 
       <div class="space-y-5 pt-10 sm:space-y-6 min-h-screen">
-        <ag-grid-vue
+        <!-- <ag-grid-vue
           class="ag-theme-quartz"
           :rowData="departmentsData"
           :columnDefs="columnDefs"
@@ -137,7 +137,23 @@
           :autoSizeStrategy="autoSizeStrategy"
           @selectionChanged="getSelectedRows"
           :defaultColDef="defaultColDef">
-        </ag-grid-vue>
+        </ag-grid-vue> -->
+
+        <TableComponent
+            :items="titles"
+            :datas="departmentsData"
+            :filterable="true"
+            :pagination="true"
+            :loading="loading"
+            :showHeader="true"
+            :title="$t('Department')"
+            :pageSize="15"
+            :showButtonAllElement="true"
+            @edit="onEditDept"
+            @delete="onDeleteDept"
+            class="modern-table"
+        />
+
       </div>
     </AdminLayout>
   </div>
@@ -147,13 +163,14 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, watch } from 'vue';
-import { AgGridVue } from 'ag-grid-vue3';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
+import { defineAsyncComponent, ref, onMounted, watch,computed } from 'vue';
+// import { AgGridVue } from 'ag-grid-vue3';
+// import 'ag-grid-community/styles/ag-grid.css';
+// import 'ag-grid-community/styles/ag-theme-quartz.css';
+// import type { ColDef, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 import { createDepartment, getDepartment ,updateDpt,deleteDpt,getUser} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
+import TableComponent from '@/components/tables/TableComponent.vue'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
 
@@ -170,6 +187,7 @@ const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalD
 
 const isAddModalOpen = ref(false);
 const isLoading = ref(false)
+const loading = ref(false)
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore();
@@ -373,177 +391,278 @@ const fetchDepartment = async () => {
 
 
 onMounted(async()=>{
-  await fetchDepartment()
  await fetchUser()
 })
 
-const defaultColDef = {
-  sortable: true,
-  filter: true,
-  floatingFilter: true,
-  resizable: true,
-};
+onMounted(async () => {
+  setTimeout(async () => {
+    await fetchDepartment()
+    loading.value = false
+  }, 500)
+})
 
-const columnDefs = ref<ColDef[]>([
+// const defaultColDef = {
+//   sortable: true,
+//   filter: true,
+//   floatingFilter: true,
+//   resizable: true,
+// };
+
+// const columnDefs = ref<ColDef[]>([
+//   {
+//     headerName: t('ID'),
+//     field: 'id',
+//     width: 110
+//   },
+//   {
+//     headerName: t('departmentName'),
+//     field: 'name',
+//     flex: 2
+//   },
+//   {
+//     headerName: t('Description'),
+//     field: 'description',
+//     flex: 3
+//   },
+//   {
+//     headerName: t('manager'),
+//     field: 'responsibleUserName',
+//     flex: 2
+//   },
+//   {
+//     headerName: t('employees'),
+//     field: 'numberEmployees',
+//     width: 120
+//   },
+//   {
+//     headerName: t('Status'),
+//     field: 'status',
+//     width: 120,
+//     cellRenderer: (params: any) => {
+//       const status = params.value;
+//       let bgColor = 'bg-green-100 text-green-800';
+
+//       if (status === 'inactif') {
+//         bgColor = 'bg-red-100 text-red-800';
+//       } else if (status === 'En révision') {
+//         bgColor = 'bg-yellow-100 text-yellow-800';
+//       }
+
+//       return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${bgColor}">${status}</span>`;
+//     }
+//   },
+//   {
+//     headerName: t('Actions'), sortable: false,filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id),
+//     width: 130
+//   },
+// ]);
+
+
+const titles = computed(() => [
   {
-    headerName: t('ID'),
-    field: 'id',
-    width: 110
+    name: 'id',
+    label: t('ID'),
+    type: 'text',
+    sortable: true,
+    filterable: false,
   },
   {
-    headerName: t('departmentName'),
-    field: 'name',
-    flex: 2
+    name: 'name',
+    label: t('departmentName'),
+    type: 'text',
+    filterable: true,
   },
   {
-    headerName: t('Description'),
-    field: 'description',
-    flex: 3
+    name: 'description',
+    label: t('Description'),
+    type: 'text',
+    filterable: true,
   },
   {
-    headerName: t('manager'),
-    field: 'responsibleUserName',
-    flex: 2
+    name: 'responsibleUserName',
+    label: t('manager'),
+    type: 'text',
+    event: 'view',
+    filterable: true,
   },
   {
-    headerName: t('employees'),
-    field: 'numberEmployees',
-    width: 120
+    name: 'status',
+    label: t('Status'),
+    type: 'badge',
+    filterable: false,
   },
   {
-    headerName: t('Status'),
-    field: 'status',
-    width: 120,
-    cellRenderer: (params: any) => {
-      const status = params.value;
-      let bgColor = 'bg-green-100 text-green-800';
-
-      if (status === 'inactif') {
-        bgColor = 'bg-red-100 text-red-800';
-      } else if (status === 'En révision') {
-        bgColor = 'bg-yellow-100 text-yellow-800';
-      }
-
-      return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${bgColor}">${status}</span>`;
-    }
+    name: 'numberEmployees',
+    label: t('employees'),
+    type: 'text',
+    filterable: false,
   },
   {
-    headerName: t('Actions'), sortable: false,filter: false, cellRenderer: (params:any) => getActionButtons(params.data.id),
-    width: 130
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+      {
+        name: 'Edit',
+        event: 'edit',
+        icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>`,
+      },
+      {
+        name: 'Delete',
+        event: 'delete',
+        icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>`,
+      },
+    ],
   },
-]);
+])
 
 
-watch(() => locale.value, () => {
-  columnDefs.value = [
-  {
-    headerName: t('ID'),
-    field: 'id',
-    checkboxSelection: true,
-    headerCheckboxSelection: true,
-    width: 110
-  },
-  {
-    headerName: t('departmentName'),
-    field: 'name',
-    flex: 2
-  },
-  {
-    headerName: t('Description'),
-    field: 'description',
-    flex: 3
-  },
-  {
-    headerName: t('manager'),
-    field: 'responsibleUserName',
-    flex: 2
-  },
-  {
-    headerName: t('employees'),
-    field: 'numberEmployees',
-    width: 120
-  },
-  {
-    headerName: t('Status'),
-    field: 'status',
-    width: 120,
-    cellRenderer: (params: any) => {
-      const status = params.value;
-      let bgColor = 'bg-green-100 text-green-800';
+// watch(() => locale.value, () => {
+//   columnDefs.value = [
+//   {
+//     headerName: t('ID'),
+//     field: 'id',
+//     checkboxSelection: true,
+//     headerCheckboxSelection: true,
+//     width: 110
+//   },
+//   {
+//     headerName: t('departmentName'),
+//     field: 'name',
+//     flex: 2
+//   },
+//   {
+//     headerName: t('Description'),
+//     field: 'description',
+//     flex: 3
+//   },
+//   {
+//     headerName: t('manager'),
+//     field: 'responsibleUserName',
+//     flex: 2
+//   },
+//   {
+//     headerName: t('employees'),
+//     field: 'numberEmployees',
+//     width: 120
+//   },
+//   {
+//     headerName: t('Status'),
+//     field: 'status',
+//     width: 120,
+//     cellRenderer: (params: any) => {
+//       const status = params.value;
+//       let bgColor = 'bg-green-100 text-green-800';
 
-      if (status === 'inactif') {
-        bgColor = 'bg-red-100 text-red-800';
-      } else if (status === 'En révision') {
-        bgColor = 'bg-yellow-100 text-yellow-800';
-      }
+//       if (status === 'inactif') {
+//         bgColor = 'bg-red-100 text-red-800';
+//       } else if (status === 'En révision') {
+//         bgColor = 'bg-yellow-100 text-yellow-800';
+//       }
 
-      return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${bgColor}">${status}</span>`;
-    }
-  },
-  {
-    headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id),
-    width: 130
-  },
-  ]}
-)
-
-
-function getActionButtons(id: number): string {
-  return `
-    <div class="flex space-x-2 mt-2">
-        <button class="p-1" data-action="edit" data-id="${id}">
-          <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-            <line x1="16" y1="5" x2="19" y2="8" />
-          </svg>
-        </button>
-        <button class="p-1" data-action="delete" data-id="${id}">
-          <svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <line x1="4" y1="7" x2="20" y2="7" />
-            <line x1="10" y1="11" x2="10" y2="17" />
-            <line x1="14" y1="11" x2="14" y2="17" />
-            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-          </svg>
-        </button>
-        <button class="p-1" data-action="view" data-id="${id}">
-          <svg class="h-5 w-5 text-slate-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <circle cx="12" cy="12" r="2" />
-            <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />
-            <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" />
-          </svg>
-        </button>
-      </div>
-  `;
-}
-
-const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event);
-};
-
-const onCellClick = (event: any) => {
-  console.log('Cell clicked:', event.data);
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
-
-  // Gestion des actions (édition, suppression, affichage)
-  if (event.colDef.headerName === 'Actions') {
-    // const action = (event.event as MouseEvent).target?.closest('button')?.getAttribute('data-action');
-    if (!button) {
-    console.error('No button found');
-    return;
-  }
-
-  const action = button.dataset.action;
-  const id = button.dataset.id;
+//       return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${bgColor}">${status}</span>`;
+//     }
+//   },
+//   {
+//     headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id),
+//     width: 130
+//   },
+//   ]}
+// )
 
 
-    if (action === 'edit') {
-      const deptEdit = departmentsData.value.find((r: any) => r.id === Number(id));
+// function getActionButtons(id: number): string {
+//   return `
+//     <div class="flex space-x-2 mt-2">
+//         <button class="p-1" data-action="edit" data-id="${id}">
+//           <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+//             <path stroke="none" d="M0 0h24v24H0z"/>
+//             <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+//             <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+//             <line x1="16" y1="5" x2="19" y2="8" />
+//           </svg>
+//         </button>
+//         <button class="p-1" data-action="delete" data-id="${id}">
+//           <svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+//             <path stroke="none" d="M0 0h24v24H0z"/>
+//             <line x1="4" y1="7" x2="20" y2="7" />
+//             <line x1="10" y1="11" x2="10" y2="17" />
+//             <line x1="14" y1="11" x2="14" y2="17" />
+//             <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+//             <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+//           </svg>
+//         </button>
+//         <button class="p-1" data-action="view" data-id="${id}">
+//           <svg class="h-5 w-5 text-slate-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+//             <path stroke="none" d="M0 0h24v24H0z"/>
+//             <circle cx="12" cy="12" r="2" />
+//             <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />
+//             <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" />
+//           </svg>
+//         </button>
+//       </div>
+//   `;
+// }
+
+// const onGridReady = (event: GridReadyEvent) => {
+//   console.log('Grid ready:', event);
+// };
+
+// const onCellClick = (event: any) => {
+//   console.log('Cell clicked:', event.data);
+//   const button = event.event.target.closest('button');
+//   console.log('Button clicked:', button);
+
+//   // Gestion des actions (édition, suppression, affichage)
+//   if (event.colDef.headerName === 'Actions') {
+//     // const action = (event.event as MouseEvent).target?.closest('button')?.getAttribute('data-action');
+//     if (!button) {
+//     console.error('No button found');
+//     return;
+//   }
+
+//   const action = button.dataset.action;
+//   const id = button.dataset.id;
+
+
+//     if (action === 'edit') {
+//       const deptEdit = departmentsData.value.find((r: any) => r.id === Number(id));
+//       console.log("deptEdit",departmentsData.value)
+//       if(deptEdit){
+//         selected.value = deptEdit;
+//         newDepartment.value.name=deptEdit.name
+//         newDepartment.value.description=deptEdit.description
+//         newDepartment.value.employeeCount=deptEdit.numberEmployees
+//         newDepartment.value.manager=deptEdit.responsibleUserId
+//       }
+//       isAddModalOpen.value = true
+//       isEditing.value = true
+//     } else if (action === 'delete') {
+//       selectedId.value = id
+//       show.value = true
+//     } else if (action === 'view') {
+//       const dept = departmentsData.value.find((d:any) => d.id === Number(id))
+//     if (dept) {
+//       selectedDepartment.value = dept
+//       showModal.value = true
+//     }
+//     }
+//   }
+// };
+
+const onEditDept = (dept: any) => handleDeptAction('edit', dept)
+const onDeleteDept = (dept: any) => handleDeptAction('delete', dept)
+const deptId = ref(null)
+const handleDeptAction = (action: string, dept: any) => {
+  deptId.value = dept.id
+  if (action === 'edit') {
+      const deptEdit = departmentsData.value.find((r: any) => r.id === Number(deptId.value));
       console.log("deptEdit",departmentsData.value)
       if(deptEdit){
         selected.value = deptEdit;
@@ -555,27 +674,27 @@ const onCellClick = (event: any) => {
       isAddModalOpen.value = true
       isEditing.value = true
     } else if (action === 'delete') {
-      selectedId.value = id
+      selectedId.value = deptId.value
       show.value = true
     } else if (action === 'view') {
-      const dept = departmentsData.value.find((d:any) => d.id === Number(id))
+      const dept = departmentsData.value.find((d:any) => d.id === Number(deptId.value))
     if (dept) {
       selectedDepartment.value = dept
       showModal.value = true
     }
     }
   }
-};
 
-const getSelectedRows = (event: SelectionChangedEvent) => {
-  const selected = event.api.getSelectedRows();
-  console.log('Selected rows:', selected);
-};
 
-const autoSizeStrategy = {
-  type: "fitGridWidth",
-  defaultMinWidth: 100,
-};
+// const getSelectedRows = (event: SelectionChangedEvent) => {
+//   const selected = event.api.getSelectedRows();
+//   console.log('Selected rows:', selected);
+// };
+
+// const autoSizeStrategy = {
+//   type: "fitGridWidth",
+//   defaultMinWidth: 100,
+// };
 
 const confirmDelete = async () => {
   if (selectedId.value !== null) {

@@ -22,9 +22,6 @@
         <ComponentCard title="Checkboxes">
           <CheckboxInput />
         </ComponentCard>
-        <ComponentCard title="Dropzone">
-          <Dropzone />
-        </ComponentCard>
       </div>
     </div>
   </AdminLayout>
@@ -40,7 +37,6 @@ import SelectInput from '@/components/forms/FormElements/SelectInput.vue'
 import InputState from '@/components/forms/FormElements/InputState.vue'
 import TextArea from '@/components/forms/FormElements/TextArea.vue'
 import InputGroup from '@/components/forms/FormElements/InputGroup.vue'
-import Dropzone from '@/components/forms/FormElements/Dropzone.vue'
 import FileInput from '@/components/forms/FormElements/FileInput.vue'
 import CheckboxInput from '@/components/forms/FormElements/CheckboxInput.vue'
 

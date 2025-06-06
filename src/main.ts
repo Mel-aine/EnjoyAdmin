@@ -15,7 +15,6 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
-import VueApexCharts from 'vue3-apexcharts'
 import { createI18n } from 'vue-i18n';
 
 
@@ -39,7 +38,6 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(i18n)
-app.use(VueApexCharts)
 app.use(Toast, options)
 
 

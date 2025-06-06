@@ -18,6 +18,7 @@
     "RoomPrice" : "Room Price",
     "TotalPrice" : "Total Price",
     "Note": "Note",
+    "SaveBooking" : "Save Booking",
     "AddBooking" : "Add Booking",
     "ConfirmBookingPayment" : "Confirm Booking & Payment",
     "Reviewthereservationdetailsbeforeconfirming." : "Review the reservation details before confirming.",
@@ -528,7 +529,15 @@
     "unknown": "Unknown"
   },
   "ConfirmPayment" : "Confirm Payment",
-  "ConfirmPaymentMessage": "Please confirm that you have received the following payment."
+  "ConfirmPaymentMessage": "Please confirm that you have received the following payment.",
+  "loadingInProgress" : "Loading In Progress",
+  "datas" : "Datas",
+  "item" : "Item",
+  "search..." : "Search ...",
+  "noData" : "No data available",
+  "try..." : "Try changing your search",
+  "thedata" : "The data will appear here",
+  "Rooms" : "Rooms"
     
 
     

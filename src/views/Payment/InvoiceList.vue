@@ -3,7 +3,7 @@
     <AdminLayout>
       <div class="min-h-screen">
           <PageBreadcrumb :pageTitle="currentPageTitle" />
-          <ag-grid-vue
+          <!-- <ag-grid-vue
               class="ag-theme-quartz"
               :rowData="Payments"
               :columnDefs="columnDefs"
@@ -14,7 +14,21 @@
               :pagination="true"
               @cellClicked="onCellClick"
               @gridReady="onGridReady"
-            ></ag-grid-vue>
+            ></ag-grid-vue> -->
+            <TableComponent
+              :items="titles"
+              :datas="Payments"
+              :filterable="true"
+              :pagination="true"
+              :loading="loading"
+              :showHeader="true"
+              :title="$t('Payments')"
+              :pageSize="15"
+              :showButtonAllElement="true"
+              @confirm="onConfirmPay"
+              @print="onPrintPay"
+              class="modern-table"
+            />
         </div>
         <Modal v-if="showConfirmModal" @close="showConfirmModal = false">
           <template #body>
@@ -93,12 +107,12 @@
 
 <script setup lang="ts">
 import { ref,onMounted,watch,computed } from 'vue'
-import { AgGridVue } from 'ag-grid-vue3';
+// import { AgGridVue } from 'ag-grid-vue3';
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
+// import 'ag-grid-community/styles/ag-grid.css';
+// import 'ag-grid-community/styles/ag-theme-quartz.css';
+// import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
 import {getPayment, confirmPayment} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import { useRouter } from 'vue-router'
@@ -107,6 +121,9 @@ import { useToast } from 'vue-toastification'
 import Modal from '@/components/profile/Modal.vue';
 import ButtonComponent from "@/components/buttons/ButtonComponent.vue";
 import { useAuthStore } from '@/composables/user'
+import TableComponent from '@/components/tables/TableComponent.vue';
+import { formatDateT } from '@/components/utilities/UtilitiesFunction'
+import Spinner from '@/components/spinner/Spinner.vue';
 
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: "global" });
@@ -116,17 +133,42 @@ const currentPageTitle = computed(()=>t("InvoiceList"));
 const selectedPayment = ref<any>(null)
 const Payments = ref<any[]>([])
 const showConfirmModal = ref(false)
+const loading = ref(false)
 const isLoading = ref(false)
 const authStore = useAuthStore()
+
+
 const fetchPayment = async () => {
   const serviceId = serviceStore.serviceId;
 
+  if (!serviceId) {
+    console.warn("serviceId is missing");
+    return;
+  }
+
   try {
     const response = await getPayment(serviceId);
-    console.log("....", response.data);
-    Payments.value = Array.isArray(response.data) ? response.data : response.data.data;
+    console.log("Raw response data:", response.data);
 
-    console.log(".....Payments.value", Payments.value);
+    const paymentsData = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data || [];
+
+    Payments.value = paymentsData.map((pay: any) => {
+      const [bg, text] = getStatusColor(pay.status).split(' ');
+
+      return {
+        ...pay,
+        Date : formatDateT(pay.paymentDate),
+        statusColor: {
+          label: pay.status,
+          bg,
+          text
+        }
+      };
+    });
+
+    console.log("Processed Payments.value:", Payments.value);
   } catch (error) {
     console.error('fetch failed:', error);
   }
@@ -135,82 +177,145 @@ const fetchPayment = async () => {
 
 
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'paid':
+      return 'bg-green-100 text-green-700';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-700';
+    case 'unpaid':
+      return 'bg-red-100 text-red-700';
+    default:
+      return 'bg-gray-100 text-gray-700';
+  }
+};
+
 
 
 onMounted(async () => {
-  await fetchPayment()
-});
+  setTimeout(async () => {
+    await fetchPayment()
+    loading.value = false
+  }, 500)
+})
+
+const titles = computed(() => [
+  {
+    name: 'id',
+    label: t('PaymentID'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'Date',
+    label: t('Date'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'amountPaid',
+    label: t('Amount'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'statusColor',
+    label: t('Status'),
+    type: 'badge',
+    filterable: false,
+  },
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: (row) => {
+      if (row.status === 'pending') {
+        return [
+          { name: 'Confirm', event: 'confirm', icone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check text-green-500"><path d="M20 6 9 17l-5-5"/></svg>`, },
+        ]
+      } else if (row.status === 'paid') {
+        return [
+          { name: 'Print', event: 'print',  icone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer-check-icon lucide-printer-check"><path d="M13.5 22H7a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v.5"/><path d="m16 19 2 2 4-4"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/></svg>` },
+        ]
+      }
+      return []
+    },
 
 
-const columnDefs = ref<ColDef[]>([
-  { headerName: t('PaymentID'), field: 'id' },
-  {
-    headerName: t('Date'),
-    field: 'paymentDate',
-    valueFormatter: ({ value } : { value: string }) => new Date(value).toLocaleString('fr-FR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    })
   },
-  {
-    headerName: t('Amount (FCFA)'),
-    field: 'amountPaid',
-  },
-  {
-    headerName: t('Status'),
-    field: 'status',
-    cellRenderer: (params: ICellRendererParams) => getStatusBadge(params.value)
-  },
-  {
-    headerName: t('Actions'),
-    cellRenderer: (params: any) => getActionButtons(params.data.id, params.data.status)
-  }
 ])
 
 
-watch(() => locale.value, () => {
-      columnDefs.value = [
-      { headerName: t('PaymentID'), field: 'id' },
-  {
-    headerName: t('Date'),
-    field: 'paymentDate',
-    valueFormatter: ({ value }: { value: string })=> new Date(value).toLocaleString('fr-FR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    })
-  },
-  {
-    headerName: t('Amount'),
-    field: 'amountPaid',
-  },
-  {
-    headerName: t('Status'),
-    field: 'status',
-    cellRenderer: (params: ICellRendererParams) => getStatusBadge(params.value)
-  },
-  {
-    headerName: t('Actions'),
-    cellRenderer: (params: any) => getActionButtons(params.data.id, params.data.status)
-  }
-      ];
-    }, { immediate: true });
+
+// const columnDefs = ref<ColDef[]>([
+//   { headerName: t('PaymentID'), field: 'id' },
+//   {
+//     headerName: t('Date'),
+//     field: 'paymentDate',
+//     valueFormatter: ({ value } : { value: string }) => new Date(value).toLocaleString('fr-FR', {
+//       day: '2-digit', month: 'short', year: 'numeric',
+//       hour: '2-digit', minute: '2-digit'
+//     })
+//   },
+//   {
+//     headerName: t('Amount (FCFA)'),
+//     field: 'amountPaid',
+//   },
+//   {
+//     headerName: t('Status'),
+//     field: 'status',
+//     cellRenderer: (params: ICellRendererParams) => getStatusBadge(params.value)
+//   },
+//   {
+//     headerName: t('Actions'),
+//     cellRenderer: (params: any) => getActionButtons(params.data.id, params.data.status)
+//   }
+// ])
 
 
-function getStatusBadge(value: string): string {
-  const badgeMap: Record<string, string> = {
-    succeeded: 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-500',
-    pending: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
-    unpaid: 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500',
-  };
+// watch(() => locale.value, () => {
+//       columnDefs.value = [
+//       { headerName: t('PaymentID'), field: 'id' },
+//   {
+//     headerName: t('Date'),
+//     field: 'paymentDate',
+//     valueFormatter: ({ value }: { value: string })=> new Date(value).toLocaleString('fr-FR', {
+//       day: '2-digit', month: 'short', year: 'numeric',
+//       hour: '2-digit', minute: '2-digit'
+//     })
+//   },
+//   {
+//     headerName: t('Amount'),
+//     field: 'amountPaid',
+//   },
+//   {
+//     headerName: t('Status'),
+//     field: 'status',
+//     cellRenderer: (params: ICellRendererParams) => getStatusBadge(params.value)
+//   },
+//   {
+//     headerName: t('Actions'),
+//     cellRenderer: (params: any) => getActionButtons(params.data.id, params.data.status)
+//   }
+//       ];
+//     }, { immediate: true });
 
-  const badgeClass = badgeMap[value] || 'bg-gray-200 text-gray-700 dark:bg-gray-700/15 dark:text-gray-400';
-  return `<span class="${badgeClass} px-2 rounded-full capitalize">${value}</span>`;
-}
+
+// function getStatusBadge(value: string): string {
+//   const badgeMap: Record<string, string> = {
+//     succeeded: 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-500',
+//     pending: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
+//     unpaid: 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500',
+//   };
+
+//   const badgeClass = badgeMap[value] || 'bg-gray-200 text-gray-700 dark:bg-gray-700/15 dark:text-gray-400';
+//   return `<span class="${badgeClass} px-2 rounded-full capitalize">${value}</span>`;
+// }
 
 
-const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event);
-};
+// const onGridReady = (event: GridReadyEvent) => {
+//   console.log('Grid ready:', event);
+// };
 
 
 
@@ -228,18 +333,18 @@ const onGridReady = (event: GridReadyEvent) => {
 //     </div>
 //   `;
 // }
-function getActionButtons(id: number, status: string): string {
-  return `
-    <div class="mt-2 space-x-4">
-      <button class="action-btn bg-blue-100 text-blue-500 rounded-lg px-1"
-              data-action="handle"
-              data-id="${id}"
-              data-status="${status}">
-        ${status === 'pending' ? t('ConfirmPay') : t('print')}
-      </button>
-    </div>
-  `;
-}
+// function getActionButtons(id: number, status: string): string {
+//   return `
+//     <div class="mt-2 space-x-4">
+//       <button class="action-btn bg-blue-100 text-blue-500 rounded-lg px-1"
+//               data-action="handle"
+//               data-id="${id}"
+//               data-status="${status}">
+//         ${status === 'pending' ? t('ConfirmPay') : t('print')}
+//       </button>
+//     </div>
+//   `;
+// }
 
 
 
@@ -266,29 +371,52 @@ function getActionButtons(id: number, status: string): string {
 //   }
 // };
 
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  if (!button) return;
+// const onCellClick = (event: any) => {
+//   const button = event.event.target.closest('button');
+//   if (!button) return;
 
-  const action = button.dataset.action;
-  const id = Number(button.dataset.id);
-  const status = button.dataset.status;
+//   const action = button.dataset.action;
+//   const id = Number(button.dataset.id);
+//   const status = button.dataset.status;
 
-  const payment = Payments.value.find((p: any) => p.id === id);
+//   const payment = Payments.value.find((p: any) => p.id === id);
+//   selectedPayment.value = payment;
+
+//   if (action === 'handle') {
+//     if (status === 'pending') {
+//       selectedPayment.value = Payments.value.find((r: any) => r.id === Number(id));
+//       console.log("view payment:", selectedPayment.value);
+//       showConfirmModal.value = true;
+//     } else if (status === 'paid') {
+//       selectedPayment.value = Payments.value.find((r: any) => r.id === Number(id));
+//     router.push({ name: 'ViewInvoice', params: { id: id } })
+//     console.log("view payment:", selectedPayment.value);
+//     }
+//   }
+// };
+
+const onConfirmPay = (pay: any) => handlePayAction('confirm', pay);
+const onPrintPay = (pay: any) => handlePayAction('print', pay);
+
+const handlePayAction = (action: string, pay: any) => {
+  const payment = Payments.value.find((p: any) => p.id === pay.id);
+  if (!payment) {
+    console.warn('Payment not found:', pay.id);
+    return;
+  }
+
   selectedPayment.value = payment;
 
-  if (action === 'handle') {
-    if (status === 'pending') {
-      selectedPayment.value = Payments.value.find((r: any) => r.id === Number(id));
-      console.log("view payment:", selectedPayment.value);
+  if (action === 'confirm') {
       showConfirmModal.value = true;
-    } else if (status === 'paid') {
-      selectedPayment.value = Payments.value.find((r: any) => r.id === Number(id));
-    router.push({ name: 'ViewInvoice', params: { id: id } })
-    console.log("view payment:", selectedPayment.value);
-    }
+      console.log("View payment (pending):", selectedPayment.value);
+
+  } else if(action === 'print') {
+    router.push({ name: 'ViewInvoice', params: { id: payment.id } });
+    console.log("View payment (paid):", selectedPayment.value);
   }
 };
+
 
 const ConfirmPayment = async () => {
   isLoading.value = true
@@ -314,10 +442,10 @@ const ConfirmPayment = async () => {
 
 
 
-const autoSizeStrategy = {
-  type: "fitGridWidth",
-  defaultMinWidth: 100,
-}
+// const autoSizeStrategy = {
+//   type: "fitGridWidth",
+//   defaultMinWidth: 100,
+// }
 
 </script>
 

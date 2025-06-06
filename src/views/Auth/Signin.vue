@@ -2,9 +2,9 @@
   <FullScreenLayout>
     <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
       <div
-        class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900"
+        class="relative flex flex-col justify-center w-full h-screen   lg:flex-row dark:bg-gray-900"
       >
-        <div class="flex flex-col flex-1 w-full lg:w-1/2">
+        <div class="flex flex-col flex-1 w-full  lg:w-1/2">
           <!-- <div class="w-full max-w-md pt-10 mx-auto">
             <router-link
               to="/"
@@ -255,7 +255,7 @@
                     </div>
                   </div>
                 </form>
-                <div class="mt-5">
+                <!-- <div class="mt-5">
                   <p
                     class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
                   >
@@ -266,7 +266,7 @@
                       >{{ $t('SignUp') }}</router-link
                     >
                   </p>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -281,7 +281,7 @@
           src="@/assets/images/header/Tablet login-amico.svg"
 
           alt="Background"
-          class="w-full h-full object-cover rounded-lg"
+          class="w-full h-screen object-cover rounded-lg"
           />
           </div>
         </div>

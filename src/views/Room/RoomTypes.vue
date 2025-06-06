@@ -20,10 +20,10 @@
     <div class="h-screen">
     <ComponentCard :title="$t('AllRoomType')">
     <div class="space-y-5 sm:space-y-6 ">
-      <ag-grid-vue class="ag-theme-quartz" :rowData="roomTypeData" :columnDefs="columnDefs" rowHeight="50"
+      <!-- <ag-grid-vue class="ag-theme-quartz" :rowData="roomTypeData" :columnDefs="columnDefs" rowHeight="50"
       :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
       :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-      ></ag-grid-vue>
+      ></ag-grid-vue> -->
     </div>
   </ComponentCard>
 </div>
@@ -131,10 +131,10 @@ import { createRoomType,getTypeProduct} from "@/services/api";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import { useI18n } from "vue-i18n";
 import { ref,onMounted,computed ,watch} from 'vue'
-import { AgGridVue } from 'ag-grid-vue3';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
+// import { AgGridVue } from 'ag-grid-vue3';
+// import 'ag-grid-community/styles/ag-grid.css';
+// import 'ag-grid-community/styles/ag-theme-quartz.css';
+// import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'; // adapte le chemin
 import type { RoomTypeData } from '@/types/option'
@@ -169,81 +169,81 @@ const status = ref([
 {value: 'Inactive', label: t('Inactive')},
 
 ])
-const columnDefs = ref<ColDef[]>([
-{ headerName: '#', field: 'id' ,
-width: 120
-},
-{
-  headerName: t('Name'),
-  field: 'name',
-},
-{ headerName: t('Description'), field: 'description' },
-{
-  headerName: t('Status'),
-  field: 'status',
-  cellRenderer: (params:ICellRendererParams) => {
-    if (params.value === 'Active') {
-      return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
+// const columnDefs = ref<ColDef[]>([
+// { headerName: '#', field: 'id' ,
+// width: 120
+// },
+// {
+//   headerName: t('Name'),
+//   field: 'name',
+// },
+// { headerName: t('Description'), field: 'description' },
+// {
+//   headerName: t('Status'),
+//   field: 'status',
+//   cellRenderer: (params:ICellRendererParams) => {
+//     if (params.value === 'Active') {
+//       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
 
-    } else {
-      return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
-    }
-  }
-},
-{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
+//     } else {
+//       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+//     }
+//   }
+// },
+// { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
 
-]);
-watch(() => locale.value, () => {
-  columnDefs.value = [ { headerName: '#', field: 'id' ,
-width: 120
-},
-{
-  headerName: t('Name'),
-  field: 'name',
-},
-{ headerName: t('Description'), field: 'description' },
-{
-  headerName: t('Status'),
-  field: 'status',
-  cellRenderer: (params:ICellRendererParams) => {
-    if (params.value === 'Active') {
-      return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
+// ]);
+// watch(() => locale.value, () => {
+//   columnDefs.value = [ { headerName: '#', field: 'id' ,
+// width: 120
+// },
+// {
+//   headerName: t('Name'),
+//   field: 'name',
+// },
+// { headerName: t('Description'), field: 'description' },
+// {
+//   headerName: t('Status'),
+//   field: 'status',
+//   cellRenderer: (params:ICellRendererParams) => {
+//     if (params.value === 'Active') {
+//       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
 
-    } else {
-      return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
-    }
-  }
-},
-{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-  ];
-}, { immediate: true });
+//     } else {
+//       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+//     }
+//   }
+// },
+// { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
+//   ];
+// }, { immediate: true });
 
-function getActionButtons(id: number): string {
-  return `
-    <div class="mt-2 space-x-4">
-      <button class="action-btn" data-action="edit" data-id="${id}">
-        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z"/>
-          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-        </svg>
-      </button>
-      <button class="action-btn" data-action="delete" data-id="${id}">
-        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </button>
-    </div>
-  `;
-}
-const autoSizeStrategy = {
-  type: "fitGridWidth",
-  defaultMinWidth: 100,
-}
+// function getActionButtons(id: number): string {
+//   return `
+//     <div class="mt-2 space-x-4">
+//       <button class="action-btn" data-action="edit" data-id="${id}">
+//         <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+//           <path stroke="none" d="M0 0h24v24H0z"/>
+//           <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+//           <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+//         </svg>
+//       </button>
+//       <button class="action-btn" data-action="delete" data-id="${id}">
+//         <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+//         </svg>
+//       </button>
+//     </div>
+//   `;
+// }
+// const autoSizeStrategy = {
+//   type: "fitGridWidth",
+//   defaultMinWidth: 100,
+// }
 
-const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event);
-};
+// const onGridReady = (event: GridReadyEvent) => {
+//   console.log('Grid ready:', event);
+// };
 
 
 
@@ -311,39 +311,39 @@ const fetchRoomType = async () => {
 fetchRoomType()
 
 
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
+// const onCellClick = (event: any) => {
+//   const button = event.event.target.closest('button');
+//   console.log('Button clicked:', button);
 
-  if (!button) {
-    console.error('No button found');
-    return;
-  }
+//   if (!button) {
+//     console.error('No button found');
+//     return;
+//   }
 
-  const action = button.dataset.action;
-  const id = button.dataset.id;
+//   const action = button.dataset.action;
+//   const id = button.dataset.id;
 
-  console.log('Action:', action, ' ID:', id);
+//   console.log('Action:', action, ' ID:', id);
 
-  if (action === 'edit') {
-    const roomTypeToEdit = roomTypeData.value.find((r: any) => r.id === Number(id));
-    console.log("Editing reservation:",  roomTypeToEdit);
+//   if (action === 'edit') {
+//     const roomTypeToEdit = roomTypeData.value.find((r: any) => r.id === Number(id));
+//     console.log("Editing reservation:",  roomTypeToEdit);
 
-    if (roomTypeToEdit) {
-      selectedRoomType.value = roomTypeToEdit;
-      form.value.name = roomTypeToEdit.name;
-      form.value.status = roomTypeToEdit.status;
-      form.value.description = roomTypeToEdit.description;
+//     if (roomTypeToEdit) {
+//       selectedRoomType.value = roomTypeToEdit;
+//       form.value.name = roomTypeToEdit.name;
+//       form.value.status = roomTypeToEdit.status;
+//       form.value.description = roomTypeToEdit.description;
 
-      isEditMode.value = true;
-      modalOpen.value = true;
+//       isEditMode.value = true;
+//       modalOpen.value = true;
 
-    }
-  } else if (action === 'delete') {
-    selectedRoomTypeId.value = id
-    show.value = true
-  }
-};
+//     }
+//   } else if (action === 'delete') {
+//     selectedRoomTypeId.value = id
+//     show.value = true
+//   }
+// };
 
 
 

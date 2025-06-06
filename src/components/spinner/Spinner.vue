@@ -9,7 +9,7 @@
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid lightgray;
+  border: 2px solid white;
   border-top: 2px solid gray;
   border-radius: 50%;
   animation: spin 1s linear infinite;

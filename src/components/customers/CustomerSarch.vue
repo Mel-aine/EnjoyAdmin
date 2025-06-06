@@ -88,7 +88,7 @@ onBeforeMount(async () => {
   </div>
 </template> -->
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref,watch } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import { getUser, getReservation } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore';
@@ -136,6 +136,34 @@ const filterCustomer = () => {
   });
 };
 
+watch(searchQuery, (newValue) => {
+  const query = newValue.toLowerCase().trim();
+
+  if (!query) {
+    filteredCustomers.value = [];
+    selectedCustomer.value = {};
+    emit('customerSelected', null);
+    return;
+  }
+
+  filterCustomer();
+
+  const exactMatch = filteredCustomers.value.find(c =>
+    `${c.firstName?.toLowerCase()} ${c.lastName?.toLowerCase()}`.trim() === query ||
+    c.firstName?.toLowerCase() === query
+  );
+
+  if (exactMatch) {
+    selectCustomer(exactMatch);
+  } else {
+    const newCustomer = { firstName: newValue };
+    selectedCustomer.value = newCustomer;
+    emit('customerSelected', newCustomer);
+  }
+});
+
+
+
 const selectCustomer = (customer: any) => {
   selectedCustomer.value = { ...customer };
   emit('customerSelected', selectedCustomer.value);
@@ -143,6 +171,7 @@ const selectCustomer = (customer: any) => {
   searchQuery.value = `${customer.firstName}`;
   filteredCustomers.value = [];
 };
+
 
 const clearSearch = () => {
   searchQuery.value = '';
@@ -191,7 +220,6 @@ onBeforeMount(async () => {
           :lb="$t('FirstName')"
           v-model="searchQuery"
           @input="filterCustomer"
-          :isRequired="true"
           :id="'customer-search'"
           :forLabel="'customer-search'"
 

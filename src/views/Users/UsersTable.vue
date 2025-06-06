@@ -47,21 +47,20 @@
           </ul>
         </div> -->
         </div>
-
-        <ComponentCard title="">
-          <ag-grid-vue
-            class="ag-theme-quartz"
-            :rowData="users"
-            :columnDefs="columnDefs"
-            :rowHeight="50"
-            :rowSelection="'single'"
-            :domLayout="'autoHeight'"
-            :autoSizeStrategy="autoSizeStrategy"
+        <TableComponent
+            :items="titles"
+            :datas="usersWithRoleLabels"
+            :filterable="true"
             :pagination="true"
-            @cellClicked="onCellClick"
-            @gridReady="onGridReady"
-          ></ag-grid-vue>
-        </ComponentCard>
+            :loading="loading"
+            :showHeader="true"
+            :title="$t('user')"
+            :pageSize="15"
+            :showButtonAllElement="true"
+            @edit="onEditUser"
+            @delete="onDeleteUser"
+            class="modern-table"
+        />
       </div>
     </AdminLayout>
 
@@ -205,21 +204,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, defineAsyncComponent } from 'vue'
-import { AgGridVue } from 'ag-grid-vue3'
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-quartz.css'
-import type { ColDef, GridReadyEvent } from 'ag-grid-community'
+import { ref, watch, computed, defineAsyncComponent ,onMounted} from 'vue'
+// import { AgGridVue } from 'ag-grid-vue3'
+// import 'ag-grid-community/styles/ag-grid.css'
+// import 'ag-grid-community/styles/ag-theme-quartz.css'
+// import type { ColDef, GridReadyEvent } from 'ag-grid-community'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { createUser, getUser, deleteUser, updateUser } from '@/services/api'
+import { createUser, getUser, deleteUser, updateUser,getRole } from '@/services/api'
 import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import { useAuthStore } from '@/composables/user'
 import type { userDataType } from '@/types/option'
+import TableComponent from '@/components/tables/TableComponent.vue'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -230,6 +230,7 @@ const { t, locale } = useI18n({ useScope: 'global' })
 
 const isLoading = ref(false)
 const loadingDelete = ref(false)
+const loading = ref(false)
 const serviceStore = useServiceStore()
 const toast = useToast()
 const userStore = useAuthStore()
@@ -319,167 +320,160 @@ const fetchUser = async () => {
     users.value = response.data.data.filter(
       (user: any) => [2, 3].includes(user.roleId) && user.serviceId === serviceId,
     )
-    users.value.sort((a: any, b: any) => a.name.localeCompare(b.name))
+    // users.value.sort((a: any, b: any) => a.name.localeCompare(b.name))
     console.log('Filtered users:', users.value)
   } catch (error) {
     console.error('fetch failed:', error)
   }
 }
 
-fetchUser()
 
-const columnDefs = ref<ColDef[]>([
-  { headerName: t('ID'), field: 'id' },
+onMounted(async()=>{
+  await fetchRole()
+})
+
+onMounted(async () => {
+  setTimeout(async () => {
+    await fetchUser()
+    loading.value = false
+  }, 500)
+})
+const titles = computed(() => [
   {
-    headerName: t('FirstName'),
-    field: 'firstName',
+    name: 'id',
+    label: t('ID'),
+    type: 'text',
+    filterable: false,
   },
   {
-    headerName: t('LastName'),
-    field: 'lastName',
+    name: 'firstName',
+    label: t('FirstName'),
+    type: 'text',
+    filterable: true,
   },
-  { headerName: 'Email', field: 'email' },
-  { headerName: 'Phone', field: 'phoneNumber' },
-
   {
-    headerName: t('Role'),
-    field: 'roleId',
-    cellRenderer: (params: any) => {
-      const roleLabels: Record<string, string> = {
-        '1': 'Super Admin',
-        '2': 'Admin',
-        '3': 'Reception staff',
-      }
-
-      const roleClasses: Record<string, string> = {
-        '1': 'bg-green-50 text-green-700 px-2 rounded-full',
-        '2': 'bg-red-50 text-red-700 px-2 rounded-full',
-        '3': 'bg-blue-50 text-blue-700 px-2 rounded-full',
-      }
-
-      const role = params.value
-      const label = roleLabels[role] || 'Unknown'
-      const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full'
-
-      return `<span class="${cssClass} text-sm font-medium">${label}</span>`
-    },
+    name: 'lastName',
+    label: t('LastName'),
+    type: 'text',
+    filterable: true,
   },
-
-  { headerName: t('Actions'), cellRenderer: (params: any) => getActionButtons(params.data.id) },
-])
-
-function getActionButtons(userId: number): string {
-  return `
-    <div class="mt-2 space-x-4">
-      <button class="action-btn" data-action="edit" data-id="${userId}">
-        <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  {
+    name: 'email',
+    label: t('Email'),
+    type: 'url',
+    event: 'view',
+    filterable: true,
+  },
+  {
+    name: 'phoneNumber',
+    label: t('Phone'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'roleBadge',
+    label: t('Role'),
+    type: 'badge',
+    filterable: false,
+  },
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+      {
+        name: 'Edit',
+        event: 'edit',
+        icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <path stroke="none" d="M0 0h24v24H0z"/>
           <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
           <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-        </svg>
-      </button>
-      <button class="action-btn" data-action="delete" data-id="${userId}">
-        <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        </svg>`,
+      },
+      {
+        name: 'Delete',
+        event: 'delete',
+        icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </button>
-    </div>
-  `
-}
-
-watch(
-  () => locale.value,
-  () => {
-    columnDefs.value = [
-      { headerName: t('ID'), field: 'id' },
-      {
-        headerName: t('FirstName'),
-        field: 'firstName',
+        </svg>`,
       },
-      {
-        headerName: t('LastName'),
-        field: 'lastName',
-      },
-      { headerName: 'Email', field: 'email' },
-      { headerName: 'Phone', field: 'phoneNumber' },
+    ],
 
-      {
-        headerName: t('Role'),
-        field: 'roleId',
-        cellRenderer: (params: any) => {
-          const roleLabels: Record<string, string> = {
-            '1': 'Super Admin',
-            '2': 'Admin',
-            '3': 'Reception staff',
-          }
-
-          const roleClasses: Record<string, string> = {
-            '1': 'bg-green-50 text-green-700 px-2 rounded-full',
-            '2': 'bg-red-50 text-red-700 px-2 rounded-full',
-            '3': 'bg-blue-50 text-blue-700 px-2 rounded-full',
-          }
-
-          const role = params.value
-          const label = roleLabels[role] || 'Unknown'
-          const cssClass = roleClasses[role] || 'bg-gray-200 text-gray-800 px-2 rounded-full'
-
-          return `<span class="${cssClass} text-sm font-medium">${label}</span>`
-        },
-      },
-
-      { headerName: t('Actions'), cellRenderer: (params: any) => getActionButtons(params.data.id) },
-    ]
   },
-  { immediate: true },
-)
+])
 
-const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event)
-}
 
-const autoSizeStrategy = {
-  type: 'fitGridWidth',
-  defaultMinWidth: 100,
-}
-
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button')
-  console.log('Button clicked:', button)
-
-  if (!button) {
-    console.error('No button found')
-    return
+const getRoleBadge = (roleName: string) => {
+  const roleMap: Record<string, { bg: string; text: string; label: string }> = {
+    Admin: {
+      label: 'Administrator',
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+    },
+    user: {
+      label: 'User',
+      bg: 'bg-green-100',
+      text: 'text-green-800',
+    },
+    driver: {
+      label: 'Driver',
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-800',
+    },
+    guest: {
+      label: 'Guest',
+      bg: 'bg-gray-100',
+      text: 'text-gray-800',
+    },
   }
 
-  const action = button.dataset.action
-  const userId = button.dataset.id
+  return roleMap[roleName] || {
+    label: roleName,
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+  }
+}
 
-  console.log('Action:', action, 'user ID:', userId)
+const fetchRole = async() =>{
+  try {
+  const response =  await getRole()
+  roles.value = response.data.data
+  console.log("response",response.data.data)
+  } catch (error) {
+    console.error('fetch failed:', error)
+  }
+}
 
-  if (action === 'edit') {
-    const userToEdit = users.value.find((r: any) => r.id === Number(userId))
-    console.log('Editing reservation:', userToEdit)
-
-    if (userToEdit) {
-      selectedUser.value = userToEdit
-      form.value.firstName = userToEdit.firstName
-      form.value.lastName = userToEdit.lastName
-      form.value.phoneNumber = userToEdit.phoneNumber
-      form.value.email = userToEdit.email
-      form.value.roleName = roles.value.find(
-        (r: any) => r.value === String(userToEdit.roleId),
-      )?.value
-
-      console.log('Editing reservation:', roles.value)
-
-      isEditMode.value = true
-      modalOpen.value = true
+const usersWithRoleLabels = computed(() =>
+  users.value.map((user: any) => {
+    const role = roles.value.find((r: any) => r.id === user.roleId)?.roleName || 'Unknown'
+    return {
+      ...user,
+      roleLabel: role,
+      roleBadge: getRoleBadge(role),
     }
+  })
+)
+
+const onEditUser = (user: any) => handleUserAction('edit', user)
+const onDeleteUser = (user: any) => handleUserAction('delete', user)
+
+const handleUserAction = (action: string, user: any) => {
+  if (action === 'edit') {
+    selectedUser.value = user
+    form.value.firstName = user.firstName
+    form.value.lastName = user.lastName
+    form.value.phoneNumber = user.phoneNumber
+    form.value.email = user.email
+    form.value.roleName = user.roleName
+    isEditMode.value = true
+    modalOpen.value = true
   } else if (action === 'delete') {
-    selectedUserId.value = userId
+    selectedUserId.value = user.id
     show.value = true
   }
 }
+
 
 const confirmDelete = async () => {
   if (selectedUserId.value !== null) {

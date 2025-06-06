@@ -7,18 +7,18 @@
           <form class="space-y-6">
             <!-- Personal information section -->
 
-            <!-- <div>
-               <CustomerCard @customerSelected="onCustomerSelected" />
-            </div> -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+               <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
+            </div>
+           <!-- <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
 
               <div>
                 <Input :inputType="'text'" :lb="$t('FirstName')" :placeholder="$t('FirstName')" :id="'first'" :forLabel="'first'" v-model="form.firstName" />
               </div>
               <div>
                 <Input :inputType="'text'" :lb="$t('LastName')" :placeholder="$t('LastName')" :id="'last'" :forLabel="'last'" v-model="form.lastName" />
-              </div>
-              <div>
+              </div> -->
+              <!-- <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   {{ $t('Phone') }}
                 </label>
@@ -59,9 +59,9 @@
                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pr-4 pl-[84px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                   />
                 </div>
-              </div>
+              </div> -->
 
-              <div>
+              <!-- <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   {{ $t('Email') }}
                 </label>
@@ -86,8 +86,8 @@
 
                 </div>
               </div>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 py-5">
+              </div>-->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-3">
               <div>
               <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 {{ $t('ArrivedDate') }}
@@ -201,7 +201,7 @@
 
             <ButtonComponent type="button" :disabled="!!dateError || isLoading" @click="handleSubmit">
 
-               <span v-if="!isLoading"> {{ isEditMode ? $t('update') :  $t('AddBooking') }}</span>
+               <span v-if="!isLoading"> {{ isEditMode ? $t('update') :  $t('SaveBooking') }}</span>
               <span v-else class="flex items-center gap-2">
                 <Spinner class="w-4 h-4" />
                 {{ $t('Processing') }}...
@@ -343,7 +343,7 @@ import CustomerCard from "@/components/customers/CustomerCard.vue";
 
 
 const store = useBookingStore()
-const room = store.selectedRoom
+//const room = store.selectedRoom
 const ServiceProduct = ref<ProductType[]>([]);
 const reservations = ref({})
 const route = useRoute()
@@ -351,29 +351,29 @@ const isLoading = ref(false);
 const { t } = useI18n();
 const isPaymentModalOpen = ref(false);
 const toast = useToast()
-const showDropdown = ref(false)
+//const showDropdown = ref(false)
 const adults = ref(1)
 const children = ref(0)
 const totalPersons = computed(() => adults.value + children.value)
-const selectedCountry = ref('CM')
+//const selectedCountry = ref('CM')
 const serviceStore = useServiceStore();
 const router = useRouter()
 defineProps<{ id: string }>()
 const isEditMode=ref(false)
 const selectedProducts = ref([])
 const totalPrice = ref(0)
-interface Customer {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-}
-const customersInfo = ref<Customer>({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: '',
-});
+// interface Customer {
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   phoneNumber: string;
+// }
+// const customersInfo = ref<Customer>({
+//   firstName: '',
+//   lastName: '',
+//   email: '',
+//   phoneNumber: '',
+// });
 
 // Handler to update room selections
 const updateRoomSelections = (newSelections:any) => {
@@ -405,12 +405,12 @@ const availableRooms = computed(() => {
 })
 
 
-const countryCodes = {
-  CM: '+237',
-  US: '+1',
-  GB: '+44',
-  AU: '+61',
-}
+// const countryCodes = {
+//   CM: '+237',
+//   US: '+1',
+//   GB: '+44',
+//   AU: '+61',
+// }
 
 const Payements = ref<any[]>([]);
   const reservationSummary = ref({
@@ -421,16 +421,16 @@ const Payements = ref<any[]>([]);
 });
 
 
-const updatePhoneNumber = () => {
-  form.value.phoneNumber = countryCodes[selectedCountry.value as keyof typeof countryCodes]
-}
+// const updatePhoneNumber = () => {
+//   form.value.phoneNumber = countryCodes[selectedCountry.value as keyof typeof countryCodes]
+// }
 
 const currentPageTitle = computed(() =>
    t('Booking')
 )
 
 onMounted(() => {
-  updatePhoneNumber()
+  //updatePhoneNumber()
   fetchServiceData()
 })
 
@@ -530,10 +530,10 @@ onMounted(()=>{
 })
 
 interface ReservationForm {
-  firstName: string
-  lastName: string
-  phoneNumber: string
-  email: string
+  // firstName: string
+  // lastName: string
+  // phoneNumber: string
+  // email: string
   roomType:string | null
   package:string
   arrivalDate: string
@@ -549,10 +549,10 @@ const selectedPaymentMethod = ref('')
 
 // const paymentStatus = selectedPaymentMethod.value === 'Carte bancaire' ? 'pending' : 'paid';
 const form = ref<ReservationForm>({
-  firstName: '',
-  lastName: '',
-  phoneNumber: '',
-  email: '',
+  // firstName: '',
+  // lastName: '',
+  // phoneNumber: '',
+  // email: '',
   roomType: null,
   package:'',
   arrivalDate: '',
@@ -572,15 +572,25 @@ const userId =  ref<number | null>(null)
   return totalPrice.value * nights
 })
 
+const formData = ref<any>({
+  firstName: '',
+  lastName: '',
+  phoneNumber: '',
+  email: '',
+})
 
 const saveReservation = async () => {
   isLoading.value = true;
   try {
     const reservationPayload = {
-      first_name: form.value.firstName,
-      last_name: form.value.lastName,
-      email: form.value.email,
-      phone_number: form.value.phoneNumber,
+      // first_name: form.value.firstName,
+      // last_name: form.value.lastName,
+      // email: form.value.email,
+      // phone_number: form.value.phoneNumber,
+      first_name: selectedCustomer.value.firstName,
+      last_name: selectedCustomer.value.lastName,
+      email: selectedCustomer.value.email,
+      phone_number: selectedCustomer.value.phoneNumber,
       service_id: serviceStore.serviceId,
       reservation_type: 'Hotels & Stays',
       total_amount: calculateTotalPrice.value,
@@ -599,9 +609,9 @@ const saveReservation = async () => {
 
     console.log('✅ reservationPayload', reservationPayload)
 
-    const response = await createReservation(reservationPayload)
+   const response = await createReservation(reservationPayload)
     reservationSummary.value = {
-      clientName: `${form.value.firstName} ${form.value.lastName}`,
+      clientName: `${selectedCustomer.value.firstName} ${selectedCustomer.value.lastName}`,
       room: form.value.roomType ?? '',
       type: form.value.package ?? 'Hotels & Stays',
       total: Number(calculateTotalPrice.value ?? 0),
@@ -614,10 +624,6 @@ const saveReservation = async () => {
   console.log("Reservation ID:", reservationId.value);
 
     form.value = {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      email: '',
       roomType: null,
       package:'',
       arrivalDate: '',
@@ -634,7 +640,7 @@ const saveReservation = async () => {
     console.log('✅ Réservation créée avec succès !', response.data)
     console.log('✅ Réservation créée avec succès !', reservations.value)
   } catch (error: any) {
-    console.error('❌ Error while saving:', error.response?.data || error.message)
+     console.error('❌ Error while saving:', error.response?.data || error.message)
   }finally {
     isLoading.value = false;
   }
@@ -730,12 +736,18 @@ onMounted(async () => {
 
     console.log('response',response)
     console.log('userId',response.data.reservationProduct )
-    form.value = {
+    formData.value = {
       firstName: response1.data.firstName,
       lastName: response1.data.lastName,
       phoneNumber: response1.data.phoneNumber,
       email: response1.data.email,
-      roomType: response.data.reservationProduct.toString(),
+    }
+    form.value = {
+      // firstName: response1.data.firstName,
+      // lastName: response1.data.lastName,
+      // phoneNumber: response1.data.phoneNumber,
+      // email: response1.data.email,
+      roomType: response.data.reservationProduct,
       package: response.data.reservationType,
       arrivalDate: response.data.arrivedDate,
       departureDate: response.data.departDate,
@@ -753,10 +765,10 @@ async function updateReservation() {
     if (!reservationId.value) throw new Error('Aucune réservation sélectionnée');
 
     const payloadUpdate = {
-      first_name: form.value.firstName,
-      last_name: form.value.lastName,
-      email: form.value.email,
-      phone_number: form.value.phoneNumber,
+      first_name: selectedCustomer.value.firstName,
+      last_name: selectedCustomer.value.lastName,
+      email: selectedCustomer.value.email,
+      phone_number: selectedCustomer.value.phoneNumber,
       service_id: serviceStore.serviceId,
       reservation_type: form.value.package,
       reservation_product: form.value.roomType,
@@ -802,11 +814,13 @@ const handleSubmit = async () => {
 
 const closeUpdate = () =>{
   isEditMode.value = false;
-   form.value = {
+  formData.value = {
   firstName: '',
   lastName: '',
   phoneNumber: '',
   email: '',
+  }
+  form.value = {
   roomType: null,
   package:'',
   arrivalDate: '',
@@ -817,6 +831,7 @@ const closeUpdate = () =>{
   numberOfNights: totalPersons.value,
   payment: ' '
 }
+router.push('/add_booking')
 
 }
 

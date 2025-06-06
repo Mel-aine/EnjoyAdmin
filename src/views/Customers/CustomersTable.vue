@@ -2,32 +2,52 @@
   <div>
     <AdminLayout>
       <div class="min-h-screen">
-      <PageBreadcrumb :pageTitle="currentPageTitle" />
-      <div class="flex justify-end pb-5">
-        <DropdownMenu :menu-items="menuItems">
-          <template #icon>
-            <button
-          class="border border-gray-300 bg-purple-400 rounded-lg relative"
-          >
-          <svg class="h-8 w-8 text-white"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-            </button>
-          </template>
+        <PageBreadcrumb :pageTitle="currentPageTitle" />
+        <div class="flex justify-end pb-5">
+          <DropdownMenu :menu-items="menuItems">
+            <template #icon>
+              <button class="border border-gray-300 bg-purple-400 rounded-lg relative">
+                <svg
+                  class="h-8 w-8 text-white"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" />
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </button>
+            </template>
           </DropdownMenu>
-      </div>
-    <ComponentCard title=" ">
+        </div>
+        <!-- <ComponentCard title=" ">
       <div class="space-y-5 sm:space-y-6 ">
     <ag-grid-vue class="ag-theme-quartz" :rowData="customers" :columnDefs="columnDefs" rowHeight="50"
             :rowSelection="'single'"  :domLayout="'autoHeight'"
             :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady" :autoSizeStrategy="autoSizeStrategy"
              :defaultColDef="defaultColDef"></ag-grid-vue>
       </div>
-    </ComponentCard>
-    </div>
-
+    </ComponentCard> -->
+        <TableComponent
+          :items="titles"
+          :datas="customers"
+          :filterable="true"
+          :pagination="true"
+          :loading="loading"
+          :showHeader="true"
+          :title="$t('Customers')"
+          :pageSize="15"
+          :showButtonAllElement="true"
+          @view="onView"
+          class="modern-table"
+        />
+      </div>
     </AdminLayout>
 
     <Modal v-if="modalOpen" @close="modalOpen = false">
@@ -38,7 +58,7 @@
           <!-- close btn -->
           <button
             @click="modalOpen = false"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700  dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
+            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
           >
             <svg
               class="fill-current"
@@ -60,21 +80,32 @@
             <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
               {{ $t('AddCustomers') }}
             </h4>
-
           </div>
           <form class="flex flex-col">
             <div class="custom-scrollbar h-[450px] overflow-y-auto p-2">
               <div>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
-                    <Input :lb="$t('FirstName')"  :placeholder="$t('FirstName')"  :id="'name'" :forLabel="'name'" />
+                    <Input
+                      :lb="$t('FirstName')"
+                      :placeholder="$t('FirstName')"
+                      :id="'name'"
+                      :forLabel="'name'"
+                    />
                   </div>
 
                   <div>
-                    <Input :lb="$t('LastName')"  :placeholder="$t('LastName')" :id="'last'" :forLabel="'last'" />
+                    <Input
+                      :lb="$t('LastName')"
+                      :placeholder="$t('LastName')"
+                      :id="'last'"
+                      :forLabel="'last'"
+                    />
                   </div>
                   <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    <label
+                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >
                       {{ $t('Email') }}
                     </label>
                     <div class="relative">
@@ -97,7 +128,6 @@
                         </svg>
                       </span>
                       <input
-
                         type="text"
                         placeholder="info@gmail.com"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
@@ -105,61 +135,71 @@
                     </div>
                   </div>
                   <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  {{ $t('Phone') }}
-                </label>
-                <div class="relative">
-                  <div class="absolute">
-                    <select
-                      v-model="selectedCountry"
-                      @change="updatePhoneNumber"
-                      class="appearance-none rounded-l-lg border-0 border-r border-gray-200 bg-transparent bg-none py-3 pl-3.5 pr-8 leading-tight text-gray-700 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-gray-400"
+                    <label
+                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      <option v-for="(code, country) in countryCodes" :key="country" :value="country">
-                        {{ country }}
-                      </option>
-                    </select>
-                    <div
-                      class="absolute inset-y-0 flex items-center text-gray-700 pointer-events-none right-3 dark:text-gray-400"
-                    >
-                      <svg
-                        class="stroke-current"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396"
-                          stroke=""
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
+                      {{ $t('Phone') }}
+                    </label>
+                    <div class="relative">
+                      <div class="absolute">
+                        <select
+                          v-model="selectedCountry"
+                          @change="updatePhoneNumber"
+                          class="appearance-none rounded-l-lg border-0 border-r border-gray-200 bg-transparent bg-none py-3 pl-3.5 pr-8 leading-tight text-gray-700 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-gray-400"
+                        >
+                          <option
+                            v-for="(code, country) in countryCodes"
+                            :key="country"
+                            :value="country"
+                          >
+                            {{ country }}
+                          </option>
+                        </select>
+                        <div
+                          class="absolute inset-y-0 flex items-center text-gray-700 pointer-events-none right-3 dark:text-gray-400"
+                        >
+                          <svg
+                            class="stroke-current"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396"
+                              stroke=""
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <input
+                        v-model="phoneNumber"
+                        placeholder="+237 693774450"
+                        type="tel"
+                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-3 pl-[84px] pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                      />
                     </div>
-              </div>
-              <input
-                v-model="phoneNumber"
-                placeholder="+237 693774450"
-                type="tel"
-                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-3 pl-[84px] pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-              />
-            </div>
                   </div>
                   <div>
-                    <Select :lb="$t('LastPackage')" :options="Package"/>
+                    <Select :lb="$t('LastPackage')" :options="Package" />
                   </div>
                   <div>
-                    <Select :lb="$t('Group')" :options="Group"/>
+                    <Select :lb="$t('Group')" :options="Group" />
                   </div>
                   <div>
-                    <Input :lb="$t('Address')"  :placeholder="$t('Address')" :id="'code'" :forLabel="'code'" />
+                    <Input
+                      :lb="$t('Address')"
+                      :placeholder="$t('Address')"
+                      :id="'code'"
+                      :forLabel="'code'"
+                    />
                   </div>
                 </div>
               </div>
-
             </div>
             <div class="flex items-center gap-3 px-2 mt-2 lg:justify-end">
               <button
@@ -170,18 +210,17 @@
                 {{ $t('Cancel') }}
               </button>
               <button
-
                 type="button"
                 class="flex w-full justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 sm:w-auto"
               >
-               {{ $t('AddCustomer') }}
+                {{ $t('AddCustomer') }}
               </button>
             </div>
           </form>
         </div>
       </template>
     </Modal>
-    <Modal v-if="showModal" @close="showModal= false">
+    <Modal v-if="showModal" @close="showModal = false">
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
@@ -189,7 +228,7 @@
           <!-- close btn -->
           <button
             @click="showModal = false"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700  dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
+            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
           >
             <svg
               class="fill-current"
@@ -213,215 +252,304 @@
             </h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-              <div><span class="font-medium">{{ $t('Email') }} :</span> {{ selectedCustomer.email }}</div>
-              <div><span class="font-medium">{{ $t('Phone') }} :</span> {{ selectedCustomer.phoneNumber }}</div>
-              <div><span class="font-medium">{{ $t('ArrivedDate') }} :</span> {{ formatDate(selectedCustomer.arrivedDate) }}</div>
-              <div><span class="font-medium">{{ $t('DepartDate') }} :</span> {{ formatDate(selectedCustomer.departDate) }}</div>
-              <div><span class="font-medium">{{ $t('reservationType') }} :</span> {{ selectedCustomer.reservationType }}</div>
-              <div><span class="font-medium">{{ $t('personNumber') }} :</span> {{ selectedCustomer.totalPerson }}</div>
-              <div><span class="font-medium">{{ $t('TotalPrice') }} :</span> {{ selectedCustomer.totalPrice }} FCFA</div>
-              <div><span class="font-medium" >{{ $t('Payment') }} :</span> <span :class="statusClass1(selectedCustomer.payment)"> {{ selectedCustomer.payment }}</span></div>
-              <div><span class="font-medium">{{ $t('Status') }} : </span>
+              <div>
+                <span class="font-medium">{{ $t('Email') }} :</span> {{ selectedCustomer.email }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('Phone') }} :</span>
+                {{ selectedCustomer.phoneNumber }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('ArrivedDate') }} :</span>
+                {{ formatDate(selectedCustomer.arrivedDate) }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('DepartDate') }} :</span>
+                {{ formatDate(selectedCustomer.departDate) }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('reservationType') }} :</span>
+                {{ selectedCustomer.reservationType }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('personNumber') }} :</span>
+                {{ selectedCustomer.totalPerson }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('TotalPrice') }} :</span>
+                {{ selectedCustomer.totalAmount }} FCFA
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('Payment') }} :</span>
+                <span :class="statusClass1(selectedCustomer.paymentStatus)">
+                  {{ selectedCustomer.payment }}</span
+                >
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('Status') }} : </span>
                 <span :class="statusClass(selectedCustomer.status)">
                   {{ selectedCustomer.status }}
                 </span>
               </div>
-              <div><span class="font-medium">{{ $t('Comment') }} :</span> {{ selectedCustomer.comment || '-' }}</div>
-              <div><span class="font-medium">{{ $t('Createdon') }} :</span> {{ formatDateTime(selectedCustomer.createdAt) }}</div>
-              <div><span class="font-medium">{{ $t('Modifiedon') }}:</span> {{ formatDateTime(selectedCustomer.updatedAt) }}</div>
+              <div>
+                <span class="font-medium">{{ $t('Comment') }} :</span>
+                {{ selectedCustomer.comment || '-' }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('Createdon') }} :</span>
+                {{ formatDateTime(selectedCustomer.createdAt) }}
+              </div>
+              <div>
+                <span class="font-medium">{{ $t('Modifiedon') }}:</span>
+                {{ formatDateTime(selectedCustomer.updatedAt) }}
+              </div>
             </div>
           </div>
-
         </div>
       </template>
     </Modal>
   </div>
-  </template>
+</template>
 
 <script setup lang="ts">
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-import ComponentCard from "@/components/common/ComponentCard.vue";
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import ComponentCard from '@/components/common/ComponentCard.vue'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
-import Input from "@/components/forms/FormElements/Input.vue";
-import Select from "@/components/forms/FormElements/Select.vue";
-import { ref,onMounted,computed,watch } from 'vue'
-import { AgGridVue } from 'ag-grid-vue3';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
-import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,ICellRendererParams} from 'ag-grid-community';
-import { getReservation,getUser} from "@/services/api";
-import { useServiceStore } from '@/composables/serviceStore';
-import type {userDataType,ReservationType} from '@/types/option'
-import { useI18n } from "vue-i18n";
+import Input from '@/components/forms/FormElements/Input.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
+import { ref, onMounted, computed, watch } from 'vue'
+// import { AgGridVue } from 'ag-grid-vue3';
+// import 'ag-grid-community/styles/ag-grid.css';
+// import 'ag-grid-community/styles/ag-theme-quartz.css';
+// import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,ICellRendererParams} from 'ag-grid-community';
+import { getReservation, getUser } from '@/services/api'
+import { useServiceStore } from '@/composables/serviceStore'
+import type { userDataType, ReservationType } from '@/types/option'
+import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
+import TableComponent from '@/components/tables/TableComponent.vue'
 
-
-
-
-const { t, locale } = useI18n({ useScope: "global" });
-const serviceStore = useServiceStore();
+const { t, locale } = useI18n({ useScope: 'global' })
+const serviceStore = useServiceStore()
 const showModal = ref(false)
+const loading = ref(false)
 
-
-const menuItems = computed(()=>[
-  { label: t('AddCustomers'), onClick: () => modalOpen.value=true },
+const menuItems = computed(() => [
+  { label: t('AddCustomers'), onClick: () => (modalOpen.value = true) },
 ])
 const modalOpen = ref(false)
 const users = ref<userDataType[]>([])
-const currentPageTitle = computed(()=>t("CustomersLists"));
+const currentPageTitle = computed(() => t('CustomersLists'))
 const defaultColDef = {
   sortable: true,
   filter: true,
   floatingFilter: true,
   resizable: true,
-};
-const Package = computed(()=>[
-  {value: 'Strater', label: t('StraterPackage')},
-  {value: 'Honeymoon', label: t('HoneymoonPackage')},
-  {value: 'Vacation', label: t('VacationPackage')},
-  {value: 'Spring', label: t('SpringPackage')},
+}
+const Package = computed(() => [
+  { value: 'Strater', label: t('StraterPackage') },
+  { value: 'Honeymoon', label: t('HoneymoonPackage') },
+  { value: 'Vacation', label: t('VacationPackage') },
+  { value: 'Spring', label: t('SpringPackage') },
 ])
-const Group = computed(()=>[
-  {value: 'Gold', label: t('Gold')},
-  {value: 'Silver', label: t('Silver')},
-  {value: 'Bronze', label: t('Bronze')},
-  {value: 'Platinum', label: t('Platinum')},
+const Group = computed(() => [
+  { value: 'Gold', label: t('Gold') },
+  { value: 'Silver', label: t('Silver') },
+  { value: 'Bronze', label: t('Bronze') },
+  { value: 'Platinum', label: t('Platinum') },
 ])
 
-const columnDefs = ref<ColDef[]>([
-  { headerName: t('User'), field: 'userFullName' ,
-
-  },
-  { headerName: t('Email'), field: 'email' },
+const titles = computed(() => [
   {
-    headerName: t('LastPackage'),
-    field: 'reservationType',
+    name: 'userFullName',
+    label: t('User'),
+    type: 'text',
+    filterable: false,
   },
-  { headerName: t('Phone'), field: 'phoneNumber' },
-  { headerName: t('Verified'),
-  cellRenderer: () => `
-                <div>
-                    <span class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-green-500 inline-flex"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                          Email
-                    </span>
 
-                </div>
-            `,
-   },
-  { headerName: t('Comment'), field: 'comment' },
-  { headerName: t('Status'), field: 'status' ,
-  cellRenderer: (params:ICellRendererParams) => {
-    if (params.value === 'active') {
-      return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
-    }
-   else {
-
-      return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
-    }
-  }
+  {
+    name: 'email',
+    label: t('Email'),
+    type: 'url',
+    event: 'view',
+    filterable: true,
   },
-  { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
+  {
+    name: 'phoneNumber',
+    label: t('Phone'),
+    type: 'text',
+    filterable: false,
+  },
+  {
+    name: 'comment',
+    label: t('Comment'),
+    type: 'text',
+    filterable: true,
+  },
+  // {
+  //   name: 'status',
+  //   label: t('status'),
+  //   type: 'badge',
+  //   filterable: false,
+  // },
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+      {
+        name: 'View',
+        event: 'view',
+        icone: ` <svg class="h-6 w-6 text-orange-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
+      },
+    ],
+  },
+])
 
-]);
+// const columnDefs = ref<ColDef[]>([
+//   { headerName: t('User'), field: 'userFullName' ,
 
-watch(() => locale.value, () => {
-  columnDefs.value = [
-  { headerName: t('User'), field: 'userFullName' ,
+//   },
+//   { headerName: t('Email'), field: 'email' },
+//   {
+//     headerName: t('LastPackage'),
+//     field: 'reservationType',
+//   },
+//   { headerName: t('Phone'), field: 'phoneNumber' },
+//   { headerName: t('Verified'),
+//   cellRenderer: () => `
+//                 <div>
+//                     <span class="flex items-center gap-2">
+//                         <svg class="h-5 w-5 text-green-500 inline-flex"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+//                         </svg>
+//                           Email
+//                     </span>
 
-},
-{ headerName: t('Email'), field: 'email' },
-{
-  headerName: t('LastPackage'),
-  field: 'reservationType',
-},
-{ headerName: t('Phone'), field: 'phoneNumber' },
-{ headerName: t('Verified'),
-cellRenderer: () => `
-              <div>
-                  <span class="flex items-center gap-2">
-                      <svg class="h-5 w-5 text-green-500 inline-flex"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                        Email
-                  </span>
+//                 </div>
+//             `,
+//    },
+//   { headerName: t('Comment'), field: 'comment' },
+//   { headerName: t('Status'), field: 'status' ,
+//   cellRenderer: (params:ICellRendererParams) => {
+//     if (params.value === 'active') {
+//       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
+//     }
+//    else {
 
-              </div>
-          `,
- },
-{ headerName: t('Comment'), field: 'comment' },
-{ headerName: t('Status'), field: 'status' ,
-cellRenderer: (params:ICellRendererParams) => {
-  if (params.value === 'active') {
-    return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
-  }
- else {
+//       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+//     }
+//   }
+//   },
+//   { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
 
-    return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
-  }
-}
-},
-{ headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-  ]},{ immediate: true })
+// ]);
 
-  function getActionButtons(id: number): string {
-  return `
-    <div class="mt-2 ">
-      <button class="action-btn" data-action="view" data-id="${id} ">
-            <svg class="h-6 w-6 text-slate-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>
-      </button>
+// watch(() => locale.value, () => {
+//   columnDefs.value = [
+//   { headerName: t('User'), field: 'userFullName' ,
 
-    </div>
-  `;
-}
+// },
+// { headerName: t('Email'), field: 'email' },
+// {
+//   headerName: t('LastPackage'),
+//   field: 'reservationType',
+// },
+// { headerName: t('Phone'), field: 'phoneNumber' },
+// { headerName: t('Verified'),
+// cellRenderer: () => `
+//               <div>
+//                   <span class="flex items-center gap-2">
+//                       <svg class="h-5 w-5 text-green-500 inline-flex"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+//                       </svg>
+//                         Email
+//                   </span>
 
+//               </div>
+//           `,
+//  },
+// { headerName: t('Comment'), field: 'comment' },
+// { headerName: t('Status'), field: 'status' ,
+// cellRenderer: (params:ICellRendererParams) => {
+//   if (params.value === 'active') {
+//     return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
+//   }
+//  else {
 
+//     return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
+//   }
+// }
+// },
+// { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
+//   ]},{ immediate: true })
 
-const onGridReady = (event: GridReadyEvent) => {
-  console.log('Grid ready:', event);
-};
-const selectedCustomer = ref<any>(null)
-const onCellClick = (event: any) => {
-  const button = event.event.target.closest('button');
-  console.log('Button clicked:', button);
+//   function getActionButtons(id: number): string {
+//   return `
+//     <div class="mt-2 ">
+//       <button class="action-btn" data-action="view" data-id="${id} ">
+//             <svg class="h-6 w-6 text-slate-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>
+//       </button>
 
-  if (!button) {
-    console.error('No button found');
-    return;
-  }
+//     </div>
+//   `;
+// }
 
-  const action = button.dataset.action;
-  const id = button.dataset.id;
+const onView = (c: any) => handleCustomerAction('view', c)
 
-  console.log('Action:', action, ' ID:', id);
+const handleCustomerAction = (action: string, c: any) => {
   if (action === 'view') {
-    const customer = customers.value.find((c:any) => c.id === parseInt(id));
+    const customer = customers.value.find((cu: any) => cu.id === parseInt(c.id))
     if (customer) {
-      selectedCustomer.value = customer;
-      console.log('selectedCustomer.value:', selectedCustomer.value);
-      showModal.value = true;
+      selectedCustomer.value = customer
+      console.log('selectedCustomer.value:', selectedCustomer.value)
+      showModal.value = true
     } else {
-      console.error('Client introuvable pour ID:', id);
+      console.error('Client introuvable pour ID:', c.id)
     }
   }
-};
-
-
-
-const autoSizeStrategy = {
-  type: "fitGridWidth",
-  defaultMinWidth: 100,
 }
 
+// const onGridReady = (event: GridReadyEvent) => {
+//   console.log('Grid ready:', event);
+// };
+const selectedCustomer = ref<any>(null)
+// const onCellClick = (event: any) => {
+//   const button = event.event.target.closest('button');
+//   console.log('Button clicked:', button);
 
-  const isDropdownOpen = ref(false);
+//   if (!button) {
+//     console.error('No button found');
+//     return;
+//   }
+
+//   const action = button.dataset.action;
+//   const id = button.dataset.id;
+
+//   console.log('Action:', action, ' ID:', id);
+//   if (action === 'view') {
+//     const customer = customers.value.find((c:any) => c.id === parseInt(id));
+//     if (customer) {
+//       selectedCustomer.value = customer;
+//       console.log('selectedCustomer.value:', selectedCustomer.value);
+//       showModal.value = true;
+//     } else {
+//       console.error('Client introuvable pour ID:', id);
+//     }
+//   }
+// };
+
+// const autoSizeStrategy = {
+//   type: "fitGridWidth",
+//   defaultMinWidth: 100,
+// }
+
+const isDropdownOpen = ref(false)
 
 const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
+  isDropdownOpen.value = !isDropdownOpen.value
+}
 
 const countryCodes = {
   CM: '+237',
@@ -438,73 +566,73 @@ onMounted(() => {
   updatePhoneNumber()
 })
 const fetchUsers = async () => {
-  const response = await getUser();
-  users.value = response.data.data;
-  console.log('userrr',users.value)
+  const response = await getUser()
+  users.value = response.data.data
+  console.log('userrr', users.value)
 }
 
 const customers = ref<ReservationType[]>([])
 const fetchReservation = async () => {
   try {
-    const serviceId = serviceStore.serviceId;
-    const response = await getReservation(serviceId);
-    console.log(response.data);
+    const serviceId = serviceStore.serviceId
+    const response = await getReservation(serviceId)
+    console.log(response.data)
 
     customers.value = response.data.map((res: any) => {
-      const user = users.value.find((u: any) => u.id === res.userId);
+      const user = users.value.find((u: any) => u.id === res.userId)
 
       return {
         ...res,
         ...user,
         userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
         // productName: product ? product.productName : 'Inconnu'
-      };
-    });
-    customers.value.sort((a:any, b:any) => a.userFullName.localeCompare(b.userFullName));
-    console.log("////",customers.value)
+      }
+    })
+    customers.value.sort((a: any, b: any) => a.userFullName.localeCompare(b.userFullName))
+    console.log('////', customers.value)
   } catch (error) {
-    console.error('fetch failed:', error);
+    console.error('fetch failed:', error)
   }
-};
+}
 onMounted(async () => {
-  await fetchUsers();
-  await fetchReservation();
-});
-const formatDate = (date:any) =>
-  new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  await fetchUsers()
+  await fetchReservation()
+})
 
-const formatDateTime = (dateTime:any) =>
-  new Date(dateTime).toLocaleString('fr-FR');
+const formatDate = (date: any) =>
+  new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+
+const formatDateTime = (dateTime: any) => new Date(dateTime).toLocaleString('fr-FR')
 
 // const formatPrice = (price:any) =>
 //   (price / 100).toFixed(2);
 
-const statusClass = (status:any) => {
+const statusClass = (status: any) => {
   switch (status) {
     case 'active':
-      return 'text-green-600 font-semibold';
+      return 'text-green-600 font-semibold'
     case 'pending':
-      return 'text-yellow-600 font-semibold';
+      return 'text-yellow-600 font-semibold'
     case 'cancelled':
-      return 'text-red-600 font-semibold';
+      return 'text-red-600 font-semibold'
     default:
-      return 'text-gray-600';
+      return 'text-gray-600'
   }
-};
-const statusClass1 = (status:any) => {
+}
+const statusClass1 = (status: any) => {
   switch (status) {
     case 'paid':
-      return 'text-green-600 font-semibold';
+      return 'text-green-600 font-semibold'
     case 'pending':
-      return 'text-yellow-600 font-semibold';
+      return 'text-yellow-600 font-semibold'
     case 'cancelled':
-      return 'text-red-600 font-semibold';
+      return 'text-red-600 font-semibold'
     default:
-      return 'text-gray-600';
+      return 'text-gray-600'
   }
-};
-  </script>
+}
+</script>
 
-  <style scoped>
-  /* Add any additional styles here if needed */
-  </style>
+<style scoped>
+/* Add any additional styles here if needed */
+</style>
