@@ -421,19 +421,19 @@ const filterOptions = computed(()=>([
                   <div>
                     <Input :lb="$t('Date d arrivee')"  :inputType="'date'"  :id="'date'" :forLabel="'date'" />
                   </div>
-                  <div>
+                  <!-- <div>
                     <Select :lb="$t('vehicule')" />
-                  </div>
+                  </div> -->
                   <div>
                     <Input :lb="$t('price')"  :inputType="'number'" :id="'last'" :forLabel="'last'" />
                   </div>
 
-                  <div>
+                  <!-- <div>
                     <Select :lb="$t('itineraire')" />
-                  </div>
-                  <div>
+                  </div> -->
+                  <!-- <div>
                     <Select :lb="$t('driver')"  />
-                  </div>
+                  </div> -->
                   <div>
                     <Input :lb="$t('duree')" :inputType = "'number'"   :id="'stop'" :forLabel="'stop'" :min="'1'" />
                   </div>

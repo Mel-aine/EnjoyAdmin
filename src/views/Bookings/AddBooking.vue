@@ -175,6 +175,7 @@
               :availableRooms="availableRooms"
               @update:roomSelections="updateRoomSelections"
               @update:totalPrice="updateTotalPrice"
+              v-model="fetchData"
             />
 
             <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -198,6 +199,11 @@
               ></textarea>
             </div>
           </form>
+
+
+
+
+
 
             <ButtonComponent type="button" :disabled="!!dateError || isLoading" @click="handleSubmit">
 
@@ -324,7 +330,7 @@ import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
 import flatPickr from 'vue-flatpickr-component'
 import ButtonComponent from "@/components/buttons/ButtonComponent.vue";
-import { getServiceProduct,createReservation,getService,createPayment,getReservationById,getUserId,putReservation} from "@/services/api";
+import { getServiceProduct,createReservation,getService,createPayment,getReservationById,getUserId,putReservation,getReservationServiceProduct} from "@/services/api";
 import type { ProductType} from '@/types/option'
 import 'flatpickr/dist/flatpickr.css'
 import { useToast } from 'vue-toastification'
@@ -345,6 +351,7 @@ import CustomerCard from "@/components/customers/CustomerCard.vue";
 const store = useBookingStore()
 //const room = store.selectedRoom
 const ServiceProduct = ref<ProductType[]>([]);
+const ProductList = ref<ProductType[]>([]);
 const reservations = ref({})
 const route = useRoute()
 const isLoading = ref(false);
@@ -374,6 +381,8 @@ const totalPrice = ref(0)
 //   email: '',
 //   phoneNumber: '',
 // });
+
+
 
 // Handler to update room selections
 const updateRoomSelections = (newSelections:any) => {
@@ -487,6 +496,7 @@ const fetchServiceProduct = async () => {
     const serviceId = serviceStore.serviceId
     const response = await getServiceProduct(serviceId);
     const serviceProducts = response.data;
+    ProductList.value = response.data
     console.log("hhh", response)
     ServiceProduct.value = serviceProducts.filter((product:any)=>product.status == 'available').map((products: any) => {
       return {
@@ -577,6 +587,11 @@ const formData = ref<any>({
   lastName: '',
   phoneNumber: '',
   email: '',
+})
+
+const fetchData = ref<any>({
+  price:null,
+  roomType : ''
 })
 
 const saveReservation = async () => {
@@ -723,7 +738,7 @@ const numberOfNights = computed(() => {
 
 
 
-
+const selectedServiceProduct = ref<any>({})
 
 
 onMounted(async () => {
@@ -733,9 +748,28 @@ onMounted(async () => {
     reservationId.value = Number(rawId);
     const response = await getReservationById(reservationId.value);
     const response1 = await getUserId(response.data.userId)
+    const response2 = await getReservationServiceProduct(reservationId.value)
+   const matchingService = response2.data.find((p: any) => p.reservationId === reservationId.value)
+   const matchingServiceId = matchingService.serviceProductId;
+   console.log("matchingService",matchingService)
+
+
+    const matchedServiceProduct = ProductList.value.find((sp: any) => sp.serviceProductId === matchingServiceId?.serviceProductId);
+
+    console.log("matchedServiceProduct", matchedServiceProduct);
+
+
+    selectedServiceProduct.value = matchedServiceProduct;
+
 
     console.log('response',response)
-    console.log('userId',response.data.reservationProduct )
+    console.log('response2',response2.data )
+
+    fetchData.value={
+      price:matchedServiceProduct?.price,
+      roomType:matchedServiceProduct?.productName
+    }
+    console.log("fetchData",fetchData.value)
     formData.value = {
       firstName: response1.data.firstName,
       lastName: response1.data.lastName,
@@ -757,6 +791,7 @@ onMounted(async () => {
       numberOfNights: null,
       payment: response.data.payment,
     };
+
   }
 });
 

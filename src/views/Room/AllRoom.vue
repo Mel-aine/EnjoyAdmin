@@ -127,7 +127,6 @@
                     <div v-for="option in defaultOptions" :key="option.id">
                       <Select
                         :lb="option.optionName"
-                        :defaultValue="option.values[1].label"
                         :options="option.values"
                         v-model="formData.options[option.id]"
                       />
@@ -206,7 +205,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { ref, onMounted, computed, nextTick, watch } from 'vue'
+import { ref, onMounted, computed, nextTick, watchEffect } from 'vue'
 import {
   getOptions,
   createRoom,
@@ -297,6 +296,19 @@ const fetchOptions = async () => {
 //   }
 // }
 
+onMounted(() => {
+  initializeDefaultOptions()
+})
+
+const initializeDefaultOptions = () => {
+  defaultOptions.value.forEach((option:any) => {
+    if (!(option.id in formData.value.options)) {
+      formData.value.options[option.id] = option.values?.[0]?.value || ''
+    }
+  })
+}
+
+
 const defaultOptions = computed(() =>
   options.value.filter((option: OptionType) => option.isDefault === false),
 )
@@ -309,17 +321,33 @@ const hideOptions = computed(() =>
 //   fetchOptions()
 //   fetchRoomType()
 // })
-onMounted(() => {
-  defaultOptions.value.forEach((option) => {
-    if (!formData.value.options[option.id]) {
-      const defaultValue = option.values.find(
-        (val) => val.value === 'No'
-      ) || option.values[0]
 
-      formData.value.options[option.id] = defaultValue
+
+watchEffect(() => {
+  if (!options.value.length) {
+    console.log('[watchEffect] options.value is still empty.')
+    return
+  }
+
+  console.log('[watchEffect] Checking options default values...')
+
+  options.value.forEach((option) => {
+    const alreadySet = formData.value.options[option.id]
+
+    if (!alreadySet) {
+      const defaultEntry = option.values.find(val => val.value === 'No') || option.values[0]
+      const defaultVal = defaultEntry?.value ?? ''
+
+      formData.value.options[option.id] = defaultVal
+
+      // console.log(`[watchEffect] Set default for option ${option.id} =>`, defaultVal)
+    } else {
+      console.log(`[watchEffect] Option ${option.id} already set to`, alreadySet)
     }
   })
 })
+
+
 
 
 
@@ -331,6 +359,91 @@ const defaultOptionsMap = computed(() => {
   })
   return map
 })
+
+// const saveFormData = async () => {
+//   isLoading.value = true
+//   try {
+//     const roomPayload = {
+//       service_id: serviceStore.serviceId,
+//       product_name: formData.value.name,
+//       product_type: 'HotelSuite',
+//       description: formData.value.description,
+//       status: formData.value.status,
+//       price: formData.value.rent,
+//       created_by: userStore.UserId,
+//       last_modified_by: userStore.UserId,
+//     }
+//     console.log('roomId', roomPayload)
+
+//     const roomResponse = await createRoom(roomPayload)
+//     const roomId = roomResponse.data.id
+//     console.log('roomId', roomId)
+//     defaultOptions.value.forEach(option => {
+//   if (!(option.id in formData.value.options)) {
+//     formData.value.options[option.id] = option.values?.[0]?.value || ''
+//   }
+// })
+
+
+//     const optionsPayload = Object.entries(formData.value.options).map(
+//       ([id, value]: [string, any]) => {
+//         const optionMeta = defaultOptionsMap.value[Number(id)]
+//         return {
+//           service_product_id: roomId,
+//           option_id: Number(id),
+//           option_type: optionMeta?.type || null,
+//           value: value,
+//           created_by: userStore.UserId,
+//           last_modified_by: userStore.UserId,
+//         }
+//       },
+//     )
+
+//     console.log('optionsPayload', optionsPayload)
+
+//     const optionsResponse = await createRoomOptions({
+//       data: optionsPayload,
+//     })
+//     closeModal()
+//     fetchServiceProduct()
+
+//     //renitialisation des champs
+//     formData.value = {
+//       name: '',
+//       status: '',
+//       description: '',
+//       rent: '',
+//       options: {},
+//     }
+
+//     toast.success(t('toast.roomCreated'))
+//     console.log('roomPayload', roomPayload)
+//     console.log('optionsResponse', optionsResponse)
+//     console.log('optionsPayload', optionsPayload)
+//   } catch (error) {
+//     console.error('Error while saving', error)
+//   } finally {
+//     isLoading.value = false
+//   }
+// }
+
+const applyDefaultOptions = () => {
+  defaultOptions.value.forEach(option => {
+    if (!(option.id in formData.value.options) || formData.value.options[option.id] === '') {
+      formData.value.options[option.id] = option.values?.[0]?.value || ''
+    }
+  })
+}
+
+const resetFormData = () => {
+  formData.value = {
+    name: '',
+    status: '',
+    description: '',
+    rent: '',
+    options: {},
+  }
+}
 
 const saveFormData = async () => {
   isLoading.value = true
@@ -345,11 +458,14 @@ const saveFormData = async () => {
       created_by: userStore.UserId,
       last_modified_by: userStore.UserId,
     }
-    console.log('roomId', roomPayload)
+
+    console.log('roomPayload', roomPayload)
 
     const roomResponse = await createRoom(roomPayload)
     const roomId = roomResponse.data.id
     console.log('roomId', roomId)
+
+    applyDefaultOptions()
 
     const optionsPayload = Object.entries(formData.value.options).map(
       ([id, value]: [string, any]) => {
@@ -358,34 +474,24 @@ const saveFormData = async () => {
           service_product_id: roomId,
           option_id: Number(id),
           option_type: optionMeta?.type || null,
-          value: value,
+          value,
           created_by: userStore.UserId,
           last_modified_by: userStore.UserId,
         }
-      },
+      }
     )
 
     console.log('optionsPayload', optionsPayload)
 
-    const optionsResponse = await createRoomOptions({
-      data: optionsPayload,
-    })
+    const optionsResponse = await createRoomOptions({ data: optionsPayload })
+
     closeModal()
     fetchServiceProduct()
 
-    //renitialisation des champs
-    formData.value = {
-      name: '',
-      status: '',
-      description: '',
-      rent: '',
-      options: {},
-    }
+    resetFormData()
 
     toast.success(t('toast.roomCreated'))
-    console.log('roomPayload', roomPayload)
     console.log('optionsResponse', optionsResponse)
-    console.log('optionsPayload', optionsPayload)
   } catch (error) {
     console.error('Error while saving', error)
   } finally {
@@ -525,7 +631,7 @@ const titles = computed(() => [
   },
   {
     name: 'option_10',
-    label: t('Kitchen / Kitchenette'),
+    label: t('Kitchen/Kitchenette'),
     type: 'text',
   },
   {
@@ -626,6 +732,16 @@ const titles = computed(() => [
   {
     name: 'option_29',
     label: t('Check-outTime'),
+    type: 'text',
+  },
+  {
+    name: 'option_31',
+    label: t('numberBeds'),
+    type: 'text',
+  },
+  {
+    name: 'option_32',
+    label: t('numberBathrooms'),
     type: 'text',
   },
   {

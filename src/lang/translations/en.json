@@ -92,7 +92,7 @@
     "Wi-fi": "Wi-fi",
     "BreakfastIncluded": "Breakfast Included",
     "PrivateBathroom": "Private Bathroom",
-    "Kitchen / Kitchenette": "Kitchen / Kitchenette",
+    "Kitchen/Kitchenette": "Kitchen / Kitchenette",
     "WashingMachine": "Washing Machine",
     "RoomSize(sqm)": "Room Size (sqm)",
     "NumberofRooms": "Number of Rooms",
@@ -543,7 +543,9 @@
   "stockFinal" : "Final Stock",
   "personalInformation" : "Personal Information",
   "editPersonalInformation" : "Edit Personal Information",
-  "updateInfo" : "Update your details to keep your profile up-to-date."
+  "updateInfo" : "Update your details to keep your profile up-to-date.",
+  "numberBeds" : "Number of beds",
+  "numberBathrooms" : "Number of bathrooms"
 
     
 }

@@ -53,7 +53,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           vue: ['vue', 'vue-router', 'pinia'],
-          aggrid: ['ag-grid-vue3', 'ag-grid-community'],
+          // aggrid: ['ag-grid-vue3', 'ag-grid-community'],
           libs: ['axios', 'luxon'],
         },
       },

@@ -99,7 +99,7 @@ export const getServiceProductWithOptions = (
   serviceId?: number | null,
 ): Promise<AxiosResponse<{ data: ServiceProductType[] }>> => {
   const url = serviceId
-    ? `${API_URL}/service_product_options?serviceId=${serviceId}`
+    ? `${API_URL}/service_product_option?serviceId=${serviceId}`
     : `${API_URL}/service_product_options`
 
   return axios.get(url)
@@ -180,7 +180,9 @@ export const getRoute = (serviceId: number | null): Promise<AxiosResponse<any>> 
 export const getRole = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/roles`)
 }
-
+export const getReservationServiceProduct = (reservationId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservation_service/${reservationId}`)
+}
 
 // --- Services API post --- //
 

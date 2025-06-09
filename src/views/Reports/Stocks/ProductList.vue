@@ -143,13 +143,25 @@ const loadingDelete = ref(false)
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
 };
-const newProduct = ref({
+
+interface Product {
+  name : string,
+  code:string,
+  quantity:null | string | number | undefined,
+  supplier :  string | number | undefined,
+  status : string,
+  category:string | number | undefined,
+  price:null
+
+
+}
+const newProduct = ref<Product>({
   name: "",
   code:"",
   quantity: null,
-  supplier: null,
+  supplier: '',
   status: "",
-  category: null,
+  category: '',
   price:null
 });
 
@@ -352,9 +364,9 @@ const addProduct = async () => {
         name: "",
         code:"",
         quantity: null,
-        supplier: null,
+        supplier: '',
         status: "",
-        category: null,
+        category: '',
         price:null
        }
     } else {
@@ -422,7 +434,7 @@ const getCategoryName = (id: number) => {
 };
 
 const filteredProductWithNames = computed(() => {
-  return productData.value.map((prod) => ({
+  return productData.value.map((prod:any) => ({
 
     ...prod,
     categoryName: getCategoryName(prod.stockCategoryId),
@@ -438,9 +450,9 @@ const close = () =>{
         name: "",
         code:"",
         quantity: null,
-        supplier: null,
+        supplier: '',
         status: "",
-        category: null,
+        category: '',
         price:null
        }
 }
@@ -478,9 +490,9 @@ const updateData = async () => {
         name: "",
         code:"",
         quantity: null,
-        supplier: null,
+        supplier: '',
         status: "",
-        category: null,
+        category: '',
         price:null
        }
     selected.value = null;

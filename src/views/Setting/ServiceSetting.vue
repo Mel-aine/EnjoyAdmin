@@ -3,16 +3,16 @@
   <div class="max-w-4xl mx-auto p-6">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $t('managingHotel') }}</h2>
 
-    <!-- Section Informations Générales -->
-    <InfoGeneral 
-    :cloudinary-config="cloudinaryConfig"
+    <!-- Section Informations Généralesb  :cloudinary-config="cloudinaryConfig" -->
+    <InfoGeneral
+
       :max-images="12"
       :max-file-size="10"
       @logo-changed="handleLogoChange"
       @images-changed="handleImagesChange"
       ref="imageUploader"/>
 
- 
+
 
     <div class="mb-8">
     <ScheduleManagement/>
@@ -124,7 +124,7 @@ import { useServiceStore } from '@/composables/serviceStore';
 import { useToast } from 'vue-toastification'
 import ScheduleManagement from './ScheduleManagement.vue'
 import InfoGeneral from './InfoGeneral.vue';
-import CloudinaryImageUpload from './CloudinaryImageUpload.vue'
+// import CloudinaryImageUpload from './CloudinaryImageUpload.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -220,14 +220,14 @@ interface Service {
       serviceParameters.enabledServices[service.id] = false;
     });
 
-  
+
 
 // Configuration Cloudinary
-const cloudinaryConfig = {
-  cloudName: 'your-cloud-name', // Remplacez par votre cloud name
-  uploadPreset: 'your-upload-preset', // Remplacez par votre upload preset
-  apiKey: 'your-api-key' // Optionnel pour la suppression
-}
+// const cloudinaryConfig = {
+//   cloudName: 'your-cloud-name', // Remplacez par votre cloud name
+//   uploadPreset: 'your-upload-preset', // Remplacez par votre upload preset
+//   apiKey: 'your-api-key' // Optionnel pour la suppression
+// }
 
 // Données de l'hôtel
 const hotelData = reactive({
@@ -258,13 +258,13 @@ const handleImagesChange = (images: any[]) => {
 //     // Récupérer les données depuis le composant
 //     const logoUrl = imageUploader.value.getLogoUrl()
 //     const images = imageUploader.value.getImages()
-    
+
 //     const dataToSave = {
 //       ...hotelData,
 //       logo: logoUrl,
 //       images: images
 //     }
-    
+
 //     // Envoyer à votre API
 //     const response = await fetch('/api/hotels', {
 //       method: 'POST',
@@ -273,7 +273,7 @@ const handleImagesChange = (images: any[]) => {
 //       },
 //       body: JSON.stringify(dataToSave)
 //     })
-    
+
 //     if (response.ok) {
 //       alert('Hôtel sauvegardé avec succès!')
 //     }

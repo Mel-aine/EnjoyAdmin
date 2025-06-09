@@ -58,7 +58,7 @@ interface Option {
 
 const props = defineProps<{
   lb?: string
-  defaultValue?: Option[]
+  defaultValue?: string
   isRequired?: boolean
   modelValue?: string | number
   options: Option[]

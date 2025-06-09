@@ -403,36 +403,36 @@ const titles = computed(() => [
 ])
 
 
-const getRoleBadge = (roleName: string) => {
-  const roleMap: Record<string, { bg: string; text: string; label: string }> = {
-    Admin: {
-      label: 'Administrator',
-      bg: 'bg-blue-100',
-      text: 'text-blue-800',
-    },
-    user: {
-      label: 'User',
-      bg: 'bg-green-100',
-      text: 'text-green-800',
-    },
-    driver: {
-      label: 'Driver',
-      bg: 'bg-yellow-100',
-      text: 'text-yellow-800',
-    },
-    guest: {
-      label: 'Guest',
-      bg: 'bg-gray-100',
-      text: 'text-gray-800',
-    },
-  }
+// const getRoleBadge = (roleName: string) => {
+//   const roleMap: Record<string, { bg: string; text: string; label: string }> = {
+//     Admin: {
+//       label: 'Administrator',
+//       bg: 'bg-blue-100',
+//       text: 'text-blue-800',
+//     },
+//     user: {
+//       label: 'User',
+//       bg: 'bg-green-100',
+//       text: 'text-green-800',
+//     },
+//     driver: {
+//       label: 'Driver',
+//       bg: 'bg-yellow-100',
+//       text: 'text-yellow-800',
+//     },
+//     guest: {
+//       label: 'Guest',
+//       bg: 'bg-gray-100',
+//       text: 'text-gray-800',
+//     },
+//   }
 
-  return roleMap[roleName] || {
-    label: roleName,
-    bg: 'bg-purple-100',
-    text: 'text-purple-800',
-  }
-}
+//   return roleMap[roleName] || {
+//     label: roleName,
+//     bg: 'bg-purple-100',
+//     text: 'text-purple-800',
+//   }
+// }
 
 const fetchRole = async() =>{
   try {
@@ -446,11 +446,11 @@ const fetchRole = async() =>{
 
 const usersWithRoleLabels = computed(() =>
   users.value.map((user: any) => {
-    const role = roles.value.find((r: any) => r.id === user.roleId)?.roleName || 'Unknown'
+    const role = roles.value.find((r: any) => r.id === user.roleId) || 'Unknown'
     return {
       ...user,
       roleLabel: role,
-      roleBadge: getRoleBadge(role),
+      // roleBadge: getRoleBadge(role),
     }
   })
 )
@@ -473,6 +473,7 @@ const handleUserAction = (action: string, user: any) => {
     show.value = true
   }
 }
+
 
 
 const confirmDelete = async () => {
