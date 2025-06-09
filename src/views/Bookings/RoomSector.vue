@@ -128,7 +128,7 @@ interface RoomSelection {
 }
 
 const props = defineProps<{
-  availableRooms: Room[]
+  availableRooms: any[]
   currency?: string
   initialRoomSelections?: RoomSelection[]
   modelValue: Object
@@ -231,8 +231,8 @@ function decrementChildren(index: number) {
 watch(
   roomSelections,
   () => {
-    emit('update:roomSelections', roomSelections.value),
-      emit('update:modelValue', value)
+    emit('update:roomSelections', roomSelections.value)
+      // emit('update:modelValue', value)
   },
   { deep: true },
 )
