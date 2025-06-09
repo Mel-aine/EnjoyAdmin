@@ -537,8 +537,13 @@
   "noData" : "No data available",
   "try..." : "Try changing your search",
   "thedata" : "The data will appear here",
-  "Rooms" : "Rooms"
-    
+  "Rooms" : "Rooms",
+  "hotelService" : "Hotel Services",
+  "stockInitial" : "Initial Stock",
+  "stockFinal" : "Final Stock",
+  "personalInformation" : "Personal Information",
+  "editPersonalInformation" : "Edit Personal Information",
+  "updateInfo" : "Update your details to keep your profile up-to-date."
 
     
 }

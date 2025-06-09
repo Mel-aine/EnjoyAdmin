@@ -4,45 +4,22 @@
     <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $t('managingHotel') }}</h2>
 
     <!-- Section Informations Générales -->
-    <div class="mb-8 bg-white rounded-lg shadow p-6">
-      <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('generalInfo') }}</h3>
+    <InfoGeneral 
+    :cloudinary-config="cloudinaryConfig"
+      :max-images="12"
+      :max-file-size="10"
+      @logo-changed="handleLogoChange"
+      @images-changed="handleImagesChange"
+      ref="imageUploader"/>
 
-      <div class="mb-4">
-        <Input :lb="t('hotelName')" :id="'hotelName'" :forLabel="'hotelName'" v-model="hotelInfo.name" />
-      </div>
+ 
 
-
-        <div class="mb-4">
-          <FileInput :name="t('logo')"/>
-        </div>
-        <div class="mb-4">
-          <FileInput :name="t('images')"/>
-        </div>
-
-      <div class="mb-4">
-        <Input :lb="t('hotelAddress')" :id="'hotelAddress'" :forLabel="'hotelAddress'" v-model="hotelInfo.address" />
-      </div>
-
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="mb-4">
-          <Select :lb="t('Numberofstars')"  :options="stars" />
-        </div>
-
-        <div class="mb-4">
-          <Input :lb="t('hotelPhone')" :id="'hotelPhone'" :forLabel="'hotelPhone'" :inputType="'tel'" v-model="hotelInfo.phone" />
-        </div>
-
-        <div class="mb-4">
-          <div class="mb-4">
-          <Input :lb="t('hotelEmail')" :id="'hotelEmail'" :forLabel="'hotelEmail'" :inputType="'email'" v-model="hotelInfo.email" />
-        </div>
-        </div>
-      </div>
+    <div class="mb-8">
+    <ScheduleManagement/>
     </div>
 
     <!-- Section Paramètres du Service -->
-    <div class="mb-8 bg-white rounded-lg shadow p-6">
+    <div class="mb-8  max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('ServiceSettings') }}</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -56,7 +33,7 @@
         </div>
       </div>
 
-      <div>
+      <div >
         <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('servicesOffered') }}:</label>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           <div v-for="(service, index) in availableServices" :key="index" class="flex items-center">
@@ -69,7 +46,7 @@
     </div>
 
     <!-- Section Paramètres de Tarification -->
-    <div class="mb-8 bg-white rounded-lg shadow p-6">
+    <div class="mb-8  max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('pricingSettings') }}</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -145,6 +122,9 @@ import {getService,updateService } from '@/services/api'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore';
 import { useToast } from 'vue-toastification'
+import ScheduleManagement from './ScheduleManagement.vue'
+import InfoGeneral from './InfoGeneral.vue';
+import CloudinaryImageUpload from './CloudinaryImageUpload.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -239,6 +219,70 @@ interface Service {
     availableServices.forEach(service => {
       serviceParameters.enabledServices[service.id] = false;
     });
+
+  
+
+// Configuration Cloudinary
+const cloudinaryConfig = {
+  cloudName: 'your-cloud-name', // Remplacez par votre cloud name
+  uploadPreset: 'your-upload-preset', // Remplacez par votre upload preset
+  apiKey: 'your-api-key' // Optionnel pour la suppression
+}
+
+// Données de l'hôtel
+const hotelData = reactive({
+  name: '',
+  address: '',
+  phone: '',
+  email: '',
+  logo: null as string | null,
+  images: [] as any[]
+})
+
+// Ref du composant
+const imageUploader = ref()
+
+// Handlers
+const handleLogoChange = (logoUrl: string | null) => {
+  hotelData.logo = logoUrl
+  console.log('Logo changed:', logoUrl)
+}
+
+const handleImagesChange = (images: any[]) => {
+  hotelData.images = images
+  console.log('Images changed:', images)
+}
+
+// const saveHotelData = async () => {
+//   try {
+//     // Récupérer les données depuis le composant
+//     const logoUrl = imageUploader.value.getLogoUrl()
+//     const images = imageUploader.value.getImages()
+    
+//     const dataToSave = {
+//       ...hotelData,
+//       logo: logoUrl,
+//       images: images
+//     }
+    
+//     // Envoyer à votre API
+//     const response = await fetch('/api/hotels', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify(dataToSave)
+//     })
+    
+//     if (response.ok) {
+//       alert('Hôtel sauvegardé avec succès!')
+//     }
+//   } catch (error) {
+//     console.error('Erreur lors de la sauvegarde:', error)
+//     alert('Erreur lors de la sauvegarde')
+//   }
+// }
+
 
 
 

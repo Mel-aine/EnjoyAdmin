@@ -78,8 +78,8 @@
               {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}
             </h4>
           </div>
-          <form @submit.prevent="handleSubmit" class="flex flex-col">
-            <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
+          <form @submit.prevent="handleSubmit" class="flex flex-col custom-scrollbar h-[458px] overflow-y-auto">
+            <div class=" p-2">
               <div class="space-y-8">
                 <!-- Section principale -->
                 <div>
@@ -127,6 +127,7 @@
                     <div v-for="option in defaultOptions" :key="option.id">
                       <Select
                         :lb="option.optionName"
+                        :defaultValue="option.values[1].label"
                         :options="option.values"
                         v-model="formData.options[option.id]"
                       />
@@ -162,7 +163,7 @@
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+            <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end ">
               <!-- Bouton Cancel -->
               <button
                 @click="closeModal()"
@@ -660,209 +661,6 @@ const getStatusColor = (status: string) => {
   }
 }
 
-// const columnDefs = ref<ColDef[]>([
-// { headerName: t('Name'), field: 'productName' ,
-
-// },
-// // {
-// //   headerName: 'Room Type',
-// //   field: 'productTypeId',
-// //   valueFormatter: params => {
-// //       const type = roomTypeData.value.find((t:any) => t.id === params.value);
-// //       return type ? type.name : 'Unknown';
-// //     },
-
-// // },
-
-// { headerName: t('Rent'), field: 'price' },
-// {
-//   headerName: t('Status'),
-//   field: 'status',
-
-//   cellRenderer: (params:ICellRendererParams) => {
-//     if (params.value === 'available') {
-//       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
-//     } else if (params.value === 'booked') {
-//       return `<span class="bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 rounded-full px-2">Booked</span>`;
-//     }
-//     else if (params.value === 'occupied') {
-//       return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Occupied</span>`;
-//     } else {
-//       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Maintenance</span>`;
-//     }
-//   }
-// },
-
-// {
-//   headerName: t('AccommodationType'),
-//   field: 'option_1',
-
-// },
-// { headerName: t('BedType'), field: 'option_2' },
-// { headerName: t('View'), field: 'option_3' },
-// { headerName: t('Balcony'), field: 'option_4' },
-// { headerName: t('Terrace'), field: 'option_5' },
-// { headerName: t('AirConditioning'), field: 'option_6' },
-// { headerName: t('Wi-fi'), field: 'option_7' },
-// { headerName: t('BreakfastIncluded'), field: 'option_8' },
-// { headerName: t('PrivateBathroom'), field: 'option_9'},
-// { headerName: t('Kitchen / Kitchenette'), field: 'option_10' },
-// { headerName: t('WashingMachine'), field: 'option_11' },
-// { headerName: t('RoomSize(sqm)'), field: 'option_12' },
-// { headerName: t('NumberofRooms'), field: 'option_13' },
-// { headerName: t('MaximumOccupancy'), field: 'option_14' },
-// { headerName: t('TV'), field: 'option_15' },
-// { headerName: t('MiniBar'), field: 'option_16' },
-// { headerName: t('SafeDepositBox'), field: 'option_17' },
-// { headerName: t('ExtraBed'), field: 'option_18' },
-// { headerName: t('WheelchairAccessible'), field: 'option_19' },
-// { headerName: t('PrivatePool'), field: 'option_20' },
-// { headerName: t('Jacuzzi/Spa'), field: 'option_21' },
-// { headerName: t('SmokingAllowed'), field: 'option_22' },
-// { headerName: t('PetsAllowed'), field: 'option_23' },
-// { headerName: t('Housekeeping'), field: 'option_24' },
-// { headerName: t('Parking'), field: 'option_25' },
-// { headerName: t('RoomService'), field: 'option_26' },
-// { headerName: t('SelfCheck-in'), field: 'option_27' },
-// { headerName: t('HouseRules'), field: 'option_30' },
-// { headerName: t('Check-inTime'), field: 'option_28' },
-// { headerName: t('Check-outTime'), field: 'option_29' },
-// { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-
-// ]);
-
-// watch(() => locale.value, () => {
-//       columnDefs.value = [
-
-//     { headerName: t('Name'), field: 'productName' ,
-
-//     },
-
-//     { headerName: t('Rent'), field: 'price' },
-//     {
-//       headerName: t('Status'),
-//       field: 'status',
-
-//       cellRenderer: (params:ICellRendererParams) => {
-//         if (params.value === 'available') {
-//           return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Available</span>`;
-//         }else if (params.value === 'booked') {
-//           return `<span class="bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 rounded-full px-2">Booked</span>`;
-//         }
-//          else if (params.value === 'occupied') {
-//           return `<span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2">Occupied</span>`;
-//         } else {
-//           return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Maintenance</span>`;
-//         }
-//       }
-//       },
-
-//       {
-//         headerName: t('AccommodationType'),
-//         field: 'option_1',
-
-//       },
-//       { headerName: t('BedType'), field: 'option_2' },
-//       { headerName: t('View'), field: 'option_3' },
-//       { headerName: t('Balcony'), field: 'option_4' },
-//       { headerName: t('Terrace'), field: 'option_5' },
-//       { headerName: t('AirConditioning'), field: 'option_6' },
-//       { headerName: t('Wi-fi'), field: 'option_7' },
-//       { headerName: t('BreakfastIncluded'), field: 'option_8' },
-//       { headerName: t('PrivateBathroom'), field: 'option_9'},
-//       { headerName: t('Kitchen / Kitchenette'), field: 'option_10' },
-//       { headerName: t('WashingMachine'), field: 'option_11' },
-//       { headerName: t('RoomSize(sqm)'), field: 'option_12' },
-//       { headerName: t('NumberofRooms'), field: 'option_13' },
-//       { headerName: t('MaximumOccupancy'), field: 'option_14' },
-//       { headerName: t('TV'), field: 'option_15' },
-//       { headerName: t('MiniBar'), field: 'option_16' },
-//       { headerName: t('SafeDepositBox'), field: 'option_17' },
-//       { headerName: t('ExtraBed'), field: 'option_18' },
-//       { headerName: t('WheelchairAccessible'), field: 'option_19' },
-//       { headerName: t('PrivatePool'), field: 'option_20' },
-//       { headerName: t('Jacuzzi/Spa'), field: 'option_21' },
-//       { headerName: t('SmokingAllowed'), field: 'option_22' },
-//       { headerName: t('PetsAllowed'), field: 'option_23' },
-//       { headerName: t('Housekeeping'), field: 'option_24' },
-//       { headerName: t('Parking'), field: 'option_25' },
-//       { headerName: t('RoomService'), field: 'option_26' },
-//       { headerName: t('SelfCheck-in'), field: 'option_27' },
-//       { headerName: t('HouseRules'), field: 'option_30' },
-//       { headerName: t('Check-inTime'), field: 'option_28' },
-//       { headerName: t('Check-outTime'), field: 'option_29' },
-//       { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) }
-
-//       ];
-//     }, { immediate: true });
-
-// function getActionButtons(roomId: number): string {
-//   return `
-//     <div class="mt-2 space-x-4">
-//       <button class="action-btn" data-action="edit" data-id="${roomId}">
-//         <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-//           <path stroke="none" d="M0 0h24v24H0z"/>
-//           <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-//           <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-//         </svg>
-//       </button>
-//       <button class="action-btn" data-action="delete" data-id="${roomId}">
-//         <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-//         </svg>
-//       </button>
-//     </div>
-//   `;
-// }
-
-// const onGridReady = (event: GridReadyEvent) => {
-//   console.log('Grid ready:', event);
-// };
-// const onCellClick = (event: any) => {
-//   const button = event.event.target.closest('button');
-//   console.log('Button clicked:', button);
-
-//   if (!button) {
-//     console.error('No button found');
-//     return;
-//   }
-
-//   const action = button.dataset.action;
-//   const roomId = button.dataset.id;
-
-//   console.log('Action:', action, 'Room ID:', roomId);
-
-//   if (action === 'edit') {
-//     const roomToEdit = flattenServiceProducts.value.find((r: any) => r.id === Number(roomId));
-
-//     if (roomToEdit) {
-//       selectedRoom.value = roomToEdit;
-//       formData.value.name = roomToEdit.productName.toString();
-//       formData.value.description = roomToEdit.description.toString();
-//       formData.value.rent = roomToEdit.price.toString();
-//       formData.value.status = roomToEdit.status.toString();
-//       const optionsList: Record<number, string> = {};
-
-//         if (Array.isArray(roomToEdit.options)) {
-//           roomToEdit.options.forEach((opt: any) => {
-//             optionsList[opt.optionId] = opt.value;
-//           });
-//         }
-
-//         formData.value.options = optionsList;
-//       console.log("Editing reservation:",  formData.value.options);
-
-//       isEditMode.value = true;
-
-//       nextTick(() => {
-//         modalOpen.value = true;
-//       });
-//     }
-//   } else if (action === 'delete') {
-//     selectedRoomId.value = roomId
-//     Show.value=true
-//   }
-// };
 
 const roomIds = ref<any>(null)
 

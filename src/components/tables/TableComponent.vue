@@ -1,12 +1,12 @@
 <template>
-  <div class="max-w-[1180px] w-full mx-auto px-4">
+  <div class="max-w-[1180px] lg:w-full mx-auto px-4">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden  ">
     <!-- Header avec recherche et filtres -->
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <!-- Titre et stats -->
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+          <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 002-2M9 7a2 2 0 012 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2"/>
             </svg>
@@ -33,7 +33,7 @@
               v-model="searchQuery"
               type="text"
               :placeholder="searchPlaceholder || $t('search...')"
-              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
             />
             <button
               v-if="searchQuery"
@@ -50,7 +50,7 @@
           <div v-if="filterable && options?.length" class="relative">
             <select
               v-model="selectedFilter"
-              class="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 pr-8 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 pr-8 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
             >
               <option v-for="option in options" :key="option.api" :value="option">
                 {{ option.name }}
@@ -95,7 +95,7 @@
                   <svg
                     class="w-4 h-4 text-gray-400 hover:text-gray-600"
                     :class="{
-                      'text-purple-600': sortField === item.name,
+                      'text-brand-600': sortField === item.name,
                       'rotate-180': sortField === item.name && sortDirection === 'desc'
                     }"
                     fill="none"
@@ -145,7 +145,7 @@
           <tr
             v-for="(row, rowIndex) in paginatedData"
             :key="rowIndex"
-            class="bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-150"
+            class="bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-gray-700 transition-colors duration-150"
           >
             <td
               v-for="(item, colIndex) in items"
@@ -158,7 +158,7 @@
                 <!-- <template v-if="item.type === 'url'">
                   <button
                     @click="$emit(item.event, row)"
-                    class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium underline-offset-2 hover:underline transition-colors duration-200 truncate w-1/2"
+                    class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 font-medium underline-offset-2 hover:underline transition-colors duration-200 truncate w-1/2"
                   >
                     {{ row[item.name] }}
                   </button>
@@ -167,7 +167,7 @@
                     :type="item.inputField.type"
                     :placeholder="item.inputField.placeholder"
                     v-model="row.inputField"
-                    class="mt-2 w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                    class="mt-2 w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                   />
                 </template> -->
                 <template v-if="item.type === 'url'">
@@ -176,13 +176,13 @@
                       :type="item.inputField.type"
                       :placeholder="item.inputField.placeholder"
                       v-model="row.inputField"
-                      class="w-full max-w-[150px] px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                      class="w-full max-w-[150px] px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                     />
                   </template>
                   <template v-else>
                     <button
                       @click="$emit(item.event, row)"
-                      class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium underline-offset-2 hover:underline transition-colors duration-200 truncate max-w-[150px]"
+                      class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 font-medium underline-offset-2 hover:underline transition-colors duration-200 truncate max-w-[150px]"
                     >
                       {{ row[item.name] }}
                     </button>
@@ -203,13 +203,48 @@
                   </span>
                 </template>
 
+                <template v-else-if="item.type === 'imageText' && typeof row[item.name] === 'object'">
+                  <div class="flex items-center gap-2">
+                    <img :src="row[item.name].image" alt="img" class="w-8 h-8 rounded-full object-cover" />
+                    <span class="truncate text-sm font-medium text-gray-800 dark:text-white max-w-[10rem] sm:max-w-[12rem] md:max-w-[14rem]">{{ row[item.name].name }}</span>
+                  </div>
+                </template>
+
+                <template v-else-if="item.type === 'rating'">
+                  <div class="flex items-center">
+                    <template v-for="n in 5" :key="n">
+                      <svg
+                        v-if="n <= row[item.name]"
+                        class="w-4 h-4 text-yellow-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.176c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.538 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.783.57-1.838-.197-1.538-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.394c-.783-.57-.38-1.81.588-1.81h4.176a1 1 0 00.95-.69l1.286-3.967z"
+                        />
+                      </svg>
+                      <svg
+                        v-else
+                        class="w-4 h-4 text-gray-300"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.176c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.538 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.783.57-1.838-.197-1.538-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.394c-.783-.57-.38-1.81.588-1.81h4.176a1 1 0 00.95-.69l1.286-3.967z"
+                        />
+                      </svg>
+                    </template>
+                  </div>
+                </template>
+
+
                 <!-- Pourcentage -->
                 <template v-else-if="item.type === 'percentage'">
                   <div class="flex items-center gap-2">
                     <span class="font-medium text-gray-900 dark:text-white">{{ row[item.name] }}%</span>
                     <div class="w-20 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                       <div
-                        class="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                        class="bg-brand-600 h-2 rounded-full transition-all duration-300"
                         :style="{ width: `${Math.min(row[item.name], 100)}%` }"
                       ></div>
                     </div>
@@ -238,7 +273,7 @@
 
                 <!-- Texte par défaut -->
                 <template v-else>
-                  <span class="text-gray-900 dark:text-white font-medium text-md truncate max-w-[150px]">{{ row[item.name] }}</span>
+                  <span class="text-gray-900 dark:text-white font-medium text-md w-50 overflow-hidden text-ellipsis whitespace-normal break-words">{{ row[item.name] }}</span>
                 </template>
               </div>
 
@@ -266,7 +301,7 @@
 
 
     <!-- Pagination -->
-    <div
+     <div
       v-if="pagination && filteredData.length > pageSize"
       class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700"
     >
@@ -293,7 +328,7 @@
               :class="[
                 'px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200',
                 page === currentPage
-                  ? 'bg-purple-600 text-white shadow-md'
+                  ? 'bg-brand-600 text-white shadow-md'
                   : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
               ]"
             >
@@ -311,7 +346,40 @@
           </button>
         </div>
       </div>
-    </div>
+    </div> 
+
+    <!-- Pagination 
+    <div
+      v-if="pagination && filteredData.length > pageSize"
+      class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700"
+    >
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          {{ $t('showing') }} {{ ((currentPage - 1) * pageSize) + 1 }} {{ $t('to') }} {{ Math.min(currentPage * pageSize, filteredData.length) }}
+          {{ $t('of') }} {{ filteredData.length }} {{ $t('results') }}
+        </div>
+
+        
+        <div class="flex gap-2">
+          <button
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)"
+            class="px-3 py-1 rounded border text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50"
+          >
+            {{ $t('previous') }}
+          </button>
+
+          <button
+            :disabled="currentPage >= totalPages"
+            @click="changePage(currentPage + 1)"
+            class="px-3 py-1 rounded border text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50"
+          >
+            {{ $t('next') }}
+          </button>
+        </div>
+      </div>
+    </div>-->
+
   </div>
 </div>
 </template>
@@ -323,7 +391,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 interface TableColumn {
   name: string
   label: string
-  type?: 'text' | 'url' | 'badge' | 'percentage' | 'image' | 'action'
+  type?: 'text' | 'url' | 'badge' | 'percentage' | 'image' | 'action' | 'imageText' | 'rating'
   sortable?: boolean
   filterable?: boolean
   style?: string
@@ -371,8 +439,15 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Emits
 const emit = defineEmits<{
-  [key: string]: [data: any]
+  [key: string]: [data: any],
+  (e: 'pageChange', page: number): void
 }>()
+
+
+function changePage(page: number) {
+  currentPage.value = page
+  emit('pageChange', page)
+}
 
 // État local
 const searchQuery = ref('')

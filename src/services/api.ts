@@ -219,8 +219,11 @@ export const createPayment = (paymentData: any): Promise<AxiosResponse<any>> => 
 // services/authService.ts
 
 export function auth(credentials: { email: string; password: string; keepLoggedIn?: boolean }) {
-  return axios.post(`${API_URL}/authLogin`, credentials)
+  return axios.post(`${API_URL}/authLogin`, credentials, {
+    withCredentials: true
+  })
 }
+
 export function validateEmail(email: string) {
   return axios.post(`${API_URL}/validateEmail`, { email })
 }

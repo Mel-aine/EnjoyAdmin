@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminLayout>
-      <PageBreadcrumb :pageTitle="$t('department')" />
+      <PageBreadcrumb :pageTitle="$t('hotelService')" />
       <div class="flex justify-end pb-5">
 
         <button
@@ -10,7 +10,7 @@
               >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                {{ $t('addDepartment') }}
+                {{ $t('add') }}
               </button>
       </div>
 
@@ -43,7 +43,7 @@
             <h2 class="text-lg font-semibold mb-4">{{ isEditing? $t('edit'):$t('addDepartment') }}</h2>
             <form @submit.prevent="addDepartment">
               <div class="mb-4">
-                <Input :lb="$t('departmentName')" v-model="newDepartment.name" />
+                <Input :lb="$t('Name')" v-model="newDepartment.name" />
               </div>
               <div class="mb-4">
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('Description') }}</label>
@@ -146,7 +146,7 @@
             :pagination="true"
             :loading="loading"
             :showHeader="true"
-            :title="$t('Department')"
+            :title="$t('hotelService')"
             :pageSize="15"
             :showButtonAllElement="true"
             @edit="onEditDept"
@@ -380,7 +380,17 @@ const fetchDepartment = async () => {
     });
 
     departments.sort((a: any, b: any) => a.name.localeCompare(b.name));
-    departmentsData.value = departments;
+    departmentsData.value = departments.map((d:any)=>{
+      const statusClasses = getStatusColor(d.status).split(' ')
+      return {
+        ...d,
+        statusColor: {
+        label: d.status,
+        bg: statusClasses[0],
+        text: statusClasses[1],
+      },
+      }
+    })
     console.log('Final departments data:', departmentsData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);
@@ -468,7 +478,7 @@ const titles = computed(() => [
   },
   {
     name: 'name',
-    label: t('departmentName'),
+    label: t('Name'),
     type: 'text',
     filterable: true,
   },
@@ -486,7 +496,7 @@ const titles = computed(() => [
     filterable: true,
   },
   {
-    name: 'status',
+    name: 'statusColor',
     label: t('Status'),
     type: 'badge',
     filterable: false,
@@ -684,6 +694,15 @@ const handleDeptAction = (action: string, dept: any) => {
     }
     }
   }
+
+  const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active':
+      return 'bg-green-100 text-green-700'
+    default:
+      return 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500'
+  }
+}
 
 
 // const getSelectedRows = (event: SelectionChangedEvent) => {

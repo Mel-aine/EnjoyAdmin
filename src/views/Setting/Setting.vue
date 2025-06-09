@@ -4,10 +4,10 @@
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="bg-white p-6 rounded-lg shadow-md  min-h-screen dark:bg-black">
       <SettingTables @tab-selected="changeTab" :tabs="tabs">
-        <GeneralSetting v-if="openTab === 1"/>
-        <ServiceSetting v-if="openTab === 2"/>
-        <EmailSetting v-if="openTab === 3" />
-        <SecuritySetting v-if="openTab === 4"/>
+         <GeneralSetting v-if="openTab === 4"/> 
+        <ServiceSetting v-if="openTab === 1"/>
+        <EmailSetting v-if="openTab === 2" />
+        <SecuritySetting v-if="openTab === 3"/>
       </SettingTables>
     </div>
   </AdminLayout>
@@ -38,7 +38,7 @@ const currentPageTitle = computed(()=>t("Setting"));
 
 // Liste des onglets
 const tabs = computed(() => [
-  { label: t('General'), name: 'general', icon: UserIcon},
+   { label: t('General'), name: 'general', icon: UserIcon},
   { label: t('Service'), name: 'hotel', icon: Hotel},
   { label: t('E-mail'), name: 'email',icon: MailIcon },
   { label: t('Security'), name: 'security', icon: ShieldCheck  },

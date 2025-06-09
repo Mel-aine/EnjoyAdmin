@@ -141,11 +141,19 @@
               </div>
 
               <div class="mb-4">
-                <Select
+                <!-- <Select
                   v-model="currentMovement.source"
-                  :lb="$t('source')"
-                  :options="sourceOptions"
+                  :lb="$t('category')"
+                  :options="categories"
                   required
+                /> -->
+                <Input
+                  :inputType="'text'"
+                  :lb="$t('category')"
+                  :id="'cat'"
+                  :forLabel="'cat'"
+                  :disabled="true"
+                  v-model="currentMovement.source"
                 />
                   <!-- <option v-for="location in locations" :key="location" :value="location">{{ location }}</option>
                   <option v-if="currentMovement.type === 'Entrée'" value="externe">Fournisseur externe</option>
@@ -155,7 +163,7 @@
               <div class="mb-4">
                 <Select
                   :lb="$t('destination')"
-                  :options="destinationOptions"
+                  :options="departments"
                   v-model="currentMovement.destination"
                   required
                 />
@@ -217,7 +225,7 @@ import { useToast } from 'vue-toastification'
 import Modal from '@/components/profile/Modal.vue'
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
-import {getProduct,movementService,getMovementService,updateMovementService,deleteMovement} from "@/services/api";
+import {getProduct,movementService,getMovementService,updateMovementService,deleteMovement,getCategory,getDepartment} from "@/services/api";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useAuthStore } from '@/composables/user';
@@ -252,7 +260,6 @@ const mouvementTypes = computed(() => [
   { label: t('movement.entry'), value: 'Entry' },
   { label: t('movement.exit'), value: 'Exit' },
   { label: t('movement.transfer'), value: 'Transfer' },
-  { label: t('movement.adjustment'), value: 'Adjustment' }
 ]);
 
 // const roleId = roleStore.roleId
@@ -272,7 +279,7 @@ const currentMovement = reactive<StockMovement>({
 });
 
 
-const movements = ref<StockMovement[]>([])
+const movements = ref<any[]>([])
 
 const productData = ref<any[]>([])
 
@@ -321,8 +328,8 @@ const locations = computed(() => [
     filterable: true,
   },
   {
-    name: 'source',
-    label: t('source'),
+    name: 'category',
+    label: t('category'),
     type: 'text',
     filterable: true,
   },
@@ -333,11 +340,23 @@ const locations = computed(() => [
     filterable: true,
   },
   {
-    name: 'user',
-    label: t('user'),
+    name: 'stockInitial',
+    label: t('stockInitial'),
     type: 'text',
     filterable: true,
   },
+  {
+    name: 'stockFinal',
+    label: t('stockFinal'),
+    type: 'text',
+    filterable: true,
+  },
+  // {
+  //   name: 'user',
+  //   label: t('user'),
+  //   type: 'text',
+  //   filterable: true,
+  // },
   {
     name: 'actions',
     label: t('Actions'),
@@ -375,16 +394,18 @@ const onDeleteMovement = (m: any) => handleMovementAction('delete', m)
 const handleMovementAction = (action: string, m: any) => {
   if (action === 'edit') {
     const movementEdit = movements.value.find((r: any) => r.id === m.id);
-    console.log("Editing :",  movementEdit);
+    console.log("Editing :",  movements.value);
+
+    
 
     if (movementEdit) {
       selected.value = movementEdit;
       currentMovement.date = movementEdit.date
-      currentMovement.destination = movementEdit.destination
+      currentMovement.destination = movementEdit.departmentId
       currentMovement.notes = movementEdit.notes
       currentMovement.productId = movementEdit.productId
       currentMovement.quantity = movementEdit.quantity
-      currentMovement.source = movementEdit.source
+      currentMovement.source = movementEdit.category
       currentMovement.type = movementEdit.type
       isEditing.value = true;
       showModal.value = true;
@@ -396,17 +417,54 @@ const handleMovementAction = (action: string, m: any) => {
   }
 }
 
+const product = ref<any[]>([])
+  const categories = ref<any[]>([])
+    const departments = ref<any[]>([])
 
 const fetchProduct = async() => {
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getProduct(serviceId);
+    product.value = response.data
 
     productData.value = response.data.map((el:any)=>({
       value:el.id,
       label:el.name
     }));
     console.log('prod:', productData.value);
+  } catch (error) {
+    console.error('Erreur lors de la récupération :', error);
+  }
+
+}
+
+const fetchDepartment = async() => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getDepartment(serviceId);
+
+    departments.value = response.data.map((item: any) => ({
+      label: item.name,
+      value: item.id
+    }));
+    console.log('cate:', departments.value);
+  } catch (error) {
+    console.error('Erreur lors de la récupération :', error);
+  }
+
+}
+
+
+const fetchCategorie = async() => {
+  try {
+    const serviceId = serviceStore.serviceId;
+    const response = await getCategory(serviceId);
+
+    categories.value = response.data.map((item: any) => ({
+      label: item.name,
+      value: item.id
+    }));
+    console.log('cate:', categories.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);
   }
@@ -483,21 +541,21 @@ const resetForm = () => {
   });
 };
 
-const sourceOptions = computed(() => {
-  const options = locations.value.map((l:any) => ({ label: l, value: l }))
-  if (currentMovement.type === 'Entry') {
-    options.unshift({ label: t('Externalsupplier'), value: 'externe' })
-  }
-  return options
-})
+// const sourceOptions = computed(() => {
+//   const options = locations.value.map((l:any) => ({ label: l, value: l }))
+//   if (currentMovement.type === 'Entry') {
+//     options.unshift({ label: t('Externalsupplier'), value: 'externe' })
+//   }
+//   return options
+// })
 
-const destinationOptions = computed(() => {
-  const options = locations.value.map((l:any) => ({ label: l, value: l }))
-  if (currentMovement.type === 'Exit') {
-    options.push({ label: t('Customer'), value: 'customer' })
-  }
-  return options
-})
+// const destinationOptions = computed(() => {
+//   const options = locations.value.map((l:any) => ({ label: l, value: l }))
+//   if (currentMovement.type === 'Exit') {
+//     options.push({ label: t('Customer'), value: 'customer' })
+//   }
+//   return options
+// })
 
 
 
@@ -559,13 +617,18 @@ const confirmDelete = async () => {
     }
   }
 }
+watch(
+  () => currentMovement.productId,
+  (newProductId:any) => {
+    const prod = product.value.find((p: any) => p.id === newProductId);
+    currentMovement.source = prod?.stockCategoryId
+      ? getCategoryName(prod.stockCategoryId)
+      : 'Non défini';
+  }
+);
 
 
 // Export des données
-const exportToExcel = () => {
-  // Dans une vraie application, utilisez une bibliothèque comme xlsx ou exportez via le backend
-  // alert("Fonctionnalité d'export à implémenter");
-};
 
 
 const getStatusColor = (status: string) => {
@@ -583,39 +646,255 @@ const getStatusColor = (status: string) => {
 
 onMounted(async () => {
   await fetchProduct();
+  await fetchDepartment()
+  await fetchCategorie()
   await fetchMovements();
   await new Promise(resolve => setTimeout(resolve, 500))
 
   loading.value = false
 })
 
+// const fetchMovements = async () => {
+//   try {
+//     const serviceId = serviceStore.serviceId;
+//     const response = await getMovementService(serviceId);
+//     movements.value = response.data.map((m:any)=>{
+//       const statusClasses = getStatusColor(m.type).split(' ');
+//       productData.value.map((p:any)=>{
+//         return{
+//           ...p,
+//           stockInitial:p.quantity
+//         }
+//       })
+//       return {
+//         ...m,
+//         statusColor: {
+//         label: m.type,
+//         bg: statusClasses[0],
+//         text: statusClasses[1]
+//         },
+//         productName:getProductName(m.productId)
+
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Erreur lors du chargement des mouvements :', error);
+//   }
+// };
 const fetchMovements = async () => {
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getMovementService(serviceId);
-    movements.value = response.data.map((m:any)=>{
+
+    console.log('🧾 chaque produit :', response);
+
+    const stockMap: Record<string, number> = {};
+    product.value.forEach((p: any) => {
+      stockMap[p.id] = p.quantityAvailable;
+    });
+
+   
+
+    // Traitement des mouvements
+    movements.value = response.data.map((m: any) => {
       const statusClasses = getStatusColor(m.type).split(' ');
+      const productId = m.productId;
+      const currentStock = stockMap[productId] ?? 0;
+
+      const qtyIn = m.type === 'Entry' ? m.quantity : 0;
+      const qtyOut = m.type === 'Exit' ? m.quantity : 0;
+      const stockFinal = currentStock + qtyIn - qtyOut;
+
+      // 👉 Chercher le produit correspondant pour récupérer son nom et sa catégorie
+      const prod = product.value.find((p: any) => p.id === productId);
+      const productName = prod?.name || 'Inconnu';
+      const category = prod?.stockCategoryId ? getCategoryName(prod.stockCategoryId) : 'Non défini';
+
+      console.log('Produit ID :', productId);
+      console.log('Type :', m.type);
+      console.log('Quantité :', m.quantity);
+      console.log('Stock initial :', currentStock);
+      console.log('Stock final :', stockFinal);
+      console.log('Catégorie du produit :', category);
+
+      // Mise à jour du stock courant
+      stockMap[productId] = stockFinal;
+      console.log('Destination (département) :', m);
+
       return {
         ...m,
+        productName,
+        category,
         statusColor: {
-        label: m.type,
-        bg: statusClasses[0],
-        text: statusClasses[1]
+          label: m.type,
+          bg: statusClasses[0],
+          text: statusClasses[1]
         },
-        productName:getProductName(m.productId)
+        destination: m.departmentId ? getDepartmentName(m.departmentId) : 'Non défini',
 
-      }
+        stockInitial: currentStock,
+        stockFinal
+      };
     });
+
+    console.log('✅ Mouvements traités :', movements.value);
+
   } catch (error) {
     console.error('Erreur lors du chargement des mouvements :', error);
   }
 };
 
 
-const getProductName = (id: number) => {
-  const found = productData.value.find((s:any) => s.value === id);
+
+const getCategoryName = (id: number) => {
+  const found = categories.value.find((s:any) => s.value === Number(id));
   return found ? found.label : '';
 };
 
+const getDepartmentName = (id: number) => {
+  const found = departments.value.find((s: any) => s.value === Number(id))
+  return found ? found.label : ''
+}
+
 
 </script>
+<!-- <template>
+  <template>
+  <div class="p-4 max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Gestion des Mouvements de Stock</h1>
+
+    <form @submit.prevent="addMovement" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-xl shadow">
+      <div>
+        <label class="block text-sm font-medium">Date</label>
+        <input type="date" v-model="form.date" class="w-full p-2 border rounded-xl" required />
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Produit</label>
+        <input type="text" v-model="form.product" class="w-full p-2 border rounded-xl" required />
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Catégorie</label>
+        <select v-model="form.category" class="w-full p-2 border rounded-xl">
+          <option value="">Sélectionner</option>
+          <option value="Cuisine">Cuisine</option>
+          <option value="Bar">Bar</option>
+          <option value="Lingerie">Lingerie</option>
+          <option value="Entretien">Entretien</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Quantité Entrée</label>
+        <input type="number" v-model.number="form.qtyIn" class="w-full p-2 border rounded-xl" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Quantité Sortie</label>
+        <input type="number" v-model.number="form.qtyOut" class="w-full p-2 border rounded-xl" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Fournisseur / Destination</label>
+        <input type="text" v-model="form.destination" class="w-full p-2 border rounded-xl" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium">Commentaire</label>
+        <textarea v-model="form.comment" class="w-full p-2 border rounded-xl"></textarea>
+      </div>
+      <div class="md:col-span-2 text-right">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700">
+          Ajouter Mouvement
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold mb-2">Historique des Mouvements</h2>
+      <table class="w-full text-left border">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-2 border">Date</th>
+            <th class="p-2 border">Produit</th>
+            <th class="p-2 border">Catégorie</th>
+            <th class="p-2 border">Stock Initial</th>
+            <th class="p-2 border">Entrée</th>
+            <th class="p-2 border">Sortie</th>
+            <th class="p-2 border">Stock Final</th>
+            <th class="p-2 border">Destination</th>
+            <th class="p-2 border">Commentaire</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(m, i) in movements" :key="i">
+            <td class="p-2 border">{{ m.date }}</td>
+            <td class="p-2 border">{{ m.product }}</td>
+            <td class="p-2 border">{{ m.category }}</td>
+            <td class="p-2 border">{{ m.stockInitial }}</td>
+            <td class="p-2 border">{{ m.qtyIn }}</td>
+            <td class="p-2 border">{{ m.qtyOut }}</td>
+            <td class="p-2 border">{{ m.stockFinal }}</td>
+            <td class="p-2 border">{{ m.destination }}</td>
+            <td class="p-2 border">{{ m.comment }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { reactive, ref } from 'vue'
+
+interface Movement {
+  date: string
+  product: string
+  category: string
+  qtyIn: number
+  qtyOut: number
+  stockInitial: number
+  stockFinal: number
+  destination: string
+  comment: string
+}
+
+const form = reactive<Omit<Movement, 'stockInitial' | 'stockFinal'>>({
+  date: '',
+  product: '',
+  category: '',
+  qtyIn: 0,
+  qtyOut: 0,
+  destination: '',
+  comment: ''
+})
+
+const movements = ref<Movement[]>([])
+const stockMap = reactive<Record<string, number>>({})
+
+function addMovement() {
+  const product = form.product.trim()
+  const currentStock = stockMap[product] || 0
+  const finalStock = currentStock + form.qtyIn - form.qtyOut
+
+  const movement: Movement = {
+    ...form,
+    stockInitial: currentStock,
+    stockFinal: finalStock
+  }
+
+  stockMap[product] = finalStock
+  movements.value.push(movement)
+
+  form.date = ''
+  form.product = ''
+  form.category = ''
+  form.qtyIn = 0
+  form.qtyOut = 0
+  form.destination = ''
+  form.comment = ''
+}
+</script>
+
+<style scoped>
+table th, table td {
+  white-space: nowrap;
+}
+</style>
+
+ -->

@@ -538,7 +538,10 @@
   "noData" : "Aucune donnée disponible",
   "try..." : "Essayez de modifier votre recherche",
   "thedata" : "Les données apparaîtront ici",
-  "Rooms" : "Chambres"
+  "Rooms" : "Chambres",
+  "hotelService" : "Services Hôteliers",
+  "stockInitial" : "Stock Initial",
+  "stockFinal" : "Stock Final"
 
 
 

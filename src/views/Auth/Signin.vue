@@ -1,6 +1,7 @@
 <template>
   <FullScreenLayout>
     <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+      
       <div
         class="relative flex flex-col justify-center w-full h-screen   lg:flex-row dark:bg-gray-900"
       >
@@ -29,9 +30,10 @@
               Back to dashboard
             </router-link>
           </div> -->
+       
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
             <div>
-              <div class="mb-5 sm:mb-8">
+              <div class="mb-2 sm:mb-6">
                 <h1
                   class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md"
                 >
@@ -44,7 +46,7 @@
               <div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
                   <button
-                    class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+                    class="inline-flex items-center justify-center gap-3 py-2 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
                   >
                     <svg
                       width="20"
@@ -73,7 +75,7 @@
                     {{ $t('SigninwithGoogle') }}
                   </button>
                   <button
-                    class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+                    class="inline-flex items-center justify-center gap-3 py-2 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
                   >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +92,7 @@
                     {{ $t('SigninwithApple') }}
                   </button>
                 </div>
-                <div class="relative py-3 sm:py-5">
+                <div class="relative py-2 sm:py-3">
                   <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-200 dark:border-gray-800"></div>
                   </div>
@@ -102,7 +104,7 @@
                 </div>
                 <form @submit.prevent="handleSubmit">
 
-                  <div class="space-y-5">
+                  <div class="space-y-3">
                     <p
                       v-if="error"
                       class="text-red-500 bg-red-100 border border-red-300 px-4 py-2 rounded-md text-md flex items-center space-x-2 w-fit mx-auto shadow-sm"
@@ -255,8 +257,8 @@
                     </div>
                   </div>
                 </form>
-                <!-- <div class="mt-5">
-                  <p
+                 <div>
+                <!--  <p
                     class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
                   >
                     {{$t('Donthaveanaccount')}}?
@@ -265,8 +267,12 @@
                       class="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                       >{{ $t('SignUp') }}</router-link
                     >
-                  </p>
-                </div> -->
+                  </p>-->
+                  <div class="mt-3 flex md:justify-end justify-center">
+          <ButtonLanguage></ButtonLanguage>
+          </div>
+                  
+                </div> 
               </div>
             </div>
           </div>
@@ -274,7 +280,7 @@
         <div
           class="relative items-center hidden w-full h-full lg:w-1/2 bg-purple-900 dark:bg-white/5 lg:grid"
         >
-          <div class="flex items-center justify-center z-50 shadow-xl">
+          <div class="flex items-center justify-center z-50 shadow-xl h-screen">
             <common-grid-shape />
 
           <img
@@ -300,6 +306,7 @@ import { useRouter } from 'vue-router'
 import { auth } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
 import { validateEmail, validatePassword } from '@/services/api';
+import ButtonLanguage from '@/components/buttons/ButtonLanguage.vue'
 
 const isLoading = ref(false);
 const authStore = useAuthStore()
