@@ -8,17 +8,7 @@
           <p class="mt-2 text-gray-500">{{ t('loadingInProgress') }}</p>
       </div> -->
       <div class="mt-10">
-        <!-- <ag-grid-vue
-          class="ag-theme-quartz overflow-y-auto overflow-x-hidden"
-          :rowData="reservations"
-          :columnDefs="columnDefs"
-          :rowHeight="50"
-          :rowSelection="'single'"
-          :autoSizeStrategy="autoSizeStrategy"
-          :pagination="true"
-          @cellClicked="onCellClick"
-          style="height: 400px; width: 100%"
-        ></ag-grid-vue> -->
+
         <TableComponent
             :items="titles"
             :datas="reservations"

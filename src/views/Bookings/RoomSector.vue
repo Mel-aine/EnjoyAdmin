@@ -13,6 +13,7 @@
             {{ $t('SelectRoom') }} {{ roomSelections.length > 1 ? `#${index + 1}` : '' }}
           </label>
           <select
+
             v-model="roomSelection.roomType"
             @change="handleRoomSelection(index)"
             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
@@ -131,16 +132,30 @@ const props = defineProps<{
   availableRooms: any[]
   currency?: string
   initialRoomSelections?: RoomSelection[]
-  modelValue: Object
+  modelValue: {
+    type: any[],
+    required: true,
+  },
 }>()
 
-const emit = defineEmits(['update:roomSelections', 'update:totalPrice'])
+
+const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice'])
+
+
+// const roomSelections = ref<RoomSelection[]>(
+//   props.initialRoomSelections?.length
+//     ? [...props.initialRoomSelections]
+//     : [createEmptyRoomSelection()],
+// )
 
 const roomSelections = ref<RoomSelection[]>(
-  props.initialRoomSelections?.length
-    ? [...props.initialRoomSelections]
-    : [createEmptyRoomSelection()],
+  Array.isArray(props.modelValue) && props.modelValue.length
+    ? [...props.modelValue]
+    : [createEmptyRoomSelection()]
 )
+
+
+
 
 function createEmptyRoomSelection(): RoomSelection {
   return {
@@ -228,12 +243,25 @@ function decrementChildren(index: number) {
   if (roomSelections.value[index].children > 0) roomSelections.value[index].children--
 }
 
+// watch(
+//   roomSelections,
+//   () => {
+//     emit('update:roomSelections', roomSelections.value)
+//       // emit('update:modelValue', value)
+//   },
+//   { deep: true },
+// )
+
 watch(
   roomSelections,
-  () => {
-    emit('update:roomSelections', roomSelections.value)
-      // emit('update:modelValue', value)
+  (newVal, oldVal) => {
+    if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+      emit('update:modelValue', newVal);
+      emit('update:roomSelections', newVal);
+      updateTotalPrice();
+    }
   },
-  { deep: true },
-)
+  { deep: true }
+);
+
 </script>

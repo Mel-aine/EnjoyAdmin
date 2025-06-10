@@ -31,16 +31,21 @@ const selectedCustomer = ref<any>({ ...props.modelValue })
 // }, { deep: true })
 
 watch(() => props.modelValue, (newVal) => {
-  if (JSON.stringify(newVal) !== JSON.stringify(selectedCustomer.value)) {
+  if (!isEqual(newVal, selectedCustomer.value)) {
     selectedCustomer.value = { ...newVal }
   }
 })
 
 watch(selectedCustomer, (newVal) => {
-  if (JSON.stringify(newVal) !== JSON.stringify(props.modelValue)) {
+  if (!isEqual(newVal, props.modelValue)) {
     emit('update:modelValue', newVal)
   }
 }, { deep: true })
+
+function isEqual(a: any, b: any): boolean {
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
 
 
 const selectCustomer = (customer: any) => {
@@ -78,12 +83,14 @@ onMounted(async () => {
   await fetchUsers()
   await fetchReservation()
 })
+
+console.log("modalevalue",props.modelValue)
 </script>
 
 <template>
   <div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-      <CustomerSarch @customer-selected="selectCustomer"  />
+      <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
       <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
       <Input
         :lb="$t('Phone')"

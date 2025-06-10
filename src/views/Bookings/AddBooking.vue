@@ -358,7 +358,7 @@ const isLoading = ref(false);
 const { t } = useI18n();
 const isPaymentModalOpen = ref(false);
 const toast = useToast()
-//const showDropdown = ref(false)
+
 const adults = ref(1)
 const children = ref(0)
 const totalPersons = computed(() => adults.value + children.value)
@@ -589,10 +589,7 @@ const formData = ref<any>({
   email: '',
 })
 
-const fetchData = ref<any>({
-  price:null,
-  roomType : ''
-})
+const fetchData = ref<any>([])
 
 const saveReservation = async () => {
   isLoading.value = true;
@@ -743,44 +740,45 @@ const selectedServiceProduct = ref<any>({})
 
 onMounted(async () => {
   const rawId = route.params.id;
+
   if (rawId) {
     isEditMode.value = true;
     reservationId.value = Number(rawId);
     const response = await getReservationById(reservationId.value);
-    const response1 = await getUserId(response.data.userId)
-    const response2 = await getReservationServiceProduct(reservationId.value)
-   const matchingService = response2.data.find((p: any) => p.reservationId === reservationId.value)
-   const matchingServiceId = matchingService.serviceProductId;
-   console.log("matchingService",matchingService)
-
-
-    const matchedServiceProduct = ProductList.value.find((sp: any) => sp.serviceProductId === matchingServiceId?.serviceProductId);
-
-    console.log("matchedServiceProduct", matchedServiceProduct);
-
-
+    const response1 = await getUserId(response.data.userId);
+    const response2 = await getReservationServiceProduct(reservationId.value);
+    const matchingService = response2.data.find((p: any) => p.reservationId === reservationId.value);
+    console.log("matchingServic",matchingService )
+    const matchingServiceId = matchingService.serviceProductId;
+    const matchedServiceProduct = ProductList.value.find((sp: any) => sp.id === matchingServiceId);
+    console.log("matchingServiceId",matchingServiceId )
     selectedServiceProduct.value = matchedServiceProduct;
+      console.log("matchedServiceProduct",matchedServiceProduct)
 
 
-    console.log('response',response)
-    console.log('response2',response2.data )
+    fetchData.value = [
+      {
+        roomType: matchedServiceProduct?.productName || '',
+        arrivalDate: response.data.arrivedDate || '',
+        departureDate: response.data.departDate || '',
+        numberOfNights: null,
+        adults: response.data.totalPerson || 1,
+        children: 0,
+        price: matchedServiceProduct?.price || 0,
+        dateError: '',
+        showOccupancyDropdown: false
+      }
+    ];
+    console.log("match",fetchData.value)
 
-    fetchData.value={
-      price:matchedServiceProduct?.price,
-      roomType:matchedServiceProduct?.productName
-    }
-    console.log("fetchData",fetchData.value)
     formData.value = {
       firstName: response1.data.firstName,
       lastName: response1.data.lastName,
       phoneNumber: response1.data.phoneNumber,
       email: response1.data.email,
-    }
+    };
+
     form.value = {
-      // firstName: response1.data.firstName,
-      // lastName: response1.data.lastName,
-      // phoneNumber: response1.data.phoneNumber,
-      // email: response1.data.email,
       roomType: response.data.reservationProduct,
       package: response.data.reservationType,
       arrivalDate: response.data.arrivedDate,
@@ -791,11 +789,11 @@ onMounted(async () => {
       numberOfNights: null,
       payment: response.data.payment,
     };
-
   }
 });
 
-async function updateReservation() {
+
+const updateReservation = async() => {
   try {
     if (!reservationId.value) throw new Error('Aucune réservation sélectionnée');
 
@@ -804,16 +802,22 @@ async function updateReservation() {
       last_name: selectedCustomer.value.lastName,
       email: selectedCustomer.value.email,
       phone_number: selectedCustomer.value.phoneNumber,
+
       service_id: serviceStore.serviceId,
       reservation_type: form.value.package,
-      reservation_product: form.value.roomType,
-      total_price: form.value.totalPrice,
-      total_person: form.value.totalPerson,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
       comment: form.value.normalDescription,
-      payment: form.value.payment
-    }
+      last_modified_by: authStore.UserId,
+      payment_status: form.value.payment,
+
+      products: selectedProducts.value.map((product: any) => ({
+        service_product_id: product.roomType,
+        start_date: form.value.arrivalDate,
+        end_date: form.value.departureDate,
+      })),
+    };
+    console.log("payloadUpdate",payloadUpdate)
 
     const response = await putReservation(reservationId.value, payloadUpdate)
 
@@ -828,6 +832,7 @@ async function updateReservation() {
     toast.error(t('toast.Error'))
   }
 }
+
 
 
 

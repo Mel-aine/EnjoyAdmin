@@ -94,7 +94,8 @@ import { getUser, getReservation } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore';
 
 const props = defineProps({
-  customer_id: String
+  customer_id: String,
+  modelValue: Object
 });
 
 const customers = ref<any[]>([]);
@@ -162,6 +163,13 @@ watch(searchQuery, (newValue) => {
   }
 });
 
+watch(() => props.modelValue, (newVal) => {
+  if (newVal?.firstName && !searchQuery.value) {
+    searchQuery.value = newVal.firstName;
+  }
+});
+
+
 
 
 const selectCustomer = (customer: any) => {
@@ -210,6 +218,9 @@ onBeforeMount(async () => {
   await fetchUsers();
   await fetchReservation();
 });
+
+
+
 </script>
 
 <template>
