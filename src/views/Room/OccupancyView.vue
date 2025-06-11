@@ -40,6 +40,8 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <RoomCard
           v-for="room in filteredRooms"
+          :isCheckingIn="isCheckingIn"
+          :isCheckingOut="isCheckingout"
           :key="room.id"
           :room="room"
           @change=" handleStatusChange"
@@ -244,6 +246,7 @@ const handleStatusChange = (payload: any) => {
 
 // Handle check-in
 const handleCheckIn = async (room: any) => {
+  isCheckingIn.value = true
   try {
     console.log(`[handleCheckIn] Début du check-in pour la chambre:`, room.name || room.productName);
 
@@ -290,6 +293,8 @@ const handleCheckIn = async (room: any) => {
   } catch (error) {
     console.error("[handleCheckIn] Erreur générale :", error);
     alert("Erreur lors du check-in. Veuillez réessayer.");
+  }finally{
+    isCheckingIn.value = false
   }
 };
 
@@ -298,6 +303,7 @@ const handleCheckIn = async (room: any) => {
 
 
 const handleCheckOut = async (room: any) => {
+  isCheckingout.value = true
   try {
     console.log(` Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
 
@@ -364,6 +370,8 @@ const handleCheckOut = async (room: any) => {
   } catch (error) {
     console.error("Erreur générale lors du check-out :", error);
     alert("Erreur lors du check-out. Veuillez réessayer.");
+  }finally{
+     isCheckingout.value = false
   }
 };
 

@@ -22,10 +22,12 @@ import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const { t } = useI18n()
-const isCheckingOut = ref(false)
-const isCheckingIn = ref(false)
+// const isCheckingOut = ref(false)
+
 const props = defineProps({
   room: Object,
+  isCheckingIn:Boolean,
+  isCheckingOut:Boolean
 })
 
 const emit = defineEmits(['change', 'checkin', 'checkout', 'cleaned'])
@@ -164,13 +166,16 @@ const handleCheckIn = () => {
   emit('checkin', props.room)
 }
 
+// const handleCheckOut = async () => {
+//   try {
+//     isCheckingOut.value = true
+//     emit('checkout', props.room)
+//   } finally {
+//     isCheckingOut.value = false
+//   }
+// }
 const handleCheckOut = async () => {
-  try {
-    isCheckingOut.value = true
-    emit('checkout', props.room)
-  } finally {
-    isCheckingOut.value = false
-  }
+   emit('checkout', props.room)
 }
 
 
@@ -352,12 +357,36 @@ function getNextDisplayDate(status, departDate) {
 
         <!-- Check-in Button -->
         <button
+          :disabled="isCheckingIn"
           v-if="statusConfig.canCheckIn"
           @click="handleCheckIn"
           class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
         >
+        <svg
+      v-if="isCheckingIn"
+      class="animate-spin h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      ></path>
+    </svg>
+    <span>{{ isCheckingIn ? 'Chargement...' : 'Check-in' }}</span>
           <LogIn class="w-4 h-4" />
-          <span>Check-in</span>
+
+
         </button>
 
         <!-- Check-out Button -->
@@ -367,13 +396,32 @@ function getNextDisplayDate(status, departDate) {
           @click="handleCheckOut"
           class="flex-1 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
         >
+         <svg
+      v-if="isCheckingOut"
+      class="animate-spin h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      ></path>
+    </svg>
+    <span>{{ isCheckingOut ? 'Chargement...' : 'Check-out' }}</span>
+
           <LogOut class="w-4 h-4" />
           <!-- <span>Check-out</span> -->
-          <span v-if="!isCheckingOut">{{ $t('Check-out') }}</span>
-              <span v-else class="flex items-center gap-2">
-                <Spinner class="w-4 h-4" />
-                {{ $t('Processing') }}...
-          </span>
+
         </button>
       </div>
 
