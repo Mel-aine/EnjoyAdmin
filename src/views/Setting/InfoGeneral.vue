@@ -8,7 +8,7 @@
           :lb="t('hotelName')"
           :id="'hotelName'"
           :forLabel="'hotelName'"
-          v-model="hotelInfo.name"
+          v-model="formData.name"
         />
       </div>
 
@@ -191,7 +191,7 @@
           :lb="t('hotelAddress')"
           :id="'hotelAddress'"
           :forLabel="'hotelAddress'"
-          v-model="hotelInfo.address"
+          v-model="formData.address"
         />
       </div>
 
@@ -206,7 +206,7 @@
             :id="'hotelPhone'"
             :forLabel="'hotelPhone'"
             :inputType="'tel'"
-            v-model="hotelInfo.phone"
+            v-model="formData.phone"
           />
         </div>
 
@@ -216,7 +216,7 @@
             :id="'hotelEmail'"
             :forLabel="'hotelEmail'"
             :inputType="'email'"
-            v-model="hotelInfo.email"
+            v-model="formData.email"
           />
         </div>
       </div>
@@ -237,7 +237,7 @@
   </template>
 
   <script setup lang="ts">
-  import { ref, reactive, onMounted,defineAsyncComponent } from 'vue'
+  import { ref, reactive, onMounted,defineAsyncComponent,computed } from 'vue'
   import { useI18n } from 'vue-i18n'
   const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
@@ -262,7 +262,8 @@ const Input = defineAsyncComponent(() => import('@/components/forms/FormElements
   interface Props {
     cloudinaryConfig?: CloudinaryConfig
     maxImages?: number
-    maxFileSize?: number // en MB
+    maxFileSize?: number
+   modelValue: Record<string, any>
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -270,16 +271,38 @@ const Input = defineAsyncComponent(() => import('@/components/forms/FormElements
     maxFileSize: 10
   })
 
-  // Emits
-  const emit = defineEmits<{
-    logoChanged: [url: string | null]
-    imagesChanged: [images: CloudinaryImage[]]
-  }>()
 
-  // Composables
+
+
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: Record<string, any>): void
+  (e: 'logo-changed', value: any): void
+  (e: 'images-changed', value: any): void
+}>()
+
+
+const formData = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
+
+function updateName(newName: string) {
+  formData.value = {
+    ...formData.value,
+    name: newName,
+  }
+}
+
+
+  // const emit = defineEmits<{
+  //   logoChanged: [url: string | null]
+  //   imagesChanged: [images: CloudinaryImage[]]
+  // }>()
+
   const { t } = useI18n()
 
-  // Reactive data
+
   const hotelInfo = reactive({
     name: '',
     address: '',

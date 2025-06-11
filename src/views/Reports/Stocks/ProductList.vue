@@ -348,7 +348,7 @@ const addProduct = async () => {
       price:newProduct.value.price,
       supplier_name : newProduct.value.supplier,
       // supplier_id : 1,
-      status:newProduct.value.status
+      status:'active'
 
     };
 
@@ -477,13 +477,15 @@ const updateData = async () => {
       service_id: serviceId,
       name:newProduct.value.name ,
       code:newProduct.value.code ,
-      quantity:newProduct.value.quantity,
-      supplier_id:newProduct.value.supplier,
-      status:newProduct.value.status,
+      quantity_available:newProduct.value.quantity,
+      supplier_name:newProduct.value.supplier,
+      status:'active',
       stock_category_id:newProduct.value.category,
       price:newProduct.value.price,
-
+      // supplier_id : 1,
     };
+    console.log("Payload",Payload)
+
 
     await updateProduct(id, Payload);
     newProduct.value = {
@@ -498,6 +500,7 @@ const updateData = async () => {
     selected.value = null;
     isEditing.value = false;
     modalOpen.value = false;
+    fetchProduct()
 
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error);

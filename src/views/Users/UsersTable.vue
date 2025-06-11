@@ -96,7 +96,7 @@
             </h4>
           </div>
           <form @submit.prevent="handleSubmit" class="flex flex-col">
-            <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
+            <div class="h-[400px]  p-2">
               <div class="space-y-8">
                 <!-- Section principale -->
                 <div>
@@ -161,7 +161,7 @@
                       :forLabel="'word'"
                       v-model="form.password"
                     />
-                    <Input :lb="$t('Role')" :inputType="'text'" v-model="form.roleName" />
+                    <Select :lb="$t('Role')" v-model="form.roleId" :options="roles"/>
                   </div>
                 </div>
               </div>
@@ -243,6 +243,7 @@ const currentPageTitle = computed(() => t('UsersLists'))
 const users = ref<userDataType[]>([])
 const selectedUser = ref<any>(null)
 const isEditMode = ref(false)
+const role = ref<any[]>([])
 
 const roles = ref<{ value: string; label: string }[]>([
   { value: '2', label: 'Admin' },
@@ -255,13 +256,13 @@ interface Form {
   phoneNumber: string
   email: string
   password: string
-  roleName: string | undefined
+  roleId: string | number | undefined
 }
 
 const form = ref<Form>({
   firstName: '',
   lastName: '',
-  roleName: '',
+  roleId: 0,
   phoneNumber: '',
   email: '',
   password: '',
@@ -277,19 +278,21 @@ const saveUser = async () => {
       last_name: form.value.lastName,
       email: form.value.email,
       phone_number: form.value.phoneNumber,
-      role_name: form.value.roleName,
+      role_id: form.value.roleId,
       password: form.value.password,
       created_by: userStore.UserId,
       last_modified_by: userStore.UserId,
     }
 
     const response = await createUser(userPayload)
+
     modalOpen.value = false
+    fetchUser()
 
     form.value = {
       firstName: '',
       lastName: '',
-      roleName: '',
+      roleId: 0,
       phoneNumber: '',
       email: '',
       password: '',
@@ -318,8 +321,14 @@ const fetchUser = async () => {
     const response = await getUser()
     console.log('All users:', response.data.data)
     users.value = response.data.data.filter(
-      (user: any) => [2, 3].includes(user.roleId) && user.serviceId === serviceId,
-    )
+      (user: any) => user.serviceId === serviceId
+    ).map((user:any)=>{
+
+      return{
+      ...user,
+
+    }})
+
     // users.value.sort((a: any, b: any) => a.name.localeCompare(b.name))
     console.log('Filtered users:', users.value)
   } catch (error) {
@@ -403,57 +412,68 @@ const titles = computed(() => [
 ])
 
 
-// const getRoleBadge = (roleName: string) => {
-//   const roleMap: Record<string, { bg: string; text: string; label: string }> = {
-//     Admin: {
-//       label: 'Administrator',
-//       bg: 'bg-blue-100',
-//       text: 'text-blue-800',
-//     },
-//     user: {
-//       label: 'User',
-//       bg: 'bg-green-100',
-//       text: 'text-green-800',
-//     },
-//     driver: {
-//       label: 'Driver',
-//       bg: 'bg-yellow-100',
-//       text: 'text-yellow-800',
-//     },
-//     guest: {
-//       label: 'Guest',
-//       bg: 'bg-gray-100',
-//       text: 'text-gray-800',
-//     },
-//   }
-
-//   return roleMap[roleName] || {
-//     label: roleName,
-//     bg: 'bg-purple-100',
-//     text: 'text-purple-800',
-//   }
-// }
 
 const fetchRole = async() =>{
   try {
   const response =  await getRole()
-  roles.value = response.data.data
+  role.value = response.data.data
+  roles.value = response.data.data.filter((r:any)=>r.categoryName === 'Hotels & Stays').map((r:any)=>{
+    return{
+      label : r.roleName,
+      value : r.id
+    }
+  })
   console.log("response",response.data.data)
   } catch (error) {
     console.error('fetch failed:', error)
   }
 }
 
+const getRoleBadge = (roleName: string) => {
+  const roleMap: Record<string, { bg: string; text: string; label: string }> = {
+    admin: {
+      label: 'Administrator',
+      bg: 'bg-red-100',
+      text: 'text-red-800',
+    },
+    editor: {
+      label: 'Editor',
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+    },
+    viewer: {
+      label: 'Viewer',
+      bg: 'bg-green-100',
+      text: 'text-green-800',
+    },
+    unknown: {
+      label: 'Unknown',
+      bg: 'bg-gray-100',
+      text: 'text-gray-800',
+    },
+  };
+
+  return roleMap[roleName] || {
+    label: roleName,
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+  };
+};
+
+
 const usersWithRoleLabels = computed(() =>
   users.value.map((user: any) => {
-    const role = roles.value.find((r: any) => r.id === user.roleId) || 'Unknown'
+    const Role = role.value.find((r: any) => r.id === user.roleId) || 'Unknown';
+    console.log("userrole",Role)
+
     return {
       ...user,
-      roleLabel: role,
-      // roleBadge: getRoleBadge(role),
-    }
+      roleLabel: Role.roleName,
+      roleBadge: getRoleBadge(Role.roleName),
+    };
   })
-)
+);
+
 
 const onEditUser = (user: any) => handleUserAction('edit', user)
 const onDeleteUser = (user: any) => handleUserAction('delete', user)
@@ -465,7 +485,7 @@ const handleUserAction = (action: string, user: any) => {
     form.value.lastName = user.lastName
     form.value.phoneNumber = user.phoneNumber
     form.value.email = user.email
-    form.value.roleName = user.roleName
+    form.value.roleId = user.roleId
     isEditMode.value = true
     modalOpen.value = true
   } else if (action === 'delete') {
@@ -513,7 +533,7 @@ const updateFormData = async () => {
       last_name: form.value.lastName,
       email: form.value.email,
       phone_number: form.value.phoneNumber,
-      role_id: form.value.roleName,
+      role_id: form.value.roleId,
       password: form.value.password,
       created_by: userStore.UserId,
       last_modified_by: userStore.UserId,
@@ -528,7 +548,7 @@ const updateFormData = async () => {
     form.value = {
       firstName: '',
       lastName: '',
-      roleName: '',
+      roleId: 0,
       phoneNumber: '',
       email: '',
       password: '',
@@ -565,7 +585,7 @@ const closeModal = () => {
   form.value = {
     firstName: '',
     lastName: '',
-    roleName: '',
+    roleId: 0,
     phoneNumber: '',
     email: '',
     password: '',

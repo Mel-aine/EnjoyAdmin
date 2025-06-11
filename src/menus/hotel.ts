@@ -18,7 +18,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
           icon: LayoutDashboard,
           name: t('Dashboard'),
-          path: '/',
+          path: '/dashboard',
           roles: [1, 2, 3],
         },
         {

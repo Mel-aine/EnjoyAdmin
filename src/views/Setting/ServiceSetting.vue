@@ -5,7 +5,7 @@
 
     <!-- Section Informations Généralesb  :cloudinary-config="cloudinaryConfig" -->
     <InfoGeneral
-
+      v-model="hotelInfo"
       :max-images="12"
       :max-file-size="10"
       @logo-changed="handleLogoChange"
@@ -20,25 +20,13 @@
 
     <!-- Section Paramètres du Service -->
     <div class="mb-8  max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('ServiceSettings') }}</h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <Input :lb="t('CheckIn')" :id="'checkInTime'" :forLabel="'checkInTime'" :inputType="'time'" v-model="serviceParameters.checkInTime" />
-
-        </div>
-
-        <div>
-          <Input :lb="t('CheckOut')" :id="'checkOutTime'" :forLabel="'checkOutTime'" :inputType="'time'" v-model="serviceParameters.checkOutTime" />
-        </div>
-      </div>
-
+      <!-- <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('ServiceSettings') }}</h3> -->
       <div >
         <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('servicesOffered') }}:</label>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           <div v-for="(service, index) in availableServices" :key="index" class="flex items-center">
             <input type="checkbox" :id="'service-' + index" v-model="serviceParameters.enabledServices[service.id]"
-                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                   class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" />
             <label :for="'service-' + index" class="ml-2 text-sm text-gray-700">{{ service.name }}</label>
           </div>
         </div>
@@ -58,51 +46,48 @@
           <Input :lb="t('taxRate')" :inputType="'number'" :id="'taxRate'" :forLabel="'taxRate'" v-model.number="pricingParameters.taxRate" step="0.01" min="0"/>
         </div>
       </div>
+         <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('PaymentMethod') }}</h3>
 
-      <!-- <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Tarifs des Chambres:</label>
+    <div v-if="payment.length" class="space-y-2">
+      <div
+        v-for="(method, index) in payment"
+        :key="index"
+        class="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-md"
+      >
+        <span class="text-gray-700">{{ method }}</span>
+        <button
+          @click="removePayment(index)"
+          class="text-red-500 hover:text-red-700 transition"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+    <div v-else class="text-gray-500 italic">{{ $t('NoPaymentMethods') }}</div>
 
-        <div v-for="(room, index) in pricingParameters.roomRates" :key="index"
-             class="mb-4 border border-gray-200 rounded-md p-4 bg-gray-50">
-          <div class="flex justify-between items-center mb-3">
-            <span class="font-medium text-gray-800">{{ room.type }}</span>
-            <button type="button" @click="removeRoomType(index)"
-                    class="text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md text-sm">
-              Supprimer
-            </button>
-          </div>
+    <!-- Input + Add button -->
+    <div class="mt-4 flex items-center gap-2">
+      <input
+        v-model="newPayment"
+        type="text"
+        :placeholder="$t('addPayment')"
+        class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+      <button
+        @click="addPayment"
+        :disabled="!newPayment"
+        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
+      >
+        {{ $t('add') }}
+      </button>
+    </div>
+  </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label :for="'baseRate-' + index" class="block text-sm font-medium text-gray-700 mb-1">Tarif de base:</label>
-              <input type="number" :id="'baseRate-' + index" v-model.number="room.baseRate" min="0" step="0.01"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label :for="'weekendRate-' + index" class="block text-sm font-medium text-gray-700 mb-1">Tarif weekend:</label>
-              <input type="number" :id="'weekendRate-' + index" v-model.number="room.weekendRate" min="0" step="0.01"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-        </div>
-
-        <div class="flex gap-2 mt-4">
-          <input type="text" v-model="newRoomType" placeholder="Type de chambre"
-                 class="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-          <button type="button" @click="addRoomType" :disabled="!newRoomType"
-                  class="px-4 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed">
-            Ajouter
-          </button>
-        </div>
-      </div> -->
     </div>
 
     <!-- Boutons d'action -->
     <div class="flex justify-end gap-4">
-      <!-- <button type="button" @click="resetParameters"
-              class="px-5 py-2 bg-gray-500 text-white font-medium rounded-md hover:bg-gray-600">
-        Réinitialiser
-      </button> -->
       <button type="button" @click="updateParameters"
               class="px-5 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600">
 
@@ -133,6 +118,20 @@ const Select = defineAsyncComponent(() => import('@/components/forms/FormElement
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
 const FileInput = defineAsyncComponent(()=>import('@/components/forms/FormElements/FileInput.vue'))
 const isLoading=ref(false)
+const payment = ref<any[]>([])
+
+const newPayment = ref('')
+
+function addPayment() {
+  if (newPayment.value && !payment.value.includes(newPayment.value)) {
+    payment.value.push(newPayment.value)
+    newPayment.value = ''
+  }
+}
+
+function removePayment(index:any) {
+  payment.value.splice(index, 1)
+}
 interface ServiceParameters {
   checkInTime: string;
   checkOutTime: string;
@@ -148,10 +147,10 @@ interface PricingParameters {
 
 
 
-interface Service {
-  id: string;
-  name: string;
-}
+// interface Service {
+//   id: string;
+//   name: string;
+// }
 
 
 
@@ -202,7 +201,7 @@ interface Service {
     })))
 
 
-    const availableServices: Service[] = [
+    const availableServices= computed(()=> [
   { id: 'breakfast', name: t('services.breakfast') },
   { id: 'wifi', name: t('services.wifi') },
   { id: 'parking', name: t('services.parking') },
@@ -213,10 +212,10 @@ interface Service {
   { id: 'bar', name: t('services.bar') },
   { id: 'pool', name: t('services.pool') },
   { id: 'airport_shuttle', name: t('services.airport_shuttle') }
-];
+]);
 
 
-    availableServices.forEach(service => {
+    availableServices.value.forEach((service:any) => {
       serviceParameters.enabledServices[service.id] = false;
     });
 
@@ -345,23 +344,28 @@ const handleImagesChange = (images: any[]) => {
     // };
 
     // // Charger les paramètres au montage du composant
-    onMounted(async () => {
+  onMounted(async () => {
   const serviceId = serviceStore.serviceId;
   const data = await getService(serviceId);
+   payment.value = data.data.paymentMethods
 
-  // const addressObject = JSON.parse(data.data.address);
-  // if (!addressObject.text) {
-  //   throw new Error("Objet JSON incomplet");
-  // }
-
+  console.log('payment :', payment.value);
+   console.log('Adresse brute:', data.data.addressService);
+   let address = data.data.addressService;
+  if (typeof address === 'string') {
+    try {
+      address = JSON.parse(address);
+    } catch (e) {
+      console.error('Erreur de parsing de addressService:', e);
+      address = { text: '' };
+    }
+  }
   hotelInfo.value = {
     name: data.data.name,
-    address: data.data.text,
-    phone: data.data.phoneNumber,
-    email: data.data.email,
-    // location: {
-    //   lat: addressObject.lat,
-    //   lng: addressObject.lng
+    address: address.text,
+    phone: data.data.phoneNumberService,
+    email: data.data.emailService,
+
      }
 });
 const updateParameters = async()=> {

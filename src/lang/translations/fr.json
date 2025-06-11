@@ -541,7 +541,24 @@
   "Rooms" : "Chambres",
   "hotelService" : "Services Hôteliers",
   "stockInitial" : "Stock Initial",
-  "stockFinal" : "Stock Final"
+  "stockFinal" : "Stock Final",
+  "personalInformation": "Informations personnelles",
+  "editPersonalInformation": "Modifier les informations personnelles",
+  "updateInfo": "Mettez à jour vos informations pour garder votre profil à jour.",
+  "numberBeds": "Nombre de lits",
+  "numberBathrooms": "Nombre de salles de bain",
+  "addPayment": "Ajouter un moyen de paiement",
+  "horaireManage": "Gestion des horaires",
+  "config": "Configurez les heures d’ouverture et de fermeture de votre service",
+  "fastConfig": "Configuration rapide",
+  "opening": "Ouverture",
+  "closing": "Fermeture",
+  "close": "Fermé aujourd’hui",
+  "specialNote": "Remarques spéciales",
+  "exple": "Ex : Fermé les jours fériés, horaires spéciaux en été...",
+  "exception": "Exceptions de dates",
+  "expleNote": "Remarque (ex : Fermé, Horaires spéciaux...)",
+   "addCreneau" : "Ajouter créneau"
 
 
 

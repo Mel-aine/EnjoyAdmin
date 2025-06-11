@@ -545,7 +545,19 @@
   "editPersonalInformation" : "Edit Personal Information",
   "updateInfo" : "Update your details to keep your profile up-to-date.",
   "numberBeds" : "Number of beds",
-  "numberBathrooms" : "Number of bathrooms"
+  "numberBathrooms" : "Number of bathrooms",
+  "addPayment" : "Add a payment method",
+  "horaireManage" : "Schedule Management",
+  "config" : "Configure your service's opening and closing hours",
+  "fastConfig" : "Quick setup",
+  "opening" : "Opening",
+  "closing" : "Closing",
+  "close" : "Closed today",
+  "specialNote" : "Special Notes",
+  "exple" : "Ex: Closed on public holidays, special hours in summer...",
+  "exception" : "Date exceptions",
+  "expleNote" : "Note (eg: Closed, Special hours...)",
+  "addCreneau" : "Add slot"
 
     
 }

@@ -30,7 +30,7 @@
       !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]"
       >
-      <router-link to="/" class="flex items-center gap-2 ">
+      <router-link to="/dashboard" class="flex items-center gap-2 ">
 
 
         <img
