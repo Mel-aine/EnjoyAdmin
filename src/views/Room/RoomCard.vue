@@ -272,7 +272,7 @@ function getNextDisplayDate(status, departDate) {
 
     <!-- Guest Info (if occupied) -->
     <div
-      v-if="props.room.status === 'occupied' && props.room.guestName"
+      v-if="props.room.guestName"
       class="mb-3 p-3 bg-blue-50 rounded-lg"
     >
       <p class="text-sm font-medium text-blue-900">Client : {{ props.room.guestName }}</p>

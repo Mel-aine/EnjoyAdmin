@@ -1,16 +1,16 @@
 <template>
     <div class="bg-white rounded-lg shadow p-6">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold">Taux d'occupation hebdomadaire</h2>
+        <h2 class="text-xl font-semibold">{{ $t('weekly_occupancy') }}</h2>
         <div class="flex space-x-2">
           <button class="text-gray-500 hover:text-gray-700">
-            <span class="text-sm">Cette semaine</span>
+            <span class="text-sm">{{ $t('this_week') }}</span>
           </button>
           <button class="text-gray-400 hover:text-gray-700">
-            <span class="text-sm">Mois</span>
+            <span class="text-sm">{{ $t('month') }}</span>
           </button>
           <button class="text-gray-400 hover:text-gray-700">
-            <span class="text-sm">Année</span>
+            <span class="text-sm">{{ $t('year') }}</span>
           </button>
         </div>
       </div>
@@ -33,23 +33,26 @@
   <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { Chart, registerables } from 'chart.js'
-
+  import { computed } from 'vue'
+  import { useI18n } from 'vue-i18n'
   Chart.register(...registerables)
 
-  interface DayRate {
-    name: string
-    rate: number
-  }
+  // interface DayRate {
+  //   name: string
+  //   rate: number
+  // }
 
-  const weekDays = ref<DayRate[]>([
-    { name: 'Lun', rate: 65 },
-    { name: 'Mar', rate: 72 },
-    { name: 'Mer', rate: 85 },
-    { name: 'Jeu', rate: 91 },
-    { name: 'Ven', rate: 95 },
-    { name: 'Sam', rate: 98 },
-    { name: 'Dim', rate: 75 }
-  ])
+const { t } = useI18n()
+
+const weekDays = computed(() => [
+  { name: t('mon'), rate: 65 },
+  { name: t('tue'), rate: 72 },
+  { name: t('wed'), rate: 85 },
+  { name: t('thur'), rate: 91 },
+  { name: t('fri'), rate: 95 },
+  { name: t('sat'), rate: 98 },
+  { name: t('sun'), rate: 75 }
+])
 
   const occupancyChart = ref<HTMLCanvasElement | null>(null)
   const chart = ref<Chart | null>(null)
@@ -71,7 +74,7 @@
         labels: weekDays.value.map((day:any) => day.name),
         datasets: [
           {
-            label: "Taux d'occupation",
+            label: "Occupancy rate",
             data: weekDays.value.map((day:any) => day.rate),
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             borderColor: 'rgba(59, 130, 246, 1)',
@@ -82,7 +85,7 @@
             fill: true
           },
           {
-            label: 'Semaine précédente',
+            label: 'Previous week',
             data: [60, 65, 80, 85, 90, 92, 70],
             borderColor: 'rgba(209, 213, 219, 1)',
             borderWidth: 2,
@@ -118,7 +121,7 @@
                 return tooltipItems[0].label
               },
               label: function (context: any) {
-                return `Taux d'occupation: ${context.parsed.y}%`
+                return `Occupancy rate: ${context.parsed.y}%`
               }
             }
           }

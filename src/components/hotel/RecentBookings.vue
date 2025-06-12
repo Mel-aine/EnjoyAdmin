@@ -1,25 +1,25 @@
 <template>
     <div class="bg-white rounded-lg shadow p-6">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold">Réservations récentes</h2>
+        <h2 class="text-xl font-semibold">{{ $t('recent_booking') }}</h2>
         <div>
           <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Nouvelle réservation
+            {{ $t('new_reservation') }}
           </button>
         </div>
       </div>
-  
+
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chambre</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrivée</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Départ</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('customer') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Room') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('ArrivedDate') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('DepartDate') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('amount') }}</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Actions') }}</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -45,9 +45,9 @@
                   {{ booking.status }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ booking.amount }} €</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ booking.amount }} FCFA</td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button class="text-blue-600 hover:text-blue-900 mr-3">Détails</button>
+                <button class="text-blue-600 hover:text-blue-900 mr-3">{{ $t('details') }}</button>
                 <button class="text-gray-600 hover:text-gray-900">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -58,25 +58,25 @@
           </tbody>
         </table>
       </div>
-  
+
       <div class="flex items-center justify-between mt-6">
         <div class="text-sm text-gray-500">
-          Affichage de 1 à 5 sur 42 réservations
+          {{ $t('showing') }} 1 {{ $t('to') }} 5 {{ $t('of') }} 42 {{ $t('Bookings') }}
         </div>
         <div class="flex space-x-2">
-          <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">Précédent</button>
+          <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">{{ $t('previous') }}</button>
           <button class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-blue-50 text-blue-600 border-blue-300">1</button>
           <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">2</button>
           <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">3</button>
-          <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">Suivant</button>
+          <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">{{ $t('next') }}</button>
         </div>
       </div>
     </div>
   </template>
-  
+
   <script setup lang="ts">
   import { ref } from 'vue'
-  
+
   interface Booking {
     guest: string
     email: string
@@ -86,7 +86,7 @@
     status: string
     amount: number
   }
-  
+
   const recentBookings = ref<Booking[]>([
     {
       guest: 'Sophie Dubois',
@@ -134,14 +134,14 @@
       amount: 455
     }
   ])
-  
+
   const getInitials = (name: string): string => {
     return name
       .split(' ')
       .map(n => n[0])
       .join('')
   }
-  
+
   const getStatusClass = (status: string): string => {
     switch (status) {
       case 'Confirmée':
@@ -155,4 +155,3 @@
     }
   }
   </script>
-  

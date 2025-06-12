@@ -92,21 +92,34 @@ watch(
   { deep: true }
 )
 
-// Save profile changes to API
-const saveChanges = async () => {
+const saveChanges = async (updatedData: {
+  firstname: string
+  lastname: string
+  email: string
+  phone: string
+}) => {
+  profileData.firstName = updatedData.firstname
+  profileData.lastName = updatedData.lastname
+  profileData.email = updatedData.email
+  profileData.phone = updatedData.phone
+
   const id = authStore.UserId
   isLoading.value = true
 
   try {
     const payload = {
-      first_name: profileData.firstName,
-      last_name: profileData.lastName,
-      email: profileData.email,
-      phone_number: profileData.phone
+      first_name: updatedData.firstname,
+      last_name: updatedData.lastname,
+      email: updatedData.email,
+      phone_number: updatedData.phone
     }
+
+    console.log('payloadUser:', payload)
 
     const response = await updateUser(id, payload)
     console.log('response:', response)
+    authStore.user = JSON.stringify(response.data)
+
     toast.success(t('toast.userUpdatedSuccess'))
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error)
@@ -115,6 +128,7 @@ const saveChanges = async () => {
     isLoading.value = false
   }
 }
+
 
 // On mount: fetch and update store + profile
 onMounted(async () => {
@@ -130,16 +144,6 @@ profileData.phone = userData.phoneNumber || ''
 
 })
 
-// Handle form update from child component
-const handleUpdateProfile = (updatedData: {
-  firstname: string
-  lastname: string
-  email: string
-  phone: string
-}) => {
-  profileData.firstName = updatedData.firstname
-  profileData.lastName = updatedData.lastname
-  profileData.email = updatedData.email
-  profileData.phone = updatedData.phone
-}
+
+
 </script>

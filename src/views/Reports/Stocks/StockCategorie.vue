@@ -95,7 +95,7 @@
       </Modal>
     </AdminLayout>
   </div>
-  <ModalDelete v-if="show" @close="show = false"
+  <ModalDelete v-if="show" @close="closed"
       @delete="confirmDelete"
       :isLoading="loadingDelete"/>
 </template>
@@ -243,7 +243,8 @@ const updateData = async () => {
 
     const Payload = {
       service_id: serviceId,
-      name : newCategoryName.value
+      name : newCategoryName.value,
+      parent_category_id : 14
     };
 
     await updateCategory(id, Payload);
@@ -260,6 +261,11 @@ const updateData = async () => {
   }
 };
 
+const closed = () =>{
+  modalOpen.value = false;
+  newCategoryName.value =''
+}
+
 
 const addCategory = async () => {
   isLoading.value=true
@@ -268,6 +274,7 @@ const addCategory = async () => {
   try {
     if(isEditing.value){
       await updateData ()
+      fetchCategorie ()
       toast.success(t('toast.SucessUpdate'));
     } else{
     const payload = {
@@ -282,7 +289,9 @@ const addCategory = async () => {
     console.log('cat',response.data)
 
     if (response.status === 201) {
+      newCategoryName.value = ''
       toast.success(t('toast.Sucess'));
+
       fetchCategorie ()
       modalOpen.value = false;
     } else {

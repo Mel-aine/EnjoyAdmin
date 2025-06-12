@@ -250,7 +250,7 @@ const currentPageTitle = computed(() => t('RoomList'))
 const selectedRoom = ref<any>(null)
 const isEditMode = ref(false)
 const menuItems = computed(() => [{ label: t('AddRoom'), onClick: () => OpenModal() }])
-const formData = ref({
+const formData = ref<any>({
   name: '',
   status: '',
   description: '',
@@ -791,10 +791,10 @@ const handleProductAction = (action: string, room: any) => {
 
     if (roomToEdit) {
       selectedRoom.value = roomToEdit
-      formData.value.name = roomToEdit.productName.toString()
-      formData.value.description = roomToEdit.description.toString()
-      formData.value.rent = roomToEdit.price.toString()
-      formData.value.status = roomToEdit.status.toString()
+      formData.value.name = roomToEdit.productName
+      formData.value.description = roomToEdit.description
+      formData.value.rent = roomToEdit.price
+      formData.value.status = roomToEdit.status
       const optionsList: Record<number, string> = {}
 
       if (Array.isArray(roomToEdit.options)) {

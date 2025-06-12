@@ -92,7 +92,7 @@
               <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ subtotal }} FCFA</td>
             </tr>
             <tr>
-              <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">TVA (10%)</td>
+              <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">TVA (0%)</td>
               <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ tax }} FCFA</td>
             </tr>
             <tr class="text-base text-gray-900 dark:text-gray-100 font-bold">
@@ -317,9 +317,9 @@ const subtotal = computed(() => {
 
 
 
-const tax = computed(() => subtotal.value * 0.1);
+const tax = computed(() => subtotal.value * 0);
 // const total = computed(() => subtotal.value + tax.value);
-const total = computed(() => Number(subtotal.value + tax.value).toFixed(2));
+const total = computed(() => Number(subtotal.value).toFixed(2));
 
 
 

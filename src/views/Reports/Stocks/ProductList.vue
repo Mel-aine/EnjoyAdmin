@@ -13,7 +13,7 @@
         <div v-if="isDropdownOpen" class="absolute right-0 mt-10 w-44 bg-white rounded-lg shadow z-50">
           <ul class="py-2 text-sm text-gray-700">
             <li><button @click="modalOpen = true" class="block px-4 py-2 hover:text-purple-600">{{ $t('addProduct') }}</button></li>
-            <li><button class="block px-4 py-2 hover:text-purple-600">{{ $t('import') }}</button></li>
+
           </ul>
         </div>
       </div>
@@ -71,7 +71,7 @@
           <h4 class="text-2xl font-semibold text-gray-800 mb-6">{{ isEditing ? $t('editProduct') : $t('addProductDetail') }}</h4>
 
           <form class="flex flex-col space-y-4" @submit.prevent = "addProduct">
-            <div class="custom-scrollbar h-[460px] overflow-y-auto p-2">
+            <div class="custom-scrollbar h-[500px] overflow-y-auto p-2">
             <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 mt-6">
               <Input :lb="$t('productCode')" :placeholder="$t('Code')" :id="'code'" :forLabel="'code'" v-model="newProduct.code" />
               <Input :lb="$t('productName')" :placeholder="$t('Name')" :id="'name'" :forLabel="'name'" v-model="newProduct.name" />

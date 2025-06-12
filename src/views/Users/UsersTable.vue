@@ -488,6 +488,7 @@ const handleUserAction = (action: string, user: any) => {
     form.value.roleId = user.roleId
     isEditMode.value = true
     modalOpen.value = true
+
   } else if (action === 'delete') {
     selectedUserId.value = user.id
     show.value = true
@@ -556,6 +557,7 @@ const updateFormData = async () => {
     selectedUser.value = null
     isEditMode.value = false
     modalOpen.value = false
+     fetchUser()
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error)
     toast.error(t('toast.updateError'))

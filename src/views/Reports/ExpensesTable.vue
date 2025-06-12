@@ -49,7 +49,7 @@
                   {{ $t('addExpense') }}
                 </button>
               </li>
-              <li>
+              <!-- <li>
                 <button
                   @click="openImportModal"
                   class="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-purple-50 hover:text-purple-600"
@@ -64,7 +64,7 @@
                   </svg>
                   {{ $t('importExpense') }}
                 </button>
-              </li>
+              </li> -->
               <!-- <li>
                 <button @click="openBudgetModal" class="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-purple-50 hover:text-purple-600">
                   <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,25 +90,11 @@
       <div class="mb-6 bg-white p-4 rounded-lg shadow-sm">
         <div class="flex flex-wrap gap-4 items-end">
           <div class="w-64">
-            <!-- <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-            <select v-model="filters.category" class="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-              <option value="">Toutes les catégories</option>
-              <option v-for="category in expenseCategories" :key="category.id" :value="category.id">
-                {{ category.name }}
-              </option>
-            </select> -->
 
             <Select :lb="$t('category')" :options="expenseCategories" v-model="filters.category" />
           </div>
 
           <div class="w-64">
-            <!-- <label class="block text-sm font-medium text-gray-700 mb-1">Département</label>
-            <select v-model="filters.department" class="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-              <option value="">Tous les départements</option>
-              <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                {{ dept.name }}
-              </option>
-            </select> -->
 
             <Select :lb="$t('department')" :options="departments" v-model="filters.department" />
           </div>
@@ -168,7 +154,7 @@
         </div>
       </div>
 
-      <!-- Onglets pour différentes vues -->
+
       <div class="mb-6">
         <div class="border-b border-gray-200">
           <nav class="flex -mb-px">
@@ -197,20 +183,7 @@
       </div>
 
       <!-- Table principale -->
-      <div class=" ">
-        <!-- <ag-grid-vue
-          class="ag-theme-quartz h-[600px]"
-          :rowData="filteredExpenses"
-          :columnDefs="columnDefs"
-          :defaultColDef="defaultColDef"
-          rowHeight="60"
-          :rowSelection="'multiple'"
-          :pagination="true"
-          :paginationPageSize="10"
-          @cellClicked="onCellClick"
-          :autoSizeStrategy="autoSizeStrategy"
-
-        /> -->
+      <div class=" h-screen">
         <TableComponent
           :items="titles"
           :datas="filteredExpensesWithNames"
@@ -257,6 +230,7 @@
           </div>
 
           <form @submit.prevent="addExpense" class="space-y-4">
+            <div class="custom-scrollbar h-[550px] overflow-y-auto p-2">
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <Select
@@ -416,6 +390,7 @@
                   {{ $t('Processing') }}...
                 </span>
               </button>
+            </div>
             </div>
           </form>
         </div>
@@ -591,9 +566,9 @@ const selectedId = ref<number | null>(null)
 const selected = ref<any>(null)
 const Status = computed(() => [
   { label: t('paid'), value: 'paid' },
-  { label: t('unpaid'), value: 'unpaid' },
+  // { label: t('unpaid'), value: 'unpaid' },
   { label: t('pending'), value: 'pending' },
-  { label: t('overdue'), value: 'overdue' },
+  // { label: t('overdue'), value: 'overdue' },
 ])
 
 const toggleDropdown = () => {
@@ -608,238 +583,6 @@ const openImportModal = () => {
   importModalOpen.value = !importModalOpen.value
 }
 
-// Données des dépenses
-// const expenses = ref([
-//   {
-//     id: "#EXP001",
-//     supplierName: "Connect Fast",
-//     description: "Facture Internet et Téléphone",
-//     category: "utilities",
-//     categoryName: "Services Publics",
-//     department: "administration",
-//     departmentName: "Administration",
-//     amount: 205000,
-//     date: "2023-05-01",
-//     dueDate: "2023-05-15",
-//     status: "paid",
-//     paymentMethod: "virement",
-//     invoiceNumber: "INV-2023-001",
-//     taxRate: 18,
-//     amountBeforeTax: 173728,
-//   },
-//   {
-//     id: "#EXP002",
-//     supplierName: "Fresh Foods",
-//     description: "Approvisionnement Cuisine - Fruits et Légumes",
-//     category: "food",
-//     categoryName: "Alimentation",
-//     department: "kitchen",
-//     departmentName: "Cuisine",
-//     amount: 345000,
-//     date: "2023-05-02",
-//     dueDate: "2023-05-09",
-//     status: "paid",
-//     paymentMethod: "espèces",
-//     invoiceNumber: "INV-2023-045",
-//     taxRate: 0,
-//     amountBeforeTax: 345000,
-//   },
-//   {
-//     id: "#EXP003",
-//     supplierName: "CleanPro Services",
-//     description: "Services de Nettoyage - Avril 2023",
-//     category: "cleaning",
-//     categoryName: "Nettoyage",
-//     department: "housekeeping",
-//     departmentName: "Entretien",
-//     amount: 450000,
-//     date: "2023-05-03",
-//     dueDate: "2023-05-17",
-//     status: "pending",
-//     paymentMethod: "chèque",
-//     invoiceNumber: "INV-2023-078",
-//     taxRate: 18,
-//     amountBeforeTax: 381356,
-//   },
-//   {
-//     id: "#EXP004",
-//     supplierName: "Électricité du Cameroun",
-//     description: "Facture Électricité - Avril 2023",
-//     category: "utilities",
-//     categoryName: "Services Publics",
-//     department: "maintenance",
-//     departmentName: "Maintenance",
-//     amount: 780000,
-//     date: "2023-05-04",
-//     dueDate: "2023-05-20",
-//     status: "paid",
-//     paymentMethod: "virement",
-//     invoiceNumber: "ELEC-2023-456",
-//     taxRate: 5,
-//     amountBeforeTax: 742857,
-//   },
-//   {
-//     id: "#EXP005",
-//     supplierName: "AquaPure",
-//     description: "Approvisionnement en Eau Minérale",
-//     category: "food",
-//     categoryName: "Alimentation",
-//     department: "kitchen",
-//     departmentName: "Cuisine",
-//     amount: 86000,
-//     date: "2023-05-05",
-//     dueDate: "2023-05-12",
-//     status: "paid",
-//     paymentMethod: "espèces",
-//     invoiceNumber: "INV-2023-112",
-//     taxRate: 0,
-//     amountBeforeTax: 86000,
-//   },
-//   {
-//     id: "#EXP006",
-//     supplierName: "SécuriTech",
-//     description: "Services de Sécurité - Avril 2023",
-//     category: "security",
-//     categoryName: "Sécurité",
-//     department: "administration",
-//     departmentName: "Administration",
-//     amount: 520000,
-//     date: "2023-05-06",
-//     dueDate: "2023-05-21",
-//     status: "overdue",
-//     paymentMethod: "virement",
-//     invoiceNumber: "SEC-2023-089",
-//     taxRate: 18,
-//     amountBeforeTax: 440678,
-//   },
-//   {
-//     id: "#EXP007",
-//     supplierName: "Tech Solutions",
-//     description: "Maintenance Système de Réservation",
-//     category: "tech",
-//     categoryName: "Technologie",
-//     department: "reception",
-//     departmentName: "Réception",
-//     amount: 175000,
-//     date: "2023-05-07",
-//     dueDate: "2023-05-22",
-//     status: "pending",
-//     paymentMethod: "chèque",
-//     invoiceNumber: "TS-2023-345",
-//     taxRate: 18,
-//     amountBeforeTax: 148305,
-//   },
-//   {
-//     id: "#EXP008",
-//     supplierName: "Linge Luxe",
-//     description: "Approvisionnement en Draps et Serviettes",
-//     category: "supplies",
-//     categoryName: "Fournitures",
-//     department: "housekeeping",
-//     departmentName: "Entretien",
-//     amount: 630000,
-//     date: "2023-05-08",
-//     dueDate: "2023-05-23",
-//     status: "pending",
-//     paymentMethod: "virement",
-//     invoiceNumber: "LL-2023-456",
-//     taxRate: 18,
-//     amountBeforeTax: 533898,
-//   },
-//   {
-//     id: "#EXP009",
-//     supplierName: "Décor Élégance",
-//     description: "Rénovation Hall d'Entrée",
-//     category: "renovation",
-//     categoryName: "Rénovation",
-//     department: "maintenance",
-//     departmentName: "Maintenance",
-//     amount: 1250000,
-//     date: "2023-05-09",
-//     dueDate: "2023-05-24",
-//     status: "paid",
-//     paymentMethod: "virement",
-//     invoiceNumber: "DE-2023-789",
-//     taxRate: 18,
-//     amountBeforeTax: 1059322,
-//   },
-//   {
-//     id: "#EXP010",
-//     supplierName: "FoodSupply Pro",
-//     description: "Approvisionnement Cuisine - Viandes et Poissons",
-//     category: "food",
-//     categoryName: "Alimentation",
-//     department: "kitchen",
-//     departmentName: "Cuisine",
-//     amount: 890000,
-//     date: "2023-05-10",
-//     dueDate: "2023-05-17",
-//     status: "pending",
-//     paymentMethod: "chèque",
-//     invoiceNumber: "FSP-2023-567",
-//     taxRate: 0,
-//     amountBeforeTax: 890000,
-//   },
-//   {
-//     id: "#EXP011",
-//     supplierName: "PubliMarket",
-//     description: "Campagne Marketing Mai 2023",
-//     category: "marketing",
-//     categoryName: "Marketing",
-//     department: "sales",
-//     departmentName: "Ventes & Marketing",
-//     amount: 480000,
-//     date: "2023-05-11",
-//     dueDate: "2023-05-26",
-//     status: "pending",
-//     paymentMethod: "virement",
-//     invoiceNumber: "PM-2023-234",
-//     taxRate: 18,
-//     amountBeforeTax: 406780,
-//   },
-//   {
-//     id: "#EXP012",
-//     supplierName: "GasMaster",
-//     description: "Approvisionnement en Gaz - Cuisine",
-//     category: "utilities",
-//     categoryName: "Services Publics",
-//     department: "kitchen",
-//     departmentName: "Cuisine",
-//     amount: 120000,
-//     date: "2023-05-12",
-//     dueDate: "2023-05-19",
-//     status: "paid",
-//     paymentMethod: "espèces",
-//     invoiceNumber: "GM-2023-123",
-//     taxRate: 18,
-//     amountBeforeTax: 101695,
-//   },
-// ]);
-
-// Catégories de dépenses
-// const expenseCategories = ref([
-//   { id: 'utilities', name: 'Services Publics', icon: 'LightBulbIcon', color: 'bg-yellow-500' },
-//   { id: 'food', name: 'Alimentation', icon: 'ShoppingBagIcon', color: 'bg-green-500' },
-//   { id: 'cleaning', name: 'Nettoyage', icon: 'SparklesIcon', color: 'bg-blue-500' },
-//   { id: 'security', name: 'Sécurité', icon: 'ShieldCheckIcon', color: 'bg-red-500' },
-//   { id: 'tech', name: 'Technologie', icon: 'DesktopComputerIcon', color: 'bg-indigo-500' },
-//   { id: 'supplies', name: 'Fournitures', icon: 'ArchiveIcon', color: 'bg-gray-500' },
-//   { id: 'renovation', name: 'Rénovation', icon: 'HomeIcon', color: 'bg-purple-500' },
-//   { id: 'marketing', name: 'Marketing', icon: 'SpeakerphoneIcon', color: 'bg-pink-500' },
-//   { id: 'maintenance', name: 'Maintenance', icon: 'WrenchIcon', color: 'bg-orange-500' },
-//   { id: 'others', name: 'Autres', icon: 'DotsHorizontalIcon', color: 'bg-gray-400' },
-// ]);
-
-// Départements de l'hôtel
-// const departments = ref([
-//   { id: 'administration', name: 'Administration', icon: 'OfficeBuildingIcon' },
-//   { id: 'reception', name: 'Réception', icon: 'UserGroupIcon' },
-//   { id: 'housekeeping', name: 'Entretien', icon: 'SparklesIcon' },
-//   { id: 'kitchen', name: 'Cuisine', icon: 'CakeIcon' },
-//   { id: 'restaurant', name: 'Restaurant', icon: 'CoffeeIcon' },
-//   { id: 'maintenance', name: 'Maintenance', icon: 'WrenchIcon' },
-//   { id: 'sales', name: 'Ventes & Marketing', icon: 'CurrencyDollarIcon' },
-// ]);
 
 // Onglets
 const tabs = computed(() => [
@@ -856,12 +599,12 @@ const tabs = computed(() => [
     icon: 'CheckCircleIcon',
     count: expenses.value.filter((e: any) => e.status === 'paid').length,
   },
-  {
-    id: 'overdue',
-    name: t('overdue'),
-    icon: 'ExclamationCircleIcon',
-    count: expenses.value.filter((e: any) => e.status === 'overdue').length,
-  },
+  // {
+  //   id: 'overdue',
+  //   name: t('overdue'),
+  //   icon: 'ExclamationCircleIcon',
+  //   count: expenses.value.filter((e: any) => e.status === 'overdue').length,
+  // },
 ])
 
 // Filtres
@@ -1031,51 +774,6 @@ const handleExpenseAction = (action: string, expense: any) => {
     show.value = true
   }
 }
-
-// const onCellClick = (event: any) => {
-//   console.log('Cell clicked:', event.data);
-//   const button = event.event.target.closest('button');
-//   console.log('Button clicked:', button);
-
-//   // Gestion des actions (édition, suppression, affichage)
-//   if (event.colDef.headerName === 'Actions') {
-//     // const action = (event.event as MouseEvent).target?.closest('button')?.getAttribute('data-action');
-//     if (!button) {
-//     console.error('No button found');
-//     return;
-//   }
-
-//   const action = button.dataset.action;
-//   const id = button.dataset.id;
-//   console.log('Button clickedid:', id);
-
-//     if (action === 'edit') {
-//       const expensetEdit = expenses.value.find((r: any) => r.id == Number(id));
-//       console.log("expensetEdit",expensetEdit)
-//       if(expensetEdit){
-//         selected.value = expensetEdit;
-//         newExpense.value.supplierName = expensetEdit.supplierId;
-//         newExpense.value.invoiceNumber = expensetEdit.invoiceNumber;
-//         newExpense.value.category = expensetEdit.expenseCategoryId;
-//         newExpense.value.department = expensetEdit.departmentId;
-//         newExpense.value.date = expensetEdit.expense_date;
-//         newExpense.value.dueDate = expensetEdit.dueDate;
-//         newExpense.value.description = expensetEdit.description;
-//         newExpense.value.amountBeforeTax = expensetEdit.amountBeforeTax;
-//         newExpense.value.taxRate = expensetEdit.taxRate ?? 18;
-//         newExpense.value.status = expensetEdit.status ?? 'pending';
-//         // newExpense.value.paymentMethod = expensetEdit.payment_method ?? 'virement';
-
-//       }
-//       addExpenseModalOpen.value = true
-//       isEditing.value = true
-//     }else if (action === 'delete'){
-//       selectedId.value = id
-//       show.value = true
-//     }
-//   }
-// };
-
 const updateData = async () => {
   isLoading.value = true
 
@@ -1137,8 +835,6 @@ const filteredExpenses = computed(() => {
     result = result.filter((expense) => expense.status === 'pending')
   } else if (activeTab.value === 'paid') {
     result = result.filter((expense) => expense.status === 'paid')
-  } else if (activeTab.value === 'overdue') {
-    result = result.filter((expense) => expense.status === 'overdue')
   }
 
   // Appliquer les filtres supplémentaires
@@ -1165,6 +861,24 @@ const filteredExpenses = computed(() => {
   return result
 })
 
+
+const fetchExpense = async() =>{
+  const serviceId = serviceStore.serviceId
+  try{
+     const responseExpense = await getExpense(serviceId)
+      expenses.value = responseExpense.data
+
+  }catch (error) {
+    console.error('Erreur lors du chargement des données:', error)
+
+  }
+
+}
+
+onMounted(()=>{
+    fetchExpense()
+
+})
 onMounted(async () => {
   const serviceId = serviceStore.serviceId
   loading.value = true
@@ -1188,8 +902,7 @@ onMounted(async () => {
       value: s.id,
     }))
 
-    const responseExpense = await getExpense(serviceId)
-    expenses.value = responseExpense.data
+
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   } finally {
@@ -1236,8 +949,9 @@ const addExpense = async () => {
       }
       console.log('bbb', payload)
       await createExpense(payload)
-      closeModal()
 
+      closeModal()
+    fetchExpense()
       toast.success(t('toast.Sucess'))
       // Optionnel : toast, reset form, fermeture modale, etc.
     }

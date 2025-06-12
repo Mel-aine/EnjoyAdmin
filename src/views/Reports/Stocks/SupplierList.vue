@@ -12,21 +12,6 @@
         </button>
       </div>
       <div class="h-screen">
-      <!-- <ComponentCard title="" >
-      <div class="ag-theme-quartz">
-        <ag-grid-vue
-          :rowData="suppliers"
-          :columnDefs="columnDefs"
-          :defaultColDef="defaultColDef"
-          rowSelection="single"
-          :pagination="true"
-          :domLayout="'autoHeight'"
-          @gridReady="onGridReady"
-          @cellClicked="onCellClick"
-          :autoSizeStrategy="autoSizeStrategy"
-        />
-      </div>
-      </ComponentCard> -->
       <TableComponent
             :items="titles"
             :datas="suppliers"
@@ -99,7 +84,6 @@
 
 <script setup lang="ts">
 import { ref,onMounted,watch,computed } from "vue";
-// import { AgGridVue } from "ag-grid-vue3";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import Modal from "@/components/profile/Modal.vue";
@@ -108,9 +92,6 @@ import ComponentCard from "@/components/common/ComponentCard.vue";
 import { createSupplier,getSupplier,deleteSupplier,updateSupplier} from "@/services/api";
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
-// import type { ColDef, GridReadyEvent } from "ag-grid-community";
-// import "ag-grid-community/styles/ag-grid.css";
-// import "ag-grid-community/styles/ag-theme-quartz.css";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import ModalDelete from "@/components/modal/ModalDelete.vue";
@@ -246,8 +227,8 @@ const updateData = async () => {
       email : newSupplier.value.email,
       phone : newSupplier.value.phone,
       address : newSupplier.value.address,
-      category: "Hotel",
     };
+    console.log("Payload",Payload)
 
     await updateSupplier(id, Payload);
 
@@ -272,6 +253,8 @@ const addSupplier = async () => {
 
     if(isEditing.value){
       await updateData ()
+      modalOpen.value = false;
+      fetchSupplier()
       toast.success(t('toast.SucessUpdate'));
     } else{
 

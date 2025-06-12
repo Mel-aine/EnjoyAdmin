@@ -4,9 +4,23 @@
       class="flex items-center text-gray-700 dark:text-gray-400"
       @click.prevent="toggleDropdown"
     >
-      <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
+      <!-- <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
         <img src="" alt="User" />
-      </span>
+      </span> -->
+       <div class="relative flex-shrink-0">
+            <img
+              v-if="picture"
+              :src="picture"
+              alt="Photo utilisateur"
+              class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg"
+            />
+            <div
+              v-else
+              class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-xl sm:text-2xl font-bold border-2 border-gray-500"
+            >
+              {{ userInitials }}
+            </div>
+          </div>
 
       <span class="block mr-1 font-medium text-theme-sm"> {{ fullName }} </span>
 
@@ -105,6 +119,11 @@ const signOut = () => {
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
 }
+
+const userInitials = computed(() => {
+  const names = fullName.value.trim().split(' ');
+  return names?.map((n)=> n[0]).slice(0, 2).join('');
+});
 
 const closeDropdown = () => {
   dropdownOpen.value = false

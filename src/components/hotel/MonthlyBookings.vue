@@ -1,14 +1,14 @@
 <template>
     <div class="bg-white rounded-lg shadow p-6 h-full">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold">Réservations mensuelles</h2>
+        <h2 class="text-xl font-semibold">{{ $t('monthly_reservation') }}</h2>
         <div class="relative">
           <select v-model="selectedMonth" @change="updateChartData"
             class="block appearance-none bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline text-sm">
-            <option>Mai 2025</option>
-            <option>Avril 2025</option>
-            <option>Mars 2025</option>
-            <option>Février 2025</option>
+            <option>{{ $t('may') }} 2025</option>
+            <option>{{ $t('april') }} 2025</option>
+            <option>{{ $t('march') }} 2025</option>
+            <option>{{ $t('february') }} 2025</option>
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -26,7 +26,7 @@
         <div class="flex items-center justify-between border-b pb-3">
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-            <span class="text-sm font-medium">Réservations directes</span>
+            <span class="text-sm font-medium">{{ $t('direct_booking') }}</span>
           </div>
           <div class="flex items-center">
             <span class="font-semibold mr-1">58</span>
@@ -48,7 +48,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
-            <span class="text-sm font-medium">Groupes & Entreprises</span>
+            <span class="text-sm font-medium">{{ $t('groupe') }}</span>
           </div>
           <div class="flex items-center">
             <span class="font-semibold mr-1">32</span>
@@ -60,11 +60,11 @@
       <div class="flex justify-center mt-6">
         <div class="px-4 py-2 text-sm text-center">
           <div class="text-3xl font-bold text-blue-600">214</div>
-          <div class="text-gray-500">Total réservations</div>
+          <div class="text-gray-500">{{ $t('total_reservation') }}</div>
         </div>
         <div class="border-l px-4 py-2 text-sm text-center">
-          <div class="text-3xl font-bold text-green-600">25.8K€</div>
-          <div class="text-gray-500">Revenus</div>
+          <div class="text-3xl font-bold text-green-600">25.8K FCFA</div>
+          <div class="text-gray-500">{{ $t('earnings') }}</div>
         </div>
       </div>
     </div>
@@ -110,7 +110,7 @@
     chart.value = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4'],
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
           {
             label: 'Réservations directes',

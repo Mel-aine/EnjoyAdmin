@@ -40,7 +40,7 @@
               />
             </svg>
             </button>
-            <h2 class="text-lg font-semibold mb-4">{{ isEditing? $t('edit'):$t('addDepartment') }}</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ isEditing? $t('edit'):$t('add') }}</h2>
             <form @submit.prevent="addDepartment">
               <div class="mb-4">
                 <Input :lb="$t('Name')" v-model="newDepartment.name" />
@@ -335,19 +335,7 @@ const addDepartment = async() => {
 
 }
 
-// const fetchDepartment = async() => {
-//   try {
-//     const serviceId = serviceStore.serviceId;
-//     const response = await getDepartment(serviceId);
 
-//     departmentsData.value = response.data
-//     departmentsData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
-//     console.log('dpt:', departmentsData.value);
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération :', error);
-//   }
-
-// }
 const fetchDepartment = async () => {
   try {
     const serviceId = serviceStore.serviceId;
@@ -402,14 +390,11 @@ const fetchDepartment = async () => {
 
 onMounted(async()=>{
  await fetchUser()
+ await fetchDepartment()
+ loading.value = false
 })
 
-onMounted(async () => {
-  setTimeout(async () => {
-    await fetchDepartment()
-    loading.value = false
-  }, 500)
-})
+
 
 // const defaultColDef = {
 //   sortable: true,

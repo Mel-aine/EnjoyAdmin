@@ -44,6 +44,7 @@
           :isCheckingOut="isCheckingout"
           :key="room.id"
           :room="room"
+          :guestName="room.guestName"
           @change=" handleStatusChange"
           @checkin="handleCheckIn(room)"
           @checkout="handleCheckOut(room)"
@@ -75,6 +76,7 @@ const loading = ref(false);
 const error = ref('');
 const isCheckingIn = ref(false)
 const isCheckingout = ref(false)
+
 
 
 const fetchServiceProduct = async () => {
@@ -166,8 +168,6 @@ const flattenServiceProducts = computed(() => {
     const flatProduct: any = {
       ...product,
     };
-
-    // Ajouter les options si elles existent
     product.options?.forEach((option: any) => {
       const key = `option_${option.optionId}`;
       flatProduct[key] = option.value;
@@ -241,6 +241,7 @@ const handleStatusChange = (payload: any) => {
 
   console.log(`Chambre ${room.name || room.productName} - Nouveau statut: ${status}`)
 }
+
 
 
 

@@ -14,9 +14,9 @@
 
 
 
-    <div class="mb-8">
+    <!-- <div class="mb-8">
     <ScheduleManagement/>
-    </div>
+    </div> -->
 
     <!-- Section Paramètres du Service -->
     <div class="mb-8  max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
