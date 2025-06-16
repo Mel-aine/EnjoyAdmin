@@ -116,16 +116,7 @@ const filterCustomer = () => {
   }
 
   filteredCustomers.value = customers.value.filter(c => {
-    // Search by ID (exact match or partial)
-    // const idMatch = c.id?.toString().includes(query);
 
-    // // Search by phone number (partial match)
-    // const phoneMatch = c.phoneNumber?.toLowerCase().includes(query);
-
-    // // Search by user ID if available
-    // const userIdMatch = c.userId?.toString().includes(query);
-
-    // You can also add name search as a bonus
     const nameMatch = (
       c.firstName?.toLowerCase().includes(query) ||
       c.lastName?.toLowerCase().includes(query) ||

@@ -29,6 +29,7 @@
     "flatpickr": "^4.6.13",
     "jspdf": "^3.0.1",
     "jsvectormap": "^1.6.0",
+    "lodash": "^4.17.21",
     "lucide-vue-next": "^0.474.0",
     "luxon": "^3.6.1",
     "pinia": "^3.0.1",
@@ -49,6 +50,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
     "@tsconfig/node22": "^22.0.0",
+    "@types/google.maps": "^3.58.1",
+    "@types/lodash": "^4.17.17",
     "@types/node": "^22.10.7",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",

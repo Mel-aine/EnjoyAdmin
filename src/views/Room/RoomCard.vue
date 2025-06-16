@@ -1,6 +1,6 @@
 <script setup>
-import { computed,ref } from 'vue'
-import Spinner from '@/components/spinner/Spinner.vue';
+import { computed, ref } from 'vue'
+import Spinner from '@/components/spinner/Spinner.vue'
 import {
   ArrowRightLeft,
   Users,
@@ -26,8 +26,8 @@ const { t } = useI18n()
 
 const props = defineProps({
   room: Object,
-  isCheckingIn:Boolean,
-  isCheckingOut:Boolean
+  isCheckingIn: Boolean,
+  isCheckingOut: Boolean,
 })
 
 const emit = defineEmits(['change', 'checkin', 'checkout', 'cleaned'])
@@ -175,9 +175,8 @@ const handleCheckIn = () => {
 //   }
 // }
 const handleCheckOut = async () => {
-   emit('checkout', props.room)
+  emit('checkout', props.room)
 }
-
 
 const handleMarkCleaned = () => {
   emit('cleaned', props.room)
@@ -202,21 +201,19 @@ const goToBooking = () => {
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return null;
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 function getNextDisplayDate(status, departDate) {
-  if (!departDate) return null;
-  const date = new Date(departDate);
+  if (!departDate) return null
+  const date = new Date(departDate)
   if (status === 'booked') {
-    date.setDate(date.getDate() + 1);
+    date.setDate(date.getDate() + 1)
   }
-  return formatDate(date.toISOString());
+  return formatDate(date.toISOString())
 }
-
-
 </script>
 
 <template>
@@ -250,7 +247,6 @@ function getNextDisplayDate(status, departDate) {
       </div>
 
       <div class="flex items-center space-x-2">
-        <!-- Status Toggle Button -->
         <button
           @click="toggleStatus"
           class="p-2 rounded-lg border border-gray-200/80 shadow-sm hover:bg-gray-50/50 backdrop-blur-sm transition-all"
@@ -259,9 +255,8 @@ function getNextDisplayDate(status, departDate) {
           <ArrowRightLeft class="w-5 h-5 text-gray-600" />
         </button>
 
-        <!-- Maintenance Button -->
         <button
-        @click="emit('change', { room: props.room, status: 'maintenance' })"
+          @click="emit('change', { room: props.room, status: 'maintenance' })"
           class="p-2 rounded-lg border border-gray-200/80 shadow-sm hover:bg-amber-50 text-amber-600 transition-all"
           title="Mettre en maintenance"
         >
@@ -271,13 +266,10 @@ function getNextDisplayDate(status, departDate) {
     </div>
 
     <!-- Guest Info (if occupied) -->
-    <div
-      v-if="props.room.guestName"
-      class="mb-3 p-3 bg-blue-50 rounded-lg"
-    >
-      <p class="text-sm font-medium text-blue-900">Client : {{ props.room.guestName }}</p>
+    <div v-if="props.room.guestName" class="mb-3 p-2 bg-blue-50 rounded-lg">
+      <p class="text-sm font-medium text-blue-900 inline-flex"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cc53e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round-icon lucide-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg> : {{ props.room.guestName }}</p>
       <p v-if="props.room.checkInTime" class="text-xs text-blue-700">
-        Arrivée : {{ formatDate(props.room.checkInTime) }}
+        {{ $t('arrive') }} : {{ formatDate(props.room.checkInTime) }}
       </p>
     </div>
 
@@ -295,7 +287,7 @@ function getNextDisplayDate(status, departDate) {
 
     <!-- Equipment -->
     <div v-if="props.room.equipment?.length" class="mb-4">
-      <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Équipements</h4>
+      <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{{ $t('amenities') }}</h4>
       <div class="flex flex-wrap gap-2">
         <div
           v-for="item in props.room.equipment"
@@ -314,10 +306,17 @@ function getNextDisplayDate(status, departDate) {
 
     <!-- Next Available Info -->
     <div
-      v-if="(props.room.status === 'booked' || props.room.status === 'occupied') && props.room.nextAvailable"
+      v-if="
+        (props.room.status === 'booked' || props.room.status === 'occupied') &&
+        props.room.nextAvailable
+      "
       class="mt-2 flex items-center gap-2 text-sm font-medium rounded-lg p-1"
-      :class="room.status === 'occupied' ? 'text-orange-800 bg-orange-100' : 'text-blue-800 bg-blue-100'"
+      :class="
+        room.status === 'occupied' ? 'text-orange-800 bg-orange-100' : 'text-blue-800 bg-blue-100'
+      "
     >
+
+
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -327,17 +326,17 @@ function getNextDisplayDate(status, departDate) {
         />
       </svg>
       <span>
-        {{ props.room.status === 'occupied' ? 'Départ prévu' : 'Disponible' }} :
+        {{ props.room.status === 'occupied' ? $t('planned') : $t('available') }} :
         {{ getNextDisplayDate(props.room.status, props.room.nextAvailable) }}
-
       </span>
+
     </div>
 
     <!-- Price & Action Buttons -->
     <div class="pt-4 border-t border-gray-100/70">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <p class="text-sm text-gray-500">À partir de</p>
+          <p class="text-sm text-gray-500">{{ $t('from') }}</p>
         </div>
         <div>
           <p class="text-2xl font-bold text-gray-900">{{ props.room.price }} FCFA</p>
@@ -352,7 +351,7 @@ function getNextDisplayDate(status, departDate) {
           @click="goToBooking"
           class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
         >
-          <span>Réserver</span>
+          <span>{{ $t('book') }}</span>
         </button>
 
         <!-- Check-in Button -->
@@ -362,31 +361,29 @@ function getNextDisplayDate(status, departDate) {
           @click="handleCheckIn"
           class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
         >
-        <svg
-      v-if="isCheckingIn"
-      class="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        class="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        stroke-width="4"
-      ></circle>
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-      ></path>
-    </svg>
-    <span>{{ isCheckingIn ? 'Chargement...' : 'Check-in' }}</span>
+          <svg
+            v-if="isCheckingIn"
+            class="animate-spin h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+          <span>{{ isCheckingIn ? $t('loading') : $t('Check-In') }}</span>
           <LogIn class="w-4 h-4" />
-
-
         </button>
 
         <!-- Check-out Button -->
@@ -396,60 +393,61 @@ function getNextDisplayDate(status, departDate) {
           @click="handleCheckOut"
           class="flex-1 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
         >
-         <svg
-      v-if="isCheckingOut"
-      class="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        class="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        stroke-width="4"
-      ></circle>
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-      ></path>
-    </svg>
-    <span>{{ isCheckingOut ? 'Chargement...' : 'Check-out' }}</span>
+          <svg
+            v-if="isCheckingOut"
+            class="animate-spin h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+          <span>{{ isCheckingOut ? $t('loading') : $t('Check-Out') }}</span>
 
           <LogOut class="w-4 h-4" />
           <!-- <span>Check-out</span> -->
-
         </button>
       </div>
 
       <!-- Status-specific messages -->
       <div v-if="props.room.status === 'cleaning'" class="  ">
         <p class="text-sm text-purple-700 font-medium bg-purple-50 rounded-md text-center mt-3 p-2">
-          🧹 Nettoyage en cours...
+          🧹 {{ $t('cleaning...') }}
         </p>
+        <div class="flex flex-col items-end">
         <button
-          class="text-sm text-purple-700 font-medium bg-purple-50 rounded-md text-center mt-3 p-2"
+          class="text-sm text-purple-700 font-medium bg-purple-50 rounded-full text-center mt-3 p-2"
           @click="handleMarkCleaned"
         >
-          Nettoyage terminé
+          {{ $t('cleaning_completed') }}
         </button>
+        </div>
       </div>
 
       <div
         v-else-if="props.room.status === 'checkout'"
         class="mt-3 p-2 bg-orange-50 rounded-md text-center"
       >
-        <p class="text-sm text-orange-700 font-medium">📋 Vérification en cours...</p>
+        <p class="text-sm text-orange-700 font-medium">📋 {{ $t('verification') }}</p>
       </div>
 
       <div
         v-else-if="props.room.status === 'maintenance'"
         class="mt-3 p-2 bg-amber-50 rounded-md text-center"
       >
-        <p class="text-sm text-amber-700 font-medium">🔧 Maintenance en cours</p>
+        <p class="text-sm text-amber-700 font-medium">🔧 {{ $t('maintenance...') }}</p>
       </div>
     </div>
   </div>

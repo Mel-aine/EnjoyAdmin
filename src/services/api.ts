@@ -345,7 +345,7 @@ export const updateProduct = (id: number | null, Payload: any): Promise<AxiosRes
 }
 
 export const updateService = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/services/${id}`, Payload)
+  return axios.patch(`${API_URL}/services/${id}`, Payload)
 }
 
 export const updateExpense = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {

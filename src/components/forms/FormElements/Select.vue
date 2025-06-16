@@ -2,7 +2,7 @@
   <div ref="selectWrapper" class="w-full">
     <label
       for="floating_select"
-      class="text-base mb-1.5 block  font-medium text-gray-700 dark:text-gray-400"
+      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
       :class="isDropdownOpen ? 'text-brand-500' : 'text-gray-500'"
     >
       {{ lb }}
@@ -15,17 +15,17 @@
     >
       <div
         class="flex justify-between dark:bg-dark-900 h-11 w-full  rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-        :class="isDropdownOpen ? 'border-brand-500 text-gray-900' : 'border-gray-300'"
+        :class="isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300'"
       >
         <span>{{ selectedOption?.label || defaultValue }}</span>
-        <span :class="isDropdownOpen ? 'text-brand-500' : 'text-gray-500'">▼</span>
+        <span :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'">▼</span>
       </div>
 
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
 
       <ul
         v-if="isDropdownOpen"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-50 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-brand-100"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-50 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
         role="listbox"
         :aria-expanded="isDropdownOpen"
         aria-hidden="false"

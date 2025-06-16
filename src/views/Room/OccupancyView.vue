@@ -44,7 +44,7 @@
           :isCheckingOut="isCheckingout"
           :key="room.id"
           :room="room"
-          :guestName="room.guestName"
+
           @change=" handleStatusChange"
           @checkin="handleCheckIn(room)"
           @checkout="handleCheckOut(room)"
@@ -120,6 +120,11 @@ const fetchServiceProduct = async () => {
 
                   nextAvailable = sortedReservations[0]?.reservation?.departDate || null;
                 }
+              const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in');
+
+              const guestName = checkedInGuest
+                ? `${checkedInGuest.creator?.firstName ?? ''} ${checkedInGuest.creator?.lastName ?? ''}`.trim()
+                : null;
 
 
 
@@ -127,6 +132,7 @@ const fetchServiceProduct = async () => {
             ...product,
             options: associatedOptions,
             reservations: reservations,
+            guestName:guestName,
             nextAvailable ,
             status: product.status || 'available'
           };
@@ -162,7 +168,7 @@ onMounted(async () => {
 // Flatten service products for display
 const flattenServiceProducts = computed(() => {
   const products = serviceProducts.value.length > 0 ? serviceProducts.value : [];
-  console.log("@@@@@4444",products)
+  console.log("@@@@@4444products",products)
 
   return products.map((product: any) => {
     const flatProduct: any = {

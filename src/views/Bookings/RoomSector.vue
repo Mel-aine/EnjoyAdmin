@@ -20,7 +20,7 @@
           >
             <option value="" disabled>{{ $t('PleaseSelectRoom') }}</option>
             <option v-for="room in availableRooms" :key="room.id" :value="room.id">
-              {{ room.label }}
+            {{ room.label }}
             </option>
           </select>
         </div>
@@ -80,7 +80,7 @@
           </label>
           <input
             type="text"
-            :value="roomSelection.roomPrice || ''"
+            :value="roomSelection.roomPrice ?? (availableRooms.find(r => r.id === roomSelection.roomType)?.price ?? '')"
             readonly
             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
           />
@@ -128,15 +128,15 @@ interface RoomSelection {
   showOccupancyDropdown: boolean
 }
 
+
+
 const props = defineProps<{
-  availableRooms: any[]
+  availableRooms: Room[]
   currency?: string
   initialRoomSelections?: RoomSelection[]
-  modelValue: {
-    type: any[],
-    required: true,
-  },
+  modelValue: RoomSelection[]
 }>()
+
 
 
 const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice'])
@@ -153,7 +153,12 @@ const roomSelections = ref<RoomSelection[]>(
     ? [...props.modelValue]
     : [createEmptyRoomSelection()]
 )
+roomSelections.value.forEach((_, index) => {
+  calculateRoomPrice(index);
+});
 
+
+console.log("📦 roomSelection :", roomSelections);
 
 
 
@@ -189,16 +194,29 @@ function handleRoomSelection(index: number) {
   emit('update:roomSelections', roomSelections.value)
 }
 
+// function calculateRoomPrice(index: number) {
+//   const { roomType } = roomSelections.value[index]
+//   const selectedRoom = props.availableRooms.find(room => room.id === roomType)
+
+//   if (selectedRoom) {
+//     roomSelections.value[index].roomPrice = selectedRoom.price
+//   }
+
+//   updateTotalPrice()
+// }
+
 function calculateRoomPrice(index: number) {
-  const { roomType } = roomSelections.value[index]
-  const selectedRoom = props.availableRooms.find(room => room.id === roomType)
+  const roomType = roomSelections.value[index].roomType;
+  const selectedRoom = props.availableRooms.find(room => room.id === roomType);
 
   if (selectedRoom) {
-    roomSelections.value[index].roomPrice = selectedRoom.price
+    roomSelections.value[index].roomPrice = selectedRoom.price;
+  } else {
+    roomSelections.value[index].roomPrice = null;
   }
-
-  updateTotalPrice()
+  updateTotalPrice();
 }
+
 
 function calculateTotalPrice(): number {
   return roomSelections.value.reduce((sum, r) => sum + (r.roomPrice || 0), 0)
@@ -243,14 +261,32 @@ function decrementChildren(index: number) {
   if (roomSelections.value[index].children > 0) roomSelections.value[index].children--
 }
 
+
+
+
 // watch(
 //   roomSelections,
-//   () => {
-//     emit('update:roomSelections', roomSelections.value)
-//       // emit('update:modelValue', value)
+//   (newVal, oldVal) => {
+//     if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+//       emit('update:modelValue', newVal);
+//       emit('update:roomSelections', newVal);
+//       updateTotalPrice();
+//     }
 //   },
-//   { deep: true },
-// )
+//   { deep: true }
+// );
+
+let skipNextUpdate = false;
+
+// Synchroniser avec modelValue sans émettre
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    skipNextUpdate = true;
+    roomSelections.value = [...newVal];
+  },
+  { deep: true }
+);
 
 watch(
   roomSelections,
@@ -263,5 +299,15 @@ watch(
   },
   { deep: true }
 );
+
+watch(() => props.modelValue, (val) => {
+  console.log('props.modelValue received in RoomSector:', val)
+}, { immediate: true, deep: true })
+
+watch(() => props.modelValue, (newVal) => {
+  console.log('🔍 modelValue reçu :', JSON.stringify(newVal))
+  console.log('📋 availableRooms :', props.availableRooms.map(r => r.id))
+}, { immediate: true, deep: true })
+
 
 </script>

@@ -787,7 +787,7 @@ const handleProductAction = (action: string, room: any) => {
   if (action === 'edit') {
     roomIds.value = room.id
     console.log('room.id', roomIds.value)
-    const roomToEdit = flattenServiceProducts.value.find((r: any) => r.id === Number(roomIds.value))
+    const roomToEdit = flattenServiceProducts.value.find((r: any) => r.id === Number(room.id))
 
     if (roomToEdit) {
       selectedRoom.value = roomToEdit
@@ -813,8 +813,8 @@ const handleProductAction = (action: string, room: any) => {
       })
     }
   } else if (action === 'delete') {
-    selectedRoomId.value = roomIds.value
-    console.log('jjjjj', selectedRoomId.value)
+    selectedRoomId.value = room.id
+    console.log('selectedRoomId.value', room.id)
     Show.value = true
   }
 }

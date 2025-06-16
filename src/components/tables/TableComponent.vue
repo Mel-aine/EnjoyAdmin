@@ -1,5 +1,6 @@
 <template>
-  <div class="max-w-[1180px] lg:w-full mx-auto px-4">
+  <!-- max-w-[1180px] lg:w-full mx-auto px-4 -->
+  <div class="sm:max-w-md md:max-w-6xl lg:max-w-[73rem] mx-auto px-2">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden  ">
     <!-- Header avec recherche et filtres -->
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
@@ -346,9 +347,9 @@
           </button>
         </div>
       </div>
-    </div> 
+    </div>
 
-    <!-- Pagination 
+    <!-- Pagination
     <div
       v-if="pagination && filteredData.length > pageSize"
       class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700"
@@ -359,7 +360,7 @@
           {{ $t('of') }} {{ filteredData.length }} {{ $t('results') }}
         </div>
 
-        
+
         <div class="flex gap-2">
           <button
             :disabled="currentPage === 1"

@@ -26,14 +26,7 @@
             </template>
           </DropdownMenu>
         </div>
-        <!-- <ComponentCard title=" ">
-      <div class="space-y-5 sm:space-y-6 ">
-    <ag-grid-vue class="ag-theme-quartz" :rowData="customers" :columnDefs="columnDefs" rowHeight="50"
-            :rowSelection="'single'"  :domLayout="'autoHeight'"
-            :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady" :autoSizeStrategy="autoSizeStrategy"
-             :defaultColDef="defaultColDef"></ag-grid-vue>
-      </div>
-    </ComponentCard> -->
+
         <TableComponent
           :items="titles"
           :datas="customers"
@@ -220,109 +213,83 @@
         </div>
       </template>
     </Modal>
+
     <Modal v-if="showModal" @close="showModal = false">
       <template #body>
-        <div
-          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-        >
-          <!-- close btn -->
-          <button
-            @click="showModal = false"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-          >
-            <svg
-              class="fill-current"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-                fill=""
-              />
-            </svg>
-          </button>
-          <div v-if="selectedCustomer" class="space-y-3">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 px-2 pr-14">
-              {{ $t('detailsCustomers') }} : {{ selectedCustomer.userFullName }}
-            </h2>
+     <!-- <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"> -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false" />
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-              <div>
-                <span class="font-medium">{{ $t('Email') }} :</span> {{ selectedCustomer.email }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('Phone') }} :</span>
-                {{ selectedCustomer.phoneNumber }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('ArrivedDate') }} :</span>
-                {{ formatDate(selectedCustomer.arrivedDate) }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('DepartDate') }} :</span>
-                {{ formatDate(selectedCustomer.departDate) }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('reservationType') }} :</span>
-                {{ selectedCustomer.reservationType }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('personNumber') }} :</span>
-                {{ selectedCustomer.totalPerson }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('TotalPrice') }} :</span>
-                {{ selectedCustomer.totalAmount }} FCFA
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('Payment') }} :</span>
-                <span :class="statusClass1(selectedCustomer.paymentStatus)">
-                  {{ selectedCustomer.payment }}</span
-                >
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('Status') }} : </span>
-                <span :class="statusClass(selectedCustomer.status)">
-                  {{ selectedCustomer.status }}
-                </span>
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('Comment') }} :</span>
-                {{ selectedCustomer.comment || '-' }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('Createdon') }} :</span>
-                {{ formatDateTime(selectedCustomer.createdAt) }}
-              </div>
-              <div>
-                <span class="font-medium">{{ $t('Modifiedon') }}:</span>
-                {{ formatDateTime(selectedCustomer.updatedAt) }}
+        <div class="relative w-full max-w-4xl max-h-[90vh] overflow-hidden">
+          <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4">
+
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white relative">
+              <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm"></div>
+              <div class="relative z-10 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <User class="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold">Détails du Client</h2>
+                    <p class="text-blue-100 text-sm">{{ selectedCustomer.userFullName }}</p>
+                  </div>
+                </div>
+                <button @click="showModal = false" class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 backdrop-blur-sm">
+                  <X class="w-5 h-5 text-white" />
+                </button>
               </div>
             </div>
+
+            <!-- Content -->
+            <div class="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <InfoCard :label="$t('Email')" :value="selectedCustomer.email" :icon="Mail" />
+                <InfoCard :label="$t('Phone')" :value="selectedCustomer.phoneNumber" :icon="Phone" />
+                <InfoCard :label="$t('ArrivedDate')" :value="formatDate(selectedCustomer.arrivedDate)" :icon="Calendar" />
+                <InfoCard :label="$t('DepartDate')" :value="formatDate(selectedCustomer.departDate)" :icon="Calendar" />
+                <InfoCard label="Type de Réservation" :value="selectedCustomer.reservationType" :icon="User" />
+                <InfoCard :label="$t('personNumber')" :value="selectedCustomer.guestCount" :icon="Users" />
+                <InfoCard :label="$t('TotalPrice')" :value="`${selectedCustomer.totalAmount} FCFA`" :icon="CreditCard" />
+                <InfoCard :label="$t('payment_statut')" :value="selectedCustomer.paymentStatus" :icon="CreditCard" :status="true" />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <InfoCard :label="$t('Status')" :value="selectedCustomer.status" :icon="User" :status="true" />
+                <InfoCard :label="$t('Comment')" :value="selectedCustomer.comment || 'Aucun commentaire'" :icon="MessageCircle" />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoCard :label="$t('Createdon')" :value="formatDateTime(selectedCustomer.createdAt)" :icon="Clock" />
+                <InfoCard :label="$t('Modifiedon')" :value="formatDateTime(selectedCustomer.updatedAt)" :icon="Clock" />
+              </div>
+            </div>
+
           </div>
         </div>
-      </template>
-    </Modal>
+        <!-- </div> -->
+        </template>
+        </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import ComponentCard from '@/components/common/ComponentCard.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import InfoCard from './InfoCard.vue'
+import { X } from 'lucide-vue-next';
+import { User } from 'lucide-vue-next';
+import { Mail } from 'lucide-vue-next';
+import { Phone } from 'lucide-vue-next';
+import { Calendar } from 'lucide-vue-next';
+import { Users } from 'lucide-vue-next';
+import { CreditCard } from 'lucide-vue-next';
+import { MessageCircle } from 'lucide-vue-next';
+import { Clock } from 'lucide-vue-next';
 import { ref, onMounted, computed, watch } from 'vue'
-// import { AgGridVue } from 'ag-grid-vue3';
-// import 'ag-grid-community/styles/ag-grid.css';
-// import 'ag-grid-community/styles/ag-theme-quartz.css';
-// import type { ColDef, GridReadyEvent, CellClickedEvent, SelectionChangedEvent,ICellRendererParams} from 'ag-grid-community';
 import { getReservation, getUser } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { userDataType, ReservationType } from '@/types/option'
@@ -330,7 +297,7 @@ import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 
-const { t, locale } = useI18n({ useScope: 'global' })
+const { t } = useI18n()
 const serviceStore = useServiceStore()
 const showModal = ref(false)
 const loading = ref(false)
@@ -341,12 +308,6 @@ const menuItems = computed(() => [
 const modalOpen = ref(false)
 const users = ref<userDataType[]>([])
 const currentPageTitle = computed(() => t('CustomersLists'))
-const defaultColDef = {
-  sortable: true,
-  filter: true,
-  floatingFilter: true,
-  resizable: true,
-}
 const Package = computed(() => [
   { value: 'Strater', label: t('StraterPackage') },
   { value: 'Honeymoon', label: t('HoneymoonPackage') },
@@ -407,94 +368,7 @@ const titles = computed(() => [
   },
 ])
 
-// const columnDefs = ref<ColDef[]>([
-//   { headerName: t('User'), field: 'userFullName' ,
 
-//   },
-//   { headerName: t('Email'), field: 'email' },
-//   {
-//     headerName: t('LastPackage'),
-//     field: 'reservationType',
-//   },
-//   { headerName: t('Phone'), field: 'phoneNumber' },
-//   { headerName: t('Verified'),
-//   cellRenderer: () => `
-//                 <div>
-//                     <span class="flex items-center gap-2">
-//                         <svg class="h-5 w-5 text-green-500 inline-flex"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-//                         </svg>
-//                           Email
-//                     </span>
-
-//                 </div>
-//             `,
-//    },
-//   { headerName: t('Comment'), field: 'comment' },
-//   { headerName: t('Status'), field: 'status' ,
-//   cellRenderer: (params:ICellRendererParams) => {
-//     if (params.value === 'active') {
-//       return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
-//     }
-//    else {
-
-//       return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
-//     }
-//   }
-//   },
-//   { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-
-// ]);
-
-// watch(() => locale.value, () => {
-//   columnDefs.value = [
-//   { headerName: t('User'), field: 'userFullName' ,
-
-// },
-// { headerName: t('Email'), field: 'email' },
-// {
-//   headerName: t('LastPackage'),
-//   field: 'reservationType',
-// },
-// { headerName: t('Phone'), field: 'phoneNumber' },
-// { headerName: t('Verified'),
-// cellRenderer: () => `
-//               <div>
-//                   <span class="flex items-center gap-2">
-//                       <svg class="h-5 w-5 text-green-500 inline-flex"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-//                       </svg>
-//                         Email
-//                   </span>
-
-//               </div>
-//           `,
-//  },
-// { headerName: t('Comment'), field: 'comment' },
-// { headerName: t('Status'), field: 'status' ,
-// cellRenderer: (params:ICellRendererParams) => {
-//   if (params.value === 'active') {
-//     return `<span class="bg-success-50 text-success-700 px-2 rounded-full dark:bg-success-500/15 dark:text-success-500">Active</span>`;
-//   }
-//  else {
-
-//     return `<span class="bg-red-50 text-red-700 px-2 rounded-full dark:bg-red-500/15 dark:text-red-500">Inactive</span>`;
-//   }
-// }
-// },
-// { headerName: t('Actions'), cellRenderer: (params:any) => getActionButtons(params.data.id) },
-//   ]},{ immediate: true })
-
-//   function getActionButtons(id: number): string {
-//   return `
-//     <div class="mt-2 ">
-//       <button class="action-btn" data-action="view" data-id="${id} ">
-//             <svg class="h-6 w-6 text-slate-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>
-//       </button>
-
-//     </div>
-//   `;
-// }
 
 const onView = (c: any) => handleCustomerAction('view', c)
 
@@ -511,39 +385,7 @@ const handleCustomerAction = (action: string, c: any) => {
   }
 }
 
-// const onGridReady = (event: GridReadyEvent) => {
-//   console.log('Grid ready:', event);
-// };
 const selectedCustomer = ref<any>(null)
-// const onCellClick = (event: any) => {
-//   const button = event.event.target.closest('button');
-//   console.log('Button clicked:', button);
-
-//   if (!button) {
-//     console.error('No button found');
-//     return;
-//   }
-
-//   const action = button.dataset.action;
-//   const id = button.dataset.id;
-
-//   console.log('Action:', action, ' ID:', id);
-//   if (action === 'view') {
-//     const customer = customers.value.find((c:any) => c.id === parseInt(id));
-//     if (customer) {
-//       selectedCustomer.value = customer;
-//       console.log('selectedCustomer.value:', selectedCustomer.value);
-//       showModal.value = true;
-//     } else {
-//       console.error('Client introuvable pour ID:', id);
-//     }
-//   }
-// };
-
-// const autoSizeStrategy = {
-//   type: "fitGridWidth",
-//   defaultMinWidth: 100,
-// }
 
 const isDropdownOpen = ref(false)
 
@@ -604,33 +446,6 @@ const formatDate = (date: any) =>
 
 const formatDateTime = (dateTime: any) => new Date(dateTime).toLocaleString('fr-FR')
 
-// const formatPrice = (price:any) =>
-//   (price / 100).toFixed(2);
-
-const statusClass = (status: any) => {
-  switch (status) {
-    case 'active':
-      return 'text-green-600 font-semibold'
-    case 'pending':
-      return 'text-yellow-600 font-semibold'
-    case 'cancelled':
-      return 'text-red-600 font-semibold'
-    default:
-      return 'text-gray-600'
-  }
-}
-const statusClass1 = (status: any) => {
-  switch (status) {
-    case 'paid':
-      return 'text-green-600 font-semibold'
-    case 'pending':
-      return 'text-yellow-600 font-semibold'
-    case 'cancelled':
-      return 'text-red-600 font-semibold'
-    default:
-      return 'text-gray-600'
-  }
-}
 </script>
 
 <style scoped>

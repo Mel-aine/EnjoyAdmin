@@ -608,7 +608,29 @@
   "new_reservation" : "New reservation",
   "customer" : "Customer",
   "amount" : "Amount",
-  "details" : "Details"
-
+  "details" : "Details",
+  "arrive" : "Arrival",
+  "book" : "To book",
+  "loading" : "Loading...",
+  "cleaning..." : "Cleaning in progress...",
+  "cleaning_completed" : "Cleaning completed",
+  "verification" : "Verification in progress...",
+  "maintenance..." : "Maintenance in progress",
+  "NoPaymentMethods" : "No Payment Methods",
+  "no_service_offered" : "no service offered",
+  "image_logo" : "Logo & Images",
+  "logo_service" : "Company Logo",
+  "click_to" : "Click to select your logo",
+  "until" : "until",
+  "change" : "Change",
+  "click_to_select" : "Click to select your images",
+  "multiple_selection" : "Multiple selection possible",
+  "clear_all" : "Clear All",
+  "uploading..." : "Uploading...",
+  "amenities" : "Amenities",
+  "planned" : "Planned departure",
+  "from" : "From",
+  "Processing..." : "Processing ...",
+  "payment_statut" : "Payment Status"
     
 }

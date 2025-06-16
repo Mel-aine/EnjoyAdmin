@@ -5,6 +5,7 @@ import CustomerSarch from './CustomerSarch.vue'
 import { getUser, getReservation } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
+import { isEqual } from 'lodash'
 
 const props = defineProps({
   customer_id: String,
@@ -30,6 +31,21 @@ const selectedCustomer = ref<any>({ ...props.modelValue })
 //   emit('update:modelValue', newVal)
 // }, { deep: true })
 
+// watch(() => props.modelValue, (newVal) => {
+//   if (!isEqual(newVal, selectedCustomer.value)) {
+//     selectedCustomer.value = { ...newVal }
+//   }
+// })
+
+// watch(selectedCustomer, (newVal) => {
+//   if (!isEqual(newVal, props.modelValue)) {
+//     emit('update:modelValue', newVal)
+//   }
+// }, { deep: true })
+
+
+
+
 watch(() => props.modelValue, (newVal) => {
   if (!isEqual(newVal, selectedCustomer.value)) {
     selectedCustomer.value = { ...newVal }
@@ -42,9 +58,10 @@ watch(selectedCustomer, (newVal) => {
   }
 }, { deep: true })
 
-function isEqual(a: any, b: any): boolean {
-  return JSON.stringify(a) === JSON.stringify(b)
-}
+
+// function isEqual(a: any, b: any): boolean {
+//   return JSON.stringify(a) === JSON.stringify(b)
+// }
 
 
 
@@ -79,9 +96,11 @@ const fetchReservation = async () => {
   }
 }
 
-onMounted(async () => {
-  await fetchUsers()
-  await fetchReservation()
+onMounted( () => {
+   fetchUsers()
+   fetchReservation()
+
+
 })
 
 console.log("modalevalue",props.modelValue)
