@@ -311,7 +311,7 @@
     }
   };
   onMounted(async()=>{
-  await fetchRole()
+  // await fetchRole()
   await fetchUser()
 })
   const titles = computed(() => [
@@ -405,15 +405,15 @@
 
     ]));
 
-const fetchRole = async() =>{
-  try {
-  const response =  await getRole()
-  roles.value = response.data.data
-  console.log("response",response.data.data)
-  } catch (error) {
-    console.error('fetch failed:', error)
-  }
-}
+// const fetchRole = async() =>{
+//   try {
+//   const response =  await getRole()
+//   roles.value = response.data.data
+//   console.log("response",response.data.data)
+//   } catch (error) {
+//     console.error('fetch failed:', error)
+//   }
+// }
 
 const getRoleBadge = (roleName: string) => {
   const roleMap: Record<string, { bg: string; text: string; label: string }> = {

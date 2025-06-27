@@ -304,15 +304,15 @@ const saveUser = async () => {
 }
 
 
-const fetchRole = async() =>{
-  try {
-  const response =  await getRole()
-  roles.value = response.data.data
-  console.log("response",response.data.data)
-  } catch (error) {
-    console.error('fetch failed:', error)
-  }
-}
+// const fetchRole = async() =>{
+//   try {
+//   const response =  await getRole()
+//   roles.value = response.data.data
+//   console.log("response",response.data.data)
+//   } catch (error) {
+//     console.error('fetch failed:', error)
+//   }
+// }
 
 const fetchUser = async () => {
   try {
@@ -336,7 +336,7 @@ const fetchUser = async () => {
 
 onMounted(async()=>{
   await fetchUser()
-  await fetchRole()
+  // await fetchRole()
 })
 
 
