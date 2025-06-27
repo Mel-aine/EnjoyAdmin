@@ -177,11 +177,15 @@ export const getRoute = (serviceId: number | null): Promise<AxiosResponse<any>> 
   return axios.get(`${API_URL}/route/${serviceId}`)
 }
 
-export const getRole = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/roles`)
+export const getRole = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/services/${serviceId}/roles`)
 }
 export const getReservationServiceProduct = (reservationId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservation_service/${reservationId}`)
+}
+
+export const getUserAssignment = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/assigmentUser`)
 }
 
 // --- Services API post --- //
@@ -290,7 +294,7 @@ export const putReservation = (id: number | null, payload: any): Promise<AxiosRe
 
 //update User
 export const updateUser = (id: number | null, userPayload: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/users/${id}`, userPayload)
+  return axios.put(`${API_URL}/users_update/${id}`, userPayload)
 }
 
 //update room option

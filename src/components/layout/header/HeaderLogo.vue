@@ -25,6 +25,7 @@ const serviceName = ref('');
 const fetchService = async () => {
   try {
     const serviceId = serviceStore.serviceId;
+    console.log("id",serviceId)
     const response = await getServices();
 
     const foundService = response.data.data.find(

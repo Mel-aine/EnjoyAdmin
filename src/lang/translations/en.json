@@ -631,6 +631,19 @@
   "planned" : "Planned departure",
   "from" : "From",
   "Processing..." : "Processing ...",
-  "payment_statut" : "Payment Status"
+  "payment_statut" : "Payment Status",
+  "Permission" : "Permission",
+  "welcome" : "Welcome",
+  "manage_your" : "Manage your",
+  "service_available" : "services available",
+  "manage_this_service" : "Manage This Service",
+  "manage" : "Manage",
+  "no_service" : "No services found",
+  "clean_filter" : "Clear filters",
+  "search_service" : "Search for a service...",
+  "all_category" : "All categories",
+  "service" : "services",
+  "no_service_match" : "No services match your search criteria.",
+  "no_service_available" : "No services available for this user."
     
 }

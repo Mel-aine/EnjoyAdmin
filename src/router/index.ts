@@ -121,6 +121,17 @@ const router = createRouter({
       component: () => import('../views/Setting/Setting.vue'),
     },
     {
+      path: '/permission',
+      name: 'Permission',
+      component: () => import('../views/Users/Permission.vue'),
+    },
+    {
+      path: '/service',
+      name: 'Service',
+      component: () => import('../views/Services/ServiceView.vue'),
+
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),

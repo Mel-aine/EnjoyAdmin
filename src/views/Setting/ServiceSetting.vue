@@ -1,6 +1,6 @@
-// HotelParametersManager.vue
+
 <template>
-  <div class="max-w-4xl mx-auto p-6">
+  <div class="max-w-full mx-auto p-6">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $t('managingHotel') }}</h2>
 
     <!-- Section Informations Généralesb  :cloudinary-config="cloudinaryConfig" -->
@@ -8,12 +8,11 @@
 
     <!-- section upLoader l image  -->
 
-    <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg py-8 mb-8">
+    <div class="max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg py-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $t('image_logo') }}</h2>
       <div class="flex justify-end">
-          <img  :src="logoUrl" alt="Logo" class="w-15 h-auto rounded-full border border-gray-300" />
+        <img :src="logoUrl" alt="Logo" class="w-15 h-auto rounded-full border border-gray-300" />
       </div>
-
 
       <!-- Section Logo -->
       <div class="mb-8">
@@ -26,11 +25,11 @@
               d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
             />
           </svg>
-         {{ $t('logo_service') }}
+          {{ $t('logo_service') }}
         </h3>
 
         <div
-          class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+          class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors"
         >
           <input
             type="file"
@@ -68,7 +67,7 @@
             <div class="mt-3 flex justify-center space-x-2">
               <button
                 @click="logoInput?.click()"
-                class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                class="px-3 py-1 bg-purple-500 text-white text-sm rounded hover:bg-purple-600"
               >
                 {{ $t('change') }}
               </button>
@@ -98,7 +97,7 @@
         </h3>
 
         <div
-          class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+          class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors"
         >
           <input
             type="file"
@@ -173,34 +172,6 @@
         >
           {{ $t('clear_all') }}
         </button>
-        <!-- <button
-          @click="uploadImages"
-          :disabled="uploading || (!logoFile && imagePreviews.length === 0)"
-          class="px-8 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center"
-        >
-          <svg
-            v-if="uploading"
-            class="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          {{ uploading ? $t('uploading...') : 'Uploader les images' }}
-        </button> -->
       </div>
 
       <!-- Résultats de l'upload -->
@@ -241,84 +212,84 @@
     </div> -->
 
     <!-- Section Paramètres du Service -->
-    <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-     <div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">
-      {{ $t('servicesOffered') }}:
-    </label>
+    <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          {{ $t('servicesOffered') }}:
+        </label>
 
-    <div v-if="availableServices.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-      <div
-        v-for="(service, index) in availableServices"
-        :key="index"
-        class="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg shadow-sm"
-      >
-        <div class="flex items-center">
-          <!-- Icône check -->
+        <div
+          v-if="availableServices.length"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
+        >
+          <div
+            v-for="(service, index) in availableServices"
+            :key="index"
+            class="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg shadow-sm"
+          >
+            <div class="flex items-center">
+              <!-- Icône check -->
+              <svg
+                class="h-5 w-5 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 13l4 4L19 7" />
+              </svg>
+
+              <!-- Nom du service -->
+              <span class="ml-2 text-sm text-gray-700">{{ service }}</span>
+            </div>
+
+            <!-- Bouton supprimer -->
+            <button @click="removeService(service)" class="text-red-500 hover:text-red-700 text-sm">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="text-gray-500 italic">
+          {{ $t('no_service_offered') }}
+        </div>
+      </div>
+
+      <!-- Champ d'ajout -->
+      <div class="mt-4 flex items-center gap-2">
+        <Input
+          v-model="newFacility"
+          type="text"
+          :placeholder="$t('add')"
+          class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+        <button
+          @click="addService"
+          :disabled="!newFacility"
+          class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
+        >
           <svg
-            class="h-5 w-5 text-green-500"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
-            viewBox="0 0 24 24"
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M5 13l4 4L19 7" />
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
           </svg>
-
-          <!-- Nom du service -->
-          <span class="ml-2 text-sm text-gray-700">{{ service }}</span>
-        </div>
-
-        <!-- Bouton supprimer -->
-        <button
-          @click="removeService(service)"
-          class="text-red-500 hover:text-red-700 text-sm"
-        >
-           ✕
         </button>
       </div>
     </div>
 
-    <div v-else class="text-gray-500 italic">
-      {{ $t('no_service_offered') }}
-    </div>
-  </div>
-
-  <!-- Champ d'ajout -->
-  <div class="mt-4 flex items-center gap-2">
-    <Input
-      v-model="newFacility"
-      type="text"
-      :placeholder="$t('add')"
-      class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-    />
-    <button
-      @click="addService"
-      :disabled="!newFacility"
-      class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M5 12h14" />
-        <path d="M12 5v14" />
-      </svg>
-    </button>
-  </div>
-    </div>
-
     <!-- Section Paramètres de Tarification -->
-    <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('pricingSettings') }}</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -388,32 +359,31 @@
         @click="updateParameters"
         class="px-5 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600"
       >
-      <svg
-            v-if="isLoading"
-            class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline-flex"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
+        <svg
+          v-if="isLoading"
+          class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline-flex"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
 
-          {{ isLoading ? $t('Processing...') : $t('Save') }}
+        {{ isLoading ? $t('Processing...') : $t('Save') }}
       </button>
     </div>
-
   </div>
 </template>
 
@@ -462,14 +432,14 @@ const availableServices = ref<string[]>([])
 const Logo = ref<any>('')
 const Images = ref<any[]>([])
 
-const  addPayment = () => {
+const addPayment = () => {
   if (newPayment.value && !payment.value.includes(newPayment.value)) {
     payment.value.push(newPayment.value)
     newPayment.value = ''
   }
 }
 
-const removePayment =(index: any)=> {
+const removePayment = (index: any) => {
   payment.value.splice(index, 1)
 }
 
@@ -477,8 +447,6 @@ interface PricingParameters {
   currency: string
   taxRate: number
 }
-
-
 
 const addService = () => {
   const trimmed = newFacility.value.trim()
@@ -488,8 +456,8 @@ const addService = () => {
   }
 }
 
-const removeService = (service:any) => {
-  availableServices.value = availableServices.value.filter((s:any) => s !== service)
+const removeService = (service: any) => {
+  availableServices.value = availableServices.value.filter((s: any) => s !== service)
 }
 const hotelInfo = ref({
   name: '',
@@ -498,12 +466,10 @@ const hotelInfo = ref({
   email: '',
 })
 
-
 const pricingParameters = reactive<PricingParameters>({
   currency: 'EUR',
   taxRate: 20,
 })
-
 
 const availableCurrencies = computed(() => [
   { code: 'EUR', name: t('currencies.EUR') },
@@ -520,97 +486,6 @@ const currencyOptions = computed(() =>
   })),
 )
 
-
-
-// const saveHotelData = async () => {
-//   try {
-//     // Récupérer les données depuis le composant
-//     const logoUrl = imageUploader.value.getLogoUrl()
-//     const images = imageUploader.value.getImages()
-
-//     const dataToSave = {
-//       ...hotelData,
-//       logo: logoUrl,
-//       images: images
-//     }
-
-//     // Envoyer à votre API
-//     const response = await fetch('/api/hotels', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(dataToSave)
-//     })
-
-//     if (response.ok) {
-//       alert('Hôtel sauvegardé avec succès!')
-//     }
-//   } catch (error) {
-//     console.error('Erreur lors de la sauvegarde:', error)
-//     alert('Erreur lors de la sauvegarde')
-//   }
-// }
-
-// // const saveParameters = async () => {
-// //   try {
-// //     // Créer un objet combinant tous les paramètres
-// //     const allParameters = {
-// //       hotelInfo,
-// //       serviceParameters,
-// //       pricingParameters
-// //     };
-
-//     // Appel au service pour sauvegarder
-//    // await hotelService.saveParameters(allParameters);
-
-//     // Notification de succès (à implémenter selon votre système de notification)
-//     alert('Paramètres enregistrés avec succès!');
-//   } catch (error) {
-//     console.error('Erreur lors de l\'enregistrement des paramètres:', error);
-//     alert('Erreur lors de l\'enregistrement des paramètres');
-//   }
-// };
-
-// const loadParameters = async () => {
-//   try {
-//    // const params = await hotelService.getParameters();
-
-//     // Mettre à jour les états réactifs avec les données chargées
-//     if (params.hotelInfo) {
-//       Object.assign(hotelInfo, params.hotelInfo);
-//     }
-
-//     if (params.serviceParameters) {
-//       // Préserver la structure des services activés
-//       serviceParameters.checkInTime = params.serviceParameters.checkInTime || '14:00';
-//       serviceParameters.checkOutTime = params.serviceParameters.checkOutTime || '11:00';
-
-//       // Réinitialiser les services puis activer ceux qui sont sauvegardés
-//       availableServices.forEach(service => {
-//         serviceParameters.enabledServices[service.id] =
-//           params.serviceParameters.enabledServices?.[service.id] || false;
-//       });
-//     }
-
-//     if (params.pricingParameters) {
-//       pricingParameters.currency = params.pricingParameters.currency || 'EUR';
-//       pricingParameters.taxRate = params.pricingParameters.taxRate || 20;
-//       pricingParameters.roomRates = params.pricingParameters.roomRates || [];
-//     }
-//   } catch (error) {
-//     console.error('Erreur lors du chargement des paramètres:', error);
-//     alert('Erreur lors du chargement des paramètres');
-//   }
-// };
-
-// const resetParameters = () => {
-//   if (confirm('Êtes-vous sûr de vouloir réinitialiser les paramètres?')) {
-//     loadParameters();
-//   }
-// };
-
-// // Charger les paramètres au montage du composant
 onMounted(async () => {
   const serviceId = serviceStore.serviceId
   const data = await getService(serviceId)
@@ -618,7 +493,7 @@ onMounted(async () => {
   availableServices.value = data.data.facilities
 
   logoUrl.value = data.data.logo
-   console.log('logoUrl.value :', logoUrl.value)
+  console.log('logoUrl.value :', logoUrl.value)
   console.log('payment :', payment.value)
   console.log('Adresse brute:', data.data.addressService)
   console.log('facilities :', data.data.facilities)
@@ -639,16 +514,12 @@ onMounted(async () => {
   }
 })
 
-
-
-
 const updateParameters = async () => {
   isLoading.value = true
-   await uploadImages()
+  await uploadImages()
 
   try {
     const serviceId = serviceStore.serviceId
-
 
     const payload = {
       name: hotelInfo.value.name,
@@ -656,16 +527,15 @@ const updateParameters = async () => {
       email_service: hotelInfo.value.email,
       phone_number_service: hotelInfo.value.phone,
       facilities: JSON.stringify(availableServices.value),
-      payment_methods:JSON.stringify(payment.value),
+      payment_methods: JSON.stringify(payment.value),
       logo: Logo.value,
-      images : JSON.stringify(Images.value)
-
+      images: JSON.stringify(Images.value),
     }
-    console.log("payloadServiceupdate",payload)
+    console.log('payloadServiceupdate', payload)
 
     await updateService(serviceId, payload)
 
-     toast.success(t('toast.SucessUpdate'))
+    toast.success(t('toast.SucessUpdate'))
   } catch (error) {
     console.error('Erreur lors de la mise à jour des paramètres :', error)
     toast.error(t('toast.updateError'))
@@ -787,17 +657,10 @@ async function uploadImages() {
     }
 
     uploadedUrls.value = results
-    console.log("uploadedUrls.value",uploadedUrls.value)
+    console.log('uploadedUrls.value', uploadedUrls.value)
 
-    Logo.value = uploadedUrls.value.find((f:any)=> f.type === 'logo')?.url
-     Images.value = uploadedUrls.value.filter((f:any)=> f.type === 'image').map((f:any) => f.url)
-
-
-    // await fetch('/api/images', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ urls: allUrls }),
-    // })
+    Logo.value = uploadedUrls.value.find((f: any) => f.type === 'logo')?.url
+    Images.value = uploadedUrls.value.filter((f: any) => f.type === 'image').map((f: any) => f.url)
 
     clearAll()
   } catch (error) {
@@ -806,5 +669,4 @@ async function uploadImages() {
     uploading.value = false
   }
 }
-
 </script>

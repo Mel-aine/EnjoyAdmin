@@ -1,6 +1,6 @@
 <template>
-  <!-- max-w-[1180px] lg:w-full mx-auto px-4 -->
-  <div class="sm:max-w-md md:max-w-6xl lg:max-w-[73rem] mx-auto px-2">
+
+  <div class="sm:max-w-md md:max-w-6xl lg:max-w-full w-full mx-auto px-2">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden  ">
     <!-- Header avec recherche et filtres -->
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">

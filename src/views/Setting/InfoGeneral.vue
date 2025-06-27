@@ -1,148 +1,107 @@
-
 <template>
-    <div class="mb-8 bg-white rounded-lg p-6 max-w-4xl mx-auto  shadow-lg">
-      <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('generalInfo') }}</h3>
+  <div class="mb-8 bg-white rounded-lg p-6 max-w-full mx-auto shadow-lg">
+    <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('generalInfo') }}</h3>
+
+    <div class="mb-4">
+      <Input
+        :lb="t('hotelName')"
+        :id="'hotelName'"
+        :forLabel="'hotelName'"
+        v-model="formData.name"
+      />
+    </div>
+
+    <div class="space-y-4 mb-8">
+      <label
+        for="hotelAddress"
+        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+      >
+        {{ t('hotelAddress') }}
+      </label>
+
+      <input
+        ref="autocompleteInput"
+        type="text"
+        id="hotelAddress"
+        v-model="formData.address.text"
+        :placeholder="t('hotelAddress')"
+        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+      />
+
+      <div ref="mapRef" class="w-full h-64 rounded shadow-md" />
+
+      <div v-if="formData.address.text" class="text-sm text-gray-700 mt-2">
+        ✅ {{ formData.address.text }} <br />
+        📍 Lat: {{ formData.address.lat }}, Lng: {{ formData.address.lng }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="mb-4">
+        <Select :lb="t('Numberofstars')" :options="stars" />
+      </div>
 
       <div class="mb-4">
         <Input
-          :lb="t('hotelName')"
-          :id="'hotelName'"
-          :forLabel="'hotelName'"
-          v-model="formData.name"
+          :lb="t('hotelPhone')"
+          :id="'hotelPhone'"
+          :forLabel="'hotelPhone'"
+          :inputType="'tel'"
+          v-model="formData.phone"
         />
       </div>
-      <!-- <div class="mb-4">
+
+      <div class="mb-4">
         <Input
-          :lb="t('hotelAddress')"
-          :id="'hotelAddress'"
-          :forLabel="'hotelAddress'"
-          v-model="formData.address"
+          :lb="t('hotelEmail')"
+          :id="'hotelEmail'"
+          :forLabel="'hotelEmail'"
+          :inputType="'email'"
+          v-model="formData.email"
         />
-      </div> -->
-
-
- <div class="space-y-4 mb-8">
-    <label for="hotelAddress" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-      {{ t('hotelAddress') }}
-    </label>
-
-    <input
-      ref="autocompleteInput"
-      type="text"
-      id="hotelAddress"
-      v-model="formData.address.text"
-      :placeholder="t('hotelAddress')"
-      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-    />
-
-    <div ref="mapRef" class="w-full h-64 rounded shadow-md" />
-
-    <div v-if="formData.address.text" class="text-sm text-gray-700 mt-2">
-      ✅ {{ formData.address.text }} <br />
-      📍 Lat: {{ formData.address.lat }}, Lng: {{ formData.address.lng }}
-    </div>
-
-    <!-- <button
-      v-if="formData.address.lat && formData.address.lng"
-      @click="applyAddress"
-      class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-    >
-      {{ t('useThisAddress') }}
-    </button> -->
-  </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="mb-4">
-          <Select :lb="t('Numberofstars')" :options="stars" />
-        </div>
-
-        <div class="mb-4">
-          <Input
-            :lb="t('hotelPhone')"
-            :id="'hotelPhone'"
-            :forLabel="'hotelPhone'"
-            :inputType="'tel'"
-            v-model="formData.phone"
-          />
-        </div>
-
-        <div class="mb-4">
-          <Input
-            :lb="t('hotelEmail')"
-            :id="'hotelEmail'"
-            :forLabel="'hotelEmail'"
-            :inputType="'email'"
-            v-model="formData.email"
-          />
-        </div>
       </div>
     </div>
+  </div>
 </template>
 
- <script setup lang="ts">
+<script setup lang="ts">
 /// <reference types="@types/google.maps" />
 
-import { ref,  onMounted,defineAsyncComponent,computed } from 'vue'
-  import { useI18n } from 'vue-i18n'
+import { ref, onMounted, defineAsyncComponent, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-  const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
-  const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
+const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
+const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 
-  const { t } = useI18n()
+const { t } = useI18n()
 
+interface Props {
+  modelValue: Record<string, any>
+}
 
-
-
-
-  interface Props {
-   modelValue: Record<string, any>
-  }
-
-  const props = withDefaults(defineProps<Props>(), {
-    // maxImages: 10,
-    // maxFileSize: 10
-  })
-
-
-
-
+const props = withDefaults(defineProps<Props>(), {
+  // maxImages: 10,
+  // maxFileSize: 10
+})
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Record<string, any>): void
 }>()
-
 
 const formData = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val),
 })
 
-// const formData = computed({
-//   get: () => {
-//     const base = props.modelValue
-//     const addressObj = typeof base.address === 'object' && base.address !== null
-//       ? base.address
-//       : { text: base.address || '', lat: null, lng: null }
+const stars = ref([
+  { value: 1, label: '1 étoile' },
+  { value: 2, label: '2 étoiles' },
+  { value: 3, label: '3 étoiles' },
+  { value: 4, label: '4 étoiles' },
+  { value: 5, label: '5 étoiles' },
+])
 
-//     return {
-//       ...base,
-//       address: addressObj,
-//     }
-//   },
-//   set: (val: FormData) => emit('update:modelValue', val),
-// })
-
-
-  const stars = ref([
-    { value: 1, label: '1 étoile' },
-    { value: 2, label: '2 étoiles' },
-    { value: 3, label: '3 étoiles' },
-    { value: 4, label: '4 étoiles' },
-    { value: 5, label: '5 étoiles' }
-  ])
-
-
-  //address map
+//address map
 
 const autocompleteInput = ref<HTMLInputElement | null>(null)
 const mapRef = ref<HTMLDivElement | null>(null)
@@ -192,7 +151,7 @@ onMounted(async () => {
     //   lat,
     //   lng,
     // }
-     formData.value.address = {
+    formData.value.address = {
       text: place.formatted_address || '',
       lat,
       lng,
@@ -209,7 +168,7 @@ onMounted(async () => {
     const lng = e.latLng?.lng()
     if (!lat || !lng) return
 
-   formData.value.address = {
+    formData.value.address = {
       text: '📍 Position personnalisée',
       lat,
       lng,
@@ -227,7 +186,5 @@ const setMarker = (lat: number, lng: number) => {
   }
 }
 
-
-console.log("formData",formData)
-
-  </script>
+console.log('formData', formData)
+</script>

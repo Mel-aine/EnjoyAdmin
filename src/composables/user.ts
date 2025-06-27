@@ -40,6 +40,9 @@ export const useAuthStore = defineStore('auth', {
     },
     clearsetUserId() {
       this.UserId = null;
+    },
+    clearsetUser() {
+      this.user = null;
     }
   },
   persist: true

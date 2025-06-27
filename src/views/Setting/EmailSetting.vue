@@ -264,10 +264,10 @@ onMounted(async () => {
   const id = authStore.UserId;
 
  const response =  await getUserId(id);
- console.log("serviceId",response.data.serviceId)
-  const responseService =    await getService(response.data.serviceId)
-  console.log("serviceId",responseService)
-  newEmail.value = responseService.data.email
+ console.log("serviceId",response.data)
+  // const responseService =    await getService(response.data.serviceId)
+  // console.log("serviceId",responseService)
+  newEmail.value = response.data.email
   const user = JSON.parse(authStore.user || '{}');
           console.log("eeee",user)
     primaryEmail.value = user.email || ''
@@ -299,9 +299,9 @@ const setEmailAsPrimary = (index: number) => {
   primaryEmail.value = email;
 };
 
-// Form actions
+
 const saveChanges = () => {
-  // Here you would typically call an API to save the changes
+
   console.log('Saving email settings:', {
     primaryEmail: primaryEmail.value,
     additionalEmails: additionalEmails.value,
@@ -310,14 +310,11 @@ const saveChanges = () => {
     emailFrequency: emailFrequency.value
   });
 
-  // Show success notification (implement as needed)
   toast.success(t('toast.emailSettingsSaved'));
 
 };
 
 const resetForm = () => {
-  // primaryEmail.value = 'john.doe@example.com';
-  // additionalEmails.value = ['john.work@company.com'];
   notifications.value = {
     system: true,
     marketing: false,

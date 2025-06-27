@@ -1,7 +1,7 @@
 <template>
   <FullScreenLayout>
     <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-      
+
       <div
         class="relative flex flex-col justify-center w-full h-screen   lg:flex-row dark:bg-gray-900"
       >
@@ -30,7 +30,7 @@
               Back to dashboard
             </router-link>
           </div> -->
-       
+
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
             <div>
               <div class="mb-2 sm:mb-6">
@@ -271,8 +271,8 @@
                   <div class="mt-3 flex md:justify-end justify-center">
           <ButtonLanguage></ButtonLanguage>
           </div>
-                  
-                </div> 
+
+                </div>
               </div>
             </div>
           </div>
@@ -326,71 +326,124 @@ const togglePasswordVisibility = () => {
 
 
 
+// const handleSubmit = async () => {
+//   isLoading.value = true;
+//   error.value = null;
+
+//   try {
+
+//     await validateEmail(email.value);
+//     await validatePassword(email.value,password.value);
+
+
+//     const res = await auth({
+//       email: email.value,
+//       password: password.value,
+//       keepLoggedIn: keepLoggedIn.value,
+//     });
+
+//     const { user, user_token } = res.data.data;
+
+//     const token = user_token.token;
+//     if (keepLoggedIn.value) {
+//       localStorage.setItem('auth_token', token);
+//     } else {
+//       sessionStorage.setItem('auth_token', token);
+//     }
+
+//   console.log
+//     authStore.login(user, token);
+//     authStore.setRoleId(user.roleId);
+//     authStore.setUserId(user.id);
+//     serviceStore.setServiceId(user.serviceId);
+
+
+
+//     const categoryName = user?.Services?.category?.categoryName;
+//     serviceStore.setServiceCategory(categoryName);
+//     console.log('Category name:', categoryName);
+//     console.log('Lowercased:', categoryName?.toLowerCase());
+
+//     // Redirection après connexion
+//     if (categoryName) {
+//   const category = categoryName.toLowerCase();
+//   if (category === 'hotels & stays') {
+//     await router.push('/dashboard');
+//   } else if (category === 'restaurants') {
+//     await router.push('/dashboard');
+//   }
+//   else if (category === 'travel') {
+//     await router.push('/dashboardTravel');
+//   }
+
+// } else {
+//   console.warn('No category found, redirecting to home');
+//   await router.push('/');
+// }
+
+//   } catch (err: any) {
+//     error.value = err.response?.data?.message || 'Identifiants incorrects';
+//     console.error(err);
+//   } finally {
+//     isLoading.value = false;
+//   }
+// };
+
+
 const handleSubmit = async () => {
   isLoading.value = true;
   error.value = null;
 
   try {
-    // Validation
-    await validateEmail(email.value);
-    await validatePassword(email.value,password.value);
 
-    // Requête de login
+    await validateEmail(email.value);
+    await validatePassword(email.value, password.value);
+
+
     const res = await auth({
       email: email.value,
       password: password.value,
       keepLoggedIn: keepLoggedIn.value,
     });
 
-    const { user, user_token } = res.data.data;
 
-    // Stockage du token
+    const { user, user_token } = res.data.data;
     const token = user_token.token;
+    serviceStore.setService(res.data.data.userServices)
+
     if (keepLoggedIn.value) {
       localStorage.setItem('auth_token', token);
     } else {
       sessionStorage.setItem('auth_token', token);
     }
 
-    // MAJ des stores
+
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
-    serviceStore.setServiceId(user.serviceId);
+    console.log("res.data.data",res.data.data)
+    if (user) {
+      // authStore.setUser(user)
+      router.push('/service');
+    } else {
+      error.value = "Aucun service disponible pour cet utilisateur.";
+    }
 
+  } catch (err:any) {
 
+    if (err.response) {
+      error.value = err.response.data?.error || "Erreur serveur. Veuillez réessayer.";
+    } else if (err.message) {
+      error.value = err.message;
+    } else {
+      error.value = "Une erreur inconnue s’est produite.";
+    }
 
-    const categoryName = user?.Services?.category?.categoryName;
-    serviceStore.setServiceCategory(categoryName);
-    console.log('Category name:', categoryName);
-    console.log('Lowercased:', categoryName?.toLowerCase());
-
-    // Redirection après connexion
-    if (categoryName) {
-  const category = categoryName.toLowerCase();
-  if (category === 'hotels & stays') {
-    await router.push('/dashboard');
-  } else if (category === 'restaurants') {
-    await router.push('/dashboard');
-  }
-  else if (category === 'travel') {
-    await router.push('/dashboardTravel');
-  }
-
-} else {
-  console.warn('No category found, redirecting to home');
-  await router.push('/');
-}
-
-  } catch (err: any) {
-    error.value = err.response?.data?.message || 'Identifiants incorrects';
-    console.error(err);
+    console.error("Erreur handleSubmit:", err);
   } finally {
     isLoading.value = false;
   }
 };
-
-
 
 
 

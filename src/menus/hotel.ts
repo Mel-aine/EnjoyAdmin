@@ -36,7 +36,6 @@ export const getHotelMenu = (t: (key: string) => string) => {
           roles: [1, 2, 3],
           subItems: [
             { name: t('AllRooms'), path: '/all_room', roles: [1, 2, 3] },
-            // { name: t('RoomTypes'), path: '/type_room', roles: [1, 2] },
             { name: t('occupancy'), path: '/occupancy', roles: [1, 2] },
           ],
         },
@@ -82,16 +81,16 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Payments'),
           roles: [1, 2, 3],
           path: '/allInvoice'
-          // subItems: [
-          //   { name: t('InvoiceList'), path: '/allInvoice', roles: [1, 2, 3] },
-          //   { name: t('InvoiceDetails'), path: '/invoice', roles: [1, 2, 3] },
-          // ],
         },
         {
           icon: UserCircleIcon,
           name: t('User'),
-          path: '/user',
+          // path: '/user',
           roles: [1, 2],
+          subItems: [
+            { name: t('User'), path: '/user', roles: [1, 2, 3] },
+            { name: t('Permission'), path: '/permission', roles: [1, 2, 3] },
+          ]
         },
         {
           icon: SettingsIcon,

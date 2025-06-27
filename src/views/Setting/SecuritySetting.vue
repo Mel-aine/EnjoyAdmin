@@ -480,18 +480,7 @@ const isPasswordFormValid = computed(() => {
   );
 });
 
-// const changePassword = async() => {
-//   if (isPasswordFormValid.value) {
 
-//     console.log('Password changed successfully');
-//     passwordLastChanged.value = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-//     changingPassword.value = false;
-//     resetPasswordForm();
-//     alert(t('Password changed successfully!'));
-//   } else {
-//     alert(t('Please check your password inputs'));
-//   }
-// };
 
 
 const changePassword = async () => {

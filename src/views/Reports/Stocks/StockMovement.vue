@@ -3,14 +3,14 @@
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('StockMovements')" />
       <div class="py-5 mt-8 h-screen container mx-auto">
-        <div
+        <!-- <div
           class="rounded-2xl border border-gray-200 max-w-6xl bg-white shadow-lg dark:border-gray-800 dark:bg-white/[0.03]"
-        >
+        > -->
           <!-- Header -->
           <div
             class="flex justify-end items-center p-6 border-b border-gray-100 dark:border-gray-800"
           >
-            <!-- <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">Mouvements de stocks</h2> -->
+
             <div class="flex gap-3">
               <!-- Nouveau Mouvement -->
               <button
@@ -43,18 +43,7 @@
 
           <!-- Tableau -->
           <div class="space-y-5 p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
-            <!-- <ag-grid-vue
-              class="ag-theme-quartz"
-              :rowData="movements"
-              :columnDefs="columnDefs"
-              :defaultColDef="defaultColDef"
-              rowSelection="single"
-              :pagination="true"
-              :paginationPageSize="10"
-              :domLayout="'autoHeight'"
-              @gridReady="onGridReady"
-              @cellClicked="onCellClick"
-            /> -->
+
             <TableComponent
               :items="titles"
               :datas="movements"
@@ -70,7 +59,7 @@
               class="modern-table"
             />
           </div>
-        </div>
+        <!-- </div> -->
       </div>
 
       <!-- Modal pour ajouter/modifier un mouvement -->

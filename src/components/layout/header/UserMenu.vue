@@ -1,4 +1,7 @@
 <template>
+
+
+
   <div class="relative" ref="dropdownRef">
     <button
       class="flex items-center text-gray-700 dark:text-gray-400"
@@ -16,7 +19,7 @@
             />
             <div
               v-else
-              class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-xl sm:text-2xl font-bold border-2 border-gray-500"
+              class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-lg sm:text-xl font-bold border-2 border-gray-500"
             >
               {{ userInitials }}
             </div>
@@ -66,13 +69,19 @@
         />
        {{$t('SignOut')}}
       </router-link>
+
+      <div class="mt-4 border-t border-gray-900 pt-4">
+          <ServiceSwitcher  />
+      </div>
     </div>
-    <!-- Dropdown End -->
+
+    <!-- Dropdown End v-if="user?.service?.length" -->
   </div>
 </template>
 
 <script setup>
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
+import ServiceSwitcher from '@/views/Services/ServiceSwitcher.vue'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted ,computed} from 'vue'
 import { useAuthStore } from '@/composables/user'
@@ -97,21 +106,24 @@ const router = useRouter()
 
 const fullName = computed(() => {
   const userData = authStore.user
+  console.log("userData",userData)
   const user = JSON.parse(userData);
-  return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
+   return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 })
 const Email = computed(() => {
   const userData = authStore.user
   const user = JSON.parse(userData);
-  return `${user?.email ?? ''}`
+   return `${user?.email ?? ''}`
 })
 
 const signOut = () => {
   authStore.logout()
   serviceStore.clearServiceId();
+  serviceStore.clearCurrentService();
   serviceStore.clearServiceCategory();
   authStore.clearsetRoleId();
   authStore.clearsetUserId()
+  authStore.clearsetUser()
   closeDropdown()
   router.push('/')
 }
@@ -129,11 +141,6 @@ const closeDropdown = () => {
   dropdownOpen.value = false
 }
 
-// const signOut = () => {
-//   // Implement sign out logic here
-//   console.log('Signing out...')
-//   closeDropdown()
-// }
 
 const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {

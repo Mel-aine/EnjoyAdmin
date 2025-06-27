@@ -22,7 +22,7 @@
       default: false
     },
     inputField: {
-      type: String,// Valeur par défaut correcte
+      type: String,
 
     },
     pagination: {
@@ -48,7 +48,7 @@
   const selectFilter = ref<Option>({ name: "", api: "", price: 0 });
 
   const currentPage = ref(1);
-const pageSize = ref(10); // ou une valeur par défaut dynamique si tu veux
+const pageSize = ref(10);
 
 const totalElement = computed(() => props.datas?.length || 0);
 

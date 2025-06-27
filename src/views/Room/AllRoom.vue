@@ -29,7 +29,9 @@
         </div>
         <!-- </div> -->
 
-        <div class="mt-5">
+         <div
+          class=" max-w-6xl mt-10 mx-auto"
+        >
           <TableComponent
             :items="titles"
             :datas="flattenServiceProducts"

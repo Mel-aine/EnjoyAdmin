@@ -16,18 +16,7 @@
           >
             24h/24 - 7j/7
           </button>
-          <!-- <button
-            @click="setSchedule('business')"
-            class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors"
-          >
-            Horaires bureau (9h-17h)
-          </button>
-          <button
-            @click="setSchedule('restaurant')"
-            class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-          >
-            Restaurant (12h-14h, 19h-22h)
-          </button> -->
+
           <button
             @click="resetSchedule()"
             class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
@@ -165,27 +154,6 @@
         </div>
       </div>
 
-      <!-- Aperçu JSON -->
-      <!-- <div class="mt-6 p-4 bg-gray-900 text-green-400 rounded-lg">
-        <h3 class="font-semibold mb-2">Configuration JSON</h3>
-        <pre class="text-sm overflow-x-auto">{{ JSON.stringify(getScheduleData(), null, 2) }}</pre>
-      </div> -->
-
-      <!-- Actions -->
-      <!-- <div class="mt-6 flex space-x-3">
-        <button
-          @click="saveSchedule()"
-          class="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-        >
-          Sauvegarder
-        </button>
-         <button
-          @click="exportSchedule()"
-          class="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors"
-        >
-          Exporter JSON
-        </button>
-      </div> -->
     </div>
   </template>
 
@@ -330,20 +298,8 @@ const { t } = useI18n()
   const saveSchedule = (): void => {
     const data = getScheduleData()
     console.log('Horaires sauvegardés:', data)
-    // Ici vous pouvez ajouter la logique pour sauvegarder en base de données
-    alert('Horaires sauvegardés avec succès!')
+
   }
 
-//   const exportSchedule = (): void => {
-//     const data = getScheduleData()
-//     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-//     const url = URL.createObjectURL(blob)
-//     const a = document.createElement('a')
-//     a.href = url
-//     a.download = `horaires_${serviceType.value}_${new Date().toISOString().split('T')[0]}.json`
-//     document.body.appendChild(a)
-//     a.click()
-//     document.body.removeChild(a)
-//     URL.revokeObjectURL(url)
-//   }
+
   </script>
