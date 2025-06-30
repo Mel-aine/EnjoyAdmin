@@ -46,7 +46,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/type_room',
+      path: '/room_type',
       name: 'Room Type',
       component: () => import('../views/Room/RoomTypes.vue'),
       meta: {
