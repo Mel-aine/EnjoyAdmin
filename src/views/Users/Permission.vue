@@ -87,8 +87,13 @@
                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <div class="flex items-center gap-3">
-                      <component :is="icons[permission]?.icon" class="w-4 h-4" />
-                      <span class="text-gray-700">{{ icons[permission]?.label || permission }}</span>
+                      <component
+                          :is="iconComponent(permissionLabels[permission]?.icon)"
+                          class="w-4 h-4"
+                        />
+
+                      <span class="text-gray-700">{{ permissionLabels[permission]?.label || permission }}</span>
+
                     </div>
                     <div class="w-5 h-5 bg-green-100 border-2 border-green-500 rounded flex items-center justify-center">
                       <div class="w-2 h-2 bg-green-500 rounded"></div>
@@ -138,8 +143,13 @@
                     class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <div class="flex items-center gap-2">
-                    <component :is="icons[permission]?.icon" class="w-4 h-4" />
-                    <span class="text-sm text-gray-700">{{ icons[permission]?.label || permission }}</span>
+                    <!-- <component :is="icons[permission]?.icon" class="w-4 h-4" /> -->
+                     <component
+                          :is="iconComponent(permissionLabels[permission]?.icon)"
+                          class="w-4 h-4"
+                        />
+
+                      <span class="text-gray-700">{{ permissionLabels[permission]?.label || permission }}</span>
                   </div>
                 </label>
               </div>
@@ -253,25 +263,17 @@
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import Modal from '@/components/profile/Modal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
-import { ref, computed,watchEffect } from 'vue';
-
+import { ref, computed,watchEffect, onMounted } from 'vue';
+import {getPermission} from '@/services/api'
+import * as icons from 'lucide-vue-next'
 
 import {Shield} from 'lucide-vue-next';
 import {Search} from 'lucide-vue-next';
 import {Users} from 'lucide-vue-next';
-import {Eye} from 'lucide-vue-next';
 import {Plus} from 'lucide-vue-next';
-import {Edit} from 'lucide-vue-next';
-import {Trash2} from 'lucide-vue-next';
-import {FileText} from 'lucide-vue-next';
-import {Download} from 'lucide-vue-next';
-import {DollarSign} from 'lucide-vue-next';
-import {ShoppingCart} from 'lucide-vue-next';
-import {Wrench} from 'lucide-vue-next';
-import {Utensils} from 'lucide-vue-next';
-import {Settings} from 'lucide-vue-next';
-import {Bed} from 'lucide-vue-next';
-import {Calendar} from 'lucide-vue-next';
+import type { Component } from 'vue'
+
+
 
 
 type Role = Record<string, boolean>;
@@ -421,52 +423,7 @@ const initialRoles: Roles = {
   }
 };
 const roles = ref<Roles>({ ...initialRoles });
-// watchEffect(() => {
-//   if (selectedRole && !roles[selectedRole]) {
-//     roles[selectedRole] = {};
-//   }
-// });
 
-
-const permissionLabels: Record<string, { label: string; icon: any; category: string }> = {
-  bookings_read: { label: 'Consulter les réservations', icon: Eye, category: 'Réservations' },
-  bookings_create: { label: 'Créer des réservations', icon: Plus, category: 'Réservations' },
-  bookings_update: { label: 'Modifier les réservations', icon: Edit, category: 'Réservations' },
-  bookings_delete: { label: 'Supprimer les réservations', icon: Trash2, category: 'Réservations' },
-  rooms_read: { label: 'Consulter les chambres', icon: Bed, category: 'Chambres' },
-  rooms_create: { label: 'Créer des chambres', icon: Plus, category: 'Chambres' },
-  rooms_update: { label: 'Modifier les chambres', icon: Edit, category: 'Chambres' },
-  rooms_delete: { label: 'Supprimer les chambres', icon: Trash2, category: 'Chambres' },
-  users_read: { label: 'Consulter les utilisateurs', icon: Users, category: 'Utilisateurs' },
-  users_create: { label: 'Créer des utilisateurs', icon: Plus, category: 'Utilisateurs' },
-  users_update: { label: 'Modifier les utilisateurs', icon: Edit, category: 'Utilisateurs' },
-  users_delete: { label: 'Supprimer les utilisateurs', icon: Trash2, category: 'Utilisateurs' },
-  inventory_read: { label: "Consulter l'inventaire", icon: ShoppingCart, category: 'Inventaire' },
-  inventory_update: { label: "Modifier l'inventaire", icon: Edit, category: 'Inventaire' },
-  reports_view: { label: 'Consulter les rapports', icon: FileText, category: 'Rapports' },
-  reports_export: { label: 'Exporter les rapports', icon: Download, category: 'Rapports' },
-  budget_view: { label: 'Consulter les budgets', icon: DollarSign, category: 'Finance' },
-  budget_edit: { label: 'Modifier les budgets', icon: Edit, category: 'Finance' },
-  billing_manage: { label: 'Gérer la facturation', icon: DollarSign, category: 'Finance' },
-  maintenance_request_create: { label: 'Créer demande maintenance', icon: Plus, category: 'Maintenance' },
-  maintenance_request_manage: { label: 'Gérer les interventions', icon: Wrench, category: 'Maintenance' },
-  room_service_request: { label: 'Service en chambre', icon: Utensils, category: 'Services' },
-  menu_manage: { label: 'Gérer les menus', icon: Utensils, category: 'Restauration' },
-  menu_view: { label: 'Consulter les menus', icon: Eye, category: 'Restauration' },
-  promotions_manage: { label: 'Gérer les promotions', icon: Calendar, category: 'Marketing' },
-  settings_manage: { label: 'Gérer les paramètres', icon: Settings, category: 'Administration' },
-};
-
-const icons = computed(() => {
-  const result: Record<string, { label: string; icon: any }> = {};
-  for (const [key, value] of Object.entries(permissionLabels)) {
-    result[key] = {
-      label: value.label,
-      icon: value.icon,
-    };
-  }
-  return result;
-});
 
 
 
@@ -493,7 +450,7 @@ function getPermissionsByCategory(r: Role): Record<string, string[]> {
   const cats: Record<string, string[]> = {};
   for (const p in r) {
     if (r[p]) {
-      const cat = permissionLabels[p]?.category || 'Autres';
+      const cat = permissionLabels.value[p]?.category || 'Autres';
       if (!cats[cat]) cats[cat] = [];
       cats[cat].push(p);
     }
@@ -518,481 +475,64 @@ function getCategoryColor(category: string): string {
   return map[category] || 'bg-gray-100 text-gray-800 border-gray-200';
 }
 
+type Permission = {
+  id: string
+  name: string
+  label: string
+  category: string
+  icon: string
+  createdAt: string
+  updatedAt: string
+}
+
+
+
+const permissionLabels = ref<Record<string, Permission>>({});
+
+
+const fetchPermissions = async () => {
+  try {
+    const response = await getPermission();
+    const permissionsArray: Permission[] = response.data.data;
+
+
+    permissionLabels.value = Object.fromEntries(
+      permissionsArray.map(p => [p.name, p])
+    );
+    console.log("permissionLabels.value",permissionLabels.value)
+  } catch (error) {
+    console.error('Erreur lors du chargement des permissions', error);
+  }
+};
+
+
+onMounted(()=>{
+  fetchPermissions()
+
+})
+
+
+
+const iconComponent = (name?: string): Component => {
+  const pascalName = toPascalCase(name || '')
+  const icon = icons[pascalName as keyof typeof icons]
+
+  if (typeof icon === 'function' || (icon && typeof icon === 'object')) {
+    return icon as Component
+  }
+
+  return icons.CircleHelp as Component
+}
+
+
+function toPascalCase(str: string) {
+  return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')
+}
+
+
 </script>
 
 <style scoped>
 /* Optional: add custom scrollbars or layout tweaks */
 </style>
 
-<!-- <template>
-  <div class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div id="app" v-cloak class="container mx-auto px-4 py-8">
-
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">
-                <i class="fas fa-hotel text-blue-600 mr-3"></i>
-                Gestion des Permissions Hôtelières
-            </h1>
-            <p class="text-gray-600">Configurez les autorisations pour chaque rôle du personnel</p>
-        </div>
-
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i class="fas fa-users text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Total Rôles</h3>
-                        <p class="text-2xl font-bold text-gray-900">{{ Object.keys(permissions).length }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i class="fas fa-key text-green-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Permissions Actives</h3>
-                        <p class="text-2xl font-bold text-gray-900">{{ totalActivePermissions }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-yellow-100 rounded-full">
-                        <i class="fas fa-crown text-yellow-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Rôle avec Plus de Permissions</h3>
-                        <p class="text-lg font-bold text-gray-900">{{ mostPermissionsRole }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-purple-100 rounded-full">
-                        <i class="fas fa-shield-alt text-purple-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Types de Permissions</h3>
-                        <p class="text-2xl font-bold text-gray-900">{{ allPermissionTypes.length }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        <input
-                            v-model="searchTerm"
-                            type="text"
-                            placeholder="Rechercher un rôle..."
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <select v-model="filterCategory" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">Toutes les catégories</option>
-                        <option value="direction">Direction</option>
-                        <option value="reception">Réception</option>
-                        <option value="restauration">Restauration</option>
-                        <option value="hebergement">Hébergement</option>
-                        <option value="maintenance">Maintenance</option>
-                    </select>
-                    <button
-                        @click="showBulkEdit = !showBulkEdit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        <i class="fas fa-edit mr-2"></i>
-                        Édition en lot
-                    </button>
-                </div>
-            </div>
-        </div>
-
-
-        <div v-if="showBulkEdit" class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-orange-500">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                <i class="fas fa-tools text-orange-600 mr-2"></i>
-                Édition en lot
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div v-for="(description, permission) in permissionDescriptions" :key="permission"
-                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span class="text-sm font-medium text-gray-700">{{ description }}</span>
-                    <div class="flex gap-2">
-                        <button
-                            @click="bulkTogglePermission(permission, true)"
-                            class="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600"
-                        >
-                            Activer
-                        </button>
-                        <button
-                            @click="bulkTogglePermission(permission, false)"
-                            class="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-                        >
-                            Désactiver
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div v-for="(rolePermissions, roleName) in filteredRoles"
-                 :key="roleName"
-                 class="permission-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:border-blue-300">
-
-
-                <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-white font-semibold text-lg">{{ roleName }}</h3>
-                            <p class="text-blue-100 text-sm">{{ getRoleCategory(roleName) }}</p>
-                        </div>
-                        <div class="role-badge bg-white bg-opacity-20 px-3 py-1 rounded-full">
-                            <span class="text-white text-sm font-medium">
-                                {{ Object.values(rolePermissions).filter(p => p).length }} permissions
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="p-4 max-h-96 overflow-y-auto">
-                    <div v-if="Object.keys(rolePermissions).length === 0"
-                         class="text-center text-gray-500 py-8">
-                        <i class="fas fa-lock text-3xl mb-2"></i>
-                        <p>Aucune permission assignée</p>
-                    </div>
-                    <div v-else class="space-y-2">
-                        <div v-for="(description, permission) in permissionDescriptions"
-                             :key="permission"
-                             class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                            <div class="flex items-center">
-                                <i :class="getPermissionIcon(permission)" class="text-gray-600 w-4 mr-3"></i>
-                                <span class="text-sm text-gray-700">{{ description }}</span>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer permission-toggle">
-                                <input
-                                    type="checkbox"
-                                    :checked="rolePermissions[permission] || false"
-                                    @change="togglePermission(roleName, permission)"
-                                    class="sr-only peer"
-                                >
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="fixed bottom-6 right-6">
-            <div class="flex gap-3">
-                <button
-                    @click="exportPermissions"
-                    class="bg-green-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
-                    title="Exporter les permissions"
-                >
-                    <i class="fas fa-download"></i>
-                </button>
-                <button
-                    @click="savePermissions"
-                    class="bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-                    title="Sauvegarder"
-                >
-                    <i class="fas fa-save"></i>
-                </button>
-                <button
-                    @click="resetPermissions"
-                    class="bg-red-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-red-700 transition-colors"
-                    title="Réinitialiser"
-                >
-                    <i class="fas fa-undo"></i>
-                </button>
-            </div>
-        </div>
-
-        <div v-if="showToast"
-             class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300">
-            <i class="fas fa-check-circle mr-2"></i>
-            {{ toastMessage }}
-        </div>
-    </div>
-  </div>
-
-
-    </template>
-
-   <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-
-type PermissionKey =
-  | 'bookings_read' | 'bookings_create' | 'bookings_update' | 'bookings_delete'
-  | 'rooms_read' | 'rooms_create' | 'rooms_update' | 'rooms_delete'
-  | 'users_read' | 'users_create' | 'users_update' | 'users_delete'
-  | 'inventory_read' | 'inventory_update'
-  | 'reports_view' | 'reports_export'
-  | 'room_service_request'
-  | 'menu_manage' | 'menu_view'
-  | 'maintenance_request_create' | 'maintenance_request_manage'
-  | 'budget_view' | 'budget_edit'
-  | 'settings_manage'
-  | 'promotions_manage'
-  | 'billing_manage';
-
-type RolePermissions = Partial<Record<PermissionKey, boolean>>;
-type PermissionsMap = Record<string, RolePermissions>;
-
-const permissions = ref<PermissionsMap>({
-  "Directeur d'hôtel": {
-    bookings_read: true,
-    inventory_update: true,
-    bookings_create: true,
-    room_service_request: true,
-    menu_manage: true,
-    maintenance_request_create: true,
-    rooms_create: true,
-    reports_export: true,
-    users_update: true,
-    rooms_delete: true,
-    maintenance_request_manage: true,
-    inventory_read: true,
-    users_create: true,
-    budget_view: true,
-    users_read: true,
-    rooms_read: true,
-    reports_view: true,
-    rooms_update: true,
-    settings_manage: true,
-    budget_edit: true,
-    users_delete: true,
-    bookings_update: true,
-    bookings_delete: true,
-    promotions_manage: true,
-    billing_manage: true,
-    menu_view: true
-  },
-  // ... le reste des rôles, copiez tel quel depuis votre code initial
-});
-
-const permissionDescriptions = ref<Record<PermissionKey, string>>({
-  bookings_read: "Consulter les réservations",
-  bookings_create: "Créer des réservations",
-  bookings_update: "Modifier les réservations",
-  bookings_delete: "Supprimer les réservations",
-  rooms_read: "Consulter les chambres",
-  rooms_create: "Créer des chambres",
-  rooms_update: "Modifier les chambres",
-  rooms_delete: "Supprimer les chambres",
-  users_read: "Consulter les utilisateurs",
-  users_create: "Créer des utilisateurs",
-  users_update: "Modifier les utilisateurs",
-  users_delete: "Supprimer les utilisateurs",
-  inventory_read: "Consulter l'inventaire",
-  inventory_update: "Modifier l'inventaire",
-  reports_view: "Consulter les rapports",
-  reports_export: "Exporter les rapports",
-  room_service_request: "Gérer le service en chambre",
-  menu_manage: "Gérer les menus",
-  menu_view: "Consulter les menus",
-  maintenance_request_create: "Créer demande maintenance",
-  maintenance_request_manage: "Gérer les interventions",
-  budget_view: "Consulter les budgets",
-  budget_edit: "Modifier les budgets",
-  settings_manage: "Gérer les paramètres",
-  promotions_manage: "Gérer les promotions",
-  billing_manage: "Gérer la facturation"
-});
-
-const searchTerm = ref('');
-const filterCategory = ref('');
-const showBulkEdit = ref(false);
-const showToast = ref(false);
-const toastMessage = ref('');
-
-const roleCategories: Record<string, string> = {
-  "Directeur d'hôtel": "direction",
-  "Directeur de l'hébergement": "direction",
-  "Directeur des opérations": "direction",
-  "Directeur financier": "direction",
-  "Chef-réceptionniste": "reception",
-  "Réceptionniste": "reception",
-  "Concierge": "reception",
-  "Veilleur de nuit": "reception",
-  "Portier": "reception",
-  "Responsable des réservations": "reception",
-  "Chef de cuisine": "restauration",
-  "Responsable de salle": "restauration",
-  "Maître d'hôtel": "restauration",
-  "Serveur": "restauration",
-  "Barman": "restauration",
-  "Chef de partie": "restauration",
-  "Commis de cuisine": "restauration",
-  "Plongeur": "restauration",
-  "Service de chambre": "restauration",
-  "Employé d'étage": "hebergement",
-  "Gouvernante": "hebergement",
-  "Responsable de l'entretien ménager": "hebergement",
-  "Employé de maintenance": "maintenance",
-  "Responsable marketing et ventes": "direction"
-};
-
-const filteredRoles = computed(() => {
-  let filtered = { ...permissions.value };
-
-  if (searchTerm.value) {
-    filtered = Object.fromEntries(
-      Object.entries(filtered).filter(([role]) =>
-        role.toLowerCase().includes(searchTerm.value.toLowerCase())
-      )
-    );
-  }
-
-  if (filterCategory.value) {
-    filtered = Object.fromEntries(
-      Object.entries(filtered).filter(([role]) =>
-        roleCategories[role] === filterCategory.value
-      )
-    );
-  }
-
-  return filtered;
-});
-
-const totalActivePermissions = computed(() =>
-  Object.values(permissions.value).reduce((total, perms) =>
-    total + Object.values(perms).filter(p => p).length, 0
-  )
-);
-
-const mostPermissionsRole = computed(() => {
-  let maxPerms = 0;
-  let maxRole = '';
-
-  Object.entries(permissions.value).forEach(([role, perms]) => {
-    const active = Object.values(perms).filter(Boolean).length;
-    if (active > maxPerms) {
-      maxPerms = active;
-      maxRole = role;
-    }
-  });
-
-  return maxRole;
-});
-
-const allPermissionTypes = computed(() => Object.keys(permissionDescriptions.value));
-
-function getRoleCategory(roleName: string): string {
-  const category = roleCategories[roleName];
-  const names: Record<string, string> = {
-    direction: 'Direction',
-    reception: 'Réception',
-    restauration: 'Restauration',
-    hebergement: 'Hébergement',
-    maintenance: 'Maintenance'
-  };
-  return names[category] || 'Autre';
-}
-
-function getPermissionIcon(permission: string): string {
-  const icons: Record<string, string> = {
-    bookings_read: 'fas fa-eye',
-    bookings_create: 'fas fa-plus',
-    bookings_update: 'fas fa-edit',
-    bookings_delete: 'fas fa-trash',
-    rooms_read: 'fas fa-bed',
-    rooms_create: 'fas fa-plus-square',
-    rooms_update: 'fas fa-tools',
-    rooms_delete: 'fas fa-minus-square',
-    users_read: 'fas fa-users',
-    users_create: 'fas fa-user-plus',
-    users_update: 'fas fa-user-edit',
-    users_delete: 'fas fa-user-minus',
-    inventory_read: 'fas fa-boxes',
-    inventory_update: 'fas fa-clipboard-list',
-    reports_view: 'fas fa-chart-bar',
-    reports_export: 'fas fa-file-export',
-    room_service_request: 'fas fa-concierge-bell',
-    menu_manage: 'fas fa-utensils',
-    menu_view: 'fas fa-book-open',
-    maintenance_request_create: 'fas fa-wrench',
-    maintenance_request_manage: 'fas fa-cogs',
-    budget_view: 'fas fa-dollar-sign',
-    budget_edit: 'fas fa-calculator',
-    settings_manage: 'fas fa-cog',
-    promotions_manage: 'fas fa-tags',
-    billing_manage: 'fas fa-receipt'
-  };
-  return icons[permission] || 'fas fa-key';
-}
-
-function togglePermission(roleName: string, permission: PermissionKey) {
-  if (!permissions.value[roleName][permission]) {
-    permissions.value[roleName][permission] = true;
-  } else {
-    delete permissions.value[roleName][permission];
-  }
-}
-
-function bulkTogglePermission(permission: PermissionKey, enable: boolean) {
-  Object.keys(permissions.value).forEach(role => {
-    if (enable) {
-      permissions.value[role][permission] = true;
-    } else {
-      delete permissions.value[role][permission];
-    }
-  });
-  showToastMessage(enable
-    ? 'Permission activée pour tous les rôles'
-    : 'Permission désactivée pour tous les rôles');
-}
-
-function savePermissions() {
-  localStorage.setItem('hotelPermissions', JSON.stringify(permissions.value));
-  showToastMessage('Permissions sauvegardées avec succès');
-}
-
-function exportPermissions() {
-  const dataStr = JSON.stringify(permissions.value, null, 2);
-  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(dataBlob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'permissions_hotel.json';
-  link.click();
-  showToastMessage('Permissions exportées');
-}
-
-function resetPermissions() {
-  if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les permissions ?')) {
-    location.reload();
-  }
-}
-
-function showToastMessage(message: string) {
-  toastMessage.value = message;
-  showToast.value = true;
-  setTimeout(() => {
-    showToast.value = false;
-  }, 3000);
-}
-
-onMounted(() => {
-  const saved = localStorage.getItem('hotelPermissions');
-  if (saved) {
-    permissions.value = JSON.parse(saved);
-  }
-});
-</script>
- -->

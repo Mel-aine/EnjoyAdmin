@@ -188,6 +188,10 @@ export const getUserAssignment = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/assigmentUser`)
 }
 
+export const getPermission = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/permission`)
+}
+
 // --- Services API post --- //
 
 //create service product

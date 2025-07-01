@@ -645,7 +645,27 @@
   "all_category": "Toutes les catégories",
   "service": "services",
   "no_service_match": "Aucun service ne correspond à vos critères de recherche.",
-  "no_service_available": "Aucun service disponible pour cet utilisateur."
+  "no_service_available": "Aucun service disponible pour cet utilisateur.",
+  "booking": {
+    "arrival": "Arrivée",
+    "departure": "Départ",
+    "duration": "Durée",
+    "nights": "nuits",
+    "createdAt": "Date de réservation"
+  },
+  "client": {
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "guests": "Voyageurs"
+  },
+  "booking_details": "Détails de la réservation",
+  "reference": "Référence",
+  "customer_info": "Informations du client",
+  "room_reserved": "Chambres réservées",
+  "date_stay": "Dates du séjour",
+  "du" : "du",
+  "au" : "au"
 
 
 

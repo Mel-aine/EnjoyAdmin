@@ -2,7 +2,17 @@
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
-      <ComponentCard title="">
+
+      <DefaultCard>
+          <template v-slot:button v-if="isEditMode">
+                    <button class="flex items-center" @click="goBack">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-purple-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                        </svg>&nbsp;&nbsp;
+                        <span class="text-nowrap">{{ $t('Goback') }}</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                    </button>
+          </template>
         <form class="space-y-6">
           <!-- Personal information section -->
 
@@ -133,15 +143,15 @@
             {{ $t('Processing') }}...
           </span>
         </ButtonComponent>
-        <button
+        <!-- <button
           v-if="isEditMode"
           type="button"
           class="w-full rounded-xl ml-8 border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] sm:w-auto"
           @click="closeUpdate"
         >
           {{ $t('Cancel') }}
-        </button>
-      </ComponentCard>
+        </button> -->
+      </DefaultCard>
     </div>
   </AdminLayout>
 
@@ -266,6 +276,7 @@ import RoomSector from './RoomSector.vue'
 import { useBookingStore } from '@/composables/booking'
 import { useRouter } from 'vue-router'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
+import DefaultCard from '@/components/common/DefaultCard.vue'
 
 const store = useBookingStore()
 const ServiceProduct = ref<ProductType[]>([])
@@ -588,28 +599,34 @@ onMounted(async () => {
     const response = await getReservationById(reservationId.value)
     const response1 = await getUserId(response.data.userId)
     const response2 = await getReservationServiceProduct(reservationId.value)
-    const matchingService = response2.data.find((p: any) => p.reservationId === reservationId.value)
+    console.log('response.data2', response2.data)
+    const matchingService = response2.data.filter((p: any) => p.reservationId === reservationId.value)
     console.log('matchingServic', matchingService)
-    const matchingServiceId = matchingService.serviceProductId
-    const matchedServiceProduct = ProductList.value.find((sp: any) => sp.id === matchingServiceId)
+    console.log('reservationId.value', reservationId.value)
+    // const matchingServiceId = matchingService.serviceProductId
+    const matchingServiceId = matchingService.map((i:any)=>i.serviceProductId)
     console.log('matchingServiceId', matchingServiceId)
-    selectedServiceProduct.value = matchedServiceProduct
-    console.log('matchedServiceProduct', matchedServiceProduct)
-    console.log('response.data', response.data)
 
-    fetchData.value = [
-      {
-        roomType: Number(matchedServiceProduct?.id) || 0,
-        arrivalDate: response.data.arrivedDate || '',
-        departureDate: response.data.departDate || '',
-        numberOfNights: numberOfNights,
-        adults: response.data.totalPerson || 1,
-        children: 0,
-        price: matchedServiceProduct?.price || 0,
-        dateError: '',
-        showOccupancyDropdown: false,
-      },
-    ]
+   const matchedServiceProduct = ProductList.value.filter((sp: any) =>
+        matchingServiceId.includes(sp.id)
+      );
+
+    selectedServiceProduct.value = matchedServiceProduct
+    console.log('matchedServiceProduct', selectedServiceProduct.value)
+
+
+   fetchData.value = matchedServiceProduct.map((product: any) => ({
+      roomType: Number(product.id) || 0,
+      arrivalDate: response.data.arrivedDate || '',
+      departureDate: response.data.departDate || '',
+      numberOfNights: numberOfNights,
+      adults: response.data.totalPerson || 1,
+      children: 0,
+      price: product.price || 0,
+      dateError: '',
+      showOccupancyDropdown: false,
+    }));
+
 
     console.log('match', fetchData.value)
 
@@ -746,27 +763,27 @@ const handleSubmit = async () => {
   }
 }
 
-const closeUpdate = () => {
-  isEditMode.value = false
-  formData.value = {
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    email: '',
-  }
-  form.value = {
-    roomType: null,
-    package: '',
-    arrivalDate: '',
-    departureDate: '',
-    normalDescription: '',
-    totalPerson: totalPersons.value,
-    totalPrice: null,
-    numberOfNights: totalPersons.value,
-    payment: ' ',
-  }
-  router.push('/add_booking')
-}
+// const closeUpdate = () => {
+//   isEditMode.value = false
+//   formData.value = {
+//     firstName: '',
+//     lastName: '',
+//     phoneNumber: '',
+//     email: '',
+//   }
+//   form.value = {
+//     roomType: null,
+//     package: '',
+//     arrivalDate: '',
+//     departureDate: '',
+//     normalDescription: '',
+//     totalPerson: totalPersons.value,
+//     totalPrice: null,
+//     numberOfNights: totalPersons.value,
+//     payment: ' ',
+//   }
+//   router.push('/add_booking')
+// }
 
 const selectedCustomer = ref<any>(null)
 const manualInput = ref({
@@ -794,5 +811,27 @@ const onCustomerSelected = (customer: any) => {
       email: '',
     }
   }
+}
+
+const goBack = () => {
+  isEditMode.value = false
+  formData.value = {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+  }
+  form.value = {
+    roomType: null,
+    package: '',
+    arrivalDate: '',
+    departureDate: '',
+    normalDescription: '',
+    totalPerson: totalPersons.value,
+    totalPrice: null,
+    numberOfNights: totalPersons.value,
+    payment: ' ',
+  }
+   window.history.back();
 }
 </script>

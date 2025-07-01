@@ -38,6 +38,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/booking_detail/:id',
+      name: 'BookingDetails',
+      component: () => import('../views/Bookings/BookingDetails.vue'),
+      props: true
+    },
+    {
       path: '/all_room',
       name: 'All Room',
       component: () => import('../views/Room/AllRoom.vue'),

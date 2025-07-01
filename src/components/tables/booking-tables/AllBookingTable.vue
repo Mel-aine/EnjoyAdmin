@@ -1,46 +1,40 @@
 <template>
   <div>
-
-      <!-- <div v-if="loading" class="p-6 text-center">
-          <div
-            class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-purple-500 border-gray-200"
-          ></div>
-          <p class="mt-2 text-gray-500">{{ t('loadingInProgress') }}</p>
-      </div> -->
-      <div class="mt-10">
-
-        <TableComponent
-            :items="titles"
-            :datas="reservations"
-            :filterable="true"
-            :pagination="true"
-            :loading="loading"
-            :showHeader="true"
-            :title="$t('Booking')"
-            :pageSize="15"
-            :showButtonAllElement="true"
-            @edit="onEditBooking"
-            @delete="onDeleteBooking"
-            class="modern-table"
-          />
-      </div>
+    <div class="mt-10">
+      <TableComponent
+        :items="titles"
+        :datas="reservations"
+        :filterable="true"
+        :pagination="true"
+        :loading="loading"
+        :showHeader="true"
+        :title="$t('Booking')"
+        :pageSize="15"
+        :showButtonAllElement="true"
+        @edit="onEditBooking"
+        @delete="onDeleteBooking"
+        @view="onviewBooking"
+        class="modern-table"
+      />
     </div>
-    <ModalDelete
-      v-if="modalShow"
-      @close="modalShow = false"
-      @delete="confirmDelete"
-      :isLoading="loadingDelete"
-    />
-
+  </div>
+  <ModalDelete
+    v-if="modalShow"
+    @close="modalShow = false"
+    @delete="confirmDelete"
+    :isLoading="loadingDelete"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch,computed } from 'vue'
-// import { AgGridVue } from 'ag-grid-vue3'
-// import 'ag-grid-community/styles/ag-grid.css'
-// import 'ag-grid-community/styles/ag-theme-quartz.css'
-// import type { ColDef, GridReadyEvent, ICellRendererParams } from 'ag-grid-community'
-import { getReservation, getUser, getServiceProduct, deleteReservation } from '@/services/api'
+import { ref, onMounted, watch, computed } from 'vue'
+import {
+  getReservation,
+  getUser,
+  getServiceProduct,
+  deleteReservation,
+  getReservationServiceProduct,
+} from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { ReservationType, userDataType, ServiceProductType } from '@/types/option'
 import { useRouter } from 'vue-router'
@@ -49,6 +43,7 @@ import { useToast } from 'vue-toastification'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { formatDateT } from '@/components/utilities/UtilitiesFunction'
+import { useBookingStore } from '@/composables/booking'
 
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: 'global' })
@@ -60,7 +55,7 @@ const selectedReservation = ref<any>(null)
 const selectedReservationId = ref<number | null>(null)
 const loadingDelete = ref(false)
 const loading = ref(true)
-
+const store = useBookingStore()
 const fetchUsers = async () => {
   const response = await getUser()
   users.value = response.data.data
@@ -88,31 +83,36 @@ const fetchReservation = async () => {
     const response = await getReservation(serviceId)
     console.log('....', response.data)
 
-    reservations.value = response.data.map((res: any) => {
-      const user = users.value.find((u: any) => u.id === res.userId)
-      // const product = serviceProducts.value.find((p: any) => p.id === res.reservationProduct);
-        // Retourne la chaîne et ensuite la découpe pour séparer la classe bg de celle du texte
-        const statusClasses = getStatusColor(res.status).split(' ');
-        const paymentClasses = getPaymentColor(res.paymentStatus).split(' ');
+    reservations.value = await Promise.all(
+      response.data.map(async (res: any) => {
+        const user = users.value.find((u: any) => u.id === res.userId)
+        const statusClasses = getStatusColor(res.status).split(' ')
+        const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
 
-      return {
-        ...res,
-        date : formatDateT(res.arrivedDate),
-        dateD : formatDateT(res.departDate),
-        email: user ? `${user.email}` : ' ',
-        userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-        statusColor: {
-        label: res.status,
-        bg: statusClasses[0],
-        text: statusClasses[1]
-        },
-        paymentStatusColor: {
-          label: res.paymentStatus,
-          bg: paymentClasses[0],
-          text: paymentClasses[1]
-        },
-      }
-    })
+        const products = await fetchReservationServiceProduct(res.id)
+
+        return {
+          ...res,
+          date: formatDateT(res.arrivedDate),
+          dateD: formatDateT(res.departDate),
+          email: user?.email || '',
+          phone:user?.phoneNumber || '',
+          userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
+          statusColor: {
+            label: res.status,
+            bg: statusClasses[0],
+            text: statusClasses[1],
+          },
+          paymentStatusColor: {
+            label: res.paymentStatus,
+            bg: paymentClasses[0],
+            text: paymentClasses[1],
+          },
+          serviceProducts: products,
+        }
+      }),
+    )
+
     reservations.value.sort((a: any, b: any) => a.userFullName.localeCompare(b.userFullName))
 
     console.log('.....reservation', reservations.value)
@@ -124,12 +124,11 @@ const fetchReservation = async () => {
 onMounted(async () => {
   await fetchUsers()
   await fetchServiceProduct()
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500))
   await fetchReservation()
 
   loading.value = false
 })
-
 
 const titles = computed(() => [
   {
@@ -176,6 +175,11 @@ const titles = computed(() => [
     type: 'action',
     actions: [
       {
+        name: 'View',
+        event: 'view',
+        icone: ` <svg class="h-6 w-6 text-orange-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
+      },
+      {
         name: 'Edit',
         event: 'edit',
         icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -196,43 +200,65 @@ const titles = computed(() => [
   },
 ])
 
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'confirmed':
-      return 'bg-green-100 text-green-700';
+      return 'bg-green-100 text-green-700'
     case 'pending':
-      return 'bg-yellow-100 text-yellow-700';
+      return 'bg-yellow-100 text-yellow-700'
     case 'cancelled':
-      return 'bg-red-100 text-red-700';
+      return 'bg-red-100 text-red-700'
     case 'checked-in':
-      return 'bg-purple-100 text-purple-700';
+      return 'bg-purple-100 text-purple-700'
     case 'checked-out':
-      return 'bg-blue-100 text-blue-700';
+      return 'bg-blue-100 text-blue-700'
     default:
-      return 'bg-gray-100 text-gray-700';
+      return 'bg-gray-100 text-gray-700'
   }
-};
+}
 
 const getPaymentColor = (status: string) => {
   switch (status) {
     case 'paid':
-      return 'bg-green-100 text-green-700';
+      return 'bg-green-100 text-green-700'
     case 'unpaid':
-      return 'bg-red-100 text-red-700';
+      return 'bg-red-100 text-red-700'
     case 'refunded':
-      return 'bg-blue-100 text-blue-700';
+      return 'bg-blue-100 text-blue-700'
     case 'pending':
-      return 'bg-yellow-100 text-yellow-700';
+      return 'bg-yellow-100 text-yellow-700'
     default:
-      return 'bg-gray-100 text-gray-700';
+      return 'bg-gray-100 text-gray-700'
   }
-};
+}
 
+const fetchReservationServiceProduct = async (reservationId: number) => {
+  try {
+    const response = await getReservationServiceProduct(reservationId)
+    const result = response.data.map((item: any) => {
+      const product = serviceProducts.value.find((p: any) => p.id === item.serviceProductId)
 
+      return {
+        ...item,
+        productName: product?.productName || 'Inconnu',
+        productType: product?.productType || '',
+        productDetails: product || {},
+        startDateFormatted: formatDateT(item.startDate),
+        endDateFormatted: formatDateT(item.endDate),
+      }
+    })
+
+    console.log('Produits liés à la réservation :', result)
+    return result
+  } catch (error) {
+    console.log('Erreur fetchReservationServiceProduct', error)
+    return []
+  }
+}
 
 const onEditBooking = (booking: any) => handleBookingAction('edit', booking)
 const onDeleteBooking = (booking: any) => handleBookingAction('delete', booking)
+const onviewBooking = (booking: any) => handleBookingAction('view', booking)
 
 const handleBookingAction = (action: string, booking: any) => {
   if (action === 'edit') {
@@ -242,9 +268,14 @@ const handleBookingAction = (action: string, booking: any) => {
   } else if (action === 'delete') {
     selectedReservationId.value = booking.id
     modalShow.value = true
+  } else if (action === 'view') {
+     selectedReservation.value = reservations.value.find((r: any) => r.id === Number(booking.id))
+    router.push({ name: 'BookingDetails', params: { id: booking.id } })
+    store.setBooking(selectedReservation.value)
+
+    console.log('selectedReservation.value:', selectedReservation.value)
   }
 }
-
 
 const confirmDelete = async () => {
   if (selectedReservationId.value !== null) {
@@ -265,8 +296,6 @@ const confirmDelete = async () => {
     }
   }
 }
-
-
 </script>
 
 <style scoped></style>

@@ -644,6 +644,26 @@
   "all_category" : "All categories",
   "service" : "services",
   "no_service_match" : "No services match your search criteria.",
-  "no_service_available" : "No services available for this user."
+  "no_service_available" : "No services available for this user.",
+  "booking": {
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "duration": "Duration",
+    "nights": "nights",
+    "createdAt": "Booking Date"
+  },
+  "client": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "guests": "Guests"
+  },
+  "booking_details" : "Booking Details",
+  "reference" : "Reference",
+  "customer_info" : "Customer Information",
+  "room_reserved" : "Reserved Rooms",
+  "date_stay" : "Stay Dates",
+  "du": "from",
+  "au": "to"
     
 }
