@@ -13,7 +13,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/all_booking',
@@ -35,7 +35,7 @@ const router = createRouter({
       path: '/add_booking/:id',
       name: 'EditBooking',
       component: () => import('../views/Bookings/AddBooking.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/all_room',
@@ -108,7 +108,7 @@ const router = createRouter({
       path: '/invoice/:id',
       name: 'ViewInvoice',
       component: () => import('../views/Payment/InvoiceDetail.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/customers',
@@ -129,7 +129,6 @@ const router = createRouter({
       path: '/service',
       name: 'Service',
       component: () => import('../views/Services/ServiceView.vue'),
-
     },
     {
       path: '/calendar',
@@ -165,7 +164,6 @@ const router = createRouter({
       },
     },
 
-
     {
       path: '/',
       name: 'Signin',
@@ -187,7 +185,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard restau',
       component: () => import('../views/Restaurants/Rdashboard.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/customer',
@@ -207,7 +205,7 @@ const router = createRouter({
     {
       path: '/products',
       name: 'product',
-      component: () => import('../views/Restaurants/ProductView/ProductView.vue')
+      component: () => import('../views/Restaurants/ProductView/ProductView.vue'),
     },
     {
       path: '/products/:productcode/:action',
@@ -215,17 +213,17 @@ const router = createRouter({
       component: () => import('../views/Restaurants/ProductView/ProductDetails.vue'),
       meta: {
         title: 'Users',
-      }
+      },
     },
     {
       path: '/Stocks',
       name: 'EntreeStocks',
-      component: () => import('../views/Restaurants/Stocks/StocksEntree.vue')
+      component: () => import('../views/Restaurants/Stocks/StocksEntree.vue'),
     },
     {
       path: '/plates',
       name: 'plates',
-      component: () => import('../views/Restaurants/PlateView/PlateView.vue')
+      component: () => import('../views/Restaurants/PlateView/PlateView.vue'),
     },
     {
       path: '/plates/:platecode/:action',
@@ -233,7 +231,7 @@ const router = createRouter({
       component: () => import('../views/Restaurants/PlateView/PlateDetail.vue'),
       meta: {
         title: 'Users',
-      }
+      },
     },
     {
       path: '/menus/:menucode/:action',
@@ -241,12 +239,12 @@ const router = createRouter({
       component: () => import('../views/Restaurants/Menus/MenuDetails.vue'),
       meta: {
         title: 'Users',
-      }
+      },
     },
     {
       path: '/tickets/:ticketcode/:action',
       name: 'ticket',
-      component: () => import('../views/Restaurants/TicketView/TicketDetail.vue')
+      component: () => import('../views/Restaurants/TicketView/TicketDetail.vue'),
     },
     {
       path: '/users',
@@ -259,44 +257,73 @@ const router = createRouter({
       path: '/dashboardTravel',
       name: 'dashboard travel',
       component: () => import('../views/Travel/DashboardTravel.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/all_routes',
-      name:'all routes',
-      component : ()=>import ('../views/Travel/ItineraryView.vue')
+      name: 'all routes',
+      component: () => import('../views/Travel/ItineraryView.vue'),
     },
     {
       path: '/vehicle_fleet',
-      name:'vehicle fleet',
-      component : ()=>import ('../views/Travel/Equipement/VehicleView.vue')
+      name: 'vehicle fleet',
+      component: () => import('../views/Travel/Equipement/VehicleView.vue'),
     },
     {
       path: '/scheduled_trips',
-      name:'scheduled trips',
-      component : ()=>import ('../views/Travel/TravelManagement.vue/TravelList.vue')
+      name: 'scheduled trips',
+      component: () => import('../views/Travel/TravelManagement.vue/TravelList.vue'),
     },
     {
       path: '/schedules',
-      name:'schedules',
-      component : ()=>import ('../views/Travel/Planning/ScheduleView.vue')
+      name: 'schedules',
+      component: () => import('../views/Travel/Planning/ScheduleView.vue'),
     },
     {
       path: '/driver',
-      name:'driver',
-      component : ()=>import ('../views/Travel/DriverView.vue')
+      name: 'driver',
+      component: () => import('../views/Travel/DriverView.vue'),
+    },
+
+    /// Staff Management
+
+    {
+      path: '/staff_management/dashboard',
+      name: 'Dashboard Overview',
+      component: () => import('../views/StaffManagement/EStaffDashboardView.vue'),
     },
     {
+      path: '/staff_management/task_management',
+      name: 'Task Management',
+      component: () => import('../views/StaffManagement/EStaffTaskManager.vue'),
+    },
+    {
+      path: '/staff_management/staff_schedule',
+      name: 'Staff Schedule',
+      component: () => import('../views/StaffManagement/EStaffScheduleView.vue'),
+    },
+    {
+      path: '/staff_management/staff_management',
+      name: 'Staff Management',
+      component: () => import('../views/StaffManagement/EStaffStaffManager.vue'),
+    },
+    {
+      path: '/staff_management/action_history',
+      name: 'Action History',
+      component: () => import('../views/StaffManagement/EStaffActionHistory.vue'),
+    },
+
+    {
       path: '/vehicle_assignment',
-      name:'vehicle assigment',
-      component : ()=>import ('../views/Travel/Planning/VehicleAssignement.vue')
-    }
+      name: 'vehicle assigment',
+      component: () => import('../views/Travel/Planning/VehicleAssignement.vue'),
+    },
   ],
 })
 router.beforeEach(async (to, from, next) => {
-  isLoading.value = true;
+  isLoading.value = true
 
-  const authStore = useAuthStore();
+  const authStore = useAuthStore()
   // const serviceStore = useServiceStore();
 
   try {
@@ -307,7 +334,7 @@ router.beforeEach(async (to, from, next) => {
 
     // Si la route nécessite une auth mais qu’on n’est pas connecté
     if (to.meta.requiresAuth && !authStore.token) {
-      return next('/');
+      return next('/')
     }
 
     // if (to.path === '/signin' && authStore.token) {
@@ -322,20 +349,18 @@ router.beforeEach(async (to, from, next) => {
     //       return next('/');
     //   }
     // }
-    return next();
+    return next()
   } catch (error) {
-    console.error('Error in navigation guard:', error);
-    return next('/');
+    console.error('Error in navigation guard:', error)
+    return next('/')
   }
-});
-
+})
 
 router.afterEach(() => {
   setTimeout(() => {
-    isLoading.value = false;
-  }, 3000);
-});
-
+    isLoading.value = false
+  }, 3000)
+})
 
 export default router
 
@@ -344,5 +369,3 @@ export default router
 //   document.title = "Enjoy"
 //   next()
 // })
-
-
