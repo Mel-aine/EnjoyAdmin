@@ -30,7 +30,7 @@
         <!-- </div> -->
 
          <div
-          class=" max-w-6xl mt-10 mx-auto"
+          class=" mt-10"
         >
           <TableComponent
             :items="titles"
