@@ -36,7 +36,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           roles: [1, 2, 3],
           subItems: [
             { name: t('AllRooms'), path: '/all_room', roles: [1, 2, 3] },
-            { name: t('RoomType'), path: '/room_type', roles: [1, 2, 3] },
+            { name: t('RoomTypes'), path: '/room_type', roles: [1, 2, 3] },
             { name: t('occupancy'), path: '/occupancy', roles: [1, 2] },
           ],
         },

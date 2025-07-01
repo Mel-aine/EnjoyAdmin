@@ -17,14 +17,25 @@
         </DropdownMenu>
       </div>
       <div class="h-screen">
-        <ComponentCard :title="$t('AllRoomType')">
-          <div class="space-y-5 sm:space-y-6 ">
-            <!-- <ag-grid-vue class="ag-theme-quartz" :rowData="roomTypeData" :columnDefs="columnDefs" rowHeight="50"
-      :rowSelection="'single'"  :domLayout="'autoHeight'" :autoSizeStrategy="autoSizeStrategy"
-      :pagination="true" @cellClicked="onCellClick" @gridReady="onGridReady"
-      ></ag-grid-vue> -->
+        <!-- <ComponentCard :title="$t('AllRoomType')"> -->
+          <div class="space-y-5 sm:space-y-6 mt-10 ">
+
+               <TableComponent
+                  :items="titles"
+                  :datas="roomTypeData"
+                  :filterable="true"
+                  :pagination="true"
+                  :loading="loading"
+                  :showHeader="true"
+                  :title="$t('AllRoomType')"
+                  :pageSize="15"
+                  :showButtonAllElement="true"
+                  @edit="onEditRoomType"
+                  @delete="onDeleteRoomType"
+                  class="modern-table"
+                />
           </div>
-        </ComponentCard>
+        <!-- </ComponentCard> -->
       </div>
     </AdminLayout>
 
@@ -49,7 +60,7 @@
 
           </div>
           <form class="flex flex-col">
-            <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
+            <div class="custom-scrollbar h-[500px] md:h-[510px] overflow-y-auto p-2">
               <div>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 mb-6">
                   <div>
@@ -57,25 +68,34 @@
                       v-model="form.name" />
                   </div>
                   <div>
+                    <Input :lb="$t('DefaultGuest')" :placeholder="$t('DefaultGuest')" :id="'default_guest'" inputType="Number"
+                      :forLabel="'default_guest'" v-model.number="form.default_guest" />
+                  </div>
+                  <div>
                     <InputCurrency :lb="$t('price')" :placeholder="$t('price')" :id="'price'" :forLabel="'price'"
-                      v-model="form.price" />
+                      v-model.number="form.price" />
                   </div>
                   <div>
-                    <Input :lb="$t('Default Guest')" :placeholder="$t('Default Guest')" :id="'default_guest'"
-                      :forLabel="'default_guest'" v-model="form.default_guest" />
+                    <InputCurrency :lb="$t('ExtraGuestPrice')" :placeholder="$t('ExtraGuestPrice')" :id="'extra_guest'"
+                      :forLabel="'extra_guest'" v-model.number="form.extra_guest" />
                   </div>
+                   <div>
+                    <Input :lb="$t('Vat(%)')" :placeholder="$t('Vat')" :id="'vat'" inputType="Number" :disabled = true
+                      :forLabel="'vat'" v-model.number="form.vat" />
+                  </div>
+                   <div>
+                      <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Prix Total(avec TVA)</label>
+                      <div
+                        class=" h-11 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                      >
+                        {{ formatted }}
+                      </div>
+                    </div>
                   <div>
-                    <InputCurrency :lb="$t('Extra Guest Price')" :placeholder="$t('Extra Guest Price')" :id="'extra_guest'"
-                      :forLabel="'extra_guest'" v-model="form.extra_guest" />
+                    <InputCurrency :lb="$t('DefaultDeposit')" :placeholder="$t('DefaultDeposit')" :id="'default_deposit'"
+                      :forLabel="'default_deposit'" v-model.number="form.default_deposit" />
                   </div>
-                  <div>
-                    <InputCurrency :lb="$t('Default Deposit')" :placeholder="$t('Default Deposit')" :id="'default_deposit'"
-                      :forLabel="'default_deposit'" v-model="form.default_deposit" />
-                  </div>
-                  <div>
-                    <Input :lb="$t('Vat(%)')" :placeholder="$t('Vat')" :id="'vat'" inputType="Number"
-                      :forLabel="'vat'" v-model="form.vat" />
-                  </div>
+
                   <div>
                     <Select :lb="$t('Status')" :options="status" v-model="form.status" />
                   </div>
@@ -85,7 +105,7 @@
                     {{ $t('Description') }}
                   </label>
                   <textarea v-model="form.description" :placeholder="$t('Largetext')" rows="6"
-                    class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"></textarea>
+                    class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"></textarea>
                 </div>
 
               </div>
@@ -135,11 +155,7 @@ import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import { updateRoomType, deleteRoomType } from "@/services/api";
 import ModalDelete from "@/components/modal/ModalDelete.vue";
 import InputCurrency from "@/components/forms/FormElements/InputCurrency.vue";
-
-
-
-
-
+import TableComponent from "@/components/tables/TableComponent.vue";
 
 
 
@@ -158,19 +174,123 @@ const menuItems = computed(() => [
 const selectedRoomType = ref<any>(null);
 const isEditMode = ref(false);
 const status = ref([
-  { value: 'Active', label: t('Active') },
-  { value: 'Inactive', label: t('Inactive') },
+  { value: 'active', label: t('Active') },
+  { value: 'inactive', label: t('Inactive') },
 
 ])
 
 const roomTypeData = ref<RoomTypeData[]>([])
 
 
-const form = ref<RoomTypeData>({
+const titles = computed(() => [
+  {
+    name: 'name',
+    label: t('Name'),
+    type: 'text',
+    sortable: true,
+    filterable: false,
+  },
+  {
+    name: 'description',
+    label: t('description'),
+    type: 'url',
+    filterable: true,
+  },
+
+  {
+    name: 'price',
+    label: t('price'),
+    type: 'text',
+    event: 'view',
+    filterable: true,
+  },
+   {
+    name: 'extraGuestPrice',
+    label: t('ExtraGuestPrice'),
+    type: 'text',
+    filterable: true,
+  },
+   {
+    name: 'defaultDeposit',
+    label: t('DefaultDeposit'),
+    type: 'text',
+    filterable: true,
+  },
+   {
+    name: 'defaultGuest',
+    label: t('DefaultGuest'),
+    type: 'text',
+    filterable: true,
+  },
+  {
+    name: 'statusColor',
+    label: t('Status'),
+    type: 'badge',
+    filterable: false,
+  },
+  {
+    name: 'actions',
+    label: t('Actions'),
+    type: 'action',
+    actions: [
+
+      {
+        name: 'Edit',
+        event: 'edit',
+        icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z"/>
+          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+        </svg>`,
+      },
+      {
+        name: 'Delete',
+        event: 'delete',
+        icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>`,
+        color: 'bg-red-100 text-red-600 px-2 py-1 rounded-full',
+      },
+    ],
+  },
+])
+
+
+const form = ref<any>({
   name: '',
   status: '',
   description: '',
+  price:0,
+  default_guest:0,
+  extra_guest:0,
+  default_deposit:0,
+  vat:19.25
 })
+
+const totalWithVat = computed(() => {
+  const base = (form.value.price || 0)
+  const vatRate = form.value.vat || 0
+  return Number((base + (base * vatRate / 100)).toFixed(2))
+})
+
+const formatted = computed(() => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XAF',
+    minimumFractionDigits: 0
+  }).format(totalWithVat.value)
+})
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active':
+      return 'bg-green-100 text-green-700'
+    case 'inactive':
+      return 'bg-red-100 text-red-700'
+    default:
+      return 'bg-gray-100 text-gray-700'
+  }
+}
 
 const SaveRoomType = async () => {
   isLoading.value = true;
@@ -184,8 +304,13 @@ const SaveRoomType = async () => {
       name: form.value.name,
       description: form.value.description,
       status: form.value.status,
-      service_id: serviceId
+      service_id: serviceId,
+      price:Number(totalWithVat.value),
+      default_guest:form.value.default_guest,
+      extra_guest_price:form.value.extra_guest,
+      default_deposit:form.value.default_deposit,
     };
+    console.log('roomtype', Payload);
 
     const roomResponse = await createRoomType(Payload);
     console.log('roomtype', roomResponse);
@@ -194,8 +319,14 @@ const SaveRoomType = async () => {
       name: '',
       status: '',
       description: '',
+      price:0,
+      default_guest:0,
+      extra_guest:0,
+      default_deposit:0,
+      vat:19.25
 
     }
+    fetchRoomType()
     toast.success(t('toast.roomtypesuccess'))
     console.log('Payload', Payload)
 
@@ -215,7 +346,18 @@ const fetchRoomType = async () => {
     }
     const response = await getTypeProduct()
 
-    roomTypeData.value = response.data.data.filter((el: any) => el.serviceId === serviceId)
+    roomTypeData.value = response.data.data.filter((el: any) => el.serviceId === serviceId).map((i:any)=>{
+      const statusClasses = getStatusColor(i.status).split(' ')
+      return{
+        ...i,
+       statusColor: {
+            label: i.status,
+            bg: statusClasses[0],
+            text: statusClasses[1],
+        },
+      }
+    })
+
     roomTypeData.value.sort((a: any, b: any) => a.name.localeCompare(b.name));
     console.log(";;;;", roomTypeData.value)
   } catch (error) {
@@ -223,7 +365,9 @@ const fetchRoomType = async () => {
   }
 }
 
-fetchRoomType()
+onMounted(()=>{
+  fetchRoomType()
+})
 
 
 // const onCellClick = (event: any) => {
@@ -262,8 +406,41 @@ fetchRoomType()
 
 
 
+const onEditRoomType = (type: any) => handleBookingAction('edit', type)
+const onDeleteRoomType = (type: any) => handleBookingAction('delete', type)
 
 
+const handleBookingAction = (action: string, type: any) => {
+  if (action === 'edit') {
+  const roomTypeToEdit = roomTypeData.value.find((r: any) => r.id === Number(type.id))
+   selectedRoomTypeId.value = type.id
+
+  if (roomTypeToEdit) {
+    const priceTTC = roomTypeToEdit.price
+    const vatRate = form.value.vat || 0
+
+    const priceHT = +(priceTTC / (1 + vatRate / 100)).toFixed(2)
+
+    form.value = {
+      name: roomTypeToEdit.name,
+      status: roomTypeToEdit.status,
+      description: roomTypeToEdit.description,
+      price: priceHT,
+      default_guest: Number(roomTypeToEdit.defaultGuest),
+      extra_guest: roomTypeToEdit.extraGuestPrice,
+      default_deposit: roomTypeToEdit.defaultDeposit,
+      vat: vatRate
+    }
+
+    isEditMode.value = true
+    modalOpen.value = true
+  }
+}
+ else if (action === 'delete') {
+   selectedRoomTypeId.value = type.id
+    show.value = true
+  }
+}
 
 const confirmDelete = async () => {
   if (selectedRoomTypeId.value !== null) {
@@ -288,26 +465,14 @@ const confirmDelete = async () => {
 
 
 
-// const handleDeleteUser = async (id: number) => {
-//   try {
-//     console.log(`Suppression de la room avec ID: ${id}`);
-//      deleteRoomType(id)
-//     toast.success(t('toast.roomTypeDeleted'))
-//     roomTypeData.value = roomTypeData.value.filter((r: any) => r.id !== id);
-//   } catch (error) {
-//     console.error('Erreur lors de la suppression:', error);
-//     toast.error(t('toast.roomTypeDeleteError'))
-//   }
-// };
-
-
 
 const updateFormData = async () => {
   isLoading.value = true;
 
   try {
     const serviceId = serviceStore.serviceId;
-    const id = selectedRoomType.value?.id;
+    const id = selectedRoomTypeId.value;
+    console.log("id",id)
 
     if (!id) {
       toast.error(t('toast.selectError'));
@@ -315,14 +480,18 @@ const updateFormData = async () => {
     }
 
     const roomTypePayload = {
-      service_id: serviceId,
       name: form.value.name,
       description: form.value.description,
       status: form.value.status,
+      service_id: serviceId,
+      price:Number(totalWithVat.value),
+      default_guest:form.value.default_guest,
+      extra_guest_price:form.value.extra_guest,
+      default_deposit:form.value.default_deposit,
     };
 
     console.log('Payload envoyé :', roomTypePayload);
-    await updateRoomType(id, roomTypePayload);
+    // await updateRoomType(id, roomTypePayload);
 
     toast.success(t('toast.roomTypeUpdatedSuccess'));
 
@@ -331,6 +500,11 @@ const updateFormData = async () => {
       name: '',
       status: '',
       description: '',
+      price:0,
+      default_guest:0,
+      extra_guest:0,
+      default_deposit:0,
+      vat:19.25
 
     }
     selectedRoomType.value = null;
@@ -363,9 +537,14 @@ const handleSubmit = async () => {
 
 const closeModal = () => {
   form.value = {
-    name: '',
-    status: '',
-    description: '',
+      name: '',
+      status: '',
+      description: '',
+      price:0,
+      default_guest:0,
+      extra_guest:0,
+      default_deposit:0,
+      vat:19.25
 
   }
   isEditMode.value = false;

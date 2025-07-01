@@ -664,6 +664,11 @@
   "room_reserved" : "Reserved Rooms",
   "date_stay" : "Stay Dates",
   "du": "from",
-  "au": "to"
+  "au": "to",
+  "DefaultGuest" : "Default Guest",
+  "ExtraGuestPrice" : "Extra Guest Price",
+  "DefaultDeposit" : "Default Deposit",
+  "Vat(%)" : "Vat(%)",
+  "Vat" : "Vat"
     
 }

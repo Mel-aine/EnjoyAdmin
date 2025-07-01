@@ -47,6 +47,14 @@ export interface RoomTypeData{
   name:string
   description : string
   status : string
+  price:number,
+  default_guest:number,
+  extra_guest:number,
+  default_deposit:number,
+  vat:number,
+  defaultGuest: number;
+  extraGuestPrice: number;
+  defaultDeposit: number;
 }
 
 export interface  ReservationType{
