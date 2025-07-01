@@ -25,6 +25,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@vueuse/core": "^13.1.0",
     "axios": "^1.8.4",
+    "bootstrap-icons": "^1.13.1",
     "chart.js": "^4.4.9",
     "flatpickr": "^4.6.13",
     "jspdf": "^3.0.1",
