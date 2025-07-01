@@ -110,6 +110,10 @@ export const getTypeProduct = (): Promise<AxiosResponse<{ data: RoomTypeData[] }
   return axios.get(`${API_URL}/product`)
 }
 
+export const getTypeProductByServiceId = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/product/${id}`)
+}
+
 export const getUser = (): Promise<AxiosResponse<{ data: userDataType[] }>> => {
   return axios.get(`${API_URL}/users`)
 }

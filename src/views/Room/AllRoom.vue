@@ -96,11 +96,14 @@
                       v-model="formData.name"
                     />
 
-                    <Input
+                     <Select :lb="$t('RoomTypes')" :options="roomTypeData" v-model="formData.roomType" />
+
+                     <Input
                       :lb="$t('Rent')"
                       :placeholder="'Ex: 1000 FCFA'"
                       :id="'rent'"
                       :forLabel="'rent'"
+                      :disabled="true"
                       v-model="formData.rent"
                     />
                     <Select :lb="$t('Status')" :options="status" v-model="formData.status" />
@@ -207,7 +210,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { ref, onMounted, computed, nextTick, watchEffect } from 'vue'
+import { ref, onMounted, computed, nextTick, watchEffect,watch } from 'vue'
 import {
   getOptions,
   createRoom,
@@ -217,12 +220,12 @@ import {
   updateRoom,
   updateRoomOptions,
   deleteServiceProduct,
+  getTypeProductByServiceId
 } from '@/services/api'
 import type {
   OptionType,
   ServiceProductType,
   ProductOptionType,
-  RoomTypeData,
 } from '@/types/option'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
@@ -244,7 +247,7 @@ const Show = ref(false)
 const toast = useToast()
 const modalOpen = ref(false)
 const options = ref<OptionType[]>([])
-const roomTypeData = ref<RoomTypeData[]>([])
+const roomTypeData = ref<any[]>([])
 const isDropdownOpen = ref(false)
 const show = ref(false)
 const ServiceProduct = ref<ServiceProductType[]>([])
@@ -257,6 +260,7 @@ const formData = ref<any>({
   status: '',
   description: '',
   rent: '',
+  roomType:null,
   options: {} as Record<number, any>,
 })
 const status = ref([
@@ -281,34 +285,42 @@ const fetchOptions = async () => {
   }
 }
 
-// const fetchRoomType = async () => {
-//   try {
-//     const response = await getTypeProduct()
+const fetchRoomType = async () => {
+  try {
+    const serviceId = serviceStore.serviceId
+    const response = await getTypeProductByServiceId(serviceId)
 
-//     roomTypeData.value = response.data.data
-//   .filter((type: any) => type.status === 'Active')
-//   .map((item: any) => ({
-//     ...item,
-//     value: item.id,
-//     label: item.name,
-//   }));
+    roomTypeData.value = response.data
+  .filter((type: any) => type.status === 'active')
+  .map((item: any) => ({
+    ...item,
+    value: item.id,
+    label: item.name,
+  }));
+  console.log("fetchRoomType",roomTypeData.value)
 
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération des options:', error)
-//   }
-// }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des roomtypes:', error)
+  }
+}
 
-onMounted(() => {
-  initializeDefaultOptions()
+watch(() => formData.value.roomType, (selectedId:any) => {
+  const selectedRoom = roomTypeData.value.find(room => room.id === selectedId)
+  formData.value.rent = selectedRoom ? selectedRoom.price : 0
 })
 
-const initializeDefaultOptions = () => {
-  defaultOptions.value.forEach((option:any) => {
-    if (!(option.id in formData.value.options)) {
-      formData.value.options[option.id] = option.values?.[0]?.value || ''
-    }
-  })
-}
+// onMounted(() => {
+//   initializeDefaultOptions()
+
+// })
+
+// const initializeDefaultOptions = () => {
+//   defaultOptions.value.forEach((option:any) => {
+//     if (!(option.id in formData.value.options)) {
+//       formData.value.options[option.id] = option.values?.[0]?.value || ''
+//     }
+//   })
+// }
 
 
 const defaultOptions = computed(() =>
@@ -319,35 +331,32 @@ const hideOptions = computed(() =>
   options.value.filter((option: OptionType) => option.isDefault === true),
 )
 
-// onMounted(() => {
-//   fetchOptions()
-//   fetchRoomType()
+
+
+
+// watchEffect(() => {
+//   if (!options.value.length) {
+//     console.log('[watchEffect] options.value is still empty.')
+//     return
+//   }
+
+//   console.log('[watchEffect] Checking options default values...')
+
+//   options.value.forEach((option) => {
+//     const alreadySet = formData.value.options[option.id]
+
+//     if (!alreadySet) {
+//       const defaultEntry = option.values.find(val => val.value === 'No') || option.values[0]
+//       const defaultVal = defaultEntry?.value ?? ''
+
+//       formData.value.options[option.id] = defaultVal
+
+//       // console.log(`[watchEffect] Set default for option ${option.id} =>`, defaultVal)
+//     } else {
+//       console.log(`[watchEffect] Option ${option.id} already set to`, alreadySet)
+//     }
+//   })
 // })
-
-
-watchEffect(() => {
-  if (!options.value.length) {
-    console.log('[watchEffect] options.value is still empty.')
-    return
-  }
-
-  console.log('[watchEffect] Checking options default values...')
-
-  options.value.forEach((option) => {
-    const alreadySet = formData.value.options[option.id]
-
-    if (!alreadySet) {
-      const defaultEntry = option.values.find(val => val.value === 'No') || option.values[0]
-      const defaultVal = defaultEntry?.value ?? ''
-
-      formData.value.options[option.id] = defaultVal
-
-      // console.log(`[watchEffect] Set default for option ${option.id} =>`, defaultVal)
-    } else {
-      console.log(`[watchEffect] Option ${option.id} already set to`, alreadySet)
-    }
-  })
-})
 
 
 
@@ -362,80 +371,15 @@ const defaultOptionsMap = computed(() => {
   return map
 })
 
-// const saveFormData = async () => {
-//   isLoading.value = true
-//   try {
-//     const roomPayload = {
-//       service_id: serviceStore.serviceId,
-//       product_name: formData.value.name,
-//       product_type: 'HotelSuite',
-//       description: formData.value.description,
-//       status: formData.value.status,
-//       price: formData.value.rent,
-//       created_by: userStore.UserId,
-//       last_modified_by: userStore.UserId,
+
+
+// const applyDefaultOptions = () => {
+//   defaultOptions.value.forEach(option => {
+//     if (!(option.id in formData.value.options) || formData.value.options[option.id] === '') {
+//       formData.value.options[option.id] = option.values?.[0]?.value || ''
 //     }
-//     console.log('roomId', roomPayload)
-
-//     const roomResponse = await createRoom(roomPayload)
-//     const roomId = roomResponse.data.id
-//     console.log('roomId', roomId)
-//     defaultOptions.value.forEach(option => {
-//   if (!(option.id in formData.value.options)) {
-//     formData.value.options[option.id] = option.values?.[0]?.value || ''
-//   }
-// })
-
-
-//     const optionsPayload = Object.entries(formData.value.options).map(
-//       ([id, value]: [string, any]) => {
-//         const optionMeta = defaultOptionsMap.value[Number(id)]
-//         return {
-//           service_product_id: roomId,
-//           option_id: Number(id),
-//           option_type: optionMeta?.type || null,
-//           value: value,
-//           created_by: userStore.UserId,
-//           last_modified_by: userStore.UserId,
-//         }
-//       },
-//     )
-
-//     console.log('optionsPayload', optionsPayload)
-
-//     const optionsResponse = await createRoomOptions({
-//       data: optionsPayload,
-//     })
-//     closeModal()
-//     fetchServiceProduct()
-
-//     //renitialisation des champs
-//     formData.value = {
-//       name: '',
-//       status: '',
-//       description: '',
-//       rent: '',
-//       options: {},
-//     }
-
-//     toast.success(t('toast.roomCreated'))
-//     console.log('roomPayload', roomPayload)
-//     console.log('optionsResponse', optionsResponse)
-//     console.log('optionsPayload', optionsPayload)
-//   } catch (error) {
-//     console.error('Error while saving', error)
-//   } finally {
-//     isLoading.value = false
-//   }
+//   })
 // }
-
-const applyDefaultOptions = () => {
-  defaultOptions.value.forEach(option => {
-    if (!(option.id in formData.value.options) || formData.value.options[option.id] === '') {
-      formData.value.options[option.id] = option.values?.[0]?.value || ''
-    }
-  })
-}
 
 const resetFormData = () => {
   formData.value = {
@@ -453,7 +397,7 @@ const saveFormData = async () => {
     const roomPayload = {
       service_id: serviceStore.serviceId,
       product_name: formData.value.name,
-      product_type: 'HotelSuite',
+      product_type_id: formData.value.roomType,
       description: formData.value.description,
       status: formData.value.status,
       price: formData.value.rent,
@@ -467,7 +411,7 @@ const saveFormData = async () => {
     const roomId = roomResponse.data.id
     console.log('roomId', roomId)
 
-    applyDefaultOptions()
+    // applyDefaultOptions()
 
     const optionsPayload = Object.entries(formData.value.options).map(
       ([id, value]: [string, any]) => {
@@ -532,6 +476,7 @@ const fetchServiceProduct = async () => {
 
 onMounted(async () => {
   await fetchOptions()
+  await fetchRoomType()
 })
 onMounted(async () => {
   setTimeout(async () => {
@@ -550,6 +495,7 @@ const flattenServiceProducts = computed(() => {
         bg: statusClasses[0],
         text: statusClasses[1],
       },
+      RoomTypeName : getRoomTypeName(product.productTypeId)
     }
     console.log('00000', flatProduct)
 
@@ -587,8 +533,8 @@ const titles = computed(() => [
     type: 'badge',
   },
   {
-    name: 'option_1',
-    label: t('AccommodationType'),
+    name: 'RoomTypeName',
+    label: t('RoomTypes'),
     type: 'text',
   },
   {
@@ -651,11 +597,11 @@ const titles = computed(() => [
     label: t('NumberofRooms'),
     type: 'text',
   },
-  {
-    name: 'option_14',
-    label: t('MaximumOccupancy'),
-    type: 'text',
-  },
+  // {
+  //   name: 'option_14',
+  //   label: t('MaximumOccupancy'),
+  //   type: 'text',
+  // },
   {
     name: 'option_15',
     label: t('TV'),
@@ -797,6 +743,7 @@ const handleProductAction = (action: string, room: any) => {
       formData.value.description = roomToEdit.description
       formData.value.rent = roomToEdit.price
       formData.value.status = roomToEdit.status
+      formData.value.roomType = roomToEdit.productTypeId
       const optionsList: Record<number, string> = {}
 
       if (Array.isArray(roomToEdit.options)) {
@@ -846,9 +793,9 @@ const updateFormData = async () => {
     const roomPayload = {
       service_id: serviceStore.serviceId,
       product_name: formData.value.name,
-      product_type: 'HotelSuite',
       description: formData.value.description,
       status: formData.value.status,
+      product_type_id: formData.value.roomType,
       price: formData.value.rent,
     }
 
@@ -927,6 +874,11 @@ const OpenModal = () => {
   modalOpen.value = true
   isEditMode.value = false
 }
+
+const getRoomTypeName = (id: number) => {
+  const found = roomTypeData.value.find((s:any) => s.value === id);
+  return found ? found.label : '';
+};
 </script>
 
 <style scoped>

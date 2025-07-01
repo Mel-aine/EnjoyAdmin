@@ -103,7 +103,9 @@
 
           <!-- Room Selection Component -->
           <RoomSector
+            :ActiveRoomTypes="ActiveRoomTypes"
             :availableRooms="availableRooms"
+            :selectedRoomType="selectedRoomType"
             @update:roomSelections="updateRoomSelections"
             @update:totalPrice="updateTotalPrice"
             v-model="fetchData"
@@ -125,7 +127,7 @@
           <!-- Notes -->
           <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              {{ $t('Note') }}
+              {{ $t('special_request') }}
             </label>
             <textarea
               v-model="form.normalDescription"
@@ -261,6 +263,7 @@ import {
   getUserId,
   putReservation,
   getReservationServiceProduct,
+  getTypeProductByServiceId
 } from '@/services/api'
 import type { ProductType } from '@/types/option'
 import 'flatpickr/dist/flatpickr.css'
@@ -297,6 +300,9 @@ defineProps<{ id: string }>()
 const isEditMode = ref(false)
 const selectedProducts = ref([])
 const totalPrice = ref(0)
+const ActiveRoomTypes = ref<any[]>([])
+const selectedRoomType = ref<number | null>(null)
+
 
 
 const updateRoomSelections = (newSelections: any) => {
@@ -411,8 +417,9 @@ watch(selectedRoomPrice, (newPrice: any) => {
 watch(reservations.value, (newReservation: any) => {
   console.log('✅ reservations', newReservation)
 })
-onMounted(() => {
-  fetchServiceData()
+onMounted(async() => {
+  await fetchServiceData()
+  await fetchRoomType()
 })
 
 interface ReservationForm {
@@ -706,6 +713,7 @@ const availableRooms = computed(() => {
   return finalRooms.map((room) => ({
     ...room,
     label: room.label || room.productName,
+    roomType : room.productTypeId,
     roomPrice: room.price,
   }))
 })
@@ -834,4 +842,25 @@ const goBack = () => {
   }
    window.history.back();
 }
+const fetchRoomType = async () => {
+  try {
+    const serviceId = serviceStore.serviceId
+    const response = await getTypeProductByServiceId(serviceId)
+
+    ActiveRoomTypes.value = response.data
+  .filter((type: any) => type.status === 'active')
+  .map((item: any) => ({
+    ...item,
+    value: item.id,
+    label: item.name,
+  }));
+  console.log("ActiveRoomTypes.value",ActiveRoomTypes.value)
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération des roomtypes:', error)
+  }
+}
+
+
+
 </script>

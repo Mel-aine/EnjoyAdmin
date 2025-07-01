@@ -669,6 +669,10 @@
   "ExtraGuestPrice" : "Extra Guest Price",
   "DefaultDeposit" : "Default Deposit",
   "Vat(%)" : "Vat(%)",
-  "Vat" : "Vat"
+  "Vat" : "Vat",
+  "final_price" : "Final Price",
+  "NoRoomsAvailableForThisType": "No rooms available for this type",
+  "special_request" : "Special Request"
+
     
 }

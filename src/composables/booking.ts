@@ -8,7 +8,8 @@ export const useBookingStore = defineStore('booking', {
     selectedBooking: null as any | null,
   }),
    getters: {
-    getBooking: (state) => state.selectedBooking
+    getBooking: (state) => state.selectedBooking,
+    getRoom: (state) => state.selectedRoom
   },
   actions: {
     setRoom(room:any) {
