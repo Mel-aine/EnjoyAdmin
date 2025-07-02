@@ -11,7 +11,7 @@
           {{ $t('importdefault') }}
         </button>
       </div>
-      <div class="h-screen mt-10">
+      <div class=" mt-10">
         <TableComponent :items="titles" :datas="categories" :filterable="true" :pagination="true" :loading="loading"
           :showHeader="true" :title="$t('StockCategory')" :pageSize="15" :showButtonAllElement="true"
           @edit="onEditCategory" @delete="onDeleteCategory" class="modern-table" />
