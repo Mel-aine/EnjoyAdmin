@@ -6,17 +6,8 @@
         <DropdownMenu :menu-items="menuItems">
           <template #icon>
             <button class="border border-gray-300 bg-purple-400 rounded-lg relative">
-              <svg
-                class="h-8 w-8 text-white"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+              <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" />
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -28,20 +19,9 @@
       <div class="h-screen">
         <!-- <ComponentCard :title="$t('AllRoomType')"> -->
         <div class="space-y-5 sm:space-y-6 mt-10">
-          <TableComponent
-            :items="titles"
-            :datas="roomTypeData"
-            :filterable="true"
-            :pagination="true"
-            :loading="loading"
-            :showHeader="true"
-            :title="$t('AllRoomType')"
-            :pageSize="15"
-            :showButtonAllElement="true"
-            @edit="onEditRoomType"
-            @delete="onDeleteRoomType"
-            class="modern-table"
-          />
+          <TableComponent :items="titles" :datas="roomTypeData" :filterable="true" :pagination="true" :loading="loading"
+            :showHeader="true" :title="$t('AllRoomType')" :pageSize="15" :showButtonAllElement="true"
+            @edit="onEditRoomType" @delete="onDeleteRoomType" class="modern-table" />
         </div>
         <!-- </ComponentCard> -->
       </div>
@@ -50,27 +30,15 @@
     <Modal v-if="modalOpen" @close="closeModal">
       <template #body>
         <div
-          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-        >
+          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <!-- close btn -->
-          <button
-            @click="closeModal"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-          >
-            <svg
-              class="fill-current"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+          <button @click="closeModal"
+            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
+            <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
                 d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-                fill=""
-              />
+                fill="" />
             </svg>
           </button>
           <div class="px-2 pr-14">
@@ -83,71 +51,36 @@
               <div>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 mb-6">
                   <div>
-                    <Input
-                      :lb="$t('RoomName')"
-                      :placeholder="$t('RoomName')"
-                      :id="'room'"
-                      :forLabel="'room'"
-                      v-model="form.name"
-                    />
+                    <Input :lb="$t('RoomName')" :placeholder="$t('RoomName')" :id="'room'" :forLabel="'room'"
+                      v-model="form.name" />
                   </div>
                   <div>
-                    <Input
-                      :lb="$t('DefaultGuest')"
-                      :placeholder="$t('DefaultGuest')"
-                      :id="'default_guest'"
-                      inputType="Number"
-                      :forLabel="'default_guest'"
-                      v-model.number="form.default_guest"
-                    />
+                    <Input :lb="$t('DefaultGuest')" :placeholder="$t('DefaultGuest')" :id="'default_guest'"
+                      inputType="Number" :forLabel="'default_guest'" v-model.number="form.default_guest" />
                   </div>
                   <div>
-                    <InputCurrency
-                      :lb="$t('price')"
-                      :placeholder="$t('price')"
-                      :id="'price'"
-                      :forLabel="'price'"
-                      v-model.number="form.price"
-                    />
+                    <InputCurrency :lb="$t('price')" :placeholder="$t('price')" :id="'price'" :forLabel="'price'"
+                      v-model.number="form.price" />
                   </div>
                   <div>
-                    <InputCurrency
-                      :lb="$t('ExtraGuestPrice')"
-                      :placeholder="$t('ExtraGuestPrice')"
-                      :id="'extra_guest'"
-                      :forLabel="'extra_guest'"
-                      v-model.number="form.extra_guest"
-                    />
+                    <InputCurrency :lb="$t('ExtraGuestPrice')" :placeholder="$t('ExtraGuestPrice')" :id="'extra_guest'"
+                      :forLabel="'extra_guest'" v-model.number="form.extra_guest" />
                   </div>
                   <div>
-                    <Input
-                      :lb="$t('Vat(%)')"
-                      :placeholder="$t('Vat')"
-                      :id="'vat'"
-                      inputType="Number"
-                      :disabled="true"
-                      :forLabel="'vat'"
-                      v-model.number="form.vat"
-                    />
+                    <Input :lb="$t('Vat(%)')" :placeholder="$t('Vat')" :id="'vat'" inputType="Number" :disabled="true"
+                      :forLabel="'vat'" v-model.number="form.vat" />
                   </div>
                   <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >{{ $t('final_price') }}</label
-                    >
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{
+                      $t('final_price') }}</label>
                     <div
-                      class="h-11 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                    >
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
                       {{ formatted }}
                     </div>
                   </div>
                   <div>
-                    <InputCurrency
-                      :lb="$t('DefaultDeposit')"
-                      :placeholder="$t('DefaultDeposit')"
-                      :id="'default_deposit'"
-                      :forLabel="'default_deposit'"
-                      v-model.number="form.default_deposit"
-                    />
+                    <InputCurrency :lb="$t('DefaultDeposit')" :placeholder="$t('DefaultDeposit')"
+                      :id="'default_deposit'" :forLabel="'default_deposit'" v-model.number="form.default_deposit" />
                   </div>
 
                   <div>
@@ -158,32 +91,21 @@
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {{ $t('Description') }}
                   </label>
-                  <textarea
-                    v-model="form.description"
-                    :placeholder="$t('Largetext')"
-                    rows="6"
-                    class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  ></textarea>
+                  <textarea v-model="form.description" :placeholder="$t('Largetext')" rows="6"
+                    class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"></textarea>
                 </div>
               </div>
             </div>
             <div class="flex items-center gap-3 px-2 mt-2 lg:justify-end">
-              <button
-                @click="closeModal"
-                type="button"
-                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-              >
+              <button @click="closeModal" type="button"
+                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
                 {{ $t('Cancel') }}
               </button>
-              <button
-                :disabled="isLoading"
-                type="button"
+              <button :disabled="isLoading" type="button"
                 class="flex w-full justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 sm:w-auto"
-                @click.prevent="handleSubmit"
-              >
+                @click.prevent="handleSubmit">
                 <span v-if="!isLoading">
-                  {{ isEditMode ? $t('EditRoomType') : $t('AddRoomType') }}</span
-                >
+                  {{ isEditMode ? $t('EditRoomType') : $t('AddRoomType') }}</span>
                 <span v-else class="flex items-center gap-2">
                   <Spinner class="w-4 h-4" />
                   {{ $t('Processing') }}...
@@ -196,12 +118,8 @@
     </Modal>
   </div>
 
-  <ModalDelete
-    v-if="show"
-    @close="show = false"
-    @delete="confirmDelete"
-    :isLoading="loadingDelete"
-  />
+  <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
+  <Spinner v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75" />
 </template>
 
 <script setup lang="ts">
@@ -211,7 +129,6 @@ import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { createRoomType, getTypeProductByServiceId } from '@/services/api'
-import ComponentCard from '@/components/common/ComponentCard.vue'
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -223,6 +140,7 @@ import { updateRoomType, deleteRoomType } from '@/services/api'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
+import { defaultRoomTypes } from '@/assets/data/roomtype'
 
 const isLoading = ref(false)
 const loading = ref(true)
@@ -234,7 +152,10 @@ const toast = useToast()
 const serviceStore = useServiceStore()
 const modalOpen = ref(false)
 const currentPageTitle = computed(() => t('RoomTypes'))
-const menuItems = computed(() => [{ label: t('AddRoomType'), onClick: () => OpenModal() }])
+const menuItems = computed(() => [
+  { label: t('AddRoomType'), onClick: () => OpenModal() },
+  { label: t('importdefault'), onClick: () => importDefaultDefaults() }
+])
 const selectedRoomType = ref<any>(null)
 const isEditMode = ref(false)
 const status = ref([
@@ -262,20 +183,20 @@ const titles = computed(() => [
   {
     name: 'price',
     label: t('price'),
-    type: 'text',
+    type: 'currency',
     event: 'view',
     filterable: true,
   },
   {
     name: 'extraGuestPrice',
     label: t('ExtraGuestPrice'),
-    type: 'text',
+    type: 'currency',
     filterable: true,
   },
   {
     name: 'defaultDeposit',
     label: t('DefaultDeposit'),
-    type: 'text',
+    type: 'currency',
     filterable: true,
   },
   {
@@ -424,10 +345,10 @@ const fetchRoomType = async () => {
   }
 }
 
-onMounted(async() => {
+onMounted(async () => {
   await fetchRoomType()
-   await new Promise((resolve) => setTimeout(resolve, 500))
-   loading.value = false
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  loading.value = false
 })
 
 const onEditRoomType = (type: any) => handleBookingAction('edit', type)
@@ -566,6 +487,41 @@ const closeModal = () => {
 const OpenModal = () => {
   modalOpen.value = true
   isEditMode.value = false
+}
+
+const importDefaultDefaults = async () => {
+  const defaultRoomTypesData = defaultRoomTypes;
+  if (defaultRoomTypesData && defaultRoomTypesData.length > 0) {
+    isLoading.value = true
+    try {
+      const serviceId = serviceStore.serviceId
+
+      if (!serviceId) {
+        throw new Error('Service ID is not defined')
+      }
+      for (const roomType of defaultRoomTypesData) {
+        const Payload = {
+          name: roomType.name,
+          description: roomType.description,
+          status: 'active',
+          service_id: serviceId,
+          price: roomType.Prix,
+          default_guest: roomType.DefaultGuest,
+          extra_guest_price: roomType.ExtraGuestPrice,
+          default_deposit: roomType.DefaultDeposit,
+        }
+        console.log('roomtype', Payload)
+
+        await createRoomType(Payload)
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'importation des types de chambre par défaut', error)
+    } finally {
+      isLoading.value = false
+      fetchRoomType()
+      toast.success(t('toast.defaultRoomTypesImported'))
+    }
+  }
 }
 </script>
 
