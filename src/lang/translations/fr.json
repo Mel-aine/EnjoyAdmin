@@ -1489,5 +1489,40 @@
   "Task Management": "Gestion des tâches",
   "Staff Schedule": "Planning du personnel",
   "Staff Management": "Gestion du personnel",
-  "Action History": "Historique des actions"
+  "Action History": "Historique des actions",
+  "booking": {
+    "arrival": "Arrivée",
+    "departure": "Départ",
+    "duration": "Durée",
+    "nights": "nuits",
+    "createdAt": "Date de réservation"
+  },
+  "client": {
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "guests": "Voyageurs"
+  },
+  "booking_details": "Détails de la réservation",
+  "reference": "Référence",
+  "customer_info": "Informations du client",
+  "room_reserved": "Chambres réservées",
+  "date_stay": "Dates du séjour",
+  "du" : "du",
+  "au" : "au",
+  "DefaultGuest": "Invité par défaut",
+  "ExtraGuestPrice": "Prix invité supplémentaire",
+  "DefaultDeposit": "Dépôt par défaut",
+  "Vat(%)": "TVA (%)",
+  "Vat": "TVA",
+  "final_price": "Prix final",
+  "NoRoomsAvailableForThisType": "Aucune chambre disponible pour ce type",
+  "special_request": "Demande spéciale",
+  "ExtraGuest": "Invité supplémentaire",
+  "TotalGuests": "Nombre total d'invités",
+  "DepositNote": "Note de dépôt",
+  "BasePrice": "Prix de base",
+  "guests": "Invités",
+  "ExtraGuestFee": "Frais pour invité supplémentaire",
+  "Remaining": "Restant"
 }

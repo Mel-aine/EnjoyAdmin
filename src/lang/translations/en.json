@@ -730,7 +730,14 @@
   "Vat" : "Vat",
   "final_price" : "Final Price",
   "NoRoomsAvailableForThisType": "No rooms available for this type",
-  "special_request" : "Special Request"
+  "special_request" : "Special Request",
+  "ExtraGuest" : "Extra Guest",
+  "TotalGuests" : "Total Guests",
+  "DepositNote" : "Deposit Note",
+  "BasePrice" : "Base Price",
+  "guests" : "Guests",
+  "ExtraGuestFee" : "Extra Guest Fee",
+  "Remaining" : "Remaining"
 
     
 }
