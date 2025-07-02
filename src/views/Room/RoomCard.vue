@@ -33,7 +33,7 @@ const props = defineProps({
 const emit = defineEmits(['change', 'checkin', 'checkout', 'cleaned'])
 
 const optionLabels = {
-  option_1: 'Type de chambre',
+  // option_1: 'Type de chambre',
   option_2: 'Type de lit',
   option_3: 'Vue',
   option_4: 'Petit-déjeuner inclus',
@@ -53,7 +53,9 @@ const iconsMap = {
   option_8: Utensils,
 }
 
-const displayedOptions = computed(() => {
+const maxOptions = 2
+
+const allOptions = computed(() => {
   return Object.entries(optionLabels)
     .filter(([key]) => props.room[key] !== undefined && props.room[key] !== null)
     .map(([key, label]) => ({
@@ -62,6 +64,13 @@ const displayedOptions = computed(() => {
       value: props.room[key],
       Icon: iconsMap[key],
     }))
+})
+
+ const displayedOptions = computed(() => allOptions.value.slice(0, maxOptions))
+
+const remainingCount = computed(() => {
+  const total = allOptions.value.length
+  return total > maxOptions ? total - maxOptions : 0
 })
 
 const equipmentIcons = {
@@ -166,14 +175,7 @@ const handleCheckIn = () => {
   emit('checkin', props.room)
 }
 
-// const handleCheckOut = async () => {
-//   try {
-//     isCheckingOut.value = true
-//     emit('checkout', props.room)
-//   } finally {
-//     isCheckingOut.value = false
-//   }
-// }
+
 const handleCheckOut = async () => {
   emit('checkout', props.room)
 }
@@ -182,16 +184,7 @@ const handleMarkCleaned = () => {
   emit('cleaned', props.room)
 }
 
-// function formatDate(dateStr) {
-//   const d = new Date(dateStr)
-//   return d.toLocaleDateString('fr-FR', {
-//     day: 'numeric',
-//     month: 'long',
-//     year: 'numeric',
-//     hour: '2-digit',
-//     minute: '2-digit',
-//   })
-// }
+
 
 const store = useBookingStore()
 
@@ -218,42 +211,41 @@ function getNextDisplayDate(status, departDate) {
 
 <template>
   <div
-    class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100/70 hover:border-gray-200/90 relative overflow-hidden"
-  >
-    <!-- Status Ribbon -->
-    <!-- <div class="absolute top-2 right-0 w-28 overflow-hidden">
-        <div
-          :class="[statusConfig.classes, 'text-sm font-semibold px-4 py-1 text-center transform rotate-45 translate-x-10 translate-y-3 shadow-md ribbon-glow']"
-          style="backdrop-filter: blur(6px);"
-        >
-          {{ statusConfig.text }}
-        </div>
-      </div> -->
+  class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100/70 hover:border-gray-200/90 relative overflow-hidden min-h-[80px] flex flex-col justify-between"
+>
+
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center space-x-2">
-        <h3 class="text-xl font-semibold text-gray-900 tracking-tight">
-          {{ props.room.productName || props.room.name }}
-        </h3>
-        <span
-          :class="[
-            statusConfig.classes,
-            'text-xs font-semibold px-2 py-1 rounded-full select-none shadow-sm',
-          ]"
-        >
-          {{ statusConfig.text }}
-        </span>
-      </div>
+   <div class="flex items-center justify-between mb-4">
+  <div>
+    <div class="flex items-center space-x-2">
+      <h3 class="text-xl font-semibold text-gray-900 tracking-tight">
+        {{ props.room.productName || props.room.name }}
+      </h3>
+      <span
+        :class="[
+          statusConfig.classes,
+          'text-xs font-semibold px-2 py-1 rounded-full select-none shadow-sm',
+        ]"
+      >
+        {{ statusConfig.text }}
+      </span>
+    </div>
+
+    <!-- Room Type under title -->
+    <p class="text-sm text-gray-700 mt-1">
+      {{ $t('RoomTypes') }} : {{ props.room.productTypeName }}
+    </p>
+  </div>
 
       <div class="flex items-center space-x-2">
-        <button
+        <!-- <button
           @click="toggleStatus"
           class="p-2 rounded-lg border border-gray-200/80 shadow-sm hover:bg-gray-50/50 backdrop-blur-sm transition-all"
           title="Changer le statut"
         >
           <ArrowRightLeft class="w-5 h-5 text-gray-600" />
-        </button>
+        </button> -->
 
         <button
           @click="emit('change', { room: props.room, status: 'maintenance' })"
@@ -265,7 +257,7 @@ function getNextDisplayDate(status, departDate) {
       </div>
     </div>
 
-    <!-- Guest Info (if occupied) -->
+        <!-- Guest Info (if occupied) -->
     <div v-if="props.room.guestName" class="mb-3 p-2 bg-blue-50 rounded-lg">
       <p class="text-sm font-medium text-blue-900 inline-flex"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cc53e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round-icon lucide-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg> : {{ props.room.guestName }}</p>
       <p v-if="props.room.checkInTime" class="text-xs text-blue-700">
@@ -274,7 +266,8 @@ function getNextDisplayDate(status, departDate) {
     </div>
 
     <!-- Room Options Grid -->
-    <ul class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-700">
+   <ul class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-700">
+
       <li v-for="option in displayedOptions" :key="option.key" class="flex items-center space-x-2">
         <component
           v-if="option.Icon"
@@ -283,6 +276,7 @@ function getNextDisplayDate(status, departDate) {
         />
         <span>{{ option.value }}</span>
       </li>
+      <!-- <li>{{ remainingCount }}</li> -->
     </ul>
 
     <!-- Equipment -->

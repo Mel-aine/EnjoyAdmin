@@ -433,7 +433,7 @@ const saveMovement = async () => {
         type: currentMovement.type,
         quantity: currentMovement.quantity,
         stock_category_id: prod,
-        department_id: currentMovement.destinationId,
+        department_id: departmentId,
         user: currentMovement.user,
         notes: currentMovement.notes,
         service_id: serviceId,
