@@ -665,7 +665,22 @@
   "room_reserved": "Chambres réservées",
   "date_stay": "Dates du séjour",
   "du" : "du",
-  "au" : "au"
+  "au" : "au",
+  "DefaultGuest": "Invité par défaut",
+  "ExtraGuestPrice": "Prix invité supplémentaire",
+  "DefaultDeposit": "Dépôt par défaut",
+  "Vat(%)": "TVA (%)",
+  "Vat": "TVA",
+  "final_price": "Prix final",
+  "NoRoomsAvailableForThisType": "Aucune chambre disponible pour ce type",
+  "special_request": "Demande spéciale",
+  "ExtraGuest": "Invité supplémentaire",
+  "TotalGuests": "Nombre total d'invités",
+  "DepositNote": "Note de dépôt",
+  "BasePrice": "Prix de base",
+  "guests": "Invités",
+  "ExtraGuestFee": "Frais pour invité supplémentaire",
+  "Remaining": "Restant"
 
 
 

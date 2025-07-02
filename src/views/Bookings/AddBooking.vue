@@ -2,17 +2,27 @@
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
-
       <DefaultCard>
-          <template v-slot:button v-if="isEditMode">
-                    <button class="flex items-center" @click="goBack">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-purple-600">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                        </svg>&nbsp;&nbsp;
-                        <span class="text-nowrap">{{ $t('Goback') }}</span>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                    </button>
-          </template>
+        <template v-slot:button v-if="isEditMode">
+          <button class="flex items-center" @click="goBack">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-5 text-purple-600"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+              /></svg
+            >&nbsp;&nbsp;
+            <span class="text-nowrap">{{ $t('Goback') }}</span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </button>
+        </template>
         <form class="space-y-6">
           <!-- Personal information section -->
 
@@ -101,59 +111,58 @@
             </div>
           </div>
 
-
-
           <!-- Room Selection Component -->
           <RoomSector
             :ActiveRoomTypes="ActiveRoomTypes"
             :availableRooms="availableRooms"
-             :selectedRoomType="selectedRoomType"
-              @update:selectedRoomType="val => selectedRoomType = val"
+            :selectedRoomType="selectedRoomType"
+            @update:selectedRoomType="(val) => (selectedRoomType = val)"
             @update:roomSelections="updateRoomSelections"
             @update:totalPrice="updateTotalPrice"
             v-model="fetchData"
           />
 
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <Input
+                :lb="$t('DefaultGuest')"
+                :inputType="'Number'"
+                :placeholder="$t('DefaultGuest')"
+                :id="'defaultGuest'"
+                :forLabel="'defaultGuest'"
+                :disabled="true"
+                v-model="form.default_guest"
+                :min="1"
+                :required="true"
+              />
+            </div>
 
-           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div>
-          <Input
-            :lb="$t('DefaultGuest')"
-            :inputType="'Number'"
-            :placeholder="$t('DefaultGuest')"
-            :id="'defaultGuest'"
-            :forLabel="'defaultGuest'"
-            :disabled="true"
-            v-model="form.default_guest"
-            :min="1"
-            :required="true"
-          />
-        </div>
+            <div>
+              <Input
+                :lb="$t('ExtraGuest')"
+                :inputType="'Number'"
+                :placeholder="$t('ExtraGuest')"
+                :id="'extraGuest'"
+                :forLabel="'extraGuest'"
+                v-model="form.extra_guest"
+                :min="0"
+              />
+            </div>
+          </div>
 
-        <div>
-          <Input
-            :lb="$t('ExtraGuest')"
-            :inputType="'Number'"
-            :placeholder="$t('ExtraGuest')"
-            :id="'extraGuest'"
-            :forLabel="'extraGuest'"
-            v-model="form.extra_guest"
-            :min="0"
-          />
-        </div>
-      </div>
-
-      <!-- Total Guests Display -->
-      <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-        <div class="flex justify-between items-center">
-          <span class="font-medium text-blue-900 dark:text-blue-100">
-            {{ $t('TotalGuests') }}
-          </span>
-          <span class="font-bold text-xl text-blue-900 dark:text-blue-100">
-            {{ totalGuests }}
-          </span>
-        </div>
-      </div>
+          <!-- Total Guests Display -->
+          <div
+            class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
+          >
+            <div class="flex justify-between items-center">
+              <span class="font-medium text-blue-900 dark:text-blue-100">
+                {{ $t('TotalGuests') }}
+              </span>
+              <span class="font-bold text-xl text-blue-900 dark:text-blue-100">
+                {{ totalGuests }}
+              </span>
+            </div>
+          </div>
 
           <div
             class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
@@ -168,63 +177,67 @@
             </div> -->
 
             <div>
-        <Input
-          :lb="$t('DefaultDeposit')"
-          :inputType="'Number'"
-          :placeholder="$t('DefaultDeposit')"
-          :id="'defaultDeposit'"
-          :forLabel="'defaultDeposit'"
-          :disabled="true"
-          v-model="form.default_deposit"
-          :min="0"
-          :step="0.01"
-        />
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {{ $t('DepositNote') }}
-        </p>
-      </div>
+              <Input
+                :lb="$t('DefaultDeposit')"
+                :inputType="'Number'"
+                :placeholder="$t('DefaultDeposit')"
+                :id="'defaultDeposit'"
+                :forLabel="'defaultDeposit'"
+                :disabled="true"
+                v-model="form.default_deposit"
+                :min="0"
+                :step="0.01"
+              />
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {{ $t('DepositNote') }}
+              </p>
+            </div>
 
-      <!-- Price Summary -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div class="space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-gray-700 dark:text-gray-300">{{ $t('BasePrice') }}</span>
-            <span class="text-gray-900 dark:text-white">{{ calculateTotalPrice }} FCFA</span>
-          </div>
+            <!-- Price Summary -->
+            <div
+              class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700"
+            >
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-700 dark:text-gray-300">{{ $t('BasePrice') }}</span>
+                  <span class="text-gray-900 dark:text-white">{{ calculateTotalPrice }} FCFA</span>
+                </div>
 
-          <div v-if="form.extra_guest > 0" class="flex justify-between items-center">
-            <span class="text-gray-700 dark:text-gray-300">
-              {{ $t('ExtraGuestFee') }} ({{ form.extra_guest }} {{ $t('guests') }})
-            </span>
-            <span class="text-gray-900 dark:text-white">{{ extraGuestPrice }} FCFA</span>
-          </div>
+                <div v-if="form.extra_guest > 0" class="flex justify-between items-center">
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{ $t('ExtraGuestFee') }} ({{ form.extra_guest }} {{ $t('guests') }})
+                  </span>
+                  <span class="text-gray-900 dark:text-white">{{ extraGuestPrice }} FCFA</span>
+                </div>
 
-          <hr class="border-gray-300 dark:border-gray-600">
+                <hr class="border-gray-300 dark:border-gray-600" />
 
-          <div class="flex justify-between items-center">
-            <span class="font-medium text-lg text-gray-900 dark:text-white">
-              {{ $t('TotalPrice') }}
-            </span>
-            <span class="font-bold text-xl text-gray-900 dark:text-white">
-              {{ finalTotalPrice }} FCFA
-            </span>
-          </div>
+                <div class="flex justify-between items-center">
+                  <span class="font-medium text-lg text-gray-900 dark:text-white">
+                    {{ $t('TotalPrice') }}
+                  </span>
+                  <span class="font-bold text-xl text-gray-900 dark:text-white">
+                    {{ finalTotalPrice }} FCFA
+                  </span>
+                </div>
 
-          <div v-if="form.default_deposit > 0" class="flex justify-between items-center">
-            <span class="text-gray-700 dark:text-gray-300">{{ $t('Deposit') }}</span>
-            <span class="text-green-600 dark:text-green-400 font-medium">
-              {{ form.default_deposit }} FCFA
-            </span>
-          </div>
+                <div v-if="form.default_deposit > 0" class="flex justify-between items-center">
+                  <span class="text-gray-700 dark:text-gray-300">{{ $t('Deposit') }}</span>
+                  <span class="text-green-600 dark:text-green-400 font-medium">
+                    {{ form.default_deposit }} FCFA
+                  </span>
+                </div>
 
-          <div class="flex justify-between items-center">
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('Remaining') }}</span>
-            <span class="font-bold text-red-600 dark:text-red-400">
-              {{ remainingAmount }} FCFA
-            </span>
-          </div>
-        </div>
-      </div>
+                <div class="flex justify-between items-center">
+                  <span class="font-medium text-gray-700 dark:text-gray-300">{{
+                    $t('Remaining')
+                  }}</span>
+                  <span class="font-bold text-red-600 dark:text-red-400">
+                    {{ remainingAmount }} FCFA
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Notes -->
@@ -248,7 +261,6 @@
             {{ $t('Processing') }}...
           </span>
         </ButtonComponent>
-
       </DefaultCard>
     </div>
   </AdminLayout>
@@ -357,7 +369,7 @@ import {
   getUserId,
   putReservation,
   getReservationServiceProduct,
-  getTypeProductByServiceId
+  getTypeProductByServiceId,
 } from '@/services/api'
 import type { ProductType } from '@/types/option'
 import 'flatpickr/dist/flatpickr.css'
@@ -398,9 +410,6 @@ const ActiveRoomTypes = ref<any[]>([])
 const selectedRoomType = ref<any | null>(null)
 const extraGuestPrice = ref<number | null>(null)
 
-
-
-
 const updateRoomSelections = (newSelections: any) => {
   selectedProducts.value = newSelections
   console.log('Updated room selections:', selectedProducts.value)
@@ -411,8 +420,6 @@ const updateTotalPrice = (newPrice: any) => {
   console.log('Updated total price:', totalPrice.value)
 }
 
-
-
 const Payements = ref<any[]>([])
 const reservationSummary = ref({
   clientName: '',
@@ -420,8 +427,6 @@ const reservationSummary = ref({
   type: '',
   total: 0,
 })
-
-
 
 const currentPageTitle = computed(() => t('Booking'))
 
@@ -513,7 +518,7 @@ watch(selectedRoomPrice, (newPrice: any) => {
 watch(reservations.value, (newReservation: any) => {
   console.log('✅ reservations', newReservation)
 })
-onMounted(async() => {
+onMounted(async () => {
   await fetchServiceData()
   await fetchRoomType()
 })
@@ -528,13 +533,12 @@ interface ReservationForm {
   numberOfNights: number | null
   totalPrice: number | null
   payment: string
-  default_guest:number
-  default_deposit : number
+  default_guest: number
+  default_deposit: number
   extra_guest: number
 }
 
 const selectedPaymentMethod = ref('')
-
 
 const form = ref<ReservationForm>({
   roomType: null,
@@ -546,15 +550,14 @@ const form = ref<ReservationForm>({
   totalPrice: null,
   numberOfNights: totalPersons.value,
   payment: 'pending',
-  default_guest:0,
-  default_deposit : 0,
-  extra_guest: 0
+  default_guest: 0,
+  default_deposit: 0,
+  extra_guest: 0,
 })
 const reservationId = ref<number | null>(null)
 
 const userId = ref<number | null>(null)
 const authStore = useAuthStore()
-
 
 const formData = ref<any>({
   firstName: '',
@@ -567,15 +570,14 @@ const saveReservation = async () => {
   isLoading.value = true
   try {
     const reservationPayload = {
-
       first_name: selectedCustomer.value.firstName,
       last_name: selectedCustomer.value.lastName,
       email: selectedCustomer.value.email,
       phone_number: selectedCustomer.value.phoneNumber,
       service_id: serviceStore.serviceId,
       reservation_type: 'Hotels & Stays',
-      total_amount: calculateTotalPrice.value,
-      guest_count: form.value.totalPerson,
+      total_amount: finalTotalPrice.value,
+      guest_count: totalGuests.value,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
       comment: form.value.normalDescription,
@@ -590,12 +592,12 @@ const saveReservation = async () => {
 
     console.log('✅ reservationPayload', reservationPayload)
 
-    const response = await createReservation(reservationPayload)
+     const response = await createReservation(reservationPayload)
     reservationSummary.value = {
       clientName: `${selectedCustomer.value.firstName} ${selectedCustomer.value.lastName}`,
       room: form.value.roomType ?? '',
       type: form.value.package ?? 'Hotels & Stays',
-      total: Number(calculateTotalPrice.value ?? 0),
+      total: Number(finalTotalPrice.value ?? 0),
     }
     reservationId.value = response.data.reservation.id
     userId.value = response.data.reservation.userId
@@ -613,6 +615,9 @@ const saveReservation = async () => {
       totalPrice: null,
       numberOfNights: totalPersons.value,
       payment: '',
+      default_guest: 0,
+      default_deposit: 0,
+      extra_guest: 0,
     }
     toast.success(t('toast.reservationCreated'))
     isPaymentModalOpen.value = true
@@ -709,22 +714,24 @@ onMounted(async () => {
     const response1 = await getUserId(response.data.userId)
     const response2 = await getReservationServiceProduct(reservationId.value)
     console.log('response.data2', response2.data)
-    const matchingService = response2.data.filter((p: any) => p.reservationId === reservationId.value)
+    const matchingService = response2.data.filter(
+      (p: any) => p.reservationId === reservationId.value,
+    )
     console.log('matchingServic', matchingService)
     console.log('reservationId.value', reservationId.value)
     // const matchingServiceId = matchingService.serviceProductId
-    const matchingServiceId = matchingService.map((i:any)=>i.serviceProductId)
+    const matchingServiceId = matchingService.map((i: any) => i.serviceProductId)
     console.log('matchingServiceId', matchingServiceId)
 
-   const matchedServiceProduct = ProductList.value.filter((sp: any) =>
-        matchingServiceId.includes(sp.id)
-      );
+    const matchedServiceProduct = ProductList.value.filter((sp: any) =>
+      matchingServiceId.includes(sp.id),
+    )
 
     selectedServiceProduct.value = matchedServiceProduct
     console.log('matchedServiceProduct', selectedServiceProduct.value)
+    console.log('response.data', response.data)
 
-
-   fetchData.value = matchedServiceProduct.map((product: any) => ({
+    fetchData.value = matchedServiceProduct.map((product: any) => ({
       roomType: Number(product.id) || 0,
       roomTypeSelect: Number(product.productTypeId) || 0,
       arrivalDate: response.data.arrivedDate || '',
@@ -735,8 +742,7 @@ onMounted(async () => {
       price: product.price || 0,
       dateError: '',
       showOccupancyDropdown: false,
-    }));
-
+    }))
 
     console.log('match', fetchData.value)
 
@@ -755,16 +761,19 @@ onMounted(async () => {
       departureDate: response.data.departDate,
       normalDescription: response.data.comment,
       totalPerson: response.data.totalPerson,
-      totalPrice: response.data.totalPrice,
+      totalPrice: response.data.totalAmount,
       numberOfNights: null,
       payment: response.data.payment,
+      default_guest: 0,
+      default_deposit: 0,
+      extra_guest: 0,
     }
   }
 })
 
 const calculateTotalPrice = computed(() => {
   if (fetchData.value.length > 0) {
-    return fetchData.value.reduce((total:number, room:any) => {
+    return fetchData.value.reduce((total: number, room: any) => {
       const nights = room.numberOfNights ?? 1
       return total + (room.price || 0) * nights
     }, 0)
@@ -776,26 +785,26 @@ const calculateTotalPrice = computed(() => {
 
 watch(
   fetchData,
-  (newVal) => {
+  (newVal:any) => {
     console.log('Données mises à jour depuis RoomSector :', newVal)
   },
   { deep: true },
 )
 
 const availableRooms = computed(() => {
-   const rooms = ServiceProduct.value
+  const rooms = ServiceProduct.value
 
   console.log('Rooms initiales (store.selectedRoom ou ProductList.value) :', rooms)
 
-  const existingRoomIds = rooms.map((r) => r.id)
+  const existingRoomIds = rooms.map((r:any) => r.id)
   console.log('IDs des chambres existantes :', existingRoomIds)
   console.log('fetchData.value :', fetchData.value)
   console.log('ProductList.value :', ProductList.value)
 
   const missingRooms = fetchData.value
-    .filter((r:any) => !existingRoomIds.includes(r.roomType))
-    .map((r:any) => {
-      const roomFromAll = ProductList.value.find((room:any) => room.id === r.roomType)
+    .filter((r: any) => !existingRoomIds.includes(r.roomType))
+    .map((r: any) => {
+      const roomFromAll = ProductList.value.find((room: any) => room.id === r.roomType)
       console.log(
         `Recherche chambre pour roomType ${r.roomType} dans ProductList.value :`,
         roomFromAll,
@@ -817,11 +826,10 @@ const availableRooms = computed(() => {
   return finalRooms.map((room) => ({
     ...room,
     label: room.label || room.productName,
-    roomType : room.productTypeId,
+    roomType: room.productTypeId,
     roomPrice: room.price,
   }))
 })
-
 
 const updateReservation = async () => {
   try {
@@ -944,8 +952,11 @@ const goBack = () => {
     totalPrice: null,
     numberOfNights: totalPersons.value,
     payment: ' ',
+    default_guest: 0,
+    default_deposit: 0,
+    extra_guest: 0,
   }
-   window.history.back();
+  window.history.back()
 }
 const fetchRoomType = async () => {
   try {
@@ -953,20 +964,19 @@ const fetchRoomType = async () => {
     const response = await getTypeProductByServiceId(serviceId)
 
     ActiveRoomTypes.value = response.data
-  .filter((type: any) => type.status === 'active')
-  .map((item: any) => ({
-    ...item,
-    value: item.id,
-    label: item.name,
-  }));
-  console.log("ActiveRoomTypes.value",ActiveRoomTypes.value)
-
+      .filter((type: any) => type.status === 'active')
+      .map((item: any) => ({
+        ...item,
+        value: item.id,
+        label: item.name,
+      }))
+    console.log('ActiveRoomTypes.value', ActiveRoomTypes.value)
   } catch (error) {
     console.error('Erreur lors de la récupération des roomtypes:', error)
   }
 }
 
-watch(selectedRoomType, (newType) => {
+watch(selectedRoomType, (newType:any) => {
   console.log('[Parent] selectedRoomType changed:', newType)
   // Met à jour le form par exemple
   form.value.default_guest = Number(newType?.defaultGuest) || 1
@@ -974,19 +984,15 @@ watch(selectedRoomType, (newType) => {
   form.value.default_deposit = newType?.defaultDeposit || 0
 })
 
-
-
-
 const totalGuests = computed(() => {
   return Number(form.value.default_guest) + Number(form.value.extra_guest)
 })
 
-   const finalTotalPrice = computed(() => {
-      return Number(calculateTotalPrice.value) +  Number(extraGuestPrice.value)
-    })
+const finalTotalPrice = computed(() => {
+  return Number(calculateTotalPrice.value) + Number(extraGuestPrice.value)
+})
 
-    const remainingAmount = computed(() => {
-      return Math.max(0, finalTotalPrice.value - (form.value.default_deposit || 0))
-    })
-
+const remainingAmount = computed(() => {
+  return Math.max(0, finalTotalPrice.value - (form.value.default_deposit || 0))
+})
 </script>
