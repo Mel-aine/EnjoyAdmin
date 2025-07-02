@@ -366,6 +366,7 @@ const fetchProduct = async () => {
       const statusClasses = getStatusColor(p.status).split(' ');
       return {
         ...p,
+        name:t(p.name),
         statusColor: {
           label: p.status,
           bg: statusClasses[0],
