@@ -1,0 +1,348 @@
+<template>
+  <AdminLayout>
+    <div class="space-y-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">{{ $t('schedule.title') }}</h2>
+          <p class="text-gray-600 mt-1">{{ $t('schedule.subtitle') }}</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button
+            @click="openCreateModal()"
+            class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+          >
+            <span>{{ $t('schedule.addSchedule') }}</span>
+          </button>
+          <div class="flex items-center space-x-4">
+            <button
+              @click="setCurrentWeek(-1)"
+              class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >{{ $t('schedule.prevWeek') }}</button>
+            <span class="font-medium text-gray-900">
+              {{ weekDates[0].toLocaleDateString() }} - {{ weekDates[6].toLocaleDateString() }}
+            </span>
+            <button
+              @click="setCurrentWeek(1)"
+              class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >{{ $t('schedule.nextWeek') }}</button>
+          </div>
+        </div>
+      </div>
+      <!-- Schedule Grid -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {{ $t('schedule.staff') }}
+                </th>
+                <th
+                  v-for="(date, index) in weekDates"
+                  :key="index"
+                  class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  <div>
+                    <div>{{ t(`schedule.days.${dayNames[index]}`) }}</div>
+                    <div class="text-sm font-normal text-gray-400">
+                      {{ date.getDate() }}/{{ date.getMonth() + 1 }}
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr
+                v-for="staffMember in staff"
+                :key="staffMember.id"
+                class="hover:bg-gray-50"
+              >
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-sm font-medium text-blue-600">
+                          {{ staffMember.name.split(' ').map(n => n[0]).join('') }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">{{ staffMember.name }}</div>
+                      <div class="text-sm text-gray-500 capitalize">{{ staffMember.role }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td
+                  v-for="(date, index) in weekDates"
+                  :key="index"
+                  class="px-6 py-4 whitespace-nowrap text-center"
+                >
+                  <template v-if="getScheduleForStaffAndDate(staffMember.id, date)">
+                    <div class="space-y-1">
+                      <button
+                        @click="handleEditSchedule(getScheduleForStaffAndDate(staffMember.id, date))"
+                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full hover:opacity-80 transition-opacity"
+                        :class="getStatusColor(getScheduleForStaffAndDate(staffMember.id, date).status)"
+                      >
+                        {{ t(`schedule.statuses.${getScheduleForStaffAndDate(staffMember.id, date).status}`) }}
+                      </button>
+                      <div
+                        v-if="getScheduleForStaffAndDate(staffMember.id, date).status === 'working'"
+                        class="text-xs text-gray-500"
+                      >
+                        {{ getScheduleForStaffAndDate(staffMember.id, date).shift_start }} -
+                        {{ getScheduleForStaffAndDate(staffMember.id, date).shift_end }}
+                      </div>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <button
+                      @click="openCreateModal(staffMember.id, date.toISOString().split('T')[0])"
+                      class="text-gray-400 hover:text-blue-600 text-sm border border-dashed border-gray-300 hover:border-blue-300 rounded px-2 py-1 transition-colors"
+                    >{{ $t('schedule.add') }}</button>
+                  </template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Schedule Modal -->
+      <div
+        v-if="showScheduleModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-99999"
+      >
+        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-900">
+              {{ editingSchedule ? $t('schedule.editSchedule') : $t('schedule.addSchedule') }}
+            </h3>
+            <button
+              @click="showScheduleModal = false"
+              class="text-gray-400 hover:text-gray-600 text-2xl"
+            >×</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('schedule.staffMember') }}</label>
+              <select
+                v-model="newSchedule.staff_id"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :disabled="editingSchedule"
+              >
+                <option value="">{{ $t('schedule.selectStaff') }}</option>
+                <option
+                  v-for="staffMember in staff"
+                  :key="staffMember.id"
+                  :value="staffMember.id"
+                >
+                  {{ staffMember.name }} ({{ staffMember.role }})
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('schedule.date') }}</label>
+              <input
+                type="date"
+                v-model="newSchedule.date"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :disabled="editingSchedule"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('schedule.status') }}</label>
+              <select
+                v-model="newSchedule.status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="working">{{ $t('schedule.statuses.working') }}</option>
+                <option value="rest">{{ $t('schedule.statuses.rest') }}</option>
+                <option value="sick">{{ $t('schedule.statuses.sick') }}</option>
+                <option value="vacation">{{ $t('schedule.statuses.vacation') }}</option>
+              </select>
+            </div>
+            <div v-if="newSchedule.status === 'working'" class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('schedule.shiftStart') }}</label>
+                <input
+                  type="time"
+                  v-model="newSchedule.shift_start"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('schedule.shiftEnd') }}</label>
+                <input
+                  type="time"
+                  v-model="newSchedule.shift_end"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('schedule.notes') }}</label>
+              <textarea
+                v-model="newSchedule.notes"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="2"
+                :placeholder="$t('schedule.notesPlaceholder')"
+              />
+            </div>
+            <div class="flex space-x-3 pt-4">
+              <button
+                @click="handleCreateOrUpdateSchedule"
+                :disabled="!newSchedule.staff_id || !newSchedule.date"
+                class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                {{ editingSchedule ? $t('schedule.updateSchedule') : $t('schedule.addSchedule') }}
+              </button>
+              <button
+                @click="showScheduleModal = false"
+                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                {{ $t('common.cancel') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Schedule Legend -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('schedule.legendTitle') }}</h3>
+        <div class="flex flex-wrap gap-4">
+          <div
+            v-for="item in legend"
+            :key="item.status"
+            class="flex items-center space-x-2"
+          >
+            <span
+              class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+              :class="getStatusColor(item.status)"
+            >{{ t(`schedule.statuses.${item.status}`) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </AdminLayout>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import axios from 'axios'
+import { schedulesM, staffData } from '@/assets/data/StaffData'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
+
+const { t } = useI18n()
+
+const currentWeek = ref(new Date())
+const showScheduleModal = ref(false)
+const editingSchedule = ref(null)
+const newSchedule = ref({
+  staff_id: '',
+  date: '',
+  shift_start: '09:00',
+  shift_end: '17:00',
+  status: 'working',
+  notes: ''
+})
+
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const schedules = ref(schedulesM)
+const staff = ref(staffData)
+function getWeekDates(startDate) {
+  const week = []
+  const start = new Date(startDate)
+  start.setDate(start.getDate() - start.getDay())
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(start)
+    date.setDate(start.getDate() + i)
+    week.push(date)
+  }
+  return week
+}
+const weekDates = computed(() => getWeekDates(currentWeek.value))
+
+function setCurrentWeek(offset) {
+  currentWeek.value = new Date(currentWeek.value.getTime() + offset * 7 * 24 * 60 * 60 * 1000)
+}
+
+function getScheduleForStaffAndDate(staffId, date) {
+  const dateStr = date.toISOString().split('T')[0]
+  return schedules.value.find(s => s.staff_id === staffId && s.date === dateStr)
+}
+
+function getStatusColor(status) {
+  switch (status) {
+    case 'working': return 'bg-green-100 text-green-800'
+    case 'rest': return 'bg-gray-100 text-gray-800'
+    case 'sick': return 'bg-red-100 text-red-800'
+    case 'vacation': return 'bg-blue-100 text-blue-800'
+    default: return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const legend = [
+  { status: 'working' },
+  { status: 'rest' },
+  { status: 'sick' },
+  { status: 'vacation' }
+]
+
+function openCreateModal(staffId = '', date = '') {
+  editingSchedule.value = null
+  newSchedule.value = {
+    staff_id: staffId,
+    date: date,
+    shift_start: '09:00',
+    shift_end: '17:00',
+    status: 'working',
+    notes: ''
+  }
+  showScheduleModal.value = true
+}
+
+function handleEditSchedule(schedule) {
+  editingSchedule.value = schedule
+  newSchedule.value = {
+    staff_id: schedule.staff_id,
+    date: schedule.date,
+    shift_start: schedule.shift_start,
+    shift_end: schedule.shift_end,
+    status: schedule.status,
+    notes: schedule.notes || ''
+  }
+  showScheduleModal.value = true
+}
+
+async function handleCreateOrUpdateSchedule() {
+  try {
+    const scheduleData = {
+      ...newSchedule.value,
+      notes: newSchedule.value.notes || null
+    }
+    const API = import.meta.env.VITE_BACKEND_URL + '/api'
+    let response
+    if (editingSchedule.value) {
+      response = await axios.put(`${API}/schedules/${editingSchedule.value.id}`, scheduleData)
+    } else {
+      response = await axios.post(`${API}/schedules`, scheduleData)
+    }
+    if (response.status === 200) {
+      showScheduleModal.value = false
+      editingSchedule.value = null
+      newSchedule.value = {
+        staff_id: '',
+        date: '',
+        shift_start: '09:00',
+        shift_end: '17:00',
+        status: 'working',
+        notes: ''
+      }
+      window.location.reload()
+    }
+  } catch (error) {
+    alert(t('schedule.saveError'))
+  }
+}
+</script>

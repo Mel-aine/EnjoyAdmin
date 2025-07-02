@@ -8,6 +8,8 @@
         <ServiceSetting v-if="openTab === 1"/>
         <EmailSetting v-if="openTab === 2" />
         <SecuritySetting v-if="openTab === 3"/>
+              <HotelAmentis v-if="openTab === 4"/>
+
       </SettingTables>
     </div>
   </AdminLayout>
@@ -21,11 +23,12 @@ import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import {ref,computed} from 'vue'
 import { useI18n } from "vue-i18n";
-import { UserIcon, MailIcon, ShieldCheck ,Hotel } from 'lucide-vue-next';
+import { UserIcon, MailIcon, ShieldCheck ,Hotel, Ampersand, CommandIcon } from 'lucide-vue-next';
 // import GeneralSetting from './GeneralSetting.vue';
 import EmailSetting from './EmailSetting.vue';
 import SecuritySetting from './SecuritySetting.vue';
 import ServiceSetting from './ServiceSetting.vue';
+import HotelAmentis from '@/components/utilities/HotelAmentis.vue';
 
 
 
@@ -42,6 +45,7 @@ const tabs = computed(() => [
   { label: t('Service'), name: 'hotel', icon: Hotel},
   { label: t('E-mail'), name: 'email',icon: MailIcon },
   { label: t('Security'), name: 'security', icon: ShieldCheck  },
+  { label: t('Amenity'), name: 'amenity', icon: CommandIcon  },
 ]);
 
 // const changeTab = (tabIndex : any) => {

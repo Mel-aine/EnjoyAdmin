@@ -211,83 +211,6 @@
     <ScheduleManagement/>
     </div> -->
 
-    <!-- Section Paramètres du Service -->
-    <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ $t('servicesOffered') }}:
-        </label>
-
-        <div
-          v-if="availableServices.length"
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
-        >
-          <div
-            v-for="(service, index) in availableServices"
-            :key="index"
-            class="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg shadow-sm"
-          >
-            <div class="flex items-center">
-              <!-- Icône check -->
-              <svg
-                class="h-5 w-5 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M5 13l4 4L19 7" />
-              </svg>
-
-              <!-- Nom du service -->
-              <span class="ml-2 text-sm text-gray-700">{{ service }}</span>
-            </div>
-
-            <!-- Bouton supprimer -->
-            <button @click="removeService(service)" class="text-red-500 hover:text-red-700 text-sm">
-              ✕
-            </button>
-          </div>
-        </div>
-
-        <div v-else class="text-gray-500 italic">
-          {{ $t('no_service_offered') }}
-        </div>
-      </div>
-
-      <!-- Champ d'ajout -->
-      <div class="mt-4 flex items-center gap-2">
-        <Input
-          v-model="newFacility"
-          type="text"
-          :placeholder="$t('add')"
-          class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
-        <button
-          @click="addService"
-          :disabled="!newFacility"
-          class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
     <!-- Section Paramètres de Tarification -->
     <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('pricingSettings') }}</h3>
@@ -490,6 +413,7 @@ onMounted(async () => {
   const serviceId = serviceStore.serviceId
   const data = await getService(serviceId)
   payment.value = data.data.paymentMethods
+  serviceStore.currentService = JSON.stringify(data.data);
   availableServices.value = data.data.facilities
 
   logoUrl.value = data.data.logo
