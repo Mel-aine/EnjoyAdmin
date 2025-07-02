@@ -11,7 +11,7 @@
          {{ $t('addCategory') }}
         </button>
       </div>
-      <div class="h-screen mt-10">
+      <div class=" mt-10">
         <!-- <ComponentCard title="">
       <div class="ag-theme-quartz">
         <ag-grid-vue

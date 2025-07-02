@@ -203,7 +203,7 @@
                   <span class="text-gray-900 dark:text-white">{{ calculateTotalPrice }} FCFA</span>
                 </div>
 
-                <div v-if="form.extra_guest > 0" class="flex justify-between items-center">
+                <div v-if="form.extra_guest > 0 || isEditMode" class="flex justify-between items-center">
                   <span class="text-gray-700 dark:text-gray-300">
                     {{ $t('ExtraGuestFee') }} ({{ form.extra_guest }} {{ $t('guests') }})
                   </span>
@@ -389,7 +389,7 @@ import DefaultCard from '@/components/common/DefaultCard.vue'
 
 const store = useBookingStore()
 const ServiceProduct = ref<ProductType[]>([])
-const ProductList = ref<ProductType[]>([])
+const ProductList = ref<any[]>([])
 const reservations = ref({})
 const route = useRoute()
 const isLoading = ref(false)
@@ -409,6 +409,8 @@ const totalPrice = ref(0)
 const ActiveRoomTypes = ref<any[]>([])
 const selectedRoomType = ref<any | null>(null)
 const extraGuestPrice = ref<number | null>(null)
+const reservationType = ref('')
+const manualTotalGuests = ref<number | null>(null)
 
 const updateRoomSelections = (newSelections: any) => {
   selectedProducts.value = newSelections
@@ -531,7 +533,6 @@ interface ReservationForm {
   normalDescription: string
   totalPerson: number | null
   numberOfNights: number | null
-  totalPrice: number | null
   payment: string
   default_guest: number
   default_deposit: number
@@ -547,7 +548,6 @@ const form = ref<ReservationForm>({
   departureDate: '',
   normalDescription: '',
   totalPerson: totalPersons.value,
-  totalPrice: null,
   numberOfNights: totalPersons.value,
   payment: 'pending',
   default_guest: 0,
@@ -575,13 +575,18 @@ const saveReservation = async () => {
       email: selectedCustomer.value.email,
       phone_number: selectedCustomer.value.phoneNumber,
       service_id: serviceStore.serviceId,
-      reservation_type: 'Hotels & Stays',
-      total_amount: finalTotalPrice.value,
+      reservation_type: reservationType.value,
+      tax_amount : extraGuestPrice.value,
+      final_amount: finalTotalPrice.value,
+      total_amount: calculateTotalPrice.value,
+      discount_amount : form.value.default_deposit,
       guest_count: totalGuests.value,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
-      comment: form.value.normalDescription,
-      role_id: authStore.roleId,
+      special_requests: form.value.normalDescription,
+      paid_amount: remainingAmount.value,
+      created_by: authStore.UserId,
+    //  role_id: authStore.roleId,
       // payment_status: 'pending',
       products: selectedProducts.value.map((product: any) => ({
         service_product_id: product.roomType,
@@ -611,9 +616,8 @@ const saveReservation = async () => {
       arrivalDate: '',
       departureDate: '',
       normalDescription: '',
-      totalPerson: totalPersons.value,
-      totalPrice: null,
-      numberOfNights: totalPersons.value,
+      totalPerson: 0,
+      numberOfNights: 0,
       payment: '',
       default_guest: 0,
       default_deposit: 0,
@@ -707,75 +711,86 @@ const selectedServiceProduct = ref<any>({})
 onMounted(async () => {
   const rawId = route.params.id
 
-  if (rawId) {
-    isEditMode.value = true
-    reservationId.value = Number(rawId)
-    const response = await getReservationById(reservationId.value)
-    const response1 = await getUserId(response.data.userId)
-    const response2 = await getReservationServiceProduct(reservationId.value)
-    console.log('response.data2', response2.data)
-    const matchingService = response2.data.filter(
-      (p: any) => p.reservationId === reservationId.value,
-    )
-    console.log('matchingServic', matchingService)
-    console.log('reservationId.value', reservationId.value)
-    // const matchingServiceId = matchingService.serviceProductId
-    const matchingServiceId = matchingService.map((i: any) => i.serviceProductId)
-    console.log('matchingServiceId', matchingServiceId)
+  if (!rawId) return
 
-    const matchedServiceProduct = ProductList.value.filter((sp: any) =>
-      matchingServiceId.includes(sp.id),
-    )
+  isEditMode.value = true
+  reservationId.value = Number(rawId)
 
-    selectedServiceProduct.value = matchedServiceProduct
-    console.log('matchedServiceProduct', selectedServiceProduct.value)
-    console.log('response.data', response.data)
+  // Fetch des données
+  const response = await getReservationById(reservationId.value)
+  const response1 = await getUserId(response.data.userId)
+  const response2 = await getReservationServiceProduct(reservationId.value)
 
-    fetchData.value = matchedServiceProduct.map((product: any) => ({
-      roomType: Number(product.id) || 0,
-      roomTypeSelect: Number(product.productTypeId) || 0,
-      arrivalDate: response.data.arrivedDate || '',
-      departureDate: response.data.departDate || '',
-      numberOfNights: numberOfNights,
-      adults: response.data.totalPerson || 1,
-      children: 0,
-      price: product.price || 0,
-      dateError: '',
-      showOccupancyDropdown: false,
-    }))
+  console.log('[DATA] Reservation:', response.data)
+  console.log('[DATA] Services:', response2.data)
 
-    console.log('match', fetchData.value)
+  // Filtrer les services liés à cette réservation
+  const matchingService = response2.data.filter(
+    (p: any) => p.reservationId === reservationId.value,
+  )
+  const matchingServiceIds = matchingService.map((i: any) => i.serviceProductId)
 
-    formData.value = {
-      firstName: response1.data.firstName,
-      lastName: response1.data.lastName,
-      phoneNumber: response1.data.phoneNumber,
-      email: response1.data.email,
-    }
-    console.log('formData.value', formData.value)
+  // Trouver les produits correspondants dans ProductList
+  const matchedServiceProduct = ProductList.value.filter((sp: any) =>
+    matchingServiceIds.includes(sp.id),
+  )
 
-    form.value = {
-      roomType: response.data.reservationProduct,
-      package: response.data.reservationType,
-      arrivalDate: response.data.arrivedDate,
-      departureDate: response.data.departDate,
-      normalDescription: response.data.comment,
-      totalPerson: response.data.totalPerson,
-      totalPrice: response.data.totalAmount,
-      numberOfNights: null,
-      payment: response.data.payment,
-      default_guest: 0,
-      default_deposit: 0,
-      extra_guest: 0,
-    }
+  selectedServiceProduct.value = matchedServiceProduct
+  console.log('[MATCH] matchedServiceProduct:', matchedServiceProduct)
+
+  // Hydrater le tableau `fetchData`
+  fetchData.value = matchedServiceProduct.map((product: any) => ({
+    roomType: Number(product.id) || 0,
+    roomTypeSelect: Number(product.productTypeId) || 0,
+    arrivalDate: response.data.arrivedDate || '',
+    departureDate: response.data.departDate || '',
+    numberOfNights: numberOfNights,
+    adults: response.data.totalPerson || 1,
+    children: 0,
+    price: product.price || 0,
+    dateError: '',
+    showOccupancyDropdown: false,
+  }))
+
+  console.log('[INIT] fetchData:', fetchData.value)
+
+  // Formulaires invités
+  formData.value = {
+    firstName: response1.data.firstName,
+    lastName: response1.data.lastName,
+    phoneNumber: response1.data.phoneNumber,
+    email: response1.data.email,
   }
+
+  // Form principal
+  form.value = {
+    roomType: response.data.reservationProduct,
+    package: response.data.reservationType,
+    arrivalDate: response.data.arrivedDate,
+    departureDate: response.data.departDate,
+    normalDescription: response.data.specialRequests,
+    totalPerson: response.data.guestCount,
+    numberOfNights: null,
+    payment: response.data.payment,
+    default_guest: 0,
+    default_deposit: response.data.discountAmount,
+    extra_guest: 0,
+  }
+
+  // Important : assigner le total invités manuellement ici
+  manualTotalGuests.value = response.data.guestCount
+  console.log('[SET] manualTotalGuests from API:', manualTotalGuests.value)
+
+  // Assignation d’éventuelles taxes
+  extraGuestPrice.value = response.data.taxAmount
 })
+
 
 const calculateTotalPrice = computed(() => {
   if (fetchData.value.length > 0) {
     return fetchData.value.reduce((total: number, room: any) => {
       const nights = room.numberOfNights ?? 1
-      return total + (room.price || 0) * nights
+      return total + (room.roomPrice || 0) * nights
     }, 0)
   }
 
@@ -793,13 +808,14 @@ watch(
 
 const availableRooms = computed(() => {
   const rooms = ServiceProduct.value
-
+ //const rooms = store.selectedRoom ? [store.selectedRoom] : ServiceProduct.value
   console.log('Rooms initiales (store.selectedRoom ou ProductList.value) :', rooms)
 
   const existingRoomIds = rooms.map((r:any) => r.id)
   console.log('IDs des chambres existantes :', existingRoomIds)
   console.log('fetchData.value :', fetchData.value)
   console.log('ProductList.value :', ProductList.value)
+  console.log('ActiveRoomTypes.value :', ActiveRoomTypes.value)
 
   const missingRooms = fetchData.value
     .filter((r: any) => !existingRoomIds.includes(r.roomType))
@@ -815,6 +831,8 @@ const availableRooms = computed(() => {
         productName: roomFromAll ? roomFromAll.productName : r.roomType,
         price: r.price,
         label: roomFromAll ? `${roomFromAll.productName} (réservée)` : `${r.roomType} (réservée)`,
+        roomType: roomFromAll?.productTypeId
+
       }
     })
 
@@ -840,13 +858,18 @@ const updateReservation = async () => {
       last_name: selectedCustomer.value.lastName,
       email: selectedCustomer.value.email,
       phone_number: selectedCustomer.value.phoneNumber,
-
+      tax_amount : extraGuestPrice.value,
+      final_amount: finalTotalPrice.value,
+      total_amount: calculateTotalPrice.value,
+      discount_amount : form.value.default_deposit,
+      guest_count: totalGuests.value,
       service_id: serviceStore.serviceId,
-      reservation_type: form.value.package,
+      reservation_type: reservationType.value,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
-      comment: form.value.normalDescription,
+      special_requests: form.value.normalDescription,
       last_modified_by: authStore.UserId,
+      paid_amount: remainingAmount.value,
       payment_status: form.value.payment,
 
       products: selectedProducts.value.map((product: any) => ({
@@ -948,9 +971,8 @@ const goBack = () => {
     arrivalDate: '',
     departureDate: '',
     normalDescription: '',
-    totalPerson: totalPersons.value,
-    totalPrice: null,
-    numberOfNights: totalPersons.value,
+    totalPerson: 0,
+    numberOfNights: 0,
     payment: ' ',
     default_guest: 0,
     default_deposit: 0,
@@ -978,15 +1000,23 @@ const fetchRoomType = async () => {
 
 watch(selectedRoomType, (newType:any) => {
   console.log('[Parent] selectedRoomType changed:', newType)
-  // Met à jour le form par exemple
+  reservationType.value = newType?.name || 'Hotels & Stays'
   form.value.default_guest = Number(newType?.defaultGuest) || 1
   extraGuestPrice.value = newType?.extraGuestPrice || 0
   form.value.default_deposit = newType?.defaultDeposit || 0
 })
 
+
+
 const totalGuests = computed(() => {
+  // if (manualTotalGuests.value !== null) {
+  //   return manualTotalGuests.value
+  // }
   return Number(form.value.default_guest) + Number(form.value.extra_guest)
 })
+
+
+
 
 const finalTotalPrice = computed(() => {
   return Number(calculateTotalPrice.value) + Number(extraGuestPrice.value)
@@ -995,4 +1025,19 @@ const finalTotalPrice = computed(() => {
 const remainingAmount = computed(() => {
   return Math.max(0, finalTotalPrice.value - (form.value.default_deposit || 0))
 })
+
+
+
+
+// watch(
+//   () => [form.value.default_guest, form.value.extra_guest],
+//   ([defaultGuest, extraGuest]) => {
+//     if (!isEditMode.value) return
+//     manualTotalGuests.value = Number(defaultGuest) + Number(extraGuest)
+//     console.log('[WATCH] manualTotalGuests recalculated:', manualTotalGuests.value)
+//   }
+// )
+
+
+
 </script>

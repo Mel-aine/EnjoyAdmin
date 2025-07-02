@@ -32,6 +32,12 @@ const router = createRouter({
       },
     },
     {
+      path: '/addbooking/:id',
+      name: 'AddBooking',
+      component: () => import('../views/Bookings/AddBooking.vue'),
+    },
+
+    {
       path: '/add_booking/:id',
       name: 'EditBooking',
       component: () => import('../views/Bookings/AddBooking.vue'),

@@ -185,8 +185,8 @@ const hotelAmenities = ref([
 ]);
 
 const selectedCategory = ref(null); // null means "All" categories
-const selectedAmenities = ref([]); // Array of { id, name, price, icon (optional), custom (boolean) }
-const savedHotelAmenities = ref([]); // New: List of amenities saved for the hotel
+const selectedAmenities = ref<any[]>([]); // Array of { id, name, price, icon (optional), custom (boolean) }
+const savedHotelAmenities = ref<any[]>([]); // New: List of amenities saved for the hotel
 
 const customAmenityName = ref('');
 const customAmenityPrice = ref(0);

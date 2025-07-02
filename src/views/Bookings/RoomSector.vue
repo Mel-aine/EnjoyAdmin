@@ -178,6 +178,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineProps, defineEmits } from 'vue'
 
+let skipNextUpdate = false
+
 interface Room {
   id: string
   label: string
@@ -211,11 +213,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice','update:selectedRoomType'])
 
-// const roomSelections = ref<RoomSelection[]>(
-//   props.initialRoomSelections?.length
-//     ? [...props.initialRoomSelections]
-//     : [createEmptyRoomSelection()],
-// )
+
 
 const roomSelections = ref<RoomSelection[]>(
   Array.isArray(props.modelValue) && props.modelValue.length
@@ -256,16 +254,7 @@ function removeRoom(index: number) {
   }
 }
 
-// function calculateRoomPrice(index: number) {
-//   const { roomType } = roomSelections.value[index]
-//   const selectedRoom = props.availableRooms.find(room => room.id === roomType)
 
-//   if (selectedRoom) {
-//     roomSelections.value[index].roomPrice = selectedRoom.price
-//   }
-
-//   updateTotalPrice()
-// }
 
 function calculateRoomPrice(index: number) {
   const roomType = roomSelections.value[index].roomType
@@ -287,44 +276,11 @@ function updateTotalPrice() {
   emit('update:totalPrice', calculateTotalPrice())
 }
 
-function showOccupancySelector(index: number) {
-  roomSelections.value.forEach((room, i) => {
-    room.showOccupancyDropdown = i === index
-  })
-}
 
-function hideOccupancySelector(index: number) {
-  roomSelections.value[index].showOccupancyDropdown = false
-  emit('update:roomSelections', roomSelections.value)
-}
 
-function incrementAdults(index: number) {
-  const room = props.availableRooms.find((r) => r.id === roomSelections.value[index].roomType)
-  const max = room?.maxOccupancy || 4
-  const total = roomSelections.value[index].adults + roomSelections.value[index].children
 
-  if (total < max) roomSelections.value[index].adults++
-}
 
-function decrementAdults(index: number) {
-  if (roomSelections.value[index].adults > 1) roomSelections.value[index].adults--
-}
 
-function incrementChildren(index: number) {
-  const room = props.availableRooms.find((r) => r.id === roomSelections.value[index].roomType)
-  const max = room?.maxOccupancy || 4
-  const total = roomSelections.value[index].adults + roomSelections.value[index].children
-
-  if (total < max) roomSelections.value[index].children++
-}
-
-function decrementChildren(index: number) {
-  if (roomSelections.value[index].children > 0) roomSelections.value[index].children--
-}
-
-let skipNextUpdate = false
-
-// Synchroniser avec modelValue sans émettre
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -350,6 +306,7 @@ watch(
   () => props.modelValue,
   (val) => {
     console.log('props.modelValue received in RoomSector:', val)
+
   },
   { immediate: true, deep: true },
 )
@@ -388,25 +345,27 @@ function handleRoomSelection(index: number) {
 
 const getFilteredRooms = (index: number) => {
   const selection = roomSelections.value[index]
-  console.log(` getFilteredRooms index ${index}`)
-  console.log(' props.availableRooms:', props.availableRooms)
-  console.log(' roomSelections[index].roomTypeSelect:', selection.roomTypeSelect)
 
-  const filtered = props.availableRooms.filter((room) => Number(room.roomType )=== Number(selection.roomTypeSelect))
+  console.log(`getFilteredRooms index ${index}`)
+  console.log('props.availableRooms:', props.availableRooms)
+  console.log('roomSelections[index].roomTypeSelect:', selection.roomTypeSelect)
+
+  const filtered = props.availableRooms.filter((room: any) => {
+    const matchesType = Number(room.roomType) === Number(selection.roomTypeSelect)
+    const isReserved = room.label?.toLowerCase().includes('réservée')
+    return matchesType || isReserved
+  })
 
   console.log('✅ Chambres filtrées :', filtered)
-  console.log(
-    '📋 Liste des roomTypes dans availableRooms:',
-    props.availableRooms.map((r) => r.roomType),
-  )
 
   return filtered
 }
 
+
 function emitSelectedRoomType(index: number) {
   const selectedId = roomSelections.value[index].roomTypeSelect
   const selectedType = props.ActiveRoomTypes.find(t => t.id === selectedId)
-
+    calculateRoomPrice(index)
   console.log('[RoomSector] Emitting selectedRoomType:', selectedType)
   emit('update:selectedRoomType', selectedType)
 }

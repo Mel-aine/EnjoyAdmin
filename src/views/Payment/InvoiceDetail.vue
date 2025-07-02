@@ -296,7 +296,7 @@ onMounted(async () => {
         items: [
           {
         description: `Réservation ${reservationResponse.data.reservationType} (${reservationResponse.data.guestCount} personne${reservationResponse.data.guestCount > 1 ? 's' : ''}) - ${new Date(reservationResponse.data.arrivedDate).toLocaleDateString("fr-FR")} au ${new Date(reservationResponse.data.departDate).toLocaleDateString("fr-FR")}`,
-        amount: reservationResponse.data.totalAmount,
+        amount: reservationResponse.data.finalAmount,
       }
     ]
       };
