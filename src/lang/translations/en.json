@@ -868,5 +868,7 @@
       "maintenance": "Maintenance",
       "manager": "Manager"
     }
-  }
+  },
+  "importdefault":"Import Default Data",
+  "importProduct":"Import Products"
 }

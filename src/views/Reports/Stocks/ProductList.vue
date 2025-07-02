@@ -12,90 +12,64 @@
         </button>
         <div v-if="isDropdownOpen" class="absolute right-0 mt-10 w-44 bg-white rounded-lg shadow z-50">
           <ul class="py-2 text-sm text-gray-700">
-            <li><button @click="modalOpen = true" class="block px-4 py-2 hover:text-purple-600">{{ $t('addProduct') }}</button></li>
-
+            <li><button @click="modalOpen = true" class="block px-4 py-2 hover:text-purple-600">{{ $t('addProduct')
+                }}</button></li>
+            <li><button @click="importProducts" class="block px-4 py-2 hover:text-purple-600">{{ $t('importProduct')
+                }}</button></li>
           </ul>
         </div>
       </div>
 
       <!-- Data Table -->
       <div class="space-y-5 sm:space-y-6 h-screen mt-10">
-        <!-- <ComponentCard title="" >
-        <ag-grid-vue
-          class="ag-theme-quartz"
-          :rowData="productData"
-          :columnDefs="columnDefs"
-          rowHeight="50"
-          :rowSelection="'single'"
-          :pagination="true"
-          :domLayout="'autoHeight'"
-          @cellClicked="onCellClick"
-          @gridReady="onGridReady"
-          :defaultColDef="defaultColDef"
-          :autoSizeStrategy="autoSizeStrategy"
-        />
-      </ComponentCard> -->
-      <TableComponent
-          :items="titles"
-          :datas="filteredProductWithNames"
-          :filterable="true"
-          :pagination="true"
-          :loading="loading"
-          :showHeader="true"
-          :title="$t('product')"
-          :pageSize="15"
-          :showButtonAllElement="true"
-          @edit="onEditProduct"
-          @delete="onDeleteProduct"
-          class="modern-table"
-        />
+
+        <TableComponent :items="titles" :datas="filteredProductWithNames" :filterable="true" :pagination="true"
+          :loading="loading" :showHeader="true" :title="$t('product')" :pageSize="15" :showButtonAllElement="true"
+          @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table" />
       </div>
     </AdminLayout>
 
     <!-- Modal Add Product -->
     <Modal v-if="modalOpen" @close="close">
       <template #body>
-        <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+        <div
+          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <!-- Close button -->
-          <button
-            @click="close"
-            class="absolute right-5 top-5 p-1 rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700"
-          >
+          <button @click="close"
+            class="absolute right-5 top-5 p-1 rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700">
             <svg class="fill-current" width="30" height="30" viewBox="0 0 24 24">
               <path
-                d="M6.04 16.54a1 1 0 1 0 1.42 1.42L12 13.41l4.54 4.55a1 1 0 0 0 1.42-1.42L13.41 12l4.55-4.54a1 1 0 0 0-1.42-1.42L12 10.59 7.46 6.04a1 1 0 0 0-1.42 1.42L10.59 12l-4.55 4.54Z"
-              />
+                d="M6.04 16.54a1 1 0 1 0 1.42 1.42L12 13.41l4.54 4.55a1 1 0 0 0 1.42-1.42L13.41 12l4.55-4.54a1 1 0 0 0-1.42-1.42L12 10.59 7.46 6.04a1 1 0 0 0-1.42 1.42L10.59 12l-4.55 4.54Z" />
             </svg>
           </button>
 
-          <h4 class="text-2xl font-semibold text-gray-800 mb-6">{{ isEditing ? $t('editProduct') : $t('addProductDetail') }}</h4>
+          <h4 class="text-2xl font-semibold text-gray-800 mb-6">{{ isEditing ? $t('editProduct') :
+            $t('addProductDetail') }}</h4>
 
-          <form class="flex flex-col space-y-4" @submit.prevent = "addProduct">
+          <form class="flex flex-col space-y-4" @submit.prevent="addProduct">
             <div class="custom-scrollbar h-[500px] overflow-y-auto p-2">
-            <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 mt-6">
-              <Input :lb="$t('productCode')" :placeholder="$t('Code')" :id="'code'" :forLabel="'code'" v-model="newProduct.code" />
-              <Input :lb="$t('productName')" :placeholder="$t('Name')" :id="'name'" :forLabel="'name'" v-model="newProduct.name" />
-              <Input :lb="$t('quantity')" :placeholder="$t('quantity')" :id="'quantity'" :forLabel="'quantity'" v-model.number="newProduct.quantity" />
-              <Input :lb="$t('price')" :placeholder="'1000 FCFA'" :id="'price'" :forLabel="'price'" v-model.number="newProduct.price"/>
-              <Select :lb="$t('Suppliers')"  :options="suppliers" v-model.number="newProduct.supplier" />
-              <Select :lb="$t('category')" :options="categories" v-model.number="newProduct.category" />
-              <!-- <Select :lb="$t('Status')" :options="statusOptions" v-model="newProduct.status" /> -->
-            </div>
+              <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 mt-6">
+                <Input :lb="$t('productCode')" :placeholder="$t('Code')" :id="'code'" :forLabel="'code'"
+                  v-model="newProduct.code" />
+                <Input :lb="$t('productName')" :placeholder="$t('Name')" :id="'name'" :forLabel="'name'"
+                  v-model="newProduct.name" />
+                <Input :lb="$t('quantity')" :placeholder="$t('quantity')" :id="'quantity'" :forLabel="'quantity'"
+                  v-model.number="newProduct.quantity" />
+                <Input :lb="$t('price')" :placeholder="'1000 FCFA'" :id="'price'" :forLabel="'price'"
+                  v-model.number="newProduct.price" />
+                <Select :lb="$t('Suppliers')" :options="suppliers" v-model.number="newProduct.supplier" />
+                <Select :lb="$t('category')" :options="categories" v-model.number="newProduct.category" />
+                <!-- <Select :lb="$t('Status')" :options="statusOptions" v-model="newProduct.status" /> -->
+              </div>
             </div>
             <div class="flex items-center gap-3 justify-end pt-4">
-              <button
-                @click="close"
-                type="button"
-                class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-              >
+              <button @click="close" type="button"
+                class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
                 {{ $t('Cancel') }}
               </button>
-              <button
-                type="submit"
-                class="rounded-lg bg-purple-500 px-4 py-2.5 text-sm text-white hover:bg-purple-600"
-              >
+              <button type="submit" class="rounded-lg bg-purple-500 px-4 py-2.5 text-sm text-white hover:bg-purple-600">
 
-                <span v-if="!isLoading">{{ isEditing ? $t('edit') : $t('addProduct')  }}</span>
+                <span v-if="!isLoading">{{ isEditing ? $t('edit') : $t('addProduct') }}</span>
                 <span v-else class="flex items-center gap-2">
                   <Spinner class="w-4 h-4" />
                   {{ $t('Processing') }}...
@@ -107,9 +81,10 @@
       </template>
     </Modal>
   </div>
-  <ModalDelete v-if="show" @close="show = false"
-      @delete="confirmDelete"
-      :isLoading="loadingDelete"/>
+  <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
+  <Spinner v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-50">
+    <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+  </Spinner>
 </template>
 
 <script setup lang="ts">
@@ -118,20 +93,21 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
 import Select from "@/components/forms/FormElements/Select.vue";
-import { createProduct,getCategory,getSupplier,getProduct,updateProduct,deleteProduct} from "@/services/api";
+import { createProduct, getCategory, getSupplier, getProduct, updateProduct, deleteProduct } from "@/services/api";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
-import { ref,watch,onMounted,computed } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import TableComponent from "@/components/tables/TableComponent.vue";
 import ModalDelete from "@/components/modal/ModalDelete.vue";
+import { defaultProducts } from "@/assets/data/productCategories";
 
 
 const modalOpen = ref(false);
 const isDropdownOpen = ref(false);
 const loading = ref(false)
-const isLoading= ref(false)
+const isLoading = ref(false)
 const { t, locale } = useI18n({ useScope: "global" });
 const toast = useToast()
 const serviceStore = useServiceStore();
@@ -145,32 +121,32 @@ const toggleDropdown = () => {
 };
 
 interface Product {
-  name : string,
-  code:string,
-  quantity:null | string | number | undefined,
-  supplier :  string | number | undefined,
-  status : string,
-  category:string | number | undefined,
-  price:null
+  name: string,
+  code: string,
+  quantity: null | string | number | undefined,
+  supplier: string | number | undefined,
+  status: string,
+  category: string | number | undefined,
+  price: null
 
 
 }
 const newProduct = ref<Product>({
   name: "",
-  code:"",
+  code: "",
   quantity: null,
   supplier: '',
   status: "",
   category: '',
-  price:null
+  price: null
 });
 
 const suppliers = ref<any[]>([]);
 const categories = ref<any[]>([]);
 const productData = ref<any[]>([])
-const statusOptions = computed(()=>[
+const statusOptions = computed(() => [
   { value: 'active', label: t('active') },
-  { value: 'out_of_stock', label:t('outofstock') },
+  { value: 'out_of_stock', label: t('outofstock') },
 ]);
 
 
@@ -204,7 +180,7 @@ const titles = computed(() => [
   {
     name: 'price',
     label: t('price'),
-    type: 'text',
+    type: 'currency',
     filterable: true,
   },
   {
@@ -256,23 +232,23 @@ const titles = computed(() => [
   },
 ])
 
- const onEditProduct = (product:any) => handleProductAction('edit',product)
- const onDeleteProduct = (product:any) => handleProductAction('delete',product)
+const onEditProduct = (product: any) => handleProductAction('edit', product)
+const onDeleteProduct = (product: any) => handleProductAction('delete', product)
 
- const handleProductAction = (action: string, product: any) => {
+const handleProductAction = (action: string, product: any) => {
   if (action === 'edit') {
     const productEdit = productData.value.find((r: any) => r.id === Number(product.id));
-    console.log("Editing :",  productEdit);
+    console.log("Editing :", productEdit);
 
     if (productEdit) {
       selected.value = productEdit;
-      newProduct.value.name =  productEdit.name
-      newProduct.value.code =  productEdit.code
-      newProduct.value.quantity =  productEdit.quantityAvailable
-      newProduct.value.supplier=  productEdit.supplierId
-      newProduct.value.status=  productEdit.status
-      newProduct.value.category=  productEdit.stockCategoryId
-      newProduct.value.price=  productEdit.price
+      newProduct.value.name = productEdit.name
+      newProduct.value.code = productEdit.code
+      newProduct.value.quantity = productEdit.quantityAvailable
+      newProduct.value.supplier = productEdit.supplierId
+      newProduct.value.status = productEdit.status
+      newProduct.value.category = productEdit.stockCategoryId
+      newProduct.value.price = productEdit.price
 
       isEditing.value = true;
       modalOpen.value = true;
@@ -285,7 +261,7 @@ const titles = computed(() => [
 }
 
 
-const fetchSupplier = async() => {
+const fetchSupplier = async () => {
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getSupplier(serviceId);
@@ -302,7 +278,7 @@ const fetchSupplier = async() => {
 
 }
 
-const fetchCategorie = async() => {
+const fetchCategorie = async () => {
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getCategory(serviceId);
@@ -320,85 +296,85 @@ const fetchCategorie = async() => {
 
 onMounted(async () => {
   await fetchSupplier()
-  await fetchCategorie ()
+  await fetchCategorie()
   await new Promise(resolve => setTimeout(resolve, 500))
-  await fetchProduct ()
-  console.log("eeeeeeeeeeeeeee",filteredProductWithNames.value)
+  await fetchProduct()
+  console.log("eeeeeeeeeeeeeee", filteredProductWithNames.value)
 
   loading.value = false
 })
 
 
 const addProduct = async () => {
-  isLoading.value=true
+  isLoading.value = true
   const serviceId = serviceStore.serviceId;
 
   try {
     if (isEditing.value) {
-      await updateData ()
+      await updateData()
       toast.success(t('toast.SucessUpdate'));
 
-    }else{
-    const payload = {
-      code: newProduct.value.code,
-      name:newProduct.value.name,
-      quantity_available:newProduct.value.quantity,
-      service_id : serviceId,
-      stock_category_id : newProduct.value.category,
-      price:newProduct.value.price,
-      supplier_name : newProduct.value.supplier,
-      // supplier_id : 1,
-      status:'active'
-
-    };
-
-    console.log("sup",payload)
-    const response = await createProduct(payload);
-    console.log('sup',response.data)
-
-    if (response.status === 201) {
-      toast.success(t('toast.Sucess'));
-      fetchProduct()
-      modalOpen.value = false;
-      newProduct.value = {
-        name: "",
-        code:"",
-        quantity: null,
-        supplier: '',
-        status: "",
-        category: '',
-        price:null
-       }
     } else {
-      toast.error(t('toast.error'));
+      const payload = {
+        code: newProduct.value.code,
+        name: newProduct.value.name,
+        quantity_available: newProduct.value.quantity,
+        service_id: serviceId,
+        stock_category_id: newProduct.value.category,
+        price: newProduct.value.price,
+        supplier_name: newProduct.value.supplier,
+        // supplier_id : 1,
+        status: 'active'
+
+      };
+
+      console.log("sup", payload)
+      const response = await createProduct(payload);
+      console.log('sup', response.data)
+
+      if (response.status === 201) {
+        toast.success(t('toast.Sucess'));
+        fetchProduct()
+        modalOpen.value = false;
+        newProduct.value = {
+          name: "",
+          code: "",
+          quantity: null,
+          supplier: '',
+          status: "",
+          category: '',
+          price: null
+        }
+      } else {
+        toast.error(t('toast.error'));
+      }
     }
-  }
-} catch (error) {
+  } catch (error) {
     console.error(error);
     toast.error(t('toast.error'));
-  }finally{
-    isLoading.value=false
+  } finally {
+    isLoading.value = false
   }
 };
 
-const fetchProduct = async() => {
+const fetchProduct = async () => {
   try {
     const serviceId = serviceStore.serviceId;
     const response = await getProduct(serviceId);
 
-    productData.value = response.data.map((p:any)=>{
+    productData.value = response.data.map((p: any) => {
       const statusClasses = getStatusColor(p.status).split(' ');
-      return{
+      return {
         ...p,
         statusColor: {
-        label: p.status,
-        bg: statusClasses[0],
-        text: statusClasses[1]
+          label: p.status,
+          bg: statusClasses[0],
+          text: statusClasses[1]
         },
 
       }
     });
-    productData.value.sort((a:any, b:any) => a.name.localeCompare(b.name));
+    productData.value.sort((a: any, b: any) => a.name.localeCompare(b.name));
     console.log('prod:', productData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);
@@ -424,17 +400,17 @@ const getStatusColor = (status: string) => {
 };
 
 const getSupplierName = (id: number) => {
-  const found = suppliers.value.find((s:any) => s.value === Number(id));
+  const found = suppliers.value.find((s: any) => s.value === Number(id));
   return found ? found.label : '';
 };
 
 const getCategoryName = (id: number) => {
-  const found = categories.value.find((s:any) => s.value === id);
+  const found = categories.value.find((s: any) => s.value === id);
   return found ? found.label : '';
 };
 
 const filteredProductWithNames = computed(() => {
-  return productData.value.map((prod:any) => ({
+  return productData.value.map((prod: any) => ({
 
     ...prod,
     categoryName: getCategoryName(prod.stockCategoryId),
@@ -443,18 +419,18 @@ const filteredProductWithNames = computed(() => {
 })
 
 
-const close = () =>{
+const close = () => {
   modalOpen.value = false;
   isEditing.value = false
-      newProduct.value = {
-        name: "",
-        code:"",
-        quantity: null,
-        supplier: '',
-        status: "",
-        category: '',
-        price:null
-       }
+  newProduct.value = {
+    name: "",
+    code: "",
+    quantity: null,
+    supplier: '',
+    status: "",
+    category: '',
+    price: null
+  }
 }
 
 
@@ -475,28 +451,28 @@ const updateData = async () => {
 
     const Payload = {
       service_id: serviceId,
-      name:newProduct.value.name ,
-      code:newProduct.value.code ,
-      quantity_available:newProduct.value.quantity,
-      supplier_name:newProduct.value.supplier,
-      status:'active',
-      stock_category_id:newProduct.value.category,
-      price:newProduct.value.price,
+      name: newProduct.value.name,
+      code: newProduct.value.code,
+      quantity_available: newProduct.value.quantity,
+      supplier_name: newProduct.value.supplier,
+      status: 'active',
+      stock_category_id: newProduct.value.category,
+      price: newProduct.value.price,
       // supplier_id : 1,
     };
-    console.log("Payload",Payload)
+    console.log("Payload", Payload)
 
 
     await updateProduct(id, Payload);
     newProduct.value = {
-        name: "",
-        code:"",
-        quantity: null,
-        supplier: '',
-        status: "",
-        category: '',
-        price:null
-       }
+      name: "",
+      code: "",
+      quantity: null,
+      supplier: '',
+      status: "",
+      category: '',
+      price: null
+    }
     selected.value = null;
     isEditing.value = false;
     modalOpen.value = false;
@@ -529,6 +505,38 @@ const confirmDelete = async () => {
   }
 }
 
+const importProducts = () => {
+  const productCategories = defaultProducts;
+  isLoading.value = true
+  const serviceId = serviceStore.serviceId;
+  console.log('categories.value:', categories.value);
+  productCategories.forEach(async (category: any) => {
+    const categoryId = categories.value.find((s: any) => s.label === category.name)?.value;
+    if (!categoryId) {
+      console.error(`Category not found for name: ${category.name}`);
+      return;
+    }
+    console.log('Category ID:', categoryId);
+    for (const product of category.products) {
+      const productPayload = {
+        code: product.code,
+        name: product.name,
+        quantity_available: 0,
+        service_id: serviceId,
+        stock_category_id: categoryId,
+        price: 0,
+        supplier_name: null,
+        status: 'active',
+      };
+      const productResponse = await createProduct(productPayload);
+      console.log('Product created:', productResponse.data);
+    }
+    toast.success(t('toast.importSuccess'));
+    fetchProduct();
+    isLoading.value = false;
+
+  });
+}
 </script>
 
 <style scoped>

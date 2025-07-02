@@ -155,22 +155,7 @@
             >
               <!-- Contenu des cellules -->
               <div v-if="row[item.name] !== undefined">
-                <!-- URL/Lien -->
-                <!-- <template v-if="item.type === 'url'">
-                  <button
-                    @click="$emit(item.event, row)"
-                    class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 font-medium underline-offset-2 hover:underline transition-colors duration-200 truncate w-1/2"
-                  >
-                    {{ row[item.name] }}
-                  </button>
-                  <input
-                    v-if="item.inputField"
-                    :type="item.inputField.type"
-                    :placeholder="item.inputField.placeholder"
-                    v-model="row.inputField"
-                    class="mt-2 w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
-                  />
-                </template> -->
+      
                 <template v-if="item.type === 'url'">
                   <template v-if="item.inputField">
                     <input
@@ -271,7 +256,9 @@
                     </div>
                   </div>
                 </template>
-
+                <template v-else-if="item.type === 'currency'">
+                  <span class="text-gray-900 dark:text-white font-medium text-md w-50 overflow-hidden text-ellipsis whitespace-normal break-words">{{ formatCurrency(row[item.name]) }}</span>
+                </template>
                 <!-- Texte par défaut -->
                 <template v-else>
                   <span class="text-gray-900 dark:text-white font-medium text-md w-50 overflow-hidden text-ellipsis whitespace-normal break-words">{{ row[item.name] }}</span>
@@ -387,6 +374,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { formatCurrency } from "@/components/utilities/UtilitiesFunction";
 
 // Interfaces
 interface TableColumn {
