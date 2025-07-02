@@ -12,10 +12,11 @@
           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             {{ $t('SelectRoomType') }} {{ roomSelections.length > 1 ? `#${index + 1}` : '' }}
           </label>
-          <!-- Room Type Select -->
+          <!-- Room Type Select @change="handleRoomSelection(index)" -->
           <select
             v-model="roomSelections[index].roomTypeSelect"
-            @change="handleRoomSelection(index)"
+
+             @change="emitSelectedRoomType(index)"
             class="h-11 w-full rounded-lg border text-sm"
           >
             <option value="" disabled>{{ $t('PleaseSelectRoomType') }}</option>
@@ -204,10 +205,11 @@ const props = defineProps<{
   availableRooms: Room[]
   currency?: string
   initialRoomSelections?: RoomSelection[]
+  selectedRoomType : number | null
   modelValue: RoomSelection[]
 }>()
 
-const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice'])
+const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice','update:selectedRoomType'])
 
 // const roomSelections = ref<RoomSelection[]>(
 //   props.initialRoomSelections?.length
@@ -390,7 +392,7 @@ const getFilteredRooms = (index: number) => {
   console.log(' props.availableRooms:', props.availableRooms)
   console.log(' roomSelections[index].roomTypeSelect:', selection.roomTypeSelect)
 
-  const filtered = props.availableRooms.filter((room) => room.roomType === selection.roomTypeSelect)
+  const filtered = props.availableRooms.filter((room) => Number(room.roomType )=== Number(selection.roomTypeSelect))
 
   console.log('✅ Chambres filtrées :', filtered)
   console.log(
@@ -399,5 +401,13 @@ const getFilteredRooms = (index: number) => {
   )
 
   return filtered
+}
+
+function emitSelectedRoomType(index: number) {
+  const selectedId = roomSelections.value[index].roomTypeSelect
+  const selectedType = props.ActiveRoomTypes.find(t => t.id === selectedId)
+
+  console.log('[RoomSector] Emitting selectedRoomType:', selectedType)
+  emit('update:selectedRoomType', selectedType)
 }
 </script>

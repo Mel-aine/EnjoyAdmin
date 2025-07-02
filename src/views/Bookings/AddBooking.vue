@@ -101,27 +101,130 @@
             </div>
           </div>
 
+
+
           <!-- Room Selection Component -->
           <RoomSector
             :ActiveRoomTypes="ActiveRoomTypes"
             :availableRooms="availableRooms"
-            :selectedRoomType="selectedRoomType"
+             :selectedRoomType="selectedRoomType"
+              @update:selectedRoomType="val => selectedRoomType = val"
             @update:roomSelections="updateRoomSelections"
             @update:totalPrice="updateTotalPrice"
             v-model="fetchData"
           />
 
+
+           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <Input
+            :lb="$t('DefaultGuest')"
+            :inputType="'Number'"
+            :placeholder="$t('DefaultGuest')"
+            :id="'defaultGuest'"
+            :forLabel="'defaultGuest'"
+            :disabled="true"
+            v-model="form.default_guest"
+            :min="1"
+            :required="true"
+          />
+        </div>
+
+        <div>
+          <Input
+            :lb="$t('ExtraGuest')"
+            :inputType="'Number'"
+            :placeholder="$t('ExtraGuest')"
+            :id="'extraGuest'"
+            :forLabel="'extraGuest'"
+            v-model="form.extra_guest"
+            :min="0"
+          />
+        </div>
+      </div>
+
+      <!-- Total Guests Display -->
+      <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div class="flex justify-between items-center">
+          <span class="font-medium text-blue-900 dark:text-blue-100">
+            {{ $t('TotalGuests') }}
+          </span>
+          <span class="font-bold text-xl text-blue-900 dark:text-blue-100">
+            {{ totalGuests }}
+          </span>
+        </div>
+      </div>
+
           <div
             class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
           >
-            <div class="flex justify-between items-center">
+            <!-- <div class="flex justify-between items-center">
               <span class="font-medium text-lg text-gray-900 dark:text-white">{{
                 $t('TotalPrice')
               }}</span>
               <span class="font-bold text-xl text-gray-900 dark:text-white"
                 >{{ calculateTotalPrice }} FCFA</span
               >
-            </div>
+            </div> -->
+
+            <div>
+        <Input
+          :lb="$t('DefaultDeposit')"
+          :inputType="'Number'"
+          :placeholder="$t('DefaultDeposit')"
+          :id="'defaultDeposit'"
+          :forLabel="'defaultDeposit'"
+          :disabled="true"
+          v-model="form.default_deposit"
+          :min="0"
+          :step="0.01"
+        />
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {{ $t('DepositNote') }}
+        </p>
+      </div>
+
+      <!-- Price Summary -->
+      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-700 dark:text-gray-300">{{ $t('BasePrice') }}</span>
+            <span class="text-gray-900 dark:text-white">{{ calculateTotalPrice }} FCFA</span>
+          </div>
+
+          <div v-if="form.extra_guest > 0" class="flex justify-between items-center">
+            <span class="text-gray-700 dark:text-gray-300">
+              {{ $t('ExtraGuestFee') }} ({{ form.extra_guest }} {{ $t('guests') }})
+            </span>
+            <span class="text-gray-900 dark:text-white">{{ extraGuestPrice }} FCFA</span>
+          </div>
+
+          <hr class="border-gray-300 dark:border-gray-600">
+
+          <div class="flex justify-between items-center">
+            <span class="font-medium text-lg text-gray-900 dark:text-white">
+              {{ $t('TotalPrice') }}
+            </span>
+            <span class="font-bold text-xl text-gray-900 dark:text-white">
+              {{ finalTotalPrice }} FCFA
+            </span>
+          </div>
+
+          <div v-if="form.default_deposit > 0" class="flex justify-between items-center">
+            <span class="text-gray-700 dark:text-gray-300">{{ $t('Deposit') }}</span>
+            <span class="text-green-600 dark:text-green-400 font-medium">
+              {{ form.default_deposit }} FCFA
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('Remaining') }}</span>
+            <span class="font-bold text-red-600 dark:text-red-400">
+              {{ remainingAmount }} FCFA
+            </span>
+          </div>
+        </div>
+      </div>
           </div>
 
           <!-- Notes -->
@@ -145,14 +248,7 @@
             {{ $t('Processing') }}...
           </span>
         </ButtonComponent>
-        <!-- <button
-          v-if="isEditMode"
-          type="button"
-          class="w-full rounded-xl ml-8 border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] sm:w-auto"
-          @click="closeUpdate"
-        >
-          {{ $t('Cancel') }}
-        </button> -->
+
       </DefaultCard>
     </div>
   </AdminLayout>
@@ -194,8 +290,6 @@
                   <div>
                     <strong>{{ $t('Customer') }}:</strong> {{ reservationSummary.clientName }}
                   </div>
-                  <!-- <div><strong>{{ $t('Room') }}:</strong> {{ reservationSummary.room }}</div> -->
-                  <!-- <div><strong>{{ $t('Type') }}:</strong> {{ reservationSummary.type }}</div> -->
                   <div>
                     <strong>{{ $t('Total') }}:</strong> {{ reservationSummary.total }} FCFA
                   </div>
@@ -301,7 +395,9 @@ const isEditMode = ref(false)
 const selectedProducts = ref([])
 const totalPrice = ref(0)
 const ActiveRoomTypes = ref<any[]>([])
-const selectedRoomType = ref<number | null>(null)
+const selectedRoomType = ref<any | null>(null)
+const extraGuestPrice = ref<number | null>(null)
+
 
 
 
@@ -432,6 +528,9 @@ interface ReservationForm {
   numberOfNights: number | null
   totalPrice: number | null
   payment: string
+  default_guest:number
+  default_deposit : number
+  extra_guest: number
 }
 
 const selectedPaymentMethod = ref('')
@@ -447,6 +546,9 @@ const form = ref<ReservationForm>({
   totalPrice: null,
   numberOfNights: totalPersons.value,
   payment: 'pending',
+  default_guest:0,
+  default_deposit : 0,
+  extra_guest: 0
 })
 const reservationId = ref<number | null>(null)
 
@@ -624,6 +726,7 @@ onMounted(async () => {
 
    fetchData.value = matchedServiceProduct.map((product: any) => ({
       roomType: Number(product.id) || 0,
+      roomTypeSelect: Number(product.productTypeId) || 0,
       arrivalDate: response.data.arrivedDate || '',
       departureDate: response.data.departDate || '',
       numberOfNights: numberOfNights,
@@ -680,7 +783,8 @@ watch(
 )
 
 const availableRooms = computed(() => {
-  const rooms = store.selectedRoom ? [store.selectedRoom] : ServiceProduct.value
+   const rooms = ServiceProduct.value
+
   console.log('Rooms initiales (store.selectedRoom ou ProductList.value) :', rooms)
 
   const existingRoomIds = rooms.map((r) => r.id)
@@ -717,6 +821,7 @@ const availableRooms = computed(() => {
     roomPrice: room.price,
   }))
 })
+
 
 const updateReservation = async () => {
   try {
@@ -861,6 +966,27 @@ const fetchRoomType = async () => {
   }
 }
 
+watch(selectedRoomType, (newType) => {
+  console.log('[Parent] selectedRoomType changed:', newType)
+  // Met à jour le form par exemple
+  form.value.default_guest = Number(newType?.defaultGuest) || 1
+  extraGuestPrice.value = newType?.extraGuestPrice || 0
+  form.value.default_deposit = newType?.defaultDeposit || 0
+})
 
+
+
+
+const totalGuests = computed(() => {
+  return Number(form.value.default_guest) + Number(form.value.extra_guest)
+})
+
+   const finalTotalPrice = computed(() => {
+      return Number(calculateTotalPrice.value) +  Number(extraGuestPrice.value)
+    })
+
+    const remainingAmount = computed(() => {
+      return Math.max(0, finalTotalPrice.value - (form.value.default_deposit || 0))
+    })
 
 </script>

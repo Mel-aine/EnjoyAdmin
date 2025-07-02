@@ -37,7 +37,11 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div  v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <SkeletonCard v-for="n in 3" :key="n" />
+  </div>
+
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         <RoomCard
           v-for="room in filteredRooms"
           :isCheckingIn="isCheckingIn"
@@ -65,8 +69,9 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import { ref, computed, onMounted } from 'vue'
 import RoomCard from './RoomCard.vue'
 import { useServiceStore } from '@/composables/serviceStore';
-import { getServiceProductWithOptions } from "@/services/api";
+import { getServiceProductWithOptions,getTypeProductByServiceId } from "@/services/api";
 import { checkInReservation, checkOutReservation, getRoomReservations,setAvailable  } from "@/services/reservation";
+import SkeletonCard from '@/components/skeletons/SkeletonCard.vue'
 
 // State variables
 const serviceProducts = ref<any[]>([]);
@@ -76,6 +81,8 @@ const loading = ref(false);
 const error = ref('');
 const isCheckingIn = ref(false)
 const isCheckingout = ref(false)
+const isLoading = ref(false)
+const roomTypeData = ref<any[]>([])
 
 
 
@@ -156,11 +163,14 @@ const fetchServiceProduct = async () => {
 
 
 onMounted(async () => {
+  isLoading.value = true
   try {
     await fetchServiceProduct();
     console.log('Chambres disponibles :', filteredRooms.value)
   } catch (e) {
     console.error("Erreur lors du fetch des produits:", e);
+  }finally{
+    isLoading.value=false
   }
 });
 
@@ -171,6 +181,8 @@ const flattenServiceProducts = computed(() => {
   console.log("@@@@@4444products",products)
 
   return products.map((product: any) => {
+    console.log("typeName for", product.productTypeId, "=>", getRoomTypeName(product.productTypeId));
+
     const flatProduct: any = {
       ...product,
     };
@@ -186,10 +198,19 @@ const flattenServiceProducts = computed(() => {
 // Filtered rooms based on status
 const filteredRooms = computed(() => {
   if (!statusFilter.value) {
-    return flattenServiceProducts.value;
+    return flattenServiceProducts.value.map((r:any)=>{
+      return{
+        ...r,
+        productTypeName : getRoomTypeName(r.productTypeId)
+      }
+    });
   }
-  return flattenServiceProducts.value.filter((room: any) => room.status === statusFilter.value);
+  return flattenServiceProducts.value.filter((room: any) => room.status === statusFilter.value)
+
 });
+
+
+
 
 // Room statistics
 const roomStats = computed(() => {
@@ -395,6 +416,37 @@ const handleMarkCleaned = async (room: any) => {
     }
   }
 }
+
+const fetchRoomType = async () => {
+  try {
+    const serviceId = serviceStore.serviceId
+    const response = await getTypeProductByServiceId(serviceId)
+
+    roomTypeData.value = response.data
+  .filter((type: any) => type.status === 'active')
+  .map((item: any) => ({
+    ...item,
+    value: item.id,
+    label: item.name,
+  }));
+  console.log("fetchRoomType",roomTypeData.value)
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération des roomtypes:', error)
+  }
+}
+
+onMounted(()=>{
+  fetchRoomType()
+
+
+})
+
+const getRoomTypeName = (id: number): string => {
+
+  return roomTypeData.value.find((t: any) => t.value === id)?.label || '';
+}
+
 
 
 

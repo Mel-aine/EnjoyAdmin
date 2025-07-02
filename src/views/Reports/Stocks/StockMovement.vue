@@ -162,7 +162,7 @@
                     :lb="$t('destination')"
                     :options="departments"
                     v-model="currentMovement.destinationId"
-                    required
+
                   />
                   <!-- <option v-for="location in locations" :key="location" :value="location">{{ location }}</option>
                   <option v-if="currentMovement.type === 'Sortie'" value="client">Client</option>
@@ -521,7 +521,7 @@ const saveMovement = async () => {
     } else {
 
        const prod= categories.value.find((s: any) => s.label === currentMovement.sourceId)?.value
-
+        const departmentId = currentMovement.destinationId || null
 
       console.log('........', typeof(prod))
       const payload = {
@@ -529,7 +529,7 @@ const saveMovement = async () => {
         type: currentMovement.type,
         quantity: currentMovement.quantity,
         stock_category_id: prod,
-        department_id: currentMovement.destinationId,
+        department_id: departmentId,
         user: currentMovement.user,
         notes: currentMovement.notes,
         service_id: serviceId,
