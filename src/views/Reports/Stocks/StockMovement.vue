@@ -193,7 +193,7 @@ const currentMovement = reactive<StockMovement>({
 
 const movements = ref<any[]>([])
 const categories = ref<any[]>([]);
-
+const departmentId = ref<number | null>(null)
 const productData = ref<any[]>([])
 
 

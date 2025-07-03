@@ -2130,7 +2130,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 
-function selectIcon(icon) {
+function selectIcon(icon:string) {
     selectedIcon.value = icon
     emit('update:modelValue', icon)
     openModal.value = false

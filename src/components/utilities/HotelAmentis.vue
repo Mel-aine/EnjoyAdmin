@@ -195,9 +195,9 @@ const hotelAmenities = ref([
     { id: "HTL020", name: "hotelAmenities.petsAllowed", category_id: "CAT008", description: "hotelAmenities.petsAllowedDesc", available: true, price: 0, icon: "bi-paw" }
 ]);
 
-const selectedCategory = ref(null);
-const selectedAmenities = ref([]);
-const savedHotelAmenities = ref([]);
+const selectedCategory = ref<string | number|null>(null);
+const selectedAmenities = ref<Record<string, any>>([]);
+const savedHotelAmenities = ref<Record<string, any>>([]);
 
 const customAmenityName = ref('');
 const customAmenityIcon = ref('');
@@ -213,20 +213,18 @@ const filteredAmenities = computed(() => {
     );
 });
 
-const totalPrice = computed(() => {
-    return selectedAmenities.value.reduce((sum, amenity) => sum + (amenity.price || 0), 0);
-});
 
-const isSelected = (amenityId) => {
-    return selectedAmenities.value.some(item => item.id === amenityId);
+
+const isSelected = (amenityId:string) => {
+    return selectedAmenities.value.some((item:any) => item.id === amenityId);
 };
 
-const selectCategory = (categoryId) => {
+const selectCategory = (categoryId:string|null) => {
     selectedCategory.value = categoryId;
 };
 
-const toggleAmenity = (amenity) => {
-    const index = selectedAmenities.value.findIndex(item => item.id === amenity.id);
+const toggleAmenity = (amenity:Record<string, any>) => {
+    const index = selectedAmenities.value.findIndex((item:any) => item.id === amenity.id);
     if (index > -1) {
         selectedAmenities.value.splice(index, 1);
     } else {
@@ -240,12 +238,12 @@ const toggleAmenity = (amenity) => {
     }
 };
 
-const updateAmenityPrice = (amenityId, newPrice) => {
-    const amenity = selectedAmenities.value.find(item => item.id === amenityId);
+/*const updateAmenityPrice = (amenityId:string, newPrice:string) => {
+    const amenity = selectedAmenities.value.find((item:any) => item.id === amenityId);
     if (amenity) {
         amenity.price = parseFloat(newPrice) || 0;
     }
-};
+};*/
 
 const addCustomAmenity = () => {
     if (customAmenityName.value.trim()) {
@@ -253,7 +251,7 @@ const addCustomAmenity = () => {
         selectedAmenities.value.push({
             id: newId,
             name: customAmenityName.value.trim(),
-            price: parseFloat(customAmenityPrice.value) || 0,
+            price: parseFloat(`${customAmenityPrice.value}`) || 0,
             icon: `bi bi-${customAmenityIcon.value}`,
             custom: true
         });
@@ -263,8 +261,8 @@ const addCustomAmenity = () => {
     }
 };
 
-const removeSelectedAmenity = (amenityId) => {
-    selectedAmenities.value = selectedAmenities.value.filter(item => item.id !== amenityId);
+const removeSelectedAmenity = (amenityId:string|number ) => {
+    selectedAmenities.value = selectedAmenities.value.filter((item:any) => item.id !== amenityId);
 };
 
 const saveAmenities = async () => {
@@ -289,7 +287,7 @@ const saveAmenities = async () => {
     }
 };
 
-const formatPrice = (price) => {
+const formatPrice = (price:number) => {
     return new Intl.NumberFormat('en-CM', {
         style: 'currency',
         currency: 'XAF',

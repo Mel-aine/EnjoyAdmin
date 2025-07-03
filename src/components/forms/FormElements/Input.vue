@@ -22,15 +22,15 @@ const props = defineProps({
     forLabel: String,
     id: String,
     placeholder:String,
-    min: Number
+    min: [String, Number]
 
 });
 // Emit input event to update the v-model value
 const emit = defineEmits(['update:modelValue'])
 
 // Handle the input change
-const handleInput = (event) => {
-    emit('update:modelValue', event.target.value)
+const handleInput = (event:Event) => {
+    emit('update:modelValue', (event.target as HTMLInputElement).value)
 }
 </script>
 
