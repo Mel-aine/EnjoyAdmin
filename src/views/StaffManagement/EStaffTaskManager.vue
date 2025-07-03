@@ -233,7 +233,7 @@ async function handleCreateTask() {
         const taskData = {
             ...newTask.value,
             due_date: dueDateTime,
-            estimated_hours: parseFloat(newTask.value.estimated_hours),
+            estimated_hours: parseFloat(`${newTask.value.estimated_hours}`),
             room_number: newTask.value.room_number || null
         }
         const API = import.meta.env.VITE_BACKEND_URL + '/api'

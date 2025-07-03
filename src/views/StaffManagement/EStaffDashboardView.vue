@@ -122,7 +122,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted } from 'vue'
-import { dashboard, schedules, staffData, tasks as tasksData } from '@/assets/data/StaffData'
+import { dashboard, schedulesM, staffData, tasks as tasksData } from '@/assets/data/StaffData'
 import { useI18n } from 'vue-i18n'
 import { Users, Target, ClipboardList, AlertTriangle } from 'lucide-vue-next'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
@@ -146,10 +146,10 @@ function getPriorityColor(priority: string) {
     }
 }
 
-const dashboardData = ref(null)
-const staff = ref([])
-const tasks = ref([])
-const schedules = ref([])
+const dashboardData = ref<Record<string,any>>({})
+const staff = ref<Record<string,any>[]>([])
+const tasks = ref<Record<string,any>[]>([])
+const schedules = ref<Record<string,any>[]>([])
 const loading = ref(true)
 
 async function fetchData() {
@@ -158,7 +158,7 @@ async function fetchData() {
         dashboardData.value = dashboard
         staff.value = staffData
         tasks.value = tasksData
-        schedules.value = schedules
+        schedules.value = schedulesM
     } catch (error) {
         console.error('Error fetching data:', error)
     } finally {

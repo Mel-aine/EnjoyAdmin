@@ -54,12 +54,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { actionsMock } from "@/assets/data/staffData";
+import { actionsMock } from "@/assets/data/StaffData";
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 
-const { t } = useI18n()
-const actionLogs = ref([])
+const actionLogs = ref<Record<string, any>>([])
 const loading = ref(true)
 
 function getActionIcon(action: string) {
@@ -85,6 +83,8 @@ onMounted(async () => {
   try {
     actionLogs.value = actionsMock
   } catch (error) {
+    console.error('Error fetching action logs:', error)
+    // Optionally, you can set an error state here
     // handle error
   } finally {
     loading.value = false

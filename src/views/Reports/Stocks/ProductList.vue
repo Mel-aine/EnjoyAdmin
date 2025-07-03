@@ -123,22 +123,22 @@ const toggleDropdown = () => {
 interface Product {
   name: string,
   code: string,
-  quantity: null | string | number | undefined,
+  quantity:  string | number | undefined,
   supplier: string | number | undefined,
   status: string,
   category: string | number | undefined,
-  price: null
+  price: string | number | undefined
 
 
 }
 const newProduct = ref<Product>({
   name: "",
   code: "",
-  quantity: null,
+  quantity: 0,
   supplier: '',
   status: "",
   category: '',
-  price: null
+  price: 0
 });
 
 const suppliers = ref<any[]>([]);
@@ -339,11 +339,11 @@ const addProduct = async () => {
         newProduct.value = {
           name: "",
           code: "",
-          quantity: null,
+          quantity: 0,
           supplier: '',
           status: "",
           category: '',
-          price: null
+          price: 0
         }
       } else {
         toast.error(t('toast.error'));
@@ -426,11 +426,11 @@ const close = () => {
   newProduct.value = {
     name: "",
     code: "",
-    quantity: null,
+    quantity: 0,
     supplier: '',
     status: "",
     category: '',
-    price: null
+    price: 0
   }
 }
 
@@ -468,11 +468,11 @@ const updateData = async () => {
     newProduct.value = {
       name: "",
       code: "",
-      quantity: null,
+      quantity: 0,
       supplier: '',
       status: "",
       category: '',
-      price: null
+      price: 0
     }
     selected.value = null;
     isEditing.value = false;
