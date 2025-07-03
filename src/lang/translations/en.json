@@ -786,7 +786,8 @@
       "low": "Low",
       "medium": "Medium",
       "high": "High"
-    }
+    },
+    "selectRoom" : "Select Room"
   },
   "common": {
     "cancel": "Cancel"

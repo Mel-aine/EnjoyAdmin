@@ -1,6 +1,7 @@
 <template>
   <div>
     <AdminLayout>
+      <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('StockCategory')" />
 
       <div class="flex justify-end my-10 gap-2">
@@ -49,6 +50,7 @@
           </div>
         </template>
       </Modal>
+      </FullScreenLayout>
     </AdminLayout>
   </div>
   <ModalDelete v-if="show" @close="closed" @delete="confirmDelete" :isLoading="loadingDelete" />
@@ -58,7 +60,7 @@
 import { onMounted, ref, watch, computed } from "vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-import ComponentCard from "@/components/common/ComponentCard.vue";
+import FullScreenLayout from "@/components/layout/FullScreenLayout.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
 import { createCategory, getCategory, deleteCategory, updateCategory } from "@/services/api";

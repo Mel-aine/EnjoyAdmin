@@ -110,7 +110,7 @@
       <!-- Schedule Modal -->
       <div
         v-if="showScheduleModal"
-        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-99999"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center h-full justify-center z-99999"
       >
         <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
           <div class="flex justify-between items-center mb-6">
@@ -227,17 +227,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
+import { useAuthStore } from '@/composables/user'
+import { useServiceStore } from '@/composables/serviceStore'
 import { schedulesM, staffData } from '@/assets/data/StaffData'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
-
+const serviceStore = useServiceStore()
+const authStore = useAuthStore()
 const currentWeek = ref(new Date())
 const showScheduleModal = ref(false)
 const editingSchedule = ref(null)
+const scheduleList = ref([])
+const toast = useToast()
 const newSchedule = ref({
   staff_id: '',
   date: '',
@@ -314,23 +320,41 @@ function handleEditSchedule(schedule) {
   }
   showScheduleModal.value = true
 }
+function extractTimeOnly(time) {
+  const [hour, minute] = time.split(':')
+  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}:00`
+}
+
 
 async function handleCreateOrUpdateSchedule() {
   try {
+
     const scheduleData = {
-      ...newSchedule.value,
-      notes: newSchedule.value.notes || null
+      user_id: newSchedule.value.staff_id ?? null,
+      status: newSchedule.value.status,
+      schedule_date: newSchedule.value.date,
+      start_time: extractTimeOnly(newSchedule.value.shift_start),
+      end_time: extractTimeOnly(newSchedule.value.shift_end),
+      notes: newSchedule.value.notes || null,
+      service_id : serviceStore.serviceId,
+      created_by : authStore.UserId
     }
-    const API = import.meta.env.VITE_BACKEND_URL + '/api'
+    console.log("scheduleData ready to send:", scheduleData)
+
+    const API = import.meta.env.VITE_API_URL
     let response
     if (editingSchedule.value) {
       response = await axios.put(`${API}/schedules/${editingSchedule.value.id}`, scheduleData)
     } else {
       response = await axios.post(`${API}/schedules`, scheduleData)
     }
-    if (response.status === 200) {
+
+    console.log("API response:", response)
+
+    if (response.status === 201) {
       showScheduleModal.value = false
       editingSchedule.value = null
+      toast.success(t('toast.Sucess'))
       newSchedule.value = {
         staff_id: '',
         date: '',
@@ -339,10 +363,46 @@ async function handleCreateOrUpdateSchedule() {
         status: 'working',
         notes: ''
       }
-      window.location.reload()
+
+      // window.location.reload()
     }
   } catch (error) {
     alert(t('schedule.saveError'))
+    console.error('Erreur lors de la creation:', error)
   }
 }
+
+const fetchSchedulesByService = async(serviceId) => {
+  try {
+    const API = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${API}/schedules`, {
+      params: {
+        service_id: serviceId
+      }
+    })
+
+    if (response.status === 200) {
+      const schedules = response.data.data
+      console.log("Horaires par service :", schedules)
+      return schedules
+    } else {
+      console.warn("Réponse inattendue :", response)
+      return []
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération par service_id :", error)
+    return []
+  }
+}
+
+onMounted(async () => {
+  const serviceId = serviceStore.serviceId
+  const horaires = await fetchSchedulesByService(serviceId)
+  console.log("Horaires par service :", horaires)
+  scheduleList.value = horaires
+})
+
+
+
+
 </script>

@@ -27,6 +27,8 @@ function getRoleColor(role: string) {
     default: return 'bg-gray-100 text-gray-800'
   }
 }
+
+
 </script>
 
 <template>

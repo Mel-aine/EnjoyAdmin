@@ -96,7 +96,7 @@ export const dashboard = {
 
 export const staffData = [
   {
-    id: 'staff_1',
+    id: 1,
     name: 'Sarah Johnson',
     role: 'receptionist',
     email: 'sarah@hotel.com',

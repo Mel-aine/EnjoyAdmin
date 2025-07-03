@@ -764,7 +764,8 @@
       "low": "Basse",
       "medium": "Moyenne",
       "high": "Haute"
-    }
+    },
+  "selectRoom" : "Sélectionner une chambre"
   },
   "common": {
     "cancel": "Annuler"

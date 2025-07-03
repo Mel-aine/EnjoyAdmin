@@ -76,7 +76,7 @@ export const getOptions = (): Promise<AxiosResponse<{ data: OptionType[] }>> => 
 //get les services product by serviceId
 export const getServiceProduct = (
   serviceId: number | null,
-): Promise<AxiosResponse<ServiceProductType[]>> => {
+): Promise<AxiosResponse<any[]>> => {
   return axios.get(`${API_URL}/service_product_by_serviceId/${serviceId}`)
 }
 
@@ -194,6 +194,10 @@ export const getUserAssignment = (): Promise<AxiosResponse<any>> => {
 
 export const getPermission = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/permission`)
+}
+
+export const getTasks = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/tasks/${serviceId}`)
 }
 
 // --- Services API post --- //

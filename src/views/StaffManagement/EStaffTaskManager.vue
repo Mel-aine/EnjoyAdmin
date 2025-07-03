@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+      <FullScreenLayout>
         <div class="space-y-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -25,7 +26,7 @@
             </div>
             <!-- Create Task Modal -->
             <div v-if="showCreateModal"
-                class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-99999">
+                class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-99999 h-full">
                 <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 max-h-screen overflow-y-auto">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-xl font-semibold text-gray-900">{{ $t('taskManagement.createNewTask') }}</h3>
@@ -91,9 +92,13 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('taskManagement.roomNumber') }}</label>
-                            <input type="text" v-model="newTask.room_number"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                :placeholder="$t('taskManagement.roomNumberPlaceholder')" />
+                            <select type="text" v-model="newTask.room_number"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                 <option value="">{{ $t('taskManagement.selectRoom') }}</option>
+                                <option v-for="room in rooms" :key="room.id" :value="room.id">
+                                    {{ room.productName }}
+                                </option>
+                            </select>
                         </div>
                         <div class="flex space-x-3 pt-4">
                             <button @click="handleCreateTask"
@@ -118,7 +123,7 @@
                             <component :is="getTaskTypeIcon(task.task_type)" class="w-6 h-6 text-gray-700" />
                             <div>
                                 <h3 class="font-semibold text-gray-900">{{ task.title }}</h3>
-                                <p v-if="task.room_number" class="text-sm text-gray-500">{{ $t('taskManagement.room') }} {{ task.room_number }}</p>
+                                <p v-if="task.serviceProductId" class="text-sm text-gray-500">{{ $t('taskManagement.room') }} {{ task.serviceProductId }}</p>
                             </div>
                         </div>
                         <span class="px-2 py-1 rounded-full text-xs font-medium"
@@ -134,11 +139,11 @@
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">{{ $t('taskManagement.due') }}</span>
-                            <span class="font-medium text-gray-900">{{ new Date(task.due_date).toLocaleString() }}</span>
+                            <span class="font-medium text-gray-900">{{ new Date(task.dueDate).toLocaleString() }}</span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">{{ $t('taskManagement.estimatedHours') }}</span>
-                            <span class="font-medium text-gray-900">{{ task.estimated_hours }}h</span>
+                            <span class="font-medium text-gray-900">{{ task.estimatedHours }}h</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-500">{{ $t('taskManagement.status') }}</span>
@@ -162,30 +167,40 @@
                 <p class="text-gray-500">{{ $t('taskManagement.noTasksMsg') }}</p>
             </div>
         </div>
+      </FullScreenLayout>
     </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { tasks, staffData } from '@/assets/data/StaffData'
 import axios from 'axios'
 import {  Wrench, Building2, Shield, ClipboardList } from 'lucide-vue-next'
+import { useAuthStore } from '@/composables/user'
+import { useServiceStore } from '@/composables/serviceStore'
+import { getServiceProduct , getTasks } from '@/services/api'
+import { useToast } from 'vue-toastification'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 
 const { t } = useI18n()
 const emit = defineEmits(['update-status'])
-
+const toast = useToast()
 const filter = ref('all')
 const showCreateModal = ref(false)
 const tasksk = ref(tasks)
 const staff = ref(staffData)
+const serviceStore = useServiceStore()
+const authStore = useAuthStore()
+const rooms = ref<any[]>([])
+const Tasks = ref<any[]>([])
 const newTask = ref({
     title: '',
     description: '',
     task_type: 'cleaning',
     assigned_to: '',
-    assigned_by: staff.value.find(s => s.role === 'manager')?.id || (staff.value[0]?.id || ''),
+    // assigned_by: staff.value.find(s => s.role === 'manager')?.id || (staff.value[0]?.id || ''),
     priority: 'medium',
     due_date: '',
     estimated_hours: 1.0,
@@ -193,14 +208,18 @@ const newTask = ref({
 })
 
 const filterButtons = computed(() => [
-    { value: 'all', label: t('taskManagement.filters.all'), count: tasksk.value.length },
-    { value: 'todo', label: t('taskManagement.filters.todo'), count: tasksk.value.filter(t => t.status === 'todo').length },
-    { value: 'in_progress', label: t('taskManagement.filters.in_progress'), count: tasksk.value.filter(t => t.status === 'in_progress').length },
-    { value: 'done', label: t('taskManagement.filters.done'), count: tasksk.value.filter(t => t.status === 'done').length }
+    { value: 'all', label: t('taskManagement.filters.all'), count: Tasks.value.length },
+    { value: 'todo', label: t('taskManagement.filters.todo'), count: Tasks.value.filter(t => t.status === 'todo').length },
+    { value: 'in_progress', label: t('taskManagement.filters.in_progress'), count: Tasks.value.filter(t => t.status === 'in_progress').length },
+    { value: 'done', label: t('taskManagement.filters.done'), count: Tasks.value.filter(t => t.status === 'done').length }
 ])
+// const filteredTasks = computed(() => {
+//     if (filter.value === 'all') return tasksk.value
+//     return tasksk.value.filter(task => task.status === filter.value)
+// })
 const filteredTasks = computed(() => {
-    if (filter.value === 'all') return tasksk.value
-    return tasksk.value.filter(task => task.status === filter.value)
+    if (filter.value === 'all') return Tasks.value
+    return Tasks.value.filter(task => task.status === filter.value)
 })
 function getStatusColor(status: string) {
     switch (status) {
@@ -231,21 +250,31 @@ async function handleCreateTask() {
     try {
         const dueDateTime = new Date(newTask.value.due_date).toISOString()
         const taskData = {
-            ...newTask.value,
+            title: newTask.value.title,
+            description: newTask.value.description,
+            task_type: newTask.value.task_type,
+            assigned_to: newTask.value.assigned_to,
+            priority: newTask.value.priority,
             due_date: dueDateTime,
             estimated_hours: parseFloat(`${newTask.value.estimated_hours}`),
-            room_number: newTask.value.room_number || null
+            service_product_id: newTask.value.room_number || null,
+            service_id : serviceStore.serviceId,
+            created_by : authStore.UserId
         }
-        const API = import.meta.env.VITE_BACKEND_URL + '/api'
+
+          console.log("taskData ready to send:", taskData)
+        const API = import.meta.env.VITE_API_URL
         const response = await axios.post(`${API}/tasks`, taskData)
-        if (response.status === 200) {
+        console.log("API response:", response)
+        if (response.status === 201) {
             showCreateModal.value = false
+             toast.success(t('toast.Sucess'))
             Object.assign(newTask.value, {
                 title: '',
                 description: '',
                 task_type: 'cleaning',
                 assigned_to: '',
-                assigned_by: staff.value.find(s => s.role === 'manager')?.id || (staff.value[0]?.id || ''),
+                // assigned_by: staff.value.find(s => s.role === 'manager')?.id || (staff.value[0]?.id || ''),
                 priority: 'medium',
                 due_date: '',
                 estimated_hours: 1.0,
@@ -255,6 +284,43 @@ async function handleCreateTask() {
         }
     } catch (error) {
         alert(t('taskManagement.createTaskError'))
+        console.error('Erreur lors de la creation:', error)
     }
 }
+
+const getRoom = async() =>{
+  try {
+    const serviceId = serviceStore.serviceId
+    const response = await getServiceProduct(serviceId)
+    rooms.value = response.data
+    console.log("response getRoom",rooms.value)
+
+  } catch (error) {
+     console.error('Erreur lors de la recuperation:', error)
+  }
+}
+
+
+
+const fetchTasks = async () => {
+  try {
+
+    const serviceId = serviceStore.serviceId
+
+    const response = await getTasks(serviceId)
+    Tasks.value = response.data
+
+    console.log('Fetched tasks:', Tasks.value)
+  } catch (error) {
+    console.error('Erreur lors de la récupération des tâches:', error)
+  }
+}
+
+
+
+
+onMounted(()=>{
+  getRoom()
+  fetchTasks ()
+})
 </script>
