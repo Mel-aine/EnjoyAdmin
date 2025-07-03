@@ -203,7 +203,10 @@
                   <span class="text-gray-900 dark:text-white">{{ calculateTotalPrice }} FCFA</span>
                 </div>
 
-                <div v-if="form.extra_guest > 0 || isEditMode" class="flex justify-between items-center">
+                <div
+                  v-if="form.extra_guest > 0 || isEditMode"
+                  class="flex justify-between items-center"
+                >
                   <span class="text-gray-700 dark:text-gray-300">
                     {{ $t('ExtraGuestFee') }} ({{ form.extra_guest }} {{ $t('guests') }})
                   </span>
@@ -576,17 +579,17 @@ const saveReservation = async () => {
       phone_number: selectedCustomer.value.phoneNumber,
       service_id: serviceStore.serviceId,
       reservation_type: reservationType.value,
-      tax_amount : extraGuestPrice.value,
+      tax_amount: extraGuestPrice.value,
       final_amount: finalTotalPrice.value,
       total_amount: calculateTotalPrice.value,
-      discount_amount : form.value.default_deposit,
+      discount_amount: form.value.default_deposit,
       guest_count: totalGuests.value,
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
       special_requests: form.value.normalDescription,
       paid_amount: remainingAmount.value,
       created_by: authStore.UserId,
-    //  role_id: authStore.roleId,
+      //  role_id: authStore.roleId,
       // payment_status: 'pending',
       products: selectedProducts.value.map((product: any) => ({
         service_product_id: product.roomType,
@@ -597,7 +600,7 @@ const saveReservation = async () => {
 
     console.log('✅ reservationPayload', reservationPayload)
 
-     const response = await createReservation(reservationPayload)
+    const response = await createReservation(reservationPayload)
     reservationSummary.value = {
       clientName: `${selectedCustomer.value.firstName} ${selectedCustomer.value.lastName}`,
       room: form.value.roomType ?? '',
@@ -725,9 +728,7 @@ onMounted(async () => {
   console.log('[DATA] Services:', response2.data)
 
   // Filtrer les services liés à cette réservation
-  const matchingService = response2.data.filter(
-    (p: any) => p.reservationId === reservationId.value,
-  )
+  const matchingService = response2.data.filter((p: any) => p.reservationId === reservationId.value)
   const matchingServiceIds = matchingService.map((i: any) => i.serviceProductId)
 
   // Trouver les produits correspondants dans ProductList
@@ -785,7 +786,6 @@ onMounted(async () => {
   extraGuestPrice.value = response.data.taxAmount
 })
 
-
 const calculateTotalPrice = computed(() => {
   if (fetchData.value.length > 0) {
     return fetchData.value.reduce((total: number, room: any) => {
@@ -800,7 +800,7 @@ const calculateTotalPrice = computed(() => {
 
 watch(
   fetchData,
-  (newVal:any) => {
+  (newVal: any) => {
     console.log('Données mises à jour depuis RoomSector :', newVal)
   },
   { deep: true },
@@ -808,10 +808,10 @@ watch(
 
 const availableRooms = computed(() => {
   const rooms = ServiceProduct.value
- //const rooms = store.selectedRoom ? [store.selectedRoom] : ServiceProduct.value
+  //const rooms = store.selectedRoom ? [store.selectedRoom] : ServiceProduct.value
   console.log('Rooms initiales (store.selectedRoom ou ProductList.value) :', rooms)
 
-  const existingRoomIds = rooms.map((r:any) => r.id)
+  const existingRoomIds = rooms.map((r: any) => r.id)
   console.log('IDs des chambres existantes :', existingRoomIds)
   console.log('fetchData.value :', fetchData.value)
   console.log('ProductList.value :', ProductList.value)
@@ -831,8 +831,7 @@ const availableRooms = computed(() => {
         productName: roomFromAll ? roomFromAll.productName : r.roomType,
         price: r.price,
         label: roomFromAll ? `${roomFromAll.productName} (réservée)` : `${r.roomType} (réservée)`,
-        roomType: roomFromAll?.productTypeId
-
+        roomType: roomFromAll?.productTypeId,
       }
     })
 
@@ -858,10 +857,10 @@ const updateReservation = async () => {
       last_name: selectedCustomer.value.lastName,
       email: selectedCustomer.value.email,
       phone_number: selectedCustomer.value.phoneNumber,
-      tax_amount : extraGuestPrice.value,
+      tax_amount: extraGuestPrice.value,
       final_amount: finalTotalPrice.value,
       total_amount: calculateTotalPrice.value,
-      discount_amount : form.value.default_deposit,
+      discount_amount: form.value.default_deposit,
       guest_count: totalGuests.value,
       service_id: serviceStore.serviceId,
       reservation_type: reservationType.value,
@@ -906,28 +905,6 @@ const handleSubmit = async () => {
     isLoading.value = false
   }
 }
-
-// const closeUpdate = () => {
-//   isEditMode.value = false
-//   formData.value = {
-//     firstName: '',
-//     lastName: '',
-//     phoneNumber: '',
-//     email: '',
-//   }
-//   form.value = {
-//     roomType: null,
-//     package: '',
-//     arrivalDate: '',
-//     departureDate: '',
-//     normalDescription: '',
-//     totalPerson: totalPersons.value,
-//     totalPrice: null,
-//     numberOfNights: totalPersons.value,
-//     payment: ' ',
-//   }
-//   router.push('/add_booking')
-// }
 
 const selectedCustomer = ref<any>(null)
 const manualInput = ref({
@@ -998,15 +975,13 @@ const fetchRoomType = async () => {
   }
 }
 
-watch(selectedRoomType, (newType:any) => {
+watch(selectedRoomType, (newType: any) => {
   console.log('[Parent] selectedRoomType changed:', newType)
   reservationType.value = newType?.name || 'Hotels & Stays'
   form.value.default_guest = Number(newType?.defaultGuest) || 1
   extraGuestPrice.value = newType?.extraGuestPrice || 0
   form.value.default_deposit = newType?.defaultDeposit || 0
 })
-
-
 
 const totalGuests = computed(() => {
   // if (manualTotalGuests.value !== null) {
@@ -1015,9 +990,6 @@ const totalGuests = computed(() => {
   return Number(form.value.default_guest) + Number(form.value.extra_guest)
 })
 
-
-
-
 const finalTotalPrice = computed(() => {
   return Number(calculateTotalPrice.value) + Number(extraGuestPrice.value)
 })
@@ -1025,19 +997,5 @@ const finalTotalPrice = computed(() => {
 const remainingAmount = computed(() => {
   return Math.max(0, finalTotalPrice.value - (form.value.default_deposit || 0))
 })
-
-
-
-
-// watch(
-//   () => [form.value.default_guest, form.value.extra_guest],
-//   ([defaultGuest, extraGuest]) => {
-//     if (!isEditMode.value) return
-//     manualTotalGuests.value = Number(defaultGuest) + Number(extraGuest)
-//     console.log('[WATCH] manualTotalGuests recalculated:', manualTotalGuests.value)
-//   }
-// )
-
-
 
 </script>

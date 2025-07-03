@@ -1,6 +1,7 @@
 <template>
     <AdminLayout>
-        <div v-if="dashboardData" class="space-y-6">
+      <FullScreenLayout>
+        <div v-if="dashboardData" class="space-y-6 ">
             <div>
                 <h2 class="text-3xl font-bold text-gray-900">{{ $t('dashboard.title') }}</h2>
                 <p class="text-gray-600 mt-1">{{ $t('dashboard.subtitle') }}</p>
@@ -114,6 +115,7 @@
             </div>
         </div>
         <div v-else>{{ $t('dashboard.loading') }}</div>
+        </FullScreenLayout>
     </AdminLayout>
 </template>
 
@@ -123,6 +125,7 @@ import { ref, onMounted } from 'vue'
 import { dashboard, schedules, staffData, tasks as tasksData } from '@/assets/data/StaffData'
 import { useI18n } from 'vue-i18n'
 import { Users, Target, ClipboardList, AlertTriangle } from 'lucide-vue-next'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 
 const { t } = useI18n()
 
