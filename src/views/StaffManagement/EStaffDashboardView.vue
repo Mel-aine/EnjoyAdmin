@@ -95,8 +95,8 @@
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-900">{{ task.title }}</p>
                                 <p class="text-xs text-gray-500">
-                                    {{ staff.find(s => s.id === task.assigned_to)?.name }} •
-                                    {{ task.room_number ? $t('dashboard.room', { room: task.room_number }) : $t('dashboard.general') }}
+                                    {{task.user_name }} •
+                                    {{ task.serviceProductId ?  (task.roomName)  : $t('dashboard.general') }}
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2">
@@ -122,13 +122,15 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted } from 'vue'
-import { dashboard, schedulesM, staffData, tasks as tasksData } from '@/assets/data/StaffData'
+// import { dashboard, schedulesM, staffData, tasks as tasksData } from '@/assets/data/StaffData'
+import {dashboard , getUserId ,getServiceProductById} from '@/services/api'
 import { useI18n } from 'vue-i18n'
+import { useServiceStore } from '@/composables/serviceStore'
 import { Users, Target, ClipboardList, AlertTriangle } from 'lucide-vue-next'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 
 const { t } = useI18n()
-
+const serviceStore = useServiceStore()
 function getStatusColor(status: string) {
     switch (status) {
         case 'todo': return 'bg-yellow-100 text-yellow-800'
@@ -153,18 +155,47 @@ const schedules = ref<Record<string,any>[]>([])
 const loading = ref(true)
 
 async function fetchData() {
-    try {
-        loading.value = true
-        dashboardData.value = dashboard
-        staff.value = staffData
-        tasks.value = tasksData
-        schedules.value = schedulesM
-    } catch (error) {
-        console.error('Error fetching data:', error)
-    } finally {
-        loading.value = false
-    }
+  try {
+    loading.value = true
+    const serviceId = serviceStore.serviceId
+    const response = await dashboard(serviceId)
+
+    console.log('response:', response.data.data)
+    dashboardData.value = response.data.data
+
+
+    const assignmentsWithNames = await Promise.all(
+      response.data.data.recent_tasks.map(async (assignment) => {
+         let roomName = null
+
+        if (assignment.serviceProductId) {
+          const room = await getServiceProductById(assignment.serviceProductId)
+          if (room?.data?.productName) {
+            roomName = room.data.productName
+          }
+        }
+        const user = await getUserId(assignment.assignedTo)
+
+        return {
+          ...assignment,
+          ...(roomName && { roomName }),
+          user_name: user.data.firstName + ' ' + user.data.lastName,
+        }
+      })
+    )
+
+
+    dashboardData.value.recent_tasks = assignmentsWithNames
+    console.log('dashboardData.value.recent_tasks', dashboardData.value.recent_tasks)
+
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  } finally {
+    loading.value = false
+  }
 }
+
+
 
 onMounted(fetchData)
 </script>

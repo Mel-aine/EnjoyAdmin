@@ -1,5 +1,6 @@
 <template>
   <AdminLayout>
+    <FullScreenLayout>
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <div>
@@ -62,12 +63,12 @@
                     <div class="flex-shrink-0 h-10 w-10">
                       <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                         <span class="text-sm font-medium text-blue-600">
-                          {{ staffMember.name.split(' ').map(n => n[0]).join('') }}
+                          {{ staffMember.user_name.split(' ').map(n => n[0]).join('') }}
                         </span>
                       </div>
                     </div>
                     <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">{{ staffMember.name }}</div>
+                      <div class="text-sm font-medium text-gray-900">{{ staffMember.user_name }}</div>
                       <div class="text-sm text-gray-500 capitalize">{{ staffMember.role }}</div>
                     </div>
                   </div>
@@ -77,27 +78,27 @@
                   :key="index"
                   class="px-6 py-4 whitespace-nowrap text-center"
                 >
-                  <template v-if="getScheduleForStaffAndDate(staffMember.id, date)">
+                  <template v-if="getScheduleForStaffAndDate(staffMember.userId, date)">
                     <div class="space-y-1">
                       <button
-                        @click="handleEditSchedule(getScheduleForStaffAndDate(staffMember.id, date))"
+                        @click="handleEditSchedule(getScheduleForStaffAndDate(staffMember.userId, date))"
                         class="inline-flex px-2 py-1 text-xs font-semibold rounded-full hover:opacity-80 transition-opacity"
-                        :class="getStatusColor(getScheduleForStaffAndDate(staffMember.id, date).status)"
+                        :class="getStatusColor(getScheduleForStaffAndDate(staffMember.userId, date).status)"
                       >
-                        {{ t(`schedule.statuses.${getScheduleForStaffAndDate(staffMember.id, date).status}`) }}
+                        {{ t(`schedule.statuses.${getScheduleForStaffAndDate(staffMember.userId, date).status}`) }}
                       </button>
                       <div
-                        v-if="getScheduleForStaffAndDate(staffMember.id, date).status === 'working'"
+                        v-if="getScheduleForStaffAndDate(staffMember.userId, date).status === 'working'"
                         class="text-xs text-gray-500"
                       >
-                        {{ getScheduleForStaffAndDate(staffMember.id, date).shift_start }} -
-                        {{ getScheduleForStaffAndDate(staffMember.id, date).shift_end }}
+                        {{ formatTime(getScheduleForStaffAndDate(staffMember.userId, date).startTime) }} -
+                        {{ formatTime(getScheduleForStaffAndDate(staffMember.userId, date).endTime) }}
                       </div>
                     </div>
                   </template>
                   <template v-else>
                     <button
-                      @click="openCreateModal(staffMember.id, date.toISOString().split('T')[0])"
+                      @click="openCreateModal(staffMember.userId, date.toISOString().split('T')[0])"
                       class="text-gray-400 hover:text-blue-600 text-sm border border-dashed border-gray-300 hover:border-blue-300 rounded px-2 py-1 transition-colors"
                     >{{ $t('schedule.add') }}</button>
                   </template>
@@ -134,9 +135,9 @@
                 <option
                   v-for="staffMember in staff"
                   :key="staffMember.id"
-                  :value="staffMember.id"
+                  :value="staffMember.userId"
                 >
-                  {{ staffMember.name }} ({{ staffMember.role }})
+                  {{ staffMember.user_name }} ({{ staffMember.role }})
                 </option>
               </select>
             </div>
@@ -194,7 +195,12 @@
                 :disabled="!newSchedule.staff_id || !newSchedule.date"
                 class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
               >
-                {{ editingSchedule ? $t('schedule.updateSchedule') : $t('schedule.addSchedule') }}
+                  <span v-if="!isLoading"> {{ editingSchedule ? $t('schedule.updateSchedule') : $t('schedule.addSchedule') }}</span>
+                    <span v-else class="flex items-center gap-2">
+                    <Spinner class="w-4 h-4" />
+                    {{ $t('Processing') }}...
+                  </span>
+
               </button>
               <button
                 @click="showScheduleModal = false"
@@ -223,6 +229,7 @@
         </div>
       </div>
     </div>
+    </FullScreenLayout>
   </AdminLayout>
 </template>
 
@@ -235,6 +242,9 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { schedulesM, staffData } from '@/assets/data/StaffData'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useToast } from 'vue-toastification'
+import { getUserAssignmentById, getUserId ,getSchedules } from '@/services/api'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import Spinner from '@/components/spinner/Spinner.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -244,6 +254,7 @@ const showScheduleModal = ref(false)
 const editingSchedule = ref(null)
 const scheduleList = ref([])
 const toast = useToast()
+const isLoading = ref(false)
 const newSchedule = ref({
   staff_id: '',
   date: '',
@@ -254,8 +265,9 @@ const newSchedule = ref({
 })
 
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const schedules = ref(schedulesM)
-const staff = ref(staffData)
+const schedules = ref([])
+const staff = ref([])
+// const staff = ref([])
 function getWeekDates(startDate) {
   const week = []
   const start = new Date(startDate)
@@ -275,8 +287,9 @@ function setCurrentWeek(offset) {
 
 function getScheduleForStaffAndDate(staffId, date) {
   const dateStr = date.toISOString().split('T')[0]
-  return schedules.value.find(s => s.staff_id === staffId && s.date === dateStr)
+  return schedules.value.find(s => s.userId === Number(staffId) && s.scheduleDate === dateStr)
 }
+
 
 function getStatusColor(status) {
   switch (status) {
@@ -310,8 +323,9 @@ function openCreateModal(staffId = '', date = '') {
 
 function handleEditSchedule(schedule) {
   editingSchedule.value = schedule
+  console.log("editingSchedule.value ",schedule)
   newSchedule.value = {
-    staff_id: schedule.staff_id,
+    staff_id: schedule.UserId,
     date: schedule.date,
     shift_start: schedule.shift_start,
     shift_end: schedule.shift_end,
@@ -327,6 +341,7 @@ function extractTimeOnly(time) {
 
 
 async function handleCreateOrUpdateSchedule() {
+  isLoading.value = true
   try {
 
     const scheduleData = {
@@ -363,46 +378,63 @@ async function handleCreateOrUpdateSchedule() {
         status: 'working',
         notes: ''
       }
-
+      fetchSchedules()
       // window.location.reload()
     }
   } catch (error) {
     alert(t('schedule.saveError'))
     console.error('Erreur lors de la creation:', error)
+  }finally{
+    isLoading.value = false
   }
 }
 
-const fetchSchedulesByService = async(serviceId) => {
+
+
+const fetchSchedules = async () => {
   try {
-    const API = import.meta.env.VITE_API_URL
-    const response = await axios.get(`${API}/schedules`, {
-      params: {
-        service_id: serviceId
-      }
-    })
-
-    if (response.status === 200) {
-      const schedules = response.data.data
-      console.log("Horaires par service :", schedules)
-      return schedules
-    } else {
-      console.warn("Réponse inattendue :", response)
-      return []
-    }
+    const response = await getSchedules(serviceStore.serviceId)
+    schedules.value = response.data.data
+    console.log('Schedules:', schedules.value)
   } catch (error) {
-    console.error("Erreur lors de la récupération par service_id :", error)
-    return []
+    console.error('Erreur lors de la récupération des horaires :', error)
   }
 }
+
 
 onMounted(async () => {
-  const serviceId = serviceStore.serviceId
-  const horaires = await fetchSchedulesByService(serviceId)
-  console.log("Horaires par service :", horaires)
-  scheduleList.value = horaires
+ await fetchSchedules ()
+ await fetchStaff()
 })
 
+const fetchStaff = async () => {
+  try {
+    const serviceId = serviceStore.serviceId
 
+    const response = await getUserAssignmentById(serviceId)
+
+    const assignmentsWithNames = await Promise.all(
+      response.data.map(async (assignment) => {
+        const user = await getUserId(assignment.userId)
+        return {
+          ...assignment,
+          user_name: user.data.firstName + ' ' + user.data.lastName,
+        }
+      }),
+    )
+
+    staff.value = assignmentsWithNames
+
+    console.log('fetchStaff', staff.value)
+  } catch (error) {
+    console.error('Erreur lors de la récupération:', error)
+  }
+}
+
+function formatTime(datetimeStr) {
+  const date = new Date(datetimeStr)
+  return date.toISOString().substring(11, 16)
+}
 
 
 </script>

@@ -80,6 +80,10 @@ export const getServiceProduct = (
   return axios.get(`${API_URL}/service_product_by_serviceId/${serviceId}`)
 }
 
+export const getServiceProductById = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/service_product/${id}`)
+}
+
 //get les productOptions
 export const getProductOption = (): Promise<AxiosResponse<{ data: ProductOptionType[] }>> => {
   return axios.get(`${API_URL}/production_option`)
@@ -199,6 +203,23 @@ export const getPermission = (): Promise<AxiosResponse<any>> => {
 export const getTasks = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/tasks/${serviceId}`)
 }
+
+export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/assigmentUser/${serviceId}`)
+}
+
+export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/schedules`, {
+    params: {
+      service_id: serviceId,
+    },
+  })
+}
+
+export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`)
+}
+
 
 // --- Services API post --- //
 
@@ -377,6 +398,10 @@ export const updateRoute = (id: number | null, Payload: any): Promise<AxiosRespo
 }
 export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/payment/${id}/confirm`, Payload)
+}
+
+export const updateTaskStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/tasks/${id}`, { status })
 }
 
 //----- SERVICE API Delete ----//

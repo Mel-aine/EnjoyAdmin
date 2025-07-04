@@ -90,14 +90,13 @@ export const getHotelMenu = (t: (key: string) => string) => {
           roles: [1, 2],
           subItems: [
             { name: t('Dashboard Overview'), path: '/staff_management/dashboard', roles: [1, 2, 3] },
-            { name: t('User'), path: '/user', roles: [1, 2, 3] },
+            { name: t('Staff Management'), path: '/staff_management/staff_management', roles: [1, 2, 3] },
             { name: t('Permission'), path: '/permission', roles: [1, 2, 3] },
-            
             { name: t('Task Management'), path: '/staff_management/task_management', roles: [1, 2, 3] },
 
             { name: t('Staff Schedule'), path: '/staff_management/staff_schedule', roles: [1, 2, 3] },
 
-            { name: t('Staff Management'), path: '/staff_management/staff_management', roles: [1, 2, 3] },
+
 
             { name: t('Action History'), path: '/staff_management/action_history', roles: [1, 2, 3] },
           ]

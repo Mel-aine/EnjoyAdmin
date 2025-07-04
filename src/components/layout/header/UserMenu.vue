@@ -4,7 +4,7 @@
 
   <div class="relative" ref="dropdownRef">
     <button
-      class="flex items-center text-gray-700 dark:text-gray-400"
+      class="flex items-center text-gray-700 dark:text-gray-400 space-x-1"
       @click.prevent="toggleDropdown"
     >
       <!-- <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
