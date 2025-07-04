@@ -17,8 +17,7 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-              /></svg
-            >&nbsp;&nbsp;
+              /></svg>&nbsp;&nbsp;
             <span class="text-nowrap">{{ $t('Goback') }}</span>
             &nbsp;&nbsp;&nbsp;&nbsp;
           </button>
@@ -167,14 +166,6 @@
           <div
             class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
           >
-            <!-- <div class="flex justify-between items-center">
-              <span class="font-medium text-lg text-gray-900 dark:text-white">{{
-                $t('TotalPrice')
-              }}</span>
-              <span class="font-bold text-xl text-gray-900 dark:text-white"
-                >{{ calculateTotalPrice }} FCFA</span
-              >
-            </div> -->
 
             <div>
               <Input
@@ -200,14 +191,14 @@
               <div class="space-y-2">
                 <div class="flex justify-between items-center">
                   <span class="text-gray-700 dark:text-gray-300">{{ $t('BasePrice') }}</span>
-                  <span class="text-gray-900 dark:text-white">{{ calculateTotalPrice }} FCFA</span>
+                  <span class="text-gray-900 dark:text-white">{{ formatCurrency(calculateTotalPrice) }}</span>
                 </div>
 
                 <div v-if="form.extra_guest > 0 || isEditMode" class="flex justify-between items-center">
                   <span class="text-gray-700 dark:text-gray-300">
                     {{ $t('ExtraGuestFee') }} ({{ form.extra_guest }} {{ $t('guests') }})
                   </span>
-                  <span class="text-gray-900 dark:text-white">{{ extraGuestPrice }} FCFA</span>
+                  <span class="text-gray-900 dark:text-white">{{ formatCurrency(extraGuestPrice??'') }}</span>
                 </div>
 
                 <hr class="border-gray-300 dark:border-gray-600" />
@@ -217,14 +208,14 @@
                     {{ $t('TotalPrice') }}
                   </span>
                   <span class="font-bold text-xl text-gray-900 dark:text-white">
-                    {{ finalTotalPrice }} FCFA
+                    {{ formatCurrency(finalTotalPrice) }}
                   </span>
                 </div>
 
                 <div v-if="form.default_deposit > 0" class="flex justify-between items-center">
                   <span class="text-gray-700 dark:text-gray-300">{{ $t('Deposit') }}</span>
                   <span class="text-green-600 dark:text-green-400 font-medium">
-                    {{ form.default_deposit }} FCFA
+                    {{ formatCurrency(form.default_deposit) }}
                   </span>
                 </div>
 
@@ -233,7 +224,7 @@
                     $t('Remaining')
                   }}</span>
                   <span class="font-bold text-red-600 dark:text-red-400">
-                    {{ remainingAmount }} FCFA
+                                        {{ formatCurrency(remainingAmount) }}
                   </span>
                 </div>
               </div>
@@ -263,8 +254,7 @@
         </ButtonComponent>
       </DefaultCard>
     </div>
-  </AdminLayout>
-
+    
   <Modal v-if="isPaymentModalOpen" @close="isPaymentModalOpen = false">
     <template #body>
       <div
@@ -348,13 +338,14 @@
       </div>
     </template>
   </Modal>
+  </AdminLayout>
+
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import ComponentCard from '@/components/common/ComponentCard.vue'
 // import FileInput from "@/components/forms/FormElements/FileInput.vue";
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
@@ -386,6 +377,7 @@ import { useBookingStore } from '@/composables/booking'
 import { useRouter } from 'vue-router'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
 import DefaultCard from '@/components/common/DefaultCard.vue'
+import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
 
 const store = useBookingStore()
 const ServiceProduct = ref<ProductType[]>([])

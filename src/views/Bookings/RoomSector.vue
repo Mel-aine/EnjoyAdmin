@@ -1,11 +1,8 @@
 <template>
   <div class="space-y-6">
     <!-- Room selection section -->
-    <div
-      v-for="(roomSelection, index) in roomSelections"
-      :key="index"
-      class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
-    >
+    <div v-for="(roomSelection, index) in roomSelections" :key="index"
+      class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Room Type -->
         <div>
@@ -13,12 +10,8 @@
             {{ $t('SelectRoomType') }} {{ roomSelections.length > 1 ? `#${index + 1}` : '' }}
           </label>
           <!-- Room Type Select @change="handleRoomSelection(index)" -->
-          <select
-            v-model="roomSelections[index].roomTypeSelect"
-
-             @change="emitSelectedRoomType(index)"
-            class="h-11 w-full rounded-lg border text-sm"
-          >
+          <select v-model="roomSelections[index].roomTypeSelect" @change="emitSelectedRoomType(index)"
+            class="h-11 w-full rounded-lg border text-sm">
             <option value="" disabled>{{ $t('PleaseSelectRoomType') }}</option>
             <option v-for="type in ActiveRoomTypes" :key="type.id" :value="type.id">
               {{ type.label }}
@@ -33,11 +26,8 @@
           </label>
 
           <div>
-            <select
-              v-model="roomSelections[index].roomType"
-              @change="handleRoomSelection(index)"
-              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-            >
+            <select v-model="roomSelections[index].roomType" @change="handleRoomSelection(index)"
+              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
               <option value="" disabled>
                 {{
                   getFilteredRooms(index).length
@@ -54,91 +44,26 @@
 
         </div>
 
-        <!-- Occupancy -->
-        <!-- <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-            {{ $t('occupancy') }}
-          </label>
-          <div class="relative">
-            <input
-              type="text"
-              readonly
-              :value="`${roomSelection.adults} ${$t('Adult')}${roomSelection.adults > 1 ? 's' : ''}, ${roomSelection.children} ${$t('Children')}`"
-              @click="showOccupancySelector(index)"
-              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 focus:border-purple-300  focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-            />
-
-            <div
-              v-if="roomSelection.showOccupancyDropdown"
-              class="absolute z-20 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4"
-            >
-              Adults
-              <div class="mb-3 flex items-center justify-between">
-                <span class="font-medium text-gray-700 dark:text-white">{{ $t('Adult') }}(s)</span>
-                <div class="flex items-center gap-2">
-                  <button @click.prevent="decrementAdults(index)" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">-</button>
-                  <span class="w-6 text-center">{{ roomSelection.adults }}</span>
-                  <button @click.prevent="incrementAdults(index)" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">+</button>
-                </div>
-              </div>
-
-
-              <div class="mb-4 flex items-center justify-between">
-                <span class="font-medium text-gray-700 dark:text-white">{{ $t('Children') }}</span>
-                <div class="flex items-center gap-2">
-                  <button @click.prevent="decrementChildren(index)" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">-</button>
-                  <span class="w-6 text-center">{{ roomSelection.children }}</span>
-                  <button @click.prevent="incrementChildren(index)" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">+</button>
-                </div>
-              </div>
-
-              <button
-                @click.prevent="hideOccupancySelector(index)"
-                class="w-full bg-purple-600 text-white py-2 rounded-full hover:bg-purple-700 transition-colors"
-              >
-                {{ $t('Validate') }}
-              </button>
-            </div>
-          </div>
-        </div> -->
 
         <!-- Room Price -->
         <div>
           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             {{ $t('RoomPrice') }}
           </label>
-          <input
-            type="text"
-            :disabled="true"
-            :value="
-              roomSelection.roomPrice ??
-              availableRooms.find((r) => r.id === roomSelection.roomType)?.price ??
-              ''
-            "
-            readonly
-            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-gray-800 dark:disabled:text-white/50"
-          />
+          <OutputFieldCurrency type="text" :disabled="true" :value="roomSelection.roomPrice ??
+            availableRooms.find((r) => r.id === roomSelection.roomType)?.price ??
+            ''
+            " readonly />
         </div>
       </div>
 
       <!-- Remove Room -->
       <div v-if="roomSelections.length > 1" class="mt-4 flex justify-end">
-        <button
-          @click.prevent="removeRoom(index)"
-          class="flex items-center text-red-500 hover:text-red-700 text-sm font-medium"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-trash2-icon lucide-trash-2"
-          >
+        <button @click.prevent="removeRoom(index)"
+          class="flex items-center text-red-500 hover:text-red-700 text-sm font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-trash2-icon lucide-trash-2">
             <path d="M3 6h18" />
             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -153,20 +78,10 @@
 
   <!-- Add Room -->
   <div class="flex justify-center mt-6">
-    <button
-      @click.prevent="addRoom"
-      class="flex items-center px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="mr-2"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
+    <button @click.prevent="addRoom"
+      class="flex items-center px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
         <path d="M12 5v14" />
         <path d="M5 12h14" />
       </svg>
@@ -176,6 +91,7 @@
 </template>
 
 <script setup lang="ts">
+import OutputFieldCurrency from '@/components/forms/FormElements/outputFieldCurrency.vue'
 import { ref, computed, watch, defineProps, defineEmits } from 'vue'
 
 let skipNextUpdate = false
@@ -207,11 +123,11 @@ const props = defineProps<{
   availableRooms: Room[]
   currency?: string
   initialRoomSelections?: RoomSelection[]
-  selectedRoomType : number | null
+  selectedRoomType: number | null
   modelValue: RoomSelection[]
 }>()
 
-const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice','update:selectedRoomType'])
+const emit = defineEmits(['update:modelValue', 'update:roomSelections', 'update:totalPrice', 'update:selectedRoomType'])
 
 
 
@@ -365,7 +281,7 @@ const getFilteredRooms = (index: number) => {
 function emitSelectedRoomType(index: number) {
   const selectedId = roomSelections.value[index].roomTypeSelect
   const selectedType = props.ActiveRoomTypes.find(t => t.id === selectedId)
-    calculateRoomPrice(index)
+  calculateRoomPrice(index)
   console.log('[RoomSector] Emitting selectedRoomType:', selectedType)
   emit('update:selectedRoomType', selectedType)
 }
