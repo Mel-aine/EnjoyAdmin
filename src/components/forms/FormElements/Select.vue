@@ -35,7 +35,7 @@
           :key="option.value"
           @click="selectOption(option)"
           :class="[
-            'px-5 py-2 cursor-pointer hover:bg-brand-100',
+            'px-5 py-2 cursor-pointer hover:bg-brand-100 uppercase',
             disabled ? 'cursor-not-allowed text-gray-400' : ''
           ]"
           role="option"
