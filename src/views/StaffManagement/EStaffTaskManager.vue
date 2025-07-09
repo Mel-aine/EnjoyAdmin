@@ -460,9 +460,9 @@ const fetchTasks = async () => {
       return
     }
 
-    const roomMap = Object.fromEntries(rooms.value.map((room) => [room.id, room.productName]))
+    const roomMap = Object.fromEntries(rooms.value.map((room:any) => [room.id, room.productName]))
 
-    Tasks.value = taskList.map((task) => ({
+    Tasks.value = taskList.map((task:any) => ({
       ...task,
       roomName: roomMap[task.serviceProductId] || '—',
     }))

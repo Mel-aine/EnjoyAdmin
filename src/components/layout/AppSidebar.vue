@@ -258,54 +258,69 @@ export interface MenuGroupWrapper {
 
 
 
+
 const filteredMenu = computed(() => {
-  if (currentUserRoleId.value === null) return [];
+  console.log('🔍 Permissions dans le store :', serviceStore.permissions.map(p => p.name))
 
-  // Convertir le rôle utilisateur en nombre
-  const userRoleId = Number(currentUserRoleId.value);
+  if (!serviceStore.permissions.length) {
+    console.log(' Aucune permission trouvée, menu vide.')
+    return []
+  }
 
-  return rawMenu.value
+  const result = rawMenu.value
     .map((group: any) => {
+
       const filteredItems = group.items
         .map((item: any) => {
+          const hasItemPermission = !item.permission || serviceStore.hasPermission(item.permission)
+
           const filteredSubItems = item.subItems?.map((subItem: any) => {
-            const filteredSubSubItems = subItem.subItems?.filter((subSubItem: any) =>
-              subSubItem.roles?.includes(userRoleId) // Utiliser userRoleId ici
-            );
+            const hasSubItemPermission = !subItem.permission || serviceStore.hasPermission(subItem.permission)
 
-            const isSubItemAllowed =
-              subItem.roles?.includes(userRoleId) || (filteredSubSubItems?.length ?? 0) > 0;
+            const filteredSubSubItems = subItem.subItems?.filter((subSubItem: any) => {
+              const hasSubSubPermission = !subSubItem.permission || serviceStore.hasPermission(subSubItem.permission)
+              return hasSubSubPermission
+            }) ?? []
 
-            if (!isSubItemAllowed) return null;
+            const isSubItemAllowed = hasSubItemPermission || filteredSubSubItems.length > 0
+            if (!isSubItemAllowed) {
+              return null
+            }
 
             return {
               ...subItem,
               subItems: filteredSubSubItems,
-            };
-          }).filter(Boolean);
+            }
+          }).filter(Boolean) ?? []
 
-          const isItemAllowed =
-            item.roles?.includes(userRoleId) || (filteredSubItems?.length ?? 0) > 0;
-
-          if (!isItemAllowed) return null;
+          const isItemAllowed = hasItemPermission || filteredSubItems.length > 0
+          if (!isItemAllowed) {
+            console.log(`❌ Item exclu : ${item.name ?? '??'}`)
+            return null
+          }
 
           return {
             ...item,
             subItems: filteredSubItems,
-          };
+          }
         })
-        .filter(Boolean);
+        .filter(Boolean)
 
-      if (filteredItems.length === 0) return null;
+      if (filteredItems.length === 0) {
+        console.log(`📭 Groupe exclu (aucun item autorisé) : ${group.title ?? 'Sans titre'}`)
+        return null
+      }
 
       return {
         ...group,
         items: filteredItems,
-      };
+      }
     })
-    .filter(Boolean);
-});
+    .filter(Boolean)
 
+  console.log('✅ Menu final filtré :', result)
+  return result
+})
 
 
 const currentUserRoleId = computed(() => authStore.roleId || 0);

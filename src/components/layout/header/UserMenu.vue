@@ -121,6 +121,7 @@ const signOut = () => {
   serviceStore.clearServiceId();
   serviceStore.clearCurrentService();
   serviceStore.clearServiceCategory();
+  serviceStore.clearPermissions();
   authStore.clearsetRoleId();
   authStore.clearsetUserId()
   authStore.clearsetUser()

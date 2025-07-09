@@ -165,7 +165,7 @@ async function fetchData() {
 
 
     const assignmentsWithNames = await Promise.all(
-      response.data.data.recent_tasks.map(async (assignment) => {
+      response.data.data.recent_tasks.map(async (assignment:any) => {
          let roomName = null
 
         if (assignment.serviceProductId) {

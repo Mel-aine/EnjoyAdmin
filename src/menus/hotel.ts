@@ -1,16 +1,18 @@
-import {
 
+import {
   CalendarCheck2,
   Building2,
   LayoutDashboard,
   UserCircleIcon,
   SettingsIcon,
-  BedDouble,CalendarDays,ClipboardPlus,UsersRound, Banknote
+  BedDouble,
+  CalendarDays,
+  ClipboardPlus,
+  UsersRound,
+  Banknote,
 } from 'lucide-vue-next';
 
 export const getHotelMenu = (t: (key: string) => string) => {
-
-
   return [
     {
       title: 'Menu',
@@ -19,93 +21,88 @@ export const getHotelMenu = (t: (key: string) => string) => {
           icon: LayoutDashboard,
           name: t('Dashboard'),
           path: '/dashboard',
-          roles: [1, 2, 3],
+          permission: 'dashboard_view',
         },
         {
           icon: CalendarCheck2,
           name: t('Bookings'),
-          roles: [1, 2, 3],
+          permission: 'bookings_view',
           subItems: [
-            { name: t('AllBooking'), path: '/all_booking', roles: [1, 2, 3] },
-            { name: t('AddBooking'), path: '/add_booking', roles: [1, 2, 3] },
+            { name: t('AllBooking'), path: '/all_booking', permission: 'bookings_read' },
+            { name: t('AddBooking'), path: '/add_booking', permission: 'bookings_create' },
           ],
         },
         {
           icon: BedDouble,
           name: t('Room'),
-          roles: [1, 2, 3],
+          permission: 'rooms_view',
           subItems: [
-            { name: t('AllRooms'), path: '/all_room', roles: [1, 2, 3] },
-            { name: t('RoomTypes'), path: '/room_type', roles: [1, 2, 3] },
-            { name: t('occupancy'), path: '/occupancy', roles: [1, 2] },
+            { name: t('AllRooms'), path: '/all_room', permission: 'rooms_read' },
+            { name: t('RoomTypes'), path: '/room_type', permission: 'rooms_manage' },
+            { name: t('occupancy'), path: '/occupancy', permission: 'rooms_occupancy_view' },
           ],
         },
         {
           icon: CalendarDays,
           name: t('Calendar'),
           path: '/calendar',
-          roles: [1, 2, 3],
+          permission: 'calendar_view',
         },
         {
           icon: Building2,
           name: t('hotelService'),
           path: '/department',
-          roles: [1, 2],
+          permission: 'departments_view',
         },
         {
           icon: ClipboardPlus,
           name: t('Reports'),
-          roles: [1, 2],
+          permission: 'reports_view',
           subItems: [
             {
               name: t('Stocks'),
               path: '/stock',
-              roles: [1, 2],
+              permission: 'inventory_view',
               subItems: [
-                { name: t('StockList'), path: '/stock/product', roles: [1, 2] },
-                { name: t('StockMovements'), path: '/stock/movements', roles: [1, 2] },
-                { name: t('StockCategory'), path: '/stock/categorie', roles: [1, 2] },
-                { name: t('Suppliers'), path: '/stock/suppliers', roles: [1, 2] },
+                { name: t('StockList'), path: '/stock/product', permission: 'inventory_read' },
+                { name: t('StockMovements'), path: '/stock/movements', permission: 'inventory_history_view' },
+                { name: t('StockCategory'), path: '/stock/categorie', permission: 'inventory_category_view' },
+                { name: t('Suppliers'), path: '/stock/suppliers', permission: 'suppliers_view' },
               ],
             },
-            { name: t('Expenses'), path: '/expense', roles: [1, 2] },
+            { name: t('Expenses'), path: '/expense', permission: 'expenses_view' },
           ],
         },
         {
           icon: UsersRound,
           name: t('Customers'),
           path: '/customers',
-          roles: [1, 2, 3],
+          permission: 'customers_view',
         },
         {
-          icon:  Banknote,
+          icon: Banknote,
           name: t('Payments'),
-          roles: [1, 2, 3],
-          path: '/allInvoice'
+          path: '/allInvoice',
+          permission: 'billing_manage',
         },
         {
           icon: UserCircleIcon,
           name: t('Staff Management'),
-          // path: '/user',
-          roles: [1, 2],
+          permission: 'staff_view',
           subItems: [
-            { name: t('Dashboard Overview'), path: '/staff_management/dashboard', roles: [1, 2, 3] },
-            { name: t('Staff Management'), path: '/staff_management/staff_management', roles: [1, 2, 3] },
-            { name: t('Permission'), path: '/permission', roles: [1, 2, 3] },
-            { name: t('Task Management'), path: '/staff_management/task_management', roles: [1, 2, 3] },
-
-            { name: t('Staff Schedule'), path: '/staff_management/staff_schedule', roles: [1, 2, 3] },
-
-
-
-            { name: t('Action History'), path: '/staff_management/action_history', roles: [1, 2, 3] },
-          ]
+            { name: t('Dashboard Overview'), path: '/staff_management/dashboard', permission: 'staff_dashboard_view' },
+            { name: t('Staff Management'), path: '/staff_management/staff_management', permission: 'staff_manage' },
+            { name: t('Permission'), path: '/permission', permission: 'permissions_manage' },
+            { name: t('Task Management'), path: '/staff_management/task_management', permission: 'task_manage' },
+            { name: t('Staff Schedule'), path: '/staff_management/staff_schedule', permission: 'schedule_manage' },
+            { name: t('Action History'), path: '/staff_management/action_history', permission: 'staff_history_view' },
+          ],
         },
         {
           icon: SettingsIcon,
           name: t('Setting'),
           path: '/setting',
-          roles: [1, 2],
+          permission: 'settings_manage',
         },
       ],
     },

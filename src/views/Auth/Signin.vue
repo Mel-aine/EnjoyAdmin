@@ -353,6 +353,10 @@ const handleSubmit = async () => {
       sessionStorage.setItem('auth_token', token);
     }
 
+    // Stocker les permissions
+    // const allPermissions = res.data.data.permissions.flatMap((p:any) => p.permissions)
+    serviceStore.setPermissions(res.data.data.permissions)
+
 
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);

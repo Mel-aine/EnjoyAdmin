@@ -1512,6 +1512,20 @@
   "Task Management": "Task Management",
   "Staff Schedule": "Staff Schedule",
   "Staff Management": "Staff Management",
-  "Action History": "Action History"
+  "Action History": "Action History",
+  "booking": {
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "duration": "Duration",
+    "nights": "nights",
+    "createdAt": "Booking date"
+  },
+  "client": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "guests": "Guests"
+  },
+  "manage_permission" : ""
     
 }

@@ -193,76 +193,14 @@ const router = createRouter({
       },
     },
     //restaurants
-    {
-      path: '/dashboard',
-      name: 'dashboard restau',
-      component: () => import('../views/Restaurants/Rdashboard.vue'),
-      meta: { requiresAuth: true },
-    },
+
     {
       path: '/customer',
       name: 'Customer',
       component: () => import('../views/Customers/CustomerTable.vue'),
     },
-    {
-      path: '/order',
-      name: 'order',
-      component: () => import('../views/Restaurants/OrderView.vue'),
-    },
-    {
-      path: '/menu',
-      name: 'menu',
-      component: () => import('../views/Restaurants/Menus/MenuView.vue'),
-    },
-    {
-      path: '/products',
-      name: 'product',
-      component: () => import('../views/Restaurants/ProductView/ProductView.vue'),
-    },
-    {
-      path: '/products/:productcode/:action',
-      name: 'productaction',
-      component: () => import('../views/Restaurants/ProductView/ProductDetails.vue'),
-      meta: {
-        title: 'Users',
-      },
-    },
-    {
-      path: '/Stocks',
-      name: 'EntreeStocks',
-      component: () => import('../views/Restaurants/Stocks/StocksEntree.vue'),
-    },
-    {
-      path: '/plates',
-      name: 'plates',
-      component: () => import('../views/Restaurants/PlateView/PlateView.vue'),
-    },
-    {
-      path: '/plates/:platecode/:action',
-      name: 'platetaction',
-      component: () => import('../views/Restaurants/PlateView/PlateDetail.vue'),
-      meta: {
-        title: 'Users',
-      },
-    },
-    {
-      path: '/menus/:menucode/:action',
-      name: 'menuaction',
-      component: () => import('../views/Restaurants/Menus/MenuDetails.vue'),
-      meta: {
-        title: 'Users',
-      },
-    },
-    {
-      path: '/tickets/:ticketcode/:action',
-      name: 'ticket',
-      component: () => import('../views/Restaurants/TicketView/TicketDetail.vue'),
-    },
-    {
-      path: '/users',
-      name: 'users',
-      component: () => import('../views/Users/UserTableResto.vue'),
-    },
+
+
 
     //travel
     {

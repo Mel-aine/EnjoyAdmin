@@ -2,11 +2,11 @@
     <div class="bg-white rounded-lg shadow p-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-semibold">{{ $t('recent_booking') }}</h2>
-        <div>
+        <!-- <div>
           <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             {{ $t('new_reservation') }}
           </button>
-        </div>
+        </div> -->
       </div>
 
       <div class="overflow-x-auto">
@@ -19,7 +19,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('DepartDate') }}</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Status') }}</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('amount') }}</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Actions') }}</th>
+              <!-- <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Actions') }}</th> -->
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -46,14 +46,14 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ booking.amount }} FCFA</td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <!-- <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button class="text-blue-600 hover:text-blue-900 mr-3">{{ $t('details') }}</button>
                 <button class="text-gray-600 hover:text-gray-900">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                   </svg>
                 </button>
-              </td>
+              </td> -->
             </tr>
           </tbody>
         </table>
@@ -75,7 +75,8 @@
   </template>
 
   <script setup lang="ts">
-  import { ref } from 'vue'
+
+import { formatDateT } from '../utilities/UtilitiesFunction'
 
   interface Booking {
     guest: string
@@ -87,53 +88,10 @@
     amount: number
   }
 
-  const recentBookings = ref<Booking[]>([
-    {
-      guest: 'Sophie Dubois',
-      email: 'sophie.dubois@email.com',
-      room: 'Suite Deluxe 301',
-      checkin: '04/05/2025',
-      checkout: '07/05/2025',
-      status: 'Confirmée',
-      amount: 620
-    },
-    {
-      guest: 'Jean Martin',
-      email: 'jean.martin@email.com',
-      room: 'Chambre Standard 105',
-      checkin: '05/05/2025',
-      checkout: '08/05/2025',
-      status: 'En attente',
-      amount: 285
-    },
-    {
-      guest: 'Marie Lambert',
-      email: 'marie.lambert@email.com',
-      room: 'Suite Junior 212',
-      checkin: '06/05/2025',
-      checkout: '10/05/2025',
-      status: 'Confirmée',
-      amount: 540
-    },
-    {
-      guest: 'Thomas Petit',
-      email: 'thomas.petit@email.com',
-      room: 'Chambre Premium 408',
-      checkin: '07/05/2025',
-      checkout: '09/05/2025',
-      status: 'Confirmée',
-      amount: 340
-    },
-    {
-      guest: 'Léa Roussel',
-      email: 'lea.roussel@email.com',
-      room: 'Chambre Standard 112',
-      checkin: '08/05/2025',
-      checkout: '12/05/2025',
-      status: 'Annulée',
-      amount: 455
-    }
-  ])
+  const props = defineProps<{
+  recentBookings: any[]
+}>()
+
 
   const getInitials = (name: string): string => {
     return name
@@ -144,11 +102,11 @@
 
   const getStatusClass = (status: string): string => {
     switch (status) {
-      case 'Confirmée':
+      case 'confirmed':
         return 'bg-green-100 text-green-800'
-      case 'En attente':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800'
-      case 'Annulée':
+      case 'cancelled':
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'

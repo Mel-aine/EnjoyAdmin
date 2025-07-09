@@ -188,6 +188,11 @@ export const getRoute = (serviceId: number | null): Promise<AxiosResponse<any>> 
 export const getRole = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/${serviceId}/roles`)
 }
+
+export const getRoles = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/roles_permissions/${serviceId}`)
+}
+
 export const getReservationServiceProduct = (reservationId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservation_service/${reservationId}`)
 }
@@ -308,6 +313,15 @@ export const createVehicle = (Data: any) : Promise<AxiosResponse<any>> => {
 export const createRoute = (Data: any) : Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/route`,Data)
 }
+
+export const updateRolePermissions = (Data: any) : Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/roles/assign-permissions`,Data)
+}
+
+export const createNewRole = (Data: any) : Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/roles`,Data)
+}
+
 
 // --- Services API put --- //
 
