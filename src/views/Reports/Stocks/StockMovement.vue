@@ -2,7 +2,8 @@
   <div>
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('StockMovements')" />
-      <div class="py-5 mt-8 h-screen container mx-auto">
+      <FullScreenLayout>
+      <div class="py-5 mt-8  container mx-auto">
         <!-- <div
           class="rounded-2xl border border-gray-200 max-w-6xl bg-white shadow-lg dark:border-gray-800 dark:bg-white/[0.03]"
         > -->
@@ -86,7 +87,7 @@
                     v-model="currentMovement.quantity" required min="1" />
                 </div>
 
-                <div class="mb-4">
+                <div v-if="currentMovement.type === 'Transfer'" class="mb-4">
                   <Select :lb="$t('destination')" :options="departments" v-model="currentMovement.destinationId"
                     required />
                 </div>
@@ -117,6 +118,7 @@
           </div>
         </template>
       </Modal>
+      </FullScreenLayout>
     </AdminLayout>
   </div>
   <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
@@ -146,6 +148,7 @@ import { useI18n } from 'vue-i18n'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 interface StockMovement {
   id?: number
   date: string
@@ -362,11 +365,11 @@ const updateData = async () => {
       return
     }
     const prod = categories.value.find((s: any) => s.label === currentMovement.sourceId)?.value
-
+     const DepartmentId = currentMovement.destinationId || null;
     const Payload = {
       service_id: serviceId,
       date: currentMovement.date,
-      department_id: currentMovement.destinationId,
+      department_id: DepartmentId,
       notes: currentMovement.notes,
       product_id: currentMovement.productId,
       quantity: currentMovement.quantity,
@@ -424,8 +427,9 @@ const saveMovement = async () => {
       toast.success(t('toast.SucessUpdate'))
     } else {
 
-      const prod = categories.value.find((s: any) => s.label === currentMovement.sourceId)?.value
-
+      const prod = categories.value.find((s: any) => s.value === currentMovement.sourceId)?.value
+      const DepartmentId = currentMovement.destinationId || null;
+      console.log('prod', categories.value)
 
       console.log('........', typeof (prod))
       const payload = {
@@ -433,12 +437,14 @@ const saveMovement = async () => {
         type: currentMovement.type,
         quantity: currentMovement.quantity,
         stock_category_id: prod,
-        department_id: departmentId,
+        department_id: DepartmentId,
         user: currentMovement.user,
         notes: currentMovement.notes,
         service_id: serviceId,
         date: currentMovement.date,
+        created_by : authStore.UserId
       }
+      console.log('mouvement stock', payload)
       const response = await movementService(payload)
       console.log('mouvement stock', payload)
       console.log('response', response)

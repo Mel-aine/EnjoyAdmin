@@ -257,7 +257,7 @@
         </ButtonComponent>
       </DefaultCard>
     </div>
-    
+
   <Modal v-if="isPaymentModalOpen" @close="isPaymentModalOpen = false">
     <template #body>
       <div
@@ -570,7 +570,7 @@ const saveReservation = async () => {
       email: selectedCustomer.value.email,
       phone_number: selectedCustomer.value.phoneNumber,
       service_id: serviceStore.serviceId,
-      reservation_type: 'Direct booking',
+      reservation_type: 'Direct Booking',
       tax_amount: extraGuestPrice.value,
       final_amount: finalTotalPrice.value,
       total_amount: calculateTotalPrice.value,
@@ -855,7 +855,7 @@ const updateReservation = async () => {
       discount_amount: form.value.default_deposit,
       guest_count: totalGuests.value,
       service_id: serviceStore.serviceId,
-      reservation_type: 'Direct booking',
+      reservation_type: 'Direct Booking',
       arrived_date: form.value.arrivalDate,
       depart_date: form.value.departureDate,
       special_requests: form.value.normalDescription,

@@ -315,21 +315,22 @@ const handleServiceSelect = async (service: Service) => {
 
   serviceStore.setServiceCategory(categoryName)
   emit('service-selected', service)
+  await router.push('/welcome')
 
 
-  if (categoryName) {
-    const category = categoryName.toLowerCase()
-    if (category === 'hotels & stays' || category === 'restaurants') {
-      await router.push('/dashboard')
-    } else if (category === 'travel') {
-      await router.push('/dashboardTravel')
-    } else {
-      await router.push('/')
-    }
-  } else {
-    console.warn('No category found, redirecting to home')
-    await router.push('/')
-  }
+  // if (categoryName) {
+  //   const category = categoryName.toLowerCase()
+  //   if (category === 'hotels & stays' || category === 'restaurants') {
+  //     await router.push('/dashboard')
+  //   } else if (category === 'travel') {
+  //     await router.push('/dashboardTravel')
+  //   } else {
+  //     await router.push('/')
+  //   }
+  // } else {
+  //   console.warn('No category found, redirecting to home')
+  //   await router.push('/')
+  // }
 }
 
 

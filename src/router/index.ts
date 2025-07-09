@@ -13,6 +13,12 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
+      // meta: { requiresAuth: true },
+    },
+     {
+      path: '/welcome',
+      name: 'welcome',
+      component: () => import('../views/Pages/Welcome.vue'),
       meta: { requiresAuth: true },
     },
     {

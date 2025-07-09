@@ -8,10 +8,10 @@
             <div>
               <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <Shield class="w-6 h-6 text-purple-600" />
-                {{ $t('') }}
+                {{ $t('manage_permission') }}
               </h1>
               <p class="text-gray-600 mt-1">
-                Configurez les rôles et les permissions pour les utilisateurs de l'application
+                {{ $t('configure_role') }}
               </p>
             </div>
 
@@ -26,7 +26,7 @@
             <input
               type="text"
               v-model="searchTerm"
-              placeholder="Rechercher un rôle..."
+              :placeholder="$t('search_role')"
               class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -40,14 +40,18 @@
                 "
                 class="px-4 py-2 rounded-lg border transition-colors"
               >
-                {{ editMode ? 'Annuler' : 'Modifier' }}
+                {{ editMode ? $t('Cancel') : $t('edit') }}
               </button>
               <button
                 v-if="editMode"
                 @click="savePermissions"
                 class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
-                Sauvegarder
+              <span v-if="!isLoading"> {{ $t('Save') }}</span>
+                <span v-else class="flex items-center gap-2">
+                  <Spinner class="w-4 h-4" />
+                  {{ $t('Processing') }}...
+                </span>
               </button>
           </div>
         </div>
@@ -58,7 +62,7 @@
           <div class="lg:col-span-1 lg:sticky lg:top-20 self-start h-fit">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div class="flex justify-between py-2">
-                <h2 class="font-semibold text-gray-900 mb-4">Rôles ({{ filteredRoles.length }})</h2>
+                <h2 class="font-semibold text-gray-900 mb-4">{{ $t('roles') }} ({{ filteredRoles.length }})</h2>
                 <button @click="showModal" class="rounded-full bg-orange-50 p-2">
                   <Plus class="text-orange-500" />
                 </button>
@@ -77,7 +81,7 @@
                 >
                   <div class="font-medium">{{ capitalizeEachWord(role.name) }}</div>
                   <div class="text-sm text-gray-500 mt-1">
-                    {{ role.permissions?.service?.length || 0 }} permissions
+                    {{ role.permissions?.service?.length || 0 }} {{ $t('permission') }}{{role.permissions?.service?.length>0 ? 's':''  }}
                   </div>
                 </button>
               </div>
@@ -90,7 +94,7 @@
               v-if="editMode && selectedRole"
               class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
             >
-              <h4 class="font-medium text-gray-900 mb-4">Modifier les permissions</h4>
+              <h4 class="font-medium text-gray-900 mb-4">{{ $t('edit_permission') }}</h4>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <label
                   v-for="permission in allPermissions"
@@ -126,7 +130,7 @@
                       {{ capitalizeEachWord(selectedRole.name) }}
                     </h2>
                     <p class="text-gray-600">
-                      {{ selectedRole.permissions?.service?.length || 0 }} permissions attribuées
+                      {{ selectedRole.permissions?.service?.length || 0 }} {{$t('permission')}}{{ selectedRole.permissions?.service?.length>0 ? 's' : '' }} {{$t('assigned')}}
                     </p>
                     <p class="text-sm text-gray-500 mt-1">{{ selectedRole.description }}</p>
                   </div>
@@ -143,7 +147,7 @@
                       class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mb-3"
                       :class="getCategoryColor(category)"
                     >
-                      {{ category }}
+                      {{ $t(`categories.${category}`) || category }}
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div
@@ -172,7 +176,7 @@
 
                 <div v-else class="text-center py-12">
                   <Shield class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p class="text-gray-500">Aucune permission attribuée à ce rôle</p>
+                  <p class="text-gray-500">{{ $t('no_permission') }}</p>
                 </div>
               </div>
 
@@ -181,9 +185,9 @@
                 class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center"
               >
                 <Users class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Sélectionnez un rôle</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('select_role') }}</h3>
                 <p class="text-gray-600">
-                  Choisissez un rôle dans la liste pour voir ses permissions
+                  {{ $t('choose_role') }}
                 </p>
               </div>
             </div>
@@ -219,7 +223,7 @@
           </button>
           <div class="px-2 pr-14">
             <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Nouveau rôle
+              {{ $t('new_role') }}
             </h4>
           </div>
           <form @submit.prevent="createRole" class="flex flex-col">
@@ -237,11 +241,11 @@
                       <label
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Description
+                        {{ $t('Description') }}
                       </label>
                       <textarea
                         v-model="newRole.description"
-                        placeholder="Enter a description..."
+                        :placeholder="$t('enter_description')"
                         rows="6"
                         class="dark:bg-dark-900 h-40 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                       ></textarea>
@@ -286,10 +290,16 @@ import { ref, computed, onMounted } from 'vue'
 import { getPermission, getRoles ,updateRolePermissions,createNewRole} from '@/services/api'
 import * as icons from 'lucide-vue-next'
 import { useServiceStore } from '@/composables/serviceStore'
-import { Shield, Search, Users, Plus } from 'lucide-vue-next'
+import { Shield}from 'lucide-vue-next'
+import { Search }from 'lucide-vue-next'
+import { Users }from 'lucide-vue-next'
+import { Plus }from 'lucide-vue-next'
 import type { Component } from 'vue'
 import { useAuthStore } from '@/composables/user'
 import Spinner from '@/components/spinner/Spinner.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Role {
   id: number
@@ -429,8 +439,19 @@ const fetchPermissions = async () => {
   try {
     const response = await getPermission()
     const permissionsArray: Permission[] = response.data.data
+    permissionLabels.value = Object.fromEntries(
+      permissionsArray.map((p) => [
+        p.name,
+        {
+          ...p,
+          get label() {
+            return t(`permissions.${p.name}`)
+          }
+        }
+      ])
+    )
 
-    permissionLabels.value = Object.fromEntries(permissionsArray.map((p) => [p.name, p]))
+    // permissionLabels.value = Object.fromEntries(permissionsArray.map((p) => [p.name, p]))
   } catch (error) {
     console.error('Erreur lors du chargement des permissions', error)
   }

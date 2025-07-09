@@ -26,9 +26,10 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500">RevPAR</p>
-              <h3 class="text-2xl font-bold text-green-600">{{ revPAR }}FCFA</h3>
+              <h3 class="text-2xl font-bold text-green-600">{{ revPAR }} XAF</h3>
+
               <p class="text-xs" :class="(revPARTrend ?? 0) > 0 ? 'text-green-500' : 'text-red-500'">
-                <span v-if="(revPARTrend ?? 0)  > 0">+</span>{{ revPARTrend }}% vs {{ $t('last_month') }}
+                <span v-if="(Number(revPARTrend )?? 0)  > 0">+</span>{{ revPARTrend }}% vs {{ $t('last_month') }}
               </p>
             </div>
             <div class="bg-green-100 p-3 rounded-full">

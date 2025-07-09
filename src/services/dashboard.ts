@@ -154,3 +154,26 @@ export const getRecentReservation = async (serviceId: number | null): Promise<an
   }
 }
 
+export const getDemographic = async (serviceId: number | null): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
+      `/clients/origin-stats/${serviceId}`,
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération de getDemographic:', error)
+    return []
+  }
+}
+
+export const getReservationType = async (serviceId: number | null): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
+      `/reservation/${serviceId}`,
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération de getReservationType:', error)
+    return []
+  }
+}

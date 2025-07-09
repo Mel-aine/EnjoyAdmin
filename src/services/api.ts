@@ -242,7 +242,7 @@ export const createRoomOptions = (optionsData: {
 
 //create user
 export const createUser = (userData: any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/users`, userData)
+  return axios.post(`${API_URL}/assign-user`, userData)
 }
 
 //create product type

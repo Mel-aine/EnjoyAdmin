@@ -7,7 +7,7 @@
           :occupancyRate="generalStats.occupancyRate"
           :occupancyTrend="generalStats.totalReservationsThisMonth"
           :revPAR="generalStats.totalRevenueThisMonth"
-          :revPARTrend="generalStats.revPARTrend"
+          :revPARTrend="generalStats.revenueGrowthRate"
           :avgStayDuration="averageLengthOfStay.averageLengthOfStay"
           :avgStayTrend="generalStats.avgStayTrend"
           :availableRooms="generalStats.availableRooms"
@@ -24,7 +24,7 @@
 
       <!-- Réservations mensuelles -->
       <div class="col-span-12 xl:col-span-5">
-        <monthly-bookings :months="months" :bookingsData="bookingsData" :variations="variations" />
+        <monthly-bookings  :reservations="Reservations || []" :earnings-data="EarningsData"/>
         <!-- <monthly-bookings/> -->
       </div>
 
@@ -42,7 +42,7 @@
 
       <!-- Typologie des clients -->
       <div class="col-span-12 xl:col-span-5">
-        <guest-demographics :stay-duration="stayDuration" />
+        <guest-demographics :stay-duration="stayDuration" :originData="Demographic" />
       </div>
 
       <!-- Réservations récentes -->
@@ -66,7 +66,9 @@ import {
   getRevenuTotalMonthly,
   getOccupancyRateMonthly,
   getStayDuration,
-  getRecentReservation
+  getRecentReservation,
+  getDemographic,
+  getReservationType
 } from '@/services/dashboard'
 
 const AdminLayout = defineAsyncComponent(() => import('../components/layout/AdminLayout.vue'))
@@ -93,24 +95,31 @@ const occupancyData = ref<{ current: DayRate[]; previous: DayRate[] }>({
 const totalOccupancyRate = ref<any>(null)
 const Adr = ref<any>(null)
 const revenuTotal = ref<any>(null)
+const EarningsData = ref<any>(null)
 const reservations = ref<any[]>([])
+const Demographic = ref<any[]>([])
+const Reservations = ref<any[]>([])
 
 const fetchGeneralStat = async () => {
   try {
     const serviceId = serviceStore.serviceId
 
-    const [result, result1, result2, reservation] = await Promise.all([
+    const [result, result1, result2, reservation,demographic,ReservationType] = await Promise.all([
       getGeneralStats(serviceId),
       getAverageLengthOfStay(serviceId),
       getStayDuration(serviceId),
-      getRecentReservation(serviceId)
+      getRecentReservation(serviceId),
+      getDemographic(serviceId),
+      getReservationType(serviceId)
     ])
 
     generalStats.value = result.data
     averageLengthOfStay.value = result1.data
      stayDuration.value = result2.data
      reservations.value = reservation
-    console.log("result2reservations.value", reservations.value)
+     Demographic.value = demographic.data
+     Reservations.value = ReservationType.data
+    console.log("Reservations.value", Reservations.value)
   } catch (error) {
     console.error('error fetching fetchGeneralStat', error)
   }
@@ -162,6 +171,20 @@ const fetchOccupancyData = async () => {
 }
 
 const combinedData = ref<any[]>([])
+const monthMap = {
+  Jan: 'January',
+  Feb: 'February',
+  Mar: 'March',
+  Apr: 'April',
+  May: 'May',
+  Jun: 'June',
+  Jul: 'July',
+  Aug: 'August',
+  Sep: 'September',
+  Oct: 'October',
+  Nov: 'November',
+  Dec: 'December',
+}
 
 const fetchRevenuAndOccupancyData = async () => {
   try {
@@ -175,7 +198,18 @@ const fetchRevenuAndOccupancyData = async () => {
     const occupancyData = occupancyRes.data
     const revenueCurrent = revenueRes.data.currentYear
     const revenuePrevious = revenueRes.data.previousYear
+     EarningsData.value = {}
 
+    revenueCurrent.forEach(({ month, totalRevenue }: any) => {
+      const shortMonth = month as keyof typeof monthMap
+      const fullMonth = monthMap[shortMonth] || month
+      const formattedRevenue =
+        totalRevenue >= 1000
+          ? (totalRevenue / 1000).toFixed(1) + 'K'
+          : totalRevenue.toString()
+      EarningsData.value[fullMonth] = formattedRevenue
+    })
+    console.log("EarningsData.value",EarningsData.value)
     combinedData.value = occupancyData.map((occ:any, index:any) => {
       return {
         month: occ.month,
@@ -220,40 +254,8 @@ const fetchRevenuData = async () => {
   }
 }
 
-const months = [
-  { key: 'May 2025', label: 'may', year: 2025 },
-  { key: 'April 2025', label: 'april', year: 2025 },
-  { key: 'March 2025', label: 'march', year: 2025 },
-  { key: 'February 2025', label: 'february', year: 2025 },
-]
 
-const bookingsData = {
-  'May 2025': {
-    direct: [12, 15, 18, 13],
-    ota: [28, 32, 36, 28],
-    group: [8, 4, 12, 8],
-  },
-  'April 2025': {
-    direct: [10, 13, 16, 14],
-    ota: [25, 30, 34, 26],
-    group: [6, 5, 10, 9],
-  },
-  'March 2025': {
-    direct: [9, 11, 14, 10],
-    ota: [20, 22, 28, 25],
-    group: [5, 6, 8, 7],
-  },
-  'February 2025': {
-    direct: [8, 10, 11, 9],
-    ota: [18, 20, 23, 21],
-    group: [4, 5, 6, 6],
-  },
-}
 
-const variations = {
-  'May 2025': { direct: 12, ota: 5, group: -3, total: 214, earnings: '25.8K' },
-  'April 2025': { direct: 10, ota: 4, group: -2, total: 200, earnings: '23.5K' },
-  'March 2025': { direct: 8, ota: 3, group: -1, total: 180, earnings: '21.0K' },
-  'February 2025': { direct: 7, ota: 2, group: 0, total: 160, earnings: '19.0K' },
-}
+
+
 </script>

@@ -145,7 +145,7 @@
             >
               {{ $t('filter') }}
             </button>
-            <button
+            <button @click="reset"
               class="h-10 px-4 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               {{ $t('reset') }}
@@ -655,12 +655,12 @@ const titles = computed(() => [
     type: 'text',
     filterable: false,
   },
-  {
-    name: 'supplierName',
-    label: t('supplier'),
-    type: 'text',
-    filterable: true,
-  },
+  // {
+  //   name: 'supplierName',
+  //   label: t('supplier'),
+  //   type: 'text',
+  //   filterable: true,
+  // },
   {
     name: 'description',
     label: t('Description'),
@@ -673,12 +673,12 @@ const titles = computed(() => [
     type: 'text',
     filterable: true,
   },
-  {
-    name: 'departmentName',
-    label: t('department'),
-    type: 'text',
-    filterable: true,
-  },
+  // {
+  //   name: 'departmentName',
+  //   label: t('department'),
+  //   type: 'text',
+  //   filterable: true,
+  // },
   {
     name: 'amountBeforeTax',
     label: t('Amount'),
@@ -839,11 +839,11 @@ const filteredExpenses = computed(() => {
 
   // Appliquer les filtres supplémentaires
   if (filters.value.category) {
-    result = result.filter((expense) => expense.category === filters.value.category)
+    result = result.filter((expense) => expense.expenseCategoryId === filters.value.category)
   }
 
   if (filters.value.department) {
-    result = result.filter((expense) => expense.department === filters.value.department)
+    result = result.filter((expense) => expense.departmentId === filters.value.department)
   }
 
   if (filters.value.minAmount) {
@@ -855,7 +855,7 @@ const filteredExpenses = computed(() => {
   }
 
   if (filters.value.dateRange) {
-    result = result.filter((expense) => expense.date <= Number(filters.value.dateRange))
+    result = result.filter((expense) => expense.expenseDate <= Number(filters.value.dateRange))
   }
 
   return result
@@ -867,6 +867,7 @@ const fetchExpense = async() =>{
   try{
      const responseExpense = await getExpense(serviceId)
       expenses.value = responseExpense.data
+      console.log("expenses.value",expenses.value)
 
   }catch (error) {
     console.error('Erreur lors du chargement des données:', error)
@@ -998,5 +999,16 @@ const confirmDelete = async () => {
       selectedId.value = null
     }
   }
+}
+const reset = () =>{
+  filters.value.category = '',
+  filters.value.department = '',
+  filters.value.minAmount= '',
+  filters.value.maxAmount = '',
+  filters.value.dateRange = ''
+
+
+
+
 }
 </script>

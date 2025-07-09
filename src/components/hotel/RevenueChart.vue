@@ -110,7 +110,7 @@
       <!-- ADR -->
       <div class="bg-purple-50 rounded-lg p-4">
         <div class="text-purple-600 text-sm font-medium mb-1">{{ $t('average_price') }} (ADR)</div>
-        <div class="text-2xl font-bold">{{ Adr?.currentADR || 0 }} FCFA</div>
+        <div class="text-2xl font-bold">{{ Adr?.currentADR || 0 }} XAF</div>
         <div class="flex items-center mt-2">
           <span
             :class="[
@@ -183,7 +183,7 @@ import * as echarts from 'echarts'
 import { useI18n } from 'vue-i18n'
 import Spinner from '../spinner/Spinner.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const revenueChart = ref<HTMLDivElement | null>(null)
 const isLoading = ref(true)
@@ -225,13 +225,6 @@ const handleViewChange = (view: 'yearly' | 'semester' | 'quarterly' | 'monthly')
   emit('changeViews', view)
 }
 
-// const monthlyData = {
-//   months: ['Jan', 'Fev', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-//   revenue2025: [98500, 105200, 120500, 115800, 125600, 135000, 158000, 167500, 145200, 130500, null, null],
-//   revenue2024: [92000, 98500, 110200, 108500, 120000, 126500, 150200, 162000, 138500, 122000, 118000, 128500],
-//   occupancy2025: [65, 68, 72, 70, 75, 82, 95, 98, 85, 78, null, null]
-// };
-
 let chartInstance: echarts.ECharts | null = null
 
 // Fonction pour détruire l'instance précédente
@@ -241,6 +234,10 @@ const destroyChart = () => {
     chartInstance = null
   }
 }
+
+const currentYear = new Date().getFullYear()
+    const previousYear = currentYear - 1
+
 const initChart = async () => {
   await nextTick()
 
@@ -253,10 +250,10 @@ const initChart = async () => {
   destroyChart()
 
   try {
-    // Créer une nouvelle instance
+
     chartInstance = echarts.init(revenueChart.value)
 
-    // Vérifier les données
+
     if (!props.monthlyData || props.monthlyData.length === 0) {
       console.warn('Aucune donnée mensuelle disponible')
       return
@@ -277,6 +274,7 @@ const initChart = async () => {
     // Calculer les valeurs min/max pour un meilleur affichage
     const maxRevenue = Math.max(...currentRevenue, ...previousRevenue)
     const maxOccupancy = Math.max(...occupancyRates)
+
 
     const option = {
       tooltip: {
@@ -304,7 +302,7 @@ const initChart = async () => {
         },
       },
       legend: {
-        data: ['Revenus 2025', 'Revenus 2024', "Taux d'occupation 2025"],
+        data: [t('Earning_2025', { year: currentYear }), t('Earning_previous', { year: previousYear }), t("occupancy_rate_2025", { year: currentYear })],
         show: true,
         top: 10,
         textStyle: {
@@ -333,7 +331,7 @@ const initChart = async () => {
       yAxis: [
         {
           type: 'value',
-          name: 'Revenus (FCFA)',
+          name: t('EarningXAF'),
           nameTextStyle: {
             color: '#6b7280',
           },
@@ -359,7 +357,7 @@ const initChart = async () => {
         },
         {
           type: 'value',
-          name: "Taux d'occupation (%)",
+          name:  t("occupancy_rate%"),
           nameTextStyle: {
             color: '#6b7280',
           },
@@ -377,7 +375,7 @@ const initChart = async () => {
       ],
       series: [
         {
-          name: 'Revenus 2025',
+          name: t('Earning_2025', { year: currentYear }),
           type: 'bar',
           data: currentRevenue,
           itemStyle: {
@@ -397,7 +395,7 @@ const initChart = async () => {
           },
         },
         {
-          name: 'Revenus 2024',
+          name: t('Earning_previous', { year: previousYear }),
           type: 'bar',
           data: previousRevenue,
           itemStyle: {
@@ -417,7 +415,7 @@ const initChart = async () => {
           },
         },
         {
-          name: "Taux d'occupation 2025",
+          name: t("occupancy_rate_2025", { year: currentYear }),
           type: 'line',
           data: occupancyRates,
           lineStyle: {
@@ -455,10 +453,7 @@ const initChart = async () => {
   }
 }
 
-// onMounted(async() => {
-//   await nextTick()
-//   initChart()
-// })
+watch(locale, initChart)
 const updateChart = async () => {
   console.log('Mise à jour du graphique...')
   await initChart()
