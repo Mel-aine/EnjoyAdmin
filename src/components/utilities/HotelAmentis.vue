@@ -26,7 +26,7 @@
                             <div class="flex items-center">
                                 <i :class="['bi', amenity.icon, 'text-lg', 'mr-3', 'text-teal-600']"></i>
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ t(amenity.name) }}</p>
+                                    <p class="font-medium text-gray-800">{{ amenity.name }}</p>
                                     <p v-if="amenity.price > 0" class="text-sm text-gray-500">{{
                                         formatPrice(amenity.price) }}</p>
                                     <p v-else class="text-sm text-gray-500">{{ t('hotelAmenities.free') }}</p>
@@ -86,7 +86,7 @@
                                     <td class="py-2 px-4 flex items-center">
                                         <i :class="['bi', amenity.icon, 'text-lg', 'mr-2', 'text-teal-700']"
                                             v-if="amenity.icon"></i>
-                                        <p class="font-medium text-gray-800">{{ t(amenity.name) }}</p>
+                                        <p class="font-medium text-gray-800">{{ amenity.name }}</p>
                                     </td>
                                     <td class="py-2 px-4 text-right">
                                         <InputCurrency v-model.number="amenity.price"></InputCurrency>
@@ -130,7 +130,7 @@
                                 <td class="py-2 px-4 flex items-center">
                                     <i :class="['bi', amenity.icon, 'text-lg', 'mr-2', 'text-teal-700']"
                                         v-if="amenity.icon"></i>
-                                    <p class="font-medium text-gray-800">{{ t(amenity.name) }}</p>
+                                    <p class="font-medium text-gray-800">{{ amenity.name }}</p>
                                 </td>
                                 <td class="py-2 px-4 text-right">
                                     <span class="text-gray-800">{{ formatPrice(amenity.price) }}</span>
