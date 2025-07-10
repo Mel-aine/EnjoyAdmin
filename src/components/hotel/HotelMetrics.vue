@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold mb-4">{{ $t('hotel_metric') }}</h2>
+    <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
+      <h2 class="text-xl font-semibold mb-4 dark:text-white">{{ $t('hotel_metric') }}</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- Taux d'occupation -->
         <div class="p-4 bg-blue-50 rounded-lg">

@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-white rounded-lg shadow p-6 h-full">
-    <h2 class="text-xl font-semibold mb-6">{{ $t('customer_demographic') }}</h2>
+  <div class="bg-white rounded-lg shadow p-6 h-full dark:bg-gray-700">
+    <h2 class="text-xl font-semibold mb-6 dark:text-white">{{ $t('customer_demographic') }}</h2>
 
     <div class="grid grid-cols-1 gap-6">
       <!-- Type de clients -->
       <div>
-        <h3 class="text-sm font-medium text-gray-600 mb-3">{{ $t('type_of') }}</h3>
+        <h3 class="text-sm font-medium text-gray-600 mb-3 dark:text-white">{{ $t('type_of') }}</h3>
         <div class="flex items-center mb-4">
           <div class="w-full bg-gray-200 rounded-full h-4">
             <div class="flex h-4 rounded-full overflow-hidden">
@@ -18,15 +18,15 @@
         <div class="grid grid-cols-3 gap-2 text-sm">
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-            <span class="text-gray-600">{{ $t('hobbies') }} (45%)</span>
+            <span class="text-gray-600 dark:text-white">{{ $t('hobbies') }} (45%)</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
-            <span class="text-gray-600">{{ $t('business') }} (30%)</span>
+            <span class="text-gray-600 dark:text-white">{{ $t('business') }} (30%)</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-            <span class="text-gray-600">{{ $t('groups') }} (25%)</span>
+            <span class="text-gray-600 dark:text-white">{{ $t('groups') }} (25%)</span>
           </div>
         </div>
       </div>
@@ -34,20 +34,20 @@
       <!-- Origine des clients -->
       <div>
         <div class="flex justify-between items-center mb-3">
-          <h3 class="text-sm font-medium text-gray-600">{{ $t('origin_customer') }}</h3>
+          <h3 class="text-sm font-medium text-gray-600 dark:text-white">{{ $t('origin_customer') }}</h3>
           <!-- <button class="text-xs text-blue-600 hover:text-blue-700">{{ $t('see_details') }}</button> -->
         </div>
 
-        <div  ref="originChart" style="width: 100%; height: 400px"></div>
+        <div  ref="originChart" style="width: 100%; height: 250px"></div>
 
 
       </div>
 
       <!-- Durée de séjour -->
       <div>
-        <h3 class="text-sm font-medium text-gray-600 mb-3">{{ $t('duration') }}</h3>
+        <h3 class="text-sm font-medium text-gray-600 mb-3 dark:text-white">{{ $t('duration') }}</h3>
         <div class="grid grid-cols-2 gap-2">
-          <div v-for="(value, key) in stayDuration" :key="key" class="bg-gray-50 rounded-lg p-3">
+          <div v-for="(value, key) in stayDuration" :key="key" class="bg-gray-50 rounded-lg p-3 dark:bg-gray-300">
             <div class="text-sm text-gray-500">
               {{ $t(key.includes('nuits') ? key : key + ' nights') }}
             </div>

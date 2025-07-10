@@ -1,12 +1,12 @@
 <template>
-  <div class="bg-white rounded-lg shadow p-6">
+  <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-semibold">{{ $t('recent_booking') }}</h2>
+      <h2 class="text-xl font-semibold dark:text-white">{{ $t('recent_booking') }}</h2>
     </div>
 
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-50 dark:bg-gray-600">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('customer') }}</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Room') }}</th>
@@ -16,7 +16,7 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('amount') }}</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-600">
           <tr v-for="(booking, index) in paginatedBookings" :key="index" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
@@ -88,7 +88,7 @@ const props = defineProps<{
 }>()
 
 const currentPage = ref(1)
-const itemsPerPage = 5
+const itemsPerPage = 8
 
 const total = computed(() => props.recentBookings.length)
 const totalPages = computed(() => Math.ceil(total.value / itemsPerPage))

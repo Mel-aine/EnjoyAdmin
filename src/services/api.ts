@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
+import { useAuthStore } from '@/composables/user'
 import type {
   OptionType,
   ServiceProductType,
@@ -10,6 +11,7 @@ import type {
 } from '@/types/option'
 
 const API_URL = import.meta.env.VITE_API_URL as string
+const authStore = useAuthStore()
 
 // --- Types ---
 export interface Option {
@@ -92,6 +94,11 @@ export const getProductOption = (): Promise<AxiosResponse<{ data: ProductOptionT
 //get les services
 export const getService = (serviceId?: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/${serviceId}`)
+}
+
+//get lees actions
+export const getStocksHistories = (serviceId?: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/action/${serviceId}`)
 }
 
 export const getServices = (): Promise<AxiosResponse<any>> => {
@@ -267,6 +274,17 @@ export function auth(credentials: { email: string; password: string; keepLoggedI
     withCredentials: true
   })
 }
+
+export function logout() {
+  return axios.post(`${API_URL}/authLogout`, {}, {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`
+    },
+    withCredentials: true
+  });
+}
+
+
 
 export function validateEmail(email: string) {
   return axios.post(`${API_URL}/validateEmail`, { email })

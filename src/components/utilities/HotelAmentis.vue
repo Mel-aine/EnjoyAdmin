@@ -26,7 +26,7 @@
                             <div class="flex items-center">
                                 <i :class="['bi', amenity.icon, 'text-lg', 'mr-3', 'text-teal-600']"></i>
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ amenity.name }}</p>
+                                    <p class="font-medium text-gray-800">{{$t(`hotelAmenities.${amenity.name}`)}}</p>
                                     <p v-if="amenity.price > 0" class="text-sm text-gray-500">{{
                                         formatPrice(amenity.price) }}</p>
                                     <p v-else class="text-sm text-gray-500">{{ t('hotelAmenities.free') }}</p>
@@ -178,21 +178,21 @@ const categories = ref([
 ]);
 
 const hotelAmenities = ref([
-    { id: "HTL001", name: "hotelAmenities.reception", category_id: "CAT001", description: "hotelAmenities.receptionDesc", available: true, price: 0, icon: "bi-clock" },
-    { id: "HTL002", name: "hotelAmenities.concierge", category_id: "CAT001", description: "hotelAmenities.conciergeDesc", available: true, price: 0, icon: "bi-person-badge" },
-    { id: "HTL004", name: "hotelAmenities.restaurant", category_id: "CAT002", description: "hotelAmenities.restaurantDesc", available: true, price: 0, icon: "bi-egg-fried" },
-    { id: "HTL005", name: "hotelAmenities.buffetBreakfast", category_id: "CAT002", description: "hotelAmenities.buffetBreakfastDesc", available: true, price: 0, icon: "bi-cup-straw" },
-    { id: "HTL006", name: "hotelAmenities.roomService", category_id: "CAT002", description: "hotelAmenities.roomServiceDesc", available: true, price: 0, icon: "bi-door-open" },
-    { id: "HTL007", name: "hotelAmenities.swimmingPool", category_id: "CAT003", description: "hotelAmenities.swimmingPoolDesc", available: true, price: 0, icon: "bi-droplet-half" },
-    { id: "HTL008", name: "hotelAmenities.fitnessCenter", category_id: "CAT003", description: "hotelAmenities.fitnessCenterDesc", available: true, price: 0, icon: "bi-heart-pulse" },
-    { id: "HTL009", name: "hotelAmenities.spaSauna", category_id: "CAT003", description: "hotelAmenities.spaSaunaDesc", available: false, price: 0, icon: "bi-fire" },
-    { id: "HTL011", name: "hotelAmenities.meetingRooms", category_id: "CAT004", description: "hotelAmenities.meetingRoomsDesc", available: true, price: 0, icon: "bi-people" },
-    { id: "HTL012", name: "hotelAmenities.wifiPublic", category_id: "CAT004", description: "hotelAmenities.wifiPublicDesc", available: true, price: 0, icon: "bi-wifi" },
-    { id: "HTL013", name: "hotelAmenities.freeParking", category_id: "CAT005", description: "hotelAmenities.freeParkingDesc", available: true, price: 0, icon: "bi-car-front" },
-    { id: "HTL014", name: "hotelAmenities.airportShuttle", category_id: "CAT005", description: "hotelAmenities.airportShuttleDesc", available: true, price: 0, icon: "bi-bus-front" },
-    { id: "HTL015", name: "hotelAmenities.laundryService", category_id: "CAT006", description: "hotelAmenities.laundryServiceDesc", available: true, price: 0, icon: "bi-basket" },
-    { id: "HTL018", name: "hotelAmenities.playArea", category_id: "CAT007", description: "hotelAmenities.playAreaDesc", available: true, price: 0, icon: "bi-emoji-smile" },
-    { id: "HTL020", name: "hotelAmenities.petsAllowed", category_id: "CAT008", description: "hotelAmenities.petsAllowedDesc", available: true, price: 0, icon: "bi-paw" }
+    { id: "HTL001", name: "reception", category_id: "CAT001", description: "hotelAmenities.receptionDesc", available: true, price: 0, icon: "bi-clock" },
+    { id: "HTL002", name: "concierge", category_id: "CAT001", description: "hotelAmenities.conciergeDesc", available: true, price: 0, icon: "bi-person-badge" },
+    { id: "HTL004", name: "restaurant", category_id: "CAT002", description: "hotelAmenities.restaurantDesc", available: true, price: 0, icon: "bi-egg-fried" },
+    { id: "HTL005", name: "buffetBreakfast", category_id: "CAT002", description: "hotelAmenities.buffetBreakfastDesc", available: true, price: 0, icon: "bi-cup-straw" },
+    { id: "HTL006", name: "roomService", category_id: "CAT002", description: "hotelAmenities.roomServiceDesc", available: true, price: 0, icon: "bi-door-open" },
+    { id: "HTL007", name: "swimmingPool", category_id: "CAT003", description: "hotelAmenities.swimmingPoolDesc", available: true, price: 0, icon: "bi-droplet-half" },
+    { id: "HTL008", name: "fitnessCenter", category_id: "CAT003", description: "hotelAmenities.fitnessCenterDesc", available: true, price: 0, icon: "bi-heart-pulse" },
+    { id: "HTL009", name: "spaSauna", category_id: "CAT003", description: "hotelAmenities.spaSaunaDesc", available: false, price: 0, icon: "bi-fire" },
+    { id: "HTL011", name: "meetingRooms", category_id: "CAT004", description: "hotelAmenities.meetingRoomsDesc", available: true, price: 0, icon: "bi-people" },
+    { id: "HTL012", name: "wifiPublic", category_id: "CAT004", description: "hotelAmenities.wifiPublicDesc", available: true, price: 0, icon: "bi-wifi" },
+    { id: "HTL013", name: "freeParking", category_id: "CAT005", description: "hotelAmenities.freeParkingDesc", available: true, price: 0, icon: "bi-car-front" },
+    { id: "HTL014", name: "airportShuttle", category_id: "CAT005", description: "hotelAmenities.airportShuttleDesc", available: true, price: 0, icon: "bi-bus-front" },
+    { id: "HTL015", name: "laundryService", category_id: "CAT006", description: "hotelAmenities.laundryServiceDesc", available: true, price: 0, icon: "bi-basket" },
+    { id: "HTL018", name: "playArea", category_id: "CAT007", description: "hotelAmenities.playAreaDesc", available: true, price: 0, icon: "bi-emoji-smile" },
+    { id: "HTL020", name: "petsAllowed", category_id: "CAT008", description: "hotelAmenities.petsAllowedDesc", available: true, price: 0, icon: "bi-paw" }
 ]);
 
 const selectedCategory = ref<string | number|null>(null);

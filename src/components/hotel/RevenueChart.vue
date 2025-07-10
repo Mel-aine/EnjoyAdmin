@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-lg shadow p-6">
+  <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-semibold">{{ $t('earning_statistic') }}</h2>
+      <h2 class="text-xl font-semibold dark:text-white">{{ $t('earning_statistic') }}</h2>
       <div class="flex space-x-2">
         <button
           :class="getButtonClass('yearly')"
@@ -163,15 +163,15 @@
     <div class="flex justify-center mt-4 space-x-8">
       <div class="flex items-center">
         <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-600">{{ $t('earnings') }} 2025</span>
+        <span class="text-sm text-gray-600 dark:text-white">{{ $t('earnings') }} {{ currentyear }}</span>
       </div>
       <div class="flex items-center">
         <div class="w-3 h-3 bg-gray-300 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-600">{{ $t('earnings') }} 2024</span>
+        <span class="text-sm text-gray-600 dark:text-white">{{ $t('earnings') }} {{ previousyear }}</span>
       </div>
       <div class="flex items-center">
         <div class="w-1 h-4 bg-green-500 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-600">{{ $t('occupancy_rate') }} 2025</span>
+        <span class="text-sm text-gray-600 dark:text-white">{{ $t('occupancy_rate') }} {{ currentyear }}</span>
       </div>
     </div>
   </div>
@@ -236,7 +236,9 @@ const destroyChart = () => {
 }
 
 const currentYear = new Date().getFullYear()
-    const previousYear = currentYear - 1
+const previousYear = currentYear - 1
+const currentyear = ref(currentYear)
+const previousyear = ref(previousYear)
 
 const initChart = async () => {
   await nextTick()

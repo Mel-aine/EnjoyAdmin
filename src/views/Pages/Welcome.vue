@@ -8,9 +8,9 @@
         {{ t('welcome_no_access_line2') }}
       </p>
 
-      <p class="text-gray-600" v-else>
+      <!-- <p class="text-gray-600" v-else>
         {{ t('welcome_redirecting') }}
-      </p>
+      </p> -->
     </div>
   </div>
 </template>
