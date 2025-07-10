@@ -82,6 +82,7 @@
 <script setup>
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
 import ServiceSwitcher from '@/views/Services/ServiceSwitcher.vue'
+import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted ,computed} from 'vue'
 import { useAuthStore } from '@/composables/user'
@@ -116,17 +117,40 @@ const Email = computed(() => {
    return `${user?.email ?? ''}`
 })
 
-const signOut = () => {
+// const signOut = () => {
+//   authStore.logout()
+//   serviceStore.clearServiceId();
+//   serviceStore.clearCurrentService();
+//   serviceStore.clearServiceCategory();
+//   serviceStore.clearPermissions();
+//   authStore.clearsetRoleId();
+//   authStore.clearsetUserId()
+//   authStore.clearsetUser()
+//   closeDropdown()
+//   router.push('/')
+// }
+
+
+
+const signOut = async () => {
+  try {
+    await logout();
+  } catch (error) {
+    console.error('Erreur lors du logout', error);
+  }
   authStore.logout()
-  serviceStore.clearServiceId();
-  serviceStore.clearCurrentService();
-  serviceStore.clearServiceCategory();
-  authStore.clearsetRoleId();
+  serviceStore.clearServiceId()
+  serviceStore.clearCurrentService()
+  serviceStore.clearServiceCategory()
+  serviceStore.clearPermissions()
+  authStore.clearsetRoleId()
   authStore.clearsetUserId()
   authStore.clearsetUser()
+
   closeDropdown()
   router.push('/')
 }
+
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value

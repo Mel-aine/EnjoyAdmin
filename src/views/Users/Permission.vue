@@ -1,136 +1,100 @@
-
 <template>
   <AdminLayout>
-  <div class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div class="flex items-center justify-start mb-4">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Shield class="w-6 h-6 text-blue-600" />
-              Gestion des Permissions
-            </h1>
-            <p class="text-gray-600 mt-1">Configurez les rôles et les permissions pour les utilisateurs de l'application</p>
+    <div class="min-h-screen bg-gray-50 p-6">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Shield class="w-6 h-6 text-purple-600" />
+                {{ $t('manage_permission') }}
+              </h1>
+              <p class="text-gray-600 mt-1">
+                {{ $t('configure_role') }}
+              </p>
+            </div>
+
           </div>
 
-        </div>
-
-        <!-- Search -->
-        <div class="relative">
-          <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            v-model="searchTerm"
-            placeholder="Rechercher un rôle..."
-            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-screen">
-        <!-- Roles List -->
-        <div class="lg:col-span-1 lg:sticky lg:top-20 self-start h-fit">
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="flex justify-between py-2">
-            <h2 class="font-semibold text-gray-900 mb-4">Rôles ({{ filteredRoles.length }})</h2>
-            <button @click="showModal" class="rounded-full bg-orange-50 p-2 ">
-            <Plus class="text-orange-500"/>
-            </button>
-            </div>
-            <div class="space-y-2 max-h-96 overflow-y-auto">
+          <!-- Search -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="relative w-1/2">
+            <Search
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+            />
+            <input
+              type="text"
+              v-model="searchTerm"
+              :placeholder="$t('search_role')"
+              class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+          <div class="flex justify-end gap-3">
               <button
-                v-for="role in filteredRoles"
-                :key="role"
-                @click="selectedRole = role"
-                :class="selectedRole === role
-                  ? 'bg-blue-50 border-blue-200 text-blue-900'
-                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                @click="toggleEditMode"
+                :class="
+                  editMode
+                    ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                    : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
                 "
-                class="w-full text-left p-3 rounded-lg border transition-colors"
+                class="px-4 py-2 rounded-lg border transition-colors"
               >
-                <div class="font-medium">{{ role }}</div>
-                <div class="text-sm text-gray-500 mt-1">{{ getPermissionCount(roles[role]) }} permissions</div>
+                {{ editMode ? $t('Cancel') : $t('edit') }}
               </button>
-            </div>
+              <button
+                v-if="editMode"
+                @click="savePermissions"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+              <span v-if="!isLoading"> {{ $t('Save') }}</span>
+                <span v-else class="flex items-center gap-2">
+                  <Spinner class="w-4 h-4" />
+                  {{ $t('Processing') }}...
+                </span>
+              </button>
           </div>
         </div>
+        </div>
 
-        <!-- Permissions Details -->
-        <div class="lg:col-span-3">
-
-          <div v-if="selectedRole" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h2 class="text-xl font-semibold text-gray-900">{{ selectedRole }}</h2>
-                <p class="text-gray-600">{{ getPermissionCount(roles[selectedRole]) }} permissions attribuées</p>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-screen">
+          <!-- Roles List -->
+          <div class="lg:col-span-1 lg:sticky lg:top-20 self-start h-fit">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div class="flex justify-between py-2">
+                <h2 class="font-semibold text-gray-900 mb-4">{{ $t('roles') }} ({{ filteredRoles.length }})</h2>
+                <button @click="showModal" class="rounded-full bg-orange-50 p-2">
+                  <Plus class="text-orange-500" />
+                </button>
               </div>
-            </div>
-
-            <div v-if="Object.keys(getPermissionsByCategory(roles[selectedRole])).length">
-              <div
-                v-for="(permissions, category) in getPermissionsByCategory(roles[selectedRole])"
-                :key="category"
-                class="border border-gray-200 rounded-lg p-4 mb-6"
-              >
-                <h3
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mb-3"
-                  :class="getCategoryColor(category)"
+              <div class="space-y-2 max-h-96 overflow-y-auto">
+                <button
+                  v-for="role in filteredRoles"
+                  :key="role.id"
+                  @click="selectedRole = role"
+                  :class="
+                    selectedRole?.id === role.id
+                      ? 'bg-blue-50 border-blue-200 text-blue-900'
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                  "
+                  class="w-full text-left p-3 rounded-lg border transition-colors"
                 >
-                  {{ category }}
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div
-                    v-for="permission in permissions"
-                    :key="permission"
-                    class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div class="flex items-center gap-3">
-                      <component
-                          :is="iconComponent(permissionLabels[permission]?.icon)"
-                          class="w-4 h-4"
-                        />
-
-                      <span class="text-gray-700">{{ permissionLabels[permission]?.label || permission }}</span>
-
-                    </div>
-                    <div class="w-5 h-5 bg-green-100 border-2 border-green-500 rounded flex items-center justify-center">
-                      <div class="w-2 h-2 bg-green-500 rounded"></div>
-                    </div>
+                  <div class="font-medium">{{ capitalizeEachWord(role.name) }}</div>
+                  <div class="text-sm text-gray-500 mt-1">
+                    {{ role.permissions?.service?.length || 0 }} {{ $t('permission') }}{{role.permissions?.service?.length>0 ? 's':''  }}
                   </div>
-                </div>
+                </button>
               </div>
             </div>
-
-
-
-            <div v-else class="text-center py-12">
-              <Shield class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p class="text-gray-500">Aucune permission attribuée à ce rôle</p>
-            </div>
-
-            <div class="flex justify-end gap-3">
-            <button
-              @click="toggleEditMode"
-              :class="editMode
-                ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-                : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-              "
-              class="px-4 py-2 rounded-lg border transition-colors"
-            >
-              {{ editMode ? 'Annuler' : 'Modifier' }}
-            </button>
-            <button
-              v-if="editMode"
-              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Sauvegarder
-            </button>
           </div>
 
-            <div v-if="editMode" class="mt-8 pt-6 border-t border-gray-200">
-              <h4 class="font-medium text-gray-900 mb-4">Modifier les permissions</h4>
+          <!-- Permissions Details -->
+          <div class="lg:col-span-3">
+            <div
+              v-if="editMode && selectedRole"
+              class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            >
+              <h4 class="font-medium text-gray-900 mb-4">{{ $t('edit_permission') }}</h4>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <label
                   v-for="permission in allPermissions"
@@ -139,46 +103,104 @@
                 >
                   <input
                     type="checkbox"
-                    v-model="roles[selectedRole][permission]"
+                    :checked="hasPermission(selectedRole, permission)"
+                    @change="togglePermission(selectedRole, permission, $event)"
                     class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <div class="flex items-center gap-2">
-                    <!-- <component :is="icons[permission]?.icon" class="w-4 h-4" /> -->
-                     <component
-                          :is="iconComponent(permissionLabels[permission]?.icon)"
-                          class="w-4 h-4"
-                        />
-
-                      <span class="text-gray-700">{{ permissionLabels[permission]?.label || permission }}</span>
+                    <component
+                      :is="iconComponent(permissionLabels[permission]?.icon)"
+                      class="w-4 h-4"
+                    />
+                    <span class="text-gray-700">{{
+                      permissionLabels[permission]?.label || permission
+                    }}</span>
                   </div>
                 </label>
               </div>
             </div>
-          </div>
+            <div v-else>
+              <div
+                v-if="selectedRole"
+                class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              >
+                <div class="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 class="text-xl font-semibold text-gray-900">
+                      {{ capitalizeEachWord(selectedRole.name) }}
+                    </h2>
+                    <p class="text-gray-600">
+                      {{ selectedRole.permissions?.service?.length || 0 }} {{$t('permission')}}{{ selectedRole.permissions?.service?.length>0 ? 's' : '' }} {{$t('assigned')}}
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">{{ selectedRole.description }}</p>
+                  </div>
+                </div>
 
-          <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <Users class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Sélectionnez un rôle</h3>
-            <p class="text-gray-600">Choisissez un rôle dans la liste pour voir ses permissions</p>
+                <div v-if="Object.keys(getPermissionsByCategory(selectedRole)).length">
+
+                  <div
+                    v-for="(permissions, category) in getPermissionsByCategory(selectedRole)"
+                    :key="category"
+                    class="border border-gray-200 rounded-lg p-4 mb-6"
+                  >
+                    <h3
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mb-3"
+                      :class="getCategoryColor(category)"
+                    >
+                      {{ $t(`categories.${category}`) || category }}
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div
+                        v-for="permission in permissions"
+                        :key="permission"
+                        class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div class="flex items-center gap-3">
+                          <component
+                            :is="iconComponent(permissionLabels[permission]?.icon)"
+                            class="w-4 h-4"
+                          />
+                          <span class="text-gray-700">{{
+                            permissionLabels[permission]?.label || permission
+                          }}</span>
+                        </div>
+                        <div
+                          class="w-5 h-5 bg-green-100 border-2 border-green-500 rounded flex items-center justify-center"
+                        >
+                          <div class="w-2 h-2 bg-green-500 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else class="text-center py-12">
+                  <Shield class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p class="text-gray-500">{{ $t('no_permission') }}</p>
+                </div>
+              </div>
+
+              <div
+                v-else
+                class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center"
+              >
+                <Users class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('select_role') }}</h3>
+                <p class="text-gray-600">
+                  {{ $t('choose_role') }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- les toasts -->
-         <!-- <div v-if="showToast"
-             class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300">
-            <i class="fas fa-check-circle mr-2"></i>
-            {{ toastMessage }}
-        </div> -->
     </div>
-  </div>
 
-   <Modal v-if="modalOpen" @close="closeModal()">
+    <Modal v-if="modalOpen" @close="closeModal()">
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
         >
-
           <button
             @click="closeModal()"
             class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
@@ -201,37 +223,38 @@
           </button>
           <div class="px-2 pr-14">
             <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              role
+              {{ $t('new_role') }}
             </h4>
           </div>
-          <form  class="flex flex-col">
-            <div class="h-[300px]  p-2">
+          <form @submit.prevent="createRole" class="flex flex-col">
+            <div class="h-[300px] p-2">
               <div class="space-y-8">
-
                 <div>
                   <div class="space-y-6">
                     <Input
                       :lb="$t('Name')"
                       :id="'name'"
                       :forLabel="'name'"
+                      v-model="newRole.name"
                     />
-                     <div>
-                      <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                        Description
+                    <div>
+                      <label
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >
+                        {{ $t('Description') }}
                       </label>
                       <textarea
-                        placeholder="Enter a description..."
+                        v-model="newRole.description"
+                        :placeholder="$t('enter_description')"
                         rows="6"
                         class="dark:bg-dark-900 h-40 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                       ></textarea>
                     </div>
-
                   </div>
                 </div>
               </div>
             </div>
             <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-
               <button
                 @click="closeModal()"
                 type="button"
@@ -260,206 +283,143 @@
 </template>
 
 <script lang="ts" setup>
-import AdminLayout from '@/components/layout/AdminLayout.vue';
-import Modal from '@/components/profile/Modal.vue';
-import Input from '@/components/forms/FormElements/Input.vue';
-import { ref, computed,watchEffect, onMounted } from 'vue';
-import {getPermission} from '@/services/api'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
+import Modal from '@/components/profile/Modal.vue'
+import Input from '@/components/forms/FormElements/Input.vue'
+import { ref, computed, onMounted } from 'vue'
+import { getPermission, getRoles ,updateRolePermissions,createNewRole} from '@/services/api'
 import * as icons from 'lucide-vue-next'
-
-import {Shield} from 'lucide-vue-next';
-import {Search} from 'lucide-vue-next';
-import {Users} from 'lucide-vue-next';
-import {Plus} from 'lucide-vue-next';
+import { useServiceStore } from '@/composables/serviceStore'
+import { Shield}from 'lucide-vue-next'
+import { Search }from 'lucide-vue-next'
+import { Users }from 'lucide-vue-next'
+import { Plus }from 'lucide-vue-next'
 import type { Component } from 'vue'
+import { useAuthStore } from '@/composables/user'
+import Spinner from '@/components/spinner/Spinner.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 
+interface Role {
+  id: number
+  name: string
+  description: string
+  permissions: {
+    service: Permission[]
+  }
+  permissionsCount: number
+}
 
+interface Permission {
+  id: string
+  name: string
+  label: string
+  category: string
+  icon: string
+  createdAt: string
+  updatedAt: string
+}
 
-type Role = Record<string, boolean>;
-type Roles = Record<string, Role>;
-const searchTerm = ref('');
-const selectedRole = ref<string | null>(null);
-const editMode = ref(false);
+const searchTerm = ref('')
+const selectedRole = ref<Role | null>(null)
+const editMode = ref(false)
 const modalOpen = ref(false)
 const isLoading = ref(false)
+const serviceStore = useServiceStore()
+const authStore = useAuthStore()
+
+const newRole = ref({
+  name: '',
+  description: '',
+})
+
+const roles = ref<Role[]>([])
+const permissionLabels = ref<Record<string, Permission>>({})
+
 const closeModal = () => {
   modalOpen.value = false
+  newRole.value = { name: '', description: '' }
 }
+
 const showModal = () => {
   modalOpen.value = true
 }
 
-const initialRoles: Roles = {
-  "Directeur d'hôtel": {
-    "bookings_read": true,
-    "inventory_update": true,
-    "bookings_create": true,
-    "room_service_request": true,//Gérer les demandes de service en chambre
-    "menu_manage": true,//(Gérer les menus de restauration)
-    "maintenance_request_create": true,// Créer une demande de maintenance
-    "rooms_create": true,
-    "reports_export": true,
-    "users_update": true,
-    "rooms_delete": true,
-    "maintenance_request_manage": true,//Gérer les interventions
-    "inventory_read": true, //Lire l’inventaire (fournitures, produits, linge, etc.)
-    "users_create": true,
-    "budget_view": true,//Consulter les budgets
-    "users_read": true,
-    "rooms_read": true,
-    "reports_view": true,
-    "rooms_update": true,
-    "settings_manage": true,
-    "budget_edit": true,
-    "users_delete": true,
-    "bookings_update": true,
-    "bookings_delete": true,
-    "promotions_manage": true,//Créer ou modifier des offres commerciales
-    "billing_manage": true,//Gérer les factures et paiements
-    "menu_view": true
-  },
-  "Directeur de l'hébergement": {
-    "users_read": true,
-    "users_update": true,
-    "rooms_create": true,
-    "rooms_read": true,
-    "rooms_update": true,
-    "bookings_create": true,
-    "bookings_read": true,
-    "bookings_update": true,
-    "bookings_delete": true,
-    "reports_view": true,
-    "inventory_read": true,
-    "maintenance_request_manage": true
-  },
-  "Chef-réceptionniste": {
-    "users_read": true,
-    "rooms_read": true,
-    "bookings_create": true,
-    "bookings_read": true,
-    "bookings_update": true,
-    "inventory_read": true
-  },
-  "Réceptionniste": {
-    "rooms_read": true,
-    "bookings_create": true,
-    "bookings_read": true,
-    "bookings_update": true
-  },
-  "Concierge": {
-    "bookings_read": true
-  },
-  "Veilleur de nuit": {
-    "bookings_create": true,
-    "bookings_read": true,
-    "bookings_update": true,
-    "rooms_read": true
-  },
-  "Portier": {
-    "rooms_read": true,
-    "bookings_read": true
-  },
-  "Chef de cuisine": {
-    "menu_manage": true,
-    "inventory_read": true,
-    "inventory_update": true
-  },
-  "Responsable de salle": {
-    "users_read": true
-  },
-  "Maître d'hôtel": {},
-  "Serveur": {},
-  "Barman": {},
-  "Chef de partie": {},
-  "Commis de cuisine": {},
-  "Plongeur": {},
-  "Employé d'étage": {
-    "rooms_read": true
-  },
-  "Gouvernante": {
-    "rooms_read": true,
-    "inventory_read": true,
-    "maintenance_request_create": true
-  },
-  "Responsable de l'entretien ménager": {
-    "rooms_read": true,
-    "inventory_read": true,
-    "maintenance_request_manage": true
-  },
-  "Employé de maintenance": {
-    "rooms_read": true,
-    "maintenance_request_manage": true
-  },
-  "Responsable des réservations": {
-    "bookings_create": true,
-    "bookings_read": true,
-    "bookings_update": true,
-    "bookings_delete": true
-  },
-  "Service de chambre": {
-    "room_service_request": true,
-    "rooms_read": true
-  },
-  "Responsable marketing et ventes": {
-    "promotions_manage": true,
-    "reports_view": true,
-    "reports_export": true
-  },
-  "Directeur des opérations": {
-    "users_read": true,
-    "rooms_read": true,
-    "bookings_read": true,
-    "reports_view": true,
-    "reports_export": true,
-    "settings_manage": true
-  },
-  "Directeur financier": {
-    "billing_manage": true,
-    "budget_view": true,
-    "budget_edit": true,
-    "reports_view": true,
-    "reports_export": true
-  }
-};
-const roles = ref<Roles>({ ...initialRoles });
-
-
-
-
 const filteredRoles = computed(() =>
-  Object.keys(roles.value).filter(r => r.toLowerCase().includes(searchTerm.value.toLowerCase()))
-);
+  roles.value.filter((role: Role) =>
+    role.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
+  ),
+)
 
-const allPermissions = computed(() =>
-  Array.from(
-    new Set(Object.values(roles.value).flatMap(r => Object.keys(r)))
-  ).sort()
-);
-console.log ("allPermissions",allPermissions.value)
+const allPermissions = computed(() => {
+  const allPerms = new Set<string>()
+  // Récupérer toutes les permissions depuis permissionLabels
+  Object.keys(permissionLabels.value).forEach((permission) => {
+    allPerms.add(permission)
+  })
+  return Array.from(allPerms).sort()
+})
 
 function toggleEditMode() {
-  editMode.value = !editMode.value;
+  editMode.value = !editMode.value
 }
 
-function getPermissionCount(r: Role): number {
-  return Object.values(r).filter(Boolean).length;
+function hasPermission(role: Role, permission: string): boolean {
+  if (!role.permissions?.service) return false
+  return role.permissions.service.some((p) => p.name === permission)
 }
 
-function getPermissionsByCategory(r: Role): Record<string, string[]> {
-  const cats: Record<string, string[]> = {};
-  for (const p in r) {
-    if (r[p]) {
-      const cat = permissionLabels.value[p]?.category || 'Autres';
-      if (!cats[cat]) cats[cat] = [];
-      cats[cat].push(p);
+function togglePermission(role: Role, permission: string, event: Event) {
+  const target = event.target as HTMLInputElement
+
+  if (!role.permissions) {
+    role.permissions = { service: [] }
+  }
+
+  if (!role.permissions.service) {
+    role.permissions.service = []
+  }
+
+  const existingIndex = role.permissions.service.findIndex((p) => p.name === permission)
+
+  if (target.checked) {
+    // Ajouter la permission si elle n'existe pas déjà
+    if (existingIndex === -1) {
+      const permissionData = permissionLabels.value[permission]
+      if (permissionData) {
+        role.permissions.service.push(permissionData)
+      }
+    }
+  } else {
+    // Supprimer la permission si elle existe
+    if (existingIndex !== -1) {
+      role.permissions.service.splice(existingIndex, 1)
     }
   }
-  return cats;
+
+  // Recalculer le nombre de permissions
+  role.permissionsCount = role.permissions.service.length
+}
+
+function getPermissionsByCategory(role: Role): Record<string, string[]> {
+  const categories: Record<string, string[]> = {}
+
+  if (!role.permissions?.service) return categories
+
+  role.permissions.service.forEach((permission) => {
+    const category = permission.category || 'Autres'
+    if (!categories[category]) {
+      categories[category] = []
+    }
+    categories[category].push(permission.name)
+  })
+
+  return categories
 }
 
 function getCategoryColor(category: string): string {
-  const map: Record<string, string> = {
+  const colorMap: Record<string, string> = {
     Réservations: 'bg-blue-100 text-blue-800 border-blue-200',
     Chambres: 'bg-green-100 text-green-800 border-green-200',
     Utilisateurs: 'bg-purple-100 text-purple-800 border-purple-200',
@@ -471,47 +431,103 @@ function getCategoryColor(category: string): string {
     Restauration: 'bg-pink-100 text-pink-800 border-pink-200',
     Marketing: 'bg-cyan-100 text-cyan-800 border-cyan-200',
     Administration: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  };
-  return map[category] || 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+  return colorMap[category] || 'bg-gray-100 text-gray-800 border-gray-200'
 }
-
-type Permission = {
-  id: string
-  name: string
-  label: string
-  category: string
-  icon: string
-  createdAt: string
-  updatedAt: string
-}
-
-
-
-const permissionLabels = ref<Record<string, Permission>>({});
-
 
 const fetchPermissions = async () => {
   try {
-    const response = await getPermission();
-    const permissionsArray: Permission[] = response.data.data;
-
-
+    const response = await getPermission()
+    const permissionsArray: Permission[] = response.data.data
     permissionLabels.value = Object.fromEntries(
-      permissionsArray.map(p => [p.name, p])
-    );
-    console.log("permissionLabels.value",permissionLabels.value)
+      permissionsArray.map((p) => [
+        p.name,
+        {
+          ...p,
+          get label() {
+            return t(`permissions.${p.name}`)
+          }
+        }
+      ])
+    )
+
+    // permissionLabels.value = Object.fromEntries(permissionsArray.map((p) => [p.name, p]))
   } catch (error) {
-    console.error('Erreur lors du chargement des permissions', error);
+    console.error('Erreur lors du chargement des permissions', error)
   }
-};
+}
+
+const fetchRoles = async () => {
+  try {
+    const serviceId = serviceStore.serviceId
+    const response = await getRoles(serviceId)
+    roles.value = response.data.roles
+  } catch (error) {
+    console.error('Erreur lors du chargement des rôles', error)
+  }
+}
+
+const savePermissions = async () => {
+  if (!selectedRole.value) return
+
+  try {
+    isLoading.value = true
+
+    const roleId = selectedRole.value.id
+    const serviceId = serviceStore.serviceId
+    const userId = authStore.UserId
+
+    const permissionIds = selectedRole.value.permissions.service.map((permission: any) => ({
+      permission_id: permission.id,
+    }))
+
+    const data = {
+      role_id: roleId,
+      service_id: serviceId,
+      permissions: permissionIds,
+      user_id: userId,
+    }
+
+    await updateRolePermissions(data)
+
+    editMode.value = false
+    console.log('Permissions à sauvegarder:', permissionIds)
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des permissions', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 
-onMounted(()=>{
-  fetchPermissions()
+const createRole = async () => {
+  try {
+    isLoading.value = true
+    const payload = {
+      role_name : newRole.value.name,
+      description : newRole.value.description,
+      service_id : serviceStore.serviceId,
+      category_id : 14,
+      created_by : authStore.UserId
+    }
+    await createNewRole(payload);
+    closeModal()
+    await fetchRoles()
+  } catch (error) {
+    console.error('Erreur lors de la création du rôle', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
+onMounted(async () => {
+  await fetchRoles()
+  await fetchPermissions()
 })
 
-
+function capitalizeEachWord(str: string): string {
+  return str.replace(/\b\w/g, (char: string) => char.toUpperCase())
+}
 
 const iconComponent = (name?: string): Component => {
   const pascalName = toPascalCase(name || '')
@@ -524,15 +540,14 @@ const iconComponent = (name?: string): Component => {
   return icons.CircleHelp as Component
 }
 
-
-function toPascalCase(str: string) {
-  return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')
+function toPascalCase(str: string): string {
+  return str
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('')
 }
-
-
 </script>
 
 <style scoped>
 /* Optional: add custom scrollbars or layout tweaks */
 </style>
-

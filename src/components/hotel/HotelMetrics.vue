@@ -1,15 +1,15 @@
 <template>
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold mb-4">{{ $t('hotel_metric') }}</h2>
+    <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
+      <h2 class="text-xl font-semibold mb-4 dark:text-white">{{ $t('hotel_metric') }}</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- Taux d'occupation -->
         <div class="p-4 bg-blue-50 rounded-lg">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500">{{ $t('occupancy_rate') }}</p>
-              <h3 class="text-2xl font-bold text-blue-600">{{ occupancyRate }}%</h3>
-              <p class="text-xs" :class="occupancyTrend > 0 ? 'text-green-500' : 'text-red-500'">
-                <span v-if="occupancyTrend > 0">+</span>{{ occupancyTrend }}% vs {{ $t('last_week') }}
+              <h3 class="text-2xl font-bold text-blue-600">{{ occupancyRate }}</h3>
+              <p class="text-xs" :class="(occupancyTrend ?? 0)> 0 ? 'text-green-500' : 'text-red-500'">
+                <span v-if="(occupancyTrend ?? 0)> 0">+</span>{{ occupancyTrend }}% vs {{ $t('last_week') }}
               </p>
             </div>
             <div class="bg-blue-100 p-3 rounded-full">
@@ -26,9 +26,10 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500">RevPAR</p>
-              <h3 class="text-2xl font-bold text-green-600">{{ revPAR }}FCFA</h3>
-              <p class="text-xs" :class="revPARTrend > 0 ? 'text-green-500' : 'text-red-500'">
-                <span v-if="revPARTrend > 0">+</span>{{ revPARTrend }}% vs {{ $t('last_month') }}
+              <h3 class="text-2xl font-bold text-green-600">{{ revPAR }} XAF</h3>
+
+              <p class="text-xs" :class="(revPARTrend ?? 0) > 0 ? 'text-green-500' : 'text-red-500'">
+                <span v-if="(Number(revPARTrend )?? 0)  > 0">+</span>{{ revPARTrend }}% vs {{ $t('last_month') }}
               </p>
             </div>
             <div class="bg-green-100 p-3 rounded-full">
@@ -45,9 +46,9 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500">{{ $t('average_day') }}</p>
-              <h3 class="text-2xl font-bold text-purple-600">{{ avgStayDuration }} {{ $t('days') }}</h3>
-              <p class="text-xs" :class="avgStayTrend > 0 ? 'text-green-500' : 'text-red-500'">
-                <span v-if="avgStayTrend > 0">+</span>{{ avgStayTrend }}% vs {{ $t('last_year') }}
+              <h3 class="text-2xl font-bold text-purple-600">{{ avgStayDuration }} </h3>
+              <p class="text-xs" :class="(avgStayTrend ?? 0)  > 0 ? 'text-green-500' : 'text-red-500'">
+                <span v-if="(avgStayTrend ?? 0)  > 0">+</span>{{ avgStayTrend }}% vs {{ $t('last_year') }}
               </p>
             </div>
             <div class="bg-purple-100 p-3 rounded-full">
@@ -82,18 +83,31 @@
   </template>
 
   <script setup lang="ts">
-  import { ref } from 'vue'
+  // import { ref } from 'vue'
+  import { defineProps } from 'vue'
 
-  const occupancyRate = ref(76)
-  const occupancyTrend = ref(4.2)
+defineProps<{
+  occupancyRate?: string
+  occupancyTrend?: number
+  revPAR?: number
+  revPARTrend?: number
+  avgStayDuration?: string
+  avgStayTrend?: number
+  availableRooms?: number
+  totalRooms?: number
+  roomsBookedToday?: number
+}>()
 
-  const revPAR = ref(112)
-  const revPARTrend = ref(5.8)
+  // const occupancyRate = ref(76)
+  // const occupancyTrend = ref(4.2)
 
-  const avgStayDuration = ref(3.2)
-  const avgStayTrend = ref(-0.5)
+  // const revPAR = ref(112)
+  // const revPARTrend = ref(5.8)
 
-  const availableRooms = ref(28)
-  const totalRooms = ref(120)
-  const roomsBookedToday = ref(15)
+  // const avgStayDuration = ref(3.2)
+  // const avgStayTrend = ref(-0.5)
+
+  // const availableRooms = ref(28)
+  // const totalRooms = ref(120)
+  // const roomsBookedToday = ref(15)
   </script>

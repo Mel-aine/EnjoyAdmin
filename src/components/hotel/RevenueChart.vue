@@ -1,198 +1,502 @@
 <template>
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold">{{ $t('earning_statistic') }}</h2>
-        <div class="flex space-x-2">
-          <button class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-600 font-medium">{{ $t('year') }}</button>
-          <button class="px-3 py-1 text-sm rounded-full text-gray-500 hover:bg-gray-100">{{ $t('half') }}</button>
-          <button class="px-3 py-1 text-sm rounded-full text-gray-500 hover:bg-gray-100">{{ $t('quarter') }}</button>
-          <button class="px-3 py-1 text-sm rounded-full text-gray-500 hover:bg-gray-100">{{ $t('month') }}</button>
+  <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold dark:text-white">{{ $t('earning_statistic') }}</h2>
+      <div class="flex space-x-2">
+        <button
+          :class="getButtonClass('yearly')"
+          @click="handleViewChange('yearly')"
+          class="px-3 py-1 text-sm rounded-full"
+        >
+          {{ $t('year') }}
+        </button>
+        <button
+          :class="getButtonClass('semester')"
+          @click="handleViewChange('semester')"
+          class="px-3 py-1 text-sm rounded-full"
+        >
+          {{ $t('half') }}
+        </button>
+        <button
+          :class="getButtonClass('quarterly')"
+          @click="handleViewChange('quarterly')"
+          class="px-3 py-1 text-sm rounded-full"
+        >
+          {{ $t('quarter') }}
+        </button>
+        <button
+          :class="getButtonClass('monthly')"
+          @click="handleViewChange('monthly')"
+          class="px-3 py-1 text-sm rounded-full"
+        >
+          {{ $t('month') }}
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Revenu total -->
+      <div class="bg-blue-50 rounded-lg p-4">
+        <div class="text-blue-600 text-sm font-medium mb-1">{{ $t('total_earning') }}</div>
+        <div class="text-2xl font-bold">{{ revenuTotal?.currentRevenue || 0 }} XAF</div>
+        <div class="flex items-center mt-2">
+          <span
+            :class="[
+              'text-xs font-medium flex items-center',
+              variation > 0 ? 'text-green-500' : variation < 0 ? 'text-red-500' : 'text-gray-400',
+            ]"
+          >
+            <svg
+              v-if="variation !== 0"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-3 w-3 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="variation > 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'"
+              />
+            </svg>
+            {{ variation }} %
+          </span>
+          <span class="text-xs text-gray-500 ml-2">vs {{ $t('previous') }} {{ viewLabel }}</span>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <!-- Revenu total -->
-        <div class="bg-blue-50 rounded-lg p-4">
-          <div class="text-blue-600 text-sm font-medium mb-1">{{ $t('total_earning') }}</div>
-          <div class="text-2xl font-bold">1,283,250 FCFA</div>
-          <div class="flex items-center mt-2">
-            <span class="text-green-500 text-xs font-medium flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              8.2%
-            </span>
-            <span class="text-xs text-gray-500 ml-2">vs {{ $t('previous_year') }}</span>
-          </div>
-        </div>
-
-        <!-- Taux d'occupation moyen -->
-        <div class="bg-green-50 rounded-lg p-4">
-          <div class="text-green-600 text-sm font-medium mb-1">{{ $t('average_occupancy') }}</div>
-          <div class="text-2xl font-bold">72.5%</div>
-          <div class="flex items-center mt-2">
-            <span class="text-green-500 text-xs font-medium flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              5.3%
-            </span>
-            <span class="text-xs text-gray-500 ml-2">vs {{ $t('previous_year') }}</span>
-          </div>
-        </div>
-
-        <!-- ADR -->
-        <div class="bg-purple-50 rounded-lg p-4">
-          <div class="text-purple-600 text-sm font-medium mb-1">{{ $t('average_price') }} (ADR)</div>
-          <div class="text-2xl font-bold">155 FCFA</div>
-          <div class="flex items-center mt-2">
-            <span class="text-red-500 text-xs font-medium flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-              1.2%
-            </span>
-            <span class="text-xs text-gray-500 ml-2">vs {{ $t('previous_year') }}</span>
-          </div>
+      <!-- Taux d'occupation moyen -->
+      <div class="bg-green-50 rounded-lg p-4">
+        <div class="text-green-600 text-sm font-medium mb-1">{{ $t('average_occupancy') }}</div>
+        <div class="text-2xl font-bold">{{ totalOccupancyRate?.currentRate || 0 }}%</div>
+        <div class="flex items-center mt-2">
+          <span
+            :class="[
+              'text-xs font-medium flex items-center',
+              variationOccupancy > 0
+                ? 'text-green-500'
+                : variationOccupancy < 0
+                  ? 'text-red-500'
+                  : 'text-gray-400',
+            ]"
+          >
+            <svg
+              v-if="variationOccupancy !== 0"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-3 w-3 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="
+                  variationOccupancy > 0
+                    ? 'M5 10l7-7m0 0l7 7m-7-7v18'
+                    : 'M19 14l-7 7m0 0l-7-7m7 7V3'
+                "
+              />
+            </svg>
+            {{ variationOccupancy }} %
+          </span>
+          <span class="text-xs text-gray-500 ml-2">vs {{ $t('previous') }} {{ viewLabel }}</span>
         </div>
       </div>
 
-      <div class="h-72">
-        <canvas ref="revenueChart"></canvas>
-      </div>
-
-      <div class="flex justify-center mt-4 space-x-8">
-        <div class="flex items-center">
-          <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-          <span class="text-sm text-gray-600">{{ $t('earnings') }} 2025</span>
-        </div>
-        <div class="flex items-center">
-          <div class="w-3 h-3 bg-gray-300 rounded-full mr-2"></div>
-          <span class="text-sm text-gray-600">{{ $t('earnings') }} 2024</span>
-        </div>
-        <div class="flex items-center">
-          <div class="w-1 h-4 bg-green-500 rounded-full mr-2"></div>
-          <span class="text-sm text-gray-600">{{ $t('occupancy_rate') }} 2025</span>
+      <!-- ADR -->
+      <div class="bg-purple-50 rounded-lg p-4">
+        <div class="text-purple-600 text-sm font-medium mb-1">{{ $t('average_price') }} (ADR)</div>
+        <div class="text-2xl font-bold">{{ Adr?.currentADR || 0 }} XAF</div>
+        <div class="flex items-center mt-2">
+          <span
+            :class="[
+              'text-xs font-medium flex items-center',
+              variationADR > 0
+                ? 'text-green-500'
+                : variationADR < 0
+                  ? 'text-red-500'
+                  : 'text-gray-400',
+            ]"
+          >
+            <svg
+              v-if="variationADR !== 0"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-3 w-3 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="variationADR > 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'"
+              />
+            </svg>
+            {{ variationADR }} %
+          </span>
+          <span class="text-xs text-gray-500 ml-2">vs {{ $t('previous') }} {{ viewLabel }}</span>
         </div>
       </div>
     </div>
-  </template>
 
-  <script lang="ts">
-  import { defineComponent, onMounted, ref } from 'vue';
-  import { Chart, registerables } from 'chart.js';
+    <div class="h-72 relative">
+      <!-- Loading spinner -->
+      <div
+        v-if="isLoading"
+        class="absolute inset-0 flex items-center justify-center bg-white/70 z-10"
+      >
+        <span class="flex items-center gap-2">
+          <Spinner class="w-4 h-4" />
+          {{ $t('Processing') }}...
+        </span>
+      </div>
 
-  Chart.register(...registerables);
+      <!-- Chart container -->
+      <div ref="revenueChart" class="w-full h-full" v-show="!isLoading"></div>
+    </div>
 
-  export default defineComponent({
-    name: 'RevenueChart',
-    setup() {
-      const revenueChart = ref<HTMLCanvasElement | null>(null);
-      let chart: Chart | null = null;
+    <div class="flex justify-center mt-4 space-x-8">
+      <div class="flex items-center">
+        <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+        <span class="text-sm text-gray-600 dark:text-white">{{ $t('earnings') }} {{ currentyear }}</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-3 h-3 bg-gray-300 rounded-full mr-2"></div>
+        <span class="text-sm text-gray-600 dark:text-white">{{ $t('earnings') }} {{ previousyear }}</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-1 h-4 bg-green-500 rounded-full mr-2"></div>
+        <span class="text-sm text-gray-600 dark:text-white">{{ $t('occupancy_rate') }} {{ currentyear }}</span>
+      </div>
+    </div>
+  </div>
+</template>
 
-      const monthlyData = {
-        months: ['Jan', 'Fev', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        revenue2025: [98500, 105200, 120500, 115800, 125600, 135000, 158000, 167500, 145200, 130500, null, null],
-        revenue2024: [92000, 98500, 110200, 108500, 120000, 126500, 150200, 162000, 138500, 122000, 118000, 128500],
-        occupancy2025: [65, 68, 72, 70, 75, 82, 95, 98, 85, 78, null, null]
-      };
+<script setup lang="ts">
+import { onMounted, ref, computed, nextTick, onUnmounted, watch } from 'vue'
+import * as echarts from 'echarts'
+import { useI18n } from 'vue-i18n'
+import Spinner from '../spinner/Spinner.vue'
 
-      const initChart = () => {
-        if (!revenueChart.value) return;
+const { t, locale } = useI18n()
 
-        const ctx = revenueChart.value.getContext('2d');
-        if (!ctx) return;
+const revenueChart = ref<HTMLDivElement | null>(null)
+const isLoading = ref(true)
+const activeView = computed(() => props.currentView || 'monthly')
 
-        chart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: monthlyData.months,
-            datasets: [
-              {
-                type: 'bar',
-                label: 'Revenus 2025',
-                data: monthlyData.revenue2025,
-                backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                borderRadius: 4,
-                order: 2,
-                yAxisID: 'y',
-              },
-              {
-                type: 'bar',
-                label: 'Revenus 2024',
-                data: monthlyData.revenue2024,
-                backgroundColor: 'rgba(209, 213, 219, 0.7)',
-                borderRadius: 4,
-                order: 3,
-                yAxisID: 'y',
-              },
-              {
-                type: 'line',
-                label: "Taux d'occupation 2025",
-                data: monthlyData.occupancy2025,
-                borderColor: 'rgba(16, 185, 129, 1)',
-                borderWidth: 2,
-                pointBackgroundColor: 'rgba(16, 185, 129, 1)',
-                pointRadius: 4,
-                fill: false,
-                tension: 0.4,
-                order: 1,
-                yAxisID: 'y1',
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: 'rgba(17, 24, 39, 0.8)',
-                padding: 12,
-                titleFont: { weight: 'bold' },
-                callbacks: {
-                  label(context:any) {
-                    if (context.dataset.yAxisID === 'y1') {
-                      return `Taux d'occupation: ${context.parsed.y}%`;
-                    } else {
-                      return `Revenu: ${context.parsed.y.toLocaleString()} €`;
-                    }
-                  }
-                }
-              }
-            },
-            scales: {
-              x: { grid: { display: false } },
-              y: {
-                beginAtZero: true,
-                position: 'left',
-                title: { display: true, text: 'Earning (FCFA)' },
-                ticks: {
-                  callback: (value: string | number) => `${value.toLocaleString()} €`
-                }
-              },
-              y1: {
-                beginAtZero: true,
-                max: 100,
-                position: 'right',
-                title: { display: true, text: "Taux d'occupation (%)" },
-                ticks: {
-                   callback: (tickValue: string | number) => `${tickValue}%`
-                },
-                grid: { display: false }
-              }
-            }
-          }
-        });
-      };
+const emit = defineEmits<{
+  changeViews: [view: 'yearly' | 'semester' | 'quarterly' | 'monthly']
+}>()
 
-      onMounted(() => {
-        initChart();
-      });
+const variation = computed(() => props.revenuTotal?.growthRate ?? 0)
+const variationOccupancy = computed(() => props.totalOccupancyRate?.variationPercentage ?? 0)
+const variationADR = computed(() => props.Adr?.variationPercentage ?? 0)
 
-      return {
-        revenueChart
-      };
+const props = defineProps<{
+  monthlyData: any[]
+  totalOccupancyRate?: {
+    currentRate: number
+    variationPercentage: number
+  } | null
+  Adr?: {
+    currentADR: number
+    variationPercentage: number
+  } | null
+  revenuTotal?: {
+    currentRevenue: number
+    growthRate: number
+  } | null
+  currentView?: 'yearly' | 'semester' | 'quarterly' | 'monthly'
+}>()
+
+const getButtonClass = (view: string) => {
+  const baseClasses = 'px-3 py-1 text-sm rounded-full font-medium transition-colors'
+  return activeView.value === view
+    ? `${baseClasses} bg-blue-100 text-blue-600`
+    : `${baseClasses} text-gray-500 hover:bg-gray-100`
+}
+
+const handleViewChange = (view: 'yearly' | 'semester' | 'quarterly' | 'monthly') => {
+  emit('changeViews', view)
+}
+
+let chartInstance: echarts.ECharts | null = null
+
+// Fonction pour détruire l'instance précédente
+const destroyChart = () => {
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+}
+
+const currentYear = new Date().getFullYear()
+const previousYear = currentYear - 1
+const currentyear = ref(currentYear)
+const previousyear = ref(previousYear)
+
+const initChart = async () => {
+  await nextTick()
+
+  if (!revenueChart.value) {
+    console.warn('Élément DOM du graphique non trouvé')
+    return
+  }
+
+  // Détruire l'instance précédente si elle existe
+  destroyChart()
+
+  try {
+
+    chartInstance = echarts.init(revenueChart.value)
+
+
+    if (!props.monthlyData || props.monthlyData.length === 0) {
+      console.warn('Aucune donnée mensuelle disponible')
+      return
     }
-  });
-  </script>
+
+    const months = props.monthlyData.map((item:any) => item.month)
+    const currentRevenue = props.monthlyData.map((item:any) => item.totalRevenue)
+    const previousRevenue = props.monthlyData.map((item:any) => item.previousRevenue)
+    const occupancyRates = props.monthlyData.map((item:any) => item.occupancyRate)
+
+    console.log('Données du graphique:', {
+      months,
+      currentRevenue,
+      previousRevenue,
+      occupancyRates,
+    })
+
+    // Calculer les valeurs min/max pour un meilleur affichage
+    const maxRevenue = Math.max(...currentRevenue, ...previousRevenue)
+    const maxOccupancy = Math.max(...occupancyRates)
+
+
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(17, 24, 39, 0.8)',
+        textStyle: { fontWeight: 'bold', color: '#fff' },
+        padding: 12,
+        formatter: (params:any) => {
+          let result = `<div style="margin-bottom: 8px; font-weight: bold;">${params[0].axisValueLabel}</div>`
+          params.forEach((param:any) => {
+            const value = param.data
+            if (param.seriesName === "Taux d'occupation 2025") {
+              result += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px;"></span>
+                ${param.seriesName}: ${value !== null && value !== undefined ? value.toFixed(2) : 'N/A'}%
+              </div>`
+            } else {
+              result += `<div style="margin: 4px 0;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px;"></span>
+                ${param.seriesName}: ${value !== null && value !== undefined ? value.toLocaleString() : 'N/A'} XAF
+              </div>`
+            }
+          })
+          return result
+        },
+      },
+      legend: {
+        data: [t('Earning_2025', { year: currentYear }), t('Earning_previous', { year: previousYear }), t("occupancy_rate_2025", { year: currentYear })],
+        show: true,
+        top: 10,
+        textStyle: {
+          color: '#374151',
+        },
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      xAxis: {
+        type: 'category',
+        data: months,
+        axisLine: {
+          show: true,
+          lineStyle: { color: '#e5e7eb' },
+        },
+        axisTick: { show: false },
+        axisLabel: {
+          color: '#6b7280',
+        },
+        splitLine: { show: false },
+      },
+      yAxis: [
+        {
+          type: 'value',
+          name: t('EarningXAF'),
+          nameTextStyle: {
+            color: '#6b7280',
+          },
+          min: 0,
+          max: maxRevenue > 0 ? undefined : 1000000,
+          axisLabel: {
+            formatter: (value:any) => {
+              if (value === 0) return '0'
+              return value >= 1000000
+                ? `${(value / 1000000).toFixed(1)}M`
+                : value >= 1000
+                  ? `${(value / 1000).toFixed(0)}K`
+                  : value.toLocaleString()
+            },
+            color: '#6b7280',
+          },
+          splitLine: {
+            show: true,
+            lineStyle: { color: '#f3f4f6' },
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+        },
+        {
+          type: 'value',
+          name:  t("occupancy_rate%"),
+          nameTextStyle: {
+            color: '#6b7280',
+          },
+          min: 0,
+          max: Math.max(100, maxOccupancy),
+          axisLabel: {
+            formatter: (value:any) => `${value}%`,
+            color: '#6b7280',
+          },
+          position: 'right',
+          splitLine: { show: false },
+          axisLine: { show: false },
+          axisTick: { show: false },
+        },
+      ],
+      series: [
+        {
+          name: t('Earning_2025', { year: currentYear }),
+          type: 'bar',
+          data: currentRevenue,
+          itemStyle: {
+            color: 'rgba(59, 130, 246, 0.8)',
+            borderRadius: [4, 4, 0, 0],
+          },
+          emphasis: {
+            itemStyle: {
+              color: 'rgba(59, 130, 246, 1)',
+            },
+          },
+          yAxisIndex: 0,
+          barWidth: '30%',
+          showBackground: true,
+          backgroundStyle: {
+            color: 'rgba(180, 180, 180, 0.1)',
+          },
+        },
+        {
+          name: t('Earning_previous', { year: previousYear }),
+          type: 'bar',
+          data: previousRevenue,
+          itemStyle: {
+            color: 'rgba(209, 213, 219, 0.8)',
+            borderRadius: [4, 4, 0, 0],
+          },
+          emphasis: {
+            itemStyle: {
+              color: 'rgba(209, 213, 219, 1)',
+            },
+          },
+          yAxisIndex: 0,
+          barWidth: '30%',
+          showBackground: true,
+          backgroundStyle: {
+            color: 'rgba(180, 180, 180, 0.1)',
+          },
+        },
+        {
+          name: t("occupancy_rate_2025", { year: currentYear }),
+          type: 'line',
+          data: occupancyRates,
+          lineStyle: {
+            color: 'rgba(16, 185, 129, 1)',
+            width: 3,
+            type: 'solid',
+          },
+          itemStyle: {
+            color: 'rgba(16, 185, 129, 1)',
+            borderWidth: 2,
+            borderColor: '#fff',
+          },
+          symbol: 'circle',
+          symbolSize: 6,
+          yAxisIndex: 1,
+          connectNulls: false,
+          showSymbol: true,
+        },
+        (isLoading.value = false),
+      ],
+    }
+
+    chartInstance.setOption(option, true) // true pour effacer les options précédentes
+
+    // Forcer le redimensionnement
+    setTimeout(() => {
+      if (chartInstance) {
+        chartInstance.resize()
+      }
+    }, 100)
+
+    console.log('Graphique initialisé avec succès')
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation du graphique:", error)
+  }
+}
+
+watch(locale, initChart)
+const updateChart = async () => {
+  console.log('Mise à jour du graphique...')
+  await initChart()
+}
+
+// Fonction de redimensionnement
+const handleResize = () => {
+  if (chartInstance) {
+    chartInstance.resize()
+  }
+}
+onUnmounted(() => {
+  console.log('Nettoyage du composant')
+  destroyChart()
+  window.removeEventListener('resize', handleResize)
+})
+
+// Watcher pour surveiller les changements de données
+watch(
+  () => props.monthlyData,
+  async (newData:any) => {
+    console.log('Données mises à jour:', newData)
+    if (newData && newData.length > 0) {
+      await updateChart()
+    }
+  },
+  { deep: true },
+)
+
+const viewLabel = computed(() => {
+  switch (activeView.value) {
+    case 'yearly':
+      return t('year')
+    case 'semester':
+      return t('half')
+    case 'quarterly':
+      return t('quarter')
+    case 'monthly':
+      return t('month')
+    default:
+      return ''
+  }
+})
+</script>

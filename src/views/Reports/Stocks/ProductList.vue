@@ -1,6 +1,7 @@
 <template>
   <div>
     <AdminLayout>
+      <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('product')" />
       <div class="flex justify-end pb-5 relative">
         <!-- Add/Import Dropdown -->
@@ -21,12 +22,13 @@
       </div>
 
       <!-- Data Table -->
-      <div class="space-y-5 sm:space-y-6 h-screen mt-10">
+      <div class="space-y-5 sm:space-y-6 mt-10">
 
         <TableComponent :items="titles" :datas="filteredProductWithNames" :filterable="true" :pagination="true"
           :loading="loading" :showHeader="true" :title="$t('product')" :pageSize="15" :showButtonAllElement="true"
           @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table" />
       </div>
+      </FullScreenLayout>
     </AdminLayout>
 
     <!-- Modal Add Product -->
@@ -102,6 +104,7 @@ import { ref, watch, onMounted, computed } from 'vue';
 import TableComponent from "@/components/tables/TableComponent.vue";
 import ModalDelete from "@/components/modal/ModalDelete.vue";
 import { defaultProducts } from "@/assets/data/productCategories";
+import FullScreenLayout from "@/components/layout/FullScreenLayout.vue";
 
 
 const modalOpen = ref(false);

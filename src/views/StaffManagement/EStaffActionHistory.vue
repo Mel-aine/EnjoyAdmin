@@ -1,47 +1,164 @@
 <template>
   <AdminLayout>
+    <FullScreenLayout>
     <div class="space-y-6">
       <div>
         <h2 class="text-3xl font-bold text-gray-900">{{ $t('actionHistory.title') }}</h2>
         <p class="text-gray-600 mt-1">{{ $t('actionHistory.subtitle') }}</p>
       </div>
+
+      <!-- Filtres et recherche -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('actionHistory.recentActivities') }}</h3>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex-1">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <input
+                  v-model="searchTerm"
+                  type="text"
+                  class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  :placeholder="$t('actionHistory.searchPlaceholder')"
+                />
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <select
+                v-model="selectedActionType"
+                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+              >
+                <option value="">{{ $t('actionHistory.allActions') }}</option>
+                <option value="created">{{ $t('actionHistory.created') }}</option>
+                <option value="updated">{{ $t('actionHistory.updated') }}</option>
+                <option value="deleted">{{ $t('actionHistory.deleted') }}</option>
+                <option value="completed">{{ $t('actionHistory.completed') }}</option>
+                <option value="login">{{ $t('actionHistory.login') }}</option>
+                <option value="logout">{{ $t('actionHistory.logout') }}</option>
+              </select>
+
+              <select
+                v-model="itemsPerPage"
+                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+              >
+                <option value="10">10 / page</option>
+                <option value="25">25 / page</option>
+                <option value="50">50 / page</option>
+                <option value="100">100 / page</option>
+              </select>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Liste des actions -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">{{ $t('actionHistory.recentActivities') }}</h3>
+            <span class="text-sm text-gray-500">
+              {{ $t('actionHistory.totalResults', { count: filteredLogs.length }) }}
+            </span>
+          </div>
+        </div>
+
         <div v-if="loading" class="flex items-center justify-center py-12">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
+
         <div v-else>
           <div class="divide-y divide-gray-200">
             <div
-              v-for="log in actionLogs"
+              v-for="log in paginatedLogs"
               :key="log.id"
-              class="px-6 py-4 hover:bg-gray-50"
+              class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150"
             >
               <div class="flex items-start space-x-3">
                 <div class="flex-shrink-0">
-                  <span class="text-lg">{{ getActionIcon(log.action) }}</span>
+                  <span class="text-lg">{{ getActionIcon(log.actionType) }}</span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2">
                     <span
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                      :class="getActionColor(log.action)"
+                      class="inline-flex px-2 py-1 text-sm font-semibold rounded-full"
+                      :class="getActionColor(log.actionType)"
                     >
-                      {{ $t(`actionHistory.actions.${log.action}`) }}
+                      {{ $t(`actionHistory.${log.actionType}`) }}
                     </span>
-                    <span class="text-sm text-gray-500 capitalize">{{ $t(`actionHistory.entities.${log.entity_type}`) }}</span>
+                    <span class="text-sm text-gray-500 capitalize">{{ log.resourceType }}</span>
                   </div>
-                  <p class="text-sm text-gray-900 mt-1">{{ log.details }}</p>
+                  <p class="text-sm text-gray-900 mt-1">{{ $t(`${log.actionDescription}`) }}</p>
                   <p class="text-xs text-gray-500 mt-1">
-                    {{ new Date(log.timestamp).toLocaleString() }}
+                    {{ new Date(log.createdAt).toLocaleString() }}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div v-if="actionLogs.length === 0" class="text-center py-12">
+
+          <!-- Pagination -->
+          <div v-if="totalPages > 1" class="px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-700">
+                  {{ $t('actionHistory.showing') }} {{ startIndex + 1 }} {{ $t('actionHistory.to') }} {{ endIndex }} {{ $t('actionHistory.of') }} {{ filteredLogs.length }}
+                </span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button
+                  @click="goToPage(1)"
+                  :disabled="currentPage === 1"
+                  class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ⏮️
+                </button>
+                <button
+                  @click="goToPage(currentPage - 1)"
+                  :disabled="currentPage === 1"
+                  class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ◀️
+                </button>
+
+                <div class="flex items-center space-x-1">
+                  <button
+                    v-for="page in visiblePages"
+                    :key="page"
+                    @click="goToPage(page)"
+                    :class="[
+                      'px-3 py-1 text-sm font-medium rounded-md',
+                      page === currentPage
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    ]"
+                  >
+                    {{ page }}
+                  </button>
+                  <span v-if="showEllipsis" class="px-2 py-1 text-sm text-gray-500">...</span>
+                </div>
+
+                <button
+                  @click="goToPage(currentPage + 1)"
+                  :disabled="currentPage === totalPages"
+                  class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ▶️
+                </button>
+                <button
+                  @click="goToPage(totalPages)"
+                  :disabled="currentPage === totalPages"
+                  class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ⏭️
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="filteredLogs.length === 0" class="text-center py-12">
             <div class="text-6xl mb-4">📋</div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('actionHistory.noLogs') }}</h3>
             <p class="text-gray-500">{{ $t('actionHistory.noLogsMsg') }}</p>
@@ -49,39 +166,134 @@
         </div>
       </div>
     </div>
+    </FullScreenLayout>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { actionsMock } from "@/assets/data/StaffData";
+import {getStocksHistories} from "@/services/api"
 import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { useServiceStore } from '@/composables/serviceStore';
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 
 const actionLogs = ref<Record<string, any>>([])
 const loading = ref(true)
+const serviceStore = useServiceStore()
 
+// Paramètres de pagination et filtres
+const currentPage = ref(1)
+const itemsPerPage = ref(25)
+const searchTerm = ref('')
+const selectedActionType = ref('')
+
+// Computed pour les logs filtrés
+const filteredLogs = computed(() => {
+  let filtered = actionLogs.value
+
+  // Filtrer par terme de recherche
+  if (searchTerm.value) {
+    const term = searchTerm.value.toLowerCase()
+    filtered = filtered.filter((log:any) =>
+      log.actionDescription?.toLowerCase().includes(term) ||
+      log.resourceType?.toLowerCase().includes(term) ||
+      log.actionType?.toLowerCase().includes(term)
+    )
+  }
+
+  // Filtrer par type d'action
+  if (selectedActionType.value) {
+    filtered = filtered.filter((log:any) => log.actionType === selectedActionType.value)
+  }
+
+  return filtered
+})
+
+// Computed pour la pagination
+const totalPages = computed(() => Math.ceil(filteredLogs.value.length / itemsPerPage.value))
+
+const paginatedLogs = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredLogs.value.slice(start, end)
+})
+
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
+const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, filteredLogs.value.length))
+
+// Pagination intelligente
+const visiblePages = computed(() => {
+  const pages = []
+  const current = currentPage.value
+  const total = totalPages.value
+
+  if (total <= 7) {
+    // Afficher toutes les pages si moins de 7
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    // Logique pour pagination intelligente
+    if (current <= 4) {
+      pages.push(1, 2, 3, 4, 5)
+    } else if (current >= total - 3) {
+      pages.push(total - 4, total - 3, total - 2, total - 1, total)
+    } else {
+      pages.push(current - 2, current - 1, current, current + 1, current + 2)
+    }
+  }
+
+  return pages
+})
+
+const showEllipsis = computed(() => {
+  return totalPages.value > 7 && currentPage.value < totalPages.value - 3
+})
+
+// Fonctions
 function getActionIcon(action: string) {
   switch (action) {
     case 'created': return '➕'
     case 'updated': return '✏️'
     case 'deleted': return '🗑️'
     case 'completed': return '✅'
+    case 'login' : return '🔐'
+    case 'logout' : return '🔓'
     default: return '📝'
   }
 }
+
 function getActionColor(action: string) {
   switch (action) {
     case 'created': return 'bg-green-100 text-green-800'
     case 'updated': return 'bg-blue-100 text-blue-800'
     case 'deleted': return 'bg-red-100 text-red-800'
     case 'completed': return 'bg-purple-100 text-purple-800'
+    case 'login': return 'bg-orange-100 text-orange-800'
+    case 'logout': return 'bg-pink-100 text-pink-800'
     default: return 'bg-gray-100 text-gray-800'
   }
 }
 
+function goToPage(page: number) {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
+// Réinitialiser la page quand les filtres changent
+watch([searchTerm, selectedActionType, itemsPerPage], () => {
+  currentPage.value = 1
+})
+
 onMounted(async () => {
   try {
-    actionLogs.value = actionsMock
+    const serviceId = serviceStore.serviceId
+    const response = await getStocksHistories(serviceId)
+
+    console.log("......responseActions",response.data.data)
+    actionLogs.value = response.data.data
   } catch (error) {
     console.error('Error fetching action logs:', error)
     // Optionally, you can set an error state here

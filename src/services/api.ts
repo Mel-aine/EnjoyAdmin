@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
+import { useAuthStore } from '@/composables/user'
 import type {
   OptionType,
   ServiceProductType,
@@ -10,6 +11,7 @@ import type {
 } from '@/types/option'
 
 const API_URL = import.meta.env.VITE_API_URL as string
+const authStore = useAuthStore()
 
 // --- Types ---
 export interface Option {
@@ -92,6 +94,11 @@ export const getProductOption = (): Promise<AxiosResponse<{ data: ProductOptionT
 //get les services
 export const getService = (serviceId?: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/${serviceId}`)
+}
+
+//get lees actions
+export const getStocksHistories = (serviceId?: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/action/${serviceId}`)
 }
 
 export const getServices = (): Promise<AxiosResponse<any>> => {
@@ -188,6 +195,11 @@ export const getRoute = (serviceId: number | null): Promise<AxiosResponse<any>> 
 export const getRole = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/${serviceId}/roles`)
 }
+
+export const getRoles = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/roles_permissions/${serviceId}`)
+}
+
 export const getReservationServiceProduct = (reservationId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservation_service/${reservationId}`)
 }
@@ -237,7 +249,7 @@ export const createRoomOptions = (optionsData: {
 
 //create user
 export const createUser = (userData: any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/users`, userData)
+  return axios.post(`${API_URL}/assign-user`, userData)
 }
 
 //create product type
@@ -262,6 +274,17 @@ export function auth(credentials: { email: string; password: string; keepLoggedI
     withCredentials: true
   })
 }
+
+export function logout() {
+  return axios.post(`${API_URL}/authLogout`, {}, {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`
+    },
+    withCredentials: true
+  });
+}
+
+
 
 export function validateEmail(email: string) {
   return axios.post(`${API_URL}/validateEmail`, { email })
@@ -308,6 +331,15 @@ export const createVehicle = (Data: any) : Promise<AxiosResponse<any>> => {
 export const createRoute = (Data: any) : Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/route`,Data)
 }
+
+export const updateRolePermissions = (Data: any) : Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/roles/assign-permissions`,Data)
+}
+
+export const createNewRole = (Data: any) : Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/roles`,Data)
+}
+
 
 // --- Services API put --- //
 

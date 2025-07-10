@@ -1,161 +1,202 @@
 <template>
-    <div class="bg-white rounded-lg shadow p-6 h-full">
-      <h2 class="text-xl font-semibold mb-6">{{ $t('customer_demographic') }}</h2>
+  <div class="bg-white rounded-lg shadow p-6 h-full dark:bg-gray-700">
+    <h2 class="text-xl font-semibold mb-6 dark:text-white">{{ $t('customer_demographic') }}</h2>
 
-      <div class="grid grid-cols-1 gap-6">
-        <!-- Type de clients -->
-        <div>
-          <h3 class="text-sm font-medium text-gray-600 mb-3">{{ $t('type_of') }}</h3>
-          <div class="flex items-center mb-4">
-            <div class="w-full bg-gray-200 rounded-full h-4">
-              <div class="flex h-4 rounded-full overflow-hidden">
-                <div class="bg-blue-500 h-full" style="width: 45%"></div>
-                <div class="bg-amber-500 h-full" style="width: 30%"></div>
-                <div class="bg-green-500 h-full" style="width: 25%"></div>
-              </div>
-            </div>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-sm">
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-              <span class="text-gray-600">{{ $t('hobbies') }} (45%)</span>
-            </div>
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
-              <span class="text-gray-600">{{ $t('business') }} (30%)</span>
-            </div>
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-              <span class="text-gray-600">{{ $t('groups') }} (25%)</span>
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Type de clients -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-600 mb-3 dark:text-white">{{ $t('type_of') }}</h3>
+        <div class="flex items-center mb-4">
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div class="flex h-4 rounded-full overflow-hidden">
+              <div class="bg-blue-500 h-full" style="width: 45%"></div>
+              <div class="bg-amber-500 h-full" style="width: 30%"></div>
+              <div class="bg-green-500 h-full" style="width: 25%"></div>
             </div>
           </div>
         </div>
-
-        <!-- Origine des clients -->
-        <div>
-          <div class="flex justify-between items-center mb-3">
-            <h3 class="text-sm font-medium text-gray-600">{{ $t('origin_customer') }}</h3>
-            <button class="text-xs text-blue-600 hover:text-blue-700">{{ $t('see_details') }}</button>
+        <div class="grid grid-cols-3 gap-2 text-sm">
+          <div class="flex items-center">
+            <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+            <span class="text-gray-600 dark:text-white">{{ $t('hobbies') }} (45%)</span>
           </div>
-          <div class="h-56">
-            <canvas ref="originChart"></canvas>
+          <div class="flex items-center">
+            <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+            <span class="text-gray-600 dark:text-white">{{ $t('business') }} (30%)</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+            <span class="text-gray-600 dark:text-white">{{ $t('groups') }} (25%)</span>
           </div>
         </div>
+      </div>
 
-        <!-- Durée de séjour -->
-        <div>
-          <h3 class="text-sm font-medium text-gray-600 mb-3">{{ $t('duration') }}</h3>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="bg-gray-50 rounded-lg p-3">
-              <div class="text-sm text-gray-500">1-2 {{ $t('nights') }}</div>
-              <div class="text-lg font-semibold">35%</div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 35%"></div>
-              </div>
+      <!-- Origine des clients -->
+      <div>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-medium text-gray-600 dark:text-white">{{ $t('origin_customer') }}</h3>
+          <!-- <button class="text-xs text-blue-600 hover:text-blue-700">{{ $t('see_details') }}</button> -->
+        </div>
+
+        <div  ref="originChart" style="width: 100%; height: 250px"></div>
+
+
+      </div>
+
+      <!-- Durée de séjour -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-600 mb-3 dark:text-white">{{ $t('duration') }}</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <div v-for="(value, key) in stayDuration" :key="key" class="bg-gray-50 rounded-lg p-3 dark:bg-gray-300">
+            <div class="text-sm text-gray-500">
+              {{ $t(key.includes('nuits') ? key : key + ' nights') }}
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
-              <div class="text-sm text-gray-500">3-5 {{ $t('nights') }}</div>
-              <div class="text-lg font-semibold">42%</div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 42%"></div>
-              </div>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-3">
-              <div class="text-sm text-gray-500">6-10 {{ $t('nights') }}</div>
-              <div class="text-lg font-semibold">18%</div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 18%"></div>
-              </div>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-3">
-              <div class="text-sm text-gray-500">10+ {{ $t('nights') }}</div>
-              <div class="text-lg font-semibold">5%</div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 5%"></div>
-              </div>
+            <div class="text-lg font-semibold">{{ value.toFixed(2) }}%</div>
+            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+              <div class="bg-purple-500 h-1.5 rounded-full" :style="{ width: value + '%' }"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
 
-  <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
-  import { Chart, registerables } from 'chart.js'
+<script setup lang="ts">
+import { ref, onMounted,nextTick,watch } from 'vue'
+import * as echarts from 'echarts'
+import Spinner from '../spinner/Spinner.vue';
 
-  // Enregistrer tous les composants Chart.js
-  Chart.register(...registerables)
+import { defineProps } from 'vue'
 
-  // Référence du canvas
-  const originChart = ref<HTMLCanvasElement | null>(null)
+const props = defineProps<{
+  stayDuration: Record<string, number>
+  originData: Array<{
+    nationality: string
+    count: number
+  }>
+}>()
+const isLoading = ref(true)
 
-  // Données de démographie
-  const originData = {
-    labels: ['France', 'Royaume-Uni', 'Allemagne', 'États-Unis', 'Italie', 'Espagne', 'Autres'],
-    data: [35, 18, 15, 12, 8, 7, 5]
+
+
+// Référence DOM
+const originChart = ref<HTMLDivElement | null>(null)
+
+// const originData = {
+//   labels: ['France', 'Royaume-Uni', 'Allemagne', 'États-Unis', 'Italie', 'Espagne', 'Autres'],
+//   data: [35, 18, 15, 12, 8, 7, 5],
+// }
+
+
+
+let chartInstance: any = null
+
+const initChart = async () => {
+  await nextTick()
+
+  if (!originChart.value) {
+    console.warn('Élément DOM du graphique non trouvé')
+    return
   }
 
-  // Fonction pour initialiser le graphique
-  const initChart = () => {
-    if (!originChart.value) return
 
-    const ctx = originChart.value.getContext('2d')
-    if (!ctx) return
+  destroyChart()
 
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: originData.labels,
-        datasets: [{
-          data: originData.data,
-          backgroundColor: [
-            'rgba(59, 130, 246, 0.7)',
-            'rgba(245, 158, 11, 0.7)',
-            'rgba(16, 185, 129, 0.7)',
-            'rgba(139, 92, 246, 0.7)',
-            'rgba(239, 68, 68, 0.7)',
-            'rgba(236, 72, 153, 0.7)',
-            'rgba(209, 213, 219, 0.7)'
-          ],
-          borderColor: '#fff',
-          borderWidth: 1
-        }]
+  try {
+    // Créer une nouvelle instance du graphique
+    chartInstance = echarts.init(originChart.value)
+
+    chartInstance.setOption({
+      tooltip: {
+        trigger: 'item',
+        textStyle: { fontWeight: 'bold', color: '#fff' },
+        backgroundColor: 'rgba(17, 24, 39, 0.8)',
+        padding: 12,
+        formatter: (params: any) => {
+          return `${params.name}: ${params.value}%`
+        },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '60%',
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              boxWidth: 12,
-              padding: 15,
-              font: {
-                size: 11
-              }
-            }
+      legend: {
+        orient: 'vertical',
+        right: 10,
+        top: 0,
+        itemWidth: 12,
+        itemHeight: 12,
+        textStyle: {
+          fontSize: 11,
+          padding: [0, 0, 15, 0],
+        },
+      },
+      series: [
+        {
+          name: 'Origine',
+          type: 'pie',
+          radius: ['50%', '80%'],
+          bottom: 50,
+          top: 10,
+          right: 50,
+          avoidLabelOverlap: false,
+          label: {
+            show: false,
           },
-          tooltip: {
-            backgroundColor: 'rgba(17, 24, 39, 0.8)',
-            padding: 12,
-            titleFont: {
-              weight: 'bold'
+          labelLine: {
+            show: false,
+          },
+          data: props.originData.map((entry, index) => ({
+            name: entry.nationality,
+            value: entry.count,
+            itemStyle: {
+              color: [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(245, 158, 11, 0.7)',
+                'rgba(16, 185, 129, 0.7)',
+                'rgba(139, 92, 246, 0.7)',
+                'rgba(239, 68, 68, 0.7)',
+                'rgba(236, 72, 153, 0.7)',
+                'rgba(209, 213, 219, 0.7)',
+              ][index % 7],
             },
-            callbacks: {
-              label: function (context: any) {
-                return `${context.label}: ${context.parsed}%`
-              }
-            }
-          }
-        }
-      }
+          })),
+        },
+      ],
     })
-  }
 
-  // Initialiser à l'affichage
-  onMounted(() => {
+    window.addEventListener('resize', () => {
+      chartInstance?.resize()
+    })
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation du graphique:", error)
+  }
+}
+
+
+onMounted(() => {
+  // Si les données sont déjà prêtes au montage
+  if (props.originData && props.originData.length > 0) {
     initChart()
-  })
-  </script>
+  }
+})
+
+watch(
+  () => props.originData,
+  async (newData:any) => {
+    if (newData && newData.length > 0) {
+      isLoading.value = true
+      await initChart()
+      isLoading.value = false
+    }
+  },
+  { immediate: true }
+)
+
+
+// Détruire l'instance précédente si besoin
+const destroyChart = () => {
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+}
+
+</script>

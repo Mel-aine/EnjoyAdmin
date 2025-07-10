@@ -145,7 +145,7 @@
             >
               {{ $t('filter') }}
             </button>
-            <button
+            <button @click="reset"
               class="h-10 px-4 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               {{ $t('reset') }}
@@ -535,7 +535,7 @@ import {
 import { useServiceStore } from '@/composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import TableComponent from '@/components/tables/TableComponent.vue'
-import { formatDateT } from '@/components/utilities/UtilitiesFunction'
+import { formatDateT,formatCurrency } from '@/components/utilities/UtilitiesFunction'
 
 // État de la page
 const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
@@ -641,13 +641,19 @@ const datePickerConfig = {
   locale: { firstDayOfWeek: 1 },
 }
 
-const statusColors = {
-  paid: 'bg-green-100 text-green-800',
-  unpaid: 'bg-gray-100 text-gray-800',
-  pending: 'bg-yellow-100 text-yellow-800',
-  overdue: 'bg-red-100 text-red-800',
-}
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'paid':
+      return 'bg-green-100 text-green-700'
+    case 'unpaid':
+      return 'bg-red-100 text-red-700'
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-700'
+    default:
+      return 'bg-gray-50 text-gray-700 dark:bg-gray-500/15 dark:text-gray-500'
+  }
+}
 const titles = computed(() => [
   {
     name: 'id',
@@ -655,12 +661,12 @@ const titles = computed(() => [
     type: 'text',
     filterable: false,
   },
-  {
-    name: 'supplierName',
-    label: t('supplier'),
-    type: 'text',
-    filterable: true,
-  },
+  // {
+  //   name: 'supplierName',
+  //   label: t('supplier'),
+  //   type: 'text',
+  //   filterable: true,
+  // },
   {
     name: 'description',
     label: t('Description'),
@@ -673,14 +679,14 @@ const titles = computed(() => [
     type: 'text',
     filterable: true,
   },
+  // {
+  //   name: 'departmentName',
+  //   label: t('department'),
+  //   type: 'text',
+  //   filterable: true,
+  // },
   {
-    name: 'departmentName',
-    label: t('department'),
-    type: 'text',
-    filterable: true,
-  },
-  {
-    name: 'amountBeforeTax',
+    name: 'Amount',
     label: t('Amount'),
     type: 'text',
     filterable: true,
@@ -698,7 +704,7 @@ const titles = computed(() => [
     filterable: true,
   },
   {
-    name: 'status',
+    name: 'statusColor',
     label: t('Status'),
     type: 'badge',
     filterable: false,
@@ -839,11 +845,11 @@ const filteredExpenses = computed(() => {
 
   // Appliquer les filtres supplémentaires
   if (filters.value.category) {
-    result = result.filter((expense) => expense.category === filters.value.category)
+    result = result.filter((expense) => expense.expenseCategoryId === filters.value.category)
   }
 
   if (filters.value.department) {
-    result = result.filter((expense) => expense.department === filters.value.department)
+    result = result.filter((expense) => expense.departmentId === filters.value.department)
   }
 
   if (filters.value.minAmount) {
@@ -855,7 +861,7 @@ const filteredExpenses = computed(() => {
   }
 
   if (filters.value.dateRange) {
-    result = result.filter((expense) => expense.date <= Number(filters.value.dateRange))
+    result = result.filter((expense) => expense.expenseDate <= Number(filters.value.dateRange))
   }
 
   return result
@@ -866,7 +872,19 @@ const fetchExpense = async() =>{
   const serviceId = serviceStore.serviceId
   try{
      const responseExpense = await getExpense(serviceId)
-      expenses.value = responseExpense.data
+      expenses.value = responseExpense.data.map((e:any)=>{
+        const statusClasses = getStatusColor(e.status).split(' ')
+        return {
+          ...e,
+          statusColor: {
+            label: t(`status.${e.status}`),
+            bg: statusClasses[0],
+            text: statusClasses[1],
+          },
+          Amount : formatCurrency(e.amountBeforeTax)
+        }
+      })
+      console.log("expenses.value",expenses.value)
 
   }catch (error) {
     console.error('Erreur lors du chargement des données:', error)
@@ -877,7 +895,6 @@ const fetchExpense = async() =>{
 
 onMounted(()=>{
     fetchExpense()
-
 })
 onMounted(async () => {
   const serviceId = serviceStore.serviceId
@@ -999,4 +1016,12 @@ const confirmDelete = async () => {
     }
   }
 }
+const reset = () =>{
+  filters.value.category = '',
+  filters.value.department = '',
+  filters.value.minAmount= '',
+  filters.value.maxAmount = '',
+  filters.value.dateRange = ''
+}
+watch(locale,fetchExpense)
 </script>
