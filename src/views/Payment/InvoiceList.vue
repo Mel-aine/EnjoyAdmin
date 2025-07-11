@@ -3,18 +3,6 @@
     <AdminLayout>
       <div class="min-h-screen">
           <PageBreadcrumb :pageTitle="currentPageTitle" />
-          <!-- <ag-grid-vue
-              class="ag-theme-quartz"
-              :rowData="Payments"
-              :columnDefs="columnDefs"
-              :rowHeight="50"
-              :rowSelection="'single'"
-              :domLayout="'autoHeight'"
-              :autoSizeStrategy="autoSizeStrategy"
-              :pagination="true"
-              @cellClicked="onCellClick"
-              @gridReady="onGridReady"
-            ></ag-grid-vue> -->
             <TableComponent
               :items="titles"
               :datas="Payments"
@@ -107,12 +95,8 @@
 
 <script setup lang="ts">
 import { ref,onMounted,watch,computed } from 'vue'
-// import { AgGridVue } from 'ag-grid-vue3';
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-// import 'ag-grid-community/styles/ag-grid.css';
-// import 'ag-grid-community/styles/ag-theme-quartz.css';
-// import type { ColDef, GridReadyEvent,ICellRendererParams} from 'ag-grid-community';
 import {getPayment, confirmPayment} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import { useRouter } from 'vue-router'
@@ -161,7 +145,7 @@ const fetchPayment = async () => {
         ...pay,
         Date : formatDateT(pay.paymentDate),
         statusColor: {
-          label: pay.status,
+          label: t(pay.status),
           bg,
           text
         }
@@ -174,7 +158,7 @@ const fetchPayment = async () => {
   }
 };
 
-
+watch(locale,fetchPayment)
 
 
 const getStatusColor = (status: string) => {

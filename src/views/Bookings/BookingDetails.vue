@@ -43,7 +43,7 @@
             class="absolute top-1/2 left-1/2 w-10 h-10 bg-white/10 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-ripple"
           />
           <div class="relative z-10">
-            <div class="text-4xl font-bold mb-2">{{ store.selectedBooking?.totalAmount }} FCFA</div>
+            <div class="text-4xl font-bold mb-2">{{ formatCurrency(store.selectedBooking?.totalAmount) }} </div>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ import { onMounted, ref, computed } from 'vue'
 import DetailCard from '@/components/cards/DetailCard.vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from '@/composables/booking'
-import { formatDateT } from '@/components/utilities/UtilitiesFunction'
+import { formatDateT,formatCurrency } from '@/components/utilities/UtilitiesFunction'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()

@@ -213,63 +213,6 @@
         </div>
       </template>
     </Modal>
-
-    <Modal v-if="showModal" @close="showModal = false">
-      <template #body>
-     <!-- <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"> -->
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false" />
-
-        <div class="relative w-full max-w-4xl max-h-[90vh] overflow-hidden">
-          <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4">
-
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white relative">
-              <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm"></div>
-              <div class="relative z-10 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <User class="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 class="text-xl font-bold">Détails du Client</h2>
-                    <p class="text-blue-100 text-sm">{{ selectedCustomer.userFullName }}</p>
-                  </div>
-                </div>
-                <button @click="showModal = false" class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 backdrop-blur-sm">
-                  <X class="w-5 h-5 text-white" />
-                </button>
-              </div>
-            </div>
-
-            <!-- Content -->
-            <div class="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <InfoCard :label="$t('Email')" :value="selectedCustomer.email" :icon="Mail" />
-                <InfoCard :label="$t('Phone')" :value="selectedCustomer.phoneNumber" :icon="Phone" />
-                <InfoCard :label="$t('ArrivedDate')" :value="formatDate(selectedCustomer.arrivedDate)" :icon="Calendar" />
-                <InfoCard :label="$t('DepartDate')" :value="formatDate(selectedCustomer.departDate)" :icon="Calendar" />
-                <InfoCard label="Type de Réservation" :value="selectedCustomer.reservationType" :icon="User" />
-                <InfoCard :label="$t('personNumber')" :value="selectedCustomer.guestCount" :icon="Users" />
-                <InfoCard :label="$t('TotalPrice')" :value="`${selectedCustomer.totalAmount} FCFA`" :icon="CreditCard" />
-                <InfoCard :label="$t('payment_statut')" :value="selectedCustomer.paymentStatus" :icon="CreditCard" :status="true" />
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <InfoCard :label="$t('Status')" :value="selectedCustomer.status" :icon="User" :status="true" />
-                <InfoCard :label="$t('Comment')" :value="selectedCustomer.comment || 'Aucun commentaire'" :icon="MessageCircle" />
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoCard :label="$t('Createdon')" :value="formatDateTime(selectedCustomer.createdAt)" :icon="Clock" />
-                <InfoCard :label="$t('Modifiedon')" :value="formatDateTime(selectedCustomer.updatedAt)" :icon="Clock" />
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <!-- </div> -->
-        </template>
-        </Modal>
   </div>
 </template>
 
@@ -279,16 +222,6 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import InfoCard from './InfoCard.vue'
-import { X } from 'lucide-vue-next';
-import { User } from 'lucide-vue-next';
-import { Mail } from 'lucide-vue-next';
-import { Phone } from 'lucide-vue-next';
-import { Calendar } from 'lucide-vue-next';
-import { Users } from 'lucide-vue-next';
-import { CreditCard } from 'lucide-vue-next';
-import { MessageCircle } from 'lucide-vue-next';
-import { Clock } from 'lucide-vue-next';
 import { ref, onMounted, computed, watch } from 'vue'
 import { getReservation, getUser } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -296,11 +229,14 @@ import type { userDataType, ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
+import router from '@/router'
+import {useBookingStore} from '@/composables/booking'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
 const showModal = ref(false)
 const loading = ref(false)
+const store = useBookingStore()
 
 const menuItems = computed(() => [
   { label: t('AddCustomers'), onClick: () => (modalOpen.value = true) },
@@ -377,6 +313,8 @@ const handleCustomerAction = (action: string, c: any) => {
     const customer = customers.value.find((cu: any) => cu.id === parseInt(c.id))
     if (customer) {
       selectedCustomer.value = customer
+      router.push({ name: 'CustomerDetails', params: { id: c.id } })
+      store.setCustomer(selectedCustomer.value)
       console.log('selectedCustomer.value:', selectedCustomer.value)
       showModal.value = true
     } else {
@@ -384,6 +322,8 @@ const handleCustomerAction = (action: string, c: any) => {
     }
   }
 }
+
+
 
 const selectedCustomer = ref<any>(null)
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminLayout>
-      <PageBreadcrumb :pageTitle="$t('hotelService')" />
+      <PageBreadcrumb :pageTitle="$t('Department')" />
       <div class="flex justify-end pb-5">
 
         <button
@@ -133,7 +133,7 @@
             :pagination="true"
             :loading="loading"
             :showHeader="true"
-            :title="$t('hotelService')"
+            :title="$t('Department')"
             :pageSize="15"
             :showButtonAllElement="true"
             @edit="onEditDept"
@@ -346,7 +346,7 @@ const fetchDepartment = async () => {
         dept.responsibleUserName = `${responsibleUser.firstName ?? responsibleUser.firstName} ${responsibleUser.lastName ?? responsibleUser.lastName}`;
       } else {
         console.log('No responsible user found for dept:', dept.name);
-        dept.responsibleUserName = 'Unknown';
+        dept.responsibleUserName = t('Unknown');
       }
     });
 
@@ -356,7 +356,7 @@ const fetchDepartment = async () => {
       return {
         ...d,
         statusColor: {
-        label: d.status,
+        label: t(d.status),
         bg: statusClasses[0],
         text: statusClasses[1],
       },
@@ -369,7 +369,7 @@ const fetchDepartment = async () => {
 };
 
 
-
+watch(locale,fetchDepartment)
 
 onMounted(async()=>{
  await fetchUser()

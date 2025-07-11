@@ -1711,5 +1711,37 @@
     "pending": "Pending"
   },
   "Déconnexion de l'application" : "Logout from the application",
-  "Connexion à l'application" : "Login to the application"
+  "Connexion à l'application" : "Login to the application",
+  "checked-in": "Checked-in",
+  "checked-out": "Checked-out",
+  "confirmed" : "Confirmed",
+  "active" :"Active",
+  "AddEvent" : "Add Event",
+  "EditEvent" : "Edit Event",
+  "plan_your" : "Plan your next big moment: schedule or edit an event to stay on track",
+  "event_title" : "Event Title",
+  "event_color" : "Event Color",
+  "enter_start_date" : "Enter Start Date",
+  "enter_end_date" : "Enter End Date",
+  "Close" : "Close",
+  "delete_event" : "Delete Event",
+  "UpdateChanges" : "Update Changes",
+  "Keys" : {
+    "Danger" : "Danger",
+    "Success" : "Success",
+    "Primary" : "Primary",
+    "Warning" : "Warning"
+  },
+  "Unknown" : "Unknown",
+  "no_comment" : "No Comment",
+  "additional_information" : "Additional information",
+  "amount_paid" : "Amount Paid",
+  "final_amount" : "Final Amount",
+  "taxes" : "Taxes",
+  "discount" : "Discount",
+  "TotalAmount" : "Total Amount",
+  "financial_info" : "Financial information",
+  "stay_dates" : "Stay dates",
+  "customer_detail" : "Customer Details",
+  "AddEvent+" : "Add Event +"
 }

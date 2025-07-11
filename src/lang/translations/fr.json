@@ -1711,5 +1711,38 @@
     "pending": "En attente"
   },
   "Déconnexion de l'application" : "Déconnexion de l'application",
-  "Connexion à l'application" : "Connexion à l'application"
+  "Connexion à l'application" : "Connexion à l'application",
+  "checked-in": "Arrivé",
+  "checked-out": "Départ effectué",
+  "confirmed" : "Confirmée",
+  "active" :"Actif",
+  "AddEvent": "Ajouter un événement",
+  "EditEvent": "Modifier l’événement",
+  "plan_your": "Planifiez votre prochain grand moment : créez ou modifiez un événement pour rester organisé",
+  "event_title": "Titre de l’événement",
+  "event_color": "Couleur de l’événement",
+  "enter_start_date": "Entrez la date de début",
+  "enter_end_date": "Entrez la date de fin",
+  "Close": "Fermer",
+  "delete_event": "Supprimer l’événement",
+  "UpdateChanges": "Mettre à jour les modifications",
+  "Keys": {
+    "Danger": "Danger",
+    "Success": "Succès",
+    "Primary": "Principal",
+    "Warning": "Avertissement"
+  },
+  "Unknown": "Inconnu",
+  "no_comment": "Aucun commentaire",
+  "additional_information": "Informations supplémentaires",
+  "amount_paid": "Montant payé",
+  "final_amount": "Montant final",
+  "taxes": "Taxes",
+  "discount": "Remise",
+  "TotalAmount": "Montant total",
+  "financial_info": "Informations financières",
+  "stay_dates": "Dates de séjour",
+  "customer_detail": "Détails du client",
+  "AddEvent+" : "Ajouter un événement +"
+
 }
