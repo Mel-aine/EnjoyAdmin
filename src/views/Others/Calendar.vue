@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <PageBreadcrumb :pageTitle="currentPageTitle" />
+    <PageBreadcrumb :pageTitle="$t('Calendar')" />
     <div
       class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
     >
@@ -17,16 +17,16 @@
             <h5
               class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl"
             >
-              {{ selectedEvent ? 'Edit Event' : 'Add Event' }}
+              {{ selectedEvent ? $t('EditEvent') : $t('AddEvent') }}
             </h5>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Plan your next big moment: schedule or edit an event to stay on track
+              {{ $t('plan_your') }}
             </p>
 
             <div class="mt-8">
               <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Title
+                  {{ $t('event_title') }}
                 </label>
                 <input
                   v-model="eventTitle"
@@ -37,7 +37,7 @@
 
               <div class="mt-6">
                 <label class="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Color
+                  {{ $t('event_color') }}
                 </label>
                 <div class="flex flex-wrap items-center gap-4 sm:gap-5">
                   <div v-for="(value, key) in calendarsEvents" :key="key" class="n-chk">
@@ -61,7 +61,7 @@
                             <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent"></span>
                           </span>
                         </span>
-                        {{ key }}
+                        {{ t(`Keys.${key}`) }}
                       </label>
                     </div>
                   </div>
@@ -70,7 +70,7 @@
 
               <div class="mt-6">
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter Start Date
+                 {{ $t('enter_start_date') }}
                 </label>
                 <input
                   v-model="eventStartDate"
@@ -81,7 +81,7 @@
 
               <div class="mt-6">
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter End Date
+                  {{ $t('enter_end_date') }}
                 </label>
                 <input
                   v-model="eventEndDate"
@@ -96,21 +96,21 @@
                 @click="closeModal"
                 class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
               >
-                Close
+                {{ $t('Close') }}
               </button>
 
               <button
                 @click="handleAddOrUpdateEvent"
                 class="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
               >
-                {{ selectedEvent ? 'Update Changes' : 'Add Event' }}
+                {{ selectedEvent ? $t('UpdateChanges') : $t('AddEvent') }}
               </button>
               <button
                 v-if="selectedEvent"
                 @click="handleDeleteEvent"
                 class="flex w-full justify-center rounded-lg border border-error-500 bg-error-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-error-600 sm:w-auto"
               >
-                Delete Event
+                {{ $t('delete_event') }}
               </button>
             </div>
           </div>
@@ -224,9 +224,11 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { getReservation,getUser,getServiceProduct,deleteReservation} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import type {ReservationType,userDataType,ServiceProductType} from '@/types/option'
+import frLocale from '@fullcalendar/core/locales/fr';
 
-const currentPageTitle = ref('Calendar')
-import { ref, reactive, onMounted,computed } from 'vue'
+
+// const currentPageTitle = ref('Calendar')
+import { ref, reactive, onMounted,computed,watch } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -237,7 +239,7 @@ import 'tippy.js/dist/tippy.css';
 import { useI18n } from "vue-i18n";
 
 
-const calendarRef = ref(null)
+const calendarRef = ref<any>(null)
 const isOpen = ref(false)
 const selectedEvent = ref<any>(null)
 const eventTitle = ref('')
@@ -245,7 +247,7 @@ const eventStartDate = ref('')
 const eventEndDate = ref('')
 const eventLevel = ref('')
 // const events = ref<any[]>([])
-  const { t } = useI18n();
+  const { t,locale } = useI18n();
 const serviceStore = useServiceStore();
 
 const calendarsEvents = reactive({
@@ -521,6 +523,8 @@ const renderEventContent = (eventInfo: any) => {
 
 
 const calendarOptions = reactive({
+  locale: locale.value,
+  locales: [frLocale],
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
   headerToolbar: {
@@ -538,7 +542,7 @@ const calendarOptions = reactive({
   eventClassNames: (arg: any) => ['text-sm', 'rounded', 'shadow', 'px-2', 'py-1'],
   customButtons: {
     addEventButton: {
-      text: 'Add Event +',
+      text: t('AddEvent+'),
       click: openModal,
     },
   },
@@ -587,6 +591,12 @@ const handleTooltip = (info: any) => {
   });
 };
 
+watch(locale, (newLocale:any) => {
+  const calendarApi = calendarRef.value?.getApi()
+  if (calendarApi) {
+    calendarApi.setOption('locale', newLocale)
+  }
+})
 
 </script>
 

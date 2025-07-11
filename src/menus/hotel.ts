@@ -50,7 +50,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         },
         {
           icon: Building2,
-          name: t('hotelService'),
+          name: t('Department'),
           path: '/department',
           permission: 'departments_view',
         },

@@ -158,7 +158,7 @@ const menuItems = computed(() => [
 ])
 const selectedRoomType = ref<any>(null)
 const isEditMode = ref(false)
-const status = ref([
+const status = computed(()=>[
   { value: 'active', label: t('Active') },
   { value: 'inactive', label: t('Inactive') },
 ])
@@ -331,7 +331,7 @@ const fetchRoomType = async () => {
         return {
           ...i,
           statusColor: {
-            label: i.status,
+            label: t(i.status),
             bg: statusClasses[0],
             text: statusClasses[1],
           },
@@ -344,6 +344,8 @@ const fetchRoomType = async () => {
     console.error('Erreur lors de la récupération des options:', error)
   }
 }
+
+watch(locale,fetchRoomType)
 
 onMounted(async () => {
   await fetchRoomType()

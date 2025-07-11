@@ -6,10 +6,12 @@ export const useBookingStore = defineStore('booking', {
   state: () => ({
     selectedRoom: null,
     selectedBooking: null as any | null,
+    selectedCustomer: null as any | null,
     isFromRoomCard: false,
   }),
    getters: {
     getBooking: (state) => state.selectedBooking,
+    getCustomer: (state) => state.selectedCustomer,
     getRoom: (state) => state.selectedRoom
   },
   actions: {
@@ -19,6 +21,9 @@ export const useBookingStore = defineStore('booking', {
     },
     setBooking(reservation:any) {
       this.selectedBooking = reservation
+    },
+    setCustomer(customer:any) {
+      this.selectedCustomer = customer
     },
     clearRoom() {
     this.selectedRoom = null

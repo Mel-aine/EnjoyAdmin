@@ -236,7 +236,7 @@ import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 
-const { t } = useI18n()
+const { t ,locale } = useI18n()
 const serviceStore = useServiceStore()
 const userStore = useAuthStore()
 const isLoading = ref(false)
@@ -263,7 +263,7 @@ const formData = ref<any>({
   roomType:null,
   options: {} as Record<number, any>,
 })
-const status = ref([
+const status = computed(()=>[
   { value: 'available', label: t('Available') },
   { value: 'maintenance', label: t('Maintenance') },
   { value: 'occupied', label: t('Occupied') },
@@ -491,7 +491,7 @@ const flattenServiceProducts = computed(() => {
     const flatProduct: ProductOptionType = {
       ...product,
       statusColor: {
-        label: product.status,
+        label: t(product.status),
         bg: statusClasses[0],
         text: statusClasses[1],
       },
@@ -512,6 +512,9 @@ const flattenServiceProducts = computed(() => {
 //   type: "fitGridWidth",
 //   defaultMinWidth: 140,
 // }
+
+watch(locale,fetchServiceProduct )
+
 
 const titles = computed(() => [
   {

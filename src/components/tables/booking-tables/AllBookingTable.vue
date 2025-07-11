@@ -77,6 +77,15 @@ const fetchServiceProduct = async () => {
 
 const reservations = ref<ReservationType[]>([])
 
+const safeTranslate = (key: string) => {
+  try {
+    return t?.(key) || key
+  } catch (e) {
+    console.warn('Translation error:', e)
+    return key
+  }
+}
+
 const fetchReservation = async () => {
   try {
     const serviceId = serviceStore.serviceId
@@ -99,12 +108,12 @@ const fetchReservation = async () => {
           phone:user?.phoneNumber || '',
           userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
           statusColor: {
-            label: res.status,
+            label: safeTranslate(res.status),
             bg: statusClasses[0],
             text: statusClasses[1],
           },
           paymentStatusColor: {
-            label: res.paymentStatus,
+            label: safeTranslate(res.paymentStatus),
             bg: paymentClasses[0],
             text: paymentClasses[1],
           },
@@ -120,6 +129,8 @@ const fetchReservation = async () => {
     console.error('fetch failed:', error)
   }
 }
+
+watch(locale,fetchReservation)
 
 onMounted(async () => {
   await fetchUsers()
