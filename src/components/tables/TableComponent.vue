@@ -1,6 +1,6 @@
 <template>
 
-  <div class="sm:max-w-md md:max-w-6xl lg:max-w-full w-full mx-auto px-2">
+  <div class=" md:max-w-7xl lg:max-w-full w-full mx-auto px-2">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden  ">
     <!-- Header avec recherche et filtres -->
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
@@ -335,39 +335,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Pagination
-    <div
-      v-if="pagination && filteredData.length > pageSize"
-      class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700"
-    >
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="text-sm text-gray-700 dark:text-gray-300">
-          {{ $t('showing') }} {{ ((currentPage - 1) * pageSize) + 1 }} {{ $t('to') }} {{ Math.min(currentPage * pageSize, filteredData.length) }}
-          {{ $t('of') }} {{ filteredData.length }} {{ $t('results') }}
-        </div>
-
-
-        <div class="flex gap-2">
-          <button
-            :disabled="currentPage === 1"
-            @click="changePage(currentPage - 1)"
-            class="px-3 py-1 rounded border text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50"
-          >
-            {{ $t('previous') }}
-          </button>
-
-          <button
-            :disabled="currentPage >= totalPages"
-            @click="changePage(currentPage + 1)"
-            class="px-3 py-1 rounded border text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50"
-          >
-            {{ $t('next') }}
-          </button>
-        </div>
-      </div>
-    </div>-->
-
   </div>
 </div>
 </template>

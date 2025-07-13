@@ -60,3 +60,21 @@ export const formatDateT = (dt:any) => {
     minimumFractionDigits: 0
   }).format(value) // Optional: replace 'XOF' with 'FCFA'
 }   
+
+/**
+ * Generates a unique transaction ID with a prefix.
+ * Format: PREFIX-YYYYMMDD-RANDOM_ALPHANUM
+ * @param {string} [prefix='TR'] - A short prefix for the transaction ID.
+ * @returns {string} A unique transaction ID, e.g., "PAY-20231027-4B9A1X".
+ */
+export function generateTransactionId(prefix = 'PAY') {
+  const date = new Date();
+  const datePart = date.getFullYear().toString() +
+                   (date.getMonth() + 1).toString().padStart(2, '0') +
+                   date.getDate().toString().padStart(2, '0');
+
+  // Generates a 6-character random alphanumeric string
+  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+  return `${prefix}-${datePart}-${randomPart}`;
+}

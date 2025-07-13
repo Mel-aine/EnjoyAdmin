@@ -122,7 +122,7 @@ const fetchReservation = async () => {
       }),
     )
 
-    reservations.value.sort((a: any, b: any) => a.userFullName.localeCompare(b.userFullName))
+    reservations.value.sort((a: any, b: any) => b.createdAt.localeCompare(a.createdAt))
 
     console.log('.....reservation', reservations.value)
   } catch (error) {
@@ -281,7 +281,7 @@ const handleBookingAction = (action: string, booking: any) => {
     modalShow.value = true
   } else if (action === 'view') {
      selectedReservation.value = reservations.value.find((r: any) => r.id === Number(booking.id))
-    router.push({ name: 'BookingDetails', params: { id: booking.id } })
+    router.push({ name: 'reservationDetails', params: { id: booking.id } })
     store.setBooking(selectedReservation.value)
 
     console.log('selectedReservation.value:', selectedReservation.value)

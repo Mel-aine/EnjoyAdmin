@@ -32,6 +32,7 @@ export interface ProductType {
   customizationAllowed:boolean
   paymentType:string
   status:string
+  productTypeId:number
 }
 
 export interface ProductOptionType {
@@ -55,7 +56,14 @@ export interface RoomTypeData{
   defaultGuest: number;
   extraGuestPrice: number;
   defaultDeposit: number;
+  id: number;
+  label :number
 }
+
+export interface Payment {
+  paymentMethods: { label: string; value: string }[];
+}
+
 
 export interface  ReservationType{
   id:number
@@ -94,6 +102,8 @@ export interface userDataType  {
   email: string
   phoneNumber: string
   roleId: number | null
+  companyName?: string
+  groupName?: string
 }
 
 
