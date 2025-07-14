@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="">
     <AdminLayout>
       <PageBreadcrumb :pageTitle="currentPageTitle" />
@@ -17,13 +17,13 @@
         </DropdownMenu>
       </div>
       <div class="h-screen">
-        <!-- <ComponentCard :title="$t('AllRoomType')"> -->
+
         <div class="space-y-5 sm:space-y-6 mt-10">
           <TableComponent :items="titles" :datas="roomTypeData" :filterable="true" :pagination="true" :loading="loading"
             :showHeader="true" :title="$t('AllRoomType')" :pageSize="15" :showButtonAllElement="true"
             @edit="onEditRoomType" @delete="onDeleteRoomType" class="modern-table" />
         </div>
-        <!-- </ComponentCard> -->
+
       </div>
     </AdminLayout>
 
@@ -31,7 +31,7 @@
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-          <!-- close btn -->
+
           <button @click="closeModal"
             class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
             <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -529,4 +529,1725 @@ const importDefaultDefaults = async () => {
 
 <style scoped>
 /* Add any additional styles here if needed */
+</style> -->
+<template>
+  <div class="p-6 max-w-7xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+        <h1 class="text-3xl font-bold">Gestion des Chambres</h1>
+        <p class="text-blue-100 mt-2">Gérez vos chambres, types et équipements</p>
+      </div>
+
+      <!-- Actions principales -->
+      <div class="p-6 border-b">
+        <div class="flex flex-wrap gap-4 mb-6">
+          <button
+            @click="showAddRoomModal = true"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <span>+</span> Nouvelle Chambre
+          </button>
+          <button
+            @click="showAddRoomTypeModal = true"
+            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <span>+</span> Nouveau Type
+          </button>
+          <button
+            @click="exportRooms"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            📊 Exporter
+          </button>
+          <input
+            type="file"
+            @change="importRooms"
+            accept=".csv"
+            class="hidden"
+            ref="fileInput"
+          >
+          <button
+            @click="$refs.fileInput.click()"
+            class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            📥 Importer
+          </button>
+        </div>
+
+        <!-- Filtres et recherche -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Recherche par numéro</label>
+            <input
+              v-model="searchNumber"
+              type="text"
+              placeholder="Ex: 101"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Type de chambre</label>
+            <select
+              v-model="filterType"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Tous les types</option>
+              <option v-for="type in roomTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+            <select
+              v-model="filterStatus"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Tous les statuts</option>
+              <option v-for="status in roomStatuses" :key="status" :value="status">{{ status }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Équipements</label>
+            <select
+              v-model="filterEquipment"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Tous les équipements</option>
+              <option v-for="equipment in allEquipments" :key="equipment" :value="equipment">{{ equipment }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglets -->
+      <div class="border-b">
+        <nav class="flex space-x-8 px-6">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="[
+              'py-4 px-1 border-b-2 font-medium text-sm',
+              activeTab === tab.id
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            ]"
+          >
+            {{ tab.name }}
+          </button>
+        </nav>
+      </div>
+
+      <!-- Contenu des onglets -->
+      <div class="p-6">
+        <!-- Onglet Chambres -->
+        <div v-if="activeTab === 'rooms'">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div
+              v-for="room in filteredRooms"
+              :key="room.id"
+              class="bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow"
+            >
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-3">
+                  <h3 class="text-lg font-semibold text-gray-800">{{ room.number }}</h3>
+                  <span
+                    :class="getStatusClass(room.status)"
+                    class="px-2 py-1 text-xs font-medium rounded-full"
+                  >
+                    {{ room.status }}
+                  </span>
+                </div>
+
+                <div class="space-y-2 text-sm text-gray-600">
+                  <p><strong>Type:</strong> {{ getRoomTypeName(room.typeId) }}</p>
+                  <p><strong>Capacité:</strong> {{ room.capacity }} personnes</p>
+                  <p><strong>Étage:</strong> {{ room.floor }}</p>
+                  <p v-if="room.equipment.length"><strong>Équipements:</strong> {{ room.equipment.join(', ') }}</p>
+                  <p v-if="room.notes"><strong>Notes:</strong> {{ room.notes }}</p>
+                  <p v-if="room.maintenanceUntil"><strong>Maintenance jusqu'au:</strong> {{ formatDate(room.maintenanceUntil) }}</p>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <button
+                    @click="editRoom(room)"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                  >
+                    Modifier
+                  </button>
+                  <button
+                    @click="changeRoomStatus(room)"
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                  >
+                    Statut
+                  </button>
+                  <button
+                    @click="deleteRoom(room)"
+                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Types de chambres -->
+        <div v-if="activeTab === 'types'">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              v-for="type in roomTypes"
+              :key="type.id"
+              class="bg-white border rounded-lg shadow-md p-6"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">{{ type.name }}</h3>
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                  {{ getRoomCountByType(type.id) }} chambres
+                </span>
+              </div>
+
+              <div class="space-y-2 text-sm text-gray-600">
+                <p><strong>Capacité max:</strong> {{ type.maxCapacity }} personnes</p>
+                <p><strong>Équipements:</strong> {{ type.equipment.join(', ') }}</p>
+                <p v-if="type.description"><strong>Description:</strong> {{ type.description }}</p>
+              </div>
+
+              <div class="mt-4 flex gap-2">
+                <button
+                  @click="editRoomType(type)"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                >
+                  Modifier
+                </button>
+                <button
+                  @click="deleteRoomType(type)"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Historique -->
+        <div v-if="activeTab === 'history'">
+          <div class="bg-white rounded-lg border">
+            <div class="overflow-x-auto">
+              <table class="min-w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chambre</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ancien statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nouveau statut</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr v-for="entry in statusHistory" :key="entry.id">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatDate(entry.timestamp) }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ entry.roomNumber }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ entry.action }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ entry.oldStatus }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ entry.newStatus }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Ajout/Modification Chambre -->
+    <div v-if="showAddRoomModal || showEditRoomModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">
+          {{ showAddRoomModal ? 'Nouvelle Chambre' : 'Modifier Chambre' }}
+        </h3>
+
+        <form @submit.prevent="showAddRoomModal ? addRoom() : updateRoom()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de chambre *</label>
+              <input
+                v-model="roomForm.number"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+              <select
+                v-model="roomForm.typeId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Sélectionner un type</option>
+                <option v-for="type in roomTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Capacité *</label>
+              <input
+                v-model.number="roomForm.capacity"
+                type="number"
+                min="1"
+                max="10"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Étage *</label>
+              <input
+                v-model.number="roomForm.floor"
+                type="number"
+                min="0"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Équipements</label>
+              <div class="flex flex-wrap gap-2">
+                <label v-for="equipment in allEquipments" :key="equipment" class="flex items-center">
+                  <input
+                    type="checkbox"
+                    :value="equipment"
+                    v-model="roomForm.equipment"
+                    class="mr-2"
+                  >
+                  {{ equipment }}
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Notes internes</label>
+              <textarea
+                v-model="roomForm.notes"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <button
+              type="submit"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              {{ showAddRoomModal ? 'Ajouter' : 'Modifier' }}
+            </button>
+            <button
+              type="button"
+              @click="closeRoomModal()"
+              class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Ajout/Modification Type -->
+    <div v-if="showAddRoomTypeModal || showEditRoomTypeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">
+          {{ showAddRoomTypeModal ? 'Nouveau Type' : 'Modifier Type' }}
+        </h3>
+
+        <form @submit.prevent="showAddRoomTypeModal ? addRoomType() : updateRoomType()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nom du type *</label>
+              <input
+                v-model="roomTypeForm.name"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Capacité maximale *</label>
+              <input
+                v-model.number="roomTypeForm.maxCapacity"
+                type="number"
+                min="1"
+                max="10"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                v-model="roomTypeForm.description"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Équipements inclus</label>
+              <div class="flex flex-wrap gap-2">
+                <label v-for="equipment in allEquipments" :key="equipment" class="flex items-center">
+                  <input
+                    type="checkbox"
+                    :value="equipment"
+                    v-model="roomTypeForm.equipment"
+                    class="mr-2"
+                  >
+                  {{ equipment }}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <button
+              type="submit"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              {{ showAddRoomTypeModal ? 'Ajouter' : 'Modifier' }}
+            </button>
+            <button
+              type="button"
+              @click="closeRoomTypeModal()"
+              class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Changement de statut -->
+    <div v-if="showStatusModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Changer le statut</h3>
+
+        <form @submit.prevent="updateRoomStatus()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Chambre</label>
+              <input
+                :value="selectedRoom?.number"
+                readonly
+                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Statut actuel</label>
+              <input
+                :value="selectedRoom?.status"
+                readonly
+                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nouveau statut</label>
+              <select
+                v-model="newStatus"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Sélectionner un statut</option>
+                <option v-for="status in roomStatuses" :key="status" :value="status">{{ status }}</option>
+              </select>
+            </div>
+
+            <div v-if="newStatus === 'En maintenance'">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Maintenance jusqu'au</label>
+              <input
+                v-model="maintenanceUntil"
+                type="date"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <button
+              type="submit"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              Confirmer
+            </button>
+            <button
+              type="button"
+              @click="showStatusModal = false"
+              class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+
+// Types
+interface Room {
+  id: string
+  number: string
+  typeId: string
+  capacity: number
+  floor: number
+  status: string
+  equipment: string[]
+  notes?: string
+  maintenanceUntil?: string
+  hasActiveReservation?: boolean
+}
+
+interface RoomType {
+  id: string
+  name: string
+  maxCapacity: number
+  description?: string
+  equipment: string[]
+}
+
+interface StatusHistoryEntry {
+  id: string
+  roomNumber: string
+  action: string
+  oldStatus: string
+  newStatus: string
+  timestamp: Date
+}
+
+// Data reactive
+const rooms = ref<Room[]>([])
+const roomTypes = ref<RoomType[]>([])
+const statusHistory = ref<StatusHistoryEntry[]>([])
+
+// États des modals
+const showAddRoomModal = ref(false)
+const showEditRoomModal = ref(false)
+const showAddRoomTypeModal = ref(false)
+const showEditRoomTypeModal = ref(false)
+const showStatusModal = ref(false)
+
+// Formulaires
+const roomForm = ref<Partial<Room>>({
+  number: '',
+  typeId: '',
+  capacity: 1,
+  floor: 0,
+  equipment: [],
+  notes: ''
+})
+
+const roomTypeForm = ref<Partial<RoomType>>({
+  name: '',
+  maxCapacity: 2,
+  description: '',
+  equipment: []
+})
+
+// Filtres et recherche
+const searchNumber = ref('')
+const filterType = ref('')
+const filterStatus = ref('')
+const filterEquipment = ref('')
+const activeTab = ref('rooms')
+
+// Changement de statut
+const selectedRoom = ref<Room | null>(null)
+const newStatus = ref('')
+const maintenanceUntil = ref('')
+
+// Constantes
+const roomStatuses = ['Disponible', 'Occupée', 'À nettoyer', 'Propre', 'En maintenance', 'Hors service']
+const allEquipments = ['WiFi', 'Climatisation', 'Minibar', 'Télévision', 'Balcon', 'Vue mer', 'Jacuzzi', 'Kitchenette']
+
+const tabs = [
+  { id: 'rooms', name: 'Chambres' },
+  { id: 'types', name: 'Types' },
+  { id: 'history', name: 'Historique' }
+]
+
+// Computed
+const filteredRooms = computed(() => {
+  let filtered = rooms.value
+
+  if (searchNumber.value) {
+    filtered = filtered.filter(room =>
+      room.number.toLowerCase().includes(searchNumber.value.toLowerCase())
+    )
+  }
+
+  if (filterType.value) {
+    filtered = filtered.filter(room => room.typeId === filterType.value)
+  }
+
+  if (filterStatus.value) {
+    filtered = filtered.filter(room => room.status === filterStatus.value)
+  }
+
+  if (filterEquipment.value) {
+    filtered = filtered.filter(room =>
+      room.equipment.includes(filterEquipment.value)
+    )
+  }
+
+  return filtered
+})
+
+// Méthodes
+const initializeData = () => {
+  // Types de chambres par défaut
+  roomTypes.value = [
+    {
+      id: 'standard',
+      name: 'Standard',
+      maxCapacity: 2,
+      description: 'Chambre standard avec équipements de base',
+      equipment: ['WiFi', 'Climatisation', 'Télévision']
+    },
+    {
+      id: 'suite',
+      name: 'Suite',
+      maxCapacity: 4,
+      description: 'Suite luxueuse avec salon séparé',
+      equipment: ['WiFi', 'Climatisation', 'Télévision', 'Minibar', 'Jacuzzi']
+    },
+    {
+      id: 'familiale',
+      name: 'Chambre Familiale',
+      maxCapacity: 6,
+      description: 'Chambre spacieuse pour familles',
+      equipment: ['WiFi', 'Climatisation', 'Télévision', 'Kitchenette']
+    }
+  ]
+
+  // Chambres par défaut
+  rooms.value = [
+    {
+      id: '1',
+      number: '101',
+      typeId: 'standard',
+      capacity: 2,
+      floor: 1,
+      status: 'Disponible',
+      equipment: ['WiFi', 'Climatisation', 'Télévision'],
+      hasActiveReservation: true
+    },
+    {
+      id: '2',
+      number: '102',
+      typeId: 'standard',
+      capacity: 2,
+      floor: 1,
+      status: 'Propre',
+      equipment: ['WiFi', 'Climatisation', 'Télévision']
+    },
+    {
+      id: '3',
+      number: '201',
+      typeId: 'suite',
+      capacity: 4,
+      floor: 2,
+      status: 'Disponible',
+      equipment: ['WiFi', 'Climatisation', 'Télévision', 'Minibar', 'Vue mer']
+    },
+    {
+      id: '4',
+      number: '202',
+      typeId: 'suite',
+      capacity: 4,
+      floor: 2,
+      status: 'En maintenance',
+      equipment: ['WiFi', 'Climatisation', 'Télévision', 'Minibar'],
+      maintenanceUntil: '2025-07-25'
+    },
+    {
+      id: '5',
+      number: '301',
+      typeId: 'familiale',
+      capacity: 6,
+      floor: 3,
+      status: 'Propre',
+      equipment: ['WiFi', 'Climatisation', 'Télévision', 'Kitchenette']
+    },
+    {
+      id: '6',
+      number: '305',
+      typeId: 'standard',
+      capacity: 2,
+      floor: 3,
+      status: 'Disponible',
+      equipment: ['WiFi', 'Climatisation', 'Télévision']
+    },
+    {
+      id: '7',
+      number: '401',
+      typeId: 'suite',
+      capacity: 4,
+      floor: 4,
+      status: 'Hors service',
+      equipment: ['WiFi', 'Climatisation', 'Télévision', 'Minibar']
+    }
+  ]
+}
+
+const getRoomTypeName = (typeId: string) => {
+  const type = roomTypes.value.find(t => t.id === typeId)
+  return type ? type.name : 'Type inconnu'
+}
+
+const getRoomCountByType = (typeId: string) => {
+  return rooms.value.filter(room => room.typeId === typeId).length
+}
+
+const getStatusClass = (status: string) => {
+  const classes = {
+    'Disponible': 'bg-green-100 text-green-800',
+    'Occupée': 'bg-red-100 text-red-800',
+    'À nettoyer': 'bg-yellow-100 text-yellow-800',
+    'Propre': 'bg-blue-100 text-blue-800',
+    'En maintenance': 'bg-purple-100 text-purple-800',
+    'Hors service': 'bg-gray-100 text-gray-800'
+  }
+  return classes[status as keyof typeof classes] || 'bg-gray-100 text-gray-800'
+}
+
+const formatDate = (date: string | Date) => {
+  if (!date) return ''
+  const d = new Date(date)
+  return d.toLocaleDateString('fr-FR')
+}
+
+const generateId = () => {
+  return Date.now().toString() + Math.random().toString(36).substr(2, 9)
+}
+
+// Gestion des chambres
+const addRoom = () => {
+  // Validation de l'unicité du numéro
+  if (rooms.value.some(room => room.number === roomForm.value.number)) {
+    alert('Ce numéro de chambre existe déjà!')
+    return
+  }
+
+  // Validation de la capacité selon le type
+  const roomType = roomTypes.value.find(t => t.id === roomForm.value.typeId)
+  if (roomType && roomForm.value.capacity! > roomType.maxCapacity) {
+    alert(`La capacité ne peut pas dépasser ${roomType.maxCapacity} pour ce type de chambre`)
+    return
+  }
+
+  const newRoom: Room = {
+    id: generateId(),
+    number: roomForm.value.number!,
+    typeId: roomForm.value.typeId!,
+    capacity: roomForm.value.capacity!,
+    floor: roomForm.value.floor!,
+    status: 'Disponible',
+    equipment: [...roomForm.value.equipment!],
+    notes: roomForm.value.notes
+  }
+
+  rooms.value.push(newRoom)
+
+  // Ajouter à l'historique
+  statusHistory.value.push({
+    id: generateId(),
+    roomNumber: newRoom.number,
+    action: 'Création',
+    oldStatus: '',
+    newStatus: 'Disponible',
+    timestamp: new Date()
+  })
+
+  closeRoomModal()
+  alert('Chambre ajoutée avec succès!')
+}
+
+const editRoom = (room: Room) => {
+  selectedRoom.value = room
+  roomForm.value = { ...room }
+  showEditRoomModal.value = true
+}
+
+const updateRoom = () => {
+  if (!selectedRoom.value) return
+
+  // Validation de l'unicité du numéro (exclure la chambre actuelle)
+  if (rooms.value.some(room => room.number === roomForm.value.number && room.id !== selectedRoom.value!.id)) {
+    alert('Ce numéro de chambre existe déjà!')
+    return
+  }
+
+  // Validation de la capacité selon le type
+  const roomType = roomTypes.value.find(t => t.id === roomForm.value.typeId)
+  if (roomType && roomForm.value.capacity! > roomType.maxCapacity) {
+    alert(`La capacité ne peut pas dépasser ${roomType.maxCapacity} pour ce type de chambre`)
+    return
+  }
+
+  const index = rooms.value.findIndex(r => r.id === selectedRoom.value!.id)
+  if (index !== -1) {
+    rooms.value[index] = { ...rooms.value[index], ...roomForm.value }
+
+    // Ajouter à l'historique
+    statusHistory.value.push({
+      id: generateId(),
+      roomNumber: rooms.value[index].number,
+      action: 'Modification',
+      oldStatus: selectedRoom.value.status,
+      newStatus: rooms.value[index].status,
+      timestamp: new Date()
+    })
+  }
+
+  closeRoomModal()
+  alert('Chambre modifiée avec succès!')
+}
+
+const deleteRoom = (room: Room) => {
+  // Vérifier s'il y a une réservation active
+  if (room.hasActiveReservation) {
+    alert('Impossible de supprimer une chambre avec une réservation active!')
+    return
+  }
+
+  if (confirm(`Êtes-vous sûr de vouloir supprimer la chambre ${room.number}?`)) {
+    const index = rooms.value.findIndex(r => r.id === room.id)
+    if (index !== -1) {
+      rooms.value.splice(index, 1)
+
+      // Ajouter à l'historique
+      statusHistory.value.push({
+        id: generateId(),
+        roomNumber: room.number,
+        action: 'Suppression',
+        oldStatus: room.status,
+        newStatus: '',
+        timestamp: new Date()
+      })
+
+      alert('Chambre supprimée avec succès!')
+    }
+  }
+}
+
+const changeRoomStatus = (room: Room) => {
+  selectedRoom.value = room
+  newStatus.value = ''
+  maintenanceUntil.value = ''
+  showStatusModal.value = true
+}
+
+const updateRoomStatus = () => {
+  if (!selectedRoom.value || !newStatus.value) return
+
+  const oldStatus = selectedRoom.value.status
+  const index = rooms.value.findIndex(r => r.id === selectedRoom.value!.id)
+
+  if (index !== -1) {
+    rooms.value[index].status = newStatus.value
+
+    // Gérer la maintenance
+    if (newStatus.value === 'En maintenance' && maintenanceUntil.value) {
+      rooms.value[index].maintenanceUntil = maintenanceUntil.value
+    } else if (newStatus.value !== 'En maintenance') {
+      delete rooms.value[index].maintenanceUntil
+    }
+
+    // Ajouter à l'historique
+    statusHistory.value.push({
+      id: generateId(),
+      roomNumber: selectedRoom.value.number,
+      action: 'Changement de statut',
+      oldStatus,
+      newStatus: newStatus.value,
+      timestamp: new Date()
+    })
+  }
+
+  showStatusModal.value = false
+  alert('Statut mis à jour avec succès!')
+}
+
+// Gestion des types de chambres
+const addRoomType = () => {
+  // Validation de l'unicité du nom
+  if (roomTypes.value.some(type => type.name === roomTypeForm.value.name)) {
+    alert('Ce nom de type existe déjà!')
+    return
+  }
+
+  const newType: RoomType = {
+    id: generateId(),
+    name: roomTypeForm.value.name!,
+    maxCapacity: roomTypeForm.value.maxCapacity!,
+    description: roomTypeForm.value.description,
+    equipment: [...roomTypeForm.value.equipment!]
+  }
+
+  roomTypes.value.push(newType)
+  closeRoomTypeModal()
+  alert('Type de chambre ajouté avec succès!')
+}
+
+const editRoomType = (type: RoomType) => {
+  selectedRoom.value = null
+  roomTypeForm.value = { ...type }
+  showEditRoomTypeModal.value = true
+}
+
+const updateRoomType = () => {
+  if (!roomTypeForm.value.id) return
+
+  // Validation de l'unicité du nom (exclure le type actuel)
+  if (roomTypes.value.some(type => type.name === roomTypeForm.value.name && type.id !== roomTypeForm.value.id)) {
+    alert('Ce nom de type existe déjà!')
+    return
+  }
+
+  const index = roomTypes.value.findIndex(t => t.id === roomTypeForm.value.id)
+  if (index !== -1) {
+    roomTypes.value[index] = { ...roomTypeForm.value } as RoomType
+
+    // Mettre à jour les équipements des chambres de ce type
+    rooms.value.forEach(room => {
+      if (room.typeId === roomTypeForm.value.id) {
+        // Ajouter les nouveaux équipements du type s'ils ne sont pas déjà présents
+        roomTypeForm.value.equipment!.forEach(equipment => {
+          if (!room.equipment.includes(equipment)) {
+            room.equipment.push(equipment)
+          }
+        })
+      }
+    })
+  }
+
+  closeRoomTypeModal()
+  alert('Type de chambre modifié avec succès!')
+}
+
+const deleteRoomType = (type: RoomType) => {
+  // Vérifier s'il y a des chambres associées
+  const associatedRooms = rooms.value.filter(room => room.typeId === type.id)
+  if (associatedRooms.length > 0) {
+    alert(`Impossible de supprimer ce type car ${associatedRooms.length} chambre(s) l'utilise(nt)!`)
+    return
+  }
+
+  if (confirm(`Êtes-vous sûr de vouloir supprimer le type "${type.name}"?`)) {
+    const index = roomTypes.value.findIndex(t => t.id === type.id)
+    if (index !== -1) {
+      roomTypes.value.splice(index, 1)
+      alert('Type supprimé avec succès!')
+    }
+  }
+}
+
+// Gestion des modals
+const closeRoomModal = () => {
+  showAddRoomModal.value = false
+  showEditRoomModal.value = false
+  roomForm.value = {
+    number: '',
+    typeId: '',
+    capacity: 1,
+    floor: 0,
+    equipment: [],
+    notes: ''
+  }
+  selectedRoom.value = null
+}
+
+const closeRoomTypeModal = () => {
+  showAddRoomTypeModal.value = false
+  showEditRoomTypeModal.value = false
+  roomTypeForm.value = {
+    name: '',
+    maxCapacity: 2,
+    description: '',
+    equipment: []
+  }
+}
+
+// Import/Export
+const exportRooms = () => {
+  const csvContent = [
+    ['Numéro', 'Type', 'Capacité', 'Étage', 'Statut', 'Équipements', 'Notes'].join(','),
+    ...rooms.value.map(room => [
+      room.number,
+      getRoomTypeName(room.typeId),
+      room.capacity,
+      room.floor,
+      room.status,
+      room.equipment.join(';'),
+      room.notes || ''
+    ].join(','))
+  ].join('\n')
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `chambres_${new Date().toISOString().split('T')[0]}.csv`
+  link.click()
+}
+
+const importRooms = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const csv = e.target?.result as string
+      const lines = csv.split('\n')
+      const headers = lines[0].split(',')
+
+      const newRooms: Room[] = []
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',')
+        if (values.length >= 6) {
+          const roomNumber = values[0].trim()
+
+          // Vérifier l'unicité
+          if (rooms.value.some(room => room.number === roomNumber)) {
+            console.warn(`Chambre ${roomNumber} ignorée (déjà existante)`)
+            continue
+          }
+
+          const newRoom: Room = {
+            id: generateId(),
+            number: roomNumber,
+            typeId: roomTypes.value[0]?.id || 'standard', // Type par défaut
+            capacity: parseInt(values[2]) || 1,
+            floor: parseInt(values[3]) || 0,
+            status: values[4] || 'Disponible',
+            equipment: values[5] ? values[5].split(';') : [],
+            notes: values[6] || ''
+          }
+
+          newRooms.push(newRoom)
+        }
+      }
+
+      rooms.value.push(...newRooms)
+      alert(`${newRooms.length} chambre(s) importée(s) avec succès!`)
+
+    } catch (error) {
+      alert('Erreur lors de l\'importation du fichier CSV')
+      console.error(error)
+    }
+  }
+
+  reader.readAsText(file)
+}
+
+// Simulation des actions après check-out
+const handleCheckOut = (reservationId: string) => {
+  // Simuler la réinitialisation du statut après check-out
+  const room = rooms.value.find(r => r.hasActiveReservation)
+  if (room) {
+    room.status = 'À nettoyer'
+    room.hasActiveReservation = false
+
+    statusHistory.value.push({
+      id: generateId(),
+      roomNumber: room.number,
+      action: 'Check-out',
+      oldStatus: 'Occupée',
+      newStatus: 'À nettoyer',
+      timestamp: new Date()
+    })
+  }
+}
+
+// Fonctions utilitaires pour les chambres communicantes
+const getConnectedRooms = (roomNumber: string) => {
+  // Simuler la logique des chambres communicantes
+  const connectedPairs = [
+    ['201', '202'],
+    ['301', '302']
+  ]
+
+  for (const pair of connectedPairs) {
+    if (pair.includes(roomNumber)) {
+      return pair.filter(num => num !== roomNumber)
+    }
+  }
+  return []
+}
+
+// Initialisation
+onMounted(() => {
+  initializeData()
+})
+</script>
+
+<style scoped>
+/* Styles personnalisés si nécessaire */
+.transition-colors {
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.transition-shadow {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Animation pour les modals */
+.modal-enter-active, .modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from, .modal-leave-to {
+  opacity: 0;
+}
+
+/* Scrollbar personnalisée */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive design amélioré */
+@media (max-width: 768px) {
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .grid-cols-1.md\:grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+/* Amélioration de l'accessibilité */
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\:ring-2:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Animations subtiles */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Styles pour les équipements */
+.equipment-tag {
+  display: inline-block;
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  margin: 0.125rem;
+}
+
+/* Styles pour les statuts avec icônes */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-badge::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-badge.disponible::before {
+  background-color: #10b981;
+}
+
+.status-badge.occupee::before {
+  background-color: #ef4444;
+}
+
+.status-badge.a-nettoyer::before {
+  background-color: #f59e0b;
+}
+
+.status-badge.propre::before {
+  background-color: #3b82f6;
+}
+
+.status-badge.en-maintenance::before {
+  background-color: #8b5cf6;
+}
+
+.status-badge.hors-service::before {
+  background-color: #6b7280;
+}
+
+/* Styles pour les notifications */
+.notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: #10b981;
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.notification.error {
+  background-color: #ef4444;
+}
+
+.notification.warning {
+  background-color: #f59e0b;
+}
+
+.notification.info {
+  background-color: #3b82f6;
+}
+
+/* Styles pour les cartes de chambres */
+.room-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.room-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.room-card.selected {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+/* Styles pour les formulaires */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input.error {
+  border-color: #ef4444;
+}
+
+.form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Styles pour les boutons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-warning {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background-color: #d97706;
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+/* Styles pour les tableaux */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Styles pour les badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-info {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.badge-secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Styles pour les alertes */
+.alert {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+}
+
+.alert-success {
+  background-color: #d1fae5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.alert-warning {
+  background-color: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.alert-info {
+  background-color: #e0e7ff;
+  border-color: #c7d2fe;
+  color: #3730a3;
+}
+
+/* Styles pour les onglets */
+.tab-nav {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tab-button {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #374151;
+  border-bottom-color: #d1d5db;
+}
+
+.tab-button.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+/* Styles pour les modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Styles pour les tooltips */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: #374151;
+  color: white;
+  text-align: center;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.875rem;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Styles pour les loading states */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Styles pour les drag and drop */
+.drag-area {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.drag-area.drag-over {
+  border-color: #3b82f6;
+  background-color: #f0f9ff;
+}
+
+.drag-area:hover {
+  border-color: #9ca3af;
+}
+
+/* Styles pour les accordéons */
+.accordion-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.accordion-header {
+  background-color: #f9fafb;
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.accordion-header:hover {
+  background-color: #f3f4f6;
+}
+
+.accordion-content {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Styles pour les steppers */
+.stepper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.stepper-step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.stepper-step:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background-color: #e5e7eb;
+  margin: 0 1rem;
+}
+
+.stepper-step.completed::after {
+  background-color: #10b981;
+}
+
+.stepper-step.active::after {
+  background-color: #3b82f6;
+}
+
+.stepper-number {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.stepper-step.completed .stepper-number {
+  background-color: #10b981;
+  color: white;
+}
+
+.stepper-step.active .stepper-number {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.stepper-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.stepper-step.completed .stepper-label,
+.stepper-step.active .stepper-label {
+  color: #374151;
+}
+
+/* Styles pour les cartes statistiques */
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+  opacity: 0.9;
+  font-size: 0.875rem;
+}
+
+/* Styles pour les graphiques */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin: 1rem 0;
+}
+
+/* Styles pour les calendriers */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #e5e7eb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.calendar-day {
+  background-color: white;
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.calendar-day:hover {
+  background-color: #f3f4f6;
+}
+
+.calendar-day.selected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.calendar-day.disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.calendar-header {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Styles pour les breadcrumbs */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-item {
+  color: #6b7280;
+}
+
 </style>

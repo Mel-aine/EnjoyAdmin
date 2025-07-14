@@ -1743,5 +1743,8 @@
   "financial_info" : "Financial information",
   "stay_dates" : "Stay dates",
   "customer_detail" : "Customer Details",
-  "AddEvent+" : "Add Event +"
+  "AddEvent+" : "Add Event +",
+  "SelectRoomType" : "Select Room Type",
+  "capacity" : "Capacity",
+  "floor" : "Floor"
 }
