@@ -14,20 +14,16 @@
         <!-- Header -->
         <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold text-gray-900">{{ room?.productName }}</h2>
+            <h2 class="text-xl font-bold text-gray-900">{{ room?.productName }} {{ room?.roomNumber }}</h2>
             <p class="text-sm text-gray-600">{{ $t('Room_Details') }}</p>
           </div>
           <div class="flex items-center space-x-2">
-            <button @click="$emit('edit', room)" class="btn btn-primary">
+            <button @click="$emit('edit', room)" class="inline-flex items-center gap-1 bg-blue-500 text-white hover:bg-blue-600 px-3 py-2 rounded-lg text-sm transition">
+
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
-              {{ $t('Edit') }}
-            </button>
-            <button @click="closeModal" class="btn btn-ghost">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
+              {{ $t('edit') }}
             </button>
           </div>
         </div>
@@ -46,7 +42,7 @@
               </h3>
               <div class="space-y-2">
                 <DetailRow :label="$t('Name')" :value="room?.productName" />
-                <DetailRow :label="$t('Rent')" :value="room?.price" suffix="€" />
+                <DetailRow :label="$t('Rent')" :value="room?.price" suffix="XAF" />
                 <DetailRow :label="$t('Status')" :value="room?.statusColor.label" type="badge" />
                 <DetailRow :label="$t('RoomTypes')" :value="room?.RoomTypeName" />
               </div>
@@ -65,7 +61,7 @@
                 <DetailRow :label="$t('NumberofRooms')" :value="room?.option_13" />
                 <DetailRow :label="$t('numberBeds')" :value="room?.option_31" />
                 <DetailRow :label="$t('numberBathrooms')" :value="room?.option_32" />
-                <DetailRow :label="$t('BedType')" :value="room?.option_2" />
+                <DetailRow :label="$t('BedType')" :value="$t(`options.values.${room?.option_2}`)" />
               </div>
             </div>
 
@@ -80,7 +76,7 @@
               <div class="space-y-2">
                 <DetailRow :label="$t('AirConditioning')" :value="room?.option_6" type="boolean" />
                 <DetailRow :label="$t('Wi-fi')" :value="room?.option_7" type="boolean" />
-                <DetailRow :label="$t('TV')" :value="room?.option_15" type="boolean" />
+                <DetailRow :label="$t('TV')" :value="$t(`options.values.${room?.option_15}`)"  />
                 <DetailRow :label="$t('MiniBar')" :value="room?.option_16" type="boolean" />
                 <DetailRow :label="$t('SafeDepositBox')" :value="room?.option_17" type="boolean" />
               </div>
@@ -95,7 +91,7 @@
                 {{ $t('Features') }}
               </h3>
               <div class="space-y-2">
-                <DetailRow :label="$t('View')" :value="room?.option_3" />
+                <DetailRow :label="$t('View')" :value="$t(`options.values.${room?.option_3}`)" />
                 <DetailRow :label="$t('Balcony')" :value="room?.option_4" type="boolean" />
                 <DetailRow :label="$t('Terrace')" :value="room?.option_5" type="boolean" />
                 <DetailRow :label="$t('PrivatePool')" :value="room?.option_20" type="boolean" />
@@ -113,8 +109,8 @@
               </h3>
               <div class="space-y-2">
                 <DetailRow :label="$t('BreakfastIncluded')" :value="room?.option_8" type="boolean" />
-                <DetailRow :label="$t('Housekeeping')" :value="room?.option_24" type="boolean" />
-                <DetailRow :label="$t('Parking')" :value="room?.option_25" type="boolean" />
+                <DetailRow :label="$t('Housekeeping')"  :value="$t(`options.values.${room?.option_24}`)" />
+                <DetailRow :label="$t('Parking')"  :value="$t(`options.values.${room?.option_25}`)" />
                 <DetailRow :label="$t('RoomService')" :value="room?.option_26" type="boolean" />
                 <DetailRow :label="$t('SelfCheck-in')" :value="room?.option_27" type="boolean" />
               </div>
@@ -131,7 +127,7 @@
               <div class="space-y-2">
                 <DetailRow :label="$t('Check-inTime')" :value="room?.option_28" />
                 <DetailRow :label="$t('Check-outTime')" :value="room?.option_29" />
-                <DetailRow :label="$t('SmokingAllowed')" :value="room?.option_22" type="boolean" />
+                <DetailRow :label="$t('SmokingAllowed')" :value="$t(`options.values.${room?.option_22}`)" />
                 <DetailRow :label="$t('PetsAllowed')" :value="room?.option_23" type="boolean" />
                 <DetailRow :label="$t('WheelchairAccessible')" :value="room?.option_19" type="boolean" />
               </div>
@@ -145,13 +141,13 @@
             {{ $t('Last_updated') }}: {{ formatDate(room?.updatedAt) }}
           </div>
           <div class="flex space-x-3">
-            <button @click="$emit('delete', room)" class="btn btn-danger">
+            <button @click="$emit('delete', room)" class="inline-flex items-center gap-1 bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg text-sm transition">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
-              {{ $t('Delete') }}
+              {{ $t('delete') }}
             </button>
-            <button @click="closeModal" class="btn btn-secondary">
+            <button @click="closeModal" class="inline-flex items-center gap-1 bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-2 rounded-lg text-sm transition">
               {{ $t('Close') }}
             </button>
           </div>

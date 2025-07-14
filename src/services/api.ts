@@ -236,7 +236,9 @@ export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`)
 }
-
+export const getRoomCountByType =(productTypeId:number):Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/type-products/room-count/${productTypeId}`)
+}
 
 // --- Services API post --- //
 

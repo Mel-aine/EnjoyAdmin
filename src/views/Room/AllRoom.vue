@@ -189,7 +189,6 @@
             </div>
           </form> -->
           <form
-            @submit.prevent="handleSubmit"
             class="flex flex-col custom-scrollbar h-[550px] overflow-y-auto p-1"
           >
             <!-- Section Informations Générales -->
@@ -201,18 +200,21 @@
                 </h2>
               </legend>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                 <!-- Nom de la chambre -->
                 <div class="space-y-2">
-                    <Input
-                      :lb="$t('No')"
+                  <label for="room-number" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('room_number') }}</label>
+                  <input type="number" id="room-number" name="room-number" :placeholder="'Ex : 101'" min="1" v-model="formData.number" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
+                </div>
+                <div class="space-y-2"> <Input
+                      :lb="$t('Name')"
                       :id="'name'"
                       :forLabel="'name'"
                       v-model="formData.name"
-                    />
-                </div>
+                    /></div>
                 <div class="space-y-2"><Select :lb="$t('RoomTypes')" :options="roomTypeData" v-model="formData.roomType" /></div>
-
+                  </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Loyer mensuel -->
                 <div class="space-y-2">
                     <InputCurrency
@@ -304,10 +306,11 @@
                         :key="val.value"
                         class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
                       >
-                        <input
+                       <input
                           type="checkbox"
                           :value="val.value"
-                          v-model="formData.options[option.id]"
+                          :checked="formData.options[option.id]?.includes(val.value)"
+                          @change="onMultiSelectChange(Number(option.id), val.value, $event)"
                           class="w-4 h-4 text-purple-500 rounded focus:ring-purple-500"
                         />
                         <span class="ml-3 text-sm font-medium text-gray-700">{{ t(`options.values.${val.label}`) }}</span>
@@ -362,36 +365,35 @@
                 </div>
               </fieldset>
             </div>
+            </form>
 
             <!-- Boutons d'action -->
-            <div
-              class="flex flex-col sm:flex-row-reverse gap-4 pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white py-4"
-            >
-              <button
-                type="submit"
-                class="flex-1 sm:flex-grow-0 px-8 w-1/2 h-15 bg-purple-400 rounded-lg hover:from-primary-dark hover:to-purple-500 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-transform whitespace-nowrap"
+           <div
+                class="flex flex-col sm:flex-row-reverse gap-4 pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white"
               >
-                 <span v-if="!isLoading"> {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
-                <span v-else class="flex items-center gap-2">
-                  <Spinner class="w-4 h-4" />
-                  {{ $t('Processing') }}...
-                </span>
-              </button>
-              <button
-                type="button"
-                @click.prevent="closeModal()"
-                class="flex-1 sm:flex-grow-0 px-6 w-1/2 h-15 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
-              >
-                {{ $t('Cancel') }}
-              </button>
-            </div>
-          </form>
+                <button
+                  type="button"
+                   @click.prevent="handleSubmit"
+                  class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 bg-purple-400 rounded-md hover:from-primary-dark hover:to-purple-500 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform whitespace-nowrap"
+                >
+                  <span v-if="!isLoading">{{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
+                  <span v-else class="flex items-center gap-2">
+                    <Spinner class="w-4 h-4" />
+                    {{ $t('Processing') }}...
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  @click.prevent="closeModal()"
+                  class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                >
+                  {{ $t('Cancel') }}
+                </button>
+           </div>
 
 
-    <!-- <div class="mt-8 p-4 bg-gray-100 rounded-lg">
-      <h3 class="text-lg font-semibold mb-4">Aperçu des données du formulaire :</h3>
-      <pre class="text-sm text-gray-700 overflow-auto">{{ formData }}</pre>
-    </div> -->
+
         </div>
       </template>
     </Modal>
@@ -422,14 +424,13 @@ import { ref, onMounted, computed, nextTick, watchEffect, watch } from 'vue'
 import RoomDetailsModal from './RoomDetailsModal.vue'
 import {
   getOptions,
-  createRoom,
-  createRoomOptions,
   getServiceProductWithOptions,
-  getTypeProduct,
   updateRoom,
   updateRoomOptions,
   deleteServiceProduct,
   getTypeProductByServiceId,
+  createRoom,
+  createRoomOptions
 } from '@/services/api'
 import type { OptionType, ServiceProductType, ProductOptionType } from '@/types/option'
 import { useToast } from 'vue-toastification'
@@ -488,24 +489,43 @@ const formData = ref<any>({
   roomType: null,
   floor: null,
   capacity: null,
+  number:null,
   options: initializeFormData()
 })
 
-watch(options, (newOptions) => {
+watch(options, (newOptions: any[]) => {
   if (newOptions && newOptions.length > 0) {
-    const initialOptions: Record<number, any> = {}
+    const updatedOptions: Record<number, any> = {}
 
     newOptions.forEach((option: any) => {
+      const existingValue = formData.value.options[option.id]
+
       if (option.type === 'multiselect') {
-        initialOptions[option.id] = formData.value.options[option.id] || []
+        updatedOptions[option.id] = Array.isArray(existingValue) ? existingValue : []
       } else {
-        initialOptions[option.id] = formData.value.options[option.id] || ''
+        updatedOptions[option.id] = existingValue !== undefined ? existingValue : ''
       }
     })
 
-    formData.value.options = initialOptions
+    formData.value.options = updatedOptions
   }
 }, { immediate: true })
+
+// function pour gérer les multiselects de façon fiable
+const onMultiSelectChange = (optionId: number, value: string, event: Event) => {
+  const isChecked = (event.target as HTMLInputElement).checked
+  const currentValues = formData.value.options[optionId] || []
+
+  if (isChecked) {
+    // Ajouter la valeur si elle n est pas dans le tableau
+    if (!currentValues.includes(value)) {
+      formData.value.options[optionId] = [...currentValues, value]
+    }
+  } else {
+    // Retirer la valeur si décochée
+    formData.value.options[optionId] = currentValues.filter((v: string) => v !== value)
+  }
+}
 
 const status = computed(() => [
   { value: 'available', label: t('Available') },
@@ -560,28 +580,10 @@ const categoryIcons: Record<string, string> = {
 watch(
   () => formData.value.roomType,
   (selectedId: any) => {
-    const selectedRoom = roomTypeData.value.find((room) => room.id === selectedId)
+    const selectedRoom = roomTypeData.value.find((room:any) => room.id === selectedId)
     formData.value.rent = selectedRoom ? selectedRoom.price : 0
   },
 )
-
-
-// onMounted(() => {
-//   initializeDefaultOptions()
-
-// })
-
-// const initializeDefaultOptions = () => {
-//   defaultOptions.value.forEach((option:any) => {
-//     if (!(option.id in formData.value.options)) {
-//       formData.value.options[option.id] = option.values?.[0]?.value || ''
-//     }
-//   })
-// }
-
-// const defaultOptions = computed(() =>
-//   options.value.filter((option: OptionType) => option.isDefault === false),
-// )
 
 interface OptionValue {
   value: string
@@ -645,33 +647,6 @@ const defaultOptionsByType = computed(() => {
   return grouped
 })
 
-const hideOptions = computed(() =>
-  options.value.filter((option: OptionType) => option.isDefault === true),
-)
-
-// watchEffect(() => {
-//   if (!options.value.length) {
-//     console.log('[watchEffect] options.value is still empty.')
-//     return
-//   }
-
-//   console.log('[watchEffect] Checking options default values...')
-
-//   options.value.forEach((option) => {
-//     const alreadySet = formData.value.options[option.id]
-
-//     if (!alreadySet) {
-//       const defaultEntry = option.values.find(val => val.value === 'No') || option.values[0]
-//       const defaultVal = defaultEntry?.value ?? ''
-
-//       formData.value.options[option.id] = defaultVal
-
-//       // console.log(`[watchEffect] Set default for option ${option.id} =>`, defaultVal)
-//     } else {
-//       console.log(`[watchEffect] Option ${option.id} already set to`, alreadySet)
-//     }
-//   })
-// })
 
 const defaultOptionsMap = computed(() => {
   const map: Record<number, OptionType> = {}
@@ -680,14 +655,6 @@ const defaultOptionsMap = computed(() => {
   })
   return map
 })
-
-// const applyDefaultOptions = () => {
-//   defaultOptions.value.forEach(option => {
-//     if (!(option.id in formData.value.options) || formData.value.options[option.id] === '') {
-//       formData.value.options[option.id] = option.values?.[0]?.value || ''
-//     }
-//   })
-// }
 
 const resetFormData = () => {
   formData.value = {
@@ -698,6 +665,7 @@ const resetFormData = () => {
     roomType: null,
     floor: null,
     capacity: null,
+    number:null,
     options: initializeFormData()
   }
 }
@@ -712,7 +680,7 @@ const saveFormData = async () => {
   try {
 
       // Validation de l'unicité du numéro
-    if (ServiceProduct.value.some(room => room.productName === formData.value.name)) {
+    if (ServiceProduct.value.some(room => room.roomNumber === formData.value.number)) {
       showError('Ce numéro de chambre existe déjà !')
       return
     }
@@ -724,22 +692,22 @@ const saveFormData = async () => {
       return
     }
 
-
-
     const roomPayload = {
       service_id: serviceStore.serviceId,
       product_name: formData.value.name,
       product_type_id: formData.value.roomType,
       description: formData.value.description,
+      capacity:formData.value.capacity,
+      room_number:formData.value.number,
+      floor:formData.value.floor,
       status: formData.value.status,
       price: formData.value.rent,
       created_by: userStore.UserId,
-      last_modified_by: userStore.UserId,
     }
 
     console.log('roomPayload', roomPayload)
 
-    // const roomResponse = await createRoom(roomPayload)
+     const roomResponse = await createRoom(roomPayload)
     const roomId = roomResponse.data.id
     console.log('roomId', roomId)
 
@@ -761,7 +729,7 @@ const saveFormData = async () => {
 
     console.log('optionsPayload', optionsPayload)
 
-    // const optionsResponse = await createRoomOptions({ data: optionsPayload })
+    const optionsResponse = await createRoomOptions({ data: optionsPayload })
 
     closeModal()
     fetchServiceProduct()
@@ -843,204 +811,6 @@ const flattenServiceProducts = computed(() => {
 
 watch(locale, fetchServiceProduct)
 
-// const titles = computed(() => [
-//   {
-//     name: 'productName',
-//     label: t('Name'),
-//     type: 'text',
-//     sortable: true,
-//     filterable: true,
-//   },
-//   {
-//     name: 'price',
-//     label: t('Rent'),
-//     type: 'text',
-//     filterable: true,
-//   },
-//   {
-//     name: 'statusColor',
-//     label: t('Status'),
-//     type: 'badge',
-//   },
-//   {
-//     name: 'RoomTypeName',
-//     label: t('RoomTypes'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_2',
-//     label: t('BedType'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_3',
-//     label: t('View'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_4',
-//     label: t('Balcony'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_5',
-//     label: t('Terrace'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_6',
-//     label: t('AirConditioning'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_7',
-//     label: t('Wi-fi'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_8',
-//     label: t('BreakfastIncluded'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_9',
-//     label: t('PrivateBathroom'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_10',
-//     label: t('Kitchen/Kitchenette'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_11',
-//     label: t('WashingMachine'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_12',
-//     label: t('RoomSize(sqm)'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_13',
-//     label: t('NumberofRooms'),
-//     type: 'text',
-//   },
-//   // {
-//   //   name: 'option_14',
-//   //   label: t('MaximumOccupancy'),
-//   //   type: 'text',
-//   // },
-//   {
-//     name: 'option_15',
-//     label: t('TV'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_16',
-//     label: t('MiniBar'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_17',
-//     label: t('SafeDepositBox'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_18',
-//     label: t('ExtraBed'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_19',
-//     label: t('WheelchairAccessible'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_20',
-//     label: t('PrivatePool'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_21',
-//     label: t('Jacuzzi/Spa'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_22',
-//     label: t('SmokingAllowed'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_23',
-//     label: t('PetsAllowed'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_24',
-//     label: t('Housekeeping'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_25',
-//     label: t('Parking'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_26',
-//     label: t('RoomService'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_27',
-//     label: t('SelfCheck-in'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_30',
-//     label: t('HouseRules'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_28',
-//     label: t('Check-inTime'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_29',
-//     label: t('Check-outTime'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_31',
-//     label: t('numberBeds'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'option_32',
-//     label: t('numberBathrooms'),
-//     type: 'text',
-//   },
-//   {
-//     name: 'actions',
-//     label: t('Actions'),
-//     type: 'action',
-//     actions: [
-//       {
-//         name: 'Edit',
-//         event: 'edit',
-//         icone: `<svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/></svg>`,
-//       },
-//       {
-//         name: 'Delete',
-//         event: 'delete',
-//         icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
-//         color: 'bg-red-100 text-red-600 px-2 py-1 rounded-full',
-//       },
-//     ],
-//   },
-// ])
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -1074,16 +844,26 @@ const handleProductAction = (action: string, room: any) => {
       formData.value.rent = roomToEdit.price
       formData.value.status = roomToEdit.status
       formData.value.roomType = roomToEdit.productTypeId
-      const optionsList: Record<number, string> = {}
+      formData.value.floor = roomToEdit.floor
+      formData.value.capacity = roomToEdit.capacity
+      formData.value.number = roomToEdit.roomNumber
+    let roomOptions = Array.isArray(roomToEdit.options) ? roomToEdit.options : []
 
-      if (Array.isArray(roomToEdit.options)) {
-        roomToEdit.options.forEach((opt: any) => {
-          optionsList[opt.optionId] = opt.value
-        })
-      }
+      const updatedOptions: Record<number, any> = {}
 
-      formData.value.options = optionsList
-      console.log('Editing reservation:', formData.value.options)
+      options.value.forEach((opt: any) => {
+        const existing = roomOptions.find((o: any) => o.optionId === opt.id)
+        if (opt.type === 'multiselect') {
+          updatedOptions[opt.id] = existing ? existing.value || [] : []
+        } else {
+          updatedOptions[opt.id] = existing ? existing.value || '' : ''
+        }
+      })
+
+      formData.value.options = updatedOptions
+
+
+    console.log('Editing reservation:', formData.value.options)
 
       isEditMode.value = true
 
@@ -1130,6 +910,24 @@ const confirmDelete = async () => {
 const updateFormData = async () => {
   isLoading.value = true
   try {
+
+const isNumberUsed = ServiceProduct.value.some(
+  room =>
+    room.roomNumber === formData.value.number &&
+    room.id !== selectedRoom.value?.id
+)
+
+if (isNumberUsed) {
+  showError('Ce numéro de chambre existe déjà !')
+  return
+}
+
+
+    const roomType = roomTypeData.value.find((t: any) => t.id === formData.value.roomType)
+    if (roomType && formData.value.capacity! > roomType.defaultGuest) {
+      showError(`La capacité ne peut pas dépasser ${roomType.defaultGuest} pour ce type de chambre`)
+      return
+    }
     const roomPayload = {
       service_id: serviceStore.serviceId,
       product_name: formData.value.name,
@@ -1137,6 +935,9 @@ const updateFormData = async () => {
       status: formData.value.status,
       product_type_id: formData.value.roomType,
       price: formData.value.rent,
+      capacity:formData.value.capacity,
+      room_number:formData.value.number,
+      floor:formData.value.floor,
     }
 
     const roomId = selectedRoom.value?.id
@@ -1224,6 +1025,7 @@ const roomDetailsModal = ref(false)
 
 // Colonnes essentielles pour la table
 const essentialColumns = computed(() => [
+
   {
     name: 'productName',
     label: t('Name'),
@@ -1231,6 +1033,14 @@ const essentialColumns = computed(() => [
     sortable: true,
     filterable: true,
     width: '200px',
+  },
+    {
+    name: 'roomNumber',
+    label: t('room_number'),
+    type: 'text',
+    sortable: true,
+    filterable: true,
+    width: '100px',
   },
   {
     name: 'price',
@@ -1256,25 +1066,13 @@ const essentialColumns = computed(() => [
     width: '150px',
   },
   {
-    name: 'option_14',
-    label: t('MaximumOccupancy'),
+    name: 'capacity',
+    label: t('capacity'),
     filterable: true,
     sortable: true,
     type: 'text',
   },
-  {
-    name: 'option_12',
-    label: t('Size'),
-    type: 'text',
-    width: '80px',
-    suffix: 'm²',
-  },
-  {
-    name: 'option_31',
-    label: t('Beds'),
-    type: 'text',
-    width: '70px',
-  },
+
   {
     name: 'actions',
     label: t('Actions'),
@@ -1317,12 +1115,12 @@ const closeRoomDetails = () => {
   selectedRoom.value = null
 }
 
-const onEditFromModal = (room) => {
+const onEditFromModal = (room:any) => {
   closeRoomDetails()
   onEditProduct(room)
 }
 
-const onDeleteFromModal = (room) => {
+const onDeleteFromModal = (room:any) => {
   closeRoomDetails()
   onDeleteProduct(room)
 }

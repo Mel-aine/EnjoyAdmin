@@ -18,6 +18,7 @@ export interface ServiceProductType {
   customizationAllowed:boolean
   paymentType:string
   status:string
+  roomNumber:number
   options:ProductOptionType[];
 }
 
@@ -57,7 +58,13 @@ export interface RoomTypeData{
   extraGuestPrice: number;
   defaultDeposit: number;
   id: number;
-  label :number
+  statusColor: {
+    label: string;
+    bg: string;
+    text: string;
+  };
+  label :string;
+  roomCount:number
 }
 
 export interface Payment {
