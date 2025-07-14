@@ -68,7 +68,9 @@ function createEmptyRoomSelection(): RoomSelection {
     default_guest: 0,
     total_guests: 0,
     extraGuestPrice: 0,
-    totalPrice: 0
+    totalPrice: 0,
+    totalExtraGuestPrice:0,
+    totalAmount:0
   }
 }
 

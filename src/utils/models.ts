@@ -14,7 +14,9 @@ export interface RoomSelection {
   total_guests?: number
   default_deposit?: number
   extraGuestPrice: number
-  totalPrice: number
+  totalPrice: number,
+  totalExtraGuestPrice:number,
+  totalAmount:number
 }
 
 /**
@@ -47,7 +49,7 @@ export interface ReservationDetails {
   bookingSource: string
   checkInDate: string
   checkOutDate: string
-  numberOfNigth: number
+  numberOfNights: number
   remainingAmount: number
   invoiceAvailable: boolean
   paymentStatus: string | 'pending' | 'paid' | 'partially-paid' | 'overpaid' // Assuming these are the possible statuses
@@ -179,7 +181,10 @@ export interface ReservationServiceProduct {
   totalChildren: number
   ratePerNight: number
   taxes: number
-  discounts: number
+  discounts: number,
+  extraGuest:number,
+  totalExtraGuestPrice:number,
+  totalAmount:number
 }
 
 /**

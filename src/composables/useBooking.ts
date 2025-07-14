@@ -14,6 +14,7 @@ import {
   putReservation,
   getReservationServiceProduct,
   getTypeProductByServiceId,
+  getReservationDetailsById,
 } from '@/services/api'
 import type {
   ProductType,
@@ -22,7 +23,7 @@ import type {
   Payment,
   ReservationType,
 } from '@/types/option'
-import type { RoomSelection } from '@/utils/models'
+import type { ReservationDetails, RoomSelection } from '@/utils/models'
 
 export function useBooking() {
   const ServiceProduct = ref<ProductType[]>([])
@@ -47,7 +48,7 @@ export function useBooking() {
   const reservationType = ref('')
   const manualTotalGuests = ref<number | null>(null)
   const availableTakens = ref<string[]>([])
-
+  const selectBooking = ref<ReservationDetails | null>(null)
   const updateRoomSelections = (newSelections: RoomSelection[]) => {
     selectedProducts.value = newSelections
   }
@@ -203,7 +204,7 @@ export function useBooking() {
         group_name: formData.value.groupName || '',
         booking_source: 'Hotel',
         number_of_nights: form.value.numberOfNights,
-        remaining_amount:  finalTotalPrice.value,
+        remaining_amount: finalTotalPrice.value,
         invoice_available: true,
         check_in_date: '',
         check_out_date: '',
@@ -244,8 +245,12 @@ export function useBooking() {
         extra_guest: 0,
       }
       toast.success(t('toast.reservationCreated'))
-      isPaymentModalOpen.value = true
       reservations.value = response.data
+      const responseReserva = await getReservationDetailsById(parseInt(`${reservationId.value}`))
+      if (responseReserva.status === 200) {
+        selectBooking.value = responseReserva.data
+        isPaymentModalOpen.value = true
+      }
     } catch (error: unknown) {
       const message = 'Error while saving reservation'
       if (error instanceof Object && 'response' in error && error.response) {
@@ -258,7 +263,11 @@ export function useBooking() {
       isLoading.value = false
     }
   }
-
+  const closePaymentModal = () => {
+    isPaymentModalOpen.value = false
+    if (selectBooking.value)
+      router.push({ name: 'reservationDetails', params: { id: selectBooking.value.id } })
+  }
   const savePayment = async () => {
     isLoading.value = true
     const paymentStatus = selectedPaymentMethod.value === 'Cash' ? 'pending' : 'paid'
@@ -383,6 +392,8 @@ export function useBooking() {
         extra_guest: 0,
         extraGuestPrice: 0,
         totalPrice: 0,
+        totalExtraGuestPrice:0,
+        totalAmount:0
       }
     })
   }
@@ -640,8 +651,10 @@ export function useBooking() {
     reservationType,
     manualTotalGuests,
     availableTakens,
+    selectBooking,
     updateRoomSelections,
     updateTotalPrice,
+    closePaymentModal,
     Payements,
     reservationSummary,
     currentPageTitle,

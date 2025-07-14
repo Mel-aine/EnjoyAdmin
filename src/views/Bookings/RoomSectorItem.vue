@@ -141,7 +141,7 @@
 import Input from '@/components/forms/FormElements/Input.vue'
 import OutputFieldCurrency from '@/components/forms/FormElements/outputFieldCurrency.vue'
 import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
-import { ref, computed, watch, defineProps, defineEmits, onMounted } from 'vue'
+import { ref, computed, watch, defineProps, defineEmits, onMounted, onBeforeMount, onBeforeUpdate } from 'vue'
 import { type Room, type RoomSelection } from '@/utils/models'
 import type { RoomTypeData } from '@/types/option'
 
@@ -241,4 +241,10 @@ onMounted(()=>{
 const finalTotalPrice = computed(() => {
     return Number(basePrice.value) + Number(extraGuestPrice.value)
 })
+
+onBeforeMount(()=>{
+    initData()
+})
+
+onBeforeUpdate 
 </script>

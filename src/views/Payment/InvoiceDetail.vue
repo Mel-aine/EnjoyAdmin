@@ -21,12 +21,12 @@
         <!-- Right: Back Buttons -->
         <div class="flex items-center space-x-2">
           <!-- Desktop Button -->
-          <a href="/allInvoice" class="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 text-sm rounded-md hover:bg-gray-100 transition">
+          <button @click="goBack" class="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 text-sm rounded-md hover:bg-gray-100 transition">
             <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             <span>{{ $t('Back') }}</span>
-          </a>
+          </button>
           <div class="text-right print:hidden">
           <button @click="printInvoice" class="bg-[#FFA94D] text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-orange-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,11 +36,11 @@
           </button>
         </div>
           <!-- Mobile Icon Button -->
-          <a href="/allInvoice" class="sm:hidden inline-flex items-center justify-center p-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
+          <button @click="goBack" class="sm:hidden inline-flex items-center justify-center p-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -83,21 +83,21 @@
           <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             <tr v-for="item in invoice.items" :key="item.description">
               <td class="px-6 py-4 text-gray-800 dark:text-gray-100">{{ item.description }}</td>
-              <td class="px-6 py-4 text-right text-gray-800 dark:text-gray-100">{{ item.amount }}</td>
+              <td class="px-6 py-4 text-right text-gray-800 dark:text-gray-100">{{ formatCurrency(item.amount) }}</td>
             </tr>
           </tbody>
           <tfoot class="bg-gray-50 dark:bg-gray-800 font-medium">
             <tr>
               <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">{{ $t('subtotal') }}</td>
-              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ subtotal }} FCFA</td>
+              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ formatCurrency(subtotal) }} </td>
             </tr>
             <tr>
               <td class="px-6 py-3 text-right text-gray-600 dark:text-gray-300">TVA (0%)</td>
-              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ tax }} FCFA</td>
+              <td class="px-6 py-3 text-right text-gray-800 dark:text-gray-100">{{ formatCurrency(tax) }}</td>
             </tr>
             <tr class="text-base text-gray-900 dark:text-gray-100 font-bold">
               <td class="px-6 py-3 text-right">{{ $t('Total') }}</td>
-               <td class="px-6 py-3 text-right">{{ total}}FCFA</td>
+               <td class="px-6 py-3 text-right">{{ formatCurrency(total)}}</td>
             </tr>
           </tfoot>
         </table>
@@ -123,6 +123,7 @@ import { useRoute } from 'vue-router'
 import { getPaymentById,getUserId,getServiceById,getReservationById} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import { useVueToPrint } from 'vue-to-print';
+import { formatCurrency } from "@/components/utilities/UtilitiesFunction";
 
 defineProps<{ id: string }>()
 const route = useRoute()
@@ -130,75 +131,9 @@ const serviceStore = useServiceStore();
 const invoice = ref<any>({} as any);
 const paymentId = ref<number | null>(null);
 const componentRef = ref<HTMLDivElement | null>(null);
-
-// const printInvoice = () => {
-//   window.print();
-// };
-// const { printInvoice } = useVueToPrint({
-//   content: () => componentRef.value,
-//   documentTitle: 'facture',
-// });
-// const printInvoice = () => {
-//   if (componentRef.value) {
-//     const printContents = componentRef.value.innerHTML;
-//     const printWindow = window.open('', '', 'height=1000,width=1000');
-//     if (printWindow) {
-//       // Création d'un document dans la fenêtre
-//       printWindow.document.open();
-//       printWindow.document.write(`
-//         <!DOCTYPE html>
-//         <html>
-//           <head>
-//             <title>Facture</title>
-//             <style>
-//               @page {
-//                 size: auto;
-//                 margin: 0;
-//               }
-//               body {
-//                 font-family: 'Arial', sans-serif;
-//                 margin: 20px;
-//                 padding: 0;
-//                 background: white;
-//                 color: black;
-//               }
-//               table {
-//                 width: 100%;
-//                 border-collapse: collapse;
-//               }
-//               th, td {
-//                 padding: 12px;
-//                 border: 1px solid #ddd;
-//               }
-//               th {
-//                 background-color: #f9f9f9;
-//                 font-weight: bold;
-//               }
-//             </style>
-//           </head>
-//           <body>
-//             <!-- Ici on place dynamiquement le contenu -->
-//           </body>
-//         </html>
-//       `);
-
-//       // Attendre que le document soit complètement chargé avant d'ajouter le contenu
-//       printWindow.document.close();
-
-//       // Ajouter le contenu de la facture dans le body de la nouvelle fenêtre
-//       printWindow.document.body.innerHTML = printContents;
-
-//       printWindow.focus();
-//       printWindow.print();
-
-//       // Ferme la fenêtre après 500ms pour laisser le temps d'imprimer
-//       setTimeout(() => {
-//         printWindow.close();
-//       }, 200);
-//     }
-//   }
-// };
-
+const goBack=()=>{
+  window.history.back()
+}
 const printInvoice = () => {
   if (!componentRef.value) return;
 

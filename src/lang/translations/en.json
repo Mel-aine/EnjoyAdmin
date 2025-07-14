@@ -1796,5 +1796,19 @@
     "changes": "Changes",
     "noActivity": "No activity recorded."
   },
-  "RecordPayment":"Record payment"
+  "RecordPayment": "Record payment",
+  "email": "Email",
+  "actions": "Actions",
+  "status": "Status",
+  "available": "Available",
+  "booked": "Booked",
+  "occupied": "Occupied",
+  "checked-in": "Check-in",
+  "checkout": "Check-out",
+  "cleaning": "Cleaning",
+  "maintenance": "Maintenance",
+  "unknown": "Unknown",
+  "phone":"Phone",
+  "expected_arrive_date":"Expected Arrival Date",
+  "expected_departure_date": "Expected Departure Date"
 }
