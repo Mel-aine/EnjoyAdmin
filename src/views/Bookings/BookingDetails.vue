@@ -46,13 +46,33 @@
             <div class="text-4xl font-bold mb-2">{{ formatCurrency(store.selectedBooking?.totalAmount) }} </div>
           </div>
         </div>
+        <div class="flex justify-end gap-4 mt-6">
+          <button v-if="store.selectedBooking?.status === 'pending'" class="btn btn-primary" @click="payNow">
+            {{ $t('PayNow') }}
+          </button>
+          <button class="btn btn-secondary" @click="updateReservation">
+            {{ $t('update') }}
+          </button>
+          <button class="btn btn-danger" @click="isModalOpen = true">
+            {{ $t('Cancel') }}
+          </button>
+        </div>
       </div>
     </div>
+    <Modal :isOpen="isModalOpen" @close="isModalOpen = false" :title="$t('confirm_cancellation')" :message="$t('are_you_sure_cancel')">
+      <template #footer>
+        <div class="flex justify-end gap-4 p-4 bg-gray-100 dark:bg-gray-800">
+          <button class="btn btn-secondary" @click="isModalOpen = false">{{ $t('No') }}</button>
+          <button class="btn btn-danger" @click="cancelReservation">{{ $t('Yes') }}</button>
+        </div>
+      </template>
+    </Modal>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import Modal from '@/components/modal/PopupModal.vue'
 import { onMounted, ref, computed } from 'vue'
 import DetailCard from '@/components/cards/DetailCard.vue'
 import { useRouter } from 'vue-router'
@@ -61,8 +81,31 @@ import { formatDateT,formatCurrency } from '@/components/utilities/UtilitiesFunc
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
-const selectBooking = ref<any>({})
+const selectBooking = ref<BookingDetail | null>(null)
 const { t } = useI18n()
+const isModalOpen = ref(false)
+
+interface BookingDetail {
+  id: number;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  totalAmount: number;
+  arrivedDate: string;
+  departDate: string;
+  createdAt: string;
+  userFullName: string;
+  email: string;
+  phone: string;
+  guestCount: number;
+  serviceProducts: ServiceProduct[];
+}
+
+interface ServiceProduct {
+  productName: string;
+  serviceProductId: number;
+  startDate: string;
+  endDate: string;
+}
+
 function goBack() {
   router.back()
 }
@@ -71,12 +114,6 @@ const store = useBookingStore()
 
 onMounted(() => {
   selectBooking.value = store.selectedBooking
-
-  console.log('Réservation sélectionnée :', store.selectedBooking)
-  console.log(
-    'calculateNights :',
-    calculateNights(store.selectedBooking?.date, store.selectedBooking?.dateD),
-  )
 })
 
 const bookingStatusClass = computed(() => {
@@ -97,7 +134,7 @@ const hotelDetails = computed(() => {
 
   if (!booking || !booking.serviceProducts) return []
 
-  const productDetails = booking.serviceProducts.map((p: any) => ({
+  const productDetails = booking.serviceProducts.map((p: ServiceProduct) => ({
     label: p.productName,
     value: `Id #${p.serviceProductId} — ${t('du')} ${formatDateT(p.startDate)} ${t('au')} ${formatDateT(p.endDate)}`,
   }))
@@ -137,7 +174,36 @@ const clientDetails = computed(() => [
   { label: t('client.guests'), value: store.selectedBooking?.guestCount },
 ])
 
+import { putReservation } from '@/services/api'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
+
+const payNow = () => {
+  router.push({ name: 'CreatePayment', params: { id: store.selectedBooking?.id } })
+}
+
+const updateReservation = () => {
+  router.push({ name: 'AddBooking', params: { id: store.selectedBooking?.id } })
+}
+
+const cancelReservation = async () => {
+  try {
+    if (store.selectedBooking) {
+      const response = await putReservation(store.selectedBooking.id, { status: 'cancelled' })
+      if (response.status === 200) {
+        toast.success('Reservation cancelled successfully')
+        store.selectedBooking.status = 'cancelled'
+      } else {
+        toast.error('Failed to cancel reservation')
+      }
+    }
+  } catch {
+    toast.error('An error occurred while cancelling the reservation')
+  } finally {
+    isModalOpen.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -179,30 +245,5 @@ const clientDetails = computed(() => [
 }
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
-}
-
-.btn {
-  @apply px-6 py-3 font-semibold text-white rounded-full transition-all duration-300 relative overflow-hidden;
-}
-
-.btn::before {
-  content: '';
-  @apply absolute top-1/2 left-1/2 w-0 h-0 bg-white/20 rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500;
-}
-
-.btn:hover::before {
-  @apply w-[300px] h-[300px];
-}
-
-.btn-primary {
-  @apply bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg;
-}
-
-.btn-secondary {
-  @apply bg-gradient-to-r from-gray-400 to-gray-600 hover:shadow-lg;
-}
-
-.btn-danger {
-  @apply bg-gradient-to-r from-red-500 to-red-700 hover:shadow-lg;
 }
 </style>

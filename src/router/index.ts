@@ -56,6 +56,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/reservation_details/:id',
+      name: 'reservationDetails',
+      component: () => import('../views/Bookings/ReservationDetails.vue'),
+      props: true
+    },
+    {
       path: '/customer_detail/:id',
       name: 'CustomerDetails',
       component: () => import('../views/Customers/CustomerDetails.vue'),

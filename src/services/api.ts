@@ -203,7 +203,12 @@ export const getRoles = (serviceId: number | null): Promise<AxiosResponse<any>> 
 export const getReservationServiceProduct = (reservationId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservation_service/${reservationId}`)
 }
-
+export const getReservationDetailsById =(reservationId:number):Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservations/${reservationId}/details`)
+}
+export const getReservationHistoryById =(reservationId:number):Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/activity-logs/by-entity?entityType=Reservation&entityId=${reservationId}`)
+}
 export const getUserAssignment = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/assigmentUser`)
 }

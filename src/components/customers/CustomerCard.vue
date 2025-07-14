@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref,watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import { getUser, getReservation } from '@/services/api'
@@ -9,9 +9,12 @@ import { isEqual } from 'lodash'
 
 const props = defineProps({
   customer_id: String,
-  modelValue: Object
+  modelValue: Object,
+  customerType: {
+    type: String,
+    default: 'Individual'
+  }
 })
-//const emit = defineEmits(['customerSelected'])
 const emit = defineEmits<{
   (e: 'customerSelected', payload: any): void
   (e: 'update:modelValue', value: any): void
@@ -20,34 +23,13 @@ const emit = defineEmits<{
 const customers = ref<any[]>([])
 const users = ref<any[]>([])
 const serviceStore = useServiceStore()
-// const selectedCustomer = ref<any>({})
 const selectedCustomer = ref<any>({ ...props.modelValue })
-
-// watch(() => props.modelValue, (newVal) => {
-//   selectedCustomer.value = { ...newVal }
-// })
-
-// watch(selectedCustomer, (newVal) => {
-//   emit('update:modelValue', newVal)
-// }, { deep: true })
-
-// watch(() => props.modelValue, (newVal) => {
-//   if (!isEqual(newVal, selectedCustomer.value)) {
-//     selectedCustomer.value = { ...newVal }
-//   }
-// })
-
-// watch(selectedCustomer, (newVal) => {
-//   if (!isEqual(newVal, props.modelValue)) {
-//     emit('update:modelValue', newVal)
-//   }
-// }, { deep: true })
-
-
 
 
 watch(() => props.modelValue, (newVal) => {
+  console.log("newVal", newVal)
   if (!isEqual(newVal, selectedCustomer.value)) {
+
     selectedCustomer.value = { ...newVal }
   }
 })
@@ -59,14 +41,15 @@ watch(selectedCustomer, (newVal) => {
 }, { deep: true })
 
 
-// function isEqual(a: any, b: any): boolean {
-//   return JSON.stringify(a) === JSON.stringify(b)
-// }
 
 
 
 const selectCustomer = (customer: any) => {
-  selectedCustomer.value = { ...customer }
+
+  selectedCustomer.value.firstName = customer.firstName ?? selectedCustomer.value.firstName;
+  selectedCustomer.value.lastName = customer.lastName ?? selectedCustomer.value.lastName;
+  selectedCustomer.value.email = customer.email ?? selectedCustomer.value.email;
+  selectedCustomer.value.phoneNumber = customer.phoneNumber ?? selectedCustomer.value.phoneNumber;
   emit('customerSelected', selectedCustomer.value)
 }
 
@@ -96,14 +79,14 @@ const fetchReservation = async () => {
   }
 }
 
-onMounted( () => {
-   fetchUsers()
-   fetchReservation()
+onMounted(() => {
+  fetchUsers()
+  fetchReservation()
 
 
 })
 
-console.log("modalevalue",props.modelValue)
+console.log("modalevalue", props.modelValue)
 </script>
 
 <template>
@@ -111,13 +94,11 @@ console.log("modalevalue",props.modelValue)
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
       <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
       <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
-      <Input
-        :lb="$t('Phone')"
-        v-model="selectedCustomer.phoneNumber"
-        inputType="tel"
-
-      />
+      <Input :lb="$t('Phone')" v-model="selectedCustomer.phoneNumber" inputType="tel" />
       <Input :lb="$t('Email')" v-model="selectedCustomer.email" required />
+      <Input :lb="$t('Company Name')" v-model="selectedCustomer.companyName" required
+        v-if="customerType === 'Corporate'" />
+      <Input :lb="$t('Group Name')" v-model="selectedCustomer.groupName" required v-if="customerType === 'Group'" />
     </div>
   </div>
 </template>
