@@ -74,7 +74,7 @@
               {{ $t('AddCustomers') }}
             </h4>
           </div>
-          <form class="flex flex-col">
+          <form class="flex flex-col" @submit.prevent="handleAddCustomer">
             <div class="custom-scrollbar h-[450px] overflow-y-auto p-2">
               <div>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
@@ -82,8 +82,9 @@
                     <Input
                       :lb="$t('FirstName')"
                       :placeholder="$t('FirstName')"
-                      :id="'name'"
-                      :forLabel="'name'"
+                      :id="'firstName'"
+                      :forLabel="'firstName'"
+                      v-model="customerForm.firstName"
                     />
                   </div>
 
@@ -91,8 +92,9 @@
                     <Input
                       :lb="$t('LastName')"
                       :placeholder="$t('LastName')"
-                      :id="'last'"
-                      :forLabel="'last'"
+                      :id="'lastName'"
+                      :forLabel="'lastName'"
+                      v-model="customerForm.lastName"
                     />
                   </div>
                   <div>
@@ -121,8 +123,9 @@
                         </svg>
                       </span>
                       <input
-                        type="text"
+                        type="email"
                         placeholder="info@gmail.com"
+                        v-model="customerForm.email"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
                     </div>
@@ -170,7 +173,7 @@
                         </div>
                       </div>
                       <input
-                        v-model="phoneNumber"
+                        v-model="customerForm.phoneNumber"
                         placeholder="+237 693774450"
                         type="tel"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-3 pl-[84px] pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
@@ -178,17 +181,26 @@
                     </div>
                   </div>
                   <div>
-                    <Select :lb="$t('LastPackage')" :options="Package" />
+                    <Select
+                      :lb="$t('LastPackage')"
+                      :options="Package"
+                      v-model="customerForm.package"
+                    />
                   </div>
                   <div>
-                    <Select :lb="$t('Group')" :options="Group" />
+                    <Select
+                      :lb="$t('Group')"
+                      :options="Group"
+                      v-model="customerForm.group"
+                    />
                   </div>
                   <div>
                     <Input
                       :lb="$t('Address')"
                       :placeholder="$t('Address')"
-                      :id="'code'"
-                      :forLabel="'code'"
+                      :id="'address'"
+                      :forLabel="'address'"
+                      v-model="customerForm.address"
                     />
                   </div>
                 </div>
@@ -203,10 +215,11 @@
                 {{ $t('Cancel') }}
               </button>
               <button
-                type="button"
-                class="flex w-full justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 sm:w-auto"
+                type="submit"
+                :disabled="loading"
+                class="flex w-full justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 disabled:opacity-50 sm:w-auto"
               >
-                {{ $t('AddCustomer') }}
+                {{ loading ? $t('Loading') : $t('AddCustomer') }}
               </button>
             </div>
           </form>
@@ -222,18 +235,19 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { ref, onMounted, computed, watch } from 'vue'
-import { getReservation, getUser } from '@/services/api'
+import { ref, onMounted, computed, reactive } from 'vue'
+import { getCustomer } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { userDataType, ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
-import router from '@/router'
-import {useBookingStore} from '@/composables/booking'
+import { useRouter } from 'vue-router'
+import { useBookingStore } from '@/composables/booking'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
+const router = useRouter()
 const showModal = ref(false)
 const loading = ref(false)
 const store = useBookingStore()
@@ -241,21 +255,35 @@ const store = useBookingStore()
 const menuItems = computed(() => [
   { label: t('AddCustomers'), onClick: () => (modalOpen.value = true) },
 ])
+
 const modalOpen = ref(false)
 const users = ref<userDataType[]>([])
 const currentPageTitle = computed(() => t('CustomersLists'))
+
 const Package = computed(() => [
   { value: 'Strater', label: t('StraterPackage') },
   { value: 'Honeymoon', label: t('HoneymoonPackage') },
   { value: 'Vacation', label: t('VacationPackage') },
   { value: 'Spring', label: t('SpringPackage') },
 ])
+
 const Group = computed(() => [
   { value: 'Gold', label: t('Gold') },
   { value: 'Silver', label: t('Silver') },
   { value: 'Bronze', label: t('Bronze') },
   { value: 'Platinum', label: t('Platinum') },
 ])
+
+// Form data for adding customer
+const customerForm = reactive({
+  firstName: '',
+  lastName: '',
+  email: '',
+  phoneNumber: '',
+  package: '',
+  group: '',
+  address: ''
+})
 
 const titles = computed(() => [
   {
@@ -264,7 +292,6 @@ const titles = computed(() => [
     type: 'text',
     filterable: false,
   },
-
   {
     name: 'email',
     label: t('Email'),
@@ -273,22 +300,16 @@ const titles = computed(() => [
     filterable: true,
   },
   {
-    name: 'phoneNumber',
+    name: 'phone_number',
     label: t('Phone'),
     type: 'text',
     filterable: false,
   },
-  {
-    name: 'comment',
-    label: t('Comment'),
-    type: 'text',
-    filterable: true,
-  },
   // {
-  //   name: 'status',
-  //   label: t('status'),
-  //   type: 'badge',
-  //   filterable: false,
+  //   name: 'comment',
+  //   label: t('Comment'),
+  //   type: 'text',
+  //   filterable: true,
   // },
   {
     name: 'actions',
@@ -298,40 +319,38 @@ const titles = computed(() => [
       {
         name: 'View',
         event: 'view',
-        icone: ` <svg class="h-6 w-6 text-orange-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
+        icone: `<svg class="h-6 w-6 text-orange-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="2" /><path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" /><path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
       },
     ],
   },
 ])
 
-
-
 const onView = (c: any) => handleCustomerAction('view', c)
 
-const handleCustomerAction = (action: string, c: any) => {
+const handleCustomerAction = async (action: string, c: any) => {
+  console.log('Customer action:', action, c)
+
   if (action === 'view') {
+    // Trouver le customer dans la liste
     const customer = customers.value.find((cu: any) => cu.id === parseInt(c.id))
+
     if (customer) {
       selectedCustomer.value = customer
-      router.push({ name: 'CustomerDetails', params: { id: c.id } })
+
       store.setCustomer(selectedCustomer.value)
-      console.log('selectedCustomer.value:', selectedCustomer.value)
-      showModal.value = true
+      console.log('Selected customer:', selectedCustomer.value)
+      await router.push({
+        name: 'CustomerDetails',
+        params: { id: c.id.toString() }
+      })
+
     } else {
       console.error('Client introuvable pour ID:', c.id)
     }
   }
 }
 
-
-
 const selectedCustomer = ref<any>(null)
-
-const isDropdownOpen = ref(false)
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
 
 const countryCodes = {
   CM: '+237',
@@ -339,55 +358,129 @@ const countryCodes = {
   GB: '+44',
   AU: '+61',
 }
+
 const selectedCountry = ref('CM')
-const phoneNumber = ref('')
+
 const updatePhoneNumber = () => {
-  phoneNumber.value = countryCodes[selectedCountry.value as keyof typeof countryCodes]
+  const countryCode = countryCodes[selectedCountry.value as keyof typeof countryCodes]
+  customerForm.phoneNumber = countryCode
 }
-onMounted(() => {
-  updatePhoneNumber()
-})
-const fetchUsers = async () => {
-  const response = await getUser()
-  users.value = response.data.data
-  console.log('userrr', users.value)
-}
+
+
 
 const customers = ref<ReservationType[]>([])
-const fetchReservation = async () => {
+
+const fetchCustomers = async () => {
   try {
-    const serviceId = serviceStore.serviceId
-    const response = await getReservation(serviceId)
-    console.log(response.data)
+    loading.value = true
+    const serviceId = serviceStore.serviceId;
+    const response = await getCustomer(serviceId);
+    customers.value= response.data.map((c:any)=>{
+      return{
+        ...c,
+        userFullName: `${c.first_name} ${c.last_name}`,
 
-    customers.value = response.data.map((res: any) => {
-      const user = users.value.find((u: any) => u.id === res.userId)
-
-      return {
-        ...res,
-        ...user,
-        userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-        // productName: product ? product.productName : 'Inconnu'
       }
     })
-    customers.value.sort((a: any, b: any) => a.userFullName.localeCompare(b.userFullName))
-    console.log('////', customers.value)
+    console.log("customers",customers.value)
+
   } catch (error) {
-    console.error('fetch failed:', error)
+    console.error('Failed to fetch reservations:', error);
+  }finally {
+    loading.value = false
+  }
+};
+
+// const fetchReservation = async () => {
+//   try {
+//     loading.value = true
+//     const serviceId = serviceStore.serviceId
+
+//     if (!serviceId) {
+//       console.error('Service ID not found')
+//       return
+//     }
+
+//     const response = await getReservation(serviceId)
+//     console.log('Reservations response:', response.data)
+
+//     const uniqueCustomersMap = new Map()
+
+//     response.data.forEach((res: any) => {
+//       const user = users.value.find((u: any) => u.id === res.userId)
+//       if (!user) return
+
+//       const userKey = user.id
+
+//       if (!uniqueCustomersMap.has(userKey)) {
+//         uniqueCustomersMap.set(userKey, {
+//           ...user,
+//           ...res,
+//           reservationId: res.id,
+//           userFullName: `${user.firstName} ${user.lastName}`,
+//         })
+//       }
+//     })
+
+//     customers.value = Array.from(uniqueCustomersMap.values()).sort((a, b) =>
+//       a.firstName.localeCompare(b.firstName)
+//     )
+
+//     console.log('Customers processed:', customers.value)
+//   } catch (error) {
+//     console.error('Failed to fetch reservations:', error)
+//   } finally {
+//     loading.value = false
+//   }
+// }
+
+const handleAddCustomer = async () => {
+  try {
+    loading.value = true
+
+    // Validation basique
+    if (!customerForm.firstName || !customerForm.lastName || !customerForm.email) {
+      console.error('Champs requis manquants')
+      return
+    }
+    console.log('Adding customer:', customerForm)
+    await fetchCustomers()
+
+    // Fermer le modal et réinitialiser le formulaire
+    modalOpen.value = false
+    Object.assign(customerForm, {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      package: '',
+      group: '',
+      address: ''
+    })
+
+  } catch (error) {
+    console.error('Failed to add customer:', error)
+  } finally {
+    loading.value = false
   }
 }
+
 onMounted(async () => {
-  await fetchUsers()
-  await fetchReservation()
+  updatePhoneNumber()
+  await fetchCustomers()
 })
 
 const formatDate = (date: any) =>
-  new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+  new Date(date).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  })
 
-const formatDateTime = (dateTime: any) => new Date(dateTime).toLocaleString('fr-FR')
-
+const formatDateTime = (dateTime: any) =>
+  new Date(dateTime).toLocaleString('fr-FR')
 </script>
 
 <style scoped>
-/* Add any additional styles here if needed */
+
 </style>

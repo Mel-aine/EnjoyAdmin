@@ -590,8 +590,8 @@ const getRoomTypeName = (id: number): string => {
                   </div>
                 </div>
                 <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.checkout }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('Release') }}</p>
+                  <p class="text-sm font-medium text-gray-900">{{ roomStats.out_of_order }}</p>
+                  <p class="text-xs text-gray-500">{{ $t('statut.outOfOrder') }}</p>
                 </div>
               </div>
             </div>
@@ -627,7 +627,7 @@ const getRoomTypeName = (id: number): string => {
                   <option value="available">{{ $t('Available') }}</option>
                   <option value="booked">{{ $t('Booked') }}</option>
                   <option value="occupied">{{ $t('Occupied') }}</option>
-                  <option value="checkout">{{ $t('Release') }}</option>
+                  <option value="out_of_order">{{ $t('statut.outOfOrder') }}</option>
                   <option value="cleaning">{{ $t('Cleaning') }}</option>
                   <option value="maintenance">{{ $t('Maintenance') }}</option>
                 </select>
@@ -656,31 +656,7 @@ const getRoomTypeName = (id: number): string => {
                   <option value="96">96 {{ $t('per page') }}</option>
                 </select>
 
-                <!-- View toggle -->
-                <div class="flex border border-gray-300 rounded-md">
-                  <button
-                    @click="viewMode = 'grid'"
-                    :class="[
-                      'px-3 py-2 text-sm font-medium rounded-l-md',
-                      viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-                    ]"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                    </svg>
-                  </button>
-                  <button
-                    @click="viewMode = 'list'"
-                    :class="[
-                      'px-3 py-2 text-sm font-medium rounded-r-md',
-                      viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-                    ]"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
-                  </button>
-                </div>
+
               </div>
             </div>
           </div>
@@ -697,10 +673,8 @@ const getRoomTypeName = (id: number): string => {
           </div>
         </div>
 
-        <!-- Rooms Grid/List -->
-        <div v-else class="bg-white shadow rounded-lg">
-          <!-- Grid View -->
-          <div v-if="viewMode === 'grid'" class="p-6">
+
+          <div  class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
@@ -708,89 +682,15 @@ const getRoomTypeName = (id: number): string => {
                 :room="room"
                 :isCheckingIn="isCheckingIn"
                 :isCheckingOut="isCheckingOut"
+                @request-status-change="handleQuickStatusChange(room, $event)"
                 @change="handleStatusChange"
-                @checkin="handleCheckIn(room)"
-                @checkout="handleCheckOut(room)"
+                @maintenance-set = "handleMaintenance(room, $event)"
                 @cleaned="handleMarkCleaned(room)"
                 @status-change="handleQuickStatusChange"
               />
             </div>
           </div>
 
-          <!-- List View -->
-          <div v-else class="overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('Room') }}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('Type') }}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('Status') }}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('Guest') }}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('Next Available') }}
-                  </th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('Actions') }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="(room, index) in paginatedRooms" :key="room.id" class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      {{ room.productName }}
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">
-                      {{ room.productTypeName }}
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge :status="room.status"  :row-index="index"  :total-rows="paginatedRooms.length" @change="handleQuickStatusChange(room, $event)" />
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">
-                      {{ room.guestName || '-' }}
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">
-                      {{ room.nextAvailable ? formatDate(room.nextAvailable) : '-' }}
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <ActionButtons
-                      :room="room"
-                      :isCheckingIn="isCheckingIn"
-                      :isCheckingOut="isCheckingOut"
-                      @checkin="handleCheckIn(room)"
-                      @checkout="handleCheckOut(room)"
-                      @cleaned="handleMarkCleaned(room)"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Empty State -->
-          <div v-if="filteredRooms.length === 0" class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ $t('No rooms found') }}</h3>
-            <p class="mt-1 text-sm text-gray-500">{{ $t('Try adjusting your search or filter criteria') }}</p>
-          </div>
-        </div>
 
         <!-- Pagination -->
         <div v-if="filteredRooms.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow">
@@ -871,9 +771,58 @@ const getRoomTypeName = (id: number): string => {
       v-if="showStatusModal"
       :room="selectedRoom"
       :currentStatus="selectedRoom?.status"
+      @updateStatus = "confirmStatusChange"
       @close="showStatusModal = false"
-      @confirm="confirmStatusChange"
     />
+    <!-- Modal de maintenance -->
+    <div v-if="showMaintenanceModal" class="fixed inset-0 bg-opacity-50 overflow-y-auto h-full w-full bg-black/25 bg-opacity-50 flex items-center justify-center modal z-99999 ">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold mb-4">{{ $t('maintenanceSetup') }}</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('reason') }}</label>
+            <select v-model="maintenanceForm.reason" class="w-full p-2 border border-gray-300 rounded-md">
+              <option value="plumbing">{{ $t('plumbing') }}</option>
+              <option value="electrical">{{ $t('electrical') }}</option>
+              <option value="cleaning">{{ $t('deepCleaning') }}</option>
+              <option value="renovation">{{ $t('renovation') }}</option>
+              <option value="other">{{ $t('other') }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('priority') }}</label>
+            <select v-model="maintenanceForm.priority" class="w-full p-2 border border-gray-300 rounded-md">
+              <option value="low">{{ $t('priority.low') }}</option>
+              <option value="medium">{{ $t('priority.medium') }}</option>
+              <option value="high">{{ $t('priority.high') }}</option>
+              <option value="urgent">{{ $t('priority.urgent') }}</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('debut') }}</label>
+            <input v-model="maintenanceForm.estimatedDuration" type="date" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Heures">
+          </div>
+           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('fin') }}</label>
+            <input v-model="maintenanceForm.estimatedDuration" type="date" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Heures">
+          </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('notes') }}</label>
+            <textarea v-model="maintenanceForm.notes" class="w-full p-2 border border-gray-300 rounded-md" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-6">
+          <button @click="showMaintenanceModal = false" class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+            {{ $t('cancel') }}
+          </button>
+          <button @click="confirmMaintenance" class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700">
+            {{ $t('confirm') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </AdminLayout>
 </template>
 
@@ -881,12 +830,11 @@ const getRoomTypeName = (id: number): string => {
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import { ref, computed, onMounted, watch } from 'vue'
 import RoomCard from './RoomCard.vue'
-import StatusBadge from './StatusBadge.vue'
-import ActionButtons from './ActionButtons.vue'
 import StatusChangeModal from './StatusChangeModal.vue'
 import { useServiceStore } from '@/composables/serviceStore';
-import { getServiceProductWithOptions, getTypeProductByServiceId } from "@/services/api";
-import { checkInReservation, checkOutReservation, getRoomReservations, setAvailable } from "@/services/reservation";
+import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus } from "@/services/api";
+import { checkInReservations, checkOutReservations, getRoomReservations, setAvailable } from "@/services/reservation";
+import Input from "@/components/forms/FormElements/Input.vue";
 
 // State variables
 const serviceProducts = ref<any[]>([]);
@@ -900,11 +848,11 @@ const isCheckingIn = ref(false);
 const isCheckingOut = ref(false);
 const isLoading = ref(false);
 const roomTypeData = ref<any[]>([]);
-const viewMode = ref('grid');
 const itemsPerPage = ref(12);
-const currentPage = ref(1);
+const currentPage = ref<any>(1);
 const showStatusModal = ref(false);
 const selectedRoom = ref<any>(null);
+const showMaintenanceModal = ref(false)
 
 // Pagination computed properties
 const totalPages = computed(() => Math.ceil(filteredRooms.value.length / itemsPerPage.value));
@@ -981,14 +929,21 @@ const fetchServiceProduct = async () => {
             console.warn(`Erreur lors de la récupération des réservations pour ${product.id}:`, error);
           }
 
-          let nextAvailable = null;
-          if (reservations.length > 0) {
-            const sortedReservations = reservations
-              .filter(r => r.reservation?.departDate)
-              .sort((a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime());
+          let nextAvailable: string | null = null;
+          let checkOutTime: string | null = null;
 
-            nextAvailable = sortedReservations[0]?.reservation?.departDate || null;
+          const reservationsWithDepartDate = reservations.filter(r => r.reservation?.departDate);
+
+          if (reservationsWithDepartDate.length > 0) {
+            const sortedByDepartDateDesc = reservationsWithDepartDate.sort(
+              (a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime()
+            );
+
+            const latestReservation = sortedByDepartDateDesc[0];
+            nextAvailable = latestReservation?.reservation?.departDate || null;
+            checkOutTime = latestReservation?.reservation?.departDate || null;
           }
+
 
           const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in');
           const guestName = checkedInGuest
@@ -1001,6 +956,7 @@ const fetchServiceProduct = async () => {
             reservations: reservations,
             guestName: guestName,
             nextAvailable,
+            checkOutTime,
             status: product.status || 'available'
           };
         })
@@ -1098,7 +1054,7 @@ const roomStats = computed(() => {
     occupied: 0,
     maintenance: 0,
     cleaning: 0,
-    checkout: 0,
+    out_of_order: 0,
     total: flattenServiceProducts.value.length
   };
 
@@ -1115,11 +1071,6 @@ const getRoomTypeName = (id: number): string => {
   return roomTypeData.value.find((t: any) => t.value === id)?.label || '';
 };
 
-const formatDate = (dateString: string): string => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString();
-};
 
 const refreshRooms = async () => {
   await fetchServiceProduct();
@@ -1148,32 +1099,57 @@ const exportData = () => {
   URL.revokeObjectURL(url);
 };
 
+
 const handleStatusChange = (payload: any) => {
-  if (!payload || !payload.room || !payload.status) {
+  // Accepter les deux formats : {room, status} ou {roomId, newStatus}
+  let roomId, newStatus;
+
+  if (payload.roomId && payload.newStatus) {
+    // Format du modal StatusChangeModal
+    roomId = payload.roomId;
+    newStatus = payload.newStatus;
+  } else if (payload.room && payload.status) {
+    roomId = payload.room.id;
+    newStatus = payload.status;
+  } else {
     console.error("handleStatusChange appelé avec un payload invalide :", payload);
     return;
   }
 
-  const { room, status } = payload;
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === room.id);
+  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
 
   if (!roomToUpdate) {
-    console.warn(`Chambre avec ID ${room.id} non trouvée dans serviceProducts.`);
+    console.warn(`Chambre avec ID ${roomId} non trouvée dans serviceProducts.`);
     return;
   }
 
-  roomToUpdate.status = status;
+  roomToUpdate.status = newStatus;
 
-  if (status === 'cleaning') {
+  updateRoomStatus(roomId, newStatus)
+    .then(() => {
+      console.log(`Statut de la chambre ${roomId} mis à jour sur le serveur.`);
+    })
+    .catch((error) => {
+      console.error(`Erreur lors de la mise à jour du statut sur le serveur :`, error);
+    });
+
+  if (newStatus === 'cleaning') {
     setTimeout(() => {
       if (roomToUpdate.status === 'cleaning') {
         roomToUpdate.status = 'available';
-        console.log(`Chambre ${roomToUpdate.id} changée automatiquement à 'available' après nettoyage.`);
+
+        updateRoomStatus(roomId, 'available')
+          .then(() => {
+            console.log(`Chambre ${roomId} changée automatiquement à 'available' et mise à jour sur le serveur.`);
+          })
+          .catch((error) => {
+            console.error(`Erreur lors de la mise à jour automatique du statut :`, error);
+          });
       }
-    }, 1800000);
+    }, 1800000); // 30 minutes
   }
 
-  if (status === 'maintenance') {
+  if (newStatus === 'maintenance') {
     delete roomToUpdate.guestName;
     delete roomToUpdate.checkInTime;
     delete roomToUpdate.checkOutTime;
@@ -1181,7 +1157,7 @@ const handleStatusChange = (payload: any) => {
     console.log(`Données client supprimées pour la chambre ${roomToUpdate.id} (maintenance).`);
   }
 
-  console.log(`Chambre ${room.name || room.productName} - Nouveau statut: ${status}`);
+  console.log(`Chambre ${roomToUpdate.productName} - Nouveau statut: ${newStatus}`);
 };
 
 const handleQuickStatusChange = (room: any, newStatus: string) => {
@@ -1189,121 +1165,183 @@ const handleQuickStatusChange = (room: any, newStatus: string) => {
   showStatusModal.value = true;
 };
 
-const confirmStatusChange = (newStatus: string) => {
-  if (selectedRoom.value) {
-    handleStatusChange({ room: selectedRoom.value, status: newStatus });
-  }
+const handleMaintenance = (room:any)=>{
+  selectedRoom.value = room;
+  showMaintenanceModal.value = true;
+}
+
+// const confirmMaintenance = () => {
+//   const maintenanceData = {
+//     reason: maintenanceForm.value.reason,
+//     priority: maintenanceForm.value.priority,
+//     estimatedDuration: maintenanceForm.value.estimatedDuration,
+//     notes: maintenanceForm.value.notes,
+//     startDate: new Date().toISOString(),
+//     estimatedEndDate: maintenanceForm.value.estimatedDuration
+//       ? new Date(Date.now() + (maintenanceForm.value.estimatedDuration * 60 * 60 * 1000)).toISOString()
+//       : null
+//   }
+
+//   // emit('maintenance-set', { room: props.room, maintenanceData })
+//   showMaintenanceModal.value = false
+
+//   Object.keys(maintenanceForm).forEach(key => {
+//     maintenanceForm[key] = key === 'reason' ? 'plumbing' : key === 'priority' ? 'medium' : ''
+//   })
+// }
+const confirmStatusChange = (payload: { roomId: number | string; newStatus: string }) => {
+  handleStatusChange(payload);
   showStatusModal.value = false;
   selectedRoom.value = null;
 };
 
+/*const notifySuccess = (message: string) => alert(message);
+const notifyError = (message: string) => alert(message);
+
+// mise à jour locale
+const updateLocalReservationState = (room: any, wrapperId: number, guestName: string) => {
+  const now = new Date().toISOString();
+
+  const reservationIndex = room.reservations.findIndex((res: any) => res.id === wrapperId);
+  if (reservationIndex !== -1) {
+    room.reservations[reservationIndex].reservation.status = 'checked-in';
+    room.reservations[reservationIndex].reservation.check_in_date = now;
+  }
+
+  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === room.id);
+  if (roomToUpdate) {
+    roomToUpdate.status = 'occupied';
+    roomToUpdate.guestName = guestName;
+    roomToUpdate.checkInTime = now;
+  }
+};
+
+ de check-in et check out
 const handleCheckIn = async (room: any) => {
   isCheckingIn.value = true;
+
   try {
     console.log(`[handleCheckIn] Début du check-in pour la chambre:`, room.name || room.productName);
 
-    const confirmedReservation = room.reservations?.find(
-      (res: any) => res.reservation.status === 'confirmed'
+   const confirmedWrapper = room.reservations?.find(
+      (res: any) => res.reservation?.status?.toLowerCase() === 'confirmed'
     );
 
-    if (!confirmedReservation) {
-      console.log(`[handleCheckIn] Aucune réservation confirmée`);
+    console.log("confirmedWrapper", room.reservations)
+
+    if (!confirmedWrapper) {
+      console.warn('[handleCheckIn] Aucun wrapper avec status "confirmed" trouvé');
+      room.reservations?.forEach((res: any, i: number) => {
+        console.log(`→ Réservation ${i}: wrapper.status = ${res.status}`);
+      });
+      notifyError('Aucune réservation confirmée trouvée pour cette chambre.');
       return;
     }
 
-    const guestName = confirmedReservation.creator.firstName;
-    console.log(`[handleCheckIn] Nom du client trouvé:`, guestName);
 
-    try {
-      const result = await checkInReservation(confirmedReservation.reservationId);
-      const updatedProduct = result.reservationProducts;
+    const reservationId = confirmedWrapper.reservation.id;
+    const reservationServiceProductId = confirmedWrapper.id;
+    const guestName = confirmedWrapper.creator?.firstName || 'Client inconnu';
 
-      const index = room.reservations.findIndex((res: any) => res.id === confirmedReservation.id);
-      if (index !== -1) {
-        room.reservations[index] = { ...confirmedReservation, status: 'checked-in' };
+    console.log(`[handleCheckIn] Client: ${guestName}, Reservation ID: ${reservationId}`);
+
+    const result = await checkInReservations(reservationId, [reservationServiceProductId]);
+
+    const updatedReservation = result.reservation;
+    const updatedProducts = result.reservationProducts;
+
+    console.log(`[handleCheckIn] API Check-in réussi`, updatedReservation, updatedProducts);
+
+    updateLocalReservationState(room, reservationServiceProductId, guestName);
+
+    await fetchServiceProduct();
+
+    console.log(`[handleCheckIn] Check-in terminé pour ${reservationId}`);
+    notifySuccess(`Check-in réussi pour ${guestName}`);
+
+  } catch (apiError: any) {
+    console.error('[handleCheckIn] Erreur lors du check-in:', apiError);
+
+    if (apiError.response) {
+      const status = apiError.response.status;
+      const data = apiError.response.data;
+
+      switch (status) {
+        case 404:
+          notifyError('Réservation ou produit non trouvé. Veuillez actualiser la page.');
+          break;
+        case 400:
+          notifyError('Données invalides pour le check-in. Veuillez vérifier.');
+          break;
+        case 500:
+          notifyError('Erreur serveur. Veuillez réessayer.');
+          break;
+        default:
+          notifyError(`Erreur: ${data?.message || 'Erreur inconnue.'}`);
       }
-
-      const roomToUpdate = serviceProducts.value.find((r) => r.id === room.id);
-      if (roomToUpdate) {
-        roomToUpdate.status = updatedProduct.status;
-        roomToUpdate.guestName = guestName;
-        roomToUpdate.checkInTime = new Date().toISOString();
-        console.log(`[handleCheckIn] Chambre mise à jour:`, roomToUpdate);
-      }
-
-      await fetchServiceProduct();
-    } catch (apiError) {
-      console.error('[handleCheckIn] Erreur API check-in:', apiError);
+    } else if (apiError.request) {
+      notifyError('Le serveur ne répond pas. Vérifiez votre connexion.');
+    } else {
+      notifyError('Erreur technique lors du check-in.');
     }
-  } catch (error) {
-    console.error("[handleCheckIn] Erreur générale :", error);
-    alert("Erreur lors du check-in. Veuillez réessayer.");
   } finally {
     isCheckingIn.value = false;
   }
 };
 
-const handleCheckOut = async (room: any) => {
-  isCheckingOut.value = true;
-  try {
-    console.log(`Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
 
-    if (!room.reservations?.length) {
-      console.log("Aucune réservation trouvée pour cette chambre.");
-      return;
-    }
+// const handleCheckOut = async (room: any) => {
+//   isCheckingOut.value = true;
+//   try {
+//     console.log(`Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
 
-    const checkedInReservation = room.reservations.find(
-      (res: any) => res.reservation.status === 'checked-in'
-    );
+//     if (!room.reservations?.length) {
+//       console.log("Aucune réservation trouvée pour cette chambre.");
+//       alert("Aucune réservation trouvée.");
+//       return;
+//     }
 
-    if (!checkedInReservation) {
-      console.log("Aucune réservation en cours (status 'checked-in') trouvée.");
-      return;
-    }
+//     const checkedInWrapper = room.reservations.find(
+//       (res: any) => res.reservation.status === 'checked-in'
+//     );
+//     console.log("checkedInWrapper",room.reservation)
 
-    try {
-      await checkOutReservation(checkedInReservation.reservationId);
-      checkedInReservation.reservation.status = 'checked-out';
-      console.log("Check-out effectué avec succès.");
-    } catch (apiError) {
-      console.error('Erreur API lors du check-out de la réservation:', apiError);
-      alert("Erreur lors du check-out à l'API. Veuillez réessayer.");
-      return;
-    }
+//     if (!checkedInWrapper) {
+//       console.log("Aucune réservation avec status 'checked-in' trouvée.");
+//       alert("Aucune réservation en cours trouvée pour cette chambre.");
+//       return;
+//     }
 
-    const roomToUpdate = serviceProducts.value.find(r => r.id === Number(room.id));
-    if (!roomToUpdate) {
-      console.warn(`La chambre avec l'ID ${room.id} n'a pas été trouvée dans serviceProducts.`);
-      return;
-    }
+//     const reservationId = checkedInWrapper.reservation.id;
+//     const reservationServiceProductId = checkedInWrapper.id;
+//     const guestName = checkedInWrapper.creator?.firstName || 'Client inconnu';
 
-    roomToUpdate.status = 'checked-out';
-    roomToUpdate.checkOutTime = new Date().toISOString();
-    console.log(`Statut chambre => 'checked-out', checkOutTime = ${roomToUpdate.checkOutTime}`);
+//     console.log(`[handleCheckOut] Reservation ID: ${reservationId}`);
+//     console.log(`[handleCheckOut] ReservationServiceProduct ID: ${reservationServiceProductId}`);
 
-    setTimeout(() => {
-      if (roomToUpdate.status === 'checked-out') {
-        roomToUpdate.status = 'cleaning';
-        console.log(`Statut chambre auto-changé à 'cleaning' après 1 minute.`);
+//     const result = await checkOutReservations(reservationId, [reservationServiceProductId])
+//     console.log("[handleCheckOut] Réponse API:", result?.data);
 
-        delete roomToUpdate.guestName;
-        delete roomToUpdate.checkInTime;
-        delete roomToUpdate.checkOutTime;
-        delete roomToUpdate.nextAvailable;
+//     checkedInWrapper.status = 'checked-out';
+//     checkedInWrapper.check_out_date = new Date().toISOString();
 
-        console.log("Données client nettoyées.");
-      }
-    }, 60000);
+//     const roomToUpdate = serviceProducts.value.find((r) => r.id === room.id);
+//     if (roomToUpdate) {
+//       roomToUpdate.status = 'checked-out';
+//       roomToUpdate.checkOutTime = new Date().toISOString();
+//       console.log(`→ Chambre mise à jour localement : status = 'checked-out', checkOutTime = ${roomToUpdate.checkOutTime}`);
+//     }
 
-    await fetchServiceProduct();
-  } catch (error) {
-    console.error("Erreur générale lors du check-out :", error);
-    alert("Erreur lors du check-out. Veuillez réessayer.");
-  } finally {
-    isCheckingOut.value = false;
-  }
-};
+//     await fetchServiceProduct();
+//     alert(`Check-out réussi pour ${guestName}`);
+//   } catch (error: any) {
+//     console.error("Erreur lors du check-out :", error);
+//     alert("Erreur lors du check-out. Veuillez réessayer.");
+//   } finally {
+//     isCheckingOut.value = false;
+//   }
+// };
+*/
 
 const handleMarkCleaned = async (room: any) => {
   const roomToUpdate = serviceProducts.value.find(r => r.id === room.id);
@@ -1316,6 +1354,13 @@ const handleMarkCleaned = async (room: any) => {
     }
   }
 };
+
+const maintenanceForm = ref({
+  reason: 'plumbing',
+  priority: 'medium',
+  estimatedDuration: '',
+  notes: ''
+})
 </script>
 
 <style scoped>

@@ -77,119 +77,8 @@
               {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}
             </h4>
           </div>
-          <!-- <form @submit.prevent="handleSubmit" class="flex flex-col custom-scrollbar h-[458px] overflow-y-auto">
-            <div class=" p-2">
-              <div class="space-y-8">
-
-                <div>
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                    {{ $t('RoomInformation') }}
-                  </h2>
-                  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
-                    <Input
-                      :lb="$t('Name')"
-                      :id="'name'"
-                      :forLabel="'name'"
-                      v-model="formData.name"
-                    />
-
-                     <Select :lb="$t('RoomTypes')" :options="roomTypeData" v-model="formData.roomType" />
-
-                     <Input
-                      :lb="$t('Rent')"
-                      :placeholder="'Ex: 1000 FCFA'"
-                      :id="'rent'"
-                      :forLabel="'rent'"
-                      :disabled="true"
-                      v-model="formData.rent"
-                    />
-                    <Select :lb="$t('Status')" :options="status" v-model="formData.status" />
-                    <div>
-                      <label
-                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >
-                        {{ $t('Description') }}
-                      </label>
-                      <textarea
-                        v-model="formData.description"
-                        :placeholder="$t('Largetext')"
-                        rows="6"
-                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                      ></textarea>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div>
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                    {{ $t('DefaultOptions') }}
-                  </h2>
-                  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div v-for="option in defaultOptions" :key="option.id">
-                      <Select
-                        :lb="option.optionName"
-                        :options="option.values"
-                        v-model="formData.options[option.id]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-
-                <div>
-                  <button
-                    @click.prevent="show = !show"
-                    class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                  >
-                    <span v-if="!show">➕ {{ $t('Addotheroptions') }}</span>
-                    <span v-else>➖ {{ $t('Hideoptions') }}</span>
-                  </button>
-                </div>
-
-                <div v-if="show">
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-4">
-                    {{ $t('AdditionalOptions') }}
-                  </h2>
-                  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div v-for="option in hideOptions" :key="option.id">
-                      <Select
-                        :lb="option.optionName"
-                        :options="option.values"
-                        v-model="formData.options[option.id]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end ">
-
-              <button
-                @click="closeModal()"
-                type="button"
-                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-                :disabled="isLoading"
-              >
-                {{ $t('Cancel') }}
-              </button>
-
-
-              <button
-                type="submit"
-                :disabled="isLoading"
-                class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto"
-              >
-                <span v-if="!isLoading"> {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
-                <span v-else class="flex items-center gap-2">
-                  <Spinner class="w-4 h-4" />
-                  {{ $t('Processing') }}...
-                </span>
-              </button>
-            </div>
-          </form> -->
           <form
-            class="flex flex-col custom-scrollbar h-[550px] overflow-y-auto p-1"
+            class="flex flex-col custom-scrollbar h-[460px] overflow-y-auto p-1"
           >
             <!-- Section Informations Générales -->
             <fieldset class="space-y-6">
@@ -897,14 +786,16 @@ const confirmDelete = async () => {
       ServiceProduct.value = ServiceProduct.value.filter((r: any) => r.id !== selectedRoomId.value)
       fetchServiceProduct()
       console.log(`Suppression du room  ID: ${selectedRoomId.value}`)
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error)
+    } catch (error:any) {
+      console.error('Error:', error?.data?.message || 'Unexpected error occurred')
+        toast.error(t('errorKey'))
     } finally {
       loadingDelete.value = false
       Show.value = false
       selectedRoomId.value = null
     }
   }
+
 }
 
 const updateFormData = async () => {

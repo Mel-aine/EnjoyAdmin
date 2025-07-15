@@ -197,7 +197,7 @@ export function useBooking() {
         depart_date: form.value.departureDate,
         special_requests: form.value.normalDescription,
         paid_amount: 0,
-        created_by: authStore.UserId,
+        created_by: serviceStore.serviceId,
         customer_type: reservationCustomerType.value,
         company_name: formData.value.companyName || '',
         group_name: formData.value.groupName || '',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watch } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
-import { getUser, getReservation } from '@/services/api';
+import { getCustomer } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore';
 
 const props = defineProps({
@@ -18,6 +18,7 @@ const searchQuery = ref('');
 const selectedCustomer = ref<any>({});
 const emit = defineEmits(['customerSelected']);
 
+
 const filterCustomer = () => {
   const query = searchQuery.value.toLowerCase().trim();
 
@@ -27,17 +28,14 @@ const filterCustomer = () => {
   }
 
   filteredCustomers.value = customers.value.filter(c => {
+    const firstNameMatch = c.firstName?.toLowerCase().startsWith(query);
+    const lastNameMatch = c.lastName?.toLowerCase().startsWith(query);
+    const fullNameMatch = c.userFullName?.toLowerCase().startsWith(query);
 
-    const nameMatch = (
-      c.firstName?.toLowerCase().includes(query) ||
-      c.lastName?.toLowerCase().includes(query) ||
-      c.userFullName?.toLowerCase().includes(query)
-    );
-
-    // return idMatch || phoneMatch || userIdMatch || nameMatch;
-    return nameMatch;
+    return firstNameMatch || lastNameMatch || fullNameMatch;
   });
 };
+
 
 watch(searchQuery, (newValue) => {
   const query = newValue.toLowerCase().trim();
@@ -79,7 +77,6 @@ const selectCustomer = (customer: any) => {
   selectedCustomer.value = { ...customer };
   emit('customerSelected', selectedCustomer.value);
   console.log("Selected customer:", selectedCustomer.value);
-  // searchQuery.value = `${customer.firstName} ${customer.lastName} (${customer.phoneNumber})`;
   searchQuery.value = `${customer.firstName}`;
   filteredCustomers.value = [];
 };
@@ -92,35 +89,31 @@ const clearSearch = () => {
   emit('customerSelected', null);
 };
 
-const fetchUsers = async () => {
-  try {
-    const response = await getUser();
-    users.value = response.data.data;
-  } catch (error) {
-    console.error('Failed to fetch users:', error);
-  }
-};
 
-const fetchReservation = async () => {
+const fetchCustomers = async () => {
   try {
     const serviceId = serviceStore.serviceId;
-    const response = await getReservation(serviceId);
-    customers.value = response.data.map((res: any) => {
-      const user = users.value.find((u: any) => u.id === res.userId);
+    const response = await getCustomer(serviceId);
+    customers.value= response.data.map((c:any)=>{
       return {
-        ...res,
-        ...user,
-        userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-      };
-    });
+        ...c,
+        firstName : c.first_name,
+        lastName : c.last_name,
+        phoneNumber:c.phone_number,
+        email:c.email
+
+      }
+    })
+    console.log("customers",customers.value)
+
   } catch (error) {
     console.error('Failed to fetch reservations:', error);
   }
 };
 
-onBeforeMount(async () => {
-  await fetchUsers();
-  await fetchReservation();
+
+onBeforeMount(() => {
+  fetchCustomers()
 });
 
 
@@ -145,11 +138,11 @@ onBeforeMount(async () => {
               {{ customer.firstName }} {{ customer.lastName }}
             </div>
             <div class="text-sm text-gray-500 flex items-center gap-4">
-              <span>ID: {{ customer.id }}</span>
-              <span v-if="customer.phoneNumber">{{ customer.phoneNumber }}</span>
-              <span v-if="customer.userId && customer.userId !== customer.id" class="text-xs">
-                User ID: {{ customer.userId }}
+               <span  class="text-xs">
+                ID: {{ customer.id }}
               </span>
+              <span v-if="customer.phoneNumber">{{ customer.phoneNumber }}</span>
+
             </div>
           </div>
         </li>

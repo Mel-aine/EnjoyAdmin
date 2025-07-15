@@ -48,11 +48,39 @@ export const checkInReservation = async (reservationId: number): Promise<any | u
   }
 }
 
+export const checkInReservations = async (
+  reservationId: number,
+  reservationServiceProductIds: number[]
+): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
+      `/reservations/${reservationId}/check-in`,
+      { reservationServiceProducts: reservationServiceProductIds }
+    );
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+
 // Check-out d'une réservation
 export const checkOutReservation = async (reservationId: number): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
       `/reservations/${reservationId}/check-out`,
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const checkOutReservations = async (reservationId: number,reservationServiceProductIds: number[]): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
+      `/reservations/${reservationId}/check-out`,{ reservationServiceProducts: reservationServiceProductIds }
     )
     console.log(response.data)
     return response.data

@@ -44,19 +44,19 @@
               </div>
               <div class="flex items-center gap-3">
                 <Phone class="text-indigo-400"/>
-                <span class="text-gray-600">{{ customer.phoneNumber }}</span>
+                <span class="text-gray-600">{{ customer.phone_number }}</span>
               </div>
             </div>
             <div class="space-y-3">
               <div class="flex items-center gap-3">
                 <Users class="text-indigo-400"/>
                 <span class="text-gray-600">
-                  {{ customer.guestCount }} {{ $t('guests') }}
+                  {{ reservationCustomer.guestCount }} {{ $t('guests') }}
                 </span>
               </div>
               <div class="flex items-center gap-3">
                 <Bookmark class="text-indigo-400"/>
-                <span class="text-gray-600">{{ customer.reservationType }}</span>
+                <span class="text-gray-600">{{ reservationCustomer.reservationType }}</span>
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@
               <span
                 class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm status-badge"
               >
-                {{$t(`${customer.status}`)}}
+                {{$t(`${reservationCustomer.status}`)}}
               </span>
             </div>
             <div class="flex items-center justify-between">
@@ -79,7 +79,7 @@
               <span
                 class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm"
               >
-                {{ $t(`${customer.paymentStatus}`) }}
+                {{ $t(`${reservationCustomer.paymentStatus}`) }}
               </span>
             </div>
           </div>
@@ -101,13 +101,13 @@
               <div>
                 <span class="text-gray-500 text-sm">{{ $t('ArrivedDate') }}</span>
                 <p class="text-gray-600 font-medium">
-                  {{ formatDate(customer.arrivedDate) }}
+                  {{ formatDate(reservationCustomer.arrivedDate) }}
                 </p>
               </div>
               <div class="text-right">
                 <span class="text-gray-500 text-sm">{{ $t('DepartDate') }}</span>
                 <p class="text-gray-600 font-medium">
-                  {{ formatDate(customer.departDate) }}
+                  {{ formatDate(reservationCustomer.departDate) }}
                 </p>
               </div>
             </div>
@@ -133,33 +133,33 @@
             <div class="flex justify-between">
               <span class="text-gray-500">{{ $t('TotalAmount') }}</span>
               <span class="text-gray-600 font-medium">
-                {{ formatCurrency(customer.totalAmount) }}
+                {{ formatCurrency(reservationCustomer.totalAmount) }}
               </span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-500">{{ $t('discount') }}</span>
               <span class="text-gray-600 font-medium">
-                {{ formatCurrency(customer.discountAmount) }}
+                {{ formatCurrency(reservationCustomer.discountAmount) }}
               </span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-500">{{ $t('taxes') }}</span>
               <span class="text-gray-600 font-medium">
-                {{ formatCurrency(customer.taxAmount) }}
+                {{ formatCurrency(reservationCustomer.taxAmount) }}
               </span>
             </div>
             <div class="border-t border-gray-700 pt-3">
               <div class="flex justify-between">
                 <span class="text-gray-500">{{ $t('final_amount') }}</span>
                 <span class="text-green-400 font-bold text-lg">
-                  {{ formatCurrency(customer.finalAmount) }}
+                  {{ formatCurrency(reservationCustomer.finalAmount) }}
                 </span>
               </div>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-500">{{ $t('amount_paid') }}</span>
               <span class="text-blue-400 font-medium">
-                {{ formatCurrency(customer.paidAmount) }}
+                {{ formatCurrency(reservationCustomer.paidAmount) }}
               </span>
             </div>
           </div>
@@ -178,19 +178,19 @@
           <div>
             <span class="text-gray-500 text-sm">{{ $t('Createdon') }}</span>
             <p class="text-gray-600">
-              {{ formatDateTime(customer.createdAt) }}
+              {{ formatDateTime(reservationCustomer.createdAt) }}
             </p>
           </div>
           <div>
             <span class="text-gray-500 text-sm">{{ $t('Modifiedon') }}</span>
             <p class="text-gray-600">
-              {{ formatDateTime(customer.updatedAt) }}
+              {{ formatDateTime(reservationCustomer.updatedAt) }}
             </p>
           </div>
           <div>
             <span class="text-gray-500 text-sm">{{ $t('Comment') }}</span>
             <p class="text-gray-600">
-              {{ customer.comment || $t('no_comment') }}
+              {{ reservationCustomer.comment || $t('no_comment') }}
             </p>
           </div>
         </div>
@@ -238,12 +238,20 @@ import { Users } from 'lucide-vue-next';
 
 
 const store = useBookingStore()
+const customer = ref<any>({})
+let reservationCustomer = ref<any>({})
+const dateArrived = ref('')
+const dateDepart = ref('')
 
 onMounted(() => {
   customer.value = store.selectedCustomer
-  console.log('customer.value :', customer.value)
+  reservationCustomer = customer.value.lastReservation
+  dateArrived.value = customer.value.lastReservation.arrivedDate
+  dateDepart.value = customer.value.lastReservation.departDate
+
+  console.log('customer.value :', customer.value.lastReservation.departDate)
 })
-const customer = ref<any>({})
+
 
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
@@ -274,8 +282,8 @@ const formatCurrency = (amount: string): string => {
 }
 
 const calculateStayDuration = (): number => {
-  const arrival = new Date(customer.value.arrivedDate)
-  const departure = new Date(customer.value.departDate)
+  const arrival = new Date(dateArrived.value)
+  const departure = new Date(dateDepart.value)
   const diff = Math.abs(departure.getTime() - arrival.getTime())
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }

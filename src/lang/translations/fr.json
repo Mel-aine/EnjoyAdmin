@@ -526,6 +526,7 @@
     "checked-in": "Vérification",
     "checkout": "Libération",
     "cleaning": "Nettoyage",
+    "dirty": "A Nettoyé",
     "maintenance": "Entretien",
     "unknown": "Inconnu"
   },
@@ -1900,6 +1901,27 @@
       "Children Allowed": "Enfants autorisés"
     }
   },
+  "statut": {
+      "available": "Disponible",
+      "booked": "Réservée",
+      "occupied": "Occupée",
+      "preCheckout": "Pré-départ",
+      "checkoutPending": "Départ en attente",
+      "dirty": "à nettoyer",
+      "cleaning": "Nettoyage",
+      "clean": "Propre",
+      "maintenance": "Maintenance",
+      "outOfOrder": "Hors service"
+    },
+  "guestArriving": "Client arrivant bientôt",
+  "guestPresent": "Client actuellement dans la chambre",
+  "checkoutTime": "Heure de départ imminente",
+  "awaitingInspection": "En attente d'inspection",
+  "needsCleaning": "La chambre doit être nettoyée",
+  "cleaningInProgress": "Nettoyage en cours",
+  "readyForGuest": "Prête pour un nouveau client",
+  "underMaintenance": "Chambre en maintenance",
+  "roomOutOfOrder": "Chambre hors service",
   "Accommodation": "Hébergement",
   "Amenities": "Équipements",
   "View & Outdoor": "Vue & Extérieur",
@@ -1915,7 +1937,20 @@
   "Room_Details": "Détails de la chambre",
   "Basic_Information": "Informations de base",
   "Specifications": "Spécifications",
-  "Last_updated": "Dernière mise à jour"
+  "Last_updated": "Dernière mise à jour",
+  "List": "Liste",
+  "Grid": "Grille",
+  "AllStatus": "Tous les statuts",
+  "NoDescription": "Aucune description",
+  "NoRoomTypes": "Aucun type de chambre",
+  "StartByCreatingRoomType": "Commencez par créer un type de chambre",
+  "availableAfter": "Disponible après",
+  "checkoutScheduled": "Départ prévu",
+  "maintenanceUntil": "Maintenance jusqu'à",
+  "startCleaning": "Commencer le nettoyage",
+  "markClean": "Marquer comme propre",
+  "restoreService": "Rétablir le service",
+  "errorKey": "Impossible de supprimer cette chambre car elle a des réservations actives."
 
 
 

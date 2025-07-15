@@ -526,6 +526,7 @@
     "checkout": "Check-out",
     "cleaning": "Cleaning",
     "maintenance": "Maintenance",
+    "dirty": "Dirty",
     "unknown": "Unknown"
   },
   "ConfirmPayment": "Confirm Payment",
@@ -1908,6 +1909,27 @@
       "Children Allowed": "Children Allowed"
     }
   },
+  "statut": {
+      "available": "Available",
+      "booked": "Booked",
+      "occupied": "Occupied",
+      "preCheckout": "Pre-checkout",
+      "checkoutPending": "Checkout pending",
+      "dirty": "To clean",
+      "cleaning": "Cleaning",
+      "clean": "Clean",
+      "maintenance": "Maintenance",
+      "outOfOrder": "Out of order"
+    },
+  "guestArriving": "Guest arriving soon",
+  "guestPresent": "Guest currently in room",
+  "checkoutTime": "Checkout time approaching",
+  "awaitingInspection": "Awaiting inspection",
+  "needsCleaning": "Room needs cleaning",
+  "cleaningInProgress": "Cleaning in progress",
+  "readyForGuest": "Ready for new guest",
+  "underMaintenance": "Room under maintenance",
+  "roomOutOfOrder": "Room is out of order",
   "Accommodation": "Accommodation",
   "Amenities": "Amenities",
   "View & Outdoor": "View & Outdoor",
@@ -1917,7 +1939,17 @@
   "Other": "Other",
   "List" : "List",
   "Grid" : "Grid",
-  "AllStatus" : "All Status"
+  "AllStatus" : "All Status",
+  "NoDescription" : "No Description",
+  "NoRoomTypes" : "No Room Types",
+  "StartByCreatingRoomType" : "Start By Creating Room Type",
+  "availableAfter" : "Available After",
+  "checkoutScheduled" : "Checkout Scheduled",
+  "maintenanceUntil" : "Maintenance Until",
+  "startCleaning" : "Start Cleaning",
+  "markClean" : "Mark Clean",
+  "restoreService" : "Restore Service",
+  "errorKey": "Cannot delete this room because it has active reservations."
 
 
 }

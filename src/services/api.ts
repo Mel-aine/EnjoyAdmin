@@ -225,6 +225,10 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
   return axios.get(`${API_URL}/assigmentUser/${serviceId}`)
 }
 
+export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/services/customer/${serviceId}`)
+}
+
 export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/schedules`, {
     params: {
@@ -236,8 +240,8 @@ export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`)
 }
-export const getRoomCountByType =(productTypeId:number):Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/type-products/room-count/${productTypeId}`)
+export const getRoomCountByRoomType =(serviceId: number,productTypeId:number):Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/type-products/room-count?service_id=${serviceId}&product_type_id=${productTypeId}`)
 }
 
 // --- Services API post --- //
@@ -443,6 +447,10 @@ export const updateTaskStatus = (id:number, status:string): Promise<AxiosRespons
   return axios.patch(`${API_URL}/tasks/${id}`, { status })
 }
 
+export const updateRoomStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
+}
+
 //----- SERVICE API Delete ----//
 
 
@@ -452,9 +460,15 @@ export const deleteReservation = (id: number | null): Promise<AxiosResponse<any>
 }
 
 //delete serviceProduct
-export const deleteServiceProduct = (id: number | null): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/service_product/${id}`)
+export const deleteServiceProduct = async (id: number | null): Promise<AxiosResponse<any>> => {
+  try {
+    const response = await axios.delete(`${API_URL}/service_product/${id}`)
+    return response
+  } catch (error: any) {
+    throw error.response
+  }
 }
+
 
 //delete User
 export const deleteUser = (id: number | null): Promise<AxiosResponse<any>> => {

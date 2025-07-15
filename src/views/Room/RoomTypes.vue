@@ -2887,15 +2887,15 @@ const fetchRoomType = async () => {
 
     const typeIds = response.data.map(roomType => roomType.id)
     const roomCounts = await Promise.all(
-      typeIds.map(id => getRoomCountByRoomType(id))
+      typeIds.map(id => getRoomCountByRoomType(serviceId,id))
     )
-console.log("roomCounts",roomCounts)
+      console.log("roomCounts",roomCounts)
     const roomTypesWithCount = response.data.map((roomType, index) => {
       const statusClasses = getStatusColor(roomType.status).split(' ')
 
       return {
         ...roomType,
-        roomCount: roomCounts[index] || 0,
+        roomCount: roomCounts[index].data.total_rooms || 0,
         statusColor: {
           label: t(roomType.status),
           bg: statusClasses[0],
