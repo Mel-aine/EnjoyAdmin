@@ -7,7 +7,7 @@
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-2 text-white text-center rounded-t-xl">
           <h1 class="text-2xl font-bold mb-2">{{ $t('hotel_reservation_details') }}</h1>
           <p class="text-lg">{{ $t('reservation_id') }}: <span class="font-semibold">{{ selectBooking?.reservationNumber
-          }}</span></p>
+              }}</span></p>
         </div>
 
         <div class="p-6 space-y-8">
@@ -32,8 +32,10 @@
               <DetailItem :icon="Clock" :label="$t('expected_departure_date')"
                 :value="formatDate(selectBooking.departDate)" />
 
-              <DetailItem :icon="Clock" :label="$t('check_in')" :value="`${formatDate(selectBooking.checkInDate)}`" />
-              <DetailItem :icon="Clock" :label="$t('check_out')" :value="`${formatDate(selectBooking.checkOutDate)}`" />
+              <DetailItem :icon="Clock" :label="$t('check_in')"
+                :value="`${selectBooking.checkInDate ? formatDate(selectBooking.checkInDate) : ''}`" />
+              <DetailItem :icon="Clock" :label="$t('check_out')"
+                :value="`${selectBooking.checkOutDate ? formatDate(selectBooking.checkOutDate) : ''}`" />
 
               <DetailItem :icon="Bed" :label="$t('total_nights')"
                 :value="`${selectBooking.numberOfNights} ${$t('nights')}`" />
@@ -65,8 +67,8 @@
                   <RefreshCcw class="mr-2 text-gray-500" :size="18" />
                   <span class="font-medium">{{ $t('status') }}:</span>
                   <span class="ml-2 px-3 py-1 rounded-full text-sm font-semibold"
-                    :class="statusClass(room.serviceProduct.status)">
-                    {{ $t(room.serviceProduct.status.toLowerCase().replace(' ', '_')) }}
+                    :class="statusClass(room.status ?? '')">
+                    {{ room.status ? $t(room.status?.toLowerCase().replace(' ', '_')) : '' }}
                   </span>
                 </div>
                 <DetailItem :icon="DollarSign" :label="$t('rate_per_night')"
@@ -76,10 +78,14 @@
                   :value="`${room.extraGuest}`" />
                 <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuestFee')"
                   :value="`${formatCurrency(room.totalExtraGuestPrice ?? 0)}`" />
+                <DetailItem :icon="Clock" :label="$t('check_in')"
+                  :value="`${room.checkInDate ? formatDateT(room.checkInDate) : ''}`" />
+                <DetailItem :icon="Clock" :label="$t('check_out')"
+                  :value="`${room.checkOutDate ? formatDateT(room.checkOutDate) : ''}`" />
 
                 <DetailItem :icon="Tag" :label="$t('discounts')" :value="`-${formatCurrency(room.discounts)}`" />
                 <DetailItem :icon="CreditCard" :label="$t('total_room_price')"
-                  :value="formatCurrency(calculateRoomTotalPrice(room))" />
+                  :value="formatCurrency(room.totalAmount)" />
               </div>
             </div>
           </section>
@@ -167,14 +173,14 @@
             <SectionHeader :icon="PlusCircle" :title="$t('actions')" />
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <!-- Edit Reservation Button -->
-              <button v-if="canEditOrCancel" @click="showToast('Simulating Edit Reservation...')"
-                class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-blue-500 hover:bg-blue-600 text-white"
+              <button v-if="canEditOrCancel" @click="editReservation"
+                class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-purple-600 hover:bg-purple-700 text-white"
                 :disabled="!canEditOrCancel">
                 <Edit :size="18" class="mr-2" /> {{ $t('edit_reservation') }}
               </button>
 
               <!-- Cancel Reservation Button -->
-              <button v-if="canEditOrCancel" @click="handleAction('cancelReservation')"
+              <button v-if="canEditOrCancel" @click="isCancel = true"
                 class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-red-500 hover:bg-red-600 text-white"
                 :disabled="!canEditOrCancel">
                 <Trash2 :size="18" class="mr-2" /> {{ $t('cancel_reservation') }}
@@ -223,7 +229,7 @@
               </button>
 
               <!-- Extend Stay Button -->
-              <button v-if="canExtendStay" @click="showToast('Simulating Extend Stay...')"
+              <button v-if="canExtendStay" @click="isExtendStay = true"
                 class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-indigo-500 hover:bg-indigo-600 text-white"
                 :disabled="!canExtendStay">
                 <Calendar :size="18" class="mr-2" /> {{ $t('extend_stay') }}
@@ -241,6 +247,12 @@
       </div>
     </div>
     <OverLoading v-if="isLoading" />
+    <template v-if="isCancel">
+      <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false" />
+    </template>
+    <template v-if="isExtendStay">
+      <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" />
+    </template>
     <template v-if="selectBooking">
       <PaymentModal :reservation="selectBooking" :is-open="openPayment" @close="openPayment = false"
         @payment-recorded="getPaymentDetails" />
@@ -263,11 +275,13 @@ import type { ActivityLog, ReservationDetails } from '@/utils/models';
 import router from '@/router';
 import { getReservationDetailsById, getReservationHistoryById } from '@/services/api';
 import OverLoading from '@/components/spinner/OverLoading.vue';
-import { formatCurrency } from '@/components/utilities/UtilitiesFunction';
+import { formatCurrency, formatDateT } from '@/components/utilities/UtilitiesFunction';
 import PaymentModal from './PaymentModal.vue';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
 import { isBefore, isToday, parseISO } from 'date-fns'; // Import date-fns utilities
 import { checkInReservation, checkOutReservation } from '@/services/reservation';
+import CancelBookingDetails from './CancelBookingDetails.vue';
+import ExtendStay from './ExtendStay.vue';
 
 const reservation_id = router.currentRoute.value.params.id as string;
 const isLoading = ref(false);
@@ -293,6 +307,11 @@ const formatDate = (dateString: string) => {
 };
 
 
+
+
+
+const isCancel = ref(false);
+const isExtendStay = ref(false);
 const calculateRoomTotalPrice = (room: any) => {
   return (room.ratePerNight + room.taxes - room.discounts) * ((selectBooking.value?.numberOfNights) ?? 0);
 };
@@ -374,15 +393,14 @@ const canCheckOutAll = computed(() => {
 
 const canCheckInRoom = (room: any) => {
   if (!selectBooking.value) return false;
-  return room.serviceProduct.status.toLowerCase() === 'booked' &&
+  return room.status.toLowerCase() === 'pending' &&
     isArrivalDateTodayOrPast.value &&
     paymentStatus.value === 'Fully Paid';
 };
 
 const canCheckOutRoom = (room: any) => {
   if (!selectBooking.value) return false;
-  return room.serviceProduct.status.toLowerCase() === 'checked-in' &&
-    selectBooking.value.status.toLowerCase() !== 'no-show';
+  return room.status.toLowerCase() === 'checked-in';
 };
 
 const canExtendStay = computed(() => {
@@ -489,7 +507,7 @@ const statusClass = (status: string) => {
     case 'en attente': return 'bg-yellow-100 text-yellow-800';
     case 'cancelled': return 'bg-red-100 text-red-800';
     case 'no-show': return 'bg-red-100 text-red-800';
-    case 'checked-in': return 'bg-blue-100 text-blue-800';
+    case 'checked_in': return 'bg-blue-100 text-blue-800';
     case 'checked-out': return 'bg-red-100 text-red-800';
     default: return 'bg-gray-100 text-gray-800';
   }
@@ -502,5 +520,8 @@ onMounted(() => {
   getBookingDetails();
 });
 const getPaymentDetails = async (pay: any) => {
+}
+const editReservation = async () => {
+  router.push({ name: 'EditBooking', params: { id: selectBooking.value?.id } })
 }
 </script>

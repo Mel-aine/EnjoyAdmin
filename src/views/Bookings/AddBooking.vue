@@ -67,10 +67,12 @@
           </div>
 
           <!-- Room Selection Component -->
-          <template v-if="numberOfNights > 0">
+          <template
+            v-if="(numberOfNights > 0 && serviceStore.serviceId) && ((isEditMode && fetchData && fetchData.length > 0) || !isEditMode)">
             <RoomSector :ActiveRoomTypes="ActiveRoomTypes" :availableRooms="availableRooms" @room-change="roomChange"
               :availableTakens="availableTakens" :selectedRoomType="selectedRoomType" :numberOfNights="numberOfNights"
               @update:selectedRoomType="(val) => (selectedRoomType = val)" @update:roomSelections="updateRoomSelections"
+              :arrival-date="form.arrivalDate" :departure-date="form.departureDate" :service-id="serviceStore.serviceId"
               @update:totalPrice="updateTotalPrice" v-model="fetchData" />
           </template>
           <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -113,7 +115,7 @@
                 <div class="flex justify-between items-center">
                   <span class="font-medium text-gray-700 dark:text-gray-300">{{
                     $t('Remaining')
-                  }}</span>
+                    }}</span>
                   <span class="font-bold text-red-600 dark:text-red-400">
                     {{ formatCurrency(remainingAmount) }}
                   </span>
@@ -142,7 +144,7 @@
       </DefaultCard>
     </div>
     <template v-if="selectBooking">
-      <PaymentModal :reservation="selectBooking" :is-open="isPaymentModalOpen" @close="closePaymentModal"/>
+      <PaymentModal :reservation="selectBooking" :is-open="isPaymentModalOpen" @close="closePaymentModal" />
     </template>
   </AdminLayout>
 
@@ -186,6 +188,7 @@ const {
   reservationCustomerType,
   flatpickrConfig,
   form,
+  serviceStore,
   formData,
   dateError,
   numberOfNights,

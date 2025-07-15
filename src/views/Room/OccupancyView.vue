@@ -281,6 +281,7 @@ const handleCheckIn = async (room: any) => {
     const confirmedReservation = room.reservations?.find(
       (res: any) => res.reservation.status === 'confirmed'
     );
+    console.log('checkin',room.reservations)
     console.log(`[handleCheckIn] Réservation confirmée trouvée:`, confirmedReservation);
 
     let guestName = '';

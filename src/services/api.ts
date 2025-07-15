@@ -69,16 +69,13 @@ interface serviceType {
 
 // --- Services API get --- //
 
-
 //get les options
 export const getOptions = (): Promise<AxiosResponse<{ data: OptionType[] }>> => {
   return axios.get(`${API_URL}/option`)
 }
 
 //get les services product by serviceId
-export const getServiceProduct = (
-  serviceId: number | null,
-): Promise<AxiosResponse<any[]>> => {
+export const getServiceProduct = (serviceId: number | null): Promise<AxiosResponse<any[]>> => {
   return axios.get(`${API_URL}/service_product_by_serviceId/${serviceId}`)
 }
 
@@ -115,7 +112,6 @@ export const getServiceProductWithOptions = (
 
   return axios.get(url)
 }
-
 
 export const getTypeProduct = (): Promise<AxiosResponse<{ data: RoomTypeData[] }>> => {
   return axios.get(`${API_URL}/product`)
@@ -200,19 +196,33 @@ export const getRoles = (serviceId: number | null): Promise<AxiosResponse<any>> 
   return axios.get(`${API_URL}/roles_permissions/${serviceId}`)
 }
 
-export const getReservationServiceProduct = (reservationId: number | null): Promise<AxiosResponse<any>> => {
+export const getReservationServiceProduct = (
+  reservationId: number | null,
+): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservation_service/${reservationId}`)
 }
-export const getReservationDetailsById =(reservationId:number):Promise<AxiosResponse<any>> => {
+export const getReservationDetailsById = (reservationId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservations/${reservationId}/details`)
 }
-export const getReservationHistoryById =(reservationId:number):Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/activity-logs/by-entity?entityType=Reservation&entityId=${reservationId}`)
+export const getReservationHistoryById = (reservationId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/activity-logs/by-entity?entityType=Reservation&entityId=${reservationId}`,
+  )
 }
 export const getUserAssignment = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/assigmentUser`)
 }
 
+export const finAvailableHome = (
+  serviceId: number,
+  roomTypeId: number,
+  arrivalDate: string,
+  departureDate: string,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/service-products/available?serviceId=${serviceId}&roomTypeId=${roomTypeId}&arrivalDate=${arrivalDate}&departureDate=${departureDate}`,
+  )
+}
 export const getPermission = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/permission`)
 }
@@ -236,7 +246,6 @@ export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`)
 }
-
 
 // --- Services API post --- //
 
@@ -276,20 +285,22 @@ export const createPayment = (paymentData: any): Promise<AxiosResponse<any>> => 
 
 export function auth(credentials: { email: string; password: string; keepLoggedIn?: boolean }) {
   return axios.post(`${API_URL}/authLogin`, credentials, {
-    withCredentials: true
+    withCredentials: true,
   })
 }
 
 export function logout() {
-  return axios.post(`${API_URL}/authLogout`, {}, {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`
+  return axios.post(
+    `${API_URL}/authLogout`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+      withCredentials: true,
     },
-    withCredentials: true
-  });
+  )
 }
-
-
 
 export function validateEmail(email: string) {
   return axios.post(`${API_URL}/validateEmail`, { email })
@@ -329,25 +340,23 @@ export const movementService = (Data: any): Promise<AxiosResponse<any>> => {
 }
 
 //vehicle
-export const createVehicle = (Data: any) : Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/vehicle`,Data)
+export const createVehicle = (Data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/vehicle`, Data)
 }
 
-export const createRoute = (Data: any) : Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/route`,Data)
+export const createRoute = (Data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/route`, Data)
 }
 
-export const updateRolePermissions = (Data: any) : Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/roles/assign-permissions`,Data)
+export const updateRolePermissions = (Data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/roles/assign-permissions`, Data)
 }
 
-export const createNewRole = (Data: any) : Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/roles`,Data)
+export const createNewRole = (Data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/roles`, Data)
 }
-
 
 // --- Services API put --- //
-
 
 export const updateMovementService = (
   id: number | null,
@@ -437,12 +446,11 @@ export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosRe
   return axios.put(`${API_URL}/payment/${id}/confirm`, Payload)
 }
 
-export const updateTaskStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {
+export const updateTaskStatus = (id: number, status: string): Promise<AxiosResponse<any>> => {
   return axios.patch(`${API_URL}/tasks/${id}`, { status })
 }
 
 //----- SERVICE API Delete ----//
-
 
 //delete reservation
 export const deleteReservation = (id: number | null): Promise<AxiosResponse<any>> => {
@@ -463,7 +471,6 @@ export const deleteRoomType = (id: number | null): Promise<AxiosResponse<any>> =
   return axios.delete(`${API_URL}/product/${id}`)
 }
 
-
 export const deleteMovement = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/movement/${id}`)
 }
@@ -475,7 +482,6 @@ export const deleteProduct = (id: number | null): Promise<AxiosResponse<any>> =>
 export const deleteCategory = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/stockCategory/${id}`)
 }
-
 
 export const deleteSupplier = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/supplier/${id}`)

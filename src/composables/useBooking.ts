@@ -149,8 +149,8 @@ export function useBooking() {
 
   const selectedPaymentMethod = ref('')
   const now = new Date()
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const endOfDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 1, 0, 0, 0)
+  const endOfDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 1, 0, 0)
   const form = ref<ReservationForm>({
     roomType: null,
     package: '',
@@ -351,8 +351,11 @@ export function useBooking() {
     reservationId.value = Number(rawId)
 
     const reservation = (await getReservationById(reservationId.value)).data
+    console.log('reservation record', reservation)
     const customerReservation = (await getUserId(reservation.userId)).data
+    console.log('customerReservation record', customerReservation)
     const reservationProducts = (await getReservationServiceProduct(reservationId.value)).data
+    console.log('reservationProducts record', customerReservation)
     formData.value = {
       ...formData.value,
       firstName: customerReservation.firstName,
@@ -392,8 +395,8 @@ export function useBooking() {
         extra_guest: 0,
         extraGuestPrice: 0,
         totalPrice: 0,
-        totalExtraGuestPrice:0,
-        totalAmount:0
+        totalExtraGuestPrice: 0,
+        totalAmount: 0,
       }
     })
   }
@@ -442,11 +445,7 @@ export function useBooking() {
   })
 
   const availableRooms = computed(() => {
-    const rooms = ServiceProduct.value
-    const existingRoomIds = rooms.map((r: ProductType) => r.id)
-    const missingRooms = fetchData.value
-      .filter((r: RoomSelection) => !existingRoomIds.includes(parseInt(r.roomType)))
-      .map((r: RoomSelection) => {
+    const missingRooms = fetchData.value .map((r: RoomSelection) => {
         const roomFromAll = ProductList.value.find(
           (room: ProductType) => room.id === parseInt(r.roomType),
         ) as any
@@ -462,7 +461,7 @@ export function useBooking() {
         }
       })
 
-    const finalRooms = [...rooms, ...missingRooms]
+    const finalRooms = [ ...missingRooms]
 
     return finalRooms.map((room: any) => ({
       ...room,
