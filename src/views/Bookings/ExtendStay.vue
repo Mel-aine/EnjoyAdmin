@@ -19,11 +19,22 @@
                 <p class="text-gray-700 dark:text-gray-300 mb-4">
                     {{ $t('extend_stay_message') }}
                 </p>
-                <label for="newDepartureDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {{ $t('new_departure_date_label') }}
-                </label>
-                <input type="date" id="newDepartureDate" v-model="newDepartureDate"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                        {{ $t('new_departure_date_label') }}
+                    </label>
+                    <div class="relative">
+                        <flat-pickr v-model="newDepartureDate" :config="flatpickrConfig"
+                            class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                            :placeholder="$t('Selectdate')" />
+                        <span
+                            class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                            <CalendarIcon />
+                        </span>
+                    </div>
+                </div>
+
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     {{ $t('extend_stay_admin_note') }}
                 </p>
@@ -52,6 +63,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import flatPickr from 'vue-flatpickr-component'
+
+import 'flatpickr/dist/flatpickr.css'
+import CalendarIcon from '@/icons/CalendarIcon.vue';
 
 const props = defineProps({
     showModal: {
@@ -62,7 +77,12 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 // Initialisation de vue-i18n
 const { t } = useI18n();
-
+const flatpickrConfig = {
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'F j, Y',
+    wrap: true,
+}
 // État pour contrôler la visibilité de la modale
 // État pour stocker la nouvelle date de départ
 const newDepartureDate = ref('');
