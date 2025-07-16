@@ -1,5 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
+import { useAuthStore } from '@/composables/user'
 
 export interface ApiResponse<T = any> {
   message: string
@@ -20,10 +21,18 @@ export interface Stats {
 
 }
 
+const authStore = useAuthStore()
+const headers = {
+  headers: {
+    Authorization: `Bearer ${authStore.token}`,
+  },
+  withCredentials: true,
+}
+
 export const getGeneralStats = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/availability/${serviceId}`,
+      `/availability/${serviceId}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -34,7 +43,7 @@ export const getGeneralStats = async (serviceId: number | null): Promise<any> =>
 export const getAverageLengthOfStay = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/average-stay`,
+      `/occupancy/${serviceId}/average-stay`, headers
     )
     return response.data || []
   } catch (error) {
@@ -50,7 +59,7 @@ export const getOccupancyRate = async ({
   try {
 
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/stats?period=${period}`
+      `/occupancy/${serviceId}/stats?period=${period}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -66,7 +75,7 @@ export const getOccupancyRateTotal = async ({
   try {
 
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/average-rate?period=${period}`
+      `/occupancy/${serviceId}/average-rate?period=${period}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -82,7 +91,7 @@ export const getADR = async ({
   try {
 
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/adr/${serviceId}/${period}`
+      `/adr/${serviceId}/${period}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -98,7 +107,7 @@ export const getRevenuTotal = async ({
   try {
 
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/revenue/${serviceId}/stats?period=${period}`
+      `/revenue/${serviceId}/stats?period=${period}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -110,7 +119,7 @@ export const getRevenuTotal = async ({
 export const getOccupancyRateMonthly = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/monthly`,
+      `/occupancy/${serviceId}/monthly`,headers
     )
     return response.data || []
   } catch (error) {
@@ -122,7 +131,7 @@ export const getOccupancyRateMonthly = async (serviceId: number | null): Promise
 export const getRevenuTotalMonthly = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/revenue/${serviceId}/monthly-comparison`,
+      `/revenue/${serviceId}/monthly-comparison`,headers
     )
     return response.data || []
   } catch (error) {
@@ -134,7 +143,7 @@ export const getRevenuTotalMonthly = async (serviceId: number | null): Promise<a
 export const getStayDuration = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/stay-duration/${serviceId}`,
+      `/stay-duration/${serviceId}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -145,7 +154,7 @@ export const getStayDuration = async (serviceId: number | null): Promise<any> =>
 export const getRecentReservation = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/reservation_service_serviceId/${serviceId}`,
+      `/reservation_service_serviceId/${serviceId}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -157,7 +166,7 @@ export const getRecentReservation = async (serviceId: number | null): Promise<an
 export const getDemographic = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/clients/origin-stats/${serviceId}`,
+      `/clients/origin-stats/${serviceId}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -169,7 +178,7 @@ export const getDemographic = async (serviceId: number | null): Promise<any> => 
 export const getReservationType = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/reservation/${serviceId}`,
+      `/reservation/${serviceId}`,headers
     )
     return response.data || []
   } catch (error) {

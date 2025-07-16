@@ -2,6 +2,7 @@
 <template>
   <div class="">
     <AdminLayout>
+      <FullScreenLayout>
       <PageBreadcrumb :pageTitle="currentPageTitle" />
 
       <!-- Header avec actions -->
@@ -71,7 +72,7 @@
 
       </div>
 
-      <div class="h-screen">
+      <div class="">
         <!-- Vue Liste -->
         <div v-if="viewMode === 'list'" class="space-y-5 sm:space-y-6 mt-10">
           <TableComponent
@@ -270,6 +271,7 @@
           </div>
         </div>
       </div>
+      </FullScreenLayout>
     </AdminLayout>
 
     <!-- Modal reste identique -->
@@ -369,6 +371,7 @@ import ModalDelete from '@/components/modal/ModalDelete.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { defaultRoomTypes } from '@/assets/data/roomtype'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 
 // États principaux
 const isLoading = ref(false)

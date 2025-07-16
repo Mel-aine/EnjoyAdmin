@@ -477,7 +477,7 @@
   "Selectaplate": "Select a plate",
   "PLATELIST": "PLATE LIST",
   "pleaseadd": " Please add a plate 🍕",
-  "actions": {
+  "Action": {
     "update": "Update",
     "clone": "Clone",
     "save": "Save"
@@ -1714,7 +1714,6 @@
   },
   "Déconnexion de l'application": "Logout from the application",
   "Connexion à l'application": "Login to the application",
-  "checked-in": "Checked-in",
   "checked-out": "Checked-out",
   "confirmed": "Confirmed",
   "active": "Active",
@@ -1832,8 +1831,7 @@
   "room_occupied_no_other_available": "The hotel is fully booked for your requested extension dates. We cannot accommodate your request.",
   "room_occupied_other_available": "Your current room is booked for the new dates, but other room types are available. A room change will be necessary.",
   "extension_successful": "Your extension request has been sent and is awaiting approval. You will be notified shortly.",
-  "checkExtendStayBtn":"Check Extention"
-  "RecordPayment":"Record payment",
+  "checkExtendStayBtn":"Check Extention",
   "capacity" : "Capacity",
   "floor" : "Floor",
   "room_number" : "Room Number",

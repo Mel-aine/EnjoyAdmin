@@ -217,7 +217,7 @@
 
 
           <div  class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
                 :key="room.id"
@@ -227,7 +227,6 @@
                 @request-status-change="handleQuickStatusChange(room, $event)"
                 @change="handleStatusChange"
                 @maintenance-set = "handleMaintenance(room, $event)"
-                @cleaned="handleMarkCleaned(room)"
                 @status-change="handleQuickStatusChange"
               />
             </div>
@@ -375,7 +374,7 @@ import RoomCard from './RoomCard.vue'
 import StatusChangeModal from './StatusChangeModal.vue'
 import { useServiceStore } from '@/composables/serviceStore';
 import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus } from "@/services/api";
-import { checkInReservations, checkOutReservations, getRoomReservations, setAvailable } from "@/services/reservation";
+import { checkInReservations, checkOutReservations, getRoomReservations } from "@/services/reservation";
 
 
 // State variables
@@ -640,66 +639,78 @@ const exportData = () => {
 };
 
 
-const handleStatusChange = (payload: any) => {
-  // Accepter les deux formats : {room, status} ou {roomId, newStatus}
-  let roomId :any,
-   newStatus;
+const handleStatusChange = async (payload: any) => {
+  let roomId: number, newStatus: string
+  let force = false
 
+  // 📦 Format flexible
   if (payload.roomId && payload.newStatus) {
-    // Format du modal StatusChangeModal
-    roomId = payload.roomId;
-    newStatus = payload.newStatus;
+    roomId = payload.roomId
+    newStatus = payload.newStatus
   } else if (payload.room && payload.status) {
-    roomId = payload.room.id;
-    newStatus = payload.status;
+    roomId = payload.room.id
+    newStatus = payload.status
   } else {
-    console.error("handleStatusChange appelé avec un payload invalide :", payload);
-    return;
+    console.error("handleStatusChange appelé avec un payload invalide :", payload)
+    return
   }
 
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
+  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId)
 
   if (!roomToUpdate) {
-    console.warn(`Chambre avec ID ${roomId} non trouvée dans serviceProducts.`);
-    return;
+    console.warn(`Chambre avec ID ${roomId} non trouvée.`)
+    return
   }
 
-  roomToUpdate.status = newStatus;
+  // ✅ Mettre à jour localement pour UI instantanée
+  roomToUpdate.status = newStatus
 
-  updateRoomStatus(roomId, newStatus)
-    .then(() => {
-      console.log(`Statut de la chambre ${roomId} mis à jour sur le serveur.`);
-    })
-    .catch((error) => {
-      console.error(`Erreur lors de la mise à jour du statut sur le serveur :`, error);
-    });
+  const tryUpdate = async (forced = false) => {
+    try {
+      await updateRoomStatus(roomId, newStatus, forced)
+      console.log(`✅ Statut de la chambre ${roomId} mis à jour sur le serveur.`)
+    } catch (error: any) {
+      // ⚠️ Si la chambre est occupée et que l'API demande un forçage
+      if (error?.message?.includes("forcer") || error?.message?.includes("occupée")) {
+        const confirmed = window.confirm("La chambre est occupée. Voulez-vous forcer le changement de statut ?")
+        if (confirmed) {
+          await tryUpdate(true)
+        } else {
+          // 🔄 Rétablir l'ancien statut si refus
+          roomToUpdate.status = payload.room?.status || 'available'
+          console.info(`Changement annulé.`)
+        }
+      } else {
+        console.error("Erreur API :", error)
+      }
+    }
+  }
+
+  await tryUpdate(force)
 
   if (newStatus === 'cleaning') {
     setTimeout(() => {
       if (roomToUpdate.status === 'cleaning') {
-        roomToUpdate.status = 'available';
-
-        updateRoomStatus(roomId, 'available')
-          .then(() => {
-            console.log(`Chambre ${roomId} changée automatiquement à 'available' et mise à jour sur le serveur.`);
-          })
-          .catch((error) => {
-            console.error(`Erreur lors de la mise à jour automatique du statut :`, error);
-          });
+        roomToUpdate.status = 'available'
+        updateRoomStatus(roomId, 'available', false).catch((e) =>
+          console.error("Erreur maj auto cleaning → available :", e)
+        )
       }
-    }, 1800000);
+    }, 1800000)
   }
 
+  // 🧹 Suppression des données clients si maintenance
   if (newStatus === 'maintenance') {
-    delete roomToUpdate.guestName;
-    delete roomToUpdate.checkInTime;
-    delete roomToUpdate.checkOutTime;
-    delete roomToUpdate.nextAvailable;
-    console.log(`Données client supprimées pour la chambre ${roomToUpdate.id} (maintenance).`);
+    delete roomToUpdate.guestName
+    delete roomToUpdate.checkInTime
+    delete roomToUpdate.checkOutTime
+    delete roomToUpdate.nextAvailable
+    console.log(`Données client supprimées pour la chambre ${roomToUpdate.id} (maintenance).`)
   }
 
-  console.log(`Chambre ${roomToUpdate.productName} - Nouveau statut: ${newStatus}`);
-};
+  console.log(`✅ Chambre ${roomToUpdate.productName} → ${newStatus}`)
+}
+
 
 const handleQuickStatusChange = (room: any, newStatus: string) => {
   selectedRoom.value = room;
@@ -884,17 +895,6 @@ const handleCheckIn = async (room: any) => {
 // };
 */
 
-const handleMarkCleaned = async (room: any) => {
-  const roomToUpdate = serviceProducts.value.find(r => r.id === room.id);
-
-  if (roomToUpdate && roomToUpdate.status === 'cleaning') {
-    const result = await setAvailable(roomToUpdate.id);
-
-    if (result) {
-      roomToUpdate.status = 'available';
-    }
-  }
-};
 
 const maintenanceForm = ref({
   reason: 'plumbing',

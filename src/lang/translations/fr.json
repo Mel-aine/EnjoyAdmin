@@ -1809,9 +1809,7 @@
   "maintenance": "Entretien",
   "unknown": "Inconnu",
   "expected_departure_date": "Date de départ prévue",
-  "expected_arrive_date": "Date prévue d'arrivée"
-}
-  "RecordPayment": "Enregistrer le paiement",
+  "expected_arrive_date": "Date prévue d'arrivée",
   "options": {
     "Accommodation Type": "Type d'hébergement",
     "Bed Type": "Type de lit",

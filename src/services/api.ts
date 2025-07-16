@@ -147,12 +147,9 @@ export const getServiceById = (id: number | null): Promise<AxiosResponse<any>> =
   return axios.get(`${API_URL}/services/${id}`, headers)
 }
 
-export const getServiceProductAndReservationById = (id: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/service_products/${id}`)
-}
 
 export const getServiceProductAndReservationById = (id: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/service_products/${id}`)
+  return axios.get(`${API_URL}/service_products/${id}`, headers)
 }
 
 //get user by id
@@ -178,7 +175,7 @@ export const getSupplier = (serviceId: number | null): Promise<AxiosResponse<any
 }
 
 export const getProduct = (serviceId: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/prooductService/${serviceId}`)
+  return axios.get(`${API_URL}/prooductService/${serviceId}`, headers)
 }
 
 export const getDepartment = (serviceId: number | null): Promise<AxiosResponse<any>> => {
@@ -250,12 +247,9 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
   return axios.get(`${API_URL}/assigmentUser/${serviceId}`, headers)
 }
 
-export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/services/customer/${serviceId}`)
-}
 
 export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/services/customer/${serviceId}`)
+  return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
 }
 
 export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
@@ -271,7 +265,7 @@ export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`, headers)
 }
 export const getRoomCountByRoomType =(serviceId: number,productTypeId:number):Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/type-products/room-count?service_id=${serviceId}&product_type_id=${productTypeId}`)
+  return axios.get(`${API_URL}/type-products/room-count?service_id=${serviceId}&product_type_id=${productTypeId}`, headers)
 }
 
 // --- Services API post --- //
@@ -290,7 +284,7 @@ export const createRoomOptions = (optionsData: {
 
 //create user
 export const createUser = (userData: any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/assign-user`, userData)
+  return axios.post(`${API_URL}/assign-user`, userData, headers)
 }
 
 //create product type
@@ -455,7 +449,7 @@ export function user_update(
 }
 
 export const updateProduct = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/prooductService/${id}`, Payload), headers
+  return axios.put(`${API_URL}/prooductService/${id}`, Payload, headers)
 }
 
 export const updateService = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
@@ -487,12 +481,9 @@ export const confirmExtendStay = (id: number, data: any): Promise<AxiosResponse<
   return axios.patch(`${API_URL}/reservations/${id}/extendStay`, data,headers)
 }
 
-export const updateRoomStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
-}
 
-export const updateRoomStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
+export const updateRoomStatus = (id:number, status:string ,force:boolean): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status,force }, headers)
 }
 
 //----- SERVICE API Delete ----//
@@ -505,29 +496,34 @@ export const deleteReservation = (id: number | null): Promise<AxiosResponse<any>
 //delete serviceProduct
 export const deleteServiceProduct = async (id: number | null): Promise<AxiosResponse<any>> => {
   try {
-    const response = await axios.delete(`${API_URL}/service_product/${id}`)
+    const response = await axios.delete(`${API_URL}/service_product/${id}`, headers)
     return response
   } catch (error: any) {
     throw error.response
   }
 }
 
-export const deleteServiceProduct = (id: number | null): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/service_product/${id}`, headers)
-}
 
 //delete User
 export const deleteUser = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/users/${id}`, headers)
 }
 //delete type product
-export const deleteRoomType = (id: number | null,serviceId: number | null): Promise<AxiosResponse<any>> => {
+export const deleteRoomType = (
+  id: number | null,
+  serviceId: number | null
+): Promise<AxiosResponse<any>> => {
   if (id === null) throw new Error('ID du type de chambre manquant')
+
   return axios.delete(`${API_URL}/product/${id}`, {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
     params: {
       service_id: serviceId,
     },
-  }, headers)
+  })
 }
 
 export const deleteMovement = (id: number | null): Promise<AxiosResponse<any>> => {
