@@ -910,7 +910,7 @@ const formatPrice = (price) => {
     </div>
 
     <!-- Informations client -->
-    <div v-if="room.guestName" class="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+    <div v-if="room.guestName && room.status === 'occupied'" class="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
       <div class="flex items-center gap-2 mb-1">
         <User class="w-4 h-4 text-blue-600" />
         <p class="text-sm font-medium text-blue-900">{{ room.guestName }}</p>
@@ -1192,13 +1192,13 @@ const getStatusConfigurations = computed(() => ({
 
   occupied: {
     text: t('statut.occupied'),
-    classes: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    classes: 'bg-red-50 text-red-700 border-red-200',
     icon: User,
     actions: ['checkout'],
     pulse: false,
     statusMessage: {
       text: t('guestPresent'),
-      classes: 'bg-indigo-50 border-indigo-200 text-indigo-700',
+      classes: 'bg-red-50 border-red-200 text-red-700',
       icon: User
     }
   },
@@ -1231,13 +1231,13 @@ const getStatusConfigurations = computed(() => ({
 
   dirty: {
     text: t('statut.dirty'),
-    classes: 'bg-red-50 text-red-700 border-red-200',
+    classes: 'bg-red-50 text-orange-700 border-orange-200',
     icon: AlertTriangle,
     actions: ['cleaning'],
     pulse: false,
     statusMessage: {
       text: t('needsCleaning'),
-      classes: 'bg-red-50 border-red-200 text-red-700',
+      classes: 'bg-orange-50 border-orange-200 text-orange-700',
       icon: AlertTriangle
     }
   },
@@ -1256,7 +1256,7 @@ const getStatusConfigurations = computed(() => ({
     }
   },
 
-  clean: {
+  available: {
     text: t('statut.clean'),
     classes: 'bg-green-50 text-green-700 border-green-200',
     icon: CheckCircle,
@@ -1284,13 +1284,13 @@ const getStatusConfigurations = computed(() => ({
 
   'out_of_order': {
     text: t('statut.outOfOrder'),
-    classes: 'bg-red-50 text-red-700 border-red-200',
+    classes: 'bg-gray-50 text-gray-700 border-gray-200',
     icon: AlertTriangle,
     actions: ['restore'],
     pulse: true,
     alert: {
       message: t('roomOutOfOrder'),
-      classes: 'bg-red-50 border-red-200 text-red-700',
+      classes: 'bg-gray-50 border-gray-200 text-gray-700',
       icon: AlertTriangle
     }
   }
@@ -1432,7 +1432,7 @@ const startCleaning = () => {
 }
 
 const markAsClean = () => {
-  emit('change', { room: props.room, status: 'clean' })
+  emit('change', { room: props.room, status: 'available' })
 }
 
 const startInspection = () => {

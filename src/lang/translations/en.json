@@ -1852,6 +1852,8 @@
       "Suite": "Suite",
       "Bungalow": "Bungalow",
       "Dormitory": "Dormitory",
+      "null" : "N/A",
+      "undefined" : "N/A",
 
       "Single Bed": "Single Bed",
       "Double Bed": "Double Bed",
@@ -1919,10 +1921,13 @@
       "checkoutPending": "Checkout pending",
       "dirty": "To clean",
       "cleaning": "Cleaning",
-      "clean": "Clean",
+      "clean": "Clean (Available)",
       "maintenance": "Maintenance",
       "outOfOrder": "Out of order",
-      "out_of_order" : "Out of order"
+      "out_of_order" : "Out of order",
+      "Disponible": "Available",
+      "À nettoyer": "To clean",
+      "Hors service" : "Out of order"
     },
   "guestArriving": "Guest arriving soon",
   "guestPresent": "Guest currently in room",
@@ -1958,7 +1963,33 @@
   "TYPE_NOT_FOUND": "Room type not found.",
   "ROOMS_ASSOCIATED": "Cannot delete this type: associated rooms exist.",
   "UNKNOWN": "An unknown error has occurred."
-  }
+  },
+  "system_update": "System up to date",
+  "now": "Today",
+  "booking_calendar": "Booking Calendar",
+  "Sun": "Sun",
+  "Mon": "Mon",
+  "Tue": "Tue",
+  "Wed": "Wed",
+  "Thu": "Thu",
+  "Fri": "Fri",
+  "Sat": "Sat",
+  "tab": {
+    "details": "Details",
+    "history": "History",
+    "calendar": "Calendar"
+  },
+  "refresh" : "Refresh",
+  "All_statuses" : "All statuses",
+  "All_room_types" : "All room types",
+  "per_page" : "per page",
+  "change_status": "Change room status",
+  "status_now": "Current status",
+  "new_status": "New status",
+  "clean_required": "Cleaning required",
+  "cleaning_room": "The room must be cleaned before it becomes available.",
+  "confirm": "Confirm",
+  "update...": "Updating..."
 
 
 

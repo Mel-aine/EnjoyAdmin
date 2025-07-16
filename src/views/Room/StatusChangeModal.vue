@@ -4,7 +4,7 @@
       <div class="mt-3">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-medium text-gray-900">
-            Changer le statut de la chambre
+            {{ $t('change_status') }}
           </h3>
           <button
             @click="emit('close')"
@@ -17,15 +17,15 @@
         </div>
         <div class="mb-4">
           <p class="text-sm text-gray-600 mb-2">
-            Chambre: <span class="font-medium">{{ room?.productName }}</span>
+            {{ $t('Room') }}: <span class="font-medium">{{ room?.productName }}</span>
           </p>
           <p class="text-sm text-gray-600 mb-4">
-            Statut actuel: <span class="font-medium">{{ statusLabels[currentStatus] || currentStatus }}</span>
+            {{ $t('status_now') }}: <span class="font-medium">{{ statusLabels[currentStatus] || currentStatus }}</span>
           </p>
         </div>
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">
-            Nouveau statut:
+            {{ $t('new_status') }}:
           </label>
           <div class="space-y-2">
             <label
@@ -49,7 +49,7 @@
                     <circle cx="4" cy="4" r="3" :class="statusColors[statusKey]" />
                   </svg>
                 </span>
-                <span class="text-sm font-medium text-gray-900">{{ label }}</span>
+                <span class="text-sm font-medium text-gray-900">{{ $t(`statut.${label}`) }}</span>
               </span>
             </label>
           </div>
@@ -102,9 +102,9 @@
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p class="text-sm font-medium text-orange-800">Nettoyage requis</p>
+              <p class="text-sm font-medium text-orange-800">{{ $t('clean_required') }}</p>
               <p class="text-sm text-orange-700">
-                La chambre devra être nettoyée avant d'être disponible.
+                {{ $t('cleaning_room') }}
               </p>
             </div>
           </div>
@@ -116,7 +116,7 @@
             @click="emit('close')"
             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
-            Annuler
+            {{ $t('Cancel') }}
           </button>
           <button
             @click="updateStatus"
@@ -130,10 +130,10 @@
                 <path class="opacity-75" fill="currentColor"
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              Mise à jour...
+             {{ $t('update...') }}
             </span>
             <span v-else>
-              Confirmer
+              {{ $t('confirm') }}
             </span>
           </button>
         </div>
@@ -166,7 +166,7 @@ const selectedStatus = ref(props.currentStatus);
 const statusLabels: Record<string, string> = {
   available: 'Disponible',
   dirty: 'À nettoyer',
-  out_of_order: 'Hors service'
+  out_of_order: 'Hors service',
 };
 
 const statusColors: Record<string, string> = {

@@ -146,6 +146,10 @@ export const getServiceById = (id: number | null): Promise<AxiosResponse<any>> =
   return axios.get(`${API_URL}/services/${id}`)
 }
 
+export const getServiceProductAndReservationById = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/service_products/${id}`)
+}
+
 //get user by id
 export const getUserId = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/users/${id}`)

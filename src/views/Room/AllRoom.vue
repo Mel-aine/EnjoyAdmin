@@ -340,6 +340,7 @@ import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
+import {useBookingStore} from '@/composables/booking'
 import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
@@ -368,6 +369,7 @@ const selectedRoom = ref<any>(null)
 const isEditMode = ref(false)
 const menuItems = computed(() => [{ label: t('AddRoom'), onClick: () => OpenModal() },{ label: t('importdefault'), onClick: () => importDefaultDefaults() }])
 const router = useRouter()
+const store = useBookingStore()
 
 const initializeFormData = () => {
   const initialOptions: Record<number, any> = {}
@@ -724,17 +726,19 @@ const getStatusColor = (status: string) => {
     case 'booked':
       return 'bg-blue-100 text-blue-700'
     case 'occupied':
+      return 'bg-red-100 text-red-700'
+    case 'maintenance':
       return 'bg-yellow-100 text-yellow-700'
     default:
-      return 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500'
+      return 'bg-gray-50 text-gray-700 dark:bg-gray-500/15 dark:text-gray-500'
   }
 }
 
 const roomIds = ref<any>(null)
 
-const onEditProduct = (product: any) => handleProductAction('edit', product)
-const onDeleteProduct = (product: any) => handleProductAction('delete', product)
-const showRoomDetails = (product: any) => handleProductAction('view-details', product)
+const onEditProduct = (room: any) => handleProductAction('edit', room)
+const onDeleteProduct = (room: any) => handleProductAction('delete', room)
+const showRoomDetails = (room: any) => handleProductAction('view-details', room)
 
 const handleProductAction = (action: string, room: any) => {
   if (action === 'edit') {
@@ -791,8 +795,8 @@ const handleProductAction = (action: string, room: any) => {
         name: 'RoomDetailsModal',
         params: { id: room.id.toString() }
       })
+      store.setRoomSelect(selectedRoom.value)
       console.log('selectedRoom.value', selectedRoom.value)
-      roomDetailsModal.value = true
     }
   }
 }

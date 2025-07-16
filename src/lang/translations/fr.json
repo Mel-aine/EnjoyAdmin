@@ -1844,6 +1844,8 @@
       "Suite": "Suite",
       "Bungalow": "Bungalow",
       "Dormitory": "Dortoir",
+      "null" : "N/A",
+      "undefined" : "N/A",
 
       "Single Bed": "Lit simple",
       "Double Bed": "Lit double",
@@ -1905,13 +1907,16 @@
   },
   "statut": {
       "available": "Disponible",
+      "Disponible": "Disponible",
+      "À nettoyer": "À nettoyer",
+      "Hors service" : "Hors service",
       "booked": "Réservée",
       "occupied": "Occupée",
       "preCheckout": "Pré-départ",
       "checkoutPending": "Départ en attente",
       "dirty": "à nettoyer",
       "cleaning": "Nettoyage",
-      "clean": "Propre",
+      "clean": "Propre (Disponible)",
       "maintenance": "Maintenance",
       "outOfOrder": "Hors service",
       "out_of_order" : "Hors service"
@@ -1959,7 +1964,33 @@
     "TYPE_NOT_FOUND": "Type de chambre introuvable.",
     "ROOMS_ASSOCIATED": "Impossible de supprimer ce type : chambres associées.",
     "UNKNOWN": "Une erreur inconnue est survenue."
-  }
+  },
+  "system_update" : "Système à jour",
+  "now" : "Aujourd'hui",
+  "booking_calendar" : "Calendrier des réservations",
+  "Sun": "Dim",
+  "Mon": "Lun",
+  "Tue": "Mar",
+  "Wed": "Mer",
+  "Thu": "Jeu",
+  "Fri": "Ven",
+  "Sat": "Sam",
+  "tab": {
+    "details": "Détails",
+    "history": "Historique",
+    "calendar": "Calendrier"
+  },
+  "refresh": "Rafraîchir",
+  "All_statuses": "Tous les statuts",
+  "All_room_types": "Tous les types de chambre",
+  "per_page": "par page",
+  "change_status" : "Changer le statut de la chambre",
+  "status_now" : "Statut actuel",
+  "new_status" : "Nouveau statut",
+  "clean_required" : "Nettoyage requis",
+  "cleaning_room" : "La chambre devra être nettoyée avant d'être disponible.",
+  "confirm" : "Confirmer",
+  "update..." : " Mise à jour..."
 
 
 

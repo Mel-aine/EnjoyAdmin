@@ -1,167 +1,174 @@
 <template>
   <AdminLayout>
     <FullScreenLayout>
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <!-- Header -->
-        <div class=" text-white p-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="w-16 h-16 bg-blue-100 bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <BuildingIcon class="w-8 h-8 text-gray-950" />
-              </div>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-800">{{ roomData.productName }} {{ roomData.roomNumber }}</h1>
-                <p class="text-black font-medium">{{ roomData.RoomTypeName }}</p>
-                <div class="flex items-center space-x-4 mt-2">
-                  <span class="inline-flex items-center px-3 py-1 bg-blue-50 text-gray-950 bg-opacity-20 rounded-full text-sm font-medium">
-                    <DollarSignIcon class="w-4 h-4 mr-1" />
-                    {{ roomData.price?.toLocaleString() }} XAF
-                  </span>
-                  <span :class="[
-                    'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
-                    roomData.statusColor?.color === 'green' ? 'bg-green-100 text-green-800' :
-                    roomData.statusColor?.color === 'red' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  ]">
-                    {{ roomData.statusColor?.label }}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center space-x-3">
-              <button
-                @click="handleEdit"
-                class="inline-flex items-center px-4 py-2 bg-blue-500 bg-opacity-20 text-gray-950 rounded-lg hover:bg-opacity-30 transition-all duration-200 backdrop-blur-sm"
-              >
-                <EditIcon class="w-4 h-4 mr-2" />
-                {{ $t('edit') }}
-              </button>
-              <button
-                @click="handleDelete"
-                class="inline-flex items-center px-4 py-2 bg-red-500 bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-all duration-200 backdrop-blur-sm"
-              >
-                <Trash2Icon class="w-4 h-4 mr-2" />
-               {{ $t('delete') }}
-              </button>
+      <div class="py-2">
+        <button
+        @click="goBack"
+        class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-1 px-2 rounded-lg transition-all duration-200 shadow"
+      >
+        ← {{ $t('Back') }}
+      </button>
+      </div>
+       <div class="bg-white rounded-xl border border-gray-200 overflow-hidden" v-if="selectedRoom">
+    <!-- Header -->
+    <div class="text-white p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="w-16 h-16 bg-blue-100 bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <BuildingIcon class="w-8 h-8 text-gray-950" />
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">
+              {{ selectedRoom.name }} {{ selectedRoom.room_number || '' }}
+            </h1>
+            <p class="text-black font-medium">{{ selectedRoom.roomType }}</p>
+            <div class="flex items-center space-x-4 mt-2">
+              <span class="inline-flex items-center px-3 py-1 bg-blue-50 text-gray-950 bg-opacity-20 rounded-full text-sm font-medium">
+                <DollarSignIcon class="w-4 h-4 mr-1" />
+                {{ selectedRoom.price?.toLocaleString() || 0 }} XAF
+              </span>
+              <span :class="[
+                'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+                getStatusColor(selectedRoom.status)
+              ]">
+                {{ $t(`statut.${selectedRoom.status}`) }}
+              </span>
             </div>
           </div>
         </div>
+        <!-- <div class="flex items-center space-x-3">
+          <button
+            @click="handleEdit"
+            class="inline-flex items-center px-4 py-2 bg-blue-500 bg-opacity-20 text-gray-950 rounded-lg hover:bg-opacity-30 transition-all duration-200 backdrop-blur-sm"
+          >
+            <EditIcon class="w-4 h-4 mr-2" />
+            {{ $t('edit') }}
+          </button>
+          <button
+            @click="handleDelete"
+            class="inline-flex items-center px-4 py-2 bg-red-500 bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-all duration-200 backdrop-blur-sm"
+          >
+            <Trash2Icon class="w-4 h-4 mr-2" />
+            {{ $t('delete') }}
+          </button>
+        </div> -->
+      </div>
+    </div>
 
-        <!-- Navigation Tabs -->
-        <div class="border-b border-gray-200">
-          <nav class="flex space-x-8 px-6">
-            <button
-              v-for="tab in tabs"
-              :key="tab.id"
-              @click="activeTab = tab.id"
-              :class="[
-                'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              ]"
-            >
-              <div class="flex items-center space-x-2">
-                <component :is="tab.icon" class="w-5 h-5" />
-                <span>{{ tab.label }}</span>
-              </div>
-            </button>
-          </nav>
+    <!-- Navigation Tabs -->
+    <div class="border-b border-gray-200">
+      <nav class="flex space-x-8 px-6">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          @click="activeTab = tab.id"
+          :class="[
+            'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+            activeTab === tab.id
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          ]"
+        >
+          <div class="flex items-center space-x-2">
+            <component :is="tab.icon" class="w-5 h-5" />
+            <span>{{ tab.label }}</span>
+          </div>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6">
+      <!-- Details Tab -->
+      <div v-if="activeTab === 'details'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Informations de base -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
+            {{ $t('Basic_Information') }}
+          </h3>
+          <div class="space-y-1">
+            <DetailRow :label="$t('Name')" :value="selectedRoom.name || 'N/A'" />
+            <DetailRow :label="$t('number')" :value="selectedRoom.room_number || 'N/A'" />
+            <DetailRow :label="$t('Rent')" :value="selectedRoom.price || 0" suffix="XAF" />
+            <DetailRow :label="$t('RoomTypes')" :value="selectedRoom.roomType || 'N/A'" />
+            <DetailRow :label="$t('Status')" :value="$t(`statut.${selectedRoom.status}`) || 'N/A'" type="badge" />
+          </div>
         </div>
 
-        <!-- Content -->
-        <div class="p-6">
-          <!-- Details Tab -->
-          <div v-if="activeTab === 'details'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            <!-- Informations de base -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
-                {{ $t('Basic_Information') }}
-              </h3>
-              <div class="space-y-1">
-                <DetailRow :label="$t('Name')" :value="roomData.productName" />
-                <DetailRow :label="$t('number')" :value="roomData.roomNumber" />
-                <DetailRow :label="$t('Rent')" :value="roomData.price?.toLocaleString()" suffix="XAF" />
-                <DetailRow :label="$t('RoomTypes')" :value="roomData.RoomTypeName" />
-                <DetailRow :label="$t('Status')"  :value="roomData.statusColor?.label" type="badge" />
-              </div>
-            </div>
-
-
-            <!-- Spécifications -->
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <HomeIcon class="w-5 h-5 mr-2 text-green-600" />
-                 {{ $t('Specifications') }}
-              </h3>
-              <div class="space-y-1">
-                <DetailRow :label="$t('RoomSize(sqm)')" :value="room?.option_12" suffix="m²" />
-                <DetailRow :label="$t('NumberofRooms')" :value="room?.option_13" />
-                <DetailRow :label="$t('numberBeds')" :value="room?.option_31" />
-                <DetailRow :label="$t('numberBathrooms')" :value="room?.option_32" />
-                <DetailRow :label="$t('BedType')" :value="$t(`options.values.${room?.option_2}`)" />
-              </div>
-            </div>
-
-            <!-- Équipements -->
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <StarIcon class="w-5 h-5 mr-2 text-purple-600" />
-                {{ $t('Amenities') }}
-              </h3>
-              <div class="space-y-1">
-                <DetailRow :label="$t('AirConditioning')" :value="room?.option_6" type="boolean" />
-                <DetailRow :label="$t('Wi-fi')" :value="room?.option_7" type="boolean" />
-                <DetailRow :label="$t('TV')" :value="$t(`options.values.${room?.option_15}`)"  />
-                <DetailRow :label="$t('MiniBar')" :value="room?.option_16" type="boolean" />
-                <DetailRow :label="$t('SafeDepositBox')" :value="room?.option_17" type="boolean" />
-              </div>
-            </div>
-
-            <!-- Services -->
-            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border border-indigo-200">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <CoffeeIcon class="w-5 h-5 mr-2 text-indigo-600" />
-                {{ $t('Services') }}
-              </h3>
-              <div class="space-y-1">
-                <DetailRow :label="$t('BreakfastIncluded')" :value="room?.option_8" type="boolean" />
-                <DetailRow :label="$t('Housekeeping')"  :value="$t(`options.values.${room?.option_24}`)" />
-                <DetailRow :label="$t('Parking')"  :value="$t(`options.values.${room?.option_25}`)" />
-                <DetailRow :label="$t('RoomService')" :value="room?.option_26" type="boolean" />
-                <DetailRow :label="$t('SelfCheck-in')" :value="room?.option_27" type="boolean" />
-              </div>
-            </div>
-
-            <!-- Caractéristiques -->
-            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <EyeIcon class="w-5 h-5 mr-2 text-orange-600" />
-                {{ $t('Features') }}
-              </h3>
-              <div class="space-y-1">
-                <DetailRow :label="$t('View')" :value="$t(`options.values.${room?.option_3}`)" />
-                <DetailRow :label="$t('Balcony')" :value="room?.option_4" type="boolean" />
-                <DetailRow :label="$t('Terrace')" :value="room?.option_5" type="boolean" />
-                <DetailRow :label="$t('PrivatePool')" :value="room?.option_20" type="boolean" />
-                <DetailRow :label="$t('Jacuzzi/Spa')" :value="room?.option_21" type="boolean" />
-              </div>
-            </div>
-
-            <!-- Politiques -->
-            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <ShieldIcon class="w-5 h-5 mr-2 text-red-600" />
-                {{ $t('Policies') }}
-              </h3>
-              <div class="space-y-1">
-                <DetailRow :label="$t('SmokingAllowed')" :value="$t(`options.values.${room?.option_22}`)" />
-                <DetailRow :label="$t('PetsAllowed')" :value="room?.option_23" type="boolean" />
-                <DetailRow :label="$t('WheelchairAccessible')" :value="room?.option_19" type="boolean" />
-              </div>
-            </div>
+        <!-- Spécifications -->
+        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <HomeIcon class="w-5 h-5 mr-2 text-green-600" />
+            {{ $t('Specifications') }}
+          </h3>
+          <div class="space-y-1">
+            <DetailRow :label="$t('RoomSize(sqm)')" :value="selectedRoom.options?.option_12 || 'N/A'" suffix="m²" />
+            <DetailRow :label="$t('NumberofRooms')" :value="selectedRoom.options?.option_13 || 'N/A'" />
+            <DetailRow :label="$t('numberBeds')" :value="selectedRoom.options?.option_31 || 'N/A'" />
+            <DetailRow :label="$t('numberBathrooms')" :value="selectedRoom.options?.option_32 || 'N/A'" />
+            <DetailRow :label="$t('BedType')" :value="$t(`options.values.${selectedRoom.options?.option_2}`) || 'N/A'" />
           </div>
+        </div>
+
+        <!-- Équipements -->
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <StarIcon class="w-5 h-5 mr-2 text-purple-600" />
+            {{ $t('Amenities') }}
+          </h3>
+          <div class="space-y-1">
+            <DetailRow :label="$t('AirConditioning')" :value="selectedRoom.options?.option_6 || 'No'" type="boolean" />
+            <DetailRow :label="$t('Wi-fi')" :value="selectedRoom.options?.option_7 || 'No'" type="boolean" />
+            <DetailRow :label="$t('TV')" :value="$t(`options.values.${selectedRoom.options?.option_15}`) || 'N/A'" />
+            <DetailRow :label="$t('MiniBar')" :value="selectedRoom.options?.option_16 || 'No'" type="boolean" />
+            <DetailRow :label="$t('SafeDepositBox')" :value="selectedRoom.options?.option_17 || 'No'" type="boolean" />
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border border-indigo-200">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <CoffeeIcon class="w-5 h-5 mr-2 text-indigo-600" />
+            {{ $t('Services') }}
+          </h3>
+          <div class="space-y-1">
+            <DetailRow :label="$t('BreakfastIncluded')" :value="selectedRoom.options?.option_8 || 'No'" type="boolean" />
+            <DetailRow :label="$t('Housekeeping')" :value="selectedRoom.options?.option_24 || 'N/A'" />
+            <DetailRow :label="$t('Parking')" :value="selectedRoom.options?.option_25 || 'N/A'" />
+            <DetailRow :label="$t('RoomService')" :value="selectedRoom.options?.option_26 || 'No'" type="boolean" />
+            <DetailRow :label="$t('SelfCheck-in')" :value="selectedRoom.options?.option_27 || 'No'" type="boolean" />
+          </div>
+        </div>
+
+        <!-- Caractéristiques -->
+        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <EyeIcon class="w-5 h-5 mr-2 text-orange-600" />
+            {{ $t('Features') }}
+          </h3>
+          <div class="space-y-1">
+            <DetailRow :label="$t('View')" :value="$t(`options.values.${selectedRoom.options?.option_3}`) || 'N/A'" />
+            <DetailRow :label="$t('Balcony')" :value="selectedRoom.options?.option_4 || 'No'" type="boolean" />
+            <DetailRow :label="$t('Terrace')" :value="selectedRoom.options?.option_5 || 'No'" type="boolean" />
+            <DetailRow :label="$t('PrivatePool')" :value="selectedRoom.options?.option_20 || 'No'" type="boolean" />
+            <DetailRow :label="$t('Jacuzzi/Spa')" :value="selectedRoom.options?.option_21 || 'No'" type="boolean" />
+          </div>
+        </div>
+
+        <!-- Politiques -->
+        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <ShieldIcon class="w-5 h-5 mr-2 text-red-600" />
+            {{ $t('Policies') }}
+          </h3>
+          <div class="space-y-1">
+            <DetailRow :label="$t('SmokingAllowed')" :value="$t(`options.values.${selectedRoom.options?.option_22}`) || 'N/A'" />
+            <DetailRow :label="$t('PetsAllowed')" :value="selectedRoom.options?.option_23 || 'No'" type="boolean" />
+            <DetailRow :label="$t('WheelchairAccessible')" :value="selectedRoom.options?.option_19 || 'No'" type="boolean" />
+          </div>
+        </div>
+      </div>
 
           <!-- History Tab -->
           <div v-if="activeTab === 'history'" class="bg-white rounded-xl border border-gray-200">
@@ -205,7 +212,7 @@
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                     <CalendarIcon class="w-5 h-5 mr-2 text-blue-600" />
-                    Calendrier des réservations
+                    {{ $t('booking_calendar') }}
                   </h3>
                   <p class="text-sm text-gray-600 mt-1 capitalize">{{ currentMonth }}</p>
                 </div>
@@ -232,7 +239,7 @@
                   :key="day"
                   class="p-3 text-center text-sm font-medium text-gray-500"
                 >
-                  {{ day }}
+                  {{ $t(day) }}
                 </div>
               </div>
               <div class="grid grid-cols-7 gap-1">
@@ -260,15 +267,15 @@
               <div class="mt-6 flex items-center justify-center space-x-6">
                 <div class="flex items-center">
                   <div class="w-4 h-4 bg-blue-100 border border-blue-300 rounded mr-2"></div>
-                  <span class="text-sm text-gray-600">Aujourd'hui</span>
+                  <span class="text-sm text-gray-600">{{ $t('now') }}</span>
                 </div>
                 <div class="flex items-center">
                   <div class="w-4 h-4 bg-red-50 border border-red-300 rounded mr-2"></div>
-                  <span class="text-sm text-gray-600">Réservé</span>
+                  <span class="text-sm text-gray-600">{{ $t('roomStatus.booked') }}</span>
                 </div>
                 <div class="flex items-center">
                   <div class="w-4 h-4 bg-gray-50 border border-gray-200 rounded mr-2"></div>
-                  <span class="text-sm text-gray-600">Disponible</span>
+                  <span class="text-sm text-gray-600">{{ $t('roomStatus.available') }}</span>
                 </div>
               </div>
             </div>
@@ -279,23 +286,32 @@
         <div class="bg-gray-50 border-t border-gray-200 px-6 py-4">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-500">
-              {{ $t('Last_updated') }}: {{ formatDateTime(roomData.updatedAt) }}
+              {{ $t('Last_updated') }}: {{ formatDateTime(selectedRoom.updatedAt) }}
             </div>
             <div class="flex items-center space-x-2">
               <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span class="text-sm text-gray-600">Système à jour</span>
+              <span class="text-sm text-gray-600">{{ $t('system_update') }}</span>
             </div>
           </div>
         </div>
       </div>
+      <OverLoading v-if="isLoading" />
     </FullScreenLayout>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import {useBookingStore} from '@/composables/booking'
+import {getServiceProductAndReservationById} from '@/services/api'
+import DetailRow from './DetailRow.vue'
+import router from '@/router'
+import { useI18n } from 'vue-i18n'
+import OverLoading from '@/components/spinner/OverLoading.vue'
+
+
 import {
   Edit as EditIcon,
   Trash2 as Trash2Icon,
@@ -391,60 +407,22 @@ interface CalendarDay {
   reservation?: Reservation
 }
 
-// Props
-interface Props {
-  room?: Room
-}
 
-const props = withDefaults(defineProps<Props>(), {
-  room: undefined
-})
-
-// Emits
-const emit = defineEmits<{
-  edit: [room: Room]
-  delete: [room: Room]
-}>()
 
 // Reactive data
 const activeTab = ref<string>('details')
 const currentDate = ref<Date>(new Date())
+const store = useBookingStore()
+const selectedRoom = ref<any>(null)
+const isLoading = ref(false)
+const room_id = router.currentRoute.value.params.id as string;
+const { t,locale } = useI18n()
 
-// Default room data
-const defaultRoom: Room = {
-  id: '101',
-  productName: 'Chambre Standard',
-  roomNumber: '101',
-  price: 50000,
-  statusColor: { label: 'Disponible', color: 'green' },
-  RoomTypeName: 'Standard',
-  updatedAt: '2024-02-01T10:00:00Z',
-  option_12: '25',
-  option_13: '2',
-  option_31: '1',
-  option_32: '1',
-  option_2: 'Lit double',
-  option_6: true,
-  option_7: true,
-  option_15: 'Smart TV 42"',
-  option_16: true,
-  option_17: true,
-  option_8: true,
-  option_24: 'Quotidien',
-  option_25: 'Gratuit',
-  option_26: true,
-  option_27: false,
-  option_3: 'Vue jardin',
-  option_4: true,
-  option_5: false,
-  option_20: false,
-  option_21: false,
-  option_28: '14:00',
-  option_29: '12:00',
-  option_22: 'Non autorisé',
-  option_23: false,
-  option_19: true,
-}
+
+
+onMounted(()=>{
+  getRoomDetails()
+})
 
 // Mock data
 const activityLogs: ActivityLog[] = [
@@ -490,50 +468,22 @@ const activityLogs: ActivityLog[] = [
   }
 ]
 
-const reservations: Reservation[] = [
-  {
-    id: 1,
-    checkIn: '2024-01-15',
-    checkOut: '2024-01-20',
-    guest: 'Jean Dupont',
-    status: 'confirmed'
-  },
-  {
-    id: 2,
-    checkIn: '2024-01-25',
-    checkOut: '2024-01-30',
-    guest: 'Marie Martin',
-    status: 'completed'
-  },
-  {
-    id: 3,
-    checkIn: '2024-02-05',
-    checkOut: '2024-02-10',
-    guest: 'Pierre Kouam',
-    status: 'pending'
-  },
-  {
-    id: 4,
-    checkIn: '2024-02-15',
-    checkOut: '2024-02-18',
-    guest: 'Sophie Nkomo',
-    status: 'confirmed'
-  }
-]
 
-const tabs: Tab[] = [
-  { id: 'details', label: 'Détails', icon: InfoIcon },
-  { id: 'history', label: 'Historique', icon: ClockIcon },
-  { id: 'calendar', label: 'Calendrier', icon: CalendarIcon }
-]
+const tabs = computed(()=> [
+  { id: 'details', label: t('tab.details'), icon: InfoIcon },
+  { id: 'history', label: t('tab.history'), icon: ClockIcon },
+  { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon }
+])
 
-const daysOfWeek = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 // Computed properties
-const roomData = computed(() => props.room || defaultRoom)
+// const roomData = computed(() => props.room || defaultRoom)
+
+
 
 const currentMonth = computed(() => {
-  return currentDate.value.toLocaleDateString('fr-FR', {
+  return currentDate.value.toLocaleDateString(locale.value, {
     month: 'long',
     year: 'numeric'
   })
@@ -555,7 +505,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
 
-    const isReserved = reservations.some(reservation => {
+    const isReserved = selectedRoom.value.reservations.some(reservation => {
       const checkIn = new Date(reservation.checkIn)
       const checkOut = new Date(reservation.checkOut)
       return date >= checkIn && date <= checkOut
@@ -567,7 +517,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
       isCurrentMonth: date.getMonth() === month,
       isToday: date.toDateString() === today.toDateString(),
       isReserved,
-      reservation: isReserved ? reservations.find(r => {
+      reservation: isReserved ? selectedRoom.value.reservations.find(r => {
         const checkIn = new Date(r.checkIn)
         const checkOut = new Date(r.checkOut)
         return date >= checkIn && date <= checkOut
@@ -578,26 +528,6 @@ const calendarDays = computed<CalendarDay[]>(() => {
   return days
 })
 
-// Methods
-const formatDate = (dateString: string): string => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-}
-
-const formatDateTime = (dateString: string): string => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 const getLogIcon = (type: string) => {
   switch (type) {
@@ -637,11 +567,85 @@ const nextMonth = () => {
   currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
 }
 
+
+// Méthodes utilitaires
+const getStatusColor = (status) => {
+  switch(status) {
+    case 'available':
+      return 'bg-green-100 text-green-800'
+    case 'booked':
+      return 'bg-blue-100 text-blue-800'
+    case 'maintenance':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'occupied':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const getReservationStatusColor = (status) => {
+  switch(status) {
+    case 'confirmed':
+      return 'bg-green-100 text-green-800'
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'cancelled':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
+
+const formatDateTime = (date) => {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleString('fr-FR')
+}
+
+const getRoomDetails = async () => {
+  isLoading.value = true
+  try {
+    const response = await getServiceProductAndReservationById(parseInt(room_id))
+    console.log('Room data:', response.data)
+
+    if (response.status === 200) {
+      selectedRoom.value = response.data
+      console.log('Selected room set:', selectedRoom.value)
+    }
+  } catch (error) {
+    console.error('Error fetching room details:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Méthodes d'action
 const handleEdit = () => {
-  emit('edit', roomData.value)
+  // Logique d'édition
+  console.log('Edit room:', selectedRoom.value)
 }
 
 const handleDelete = () => {
-  emit('delete', roomData.value)
+  // Logique de suppression
+  console.log('Delete room:', selectedRoom.value)
 }
+
+onMounted(() => {
+  getRoomDetails()
+})
+
+function goBack() {
+  router.back()
+}
+
 </script>
