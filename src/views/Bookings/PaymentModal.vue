@@ -74,7 +74,8 @@
           </div>
           <button type="submit"
             class="mt-4 w-full flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 font-bold text-white shadow-md transition duration-300 ease-in-out hover:bg-blue-700 transform hover:scale-105">
-            <DollarSign class="mr-2" :size="18" />
+            <Spinner v-if="isLoading" />
+            <DollarSign v-else class="mr-2" :size="18" />
             {{ $t('RecordPayment') }}
           </button>
         </form>
@@ -94,6 +95,7 @@ import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/composables/user';
 import { createPayment } from '@/services/api';
 import { useRouter } from 'vue-router';
+import Spinner from '@/components/spinner/Spinner.vue';
 
 const { t } = useI18n();
 const toast = useToast();

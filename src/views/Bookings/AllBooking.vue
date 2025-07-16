@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed,onMounted } from "vue";
+import { ref,computed } from "vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 // import ComponentCard from "@/components/common/ComponentCard.vue";

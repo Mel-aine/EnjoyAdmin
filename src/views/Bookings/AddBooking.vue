@@ -67,10 +67,12 @@
           </div>
 
           <!-- Room Selection Component -->
-          <template v-if="numberOfNights > 0">
+          <template
+            v-if="(numberOfNights > 0 && serviceStore.serviceId) && ((isEditMode && fetchData && fetchData.length > 0) || !isEditMode)">
             <RoomSector :ActiveRoomTypes="ActiveRoomTypes" :availableRooms="availableRooms" @room-change="roomChange"
               :availableTakens="availableTakens" :selectedRoomType="selectedRoomType" :numberOfNights="numberOfNights"
               @update:selectedRoomType="(val) => (selectedRoomType = val)" @update:roomSelections="updateRoomSelections"
+              :arrival-date="form.arrivalDate" :departure-date="form.departureDate" :service-id="serviceStore.serviceId"
               @update:totalPrice="updateTotalPrice" v-model="fetchData" />
           </template>
           <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -141,70 +143,9 @@
         </ButtonComponent>
       </DefaultCard>
     </div>
-
-    <Modal v-if="isPaymentModalOpen" @close="isPaymentModalOpen = false">
-      <template #body>
-        <div
-          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-          <!-- Close button -->
-          <button @click="isPaymentModalOpen = false"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
-            <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M6.04 16.54a.9.9 0 0 0 1.41 1.42L12 13.41l4.54 4.55a.9.9 0 1 0 1.41-1.42L13.41 12l4.55-4.54a.9.9 0 0 0-1.42-1.41L12 10.59 7.46 6.05a.9.9 0 0 0-1.41 1.42L10.59 12l-4.55 4.54Z"
-                fill="" />
-            </svg>
-          </button>
-
-          <!-- Title -->
-          <div class="mb-6 text-center">
-            <h4 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
-              {{ $t('ConfirmBookingPayment') }}
-            </h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ $t('Reviewthereservationdetailsbeforeconfirming.') }}
-            </p>
-          </div>
-          <form class="flex flex-col">
-            <div class="custom-scrollbar h-[400px] overflow-y-auto p-2">
-              <div class="space-y-8">
-                <div class="border rounded-md p-4 text-sm text-gray-700 dark:text-gray-300">
-                  <div class="space-y-2">
-                    <div>
-                      <strong>{{ $t('Customer') }}:</strong> {{ reservationSummary.clientName }}
-                    </div>
-                    <div>
-                      <strong>{{ $t('Total') }}:</strong> {{ formatCurrency(reservationSummary.total) }}
-                    </div>
-                  </div>
-                </div>
-                <Select :lb="$t('PaymentMethod')" :options="Payements[0]?.paymentMethods"
-                  v-model="selectedPaymentMethod" />
-              </div>
-            </div>
-          </form>
-
-          <!-- Buttons -->
-          <div class="mt-8 flex flex-col-reverse items-center justify-end gap-3 sm:flex-row">
-            <!-- Cancel -->
-            <button type="button"
-              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] sm:w-auto"
-              @click="isPaymentModalOpen = false">
-              {{ $t('Cancel') }}
-            </button>
-
-            <!-- Confirm -->
-            <ButtonComponent type="button" :disabled="isLoading || !selectedPaymentMethod" @click="savePayment">
-              <span v-if="!isLoading">{{ $t('ConfirmPay') }}</span>
-              <span v-else class="flex items-center gap-2">
-                <Spinner class="w-4 h-4" />
-                {{ $t('Processing') }}...
-              </span>
-            </ButtonComponent>
-          </div>
-        </div>
-      </template>
-    </Modal>
+    <template v-if="selectBooking">
+      <PaymentModal :reservation="selectBooking" :is-open="isPaymentModalOpen" @close="closePaymentModal" />
+    </template>
   </AdminLayout>
 
 </template>
@@ -214,12 +155,10 @@ import { onMounted } from 'vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
 import flatPickr from 'vue-flatpickr-component'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import 'flatpickr/dist/flatpickr.css'
 import Spinner from '@/components/spinner/Spinner.vue'
-import Modal from '@/components/profile/Modal.vue'
 import RoomSector from './RoomSector.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
 import DefaultCard from '@/components/common/DefaultCard.vue'
@@ -228,6 +167,7 @@ import ChevromLeftIcon from '@/icons/ChevromLeftIcon.vue'
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import OutputFieldCurrency from '@/components/forms/FormElements/outputFieldCurrency.vue'
 import { useBooking } from '@/composables/useBooking'
+import PaymentModal from './PaymentModal.vue'
 
 const {
   isLoading,
@@ -239,8 +179,8 @@ const {
   availableTakens,
   updateRoomSelections,
   updateTotalPrice,
-  Payements,
-  reservationSummary,
+  closePaymentModal,
+  selectBooking,
   currentPageTitle,
   fetchServiceData,
   fetchServiceProduct,
@@ -248,9 +188,8 @@ const {
   reservationCustomerType,
   flatpickrConfig,
   form,
-  selectedPaymentMethod,
+  serviceStore,
   formData,
-  savePayment,
   dateError,
   numberOfNights,
   loadReservationData,
