@@ -50,10 +50,17 @@
                 <button @click="closeModal"
                     class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors">
                     {{ $t('cancel_button') }}
+
                 </button>
-                <button @click="confirmExtension"
+                <button @click="checkExtendStayLocal" v-if="!canExtendStay"
+                    class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-colors">
+                    {{ $t('checkExtendStayBtn') }}
+                    <DotSpinner v-if="isLoading" />
+                </button>
+                <button @click="confirmExtendStayLocal" v-if="canExtendStay"
                     class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-colors">
                     {{ $t('confirm_extension_button') }}
+                    <DotSpinner v-if="isLoading" />
                 </button>
             </div>
         </div>
@@ -61,20 +68,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import flatPickr from 'vue-flatpickr-component'
 
 import 'flatpickr/dist/flatpickr.css'
 import CalendarIcon from '@/icons/CalendarIcon.vue';
+import { checkExtendStay, confirmExtendStay } from '@/services/api';
+import DotSpinner from '@/components/spinner/DotSpinner.vue';
 
 const props = defineProps({
     showModal: {
         type: Boolean,
         default: false,
     },
+    reservation: {
+        type: Object,
+        required: true,
+    }
 })
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close','extendStay'])
 // Initialisation de vue-i18n
 const { t } = useI18n();
 const flatpickrConfig = {
@@ -82,68 +95,76 @@ const flatpickrConfig = {
     altInput: true,
     altFormat: 'F j, Y',
     wrap: true,
+    minDate: "today",
 }
-// État pour contrôler la visibilité de la modale
-// État pour stocker la nouvelle date de départ
+const isLoading = ref(false)
 const newDepartureDate = ref('');
-// État pour afficher les messages de statut
 const statusMessage = ref('');
-// État pour déterminer si le message de statut est une erreur
 const isError = ref(false);
+const canExtendStay = ref(false);
 
-// Fonction pour fermer la modale
 const closeModal = () => {
-    newDepartureDate.value = ''; // Réinitialiser la date
-    statusMessage.value = ''; // Réinitialiser le message de statut à la fermeture
+    newDepartureDate.value = '';
+    statusMessage.value = '';
     isError.value = false;
     emit('close');
 };
 
-// Fonction pour confirmer la prolongation et simuler les scénarios
-const confirmExtension = () => {
-    if (!newDepartureDate.value) {
-        statusMessage.value = t('new_departure_date_label'); // Utiliser le message existant pour la validation simple
-        isError.value = true;
-        return;
+const checkExtendStayLocal = async () => {
+    isLoading.value = true;
+    try {
+        const response = await checkExtendStay(props.reservation.id, { new_depart_date: newDepartureDate.value })
+        console.log('response', response.data);
+
+        const scenario = response.data.scenario; // 0, 1 ou 2
+        const ms = response.data.messages;
+
+        switch (scenario) {
+            case -1: // Cas -1: Chambre actuelle non disponible
+                isError.value = true;
+                statusMessage.value = ms
+                canExtendStay.value = false;
+                break;
+            case 0: // Cas 1: Chambre actuelle occupée, hôtel complet
+                statusMessage.value = t('room_occupied_no_other_available');
+                isError.value = true;
+                canExtendStay.value = false;
+                break;
+            case 1: // Cas 2: Chambre actuelle occupée, autres chambres disponibles
+                statusMessage.value = t('room_occupied_other_available');
+                isError.value = false; // Ce n'est pas une erreur bloquante, mais une information
+                canExtendStay.value = false;
+                break;
+            case 2: // Cas 3: Chambre disponible (ou prolongation simple)
+                statusMessage.value = t('extension_successful');
+                isError.value = false;
+                canExtendStay.value = true;
+                break;
+        }
+    } catch (error) {
+        console.log('error', error);
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+const confirmExtendStayLocal = async () => {
+    isLoading.value = true;
+    try {
+        const response = await confirmExtendStay(props.reservation.id, { new_depart_date: newDepartureDate.value })
+        console.log('response', response.data);
+        emit('extendStay')
+    } catch (error) {
+        console.log('error', error);
+    } finally {
+        isLoading.value = false;
     }
 
-    // Simuler les scénarios de disponibilité
-    // Dans une vraie application, cette logique viendrait du backend via un appel API
-    const scenario = Math.floor(Math.random() * 3); // 0, 1 ou 2
-
-    switch (scenario) {
-        case 0: // Cas 1: Chambre actuelle occupée, hôtel complet
-            statusMessage.value = t('room_occupied_no_other_available');
-            isError.value = true;
-            console.log(t('room_occupied_no_other_available'));
-            break;
-        case 1: // Cas 2: Chambre actuelle occupée, autres chambres disponibles
-            statusMessage.value = t('room_occupied_other_available');
-            isError.value = false; // Ce n'est pas une erreur bloquante, mais une information
-            console.log(t('room_occupied_other_available'));
-            // Ici, vous pourriez envisager de demander à l'utilisateur de confirmer le changement de chambre
-            // ou de rediriger vers une page de sélection de chambre.
-            break;
-        case 2: // Cas 3: Chambre disponible (ou prolongation simple)
-            statusMessage.value = t('extension_successful');
-            isError.value = false;
-            console.log(t('extension_successful') + ` Nouvelle date: ${newDepartureDate.value}`);
-            // Dans une vraie application, vous enverriez la demande au backend ici
-            // axios.post('/api/extend-stay', { reservationId: 'XYZ123', newDate: newDepartureDate.value })
-            //   .then(response => {
-            //     statusMessage.value = t('extension_successful');
-            //     isError.value = false;
-            //     // closeModal(); // Fermer la modale après succès et notification
-            //   })
-            //   .catch(error => {
-            //     statusMessage.value = 'Erreur lors de l\'envoi de la demande.'; // Ou un message d'erreur traduit
-            //     isError.value = true;
-            //     console.error('Erreur lors de l\'envoi de la prolongation :', error);
-            //   });
-            break;
-    }
-};
-
+}
+onMounted(()=>{
+    console.log(props.reservation)
+    newDepartureDate.value = new Date(props.reservation.departDate).toISOString().split('T')[0];
+})
 </script>
 
 <style scoped>

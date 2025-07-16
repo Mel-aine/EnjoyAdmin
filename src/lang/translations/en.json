@@ -1828,5 +1828,6 @@
   "extension_sent_message": "Extension request sent to administrator. You will be notified of the outcome.",
   "room_occupied_no_other_available": "The hotel is fully booked for your requested extension dates. We cannot accommodate your request.",
   "room_occupied_other_available": "Your current room is booked for the new dates, but other room types are available. A room change will be necessary.",
-  "extension_successful": "Your extension request has been sent and is awaiting approval. You will be notified shortly."
+  "extension_successful": "Your extension request has been sent and is awaiting approval. You will be notified shortly.",
+  "checkExtendStayBtn":"Check Extention"
 }

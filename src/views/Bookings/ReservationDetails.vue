@@ -7,7 +7,7 @@
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-2 text-white text-center rounded-t-xl">
           <h1 class="text-2xl font-bold mb-2">{{ $t('hotel_reservation_details') }}</h1>
           <p class="text-lg">{{ $t('reservation_id') }}: <span class="font-semibold">{{ selectBooking?.reservationNumber
-              }}</span></p>
+          }}</span></p>
         </div>
 
         <div class="p-6 space-y-8">
@@ -251,7 +251,8 @@
       <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false" />
     </template>
     <template v-if="isExtendStay">
-      <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" />
+      <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" :reservation="selectBooking"
+        @extend-stay="refrechPage" />
     </template>
     <template v-if="selectBooking">
       <PaymentModal :reservation="selectBooking" :is-open="openPayment" @close="openPayment = false"
@@ -290,8 +291,6 @@ const getBookingDetails = async () => {
   isLoading.value = true;
   const response = await getReservationDetailsById(parseInt(reservation_id))
   activitiesLogs.value = await (await getReservationHistoryById(parseInt(reservation_id))).data
-  console.log('this is the booking', response.data)
-  console.log(response.data)
   if (response.status === 200) {
     selectBooking.value = response.data;
   }
@@ -305,16 +304,12 @@ const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
-
-
-
-
-
+const refrechPage = () => {
+  getBookingDetails();
+  isExtendStay.value=false;
+}
 const isCancel = ref(false);
 const isExtendStay = ref(false);
-const calculateRoomTotalPrice = (room: any) => {
-  return (room.ratePerNight + room.taxes - room.discounts) * ((selectBooking.value?.numberOfNights) ?? 0);
-};
 
 const getPaymentStatus = () => {
   const payment = {
