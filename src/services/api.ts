@@ -475,8 +475,13 @@ export const deleteUser = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/users/${id}`)
 }
 //delete type product
-export const deleteRoomType = (id: number | null): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/product/${id}`)
+export const deleteRoomType = (id: number | null,serviceId: number | null): Promise<AxiosResponse<any>> => {
+  if (id === null) throw new Error('ID du type de chambre manquant')
+  return axios.delete(`${API_URL}/product/${id}`, {
+    params: {
+      service_id: serviceId,
+    },
+  })
 }
 
 

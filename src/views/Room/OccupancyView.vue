@@ -1081,13 +1081,11 @@ const exportData = () => {
     room: room.productName,
     type: room.productTypeName,
     status: room.status,
-    guest: room.guestName || '',
-    nextAvailable: room.nextAvailable || ''
   }));
 
   const csv = [
-    ['Room', 'Type', 'Status', 'Guest', 'Next Available'],
-    ...data.map(row => Object.values(row))
+    ['Room', 'Type', 'Status'],
+    ...data.map((row:any) => Object.values(row))
   ].map(row => row.join(',')).join('\n');
 
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -1102,7 +1100,8 @@ const exportData = () => {
 
 const handleStatusChange = (payload: any) => {
   // Accepter les deux formats : {room, status} ou {roomId, newStatus}
-  let roomId, newStatus;
+  let roomId :any,
+   newStatus;
 
   if (payload.roomId && payload.newStatus) {
     // Format du modal StatusChangeModal
@@ -1146,7 +1145,7 @@ const handleStatusChange = (payload: any) => {
             console.error(`Erreur lors de la mise à jour automatique du statut :`, error);
           });
       }
-    }, 1800000); // 30 minutes
+    }, 1800000);
   }
 
   if (newStatus === 'maintenance') {

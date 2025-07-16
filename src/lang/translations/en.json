@@ -187,7 +187,9 @@
     "invalidEmail": "Please enter a valid email address.",
     "emailUpdated": "Your email was successfully updated.",
     "updateErrors": "An error occurred while updating your email.",
-    "emailSettingsSaved": "Email settings saved successfully!"
+    "emailSettingsSaved": "Email settings saved successfully!",
+    "importError" : "Error importing default rooms",
+    "defaultRoomsImported" : "The import of default rooms was successful."
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -1919,7 +1921,8 @@
       "cleaning": "Cleaning",
       "clean": "Clean",
       "maintenance": "Maintenance",
-      "outOfOrder": "Out of order"
+      "outOfOrder": "Out of order",
+      "out_of_order" : "Out of order"
     },
   "guestArriving": "Guest arriving soon",
   "guestPresent": "Guest currently in room",
@@ -1949,7 +1952,14 @@
   "startCleaning" : "Start Cleaning",
   "markClean" : "Mark Clean",
   "restoreService" : "Restore Service",
-  "errorKey": "Cannot delete this room because it has active reservations."
+  "errorKey": "Cannot delete this room because it has active reservations.",
+  "errors": {
+  "MISSING_SERVICE_ID": "Service ID is required.",
+  "TYPE_NOT_FOUND": "Room type not found.",
+  "ROOMS_ASSOCIATED": "Cannot delete this type: associated rooms exist.",
+  "UNKNOWN": "An unknown error has occurred."
+  }
+
 
 
 }

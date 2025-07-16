@@ -223,6 +223,19 @@
                   </div>
                 </template>
 
+                <template v-else-if="item.type === 'TextRoom' && row[item.name] && typeof row[item.name] === 'object'">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-gray-800 dark:text-white">
+                      {{ row[item.name].name || '-' }}
+                    </span>
+                    <span class="text-xs text-purple-500 dark:text-gray-300 ">
+                      {{ row[item.name].roomCount ?? 0 }} {{$t('Rooms')}}
+                    </span>
+                  </div>
+                </template>
+
+
+
 
                 <!-- Pourcentage -->
                 <template v-else-if="item.type === 'percentage'">

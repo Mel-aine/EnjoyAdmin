@@ -2709,9 +2709,9 @@ const visiblePages = computed(() => {
 // Titres pour le tableau (avec ajout du nombre de chambres)
 const titles = computed(() => [
   {
-    name: 'name',
+    name: 'Name',
     label: t('Name'),
-    type: 'text',
+    type: 'TextRoom',
     sortable: true,
     filterable: false,
   },
@@ -2720,6 +2720,7 @@ const titles = computed(() => [
     label: t('description'),
     type: 'text',
     filterable: true,
+
   },
   {
     name: 'price',
@@ -2727,36 +2728,42 @@ const titles = computed(() => [
     type: 'currency',
     event: 'view',
     filterable: true,
+    width: '100px',
   },
   {
     name: 'extraGuestPrice',
     label: t('ExtraGuestPrice'),
     type: 'currency',
     filterable: true,
+    width: '100px',
   },
   {
     name: 'defaultDeposit',
     label: t('DefaultDeposit'),
     type: 'currency',
     filterable: true,
+    width: '100px',
   },
   {
     name: 'defaultGuest',
     label: t('DefaultGuest'),
     type: 'text',
     filterable: true,
+    width: '100px',
   },
-  {
-    name: 'roomCount',
-    label: t('RoomCount'),
-    type: 'text',
-    filterable: true,
-  },
+  // {
+  //   name: 'roomCount',
+  //   label: t('RoomCount'),
+  //   type: 'text',
+  //   filterable: true,
+  //   width: '50px',
+  // },
   {
     name: 'statusColor',
     label: t('Status'),
     type: 'badge',
     filterable: false,
+     width: '100px',
   },
   {
     name: 'actions',
@@ -2885,16 +2892,20 @@ const fetchRoomType = async () => {
 
     const response = await getTypeProductByServiceId(serviceId)
 
-    const typeIds = response.data.map(roomType => roomType.id)
+    const typeIds = response.data.map((roomType:any) => roomType.id)
     const roomCounts = await Promise.all(
-      typeIds.map(id => getRoomCountByRoomType(serviceId,id))
+      typeIds.map((id:any) => getRoomCountByRoomType(serviceId,id))
     )
       console.log("roomCounts",roomCounts)
-    const roomTypesWithCount = response.data.map((roomType, index) => {
+    const roomTypesWithCount = response.data.map((roomType:any, index:any) => {
       const statusClasses = getStatusColor(roomType.status).split(' ')
 
       return {
         ...roomType,
+        Name : {
+          name:roomType.name,
+          roomCount: roomCounts[index].data.total_rooms || 0,
+        },
         roomCount: roomCounts[index].data.total_rooms || 0,
         statusColor: {
           label: t(roomType.status),
@@ -2965,12 +2976,17 @@ const confirmDelete = async () => {
   if (selectedRoomTypeId.value !== null) {
     loadingDelete.value = true
     try {
-      await deleteRoomType(selectedRoomTypeId.value)
+      const serviceId = serviceStore.serviceId
+      await deleteRoomType(selectedRoomTypeId.value,serviceId)
       toast.success(t('toast.roomTypeDeleted'))
       roomTypeData.value = roomTypeData.value.filter((r: any) => r.id !== selectedRoomTypeId.value)
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error)
-      toast.error(t('toast.roomTypeDeleteError'))
+    } catch (error: any) {
+       if (error.response) {
+      const code = error.response.data?.code || 'UNKNOWN'
+      toast.error(t(`errors.${code}`) || t('errors.UNKNOWN'))
+    } else {
+      toast.error(t('errors.UNKNOWN'))
+    }
     } finally {
       loadingDelete.value = false
       show.value = false

@@ -68,6 +68,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/room_detail/:id',
+      name: 'RoomDetailsModal',
+      component: () => import('../views/Room/RoomDetailsModal.vue'),
+      props: true
+    },
+    {
       path: '/all_room',
       name: 'All Room',
       component: () => import('../views/Room/AllRoom.vue'),

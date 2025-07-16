@@ -47,13 +47,13 @@
             />
 
             <!-- Modal pour les détails complets -->
-            <RoomDetailsModal
+            <!-- <RoomDetailsModal
               v-model="roomDetailsModal"
               :room="selectedRoom"
               @edit="onEditFromModal"
               @delete="onDeleteFromModal"
               @close="closeRoomDetails"
-            />
+            /> -->
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@
                 <!-- Nom de la chambre -->
                 <div class="space-y-2">
                   <label for="room-number" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('room_number') }}</label>
-                  <input type="number" id="room-number" name="room-number" :placeholder="'Ex : 101'" min="1" v-model="formData.number" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
+                  <input type="number" id="room-number" name="room-number" :placeholder="'Ex : 101'" min="1" v-model="formData.number" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" required>
                 </div>
                 <div class="space-y-2"> <Input
                       :lb="$t('Name')"
@@ -125,7 +125,8 @@
                 <div class="space-y-2">
                   <Select :lb="$t('Status')" :options="status" v-model="formData.status" />
                 </div>
-
+                </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                 <!-- Description -->
                 <div class="md:col-span-2 space-y-2">
                       <label
@@ -135,6 +136,18 @@
                       </label>
                       <textarea
                         v-model="formData.description"
+                        :placeholder="$t('Largetext')"
+                        rows="4"
+                        class="dark:bg-dark-900  w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                      ></textarea>
+                </div>
+                <div class=" space-y-2">
+                      <label
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >
+                        {{ $t('Note') }}
+                      </label>
+                      <textarea
                         :placeholder="$t('Largetext')"
                         rows="4"
                         class="dark:bg-dark-900  w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
@@ -301,6 +314,7 @@
   @close="showMessage = false"
 />
 
+
 </template>
 
 <script setup lang="ts">
@@ -310,7 +324,7 @@ import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { ref, onMounted, computed, nextTick, watchEffect, watch } from 'vue'
-import RoomDetailsModal from './RoomDetailsModal.vue'
+import { defaultRooms } from '@/assets/data/roomData'
 import {
   getOptions,
   getServiceProductWithOptions,
@@ -332,6 +346,7 @@ import ModalDelete from '@/components/modal/ModalDelete.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import PopupModal from '@/components/modal/PopupModal.vue'
+import { useRouter } from 'vue-router'
 
 const { t, locale } = useI18n()
 const serviceStore = useServiceStore()
@@ -351,7 +366,8 @@ const ServiceProduct = ref<ServiceProductType[]>([])
 const currentPageTitle = computed(() => t('RoomList'))
 const selectedRoom = ref<any>(null)
 const isEditMode = ref(false)
-const menuItems = computed(() => [{ label: t('AddRoom'), onClick: () => OpenModal() }])
+const menuItems = computed(() => [{ label: t('AddRoom'), onClick: () => OpenModal() },{ label: t('importdefault'), onClick: () => importDefaultDefaults() }])
+const router = useRouter()
 
 const initializeFormData = () => {
   const initialOptions: Record<number, any> = {}
@@ -569,7 +585,7 @@ const saveFormData = async () => {
   try {
 
       // Validation de l'unicité du numéro
-    if (ServiceProduct.value.some(room => room.roomNumber === formData.value.number)) {
+    if (ServiceProduct.value.some((room:any) => room.roomNumber === formData.value.number)) {
       showError('Ce numéro de chambre existe déjà !')
       return
     }
@@ -681,7 +697,7 @@ const flattenServiceProducts = computed(() => {
     const flatProduct: ProductOptionType = {
       ...product,
       statusColor: {
-        label: t(product.status),
+        label: t(`statut.${product.status}`),
         bg: statusClasses[0],
         text: statusClasses[1],
       },
@@ -771,6 +787,10 @@ const handleProductAction = (action: string, room: any) => {
 
     if (roomToEdit) {
       selectedRoom.value = roomToEdit
+      router.push({
+        name: 'RoomDetailsModal',
+        params: { id: room.id.toString() }
+      })
       console.log('selectedRoom.value', selectedRoom.value)
       roomDetailsModal.value = true
     }
@@ -1015,6 +1035,80 @@ const onDeleteFromModal = (room:any) => {
   closeRoomDetails()
   onDeleteProduct(room)
 }
+
+const importDefaultDefaults = async () => {
+  const defaultRoomData = defaultRooms
+  if (!defaultRoomData || defaultRoomData.length === 0) return;
+
+  isLoading.value = true;
+  try {
+    const serviceId = serviceStore.serviceId;
+    const userId = userStore.UserId;
+
+    if (!serviceId) {
+      throw new Error('Service ID is not defined');
+    }
+
+    for (const room of defaultRoomData) {
+      // Vérification unicité numéro de chambre dans ServiceProduct (si c’est possible ici)
+      if (ServiceProduct.value.some((r:any) => r.roomNumber === room.number)) {
+        console.warn(`Le numéro de chambre ${room.number} existe déjà, skipping`);
+        continue;
+      }
+
+      // Trouver le type de chambre pour la validation capacité
+      const roomType = roomTypeData.value.find(t => t.id === room.roomTypeId);
+      if (roomType && room.capacity > roomType.defaultGuest) {
+        console.warn(`Capacité ${room.capacity} dépasse le max ${roomType.defaultGuest} pour type ${roomType.name}, skipping`);
+        continue;
+      }
+
+      const roomPayload = {
+        service_id: serviceId,
+        product_name: room.name,
+        product_type_id: room.roomTypeId,
+        description: room.description,
+        capacity: room.capacity,
+        room_number: room.number,
+        floor: room.floor,
+        status: room.status || 'available',
+        price: room.price,
+        created_by: userId,
+      };
+
+      const roomResponse = await createRoom(roomPayload);
+      const roomId = roomResponse.data.id;
+
+      if (room.options) {
+        const optionsPayload = Object.entries(formData.value.options).map(
+          ([id, value]: [string, any]) => {
+            const optionMeta = defaultOptionsMap.value[Number(id)];
+            return {
+              service_product_id: roomId,
+              option_id: Number(id),
+              option_type: optionMeta?.type || null,
+              value: String(value),
+              created_by: userStore.UserId,
+              last_modified_by: userStore.UserId,
+            };
+          },
+        );
+
+
+        await createRoomOptions({ data: optionsPayload });
+      }
+    }
+
+    fetchServiceProduct();
+    toast.success(t('toast.defaultRoomsImported'));
+  } catch (error) {
+    console.error('Erreur lors de l\'importation des chambres par défaut', error);
+    toast.error(t('toast.importError'));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 
 
 </script>

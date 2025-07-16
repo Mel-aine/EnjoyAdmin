@@ -172,7 +172,7 @@
     "Error": "Erreur lors de la mise à jour ❌",
     "reservationDelete": "Réservation supprimée avec succès ✅",
     "roomCreated": "Chambre enregistrée avec succès ✅",
-    "roomDelete": "La salle a été supprimée avec succès ✅",
+    "roomDelete": "La chambre a été supprimée avec succès ✅",
     "updateRoom": "Chambre mise à jour avec succès ! ✅",
     "roomTypeUpdatedSuccess": "Type de chambre mis à jour avec succès ✅",
     "roomTypeDeleted": "Le type de chambre a été supprimé avec succès ✅",
@@ -186,7 +186,9 @@
     "invalidEmail": "Veuillez entrer une adresse e-mail valide.",
     "emailUpdated": "Votre e-mail a été mis à jour avec succès.",
     "updateErrors": "Une erreur est survenue lors de la mise à jour de votre e-mail.",
-    "emailSettingsSaved": "Paramètres e-mail enregistrés avec succès !"
+    "emailSettingsSaved": "Paramètres e-mail enregistrés avec succès !",
+    "importError" : "Erreur lors de l'importation des chambres par défaut",
+    "defaultRoomsImported" : "L'importation des chambres par défaut a réussi."
   },
   "EditRoomType": "Modifier le type de chambre",
   "detailsCustomers": "Détails du client",
@@ -1911,7 +1913,8 @@
       "cleaning": "Nettoyage",
       "clean": "Propre",
       "maintenance": "Maintenance",
-      "outOfOrder": "Hors service"
+      "outOfOrder": "Hors service",
+      "out_of_order" : "Hors service"
     },
   "guestArriving": "Client arrivant bientôt",
   "guestPresent": "Client actuellement dans la chambre",
@@ -1950,7 +1953,13 @@
   "startCleaning": "Commencer le nettoyage",
   "markClean": "Marquer comme propre",
   "restoreService": "Rétablir le service",
-  "errorKey": "Impossible de supprimer cette chambre car elle a des réservations actives."
+  "errorKey": "Impossible de supprimer cette chambre car elle a des réservations actives.",
+  "errors": {
+    "MISSING_SERVICE_ID": "Le service est requis.",
+    "TYPE_NOT_FOUND": "Type de chambre introuvable.",
+    "ROOMS_ASSOCIATED": "Impossible de supprimer ce type : chambres associées.",
+    "UNKNOWN": "Une erreur inconnue est survenue."
+  }
 
 
 
