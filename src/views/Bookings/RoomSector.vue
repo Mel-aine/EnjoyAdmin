@@ -4,8 +4,9 @@
     <div v-for="(roomSelection, index) in roomSelections" :key="index">
       <RoomSectorItem :roomSelection="roomSelection" :index="index" :ActiveRoomTypes="ActiveRoomTypes"
         :availableRooms="availableRooms" :takenRoomIds="availableTakens" @room-change="roomChange"
-        :remove-available-rooms="roomSelections.length > 1" :selectedRoomType="selectedRoomType"
-        @update:remove-room="removeRoom" @update:change="selectRoomChange" />
+        :remove-available-rooms="roomSelections.length > 1" :selectedRoomType="selectedRoomType" :service-id="serviceId"
+        :arrival-date="arrivalDate" :departure-date="departureDate" @update:remove-room="removeRoom"
+        @update:change="selectRoomChange" />
     </div>
   </div>
 
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import RoomSectorItem from './RoomSectorItem.vue'
 import { type Room, type RoomSelection } from '@/utils/models'
 
@@ -39,7 +40,10 @@ const props = defineProps<{
   selectedRoomType: RoomTypeData | null
   modelValue: RoomSelection[],
   availableTakens: string[],
-  numberOfNights: number
+  numberOfNights: number,
+  serviceId: number,
+  arrivalDate: string,
+  departureDate: string
 }>()
 
 const emit = defineEmits(['update:modelValue', "roomChange", 'update:roomSelections', 'update:totalPrice', 'update:selectedRoomType'])
@@ -68,7 +72,9 @@ function createEmptyRoomSelection(): RoomSelection {
     default_guest: 0,
     total_guests: 0,
     extraGuestPrice: 0,
-    totalPrice: 0
+    totalPrice: 0,
+    totalExtraGuestPrice: 0,
+    totalAmount: 0
   }
 }
 

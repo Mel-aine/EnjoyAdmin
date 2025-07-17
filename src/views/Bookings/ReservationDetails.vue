@@ -1,12 +1,13 @@
 <template>
   <AdminLayout>
     <div class="min-h-screen bg-gray-100 lg:p-2 font-inter" v-if="selectBooking">
-      <div class="max-w-5xl mx-auto bg-white rounded-xl  overflow-hidden">
+      <div class="max-w-5xl mx-auto bg-white rounded-xl overflow-hidden">
 
         <!-- Header Section -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-2 text-white text-center rounded-t-xl">
           <h1 class="text-2xl font-bold mb-2">{{ $t('hotel_reservation_details') }}</h1>
-          <p class="text-lg">{{ $t('reservation_id') }}: <span class="font-semibold">{{ selectBooking?.reservationNumber }}</span></p>
+          <p class="text-lg">{{ $t('reservation_id') }}: <span class="font-semibold">{{ selectBooking?.reservationNumber
+          }}</span></p>
         </div>
 
         <div class="p-6 space-y-8">
@@ -26,10 +27,18 @@
               <DetailItem :icon="Tag" :label="$t('booking_source')" :value="selectBooking.bookingSource" />
               <DetailItem :icon="Calendar" :label="$t('reservation_date')"
                 :value="formatDate(selectBooking.createdAt)" />
-              <DetailItem :icon="Clock" :label="$t('check_in')" :value="`${formatDate(selectBooking.checkInDate)}`" />
-              <DetailItem :icon="Clock" :label="$t('check_out')" :value="`${formatDate(selectBooking.checkOutDate)}`" />
+              <DetailItem :icon="Clock" :label="$t('expected_arrive_date')"
+                :value="formatDate(selectBooking.arrivedDate)" />
+              <DetailItem :icon="Clock" :label="$t('expected_departure_date')"
+                :value="formatDate(selectBooking.departDate)" />
+
+              <DetailItem :icon="Clock" :label="$t('check_in')"
+                :value="`${selectBooking.checkInDate ? formatDate(selectBooking.checkInDate) : ''}`" />
+              <DetailItem :icon="Clock" :label="$t('check_out')"
+                :value="`${selectBooking.checkOutDate ? formatDate(selectBooking.checkOutDate) : ''}`" />
+
               <DetailItem :icon="Bed" :label="$t('total_nights')"
-                :value="`${selectBooking.numberOfNigth} ${$t('nights')}`" />
+                :value="`${selectBooking.numberOfNights} ${$t('nights')}`" />
               <div class="flex items-center text-gray-700">
                 <RefreshCcw class="mr-2 text-gray-500" :size="18" />
                 <span class="font-medium">{{ $t('status') }}:</span>
@@ -49,7 +58,7 @@
               :class="index % 2 === 0 ? 'border-blue-200 bg-blue-50' : 'border-purple-200 bg-purple-50'">
               <h3 class="flex items-center text-lg font-semibold text-gray-800 mb-3">
                 <Hotel class="mr-2 text-blue-700" :size="18" />
-                {{ room.serviceProduct.productName }} <span v-if="room.id">({{ $t('room') }} {{ room.id }})</span>
+                {{ room.serviceProduct.productName }}
               </h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
                 <DetailItem :icon="Users" :label="$t('guests')"
@@ -58,16 +67,25 @@
                   <RefreshCcw class="mr-2 text-gray-500" :size="18" />
                   <span class="font-medium">{{ $t('status') }}:</span>
                   <span class="ml-2 px-3 py-1 rounded-full text-sm font-semibold"
-                    :class="statusClass(room.serviceProduct.status)">
-                    {{ $t(room.serviceProduct.status.toLowerCase().replace(' ', '_')) }}
+                    :class="statusClass(room.status ?? '')">
+                    {{ room.status ? $t(room.status?.toLowerCase().replace(' ', '_')) : '' }}
                   </span>
                 </div>
                 <DetailItem :icon="DollarSign" :label="$t('rate_per_night')"
                   :value="formatCurrency(room.ratePerNight)" />
                 <DetailItem :icon="Tag" :label="$t('taxes')" :value="formatCurrency(room.taxes)" />
+                <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuest')"
+                  :value="`${room.extraGuest}`" />
+                <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuestFee')"
+                  :value="`${formatCurrency(room.totalExtraGuestPrice ?? 0)}`" />
+                <DetailItem :icon="Clock" :label="$t('check_in')"
+                  :value="`${room.checkInDate ? formatDateT(room.checkInDate) : ''}`" />
+                <DetailItem :icon="Clock" :label="$t('check_out')"
+                  :value="`${room.checkOutDate ? formatDateT(room.checkOutDate) : ''}`" />
+
                 <DetailItem :icon="Tag" :label="$t('discounts')" :value="`-${formatCurrency(room.discounts)}`" />
                 <DetailItem :icon="CreditCard" :label="$t('total_room_price')"
-                  :value="formatCurrency(calculateRoomTotalPrice(room))" />
+                  :value="formatCurrency(room.totalAmount)" />
               </div>
             </div>
           </section>
@@ -124,13 +142,14 @@
                 <CreditCard :size="16" class="mr-2 text-gray-600" />{{ $t('payment_methods_used') }}:
               </p>
               <ul class="list-disc list-inside ml-2">
-                <li v-for="(pm, i) in selectBooking.payments" :key="i">{{ pm.transactionId }} - {{ pm.paymentMethod }} - {{
-                  formatCurrency(pm.amountPaid) }} on {{ formatDate(pm.paymentDate) }}</li>
+                <li v-for="(pm, i) in selectBooking.payments" :key="i">{{ pm.transactionId }} - {{ pm.paymentMethod }} -
+                  {{
+                    formatCurrency(pm.amountPaid) }} on {{ formatDate(pm.paymentDate) }}</li>
               </ul>
             </div>
 
             <div class="mt-4 pt-4 border-t border-gray-200 flex gap-2.5">
-              <button v-if="selectBooking?.invoiceAvailable" @click="showToast('Simulating invoice download...')"
+              <button v-if="selectBooking?.invoiceAvailable" @click="downloadReceipt"
                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md inline-flex items-center shadow-sm transition duration-300 ease-in-out transform hover:scale-105">
                 <Download :size="18" class="mr-2" /> {{ $t('download_invoice_receipt') }}
               </button>
@@ -153,57 +172,66 @@
           <section class="bg-gray-50 p-5 rounded-lg shadow-sm border border-gray-200">
             <SectionHeader :icon="PlusCircle" :title="$t('actions')" />
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <button @click="showToast('Simulating Edit Reservation...')"
-                class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-blue-500 hover:bg-blue-600 text-white"
-                :disabled="anyRoomCheckedIn || anyRoomCheckedOut || selectBooking.status === 'Cancelled' || selectBooking.status === 'No-show'">
+              <!-- Edit Reservation Button -->
+              <button v-if="canEditOrCancel" @click="editReservation"
+                class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-purple-600 hover:bg-purple-700 text-white"
+                :disabled="!canEditOrCancel">
                 <Edit :size="18" class="mr-2" /> {{ $t('edit_reservation') }}
               </button>
-              <button @click="handleAction('cancelReservation')"
+
+              <!-- Cancel Reservation Button -->
+              <button v-if="canEditOrCancel" @click="isCancel = true"
                 class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-red-500 hover:bg-red-600 text-white"
-                :disabled="anyRoomCheckedIn || anyRoomCheckedOut || selectBooking.status === 'Cancelled' || selectBooking.status === 'No-show'">
+                :disabled="!canEditOrCancel">
                 <Trash2 :size="18" class="mr-2" /> {{ $t('cancel_reservation') }}
               </button>
-              <button @click="showToast('Simulating Assign/Change Room...')"
-                class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-purple-500 hover:bg-purple-600 text-white"
-                :disabled="anyRoomCheckedIn || anyRoomCheckedOut || selectBooking.status === 'Cancelled' || selectBooking.status === 'No-show'">
-                <Key :size="18" class="mr-2" /> {{ $t('assign_change_room_admin') }}
-              </button>
 
-              <!-- Conditional Check-in/Check-out buttons -->
-              <template v-if="selectBooking.reservationServiceProducts.length > 1">
-                <button @click="handleAction('checkInAll')"
+              <!-- Check-in All Rooms Button -->
+              <template v-if="selectBooking.reservationServiceProducts.length > 0">
+                <button v-if="canCheckInAll" @click="handleAction('checkInAll')"
                   class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-green-500 hover:bg-green-600 text-white"
-                  :disabled="allRoomsCheckedIn || selectBooking.status === 'Cancelled' || selectBooking.status === 'No-show' || paymentStatus !== 'Fully Paid'">
+                  :disabled="!canCheckInAll">
                   <LogIn :size="18" class="mr-2" /> {{ $t('check_in_all_rooms') }}
                 </button>
-                <button @click="handleAction('checkOutAll')"
+              </template>
+
+              <!-- Check-out All Rooms Button -->
+              <template v-if="selectBooking.reservationServiceProducts.length > 0">
+                <button v-if="canCheckOutAll" @click="handleAction('checkOutAll')"
                   class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-orange-500 hover:bg-orange-600 text-white"
-                  :disabled="!allRoomsCheckedIn || allRoomsCheckedOut || selectBooking.status === 'Cancelled' || selectBooking.status === 'No-show'">
+                  :disabled="!canCheckOutAll">
                   <LogOut :size="18" class="mr-2" /> {{ $t('check_out_all_rooms') }}
                 </button>
               </template>
 
+              <!-- Individual Room Actions -->
               <template v-for="room in selectBooking.reservationServiceProducts"
                 :key="`room-actions-${room.serviceProduct.id}`">
-                <button @click="handleAction('checkInRoom', room.serviceProduct.id)"
+                <!-- Check-in Room Button -->
+                <button v-if="canCheckInRoom(room)" @click="handleAction('checkInRoom', room.id)"
                   class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-green-500 hover:bg-green-600 text-white"
-                  :disabled="room.serviceProduct.status === 'Checked-in' || room.serviceProduct.status === 'Checked-out' || room.serviceProduct.status === 'Cancelled' || selectBooking.status === 'No-show' || paymentStatus !== 'Fully Paid'">
-                  <LogIn :size="18" class="mr-2" /> {{ $t('check_in_room') }} {{ room.serviceProduct.id }}
+                  :disabled="!canCheckInRoom(room)">
+                  <LogIn :size="18" class="mr-2" /> {{ $t('check_in_room') }} {{ room.serviceProduct.productName }}
                 </button>
-                <button @click="handleAction('checkOutRoom', room.serviceProduct.id)"
+
+                <!-- Check-out Room Button -->
+                <button v-if="canCheckOutRoom(room)" @click="handleAction('checkOutRoom', room.id)"
                   class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-orange-500 hover:bg-orange-600 text-white"
-                  :disabled="room.serviceProduct.status !== 'Checked-in' || selectBooking.status === 'No-show'">
-                  <LogOut :size="18" class="mr-2" /> {{ $t('check_out_room') }} {{ room.serviceProduct.id }}
+                  :disabled="!canCheckOutRoom(room)">
+                  <LogOut :size="18" class="mr-2" /> {{ $t('check_out_room') }} {{ room.serviceProduct.productName }}
                 </button>
               </template>
 
+              <!-- Add Notes/Comments Button (always visible for now) -->
               <button @click="showToast('Simulating Add Notes...')"
                 class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-gray-600 hover:bg-gray-700 text-white">
                 <MessageSquare :size="18" class="mr-2" /> {{ $t('add_notes_comments') }}
               </button>
-              <button @click="showToast('Simulating Extend Stay...')"
+
+              <!-- Extend Stay Button -->
+              <button v-if="canExtendStay" @click="isExtendStay = true"
                 class="flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-indigo-500 hover:bg-indigo-600 text-white"
-                :disabled="anyRoomCheckedOut || selectBooking.status === 'Cancelled' || selectBooking.status === 'No-show'">
+                :disabled="!canExtendStay">
                 <Calendar :size="18" class="mr-2" /> {{ $t('extend_stay') }}
               </button>
             </div>
@@ -219,6 +247,13 @@
       </div>
     </div>
     <OverLoading v-if="isLoading" />
+    <template v-if="isCancel">
+      <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false" />
+    </template>
+    <template v-if="isExtendStay">
+      <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" :reservation="selectBooking"
+        @extend-stay="refrechPage" />
+    </template>
     <template v-if="selectBooking">
       <PaymentModal :reservation="selectBooking" :is-open="openPayment" @close="openPayment = false"
         @payment-recorded="getPaymentDetails" />
@@ -235,15 +270,19 @@ import DetailItem from '@/components/common/DetailItem.vue';
 import {
   User, Mail, Phone, Calendar, Hotel, DollarSign, CreditCard, CheckCircle, XCircle,
   Clock, Tag, Bed, Users, Download, Edit, Trash2, Key, LogIn, LogOut,
-  MessageSquare, PlusCircle, AlertCircle, RefreshCcw, 
+  MessageSquare, PlusCircle, AlertCircle, RefreshCcw, User2Icon
 } from 'lucide-vue-next';
 import type { ActivityLog, ReservationDetails } from '@/utils/models';
 import router from '@/router';
 import { getReservationDetailsById, getReservationHistoryById } from '@/services/api';
 import OverLoading from '@/components/spinner/OverLoading.vue';
-import { formatCurrency } from '@/components/utilities/UtilitiesFunction';
+import { formatCurrency, formatDateT } from '@/components/utilities/UtilitiesFunction';
 import PaymentModal from './PaymentModal.vue';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
+import { isBefore, isToday, parseISO } from 'date-fns'; // Import date-fns utilities
+import { checkInReservation, checkOutReservation } from '@/services/reservation';
+import CancelBookingDetails from './CancelBookingDetails.vue';
+import ExtendStay from './ExtendStay.vue';
 
 const reservation_id = router.currentRoute.value.params.id as string;
 const isLoading = ref(false);
@@ -252,8 +291,6 @@ const getBookingDetails = async () => {
   isLoading.value = true;
   const response = await getReservationDetailsById(parseInt(reservation_id))
   activitiesLogs.value = await (await getReservationHistoryById(parseInt(reservation_id))).data
-  console.log('this is the booking', response.data)
-  console.log(response.data)
   if (response.status === 200) {
     selectBooking.value = response.data;
   }
@@ -267,11 +304,12 @@ const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
-
-
-const calculateRoomTotalPrice = (room: any) => {
-  return (room.ratePerNight + room.taxes - room.discounts) * ((selectBooking.value?.numberOfNigth) ?? 0);
-};
+const refrechPage = () => {
+  getBookingDetails();
+  isExtendStay.value=false;
+}
+const isCancel = ref(false);
+const isExtendStay = ref(false);
 
 const getPaymentStatus = () => {
   const payment = {
@@ -297,7 +335,77 @@ const allRoomsCheckedOut = computed(() => selectBooking.value?.reservationServic
 const anyRoomCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.some(room => room.serviceProduct.status === 'Checked-in'));
 const anyRoomCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.some(room => room.serviceProduct.status === 'Checked-out'));
 
-const handleAction = (actionType: string, roomId: number | null = null) => {
+// New computed properties for date and status checks
+const isArrivalDateInFuture = computed(() => {
+  if (!selectBooking.value?.arrivedDate) return false;
+  // This checks if the arrival date is *after* the current date.
+  // If you want "not yet arrived", it means the arrival date is in the future.
+  // So, isBefore(currentDate, arrivalDate)
+  return isBefore(new Date(), parseISO(selectBooking.value.arrivedDate));
+});
+
+const isArrivalDateTodayOrPast = computed(() => {
+  if (!selectBooking.value?.arrivedDate) return false;
+  const arrivalDate = parseISO(selectBooking.value.arrivedDate);
+  // This checks if the arrival date is today or has already passed.
+  return isToday(arrivalDate) || isBefore(arrivalDate, new Date());
+});
+
+const isReservationConfirmOrPending = computed(() => {
+  if (!selectBooking.value?.status) return false;
+  const status = selectBooking.value.status.toLowerCase();
+  return status === 'confirmed' || status === 'en attente';
+});
+
+const isReservationCheckedIn = computed(() => {
+  return selectBooking.value?.status.toLowerCase() === 'checked-in';
+});
+
+// Computed properties for button visibility/disability
+const canEditOrCancel = computed(() => {
+  if (!selectBooking.value) return false;
+  return isArrivalDateInFuture.value && isReservationConfirmOrPending.value;
+});
+
+const canCheckInAll = computed(() => {
+  if (!selectBooking.value) return false;
+  return (selectBooking.value.status.toLowerCase() === 'confirmed' || selectBooking.value.status.toLowerCase() === 'en attente') &&
+    isArrivalDateTodayOrPast.value &&
+    !allRoomsCheckedIn.value &&
+    selectBooking.value.status.toLowerCase() !== 'cancelled' &&
+    selectBooking.value.status.toLowerCase() !== 'no-show' &&
+    paymentStatus.value === 'Fully Paid';
+});
+
+const canCheckOutAll = computed(() => {
+  if (!selectBooking.value) return false;
+  return allRoomsCheckedIn.value &&
+    !allRoomsCheckedOut.value &&
+    selectBooking.value.status.toLowerCase() !== 'cancelled' &&
+    selectBooking.value.status.toLowerCase() !== 'no-show' &&
+    selectBooking.value.status.toLowerCase() !== 'checked-out';
+});
+
+const canCheckInRoom = (room: any) => {
+  if (!selectBooking.value) return false;
+  return room.status.toLowerCase() === 'pending' &&
+    isArrivalDateTodayOrPast.value &&
+    paymentStatus.value === 'Fully Paid';
+};
+
+const canCheckOutRoom = (room: any) => {
+  if (!selectBooking.value) return false;
+  return room.status.toLowerCase() === 'checked-in';
+};
+
+const canExtendStay = computed(() => {
+  if (!selectBooking.value) return false;
+  return isReservationCheckedIn.value &&
+    !anyRoomCheckedOut.value &&
+    selectBooking.value.status.toLowerCase() !== 'cancelled' &&
+    selectBooking.value.status.toLowerCase() !== 'no-show';
+});
+const handleAction = async (actionType: string, roomId: number | null = null) => {
   console.log(`Action: ${actionType} for Room ID: ${roomId || 'All Rooms'}`);
   const rooms = selectBooking.value?.reservationServiceProducts.map((e) => {
     const room = e.serviceProduct;
@@ -305,34 +413,61 @@ const handleAction = (actionType: string, roomId: number | null = null) => {
   })
 
   if (actionType === 'checkInAll') {
-    const roomsUpdate = rooms?.map((e) => {
-      e.status = 'Checked-in';
-      return e;
-    });
-
-    ///Todo Update all the room. 
-    // TODO Set activity Log
-    //updatedReservation.activityLog.push({ timestamp: new Date().toISOString(), description: 'All rooms checked in.', by: 'User' });
+    isLoading.value = true;
+    const requestBody = {
+      reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e) => e.id)
+    };
+    if (selectBooking.value?.id) {
+      const response = await checkInReservation(selectBooking.value?.id, requestBody);
+      if (response.status === 200) {
+        //Success Message
+      } else {
+        //TODO Error Message
+      }
+    }
+    isLoading.value = false;
   } else if (actionType === 'checkOutAll') {
-    const roomsUpdate = rooms?.map((e) => {
-      e.status = 'Checked-out';
-      return e;
-    })
+    isLoading.value = true;
+    const requestBody = {
+      reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e) => e.id)
+    };
+    if (selectBooking.value?.id) {
+      const response = await checkOutReservation(selectBooking.value?.id, requestBody);
+      if (response.status === 200) {
+        //Success Message
+      } else {
+        //TODO Error Message
+      }
+    }
+    isLoading.value = false;
   } else if (actionType === 'checkInRoom' && roomId) {
-    const room = rooms?.find(r => r.id === roomId);
-    if (room) {
-      //Todo Update Room
-      room.status = 'Checked-in';
+    isLoading.value = true;
+    const requestBody = {
+      reservationServiceProducts: [roomId]
+    };
+    if (selectBooking.value?.id) {
+      const response = await checkInReservation(selectBooking.value?.id, requestBody);
+      if (response.status === 200) {
+        //Success Message
+      } else {
+        //TODO Error Message
+      }
     }
-    // TODO Set activity Log
-    //updatedReservation.activityLog.push({ timestamp: new Date().toISOString(), description: `Room ${roomId} checked in.`, by: 'User' });
+    isLoading.value = false
   } else if (actionType === 'checkOutRoom' && roomId) {
-    const room = rooms?.find(r => r.id === roomId);
-    if (room) {
-      //Todo Update Room
-      room.status = 'Checked-out';
+    isLoading.value = true;
+    const requestBody = {
+      reservationServiceProducts: [roomId]
+    };
+    if (selectBooking.value?.id) {
+      const response = await checkOutReservation(selectBooking.value?.id, requestBody);
+      if (response.status === 200) {
+        //Success Message
+      } else {
+        //TODO Error Message
+      }
     }
-    //updatedReservation.activityLog.push({ timestamp: new Date().toISOString(), description: `Room ${roomId} checked out.`, by: 'User' });
+    isLoading.value = false;
   } else if (actionType === 'cancelReservation') {
     if (selectBooking.value) {
       const updatedReservation = selectBooking.value;
@@ -358,20 +493,30 @@ const showToast = (message: string) => {
 };
 
 const statusClass = (status: string) => {
-  switch (status) {
-    case 'Confirmed': return 'bg-green-100 text-green-800';
-    case 'Pending': return 'bg-yellow-100 text-yellow-800';
-    case 'Cancelled':
-    case 'No-show': return 'bg-red-100 text-red-800';
-    case 'Checked-in': return 'bg-blue-100 text-blue-800';
-    case 'Checked-out': return 'bg-gray-100 text-gray-800';
+  // Explicitly list the status values for clarity, matching the proposed enum/union type
+  switch (status.toLowerCase()) {
+    case 'available': return 'bg-green-100 text-green-800';
+    case 'confirmedd': return 'bg-green-100 text-green-800';
+    case 'confirmed': return 'bg-green-100 text-green-800';
+    case 'pending': return 'bg-yellow-100 text-yellow-800';
+    case 'en attente': return 'bg-yellow-100 text-yellow-800';
+    case 'cancelled': return 'bg-red-100 text-red-800';
+    case 'no-show': return 'bg-red-100 text-red-800';
+    case 'checked_in': return 'bg-blue-100 text-blue-800';
+    case 'checked-out': return 'bg-red-100 text-red-800';
     default: return 'bg-gray-100 text-gray-800';
   }
 };
-
+const downloadReceipt = async () => {
+  if (!selectBooking.value?.payments || selectBooking.value?.payments.length < 1) return;
+  router.push({ name: 'ViewInvoice', params: { id: selectBooking.value?.payments[0].id } });
+}
 onMounted(() => {
   getBookingDetails();
 });
 const getPaymentDetails = async (pay: any) => {
+}
+const editReservation = async () => {
+  router.push({ name: 'EditBooking', params: { id: selectBooking.value?.id } })
 }
 </script>

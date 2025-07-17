@@ -767,15 +767,72 @@ const handleCheckIn = async (room: any) => {
    const confirmedWrapper = room.reservations?.find(
       (res: any) => res.reservation?.status?.toLowerCase() === 'confirmed'
     );
+    console.log('checkin',room.reservations)
+    console.log(`[handleCheckIn] Réservation confirmée trouvée:`, confirmedReservation);
 
-    console.log("confirmedWrapper", room.reservations)
+    let guestName = '';
+    if (confirmedReservation) {
+      guestName = confirmedReservation.creator.firstName;
+      console.log(`[handleCheckIn] Nom du client trouvé:`, guestName);
 
-    if (!confirmedWrapper) {
-      console.warn('[handleCheckIn] Aucun wrapper avec status "confirmed" trouvé');
-      room.reservations?.forEach((res: any, i: number) => {
-        console.log(`→ Réservation ${i}: wrapper.status = ${res.status}`);
-      });
-      notifyError('Aucune réservation confirmée trouvée pour cette chambre.');
+      try {
+        console.log(`[handleCheckIn] Appel API checkInReservation avec ID:`, confirmedReservation.reservationId);
+
+        const result = await checkInReservation(confirmedReservation.reservationId);
+        const updatedProduct = result.reservationProducts;
+
+        const index = room.reservations.findIndex((res: any) => res.id === confirmedReservation.id);
+        if (index !== -1) {
+          room.reservations[index] = { ...confirmedReservation, status: 'checked-in' };
+        }
+
+        // ✅ Mise à jour réactive du serviceProduct
+        const roomToUpdate = serviceProducts.value.find((r) => r.id === room.id);
+        if (roomToUpdate) {
+          roomToUpdate.status = updatedProduct.status;
+          roomToUpdate.guestName = guestName;
+          roomToUpdate.checkInTime = new Date().toISOString();
+          console.log(`[handleCheckIn] Chambre mise à jour:`, roomToUpdate);
+        }
+
+        await fetchServiceProduct();
+
+      } catch (apiError) {
+        console.error('[handleCheckIn] Erreur API check-in:', apiError);
+      }
+    } else {
+      console.log(`[handleCheckIn] Aucune réservation confirmée`);
+      return;
+    }
+
+  } catch (error) {
+    console.error("[handleCheckIn] Erreur générale :", error);
+    alert("Erreur lors du check-in. Veuillez réessayer.");
+  }finally{
+    isCheckingIn.value = false
+  }
+};
+
+
+
+
+
+const handleCheckOut = async (room: any) => {
+  isCheckingout.value = true
+  try {
+    console.log(` Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
+
+    if (!room.reservations?.length) {
+      console.log(" Aucune réservation trouvée pour cette chambre.");
+      return;
+    }
+
+    const checkedInReservation = room.reservations.find(
+      (res: any) => res.reservation.status === 'checked-in'
+    );
+
+    if (!checkedInReservation) {
+      console.log(" Aucune réservation en cours (status 'checked-in') trouvée.");
       return;
     }
 
