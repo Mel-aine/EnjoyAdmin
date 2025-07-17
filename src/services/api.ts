@@ -247,12 +247,9 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
 }
 
 export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/services/customer/${serviceId}`)
+  return axios.get(`${API_URL}/services/customer/${serviceId}`,headers)
 }
 
-export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/services/customer/${serviceId}`)
-}
 
 export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/schedules`, {
@@ -481,10 +478,6 @@ export const checkExtendStay = (id: number, data: any): Promise<AxiosResponse<an
 }
 export const confirmExtendStay = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.patch(`${API_URL}/reservations/${id}/extendStay`, data,headers)
-}
-
-export const updateRoomStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
 }
 
 export const updateRoomStatus = (id:number, status:string): Promise<AxiosResponse<any>> => {

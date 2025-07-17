@@ -1,8 +1,15 @@
 import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
+import { useAuthStore } from '@/composables/user'
 
 //const API_URL = import.meta.env.VITE_API_URL as string;
-
+const authStore = useAuthStore()
+const headers = {
+  headers: {
+    Authorization: `Bearer ${authStore.token}`,
+  },
+  withCredentials: true,
+}
 export interface CheckInPayload {
   reservationId: number
 }
@@ -39,7 +46,7 @@ const handleApiError = (error: any): never => {
 export const checkInReservation = async (reservationId: number,datas:any): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-in`,datas
+      `/reservations/${reservationId}/check-in`,datas,headers
     )
     console.log(response.data)
     return response.data
@@ -55,7 +62,7 @@ export const checkInReservations = async (
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
       `/reservations/${reservationId}/check-in`,
-      { reservationServiceProducts: reservationServiceProductIds }
+      { reservationServiceProducts: reservationServiceProductIds },headers
     );
     return response.data;
   } catch (error) {
@@ -68,7 +75,7 @@ export const checkInReservations = async (
 export const checkOutReservation = async (reservationId: number,datas:any): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-out`,datas
+      `/reservations/${reservationId}/check-out`,datas,headers
     )
     console.log(response.data)
     return response.data
@@ -80,7 +87,7 @@ export const checkOutReservation = async (reservationId: number,datas:any): Prom
 export const checkOutReservations = async (reservationId: number,reservationServiceProductIds: number[]): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-out`,{ reservationServiceProducts: reservationServiceProductIds }
+      `/reservations/${reservationId}/check-out`,{ reservationServiceProducts: reservationServiceProductIds },headers
     )
     console.log(response.data)
     return response.data
@@ -92,7 +99,7 @@ export const checkOutReservations = async (reservationId: number,reservationServ
 export const setAvailable = async (id: number): Promise<any| undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/service_product/${id}/available`,
+      `/service_product/${id}/available`,headers
     )
     return response.data
   } catch (error) {
@@ -105,7 +112,7 @@ export const setAvailable = async (id: number): Promise<any| undefined> => {
 export const getRoomReservations = async (serviceProductId: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-      `/reservations/service-product/${serviceProductId}`,
+      `/reservations/service-product/${serviceProductId}`,headers
     )
     return response.data || []
   } catch (error) {
@@ -114,28 +121,3 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
   }
 }
 
-// Récupérer les réservations avec statut "confirmed" pour check-in
-// export const getReservationsForCheckIn = async (): Promise<Reservation[]> => {
-//   try {
-//     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-//       '/reservations?status=confirmed',
-//     )
-//     return response.data.data || []
-//   } catch (error) {
-//     console.error('Erreur récupération réservations confirmées:', error)
-//     return []
-//   }
-// }
-
-// Récupérer les réservations avec statut "checked_in" pour check-out
-// export const getReservationsForCheckOut = async (): Promise<Reservation[]> => {
-//   try {
-//     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-//       '/reservations?status=checked_in',
-//     )
-//     return response.data.data || []
-//   } catch (error) {
-//     console.error('Erreur récupération réservations checked_in:', error)
-//     return []
-//   }
-// }
