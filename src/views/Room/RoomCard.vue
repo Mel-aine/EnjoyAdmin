@@ -76,22 +76,16 @@
 
     <!-- Informations de maintenance -->
     <div v-if="room.maintenanceInfo && (room.status === 'maintenance' || room.status === 'out-of-order')"
-         class="mb-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
-      <div class="flex items-center gap-2 mb-2">
+         class="mb-1 p-2 bg-amber-50 rounded-lg border border-amber-200">
+      <div class="flex items-center gap-2 mb-1">
         <Wrench class="w-4 h-4 text-amber-600" />
         <span class="text-sm font-medium text-amber-900">{{ $t('maintenanceDetails') }}</span>
       </div>
       <div class="space-y-1 text-xs text-amber-800">
-        <p><strong>{{ $t('reason') }}:</strong> {{ room.maintenanceInfo.reason }}</p>
+        <p><strong>{{ $t('reason') }}:</strong> {{ $t(`reasons.${room.maintenanceInfo.reason}`) }}</p>
         <p><strong>{{ $t('startDate') }}:</strong> {{ formatDateTime(room.maintenanceInfo.startDate) }}</p>
-        <p v-if="room.maintenanceInfo.estimatedEndDate">
-          <strong>{{ $t('estimatedEnd') }}:</strong> {{ formatDateTime(room.maintenanceInfo.estimatedEndDate) }}
-        </p>
-        <p v-if="room.maintenanceInfo.priority" class="flex items-center gap-1">
-          <span class="font-medium">{{ $t('priority') }}:</span>
-          <span :class="getPriorityColor(room.maintenanceInfo.priority)">
-            {{ $t(`priority.${room.maintenanceInfo.priority}`) }}
-          </span>
+        <p v-if="room.maintenanceInfo.endDate">
+          <strong>{{ $t('endDate') }}:</strong> {{ formatDateTime(room.maintenanceInfo.endDate) }}
         </p>
       </div>
     </div>
@@ -100,7 +94,7 @@
     <ul v-if="displayedOptions.length" class="grid grid-cols-2 gap-3 mb-4 text-sm text-gray-700">
       <li v-for="option in displayedOptions" :key="option.key" class="flex items-center space-x-2">
         <component :is="option.Icon" class="w-4 h-4 text-gray-500 flex-shrink-0" />
-        <span>{{ option.value }}</span>
+        <span>{{  $t(`options.values.${option.value}`) }}</span>
       </li>
     </ul>
 
@@ -494,10 +488,6 @@ const availabilityInfo = computed(() => {
     //   message: `${t('checkoutScheduled')} ${formatDate(checkOutTime)}`,
     //   classes: 'bg-indigo-50 border-indigo-200 text-indigo-700'
     // },
-    maintenance: {
-      message: `${t('maintenanceUntil')} ${formatDate(nextAvailable)}`,
-      classes: 'bg-amber-50 border-amber-200 text-amber-700'
-    }
   }
 
   return configs[status] || null

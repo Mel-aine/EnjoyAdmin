@@ -27,7 +27,6 @@
           </DropdownMenu>
         </div>
 
-
         <div class="mt-10">
           <div class="space-y-6">
             <TableComponent
@@ -66,10 +65,22 @@
           <!-- close btn -->
           <button
             @click="closeModal()"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600  dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
+            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
           >
-            <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"  fill="" />
+            <svg
+              class="fill-current"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+                fill=""
+              />
             </svg>
           </button>
           <div class="px-2 pr-14">
@@ -77,9 +88,7 @@
               {{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}
             </h4>
           </div>
-          <form
-            class="flex flex-col custom-scrollbar h-[460px] overflow-y-auto p-1"
-          >
+          <form class="flex flex-col custom-scrollbar h-[460px] overflow-y-auto p-1">
             <!-- Section Informations Générales -->
             <fieldset class="space-y-6">
               <legend class="border-b border-gray-200 pb-4 w-full">
@@ -92,66 +101,93 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                 <!-- Nom de la chambre -->
                 <div class="space-y-2">
-                  <label for="room-number" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('room_number') }}</label>
-                  <input type="number" id="room-number" name="room-number" :placeholder="'Ex : 101'" min="1" v-model="formData.number" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" required>
+                  <label
+                    for="room-number"
+                    class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    >{{ $t('room_number') }}</label
+                  >
+                  <input
+                    type="number"
+                    id="room-number"
+                    name="room-number"
+                    :placeholder="'Ex : 101'"
+                    min="1"
+                    v-model="formData.number"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                    required
+                  />
                 </div>
-                <div class="space-y-2"> <Input
-                      :lb="$t('Name')"
-                      :id="'name'"
-                      :forLabel="'name'"
-                      v-model="formData.name"
-                    /></div>
-                <div class="space-y-2"><Select :lb="$t('RoomTypes')" :options="roomTypeData" v-model="formData.roomType" /></div>
-                  </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <Input :lb="$t('Name')" :id="'name'" :forLabel="'name'" v-model="formData.name" />
+                </div>
+                <div class="space-y-2">
+                  <Select
+                    :lb="$t('RoomTypes')"
+                    :options="roomTypeData"
+                    v-model="formData.roomType"
+                  />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Loyer mensuel -->
                 <div class="space-y-2">
-                    <InputCurrency
-                      :lb="$t('Rent')"
-                      :placeholder="'Ex: 10000 '"
-                      :id="'rent'"
-                      :forLabel="'rent'"
-                      :disabled="true"
-                      v-model="formData.rent"
-                    />
+                  <InputCurrency
+                    :lb="$t('Rent')"
+                    :placeholder="'Ex: 10000 '"
+                    :id="'rent'"
+                    :forLabel="'rent'"
+                    :disabled="true"
+                    v-model="formData.rent"
+                  />
                 </div>
 
-                <div class="space-y-2"> <Input :lb="$t('capacity')" :id="'capacity'" :forLabel="'capacity'" :input-type="'number'" v-model="formData.capacity"/></div>
+                <div class="space-y-2">
+                  <Input
+                    :lb="$t('capacity')"
+                    :id="'capacity'"
+                    :forLabel="'capacity'"
+                    :input-type="'number'"
+                    v-model="formData.capacity"
+                  />
+                </div>
 
-                <div class="space-y-2"> <Input :lb="$t('floor')" :id="'etage'" :forLabel="'etage'" :input-type="'number'" v-model="formData.floor"/></div>
-
+                <div class="space-y-2">
+                  <Input
+                    :lb="$t('floor')"
+                    :id="'etage'"
+                    :forLabel="'etage'"
+                    :input-type="'number'"
+                    v-model="formData.floor"
+                  />
+                </div>
 
                 <!-- Statut -->
                 <div class="space-y-2">
                   <Select :lb="$t('Status')" :options="status" v-model="formData.status" />
                 </div>
-                </div>
+              </div>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                 <!-- Description -->
                 <div class="md:col-span-2 space-y-2">
-                      <label
-                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >
-                        {{ $t('Description') }}
-                      </label>
-                      <textarea
-                        v-model="formData.description"
-                        :placeholder="$t('Largetext')"
-                        rows="4"
-                        class="dark:bg-dark-900  w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                      ></textarea>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {{ $t('Description') }}
+                  </label>
+                  <textarea
+                    v-model="formData.description"
+                    :placeholder="$t('Largetext')"
+                    rows="4"
+                    class="dark:bg-dark-900 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                  ></textarea>
                 </div>
-                <div class=" space-y-2">
-                      <label
-                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >
-                        {{ $t('Note') }}
-                      </label>
-                      <textarea
-                        :placeholder="$t('Largetext')"
-                        rows="4"
-                        class="dark:bg-dark-900  w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                      ></textarea>
+                <div class="space-y-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {{ $t('Note') }}
+                  </label>
+                  <textarea
+                    :placeholder="$t('Largetext')"
+                    rows="4"
+                    class="dark:bg-dark-900 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                  ></textarea>
                 </div>
               </div>
             </fieldset>
@@ -180,7 +216,9 @@
                     "
                     class="space-y-2"
                   >
-                    <p class="text-sm font-medium text-gray-700">{{ t(`options.${option.optionName}`) }}</p>
+                    <p class="text-sm font-medium text-gray-700">
+                      {{ t(`options.${option.optionName}`) }}
+                    </p>
                     <div class="flex flex-wrap gap-4">
                       <label
                         v-for="val in option.values"
@@ -194,28 +232,34 @@
                           v-model="formData.options[option.id]"
                           class="w-4 h-4 text-purple-500 focus:ring-purple-500"
                         />
-                        <span class="ml-2 text-sm text-gray-700">{{ t(`options.values.${val.label}`) }}</span>
+                        <span class="ml-2 text-sm text-gray-700">{{
+                          t(`options.values.${val.label}`)
+                        }}</span>
                       </label>
                     </div>
                   </div>
 
                   <!-- Checkbox pour multiselect -->
                   <div v-else-if="option.type === 'multiselect' && option.values" class="space-y-2">
-                    <p class="text-sm font-medium text-gray-700">{{ t(`options.${option.optionName}`) }}</p>
+                    <p class="text-sm font-medium text-gray-700">
+                      {{ t(`options.${option.optionName}`) }}
+                    </p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <label
                         v-for="val in option.values"
                         :key="val.value"
                         class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
                       >
-                       <input
+                        <input
                           type="checkbox"
                           :value="val.value"
                           :checked="formData.options[option.id]?.includes(val.value)"
                           @change="onMultiSelectChange(Number(option.id), val.value, $event)"
                           class="w-4 h-4 text-purple-500 rounded focus:ring-purple-500"
                         />
-                        <span class="ml-3 text-sm font-medium text-gray-700">{{ t(`options.values.${val.label}`) }}</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">{{
+                          t(`options.values.${val.label}`)
+                        }}</span>
                       </label>
                     </div>
                   </div>
@@ -227,19 +271,16 @@
                     "
                     class="space-y-2"
                   >
-
-
                     <label
                       :for="`option_${option.id}`"
                       class="block text-sm font-medium text-gray-700"
                     >
-                     {{ t(`options.${option.optionName}`) }}
+                      {{ t(`options.${option.optionName}`) }}
                     </label>
                     <select
                       :id="`option_${option.id}`"
                       v-model="formData.options[option.id]"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-
                     >
                       <option disabled value="">-- Choisir une option --</option>
                       <option v-for="val in option.values" :key="val.value" :value="val.value">
@@ -267,35 +308,32 @@
                 </div>
               </fieldset>
             </div>
-            </form>
+          </form>
 
-            <!-- Boutons d'action -->
-           <div
-                class="flex flex-col sm:flex-row-reverse gap-4 pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white"
-              >
-                <button
-                  type="button"
-                   @click.prevent="handleSubmit"
-                  class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 bg-purple-400 rounded-md hover:from-primary-dark hover:to-purple-500 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform whitespace-nowrap"
-                >
-                  <span v-if="!isLoading">{{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
-                  <span v-else class="flex items-center gap-2">
-                    <Spinner class="w-4 h-4" />
-                    {{ $t('Processing') }}...
-                  </span>
-                </button>
+          <!-- Boutons d'action -->
+          <div
+            class="flex flex-col sm:flex-row-reverse gap-4 pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white"
+          >
+            <button
+              type="button"
+              @click.prevent="handleSubmit"
+              class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 bg-purple-400 rounded-md hover:from-primary-dark hover:to-purple-500 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform whitespace-nowrap"
+            >
+              <span v-if="!isLoading">{{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
+              <span v-else class="flex items-center gap-2">
+                <Spinner class="w-4 h-4" />
+                {{ $t('Processing') }}...
+              </span>
+            </button>
 
-                <button
-                  type="button"
-                  @click.prevent="closeModal()"
-                  class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
-                >
-                  {{ $t('Cancel') }}
-                </button>
-           </div>
-
-
-
+            <button
+              type="button"
+              @click.prevent="closeModal()"
+              class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+            >
+              {{ $t('Cancel') }}
+            </button>
+          </div>
         </div>
       </template>
     </Modal>
@@ -306,15 +344,13 @@
     @delete="confirmDelete"
     :isLoading="loadingDelete"
   />
-   <PopupModal
-  v-if="showMessage"
-  :title="'Avertissement'"
-  :message="popupMessage"
-  :isOpen="showMessage"
-  @close="showMessage = false"
-/>
-
-
+  <PopupModal
+    v-if="showMessage"
+    :title="$t('warning')"
+    :message="popupMessage"
+    :isOpen="showMessage"
+    @close="showMessage = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -333,14 +369,14 @@ import {
   deleteServiceProduct,
   getTypeProductByServiceId,
   createRoom,
-  createRoomOptions
+  createRoomOptions,
 } from '@/services/api'
 import type { OptionType, ServiceProductType, ProductOptionType } from '@/types/option'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
-import {useBookingStore} from '@/composables/booking'
+import { useBookingStore } from '@/composables/booking'
 import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
@@ -367,7 +403,10 @@ const ServiceProduct = ref<ServiceProductType[]>([])
 const currentPageTitle = computed(() => t('RoomList'))
 const selectedRoom = ref<any>(null)
 const isEditMode = ref(false)
-const menuItems = computed(() => [{ label: t('AddRoom'), onClick: () => OpenModal() },{ label: t('importdefault'), onClick: () => importDefaultDefaults() }])
+const menuItems = computed(() => [
+  { label: t('AddRoom'), onClick: () => OpenModal() },
+  { label: t('importdefault'), onClick: () => importDefaultDefaults() },
+])
 const router = useRouter()
 const store = useBookingStore()
 
@@ -396,27 +435,31 @@ const formData = ref<any>({
   roomType: null,
   floor: null,
   capacity: null,
-  number:null,
-  options: initializeFormData()
+  number: null,
+  options: initializeFormData(),
 })
 
-watch(options, (newOptions: any[]) => {
-  if (newOptions && newOptions.length > 0) {
-    const updatedOptions: Record<number, any> = {}
+watch(
+  options,
+  (newOptions: any[]) => {
+    if (newOptions && newOptions.length > 0) {
+      const updatedOptions: Record<number, any> = {}
 
-    newOptions.forEach((option: any) => {
-      const existingValue = formData.value.options[option.id]
+      newOptions.forEach((option: any) => {
+        const existingValue = formData.value.options[option.id]
 
-      if (option.type === 'multiselect') {
-        updatedOptions[option.id] = Array.isArray(existingValue) ? existingValue : []
-      } else {
-        updatedOptions[option.id] = existingValue !== undefined ? existingValue : ''
-      }
-    })
+        if (option.type === 'multiselect') {
+          updatedOptions[option.id] = Array.isArray(existingValue) ? existingValue : []
+        } else {
+          updatedOptions[option.id] = existingValue !== undefined ? existingValue : ''
+        }
+      })
 
-    formData.value.options = updatedOptions
-  }
-}, { immediate: true })
+      formData.value.options = updatedOptions
+    }
+  },
+  { immediate: true },
+)
 
 // function pour gérer les multiselects de façon fiable
 const onMultiSelectChange = (optionId: number, value: string, event: Event) => {
@@ -487,7 +530,7 @@ const categoryIcons: Record<string, string> = {
 watch(
   () => formData.value.roomType,
   (selectedId: any) => {
-    const selectedRoom = roomTypeData.value.find((room:any) => room.id === selectedId)
+    const selectedRoom = roomTypeData.value.find((room: any) => room.id === selectedId)
     formData.value.rent = selectedRoom ? selectedRoom.price : 0
   },
 )
@@ -545,15 +588,14 @@ const optionTypeMap: Record<string, string> = {
 const defaultOptionsByType = computed(() => {
   const grouped: Record<string, optionsTypes[]> = {}
   options.value
-    .filter((option:any) => option.isDefault === true)
-    .forEach((option:any) => {
+    .filter((option: any) => option.isDefault === true)
+    .forEach((option: any) => {
       const type = optionTypeMap[option.optionName] || 'Other'
       if (!grouped[type]) grouped[type] = []
       grouped[type].push(option)
     })
   return grouped
 })
-
 
 const defaultOptionsMap = computed(() => {
   const map: Record<number, OptionType> = {}
@@ -572,8 +614,8 @@ const resetFormData = () => {
     roomType: null,
     floor: null,
     capacity: null,
-    number:null,
-    options: initializeFormData()
+    number: null,
+    options: initializeFormData(),
   }
 }
 
@@ -585,9 +627,8 @@ function showError(message: string) {
 const saveFormData = async () => {
   isLoading.value = true
   try {
-
-      // Validation de l'unicité du numéro
-    if (ServiceProduct.value.some((room:any) => room.roomNumber === formData.value.number)) {
+    // Validation de l'unicité du numéro
+    if (ServiceProduct.value.some((room: any) => room.roomNumber === formData.value.number)) {
       showError('Ce numéro de chambre existe déjà !')
       return
     }
@@ -604,9 +645,9 @@ const saveFormData = async () => {
       product_name: formData.value.name,
       product_type_id: formData.value.roomType,
       description: formData.value.description,
-      capacity:formData.value.capacity,
-      room_number:formData.value.number,
-      floor:formData.value.floor,
+      capacity: formData.value.capacity,
+      room_number: formData.value.number,
+      floor: formData.value.floor,
       status: formData.value.status,
       price: formData.value.rent,
       created_by: userStore.UserId,
@@ -614,7 +655,7 @@ const saveFormData = async () => {
 
     console.log('roomPayload', roomPayload)
 
-     const roomResponse = await createRoom(roomPayload)
+    const roomResponse = await createRoom(roomPayload)
     const roomId = roomResponse.data.id
     console.log('roomId', roomId)
 
@@ -718,7 +759,6 @@ const flattenServiceProducts = computed(() => {
 
 watch(locale, fetchServiceProduct)
 
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'available':
@@ -729,6 +769,8 @@ const getStatusColor = (status: string) => {
       return 'bg-red-100 text-red-700'
     case 'maintenance':
       return 'bg-yellow-100 text-yellow-700'
+    case 'dirty':
+      return 'bg-red-50 text-orange-700'
     default:
       return 'bg-gray-50 text-gray-700 dark:bg-gray-500/15 dark:text-gray-500'
   }
@@ -756,7 +798,7 @@ const handleProductAction = (action: string, room: any) => {
       formData.value.floor = roomToEdit.floor
       formData.value.capacity = roomToEdit.capacity
       formData.value.number = roomToEdit.roomNumber
-    let roomOptions = Array.isArray(roomToEdit.options) ? roomToEdit.options : []
+      let roomOptions = Array.isArray(roomToEdit.options) ? roomToEdit.options : []
 
       const updatedOptions: Record<number, any> = {}
 
@@ -771,8 +813,7 @@ const handleProductAction = (action: string, room: any) => {
 
       formData.value.options = updatedOptions
 
-
-    console.log('Editing reservation:', formData.value.options)
+      console.log('Editing reservation:', formData.value.options)
 
       isEditMode.value = true
 
@@ -793,7 +834,7 @@ const handleProductAction = (action: string, room: any) => {
       selectedRoom.value = roomToEdit
       router.push({
         name: 'RoomDetailsModal',
-        params: { id: room.id.toString() }
+        params: { id: room.id.toString() },
       })
       store.setRoomSelect(selectedRoom.value)
       console.log('selectedRoom.value', selectedRoom.value)
@@ -810,33 +851,28 @@ const confirmDelete = async () => {
       ServiceProduct.value = ServiceProduct.value.filter((r: any) => r.id !== selectedRoomId.value)
       fetchServiceProduct()
       console.log(`Suppression du room  ID: ${selectedRoomId.value}`)
-    } catch (error:any) {
+    } catch (error: any) {
       console.error('Error:', error?.data?.message || 'Unexpected error occurred')
-        toast.error(t('errorKey'))
+      toast.error(t('errorKey'))
     } finally {
       loadingDelete.value = false
       Show.value = false
       selectedRoomId.value = null
     }
   }
-
 }
 
 const updateFormData = async () => {
   isLoading.value = true
   try {
+    const isNumberUsed = ServiceProduct.value.some(
+      (room) => room.roomNumber === formData.value.number && room.id !== selectedRoom.value?.id,
+    )
 
-const isNumberUsed = ServiceProduct.value.some(
-  room =>
-    room.roomNumber === formData.value.number &&
-    room.id !== selectedRoom.value?.id
-)
-
-if (isNumberUsed) {
-  showError('Ce numéro de chambre existe déjà !')
-  return
-}
-
+    if (isNumberUsed) {
+      showError('Ce numéro de chambre existe déjà !')
+      return
+    }
 
     const roomType = roomTypeData.value.find((t: any) => t.id === formData.value.roomType)
     if (roomType && formData.value.capacity! > roomType.defaultGuest) {
@@ -850,9 +886,9 @@ if (isNumberUsed) {
       status: formData.value.status,
       product_type_id: formData.value.roomType,
       price: formData.value.rent,
-      capacity:formData.value.capacity,
-      room_number:formData.value.number,
-      floor:formData.value.floor,
+      capacity: formData.value.capacity,
+      room_number: formData.value.number,
+      floor: formData.value.floor,
     }
 
     const roomId = selectedRoom.value?.id
@@ -940,7 +976,6 @@ const roomDetailsModal = ref(false)
 
 // Colonnes essentielles pour la table
 const essentialColumns = computed(() => [
-
   {
     name: 'productName',
     label: t('Name'),
@@ -949,7 +984,7 @@ const essentialColumns = computed(() => [
     filterable: true,
     width: '200px',
   },
-    {
+  {
     name: 'roomNumber',
     label: t('room_number'),
     type: 'text',
@@ -1023,48 +1058,48 @@ const essentialColumns = computed(() => [
   },
 ])
 
-
-
 const closeRoomDetails = () => {
   roomDetailsModal.value = false
   selectedRoom.value = null
 }
 
-const onEditFromModal = (room:any) => {
+const onEditFromModal = (room: any) => {
   closeRoomDetails()
   onEditProduct(room)
 }
 
-const onDeleteFromModal = (room:any) => {
+const onDeleteFromModal = (room: any) => {
   closeRoomDetails()
   onDeleteProduct(room)
 }
 
 const importDefaultDefaults = async () => {
   const defaultRoomData = defaultRooms
-  if (!defaultRoomData || defaultRoomData.length === 0) return;
+  if (!defaultRoomData || defaultRoomData.length === 0) return
 
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    const serviceId = serviceStore.serviceId;
-    const userId = userStore.UserId;
+    const serviceId = serviceStore.serviceId
+    const userId = userStore.UserId
 
     if (!serviceId) {
-      throw new Error('Service ID is not defined');
+      throw new Error('Service ID is not defined')
     }
 
     for (const room of defaultRoomData) {
       // Vérification unicité numéro de chambre dans ServiceProduct (si c’est possible ici)
-      if (ServiceProduct.value.some((r:any) => r.roomNumber === room.number)) {
-        console.warn(`Le numéro de chambre ${room.number} existe déjà, skipping`);
-        continue;
+      if (ServiceProduct.value.some((r: any) => r.roomNumber === room.number)) {
+        console.warn(`Le numéro de chambre ${room.number} existe déjà, skipping`)
+        continue
       }
 
       // Trouver le type de chambre pour la validation capacité
-      const roomType = roomTypeData.value.find(t => t.id === room.roomTypeId);
+      const roomType = roomTypeData.value.find((t) => t.id === room.roomTypeId)
       if (roomType && room.capacity > roomType.defaultGuest) {
-        console.warn(`Capacité ${room.capacity} dépasse le max ${roomType.defaultGuest} pour type ${roomType.name}, skipping`);
-        continue;
+        console.warn(
+          `Capacité ${room.capacity} dépasse le max ${roomType.defaultGuest} pour type ${roomType.name}, skipping`,
+        )
+        continue
       }
 
       const roomPayload = {
@@ -1078,15 +1113,15 @@ const importDefaultDefaults = async () => {
         status: room.status || 'available',
         price: room.price,
         created_by: userId,
-      };
+      }
 
-      const roomResponse = await createRoom(roomPayload);
-      const roomId = roomResponse.data.id;
+      const roomResponse = await createRoom(roomPayload)
+      const roomId = roomResponse.data.id
 
       if (room.options) {
         const optionsPayload = Object.entries(formData.value.options).map(
           ([id, value]: [string, any]) => {
-            const optionMeta = defaultOptionsMap.value[Number(id)];
+            const optionMeta = defaultOptionsMap.value[Number(id)]
             return {
               service_product_id: roomId,
               option_id: Number(id),
@@ -1094,30 +1129,25 @@ const importDefaultDefaults = async () => {
               value: String(value),
               created_by: userStore.UserId,
               last_modified_by: userStore.UserId,
-            };
+            }
           },
-        );
+        )
 
-
-        await createRoomOptions({ data: optionsPayload });
+        await createRoomOptions({ data: optionsPayload })
       }
     }
 
-    fetchServiceProduct();
-    toast.success(t('toast.defaultRoomsImported'));
+    fetchServiceProduct()
+    toast.success(t('toast.defaultRoomsImported'))
   } catch (error) {
-    console.error('Erreur lors de l\'importation des chambres par défaut', error);
-    toast.error(t('toast.importError'));
+    console.error("Erreur lors de l'importation des chambres par défaut", error)
+    toast.error(t('toast.importError'))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
-
-
-
+}
 </script>
 
 <style scoped>
 /* Style amélioré pour le bouton */
-
 </style>

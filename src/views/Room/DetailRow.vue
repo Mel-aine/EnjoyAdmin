@@ -53,7 +53,9 @@ const getBadgeClass = (status) => {
     'Occupée': 'bg-red-100 text-red-800',
     'Maintenance': 'bg-yellow-100 text-yellow-800',
     'Booked': 'bg-blue-100 text-blue-800',
-    'Réservée': 'bg-blue-100 text-blue-800'
+    'Réservée': 'bg-blue-100 text-blue-800',
+    'To Clean' : 'bg-red-50 text-orange-700',
+    'À Nettoyer' : 'bg-red-50 text-orange-700',
   }
   return statusMap[status] || 'bg-gray-100 text-gray-800'
 }

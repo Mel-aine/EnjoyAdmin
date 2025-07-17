@@ -44,39 +44,12 @@ export interface RoomOptionData {
   value: string
 }
 
-interface serviceType {
-  id: number
-  name: string
-  description: string
-  email: string
-  phoneNumber: string
-  website: string
-  logo: string | null
-  images: string[] | null
-  address: {
-    text: string
-    lat: number
-    lng: number
-  }
-  categoryId: number
-  capacity: number | null
-  facilities: string[]
-  policies: string
-  priceRange: string | null
-  paymentMethods: { label: string; value: string }[]
-  openings: Record<string, { opening: string; closing: string }>
-  status: 'active' | 'inactive' // Ajuste selon tes valeurs possibles
-  createdAt: string
-  updatedAt: string
-  createdBy: string | null
-  lastModifiedBy: string | null
-}
 
 // --- Services API get --- //
 
 //get les options
 export const getOptions = (): Promise<AxiosResponse<{ data: OptionType[] }>> => {
-  return axios.get(`${API_URL}/option`)
+  return axios.get(`${API_URL}/option`,headers)
 }
 
 //get les services product by serviceId
@@ -217,6 +190,13 @@ export const getReservationDetailsById = (reservationId: number): Promise<AxiosR
 export const getReservationHistoryById = (reservationId: number): Promise<AxiosResponse<any>> => {
   return axios.get(
     `${API_URL}/activity-logs/by-entity?entityType=Reservation&entityId=${reservationId}`,
+    headers,
+  )
+}
+
+export const getRoomHistoryById = (roomId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/activity-logs/by-entity?entityType=ServiceProduct&entityId=${roomId}`,
     headers,
   )
 }
@@ -482,8 +462,19 @@ export const confirmExtendStay = (id: number, data: any): Promise<AxiosResponse<
 }
 
 
-export const updateRoomStatus = (id:number, status:string ,force:boolean): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status,force }, headers)
+export const updateRoomStatus = (
+  roomId: number,
+  status: string,
+  force = false,
+  maintenanceData?: { reason: string; startDate: string; endDate: string; notes: string }
+): Promise<AxiosResponse<any>> => {
+  const payload: any = { status, force }
+
+  if (status === 'maintenance' && maintenanceData) {
+    Object.assign(payload, maintenanceData)
+  }
+
+  return axios.patch(`${API_URL}/service_product/update_status/${roomId}`, payload,  headers )
 }
 
 //----- SERVICE API Delete ----//

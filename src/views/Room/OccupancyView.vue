@@ -320,50 +320,108 @@
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">{{ $t('maintenanceSetup') }}</h3>
         <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('reason') }}</label>
-            <select v-model="maintenanceForm.reason" class="w-full p-2 border border-gray-300 rounded-md">
-              <option value="plumbing">{{ $t('plumbing') }}</option>
-              <option value="electrical">{{ $t('electrical') }}</option>
-              <option value="cleaning">{{ $t('deepCleaning') }}</option>
-              <option value="renovation">{{ $t('renovation') }}</option>
-              <option value="other">{{ $t('other') }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('priority') }}</label>
-            <select v-model="maintenanceForm.priority" class="w-full p-2 border border-gray-300 rounded-md">
-              <option value="low">{{ $t('priority.low') }}</option>
-              <option value="medium">{{ $t('priority.medium') }}</option>
-              <option value="high">{{ $t('priority.high') }}</option>
-              <option value="urgent">{{ $t('priority.urgent') }}</option>
-            </select>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('debut') }}</label>
-            <input v-model="maintenanceForm.estimatedDuration" type="date" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Heures">
-          </div>
-           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('fin') }}</label>
-            <input v-model="maintenanceForm.estimatedDuration" type="date" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Heures">
-          </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('notes') }}</label>
-            <textarea v-model="maintenanceForm.notes" class="w-full p-2 border border-gray-300 rounded-md" rows="3"></textarea>
-          </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            {{ $t('reason') }} <span class="text-red-500">*</span>
+          </label>
+          <select
+            v-model="maintenanceForm.reason"
+            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+            required
+          >
+            <option value="">{{ $t('selectReason') }}</option>
+            <option value="plumbing">{{ $t('reasons.plumbing') }}</option>
+            <option value="electrical">{{ $t('reasons.electrical') }}</option>
+            <option value="cleaning">{{ $t('reasons.deepCleaning') }}</option>
+            <option value="renovation">{{ $t('reasons.renovation') }}</option>
+            <option value="other">{{ $t('reasons.other') }}</option>
+          </select>
         </div>
+
+        <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            {{ $t('startDate') }}
+          </label>
+          <input
+            v-model="maintenanceForm.startDate"
+            type="date"
+            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+          >
+        </div>
+        <div>
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          {{ $t('endDate') }}
+        </label>
+        <input
+          v-model="maintenanceForm.endDate"
+          type="date"
+          :min="maintenanceForm.startDate"
+          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+        >
+        </div>
+        <p  class="text-red-500 text-sm font-normal whitespace-nowrap">{{ error }}</p>
+    </div>
+
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            {{ $t('notes') }}
+          </label>
+          <textarea
+            v-model="maintenanceForm.notes"
+            class="p-2 dark:bg-dark-900 min-h-[88px] w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+            rows="3"
+            :placeholder="$t('additionalNotes')"
+          ></textarea>
+        </div>
+        </div>
+
         <div class="flex gap-2 mt-6">
-          <button @click="showMaintenanceModal = false" class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-            {{ $t('cancel') }}
+          <button
+            @click="showMaintenanceModal = false"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            {{ $t('Cancel') }}
           </button>
-          <button @click="confirmMaintenance" class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700">
-            {{ $t('confirm') }}
+          <button
+            @click="confirmMaintenance"
+            class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="!maintenanceForm.reason.trim()"
+          >
+            <span v-if="!isLoading">{{ $t('confirm') }}</span>
+              <span v-else class="flex items-center gap-2">
+                <Spinner class="w-4 h-4" />
+                {{ $t('Processing') }}...
+              </span>
+
           </button>
         </div>
       </div>
     </div>
+
+    <PopupModal
+  v-if="showMessage"
+  :title="$t('warning')"
+  :message="popupMessage"
+  :isOpen="showMessage"
+  @close="showMessage=false"
+>
+  <template #footer>
+    <button
+      class="text-sm bg-gray-300 px-3 py-2 rounded-md font-normal mr-2"
+      @click="closeModal"
+    >
+      {{ $t('no') }}
+    </button>
+    <button
+      class="text-sm bg-brand-300 px-3 py-2 rounded-md font-normal"
+      @click="confirmForceChange"
+    >
+      {{ $t('yes') }}
+    </button>
+  </template>
+</PopupModal>
+
   </AdminLayout>
 </template>
 
@@ -375,6 +433,10 @@ import StatusChangeModal from './StatusChangeModal.vue'
 import { useServiceStore } from '@/composables/serviceStore';
 import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus } from "@/services/api";
 import { checkInReservations, checkOutReservations, getRoomReservations } from "@/services/reservation";
+import { useI18n } from "vue-i18n";
+import Spinner from "@/components/spinner/Spinner.vue";
+import PopupModal from "@/components/modal/PopupModal.vue";
+import { useToast } from 'vue-toastification'
 
 
 // State variables
@@ -394,6 +456,11 @@ const currentPage = ref<any>(1);
 const showStatusModal = ref(false);
 const selectedRoom = ref<any>(null);
 const showMaintenanceModal = ref(false)
+const { t, locale } = useI18n()
+const showMessage = ref(false)
+const popupMessage = ref('')
+const pendingForceRetry = ref<null | (() => void)>(null);
+const toast = useToast()
 
 // Pagination computed properties
 const totalPages = computed(() => Math.ceil(filteredRooms.value.length / itemsPerPage.value));
@@ -453,6 +520,7 @@ const fetchServiceProduct = async () => {
     const serviceId = serviceStore.serviceId;
     const response = await getServiceProductWithOptions(serviceId);
     const serviceProductsData = response.data;
+    console.log("serviceProductsData ",serviceProductsData )
 
     if (Array.isArray(serviceProductsData)) {
       const serviceProductWithOptions = await Promise.all(
@@ -493,6 +561,7 @@ const fetchServiceProduct = async () => {
 
           return {
             ...product,
+            maintenanceInfo:product.maintenance,
             options: associatedOptions,
             reservations: reservations,
             guestName: guestName,
@@ -639,78 +708,6 @@ const exportData = () => {
 };
 
 
-const handleStatusChange = async (payload: any) => {
-  let roomId: number, newStatus: string
-  let force = false
-
-  // 📦 Format flexible
-  if (payload.roomId && payload.newStatus) {
-    roomId = payload.roomId
-    newStatus = payload.newStatus
-  } else if (payload.room && payload.status) {
-    roomId = payload.room.id
-    newStatus = payload.status
-  } else {
-    console.error("handleStatusChange appelé avec un payload invalide :", payload)
-    return
-  }
-
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId)
-
-  if (!roomToUpdate) {
-    console.warn(`Chambre avec ID ${roomId} non trouvée.`)
-    return
-  }
-
-  // ✅ Mettre à jour localement pour UI instantanée
-  roomToUpdate.status = newStatus
-
-  const tryUpdate = async (forced = false) => {
-    try {
-      await updateRoomStatus(roomId, newStatus, forced)
-      console.log(`✅ Statut de la chambre ${roomId} mis à jour sur le serveur.`)
-    } catch (error: any) {
-      // ⚠️ Si la chambre est occupée et que l'API demande un forçage
-      if (error?.message?.includes("forcer") || error?.message?.includes("occupée")) {
-        const confirmed = window.confirm("La chambre est occupée. Voulez-vous forcer le changement de statut ?")
-        if (confirmed) {
-          await tryUpdate(true)
-        } else {
-          // 🔄 Rétablir l'ancien statut si refus
-          roomToUpdate.status = payload.room?.status || 'available'
-          console.info(`Changement annulé.`)
-        }
-      } else {
-        console.error("Erreur API :", error)
-      }
-    }
-  }
-
-  await tryUpdate(force)
-
-  if (newStatus === 'cleaning') {
-    setTimeout(() => {
-      if (roomToUpdate.status === 'cleaning') {
-        roomToUpdate.status = 'available'
-        updateRoomStatus(roomId, 'available', false).catch((e) =>
-          console.error("Erreur maj auto cleaning → available :", e)
-        )
-      }
-    }, 1800000)
-  }
-
-  // 🧹 Suppression des données clients si maintenance
-  if (newStatus === 'maintenance') {
-    delete roomToUpdate.guestName
-    delete roomToUpdate.checkInTime
-    delete roomToUpdate.checkOutTime
-    delete roomToUpdate.nextAvailable
-    console.log(`Données client supprimées pour la chambre ${roomToUpdate.id} (maintenance).`)
-  }
-
-  console.log(`✅ Chambre ${roomToUpdate.productName} → ${newStatus}`)
-}
-
 
 const handleQuickStatusChange = (room: any, newStatus: string) => {
   selectedRoom.value = room;
@@ -722,25 +719,7 @@ const handleMaintenance = (room:any,newStatus: string)=>{
   showMaintenanceModal.value = true;
 }
 
-// const confirmMaintenance = () => {
-//   const maintenanceData = {
-//     reason: maintenanceForm.value.reason,
-//     priority: maintenanceForm.value.priority,
-//     estimatedDuration: maintenanceForm.value.estimatedDuration,
-//     notes: maintenanceForm.value.notes,
-//     startDate: new Date().toISOString(),
-//     estimatedEndDate: maintenanceForm.value.estimatedDuration
-//       ? new Date(Date.now() + (maintenanceForm.value.estimatedDuration * 60 * 60 * 1000)).toISOString()
-//       : null
-//   }
 
-//   // emit('maintenance-set', { room: props.room, maintenanceData })
-//   showMaintenanceModal.value = false
-
-//   Object.keys(maintenanceForm).forEach(key => {
-//     maintenanceForm[key] = key === 'reason' ? 'plumbing' : key === 'priority' ? 'medium' : ''
-//   })
-// }
 const confirmStatusChange = (payload: { roomId: number | string; newStatus: string }) => {
   handleStatusChange(payload);
   showStatusModal.value = false;
@@ -896,12 +875,260 @@ const handleCheckIn = async (room: any) => {
 */
 
 
+
 const maintenanceForm = ref({
-  reason: 'plumbing',
-  priority: 'medium',
-  estimatedDuration: '',
+  reason: '',
+  startDate: '',
+  endDate: '',
   notes: ''
 })
+
+// Add form validation
+const validateMaintenanceForm = () => {
+  const errors = [];
+
+  if (!maintenanceForm.value.reason.trim()) {
+    errors.push('Reason is required');
+  }
+
+  if (maintenanceForm.value.startDate && maintenanceForm.value.endDate) {
+    const start = new Date(maintenanceForm.value.startDate);
+    const end = new Date(maintenanceForm.value.endDate);
+
+    if (end <= start) {
+      errors.push('End date must be after start date');
+      error.value = t('date_must')
+    }
+  }
+
+  return errors;
+}
+
+
+const confirmMaintenance = async () => {
+  const errors = validateMaintenanceForm();
+  if (errors.length > 0) {
+    console.error('Validation errors:', errors);
+    return;
+  }
+
+  if (!selectedRoom.value) {
+    console.error('No room selected for maintenance');
+    return;
+  }
+
+  const maintenanceData = {
+    reason: maintenanceForm.value.reason.trim(),
+    startDate: maintenanceForm.value.startDate || null,
+    endDate: maintenanceForm.value.endDate || null,
+    notes: maintenanceForm.value.notes.trim(),
+  }
+
+  isLoading.value = true;
+
+  try {
+    await handleStatusChange({
+      room: selectedRoom.value,
+      status: 'maintenance',
+      ...maintenanceData,
+    })
+
+    showMaintenanceModal.value = false;
+    resetMaintenanceForm();
+  } catch (err) {
+    console.error('Erreur lors de la mise en maintenance :', err);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+
+const resetMaintenanceForm = () => {
+  maintenanceForm.value = {
+    reason: '',
+    startDate: '',
+    endDate: '',
+    notes: '',
+  }
+}
+
+// const handleStatusChange = async (payload: any) => {
+//   let roomId: number, newStatus: string;
+//   let force = false;
+
+//   if (payload.roomId && payload.newStatus) {
+//     roomId = payload.roomId;
+//     newStatus = payload.newStatus;
+//   } else if (payload.room && payload.status) {
+//     roomId = payload.room.id;
+//     newStatus = payload.status;
+//   } else {
+//     console.error("handleStatusChange called with invalid payload:", payload);
+//     return;
+//   }
+
+//   const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
+//   if (!roomToUpdate) {
+//     console.warn(`Room with ID ${roomId} not found.`);
+//     return;
+//   }
+
+//   // Immediate UI update
+//   const oldStatus = roomToUpdate.status;
+//   roomToUpdate.status = newStatus;
+
+//   const maintenanceData = newStatus === 'maintenance'
+//     ? {
+//         reason: payload.reason || '',
+//         startDate: payload.startDate || '',
+//         endDate: payload.endDate || '',
+//         notes: payload.notes || '',
+//       }
+//     : undefined;
+
+//   const tryUpdate = async (forced = false) => {
+//     try {
+//       await updateRoomStatus(roomId, newStatus, forced, maintenanceData);
+//       console.log(`Room ${roomId} status updated on server.`);
+//     } catch (error: any) {
+//       if (error?.response?.data?.message?.includes("forcer")) {
+//         const confirmed = window.confirm("Room is occupied. Do you want to force the status change?");
+//         if (confirmed) {
+//           await tryUpdate(true);
+//         } else {
+//           roomToUpdate.status = oldStatus;
+//           console.info("Change cancelled.");
+//         }
+//       } else {
+//         roomToUpdate.status = oldStatus;
+//         console.error("API Error:", error);
+//       }
+//     }
+//   }
+
+//   await tryUpdate(force);
+
+//   // Auto-transition from cleaning to available after 30 minutes
+//   if (newStatus === 'cleaning') {
+//     setTimeout(() => {
+//       if (roomToUpdate.status === 'cleaning') {
+//         roomToUpdate.status = 'available';
+//         updateRoomStatus(roomId, 'available').catch((e) =>
+//           console.error("Error auto-updating cleaning → available:", e)
+//         );
+//       }
+//     }, 1800000); // 30 minutes
+//   }
+
+//   // Clean up guest data when room goes to maintenance
+//   if (newStatus === 'maintenance') {
+//     delete roomToUpdate.guestName;
+//     delete roomToUpdate.checkInTime;
+//     delete roomToUpdate.checkOutTime;
+//     delete roomToUpdate.nextAvailable;
+//     console.log(`Guest data removed for room ${roomToUpdate.id} (maintenance).`);
+//   }
+
+//   console.log(`✅ Room ${roomToUpdate.productName} → ${newStatus}`);
+// }
+
+const handleStatusChange = async (payload: any) => {
+  let roomId: number, newStatus: string;
+  let force = false;
+
+  if (payload.roomId && payload.newStatus) {
+    roomId = payload.roomId;
+    newStatus = payload.newStatus;
+  } else if (payload.room && payload.status) {
+    roomId = payload.room.id;
+    newStatus = payload.status;
+  } else {
+    console.error("handleStatusChange called with invalid payload:", payload);
+    return;
+  }
+
+  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
+  if (!roomToUpdate) {
+    console.warn(`Room with ID ${roomId} not found.`);
+    return;
+  }
+
+  const oldStatus = roomToUpdate.status;
+  roomToUpdate.status = newStatus;
+
+  const maintenanceData = newStatus === 'maintenance'
+    ? {
+        reason: payload.reason || '',
+        startDate: payload.startDate || '',
+        endDate: payload.endDate || '',
+        notes: payload.notes || '',
+      }
+    : undefined;
+
+  const tryUpdate = async (forced = false) => {
+    try {
+      await updateRoomStatus(roomId, newStatus, forced, maintenanceData);
+      console.log(`Room ${roomId} status updated on server.`);
+    } catch (error: any) {
+      if (error?.response?.data?.message?.includes("forcer")) {
+        popupMessage.value = t('room_force');
+        showMessage.value = true;
+
+        pendingForceRetry.value = async () => {
+          showMessage.value = false;
+          await tryUpdate(true);
+        };
+
+        return;
+      } else {
+        roomToUpdate.status = oldStatus;
+        console.error("API Error:", error);
+      }
+    }
+  }
+
+  await tryUpdate(force);
+
+  if (newStatus === 'cleaning') {
+    setTimeout(() => {
+      if (roomToUpdate.status === 'cleaning') {
+        roomToUpdate.status = 'available';
+        updateRoomStatus(roomId, 'available').catch((e) =>
+          console.error("Error auto-updating cleaning → available:", e)
+        );
+      }
+    }, 1800000);
+  }
+
+  if (newStatus === 'maintenance') {
+    delete roomToUpdate.guestName;
+    delete roomToUpdate.checkInTime;
+    delete roomToUpdate.checkOutTime;
+    delete roomToUpdate.nextAvailable;
+    console.log(`Guest data removed for room ${roomToUpdate.id} (maintenance).`);
+  }
+
+  console.log(`✅ Room ${roomToUpdate.productName} → ${newStatus}`);
+};
+
+const confirmForceChange = async () => {
+  if (pendingForceRetry.value) {
+    await pendingForceRetry.value();
+    pendingForceRetry.value = null;
+  }
+};
+
+const closeModal = () => {
+  showMessage.value = false;
+
+  if (pendingForceRetry.value) {
+    pendingForceRetry.value = null;
+  }
+  toast.info(t('status_change_cancelled'));
+};
+
+
+
 </script>
 
 <style scoped>

@@ -1951,14 +1951,14 @@
       "occupied": "Occupied",
       "preCheckout": "Pre-checkout",
       "checkoutPending": "Checkout pending",
-      "dirty": "To clean",
+      "dirty": "To Clean",
       "cleaning": "Cleaning",
       "clean": "Clean (Available)",
       "maintenance": "Maintenance",
       "outOfOrder": "Out of order",
       "out_of_order" : "Out of order",
       "Disponible": "Available",
-      "À nettoyer": "To clean",
+      "À nettoyer": "To Clean",
       "Hors service" : "Out of order"
     },
   "guestArriving": "Guest arriving soon",
@@ -2021,7 +2021,31 @@
   "clean_required": "Cleaning required",
   "cleaning_room": "The room must be cleaned before it becomes available.",
   "confirm": "Confirm",
-  "update...": "Updating..."
+  "update...": "Updating...",
+  "warning" : "Warning",
+  "date_must" : "End date must be after start date",
+  "additionalNotes" : "Additional Notes",
+  "notes" : "Notes (Optional)",
+  "endDate" : "End Date ( Estimation)",
+  "startDate" : "Start Date",
+  "reasons" : {
+    "plumbing" : "Plumbing",
+    "electrical" : "Electrical",
+    "deepCleaning" : "Deep Cleaning",
+    "renovation" : "Renovation",
+    "other" : "Other"
+  },
+  "selectReason" : "Select Reason",
+  "maintenanceSetup" : "Maintenance Setup",
+  "restoring" : "Restoring ...",
+  "room_force": "The room is occupied. Do you want to force the status change?",
+  "status_change_cancelled": "Status change cancelled",
+  "maintenanceDetails" : "Maintenance Details",
+  "reason" : "Reason",
+  "no_recente_activity" : "No Recent Activity",
+  "cleaningCompleted" : "Cleaning Completed"
+
+
 
 
 
