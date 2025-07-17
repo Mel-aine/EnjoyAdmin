@@ -235,3 +235,18 @@ export interface Room {
   roomTypeSelect: number
   maxOccupancy?: number
 }
+
+export interface CancellationPolicy {
+  policyId?: number; // Primary Key
+  serviceId?: number; // Foreign Key referencing Hotels table
+  policyName?: string;
+  freeCancellationPeriodValue: number;
+  freeCancellationPeriodUnit: 'hours' | 'days';
+  cancellationFeeType: 'none' | 'fixed' | 'percentage' | 'first_night';
+  cancellationFeeValue: number;
+  nonRefundableRateEnabled: boolean;
+  specialConditionsNotes: string;
+  lastModifiedByUserId?: number; // Foreign Key referencing Utilisateurs table
+  last_modified_at?: string; // DATETIME
+  createdAt?: string; // DATETIME
+}

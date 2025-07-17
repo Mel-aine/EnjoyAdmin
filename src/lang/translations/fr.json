@@ -1990,5 +1990,46 @@
   "maintenance": "Entretien",
   "unknown": "Inconnu",
   "expected_departure_date": "Date de départ prévue",
-  "expected_arrive_date": "Date prévue d'arrivée"
+  "expected_arrive_date": "Date prévue d'arrivée",
+   "cancellationPolicy": {
+    "settingTab":"Politique d'Annulation",
+      "headerTitle": "Configuration de la Politique d'Annulation",
+      "headerSubtitle": "Définissez les règles pour les annulations de réservations",
+      "freeCancellationPeriod": {
+        "title": "Délai d'Annulation Gratuit",
+        "label": "Jusqu'à",
+        "unitHours": "heures",
+        "unitDays": "jours",
+        "beforeArrival": "avant l'arrivée.",
+        "info": "Passé ce délai, des frais d'annulation peuvent s'appliquer."
+      },
+      "cancellationFees": {
+        "title": "Frais d'Annulation",
+        "typeLabel": "Type de frais :",
+        "typeNone": "Aucun frais",
+        "typeFixed": "Montant fixe",
+        "typePercentage": "Pourcentage du montant total",
+        "typeFirstNight": "Coût de la première nuit",
+        "fixedAmountLabel": "Montant fixe (XAF)",
+        "percentageAmountLabel": "Pourcentage du montant total (%)",
+        "firstNightInfo": "Les frais seront équivalents au coût de la première nuit."
+      },
+      "nonRefundableRates": {
+        "title": "Tarifs Non Remboursables",
+        "enableLabel": "Activer les tarifs non remboursables (100% de frais en cas d'annulation)",
+        "info": "Ces tarifs sont souvent proposés à un prix réduit et sont payés intégralement à la réservation."
+      },
+      "specialConditions": {
+        "title": "Conditions Spéciales / Notes",
+        "notesLabel": "Notes sur les conditions spéciales (groupes, événements, etc.)",
+        "notesPlaceholder": "Ex: Les annulations de groupe nécessitent un préavis de 30 jours.",
+        "notesPlaceholderDefault": "Les annulations de groupe (plus de 5 chambres) nécessitent un préavis de 30 jours. Les événements spéciaux peuvent avoir des politiques différentes.",
+        "notesInfo": "Ces notes seront utilisées pour informer les clients ou le personnel."
+      },
+      "saveButton": "Enregistrer la Politique d'Annulation",
+      "savedMessage": "Paramètres enregistrés avec succès !"
+    },
+    "cancellationNotSet":"La politique d'annulation n'a pas encore été définie pour cet hôtel. Veuillez la configurer pour que les réservations puissent être traitées correctement.",
+    "anErrorOcurr": "Une erreur est survenue"
+
 }

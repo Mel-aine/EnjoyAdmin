@@ -1,4 +1,3 @@
-
 import {
   CalendarCheck2,
   Building2,
@@ -10,7 +9,7 @@ import {
   ClipboardPlus,
   UsersRound,
   Banknote,
-} from 'lucide-vue-next';
+} from 'lucide-vue-next'
 
 export const getHotelMenu = (t: (key: string) => string) => {
   return [
@@ -65,12 +64,21 @@ export const getHotelMenu = (t: (key: string) => string) => {
               permission: 'inventory_view',
               subItems: [
                 { name: t('StockList'), path: '/stock/product', permission: 'inventory_read' },
-                { name: t('StockMovements'), path: '/stock/movements', permission: 'inventory_history_view' },
-                { name: t('StockCategory'), path: '/stock/categorie', permission: 'inventory_category_view' },
+                {
+                  name: t('StockMovements'),
+                  path: '/stock/movements',
+                  permission: 'inventory_history_view',
+                },
+                {
+                  name: t('StockCategory'),
+                  path: '/stock/categorie',
+                  permission: 'inventory_category_view',
+                },
                 { name: t('Suppliers'), path: '/stock/suppliers', permission: 'suppliers_view' },
               ],
             },
             { name: t('Expenses'), path: '/expense', permission: 'expenses_view' },
+            { name: t('Refunds'), path: '/refunds', permission: 'expenses_view' },
           ],
         },
         {
@@ -90,12 +98,32 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Staff Management'),
           // permission: 'staff_view',
           subItems: [
-            { name: t('Dashboard Overview'), path: '/staff_management/dashboard', permission: 'staff_dashboard_view' },
-            { name: t('Staff Management'), path: '/staff_management/staff_management', permission: 'staff_manage' },
+            {
+              name: t('Dashboard Overview'),
+              path: '/staff_management/dashboard',
+              permission: 'staff_dashboard_view',
+            },
+            {
+              name: t('Staff Management'),
+              path: '/staff_management/staff_management',
+              permission: 'staff_manage',
+            },
             { name: t('Permission'), path: '/permission', permission: 'permissions_manage' },
-            { name: t('Task Management'), path: '/staff_management/task_management', permission: 'task_manage' },
-            { name: t('Staff Schedule'), path: '/staff_management/staff_schedule', permission: 'schedule_manage' },
-            { name: t('Action History'), path: '/staff_management/action_history', permission: 'staff_history_view' },
+            {
+              name: t('Task Management'),
+              path: '/staff_management/task_management',
+              permission: 'task_manage',
+            },
+            {
+              name: t('Staff Schedule'),
+              path: '/staff_management/staff_schedule',
+              permission: 'schedule_manage',
+            },
+            {
+              name: t('Action History'),
+              path: '/staff_management/action_history',
+              permission: 'staff_history_view',
+            },
           ],
         },
         {
@@ -106,5 +134,5 @@ export const getHotelMenu = (t: (key: string) => string) => {
         },
       ],
     },
-  ];
-};
+  ]
+}
