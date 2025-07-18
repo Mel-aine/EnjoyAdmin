@@ -434,7 +434,6 @@ export function user_update(
 
 export const updateProduct = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/prooductService/${id}`, Payload,headers)
-  return axios.put(`${API_URL}/prooductService/${id}`, Payload, headers)
 }
 
 export const updateService = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
@@ -487,31 +486,7 @@ export const updateRoomStatus = (
   return axios.patch(`${API_URL}/service_product/update_status/${roomId}`, payload,  headers )
 }
 
-// Find reservation
-export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
-  let qs = ``
-  if (filter.checkInDate) {
-    if (qs) qs += `&checkInDate=${filter.checkInDate}`
-    else qs += `?checkInDate=${filter.checkInDate}`
-  }
-  if (filter.checkOutDate) {
-    if (qs) qs += `&checkOutDate=${filter.checkOutDate}`
-    else qs += `?checkOutDate=${filter.checkOutDate}`
-  }
-  if (filter.roomType) {
-    if (qs) qs += `&roomType=${filter.roomType}`
-    else qs += `?roomType=${filter.roomType}`
-  }
-  if (filter.searchText) {
-    if (qs) qs += `&searchText=${filter.searchText}`
-    else qs += `?searchText=${filter.searchText}`
-  }
-  if (filter.status) {
-    if (qs) qs += `&status=${filter.status}`
-    else qs += `?status=${filter.status}`
-  }
-  return axios.get(`${API_URL}/services/${id}/reservation/search${qs}`, headers)
-}
+
 
 // Find reservation
 export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {

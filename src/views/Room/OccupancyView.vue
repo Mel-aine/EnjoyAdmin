@@ -4,8 +4,8 @@
     <div class="min-h-screen bg-gray-50">
       <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
-      <div class="bg-white shadow border-b border-gray-200">
-        <div class=" px-2 sm:px-4 lg:px-6">
+      <div class=" px-2 sm:px-4 lg:px-6">
+
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
               <h1 class="text-2xl font-semibold text-gray-900">{{ $t('OccupancyofRooms') }}</h1>
@@ -38,7 +38,7 @@
               </button>
             </div>
           </div>
-        </div>
+
       </div>
 
       <!-- Stats Dashboard -->
@@ -218,7 +218,7 @@
 
 
           <div  class="mt-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
                 :key="room.id"
@@ -557,11 +557,12 @@ const fetchServiceProduct = async () => {
           }
 
 
-          const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in');
+          const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in' );
+
           const guestName = checkedInGuest
             ? `${checkedInGuest.creator?.firstName ?? ''} ${checkedInGuest.creator?.lastName ?? ''}`.trim()
             : null;
-
+          console.log("checkedInGuest",guestName)
           return {
             ...product,
             maintenanceInfo:product.maintenance,
@@ -606,6 +607,7 @@ onMounted(async () => {
   isLoading.value = true;
   try {
     await Promise.all([fetchServiceProduct(), fetchRoomType()]);
+    console.log("serviceProducts",serviceProducts.value)
   } catch (e) {
     console.error("Erreur lors du fetch des données:", e);
   } finally {

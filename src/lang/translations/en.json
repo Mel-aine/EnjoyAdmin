@@ -2075,7 +2075,10 @@
     "tableDate": "Date",
     "tableReason": "Reason",
     "tableStatus": "Status",
-    "noRefundsFound": "No refunds found matching the selected criteria."
+    "noRefundsFound": "No refunds found matching the selected criteria.",
+    "completedRefunds" : "Completed Refunds",
+    "pendingRefunds" : "Pending Refunds",
+    "failedRefunds" : "Failed Refunds"
   },
   "reservationsList": {
       "headerTitle": "Hotel Reservations Management",
@@ -2114,6 +2117,7 @@
     "check-in":"Check-in",
     "checked_in":"Checked In",
     "checked in":"Checked in",
-    "reservationNumber":"Reservation Number"
+    "reservationNumber":"Reservation Number",
+    "processed" : "Processed"
 
 }
