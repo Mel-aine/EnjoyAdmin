@@ -23,6 +23,7 @@
 
         <!-- Actions et recherche -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+
           <!-- Barre de recherche -->
           <div v-if="searchable" class="relative flex-1 sm:flex-none sm:w-80">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -185,7 +186,7 @@
                       'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize shadow-sm'
                     ]"
                   >
-                    {{ row[item.name].label }}
+                    {{ $t(row[item.name].label.toLowerCase()) }}
                   </span>
                 </template>
 

@@ -7,7 +7,7 @@
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-2 text-white text-center rounded-t-xl">
           <h1 class="text-2xl font-bold mb-2">{{ $t('hotel_reservation_details') }}</h1>
           <p class="text-lg">{{ $t('reservation_id') }}: <span class="font-semibold">{{ selectBooking?.reservationNumber
-          }}</span></p>
+              }}</span></p>
         </div>
 
         <div class="p-6 space-y-8">
@@ -21,7 +21,7 @@
                   :alt="$t('profile')" class="w-8 h-8 rounded-full mr-2" />
                 <Mail class="mr-2 text-gray-500" :size="18" />
                 <span class="font-medium">{{ $t('email') }}:</span> <span class="ml-1">{{ selectBooking.user?.email
-                }}</span>
+                  }}</span>
               </div>
               <DetailItem :icon="Phone" :label="$t('phone')" :value="selectBooking.user?.phoneNumber" />
               <DetailItem :icon="Tag" :label="$t('booking_source')" :value="selectBooking.bookingSource" />
@@ -248,7 +248,8 @@
     </div>
     <OverLoading v-if="isLoading" />
     <template v-if="isCancel">
-      <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false"  :reservation="selectBooking"/>
+      <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false" @cancel-reservation="refrechPage"
+        :reservation="selectBooking" />
     </template>
     <template v-if="isExtendStay">
       <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" :reservation="selectBooking"
@@ -306,7 +307,8 @@ const formatDate = (dateString: string) => {
 };
 const refrechPage = () => {
   getBookingDetails();
-  isExtendStay.value=false;
+  isExtendStay.value = false;
+  isCancel.value = false;
 }
 const isCancel = ref(false);
 const isExtendStay = ref(false);
@@ -514,7 +516,9 @@ const downloadReceipt = async () => {
 onMounted(() => {
   getBookingDetails();
 });
-const getPaymentDetails = async (pay: any) => {
+const getPaymentDetails = async () => {
+  getBookingDetails();
+  openPayment.value = false;
 }
 const editReservation = async () => {
   router.push({ name: 'EditBooking', params: { id: selectBooking.value?.id } })

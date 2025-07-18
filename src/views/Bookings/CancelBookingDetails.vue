@@ -5,7 +5,7 @@
             class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-auto transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('confirm_cancellation_title')
-                    }}</h3>
+                }}</h3>
                 <button @click="closeModal"
                     class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -29,7 +29,7 @@
                     {{ $t(responseWrapper.policyName) }}
                 </p>
                 <p class="mt-2 text-sm text-white dark:text-gray-400">
-                    {{ responseWrapper.summaryMessage}}
+                    {{ responseWrapper.summaryMessage }}
                 </p>
             </div>
 
@@ -41,7 +41,7 @@
                 <button @click="confirmCancellation" :disabled="isLoading"
                     class="px-4 py-2 bg-red-600 disabled:bg-gray-400 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition-colors">
                     {{ $t('confirm_button') }}
-                    <DotSpinner v-if="isLoading" class="ml-2"/>
+                    <DotSpinner v-if="isLoading" class="ml-2" />
                 </button>
             </div>
         </div>
@@ -66,7 +66,7 @@ const props = defineProps({
         required: true,
     },
 })
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'cancelReservation'])
 // Initialisation de vue-i18n
 const { t } = useI18n();
 const isLoading = ref(false);
@@ -87,7 +87,7 @@ const responseWrapper = ref({
 
 // Fonction pour basculer entre les langues
 const getLocalSummary = async () => {
-isLoading.value = true;
+    isLoading.value = true;
     try {
         const response = await getCancellationSummary(props.reservation.id);
         if (response.status === 200) {
@@ -113,7 +113,7 @@ const confirmCancellation = async () => {
         }
         const res = await cancelReservation(props.reservation.id, datas);
         console.log("res", res)
-        closeModal();
+        emit('cancelReservation')
         if (res.status === 200 || res.status === 201) {
             toast.success(t('cancellation_sent_message'))
         } else {

@@ -9,6 +9,7 @@ import type {
   ReservationType,
   userDataType,
 } from '@/types/option'
+import type { FitlterItem } from '@/utils/models'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 const authStore = useAuthStore()
@@ -496,6 +497,32 @@ export const updateRoomStatus = (id: number, status: string): Promise<AxiosRespo
   return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
 }
 
+// Find reservation
+export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
+  let qs = ``
+  if (filter.checkInDate) {
+    if (qs) qs += `&checkInDate=${filter.checkInDate}`
+    else qs += `?checkInDate=${filter.checkInDate}`
+  }
+  if (filter.checkOutDate) {
+    if (qs) qs += `&checkOutDate=${filter.checkOutDate}`
+    else qs += `?checkOutDate=${filter.checkOutDate}`
+  }
+  if (filter.roomType) {
+    if (qs) qs += `&roomType=${filter.roomType}`
+    else qs += `?roomType=${filter.roomType}`
+  }
+  if (filter.searchText) {
+    if (qs) qs += `&searchText=${filter.searchText}`
+    else qs += `?searchText=${filter.searchText}`
+  }
+  if (filter.status) {
+    if (qs) qs += `&status=${filter.status}`
+    else qs += `?status=${filter.status}`
+  }
+  return axios.get(`${API_URL}/services/${id}/reservation/search${qs}`, headers)
+}
+
 //----- SERVICE API Delete ----//
 
 //delete reservation
@@ -577,7 +604,6 @@ export const getCancellationPolicyByHotelId = (id: number | null): Promise<Axios
 export const insertCancellationPolicy = (datas: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/cancellation-policies `, datas, headers)
 }
-export const updateCancellationPolicy = (id: number,datas: any): Promise<AxiosResponse<any>> => {
+export const updateCancellationPolicy = (id: number, datas: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/cancellation-policies/${id}`, datas, headers)
 }
-
