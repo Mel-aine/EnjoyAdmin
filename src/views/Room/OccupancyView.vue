@@ -3,7 +3,7 @@
   <AdminLayout>
     <div class="min-h-screen bg-gray-50">
       <!-- Header Section -->
-      <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="bg-white shadow border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
@@ -404,7 +404,7 @@
   :title="$t('warning')"
   :message="popupMessage"
   :isOpen="showMessage"
-  @close="showMessage=false"
+  @close="closeModal"
 >
   <template #footer>
     <button
@@ -437,6 +437,7 @@ import { useI18n } from "vue-i18n";
 import Spinner from "@/components/spinner/Spinner.vue";
 import PopupModal from "@/components/modal/PopupModal.vue";
 import { useToast } from 'vue-toastification'
+import router from "@/router";
 
 
 // State variables
@@ -1054,7 +1055,8 @@ const handleStatusChange = async (payload: any) => {
   }
 
   const oldStatus = roomToUpdate.status;
-  roomToUpdate.status = newStatus;
+
+ roomToUpdate.status = newStatus;
 
   const maintenanceData = newStatus === 'maintenance'
     ? {
@@ -1068,6 +1070,7 @@ const handleStatusChange = async (payload: any) => {
   const tryUpdate = async (forced = false) => {
     try {
       await updateRoomStatus(roomId, newStatus, forced, maintenanceData);
+
       console.log(`Room ${roomId} status updated on server.`);
     } catch (error: any) {
       if (error?.response?.data?.message?.includes("forcer")) {
@@ -1116,6 +1119,8 @@ const confirmForceChange = async () => {
     await pendingForceRetry.value();
     pendingForceRetry.value = null;
   }
+ fetchServiceProduct()
+
 };
 
 const closeModal = () => {
@@ -1124,7 +1129,8 @@ const closeModal = () => {
   if (pendingForceRetry.value) {
     pendingForceRetry.value = null;
   }
-  toast.info(t('status_change_cancelled'));
+  window.location.reload()
+  // toast.info(t('status_change_cancelled'));
 };
 
 
