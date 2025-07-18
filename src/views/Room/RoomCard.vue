@@ -1,6 +1,7 @@
 
 <template>
-  <div class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100/70 hover:border-gray-200/90 relative overflow-hidden min-h-[80px] flex flex-col justify-between w-full">
+  <div class="group   bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 border border-gray-100/70 hover:border-gray-200/90 relative overflow-hidden min-h-[80px] flex flex-col justify-between w-full">
+
     <!-- En-tête avec nom et statut -->
     <div class="flex items-center justify-between mb-4">
       <div>

@@ -230,7 +230,6 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
 
 export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
-  return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
 }
 
 export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
@@ -249,6 +248,9 @@ export const getRoomCountByRoomType =(serviceId: number,productTypeId:number):Pr
   return axios.get(`${API_URL}/type-products/room-count?service_id=${serviceId}&product_type_id=${productTypeId}`, headers)
 }
 
+export const getRefunds = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/refund/${serviceId}`, headers)
+}
 // --- Services API post --- //
 
 //create service product
@@ -467,10 +469,6 @@ export const getCancellationSummary = (id: number): Promise<AxiosResponse<any>> 
 export const cancelReservation = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/reservations/${id}/cancel`, data, headers)
 }
-
-export const updateRoomStatus = (id: number, status: string): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
-
 
 export const updateRoomStatus = (
   roomId: number,

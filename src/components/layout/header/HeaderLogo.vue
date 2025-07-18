@@ -16,36 +16,10 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore';
-import { getServices} from '@/services/api'
-import {ref , onMounted} from 'vue'
+import {computed} from 'vue'
 
 const serviceStore = useServiceStore();
-const serviceName = ref('');
-
-const fetchService = async () => {
-  try {
-    const serviceId = serviceStore.serviceId;
-    console.log("id",serviceId)
-    const response = await getServices();
-
-    const foundService = response.data.data.find(
-      (service) => service.id === serviceId
-    );
-
-    if (foundService) {
-      serviceName.value = foundService.name;
-    } else {
-      serviceName.value = 'Unknown Service';
-    }
-
-    console.log("service", foundService);
-  } catch (error) {
-    console.error('fetch failed:', error);
-  }
-};
-
-
-onMounted(() => {
-  fetchService();
-});
+const serviceName = computed(() => {
+  return JSON.parse(serviceStore.currentService).name
+})
 </script>

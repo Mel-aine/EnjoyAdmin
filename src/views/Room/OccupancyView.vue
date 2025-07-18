@@ -2,9 +2,10 @@
 <template>
   <AdminLayout>
     <div class="min-h-screen bg-gray-50">
+      <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="bg-white shadow border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class=" px-2 sm:px-4 lg:px-6">
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
               <h1 class="text-2xl font-semibold text-gray-900">{{ $t('OccupancyofRooms') }}</h1>
@@ -41,7 +42,7 @@
       </div>
 
       <!-- Stats Dashboard -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-4">
@@ -216,8 +217,8 @@
         </div>
 
 
-          <div  class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+          <div  class="mt-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
                 :key="room.id"
@@ -305,6 +306,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- Status Change Modal -->
