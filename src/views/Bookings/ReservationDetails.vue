@@ -249,10 +249,10 @@
     <OverLoading v-if="isLoading" />
     <template v-if="isCancel">
       <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false" @cancel-reservation="refrechPage"
-        :reservation="selectBooking" />
+        :reservation="selectBooking!" />
     </template>
     <template v-if="isExtendStay">
-      <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" :reservation="selectBooking"
+      <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" :reservation="selectBooking!"
         @extend-stay="refrechPage" />
     </template>
     <template v-if="selectBooking">

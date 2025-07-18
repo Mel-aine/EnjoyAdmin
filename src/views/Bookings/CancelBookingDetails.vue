@@ -51,7 +51,8 @@
 <script setup lang="ts">
 import DotSpinner from '@/components/spinner/DotSpinner.vue';
 import { cancelReservation, getCancellationSummary } from '@/services/api';
-import { onMounted, ref } from 'vue';
+import type { ReservationDetails } from '@/utils/models';
+import { onMounted, ref, type PropType } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification'
 
@@ -62,7 +63,7 @@ const props = defineProps({
         default: false,
     },
     reservation: {
-        type: Object,
+        type: Object as PropType<ReservationDetails>,
         required: true,
     },
 })

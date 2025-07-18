@@ -455,7 +455,7 @@ export function user_update(
 }
 
 export const updateProduct = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/prooductService/${id}`, Payload), headers
+  return axios.put(`${API_URL}/prooductService/${id}`, Payload,headers)
 }
 
 export const updateService = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
