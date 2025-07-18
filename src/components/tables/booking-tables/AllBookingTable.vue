@@ -1,80 +1,50 @@
 <template>
   <div>
+    <BookingFilter @filter="applyFilter" />
     <div class="mt-10">
-      <TableComponent
-        :items="titles"
-        :datas="reservations"
-        :filterable="true"
-        :pagination="true"
-        :loading="loading"
-        :showHeader="true"
-        :title="$t('Booking')"
-        :pageSize="15"
-        :showButtonAllElement="true"
-        @edit="onEditBooking"
-        @delete="onDeleteBooking"
-        @view="onviewBooking"
-        class="modern-table"
-      />
+      <TableComponent :items="titles" :datas="reservations" :filterable="true" :pagination="true" :loading="loading"
+        :showHeader="true" :title="$t('Booking')" :pageSize="15" :showButtonAllElement="true" :searchable="false"
+        @edit="onEditBooking" @delete="onDeleteBooking" @view="onviewBooking" class="modern-table">
+        <template v-slot:headerActions>
+          <div class="flex justify-end ">
+            <a href="/add_booking"
+              class="block px-4 py-2 dark:hover:text-white bg-primary hover:bg-primary/85 text-white font-bold rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105  items-center">{{
+                $t('AddBooking') }} </a>
+          </div>
+        </template>
+      </TableComponent>
     </div>
   </div>
-  <ModalDelete
-    v-if="modalShow"
-    @close="modalShow = false"
-    @delete="confirmDelete"
-    :isLoading="loadingDelete"
-  />
+  <ModalDelete v-if="modalShow" @close="modalShow = false" @delete="confirmDelete" :isLoading="loadingDelete" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import {
-  getReservation,
-  getUser,
-  getServiceProduct,
   deleteReservation,
-  getReservationServiceProduct,
+  filterReservation,
 } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
-import type { ReservationType, userDataType, ServiceProductType } from '@/types/option'
+import type { ReservationType } from '@/types/option'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
-import { formatDateT } from '@/components/utilities/UtilitiesFunction'
 import { useBookingStore } from '@/composables/booking'
+import BookingFilter from '@/views/Bookings/BookingFilter.vue'
+import type { FitlterItem } from '@/utils/models'
 
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: 'global' })
 const serviceStore = useServiceStore()
 const toast = useToast()
 const modalShow = ref(false)
-const users = ref<userDataType[]>([])
 const selectedReservation = ref<any>(null)
 const selectedReservationId = ref<number | null>(null)
 const loadingDelete = ref(false)
 const loading = ref(true)
 const store = useBookingStore()
-const fetchUsers = async () => {
-  const response = await getUser()
-  users.value = response.data.data
-  console.log('userrr', users.value)
-}
-
-const serviceProducts = ref<ServiceProductType[]>([])
-const fetchServiceProduct = async () => {
-  try {
-    const serviceId = serviceStore.serviceId
-
-    const response = await getServiceProduct(serviceId)
-    serviceProducts.value = response.data
-    console.log('hhh', serviceProducts.value)
-  } catch (error) {
-    console.error('Erreur lors de la récupération des produits:', error)
-  }
-}
-
 const reservations = ref<ReservationType[]>([])
 
 const safeTranslate = (key: string) => {
@@ -85,63 +55,66 @@ const safeTranslate = (key: string) => {
     return key
   }
 }
+// Formatter functions
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(locale.value, options);
+};
 
-const fetchReservation = async () => {
-  try {
-    const serviceId = serviceStore.serviceId
-    const response = await getReservation(serviceId)
-    console.log('....', response.data)
 
-    reservations.value = await Promise.all(
-      response.data.map(async (res: any) => {
-        const user = users.value.find((u: any) => u.id === res.userId)
-        const statusClasses = getStatusColor(res.status).split(' ')
-        const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
-
-        const products = await fetchReservationServiceProduct(res.id)
-
-        return {
-          ...res,
-          date: formatDateT(res.arrivedDate),
-          dateD: formatDateT(res.departDate),
-          email: user?.email || '',
-          phone:user?.phoneNumber || '',
-          userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-          statusColor: {
-            label: safeTranslate(res.status),
-            bg: statusClasses[0],
-            text: statusClasses[1],
-          },
-          paymentStatusColor: {
-            label: safeTranslate(res.paymentStatus),
-            bg: paymentClasses[0],
-            text: paymentClasses[1],
-          },
-          serviceProducts: products,
-        }
-      }),
-    )
-
-    reservations.value.sort((a: any, b: any) => b.createdAt.localeCompare(a.createdAt))
-
-    console.log('.....reservation', reservations.value)
-  } catch (error) {
-    console.error('fetch failed:', error)
+const applyFilter = async (filter: FitlterItem) => {
+  loading.value = true;
+  const res = await filterReservation(serviceStore.serviceId!, filter);
+  reservations.value =[];
+  if (res.status === 200 || res.status === 201) {
+    console.log(res.data)
+    reservations.value = res.data.map((res: any) => {
+      const user = res.user;
+      const statusClasses = getStatusColor(res.status).split(' ')
+      const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
+      return {
+        ...res,
+        date: formatDate(res.arrivedDate),
+        dateD: formatDate(res.departDate),
+        email: user?.email || '',
+        phone: user?.phoneNumber || '',
+        userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
+        statusColor: {
+          label: safeTranslate(res.status),
+          bg: statusClasses[0],
+          text: statusClasses[1],
+        },
+        paymentStatusColor: {
+          label: safeTranslate(res.paymentStatus),
+          bg: paymentClasses[0],
+          text: paymentClasses[1],
+        },
+      }
+    })
   }
+  loading.value = false
 }
-
-watch(locale,fetchReservation)
-
 onMounted(async () => {
-  await fetchUsers()
-  await fetchServiceProduct()
-  await new Promise((resolve) => setTimeout(resolve, 500))
-  await fetchReservation()
-
+  await applyFilter({
+    checkInDate: '',
+    checkOutDate: '',
+    roomType: '',
+    searchText: '',
+    status: '',
+  })
   loading.value = false
 })
 
 const titles = computed(() => [
+
+
+ {
+    name: 'reservationNumber',
+    label: t('reservationNumber'),
+    type: 'text',
+    sortable: true,
+    filterable: false,
+  },
   {
     name: 'userFullName',
     label: t('Name'),
@@ -150,21 +123,21 @@ const titles = computed(() => [
     filterable: false,
   },
   {
-    name: 'email',
-    label: t('Email'),
-    type: 'url',
+    name: 'totalAmount',
+    label: t('TotalAmount'),
+    type: 'currency',
     filterable: true,
   },
   {
     name: 'date',
     label: t('CheckIn'),
-    type: 'text',
+    type: 'date',
     filterable: true,
   },
   {
     name: 'dateD',
     label: t('CheckOut'),
-    type: 'text',
+    type: 'date',
     event: 'view',
     filterable: true,
   },
@@ -243,29 +216,6 @@ const getPaymentColor = (status: string) => {
   }
 }
 
-const fetchReservationServiceProduct = async (reservationId: number) => {
-  try {
-    const response = await getReservationServiceProduct(reservationId)
-    const result = response.data.map((item: any) => {
-      const product = serviceProducts.value.find((p: any) => p.id === item.serviceProductId)
-
-      return {
-        ...item,
-        productName: product?.productName || 'Inconnu',
-        productType: product?.productType || '',
-        productDetails: product || {},
-        startDateFormatted: formatDateT(item.startDate),
-        endDateFormatted: formatDateT(item.endDate),
-      }
-    })
-
-    console.log('Produits liés à la réservation :', result)
-    return result
-  } catch (error) {
-    console.log('Erreur fetchReservationServiceProduct', error)
-    return []
-  }
-}
 
 const onEditBooking = (booking: any) => handleBookingAction('edit', booking)
 const onDeleteBooking = (booking: any) => handleBookingAction('delete', booking)
@@ -280,7 +230,7 @@ const handleBookingAction = (action: string, booking: any) => {
     selectedReservationId.value = booking.id
     modalShow.value = true
   } else if (action === 'view') {
-     selectedReservation.value = reservations.value.find((r: any) => r.id === Number(booking.id))
+    selectedReservation.value = reservations.value.find((r: any) => r.id === Number(booking.id))
     router.push({ name: 'reservationDetails', params: { id: booking.id } })
     store.setBooking(selectedReservation.value)
 

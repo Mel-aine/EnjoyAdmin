@@ -2,75 +2,45 @@
   <div>
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('Department')" />
-      <div class="flex justify-end pb-5">
-
-        <button
-                @click="openAddDepartmentModal()"
-                class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow hover:bg-orange-700 transition flex items-center"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                {{ $t('add') }}
-              </button>
-      </div>
-
-
 
       <!-- Modal pour ajouter un département -->
       <Modal v-if="isAddModalOpen" @close="isAddModalOpen = false">
         <template #body>
-          <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-            <button
-              @click="closeAddDepartmentModal"
-              class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-              >
-              <svg
-              class="fill-current"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              >
-              <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-              fill=""
-              />
-            </svg>
+          <div
+            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+            <button @click="closeAddDepartmentModal"
+              class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
+              <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+                  fill="" />
+              </svg>
             </button>
-            <h2 class="text-lg font-semibold mb-4">{{ isEditing? $t('edit'):$t('add') }}</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ isEditing ? $t('edit') : $t('add') }}</h2>
             <form @submit.prevent="addDepartment">
               <div class="mb-4">
                 <Input :lb="$t('Name')" v-model="newDepartment.name" />
               </div>
               <div class="mb-4">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('Description') }}</label>
-                <textarea
-                  v-model="newDepartment.description"
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('Description')
+                }}</label>
+                <textarea v-model="newDepartment.description"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-900 bg-transparent text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-
-                  rows="3"
-                ></textarea>
+                  rows="3"></textarea>
               </div>
               <div class="mb-4">
-              <Select :lb="$t('manager')" v-model="newDepartment.manager" :options="Users"/>
+                <Select :lb="$t('manager')" v-model="newDepartment.manager" :options="Users" />
               </div>
               <div class="mb-4">
                 <Input :lb="$t('numberEmployee')" :inputType="'number'" v-model="newDepartment.employeeCount" min="0" />
               </div>
               <div class="flex justify-end space-x-3">
-                <button
-                  @click="closeAddDepartmentModal"
-                  class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                >
+                <button @click="closeAddDepartmentModal"
+                  class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
                   {{ $t('Cancel') }}
                 </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
-                >
+                <button type="submit" class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600">
                   <span v-if="!isLoading"> {{ isEditing ? $t('update') : $t('Save') }}</span>
                   <span v-else class="flex items-center gap-2">
                     <Spinner class="w-4 h-4" />
@@ -84,78 +54,81 @@
       </Modal>
       <Modal v-if="showModal" @close="showModal = false">
         <template #body>
-          <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-            <button
-              @click="showModal = false"
-              class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-            >
+          <div
+            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+            <button @click="showModal = false"
+              class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
               <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
+                <path fill-rule="evenodd" clip-rule="evenodd"
                   d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-                  fill=""
-                />
+                  fill="" />
               </svg>
             </button>
 
             <h2 class="text-lg font-semibold mb-6">{{ $t('departmentDetails') }}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800 dark:text-white/80">
-            <div class="flex flex-col">
-              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('departmentName') }}</span>
-              <span class="mt-1">{{ selectedDepartment?.name || '-' }}</span>
+              <div class="flex flex-col">
+                <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('departmentName') }}</span>
+                <span class="mt-1">{{ selectedDepartment?.name || '-' }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('manager') }}</span>
+                <span class="mt-1">{{ selectedDepartment?.responsible || '-' }}</span>
+              </div>
+              <div class="flex flex-col sm:col-span-2">
+                <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('Description') }}</span>
+                <span class="mt-1">{{ selectedDepartment?.description || '-' }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('numberEmployee') }}</span>
+                <span class="mt-1">{{ selectedDepartment?.numberEmployees ?? 0 }}</span>
+              </div>
             </div>
-            <div class="flex flex-col">
-              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('manager') }}</span>
-              <span class="mt-1">{{ selectedDepartment?.responsible || '-' }}</span>
-            </div>
-            <div class="flex flex-col sm:col-span-2">
-              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('Description') }}</span>
-              <span class="mt-1">{{ selectedDepartment?.description || '-' }}</span>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-purple-500 dark:text-gray-400 font-medium">{{ $t('numberEmployee') }}</span>
-              <span class="mt-1">{{ selectedDepartment?.numberEmployees ?? 0 }}</span>
-            </div>
-          </div>
 
           </div>
         </template>
       </Modal>
 
-      <div class="space-y-5 pt-10 sm:space-y-6 min-h-screen">
+      <div class="space-y-5 sm:space-y-6 min-h-screen">
 
+        <TableComponent :items="titles" :datas="departmentsData" :filterable="true" :pagination="true"
+          :searchable="false" :loading="loading" :showHeader="true" :title="$t('Department')" :pageSize="15"
+          :showButtonAllElement="true" @edit="onEditDept" @delete="onDeleteDept" class="modern-table">
+          <template v-slot:headerActions>
+            <div class="flex justify-end  gap-2">
 
-        <TableComponent
-            :items="titles"
-            :datas="departmentsData"
-            :filterable="true"
-            :pagination="true"
-            :loading="loading"
-            :showHeader="true"
-            :title="$t('Department')"
-            :pageSize="15"
-            :showButtonAllElement="true"
-            @edit="onEditDept"
-            @delete="onDeleteDept"
-            class="modern-table"
-        />
+              <button @click="openAddDepartmentModal()"
+                class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow hover:bg-orange-700 transition flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ $t('add') }}
+              </button>
+
+              <button @click="importDepartment()"
+                class="bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-orange-700 transition flex items-center">
+
+                {{ $t('importdefault') }}
+              </button>
+            </div>
+
+          </template>
+        </TableComponent>
 
       </div>
     </AdminLayout>
   </div>
-  <ModalDelete v-if="show" @close="show = false"
-      @delete="confirmDelete"
-      :isLoading="loadingDelete"/>
+  <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, watch,computed } from 'vue';
-import { createDepartment, getDepartment ,updateDpt,deleteDpt,getUser} from "@/services/api";
+import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue';
+import { createDepartment, getDepartment, updateDpt, deleteDpt, getUser } from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
+import { departments } from '@/assets/data/department';
 
 
 
@@ -200,9 +173,8 @@ const openAddDepartmentModal = () => {
 
 const closeAddDepartmentModal = () => {
   isAddModalOpen.value = false;
-  isEditing.value=false
+  isEditing.value = false
   newDepartment.value = {
-
     name: '',
     description: '',
     manager: '',
@@ -225,22 +197,22 @@ const updateData = async () => {
 
     const Payload = {
       service_id: serviceId,
-      name:newDepartment.value.name,
-      description:newDepartment.value.description,
-      responsible:newDepartment.value.manager,
-      number_employees:newDepartment.value.employeeCount
+      name: newDepartment.value.name,
+      description: newDepartment.value.description,
+      responsible: newDepartment.value.manager,
+      number_employees: newDepartment.value.employeeCount
 
     };
 
     await updateDpt(id, Payload);
 
     newDepartment.value = {
-    name: '',
-    description: '',
-    manager: '',
-    employeeCount: 0,
-    status: 'active'
-     };
+      name: '',
+      description: '',
+      manager: '',
+      employeeCount: 0,
+      status: 'active'
+    };
     selected.value = null;
     isEditing.value = false;
     showModal.value = false;
@@ -264,11 +236,11 @@ const fetchUser = async () => {
     const response = await getUser();
     console.log("All users:", response.data.data);
     Users.value = response.data.data
-    .filter((user: any) => user.serviceId === serviceId)
-    .map((item: any) => ({
-      label: item.firstName + ' ' + item.lastName,
-      value: item.id
-    }));
+      .filter((user: any) => user.serviceId === serviceId)
+      .map((item: any) => ({
+        label: item.firstName + ' ' + item.lastName,
+        value: item.id
+      }));
 
 
     console.log("Filtered users:", Users.value);
@@ -277,17 +249,13 @@ const fetchUser = async () => {
   }
 };
 
-
-
-const addDepartment = async() => {
-  // Ajouter un budget fictif
-  //newDepartment.value.budget = Math.floor(Math.random() * 500000 + 100000) + ' FCFA';
-  isLoading.value=true
+const addDepartment = async () => {
+  isLoading.value = true
   const serviceId = serviceStore.serviceId;
   try {
     if (isEditing.value) {
-       await updateData()
-       toast.success(t('toast.SucessUpdate'));
+      await updateData()
+      toast.success(t('toast.SucessUpdate'));
 
     } else {
       // Création d'un nouveau mouvement
@@ -296,13 +264,13 @@ const addDepartment = async() => {
         description: newDepartment.value.description,
         responsible_user_id: newDepartment.value.manager,
         number_employees: newDepartment.value.employeeCount,
-        status : 'active',
-        service_id : serviceId,
+        status: 'active',
+        service_id: serviceId,
 
-        };
-        console.log('response',payload)
+      };
+      console.log('response', payload)
       const response = await createDepartment(payload);
-      console.log('response',response)
+      console.log('response', response)
       fetchDepartment()
       toast.success(t('toast.Sucess'));
     }
@@ -312,14 +280,34 @@ const addDepartment = async() => {
   } catch (error) {
     console.error("Erreur lors de l'enregistrement:", error);
     toast.error(t('toast.error'));
-  }finally{
-    isLoading.value=false
+  } finally {
+    isLoading.value = false
   }
 
 }
 
+const importDepartment = async () => {
+  isLoading.value = true
+  const serviceId = serviceStore.serviceId;
+  await departments.forEach(async (dept: any) => {
+    const payload = {
+      name: dept.name,
+      description: dept.description,
+      responsible_user_id: "",
+      number_employees: 0,
+      status: 'active',
+      service_id: serviceId,
 
+    };
+    console.log('response', payload)
+    const response = await createDepartment(payload);
+    console.log('response', response)
+  });
+  isLoading.value = false;
+  fetchDepartment()
+}
 const fetchDepartment = async () => {
+  loading.value = true
   try {
     const serviceId = serviceStore.serviceId;
     console.log('Service ID:', serviceId);
@@ -351,30 +339,31 @@ const fetchDepartment = async () => {
     });
 
     departments.sort((a: any, b: any) => a.name.localeCompare(b.name));
-    departmentsData.value = departments.map((d:any)=>{
+    departmentsData.value = departments.map((d: any) => {
       const statusClasses = getStatusColor(d.status).split(' ')
       return {
         ...d,
         statusColor: {
-        label: t(d.status),
-        bg: statusClasses[0],
-        text: statusClasses[1],
-      },
+          label: t(d.status),
+          bg: statusClasses[0],
+          text: statusClasses[1],
+        },
       }
     })
     console.log('Final departments data:', departmentsData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);
+  }finally{
+    loading.value = false
   }
 };
 
 
-watch(locale,fetchDepartment)
+watch(locale, fetchDepartment)
 
-onMounted(async()=>{
- await fetchUser()
- await fetchDepartment()
- loading.value = false
+onMounted(async () => {
+  await fetchUser()
+  await fetchDepartment()
 })
 
 
@@ -453,30 +442,30 @@ const deptId = ref(null)
 const handleDeptAction = (action: string, dept: any) => {
   deptId.value = dept.id
   if (action === 'edit') {
-      const deptEdit = departmentsData.value.find((r: any) => r.id === Number(deptId.value));
-      console.log("deptEdit",departmentsData.value)
-      if(deptEdit){
-        selected.value = deptEdit;
-        newDepartment.value.name=deptEdit.name
-        newDepartment.value.description=deptEdit.description
-        newDepartment.value.employeeCount=deptEdit.numberEmployees
-        newDepartment.value.manager=deptEdit.responsibleUserId
-      }
-      isAddModalOpen.value = true
-      isEditing.value = true
-    } else if (action === 'delete') {
-      selectedId.value = deptId.value
-      show.value = true
-    } else if (action === 'view') {
-      const dept = departmentsData.value.find((d:any) => d.id === Number(deptId.value))
+    const deptEdit = departmentsData.value.find((r: any) => r.id === Number(deptId.value));
+    console.log("deptEdit", departmentsData.value)
+    if (deptEdit) {
+      selected.value = deptEdit;
+      newDepartment.value.name = deptEdit.name
+      newDepartment.value.description = deptEdit.description
+      newDepartment.value.employeeCount = deptEdit.numberEmployees
+      newDepartment.value.manager = deptEdit.responsibleUserId
+    }
+    isAddModalOpen.value = true
+    isEditing.value = true
+  } else if (action === 'delete') {
+    selectedId.value = deptId.value
+    show.value = true
+  } else if (action === 'view') {
+    const dept = departmentsData.value.find((d: any) => d.id === Number(deptId.value))
     if (dept) {
       selectedDepartment.value = dept
       showModal.value = true
     }
-    }
   }
+}
 
-  const getStatusColor = (status: string) => {
+const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
       return 'bg-green-100 text-green-700'

@@ -177,6 +177,7 @@ export function useBooking() {
     roleId: null,
     companyName: '',
     groupName: '',
+    id:0
   })
 
   const saveReservation = async () => {
@@ -569,6 +570,7 @@ export function useBooking() {
       roleId: null,
       companyName: '',
       groupName: '',
+      id:0
     }
     form.value = {
       roomType: null,

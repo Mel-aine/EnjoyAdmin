@@ -200,7 +200,7 @@ const savePayment = async (amount: number) => {
 
     if (response.status === 201) {
       toast.success(t('toast.paymentSucess'))
-      closeModal();
+      emit('payment-recorded')
       router.push({ name: 'ViewInvoice', params: { id: response.data.id } })
     } else {
       toast.error(t('toast.paymentError'))

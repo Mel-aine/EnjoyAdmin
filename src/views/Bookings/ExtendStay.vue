@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, type PropType } from 'vue';
 import { useI18n } from 'vue-i18n';
 import flatPickr from 'vue-flatpickr-component'
 
@@ -76,6 +76,7 @@ import 'flatpickr/dist/flatpickr.css'
 import CalendarIcon from '@/icons/CalendarIcon.vue';
 import { checkExtendStay, confirmExtendStay } from '@/services/api';
 import DotSpinner from '@/components/spinner/DotSpinner.vue';
+import type { ReservationDetails } from '@/utils/models';
 
 const props = defineProps({
     showModal: {
@@ -83,7 +84,7 @@ const props = defineProps({
         default: false,
     },
     reservation: {
-        type: Object,
+        type: Object as PropType<ReservationDetails>,
         required: true,
     }
 })

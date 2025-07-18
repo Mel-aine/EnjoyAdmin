@@ -2077,32 +2077,43 @@
     "tableStatus": "Status",
     "noRefundsFound": "No refunds found matching the selected criteria."
   },
-  "update...": "Updating...",
-  "warning" : "Warning",
-  "date_must" : "End date must be after start date",
-  "additionalNotes" : "Additional Notes",
-  "notes" : "Notes (Optional)",
-  "endDate" : "End Date ( Estimation)",
-  "startDate" : "Start Date",
-  "reasons" : {
-    "plumbing" : "Plumbing",
-    "electrical" : "Electrical",
-    "deepCleaning" : "Deep Cleaning",
-    "renovation" : "Renovation",
-    "other" : "Other"
-  },
-  "selectReason" : "Select Reason",
-  "maintenanceSetup" : "Maintenance Setup",
-  "restoring" : "Restoring ...",
-  "room_force": "The room is occupied. Do you want to force the status change?",
-  "status_change_cancelled": "Status change cancelled",
-  "maintenanceDetails" : "Maintenance Details",
-  "reason" : "Reason",
-  "no_recente_activity" : "No Recent Activity",
-  "cleaningCompleted" : "Cleaning Completed"
-
-
-
-
+  "reservationsList": {
+      "headerTitle": "Hotel Reservations Management",
+      "headerSubtitle": "Search, filter, and manage bookings",
+      "filterSectionTitle": "Search & Filters",
+      "searchByNameOrNumber": "Search by Guest Name or Reservation Number",
+      "searchPlaceholder": "e.g., Martin Sophie or RES-001",
+      "filterStatus": "Status",
+      "filterRoomType": "Room Type",
+      "filterCheckInDate": "Check-in Date (from)",
+      "filterCheckOutDate": "Check-out Date (to)",
+      "filterAll": "All",
+      "applyFilters": "Apply Filters",
+      "clearFilters": "Clear Filters",
+      "listSectionTitle": "Reservations List",
+      "tableReservationId": "ID",
+      "tableReservationNumber": "Reservation No.",
+      "tableGuestName": "Guest Name",
+      "tableCheckIn": "Check-in",
+      "tableCheckOut": "Check-out",
+      "tableRoomType": "Room Type",
+      "tableStatus": "Status",
+      "tableTotalAmount": "Total Amount",
+      "noReservationsFound": "No reservations found matching the selected criteria."
+    },
+    "reservationStatus": {
+      "Confirmed": "Confirmed",
+      "Cancelled": "Cancelled",
+      "Checked-in": "Checked-in",
+      "Checked-out": "Checked-out",
+      "Pending": "Pending",
+      "No-show": "No-show"
+    },
+    "refunded":"Refunded",
+    "cancelled":"Cancelled",
+    "check-in":"Check-in",
+    "checked_in":"Checked In",
+    "checked in":"Checked in",
+    "reservationNumber":"Reservation Number"
 
 }

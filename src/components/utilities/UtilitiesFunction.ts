@@ -1,3 +1,4 @@
+
 export async function handleResponse<T>(response: Response): Promise<{ jsonResponse: T; httpStatusCode: number }> {
     if (!response.ok) {
         console.log(response.json())
@@ -78,3 +79,5 @@ export function generateTransactionId(prefix = 'PAY') {
 
   return `${prefix}-${datePart}-${randomPart}`;
 }
+
+
