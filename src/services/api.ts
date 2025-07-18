@@ -230,6 +230,7 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
 
 export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
+  return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
 }
 
 export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
@@ -458,8 +459,17 @@ export const checkExtendStay = (id: number, data: any): Promise<AxiosResponse<an
   return axios.patch(`${API_URL}/reservations/${id}/checkExtendStay`, data, headers)
 }
 export const confirmExtendStay = (id: number, data: any): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/reservations/${id}/extendStay`, data,headers)
+  return axios.patch(`${API_URL}/reservations/${id}/extendStay`, data, headers)
 }
+export const getCancellationSummary = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservations/${id}/cancellation-summary`, headers)
+}
+export const cancelReservation = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/reservations/${id}/cancel`, data, headers)
+}
+
+export const updateRoomStatus = (id: number, status: string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/service_product/update_status/${id}`, { status })
 
 
 export const updateRoomStatus = (
@@ -493,7 +503,6 @@ export const deleteServiceProduct = async (id: number | null): Promise<AxiosResp
     throw error.response
   }
 }
-
 
 //delete User
 export const deleteUser = (id: number | null): Promise<AxiosResponse<any>> => {
@@ -548,3 +557,23 @@ export const deleteVehicle = (id: number | null): Promise<AxiosResponse<any>> =>
 export const deleteRoute = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/route/${id}`, headers)
 }
+
+/// This is to manae cancel
+
+export const deleteCancellationPolicy = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/cancellation-policies/${id}`, headers)
+}
+export const getCancellationPolicyById = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/cancellation-policies/${id}`, headers)
+}
+export const getCancellationPolicyByHotelId = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/cancellation-policies/hotel/${id}`, headers)
+}
+
+export const insertCancellationPolicy = (datas: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/cancellation-policies `, datas, headers)
+}
+export const updateCancellationPolicy = (id: number,datas: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/cancellation-policies/${id}`, datas, headers)
+}
+

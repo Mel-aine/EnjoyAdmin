@@ -248,7 +248,7 @@
     </div>
     <OverLoading v-if="isLoading" />
     <template v-if="isCancel">
-      <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false" />
+      <CancelBookingDetails :show-modal="isCancel" @close="isCancel = false"  :reservation="selectBooking"/>
     </template>
     <template v-if="isExtendStay">
       <ExtendStay :show-modal="isExtendStay" @close="isExtendStay = false" :reservation="selectBooking"
