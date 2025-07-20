@@ -185,34 +185,38 @@ const route = useRoute();
 const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar();
 const serviceStore = useServiceStore();
 const authStore = useAuthStore()
-const serviceName = ref('');
+// const serviceName = ref('');
 const { t } = useI18n();
 const openSubSubmenu = ref<string | null>(null);
 
-const fetchService = async () => {
-  try {
-    const serviceId = serviceStore.serviceId;
-    const response = await getServices();
+// const fetchService = async () => {
+//   try {
+//     const serviceId = serviceStore.serviceId;
+//     const response = await getServices();
 
-    const foundService = response.data.data.find(
-      (service: any) => service.id === serviceId
-    );
+//     const foundService = response.data.data.find(
+//       (service: any) => service.id === serviceId
+//     );
 
-    if (foundService) {
-      serviceName.value = foundService.name;
-    } else {
-      serviceName.value = 'Unknown Service';
-    }
+//     if (foundService) {
+//       serviceName.value = foundService.name;
+//     } else {
+//       serviceName.value = 'Unknown Service';
+//     }
 
-    console.log("service", foundService);
-  } catch (error) {
-    console.error('fetch failed:', error);
-  }
-};
+//     console.log("service", foundService);
+//   } catch (error) {
+//     console.error('fetch failed:', error);
+//   }
+// };
 
 onMounted(() => {
-  fetchService();
+  console.log("serviceStore",JSON.parse(serviceStore.currentService).name)
 });
+const serviceName = computed(() => {
+  return JSON.parse(serviceStore.currentService).name
+})
+
 
 const startLoading = () => {
   isLoading.value = true;

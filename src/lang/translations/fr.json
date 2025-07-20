@@ -1899,13 +1899,13 @@
   "statut": {
     "available": "Disponible",
     "Disponible": "Disponible",
-    "À nettoyer": "À nettoyer",
+    "À nettoyer": "À Nettoyer",
     "Hors service": "Hors service",
     "booked": "Réservée",
     "occupied": "Occupée",
     "preCheckout": "Pré-départ",
     "checkoutPending": "Départ en attente",
-    "dirty": "à nettoyer",
+    "dirty": "À Nettoyer",
     "cleaning": "Nettoyage",
     "clean": "Propre (Disponible)",
     "maintenance": "Maintenance",
@@ -1991,45 +1991,161 @@
   "unknown": "Inconnu",
   "expected_departure_date": "Date de départ prévue",
   "expected_arrive_date": "Date prévue d'arrivée",
-   "cancellationPolicy": {
-    "settingTab":"Politique d'Annulation",
-      "headerTitle": "Configuration de la Politique d'Annulation",
-      "headerSubtitle": "Définissez les règles pour les annulations de réservations",
-      "freeCancellationPeriod": {
-        "title": "Délai d'Annulation Gratuit",
-        "label": "Jusqu'à",
-        "unitHours": "heures",
-        "unitDays": "jours",
-        "beforeArrival": "avant l'arrivée.",
-        "info": "Passé ce délai, des frais d'annulation peuvent s'appliquer."
-      },
-      "cancellationFees": {
-        "title": "Frais d'Annulation",
-        "typeLabel": "Type de frais :",
-        "typeNone": "Aucun frais",
-        "typeFixed": "Montant fixe",
-        "typePercentage": "Pourcentage du montant total",
-        "typeFirstNight": "Coût de la première nuit",
-        "fixedAmountLabel": "Montant fixe (XAF)",
-        "percentageAmountLabel": "Pourcentage du montant total (%)",
-        "firstNightInfo": "Les frais seront équivalents au coût de la première nuit."
-      },
-      "nonRefundableRates": {
-        "title": "Tarifs Non Remboursables",
-        "enableLabel": "Activer les tarifs non remboursables (100% de frais en cas d'annulation)",
-        "info": "Ces tarifs sont souvent proposés à un prix réduit et sont payés intégralement à la réservation."
-      },
-      "specialConditions": {
-        "title": "Conditions Spéciales / Notes",
-        "notesLabel": "Notes sur les conditions spéciales (groupes, événements, etc.)",
-        "notesPlaceholder": "Ex: Les annulations de groupe nécessitent un préavis de 30 jours.",
-        "notesPlaceholderDefault": "Les annulations de groupe (plus de 5 chambres) nécessitent un préavis de 30 jours. Les événements spéciaux peuvent avoir des politiques différentes.",
-        "notesInfo": "Ces notes seront utilisées pour informer les clients ou le personnel."
-      },
-      "saveButton": "Enregistrer la Politique d'Annulation",
-      "savedMessage": "Paramètres enregistrés avec succès !"
+  "cancellationPolicy": {
+    "settingTab": "Politique d'Annulation",
+    "headerTitle": "Configuration de la Politique d'Annulation",
+    "headerSubtitle": "Définissez les règles pour les annulations de réservations",
+    "freeCancellationPeriod": {
+      "title": "Délai d'Annulation Gratuit",
+      "label": "Jusqu'à",
+      "unitHours": "heures",
+      "unitDays": "jours",
+      "beforeArrival": "avant l'arrivée.",
+      "info": "Passé ce délai, des frais d'annulation peuvent s'appliquer."
     },
-    "cancellationNotSet":"La politique d'annulation n'a pas encore été définie pour cet hôtel. Veuillez la configurer pour que les réservations puissent être traitées correctement.",
-    "anErrorOcurr": "Une erreur est survenue"
+    "cancellationFees": {
+      "title": "Frais d'Annulation",
+      "typeLabel": "Type de frais :",
+      "typeNone": "Aucun frais",
+      "typeFixed": "Montant fixe",
+      "typePercentage": "Pourcentage du montant total",
+      "typeFirstNight": "Coût de la première nuit",
+      "fixedAmountLabel": "Montant fixe (XAF)",
+      "percentageAmountLabel": "Pourcentage du montant total (%)",
+      "firstNightInfo": "Les frais seront équivalents au coût de la première nuit."
+    },
+    "nonRefundableRates": {
+      "title": "Tarifs Non Remboursables",
+      "enableLabel": "Activer les tarifs non remboursables (100% de frais en cas d'annulation)",
+      "info": "Ces tarifs sont souvent proposés à un prix réduit et sont payés intégralement à la réservation."
+    },
+    "specialConditions": {
+      "title": "Conditions Spéciales / Notes",
+      "notesLabel": "Notes sur les conditions spéciales (groupes, événements, etc.)",
+      "notesPlaceholder": "Ex: Les annulations de groupe nécessitent un préavis de 30 jours.",
+      "notesPlaceholderDefault": "Les annulations de groupe (plus de 5 chambres) nécessitent un préavis de 30 jours. Les événements spéciaux peuvent avoir des politiques différentes.",
+      "notesInfo": "Ces notes seront utilisées pour informer les clients ou le personnel."
+    },
+    "saveButton": "Enregistrer la Politique d'Annulation",
+    "savedMessage": "Paramètres enregistrés avec succès !"
+  },
+  "cancellationNotSet": "La politique d'annulation n'a pas encore été définie pour cet hôtel. Veuillez la configurer pour que les réservations puissent être traitées correctement.",
+  "anErrorOcurr": "Une erreur est survenue",
+  "warning": "Avertissement",
+  "date_must": "La date de fin doit être postérieure à la date de début",
+  "additionalNotes": "Notes supplémentaires",
+  "notes": "Notes (optionnel)",
+  "endDate": "Date de fin (estimation)",
+  "startDate": "Date de début",
+  "reasons": {
+    "plumbing": "Plomberie",
+    "electrical": "Électricité",
+    "deepCleaning": "Nettoyage en profondeur",
+    "renovation": "Rénovation",
+    "other": "Autre"
+  },
+  "selectReason": "Sélectionnez une raison",
+  "maintenanceSetup": "Configuration de la maintenance",
+  "restoring": "Restauration en cours...",
+  "room_force": "La chambre est occupée. Voulez-vous forcer le changement de statut ?",
+  "status_change_cancelled": "Changement de statut annulé",
+  "maintenanceDetails": "Détails de la maintenance",
+  "reason": "Raison",
+  "no_recente_activity": "Aucune Activité Récente",
+  "cleaningCompleted": "Nettoyage terminé",
+  "cancellationFees": {
+    "title": "Frais d'Annulation",
+    "typeLabel": "Type de frais :",
+    "typeNone": "Aucun frais",
+    "typeFixed": "Montant fixe",
+    "typePercentage": "Pourcentage du montant total",
+    "typeFirstNight": "Coût de la première nuit",
+    "fixedAmountLabel": "Montant fixe (XAF)",
+    "percentageAmountLabel": "Pourcentage du montant total (%)",
+    "firstNightInfo": "Les frais seront équivalents au coût de la première nuit."
+  },
+  "nonRefundableRates": {
+     "title": "Tarifs Non Remboursables",
+      "enableLabel": "Activer les tarifs non remboursables (100% de frais en cas d'annulation)",
+      "info": "Ces tarifs sont souvent proposés à un prix réduit et sont payés intégralement à la réservation."
+  },
+  "specialConditions": {
+    "title": "Conditions Spéciales / Notes",
+    "notesLabel": "Notes sur les conditions spéciales (groupes, événements, etc.)",
+    "notesPlaceholder": "Ex: Les annulations de groupe nécessitent un préavis de 30 jours.",
+    "notesPlaceholderDefault": "Les annulations de groupe (plus de 5 chambres) nécessitent un préavis de 30 jours. Les événements spéciaux peuvent avoir des politiques différentes.",
+    "notesInfo": "Ces notes seront utilisées pour informer les clients ou le personnel."
+ },
+  "saveButton": "Enregistrer la Politique d'Annulation",
+  "savedMessage": "Paramètres enregistrés avec succès !",
+  "updateButton": "Mettre à jour la politique d'annulation",
+  "refundsList": {
+    "headerTitle": "Aperçu des remboursements",
+    "headerSubtitle": "Suivez et gérez tous les remboursements traités",
+    "filterSectionTitle": "Filtrer les remboursements",
+    "filterStartDate": "Date de début",
+    "filterEndDate": "Date de fin",
+    "filterRoomType": "Type de chambre",
+    "filterSpecificRoom": "Chambre spécifique",
+    "filterAll": "Toutes",
+    "applyFilters": "Appliquer les filtres",
+    "clearFilters": "Réinitialiser les filtres",
+    "listSectionTitle": "Liste des remboursements",
+    "tableRefundId": "ID du remboursement",
+    "tableReservationId": "ID de réservation",
+    "tableGuestName": "Nom du client",
+    "tableRoom": "Chambre",
+    "tableRoomType": "Type de chambre",
+    "tableAmount": "Montant",
+    "tableMethod": "Méthode",
+    "tableDate": "Date",
+    "tableReason": "Raison",
+    "tableStatus": "Statut",
+    "noRefundsFound": "Aucun remboursement ne correspond aux critères sélectionnés.",
+    "completedRefunds": "Remboursements terminés",
+    "pendingRefunds": "Remboursements en attente",
+    "failedRefunds": "Remboursements échoués"
+  },
+  "reservationsList": {
+    "headerTitle": "Gestion des réservations de l'hôtel",
+    "headerSubtitle": "Recherchez, filtrez et gérez les réservations",
+    "filterSectionTitle": "Recherche et filtres",
+    "searchByNameOrNumber": "Recherche par nom du client ou numéro de réservation",
+    "searchPlaceholder": "ex. : Martin Sophie ou RES-001",
+    "filterStatus": "Statut",
+    "filterRoomType": "Type de chambre",
+    "filterCheckInDate": "Date d’arrivée (à partir de)",
+    "filterCheckOutDate": "Date de départ (jusqu’à)",
+    "filterAll": "Tous",
+    "applyFilters": "Appliquer les filtres",
+    "clearFilters": "Réinitialiser les filtres",
+    "listSectionTitle": "Liste des réservations",
+    "tableReservationId": "ID",
+    "tableReservationNumber": "N° de réservation",
+    "tableGuestName": "Nom du client",
+    "tableCheckIn": "Arrivée",
+    "tableCheckOut": "Départ",
+    "tableRoomType": "Type de chambre",
+    "tableStatus": "Statut",
+    "tableTotalAmount": "Montant total",
+    "noReservationsFound": "Aucune réservation ne correspond aux critères sélectionnés."
+  },
+  "reservationStatus": {
+    "Confirmed": "Confirmée",
+    "Cancelled": "Annulée",
+    "Checked-in": "Enregistrée (Check-in)",
+    "Checked-out": "Départ effectué (Check-out)",
+    "Pending": "En attente",
+    "No-show": "Non-présentation"
+  },
+  "refunded": "Remboursée",
+  "cancelled": "Annulée",
+  "check-in": "Enregistrement",
+  "checked_in": "Enregistré",
+  "checked in": "Enregistré",
+  "reservationNumber": "Numéro de réservation"
+
+
+    
 
 }

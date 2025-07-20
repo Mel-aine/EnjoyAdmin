@@ -3,6 +3,7 @@ import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
 //const API_URL = import.meta.env.VITE_API_URL as string;
+
 const authStore = useAuthStore()
 const headers = {
   headers: {
@@ -10,6 +11,7 @@ const headers = {
   },
   withCredentials: true,
 }
+
 export interface CheckInPayload {
   reservationId: number
 }

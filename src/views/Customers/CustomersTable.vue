@@ -391,48 +391,7 @@ const fetchCustomers = async () => {
   }
 };
 
-// const fetchReservation = async () => {
-//   try {
-//     loading.value = true
-//     const serviceId = serviceStore.serviceId
 
-//     if (!serviceId) {
-//       console.error('Service ID not found')
-//       return
-//     }
-
-//     const response = await getReservation(serviceId)
-//     console.log('Reservations response:', response.data)
-
-//     const uniqueCustomersMap = new Map()
-
-//     response.data.forEach((res: any) => {
-//       const user = users.value.find((u: any) => u.id === res.userId)
-//       if (!user) return
-
-//       const userKey = user.id
-
-//       if (!uniqueCustomersMap.has(userKey)) {
-//         uniqueCustomersMap.set(userKey, {
-//           ...user,
-//           ...res,
-//           reservationId: res.id,
-//           userFullName: `${user.firstName} ${user.lastName}`,
-//         })
-//       }
-//     })
-
-//     customers.value = Array.from(uniqueCustomersMap.values()).sort((a, b) =>
-//       a.firstName.localeCompare(b.firstName)
-//     )
-
-//     console.log('Customers processed:', customers.value)
-//   } catch (error) {
-//     console.error('Failed to fetch reservations:', error)
-//   } finally {
-//     loading.value = false
-//   }
-// }
 
 const handleAddCustomer = async () => {
   try {

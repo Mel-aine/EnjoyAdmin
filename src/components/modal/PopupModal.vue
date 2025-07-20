@@ -64,7 +64,7 @@ const close = () => {
                 </div>
             </div>
             <!-- Footer -->
-            <div class="footer">
+            <div class="footer flex justify-center iitem-center py-2">
                 <slot name="footer"></slot>
             </div>
         </div>
