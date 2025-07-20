@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import {
   Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon, List as ListIcon
 } from 'lucide-vue-next';

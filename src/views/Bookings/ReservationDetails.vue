@@ -291,6 +291,7 @@ const activitiesLogs = ref<ActivityLog[]>([]);
 const getBookingDetails = async () => {
   isLoading.value = true;
   const response = await getReservationDetailsById(parseInt(reservation_id))
+  console.log('this is the reservation', response)
   activitiesLogs.value = await (await getReservationHistoryById(parseInt(reservation_id))).data
   if (response.status === 200) {
     selectBooking.value = response.data;
@@ -390,14 +391,14 @@ const canCheckOutAll = computed(() => {
 
 const canCheckInRoom = (room: any) => {
   if (!selectBooking.value) return false;
-  return room.status.toLowerCase() === 'pending' &&
+  return room.status?.toLowerCase() === 'pending' &&
     isArrivalDateTodayOrPast.value &&
     paymentStatus.value === 'Fully Paid';
 };
 
 const canCheckOutRoom = (room: any) => {
   if (!selectBooking.value) return false;
-  return room.status.toLowerCase() === 'checked-in';
+  return room.status?.toLowerCase() === 'checked-in';
 };
 
 const canExtendStay = computed(() => {
