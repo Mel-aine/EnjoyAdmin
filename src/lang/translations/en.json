@@ -2118,6 +2118,30 @@
     "checked_in":"Checked In",
     "checked in":"Checked in",
     "reservationNumber":"Reservation Number",
-    "processed" : "Processed"
+    "processed" : "Processed",
+    "customerDetails": {
+      "headerTitle": "Customer Details",
+      "headerSubtitle": "Comprehensive view of customer information",
+      "basicInfo": {
+        "title": "Basic Information",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "gender": "Gender",
+        "dateOfBirth": "Date of Birth",
+        "nationality": "Nationality"
+      },
+      "contactInfo": {
+        "title": "Contact Information",
+        "email": "Email",
+        "phone": "Phone Number",
+        "address": "Address"
+      },
+      "paymentInfo": {
+        "title": "Payment Preferences",
+        "preferredMethod": "Preferred Payment Method",
+        "loyaltyProgram": "Loyalty Program Member"
+      }
+    },
+    "currentlyStayingFull": "Ongoing stay – Reservation {number}, {room}, from {start} to {end}"
 
 }

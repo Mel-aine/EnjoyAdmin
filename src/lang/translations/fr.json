@@ -2065,9 +2065,9 @@
     "firstNightInfo": "Les frais seront équivalents au coût de la première nuit."
   },
   "nonRefundableRates": {
-     "title": "Tarifs Non Remboursables",
-      "enableLabel": "Activer les tarifs non remboursables (100% de frais en cas d'annulation)",
-      "info": "Ces tarifs sont souvent proposés à un prix réduit et sont payés intégralement à la réservation."
+    "title": "Tarifs Non Remboursables",
+    "enableLabel": "Activer les tarifs non remboursables (100% de frais en cas d'annulation)",
+    "info": "Ces tarifs sont souvent proposés à un prix réduit et sont payés intégralement à la réservation."
   },
   "specialConditions": {
     "title": "Conditions Spéciales / Notes",
@@ -2075,7 +2075,7 @@
     "notesPlaceholder": "Ex: Les annulations de groupe nécessitent un préavis de 30 jours.",
     "notesPlaceholderDefault": "Les annulations de groupe (plus de 5 chambres) nécessitent un préavis de 30 jours. Les événements spéciaux peuvent avoir des politiques différentes.",
     "notesInfo": "Ces notes seront utilisées pour informer les clients ou le personnel."
- },
+  },
   "saveButton": "Enregistrer la Politique d'Annulation",
   "savedMessage": "Paramètres enregistrés avec succès !",
   "updateButton": "Mettre à jour la politique d'annulation",
@@ -2143,9 +2143,6 @@
   "check-in": "Enregistrement",
   "checked_in": "Enregistré",
   "checked in": "Enregistré",
-  "reservationNumber": "Numéro de réservation"
-
-
-    
-
+  "reservationNumber": "Numéro de réservation",
+  "currentlyStayingFull": "Ongoing stay – Reservation {number}, Room No. {room}, from {start} to {end}"
 }

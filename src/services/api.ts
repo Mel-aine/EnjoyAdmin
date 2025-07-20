@@ -103,7 +103,9 @@ export const getTypeProductByServiceId = (id: number | null): Promise<AxiosRespo
 export const getUser = (): Promise<AxiosResponse<{ data: userDataType[] }>> => {
   return axios.get(`${API_URL}/users`, headers)
 }
-
+export const getCustomerProfile = (id:number): Promise<AxiosResponse<{ data: userDataType[] }>> => {
+  return axios.get(`${API_URL}/users/${id}/profile`, headers)
+}
 //get reservation by serviceId
 export const getReservation = (
   serviceId: number | null,
