@@ -1,5 +1,6 @@
 <template>
   <AdminLayout>
+    <FullScreenLayout>
     <div class="container mx-auto px-4 py-8">
       <!-- Header -->
       <div class="mb-8 slide-in">
@@ -122,7 +123,35 @@
 
           <!-- Calendar Tab -->
           <div v-if="activeTab === 'calendar'" class="bg-white rounded-xl border border-gray-200">
-            <CustomCalendar :calendar-title="$t('Calendar')" />
+            <!-- <CustomCalendar :calendar-title="$t('Calendar')" /> -->
+            <BaseCalendar
+              :title="$t('Calendar')"
+              :currentMonth="currentMonth"
+              :days="calendarDays"
+              @previous-month="previousMonth"
+              @next-month="nextMonth"
+            >
+              <template #day-content="{ day }">
+              <div v-if="day.isReserved" class=" bg-red-50 border-red-300">
+                <div class="h-1 bg-red-500 rounded-full mb-1"></div>
+                <div class="text-blue-600 truncate">
+                  {{ day.reservation?.reservationNumber }}
+                </div>
+                <div class="text-red-600 truncate">
+                  {{ day.reservation?.roomNumber }}
+                </div>
+              </div>
+            </template>
+
+
+
+              <template #legend>
+                <div class="flex items-center justify-center space-x-6">
+                  <LegendItem color="blue" :label="$t('now')" />
+                  <LegendItem color="red" label="roomStatus.booked" />
+                </div>
+              </template>
+            </BaseCalendar>
           </div>
         </div>
 
@@ -141,6 +170,7 @@
       </div>
       <OverLoading v-if="isLoading" />
     </div>
+    </FullScreenLayout>
   </AdminLayout>
 </template>
 
@@ -166,8 +196,11 @@ import { getCustomerProfile } from '@/services/api';
 import router from '@/router';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
 import { format } from 'date-fns';
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
+import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
+import LegendItem from '@/components/calendars/LegendItem.vue';
 
-const { t } = useI18n()
+const { t ,locale } = useI18n()
 
 const customer_id = router.currentRoute.value.params.id as string;
 
@@ -176,6 +209,7 @@ const customer = ref<any>({})
 const dateArrived = ref('')
 const dateDepart = ref('')
 const activeTab = ref<string>('details')
+const currentDate = ref<Date>(new Date())
 const tabs = computed(() => [
   { id: 'details', label: t('tab.details'), icon: InfoIcon },
   { id: 'history', label: t('tab.history'), icon: ClockIcon },
@@ -262,6 +296,100 @@ const getCustomerProfileDetails = async () => {
   const formatTime = (date: string) => {
     return format(new Date(date), 'MMMM d, yyyy')
   }
+
+  interface Reservation {
+  id: number
+  checkIn: string
+  checkOut: string
+  guest: string
+  status: string
+}
+
+interface CalendarDay {
+  date: Date
+  day: number
+  isCurrentMonth: boolean
+  isToday: boolean
+  isReserved: boolean
+  reservation?: {
+    checkInDate: string
+    checkOutDate: string
+    roomNumber: string
+    reservationNumber: string
+    [key: string]: any
+  }
+}
+
+
+const currentMonth = computed(() => {
+  return currentDate.value.toLocaleDateString(locale.value, {
+    month: 'long',
+    year: 'numeric',
+  })
+})
+
+const calendarDays = computed<CalendarDay[]>(() => {
+  const year = currentDate.value.getFullYear()
+  const month = currentDate.value.getMonth()
+
+  const firstDay = new Date(year, month, 1)
+  const lastDay = new Date(year, month + 1, 0)
+
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)) // lundi = début
+
+  const today = new Date()
+  const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+  const status = customer.value?.hotelStatus
+  const isPresent = status?.isPresent === true
+  const reservation = status?.reservationDetails
+
+  const days: CalendarDay[] = []
+
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate() + i)
+
+    let isReserved = false
+    let reservationInfo
+
+    if (isPresent && reservation) {
+      const checkIn = new Date(reservation.checkInDate)
+      const checkOut = new Date(reservation.checkOutDate)
+
+      if (
+        normalizeDate(date) >= normalizeDate(checkIn) &&
+        normalizeDate(date) <= normalizeDate(checkOut)
+      ) {
+        isReserved = true
+        reservationInfo = reservation
+      }
+    }
+
+    days.push({
+      date,
+      day: date.getDate(),
+      isCurrentMonth: date.getMonth() === month,
+      isToday: normalizeDate(date).toDateString() === normalizeDate(today).toDateString(),
+      isReserved,
+      reservation: isReserved ? reservationInfo : undefined,
+    })
+  }
+
+  return days
+})
+
+
+
+
+const previousMonth = () => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+}
+
+const nextMonth = () => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+}
 </script>
 
 <style scoped>

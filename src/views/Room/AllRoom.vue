@@ -4,7 +4,7 @@
       <FullScreenLayout>
         <PageBreadcrumb :pageTitle="currentPageTitle" />
 
-        <RoomFilter @filter="applyFilter" :loading="loading" />
+        <RoomFilter @filter="applyFilter" />
 
         <div class="mt-10">
           <div class="space-y-6">
@@ -34,13 +34,24 @@
                   </button>
                 </div>
                 <div>
-                  <button
-                    @click="importDefaultDefaults"
-                    class="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105"
-                  >
-                    📥
-                    {{ t('importdefault') }}
-                  </button>
+                  <!-- Bouton Import -->
+                <button
+                  @click="triggerFileInput"
+                  class="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                >
+                  📥
+                  {{ t('importdefault') }}
+                </button>
+
+                <!-- Input file caché -->
+                <input
+                  type="file"
+                  ref="fileInput"
+                  accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                  @change="handleFileUpload"
+                  class="hidden"
+                />
+
                 </div>
               </template>
             </TableComponent>
@@ -398,6 +409,7 @@ const ServiceProduct = ref<ServiceProductType[]>([])
 const currentPageTitle = computed(() => t('RoomList'))
 const selectedRoom = ref<any>(null)
 const isEditMode = ref(false)
+import Papa from 'papaparse'
 const menuItems = computed(() => [
   { label: t('AddRoom'), onClick: () => OpenModal() },
   { label: t('importdefault'), onClick: () => importDefaultDefaults() },
@@ -764,6 +776,8 @@ const getStatusColor = (status: string) => {
       return 'bg-red-100 text-red-700'
     case 'maintenance':
       return 'bg-yellow-100 text-yellow-700'
+    case 'cleaning':
+      return 'bg-purple-50 text-purple-700'
     case 'dirty':
       return 'bg-red-50 text-orange-700'
     default:
@@ -1068,32 +1082,24 @@ const onDeleteFromModal = (room: any) => {
   onDeleteProduct(room)
 }
 
-const importDefaultDefaults = async () => {
-  const defaultRoomData = defaultRooms
-  if (!defaultRoomData || defaultRoomData.length === 0) return
+const importDefaultDefaults = async (parsedData: any[]) => {
+  if (!parsedData || parsedData.length === 0) return
 
   isLoading.value = true
   try {
     const serviceId = serviceStore.serviceId
     const userId = userStore.UserId
+    if (!serviceId) throw new Error('Service ID is not defined')
 
-    if (!serviceId) {
-      throw new Error('Service ID is not defined')
-    }
-
-    for (const room of defaultRoomData) {
-      // Vérification unicité numéro de chambre dans ServiceProduct (si c’est possible ici)
+    for (const room of parsedData) {
       if (ServiceProduct.value.some((r: any) => r.roomNumber === room.number)) {
-        console.warn(`Le numéro de chambre ${room.number} existe déjà, skipping`)
+        console.warn(`Chambre ${room.number} déjà existante, skipping`)
         continue
       }
 
-      // Trouver le type de chambre pour la validation capacité
       const roomType = roomTypeData.value.find((t) => t.id === room.roomTypeId)
       if (roomType && room.capacity > roomType.defaultGuest) {
-        console.warn(
-          `Capacité ${room.capacity} dépasse le max ${roomType.defaultGuest} pour type ${roomType.name}, skipping`,
-        )
+        console.warn(`Capacité ${room.capacity} > max ${roomType.defaultGuest}, skipping`)
         continue
       }
 
@@ -1114,19 +1120,17 @@ const importDefaultDefaults = async () => {
       const roomId = roomResponse.data.id
 
       if (room.options) {
-        const optionsPayload = Object.entries(formData.value.options).map(
-          ([id, value]: [string, any]) => {
-            const optionMeta = defaultOptionsMap.value[Number(id)]
-            return {
-              service_product_id: roomId,
-              option_id: Number(id),
-              option_type: optionMeta?.type || null,
-              value: String(value),
-              created_by: userStore.UserId,
-              last_modified_by: userStore.UserId,
-            }
-          },
-        )
+        const optionsPayload = Object.entries(room.options).map(([id, value]) => {
+          const optionMeta = defaultOptionsMap.value[Number(id)]
+          return {
+            service_product_id: roomId,
+            option_id: Number(id),
+            option_type: optionMeta?.type || null,
+            value: String(value),
+            created_by: userId,
+            last_modified_by: userId,
+          }
+        })
 
         await createRoomOptions({ data: optionsPayload })
       }
@@ -1135,12 +1139,13 @@ const importDefaultDefaults = async () => {
     fetchServiceProduct()
     toast.success(t('toast.defaultRoomsImported'))
   } catch (error) {
-    console.error("Erreur lors de l'importation des chambres par défaut", error)
+    console.error("Erreur lors de l'importation", error)
     toast.error(t('toast.importError'))
   } finally {
     isLoading.value = false
   }
 }
+
 
 const applyFilter = async (filter: RoomFilterItem) => {
   loading.value = true
@@ -1160,6 +1165,54 @@ onMounted(async () => {
   })
   loading.value = false
 })
+
+// import * as XLSX from 'xlsx'
+
+
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  try {
+    let parsedData: any[] = []
+
+    const isCSV = file.name.endsWith('.csv')
+    // const isExcel = file.name.endsWith('.xls') || file.name.endsWith('.xlsx')
+
+    if (isCSV) {
+      const text = await file.text()
+      const parsed = Papa.parse(text, { header: true })
+      parsedData = parsed.data as any[]
+    }
+    // else if (isExcel) {
+    //   const data = await file.arrayBuffer()
+    //   const workbook = XLSX.read(data, { type: 'array' })
+    //   const sheetName = workbook.SheetNames[0]
+    //   const sheet = workbook.Sheets[sheetName]
+    //   parsedData = XLSX.utils.sheet_to_json(sheet)
+    // }
+
+    if (!parsedData || parsedData.length === 0) {
+      toast.error(t('toast.importError'))
+      return
+    }
+
+    importDefaultDefaults(parsedData)
+  } catch (err) {
+    console.error('Erreur lecture fichier:', err)
+    toast.error(t('toast.importError'))
+  } finally {
+    if (fileInput.value) fileInput.value.value = ''
+  }
+}
+
 </script>
 
 <style scoped>

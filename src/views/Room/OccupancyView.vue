@@ -112,8 +112,8 @@
             <div class="p-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                  <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   </div>
                 </div>
                 <div class="ml-3">
@@ -156,7 +156,7 @@
                   <input
                     v-model="searchQuery"
                     type="text"
-                    :placeholder="$t('search ...')"
+                    :placeholder="$t('search...')"
                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>

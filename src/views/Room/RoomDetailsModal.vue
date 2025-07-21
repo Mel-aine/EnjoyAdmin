@@ -293,7 +293,7 @@
 
           <!-- Calendar Tab -->
           <div v-if="activeTab === 'calendar'" class="bg-white rounded-xl border border-gray-200">
-            <div class="p-6 border-b border-gray-200">
+            <!-- <div class="p-6 border-b border-gray-200">
               <div class="flex items-center justify-between">
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900 flex items-center">
@@ -364,7 +364,7 @@
                 </div>
               </div>
 
-              <!-- Légende -->
+               Légende
               <div class="mt-6 flex items-center justify-center space-x-6">
                 <div class="flex items-center">
                   <div class="w-4 h-4 bg-blue-100 border border-blue-300 rounded mr-2"></div>
@@ -383,7 +383,37 @@
                   <span class="text-sm text-gray-600">{{ $t('roomStatus.available') }}</span>
                 </div>
               </div>
-            </div>
+            </div> -->
+            <BaseCalendar
+              :title="$t('booking_calendar')"
+              :currentMonth="currentMonth"
+              :days="calendarDays"
+              :dayModifiers="dayModifiers"
+              @previous-month="previousMonth"
+              @next-month="nextMonth"
+              @day-click="onDayClick"
+            >
+              <template #day-content="{ day }">
+                <div v-if="day.isReserved && !day.isMaintenance" class="bg-red-50 border-red-300">
+                  <div class="h-1 bg-red-500 rounded-full mb-1"></div>
+                  <div class="text-xs text-red-600 truncate">{{ day.reservation?.guest }}</div>
+                </div>
+                <div v-if="day.isMaintenance" class="bg-yellow-50 border-yellow-300">
+                  <div class="h-1 bg-yellow-500 rounded-full mb-1"></div>
+                  <div class="text-xs text-yellow-600 truncate">{{ $t('maintenance') }}</div>
+                </div>
+              </template>
+
+              <template #legend>
+                <div class="flex items-center justify-center space-x-6">
+                  <LegendItem color="blue" :label="$t('now')" />
+                  <LegendItem color="red" label="roomStatus.booked" />
+                  <LegendItem color="yellow" label="roomStatus.maintenance" />
+                  <LegendItem color="gray" label="roomStatus.available" />
+                </div>
+              </template>
+            </BaseCalendar>
+
           </div>
         </div>
 
@@ -416,6 +446,8 @@ import { useI18n } from 'vue-i18n'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
 import type { ActivityLog} from '@/utils/models';
+import BaseCalendar from '@/components/calendars/BaseCalendar.vue'
+import LegendItem from '@/components/calendars/LegendItem.vue'
 
 import {
   Edit as EditIcon,
@@ -481,7 +513,7 @@ const tabs = computed(() => [
   { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon },
 ])
 
-const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
 
 
 const currentMonth = computed(() => {
@@ -602,5 +634,15 @@ onMounted(() => {
 
 function goBack() {
   router.back()
+}
+
+function dayModifiers(day: any): string {
+  if (day.isReserved && !day.isMaintenance) return 'bg-red-50 border-red-300'
+  if (day.isMaintenance) return 'bg-yellow-50 border-yellow-300'
+  return 'hover:bg-gray-50'
+}
+
+function onDayClick(day: any) {
+  console.log(day)
 }
 </script>

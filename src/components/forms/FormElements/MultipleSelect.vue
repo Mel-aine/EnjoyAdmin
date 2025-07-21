@@ -10,7 +10,7 @@
       <!-- Affichage compact avec compteur -->
       <div v-else-if="displayMode === 'compact'" class="flex items-center justify-between flex-auto">
         <span class="text-sm text-gray-800 dark:text-white/90">
-          {{ selectedItems.length }} {{ selectedItems.length > 1 ? 'éléments sélectionnés' : 'élément sélectionné' }}
+          {{ selectedItems.length }} {{ selectedItems.length > 1 ? $t('selected_items') : $t('selected_item') }}
         </span>
         <button
           @click.stop="clearAll"
@@ -125,7 +125,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Rechercher..."
+            :placeholder="$t('search...')"
             class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           />
         </div>
@@ -133,7 +133,7 @@
         <!-- Actions rapides -->
         <div class="flex justify-between items-center px-3 py-2 bg-gray-50 dark:bg-gray-800 text-sm">
           <span class="text-gray-600 dark:text-gray-300">
-            {{ selectedItems.length }}/{{ filteredOptions.length }} sélectionnés
+            {{ selectedItems.length }}/{{ filteredOptions.length }} {{ $t('selected') }}
           </span>
           <div class="flex gap-2">
             <button
@@ -141,20 +141,20 @@
               class="text-purple-600 hover:text-purple-700 dark:text-purple-400"
               v-if="selectedItems.length < filteredOptions.length"
             >
-              Tout sélectionner
+              {{ $t('all_select') }}
             </button>
             <button
               @click="clearAll"
               class="text-red-600 hover:text-red-700 dark:text-red-400"
               v-if="selectedItems.length > 0"
             >
-              Tout désélectionner
+              {{ $t('all_dis') }}
             </button>
           </div>
         </div>
 
         <ul
-          class="overflow-y-auto divide-y divide-gray-200 custom-scrollbar max-h-40 dark:divide-gray-700"
+          class="overflow-y-auto divide-y divide-gray-200 custom-scrollbar max-h-25 dark:divide-gray-700"
           role="listbox"
           aria-multiselectable="true"
         >
@@ -185,7 +185,7 @@
             </svg>
           </li>
           <li v-if="filteredOptions.length === 0" class="px-3 py-4 text-center text-gray-500 dark:text-gray-400">
-            Aucun élément trouvé
+            {{ $t('no_fund') }}
           </li>
         </ul>
       </div>
