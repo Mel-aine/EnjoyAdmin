@@ -29,7 +29,7 @@
                   <span
                     class="inline-flex items-center px-3 py-1 bg-blue-50 text-gray-950 bg-opacity-20 rounded-full text-sm font-medium">
                     <DollarSignIcon class="w-4 h-4 mr-1" />
-                    {{ customer.price?.toLocaleString() || 0 }}
+                    {{ formatCurrency(customer.outstandingBalances.totalRemainingAmount) }}
                   </span>
                   <span v-if="customer.hotelStatus.isPresent" :class="[
                     'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
@@ -104,6 +104,34 @@
 
               </div>
             </div>
+            <div class="bg-gradient-to-br from-yellow-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+              <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">{{ $t('remainingBalanceTitle') }}</h2>
+
+              <div class="flex items-baseline justify-center mb-6">
+                <span class="text-5xl font-extrabold text-red-500">{{
+                  formatCurrency(customer.outstandingBalances.totalRemainingAmount) }}</span>
+              </div>
+
+              <p class="text-gray-600 text-sm text-center mb-4 leading-relaxed">
+                {{ customer.outstandingBalances.description }}
+              </p>
+
+              <p class="text-gray-500 text-xs text-center mb-6">
+                {{ $t('dueDatePrefix') }} <span class="font-medium">{{ customer.outstandingBalances.dueDate }}</span>
+              </p>
+
+              <button @click="emitPayNow"
+                class="w-full bg-primary hover:bg-primary/80 text-white font-bold py-3 px-4 rounded-lg
+               transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                {{ $t('payNowButton') }}
+              </button>
+            </div>
+          </div>
+          <div v-if="activeTab === 'payments'" class="bg-white rounded-xl  border-gray-200">
+            <PaymentTable :datas="customer.paymentHistory" />
+          </div>
+          <div v-if="activeTab === 'bookings'" class="bg-white rounded-xl border-gray-200">
+            <BookingTable :datas="customer.reservations"/>
           </div>
 
           <!-- History Tab -->
@@ -126,18 +154,7 @@
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="bg-gray-50 border-t border-gray-200 px-6 py-4">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-500">
-              {{ $t('Last_updated') }}: {{ formatDateTime(customer.updatedAt) }}
-            </div>
-            <div class="flex items-center space-x-2">
-              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span class="text-sm text-gray-600">{{ $t('system_update') }}</span>
-            </div>
-          </div>
-        </div>
+        
       </div>
       <OverLoading v-if="isLoading" />
     </div>
@@ -166,6 +183,9 @@ import { getCustomerProfile } from '@/services/api';
 import router from '@/router';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
 import { format } from 'date-fns';
+import PaymentModal from '../Bookings/PaymentModal.vue';
+import BookingTable from '@/components/tables/booking-tables/BookingTable.vue';
+import PaymentTable from '@/components/tables/PaymentTable.vue';
 
 const { t } = useI18n()
 
@@ -178,8 +198,10 @@ const dateDepart = ref('')
 const activeTab = ref<string>('details')
 const tabs = computed(() => [
   { id: 'details', label: t('tab.details'), icon: InfoIcon },
-  { id: 'history', label: t('tab.history'), icon: ClockIcon },
   { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon },
+  { id: 'bookings', label: t('tab.bookings'), icon: Bookmark },
+  { id: 'payments', label: t('tab.payments'), icon: CreditCard },
+  { id: 'history', label: t('tab.history'), icon: ClockIcon },
 ])
 onMounted(() => {
   customer.value = store.selectedCustomer
@@ -190,7 +212,9 @@ onMounted(() => {
   console.log('customer.value :', customer.value.lastReservation.departDate)
 })
 
+const emitPayNow = () => {
 
+}
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
   return date.toLocaleDateString('fr-FR', {
@@ -258,10 +282,10 @@ const getCustomerProfileDetails = async () => {
   }
   isLoading.value = false;
 }
-  // Generate the full status message
-  const formatTime = (date: string) => {
-    return format(new Date(date), 'MMMM d, yyyy')
-  }
+// Generate the full status message
+const formatTime = (date: string) => {
+  return format(new Date(date), 'MMMM d, yyyy')
+}
 </script>
 
 <style scoped>

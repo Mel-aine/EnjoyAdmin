@@ -2000,7 +2000,9 @@
   "tab": {
     "details": "Details",
     "history": "History",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "bookings":"Bookings",
+    "payments":"Payments"
   },
   "refresh": "Refresh",
   "All_statuses": "All statuses",
@@ -2142,6 +2144,9 @@
         "loyaltyProgram": "Loyalty Program Member"
       }
     },
-    "currentlyStayingFull": "Ongoing stay – Reservation {number}, {room}, from {start} to {end}"
+    "currentlyStayingFull": "Ongoing stay – Reservation {number}, {room}, from {start} to {end}",
+    "remainingBalanceTitle": "Remaining Balance",
+    "dueDatePrefix": "Due by",
+    "payNowButton": "Pay Now"
 
 }
