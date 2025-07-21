@@ -2000,7 +2000,9 @@
   "tab": {
     "details": "Details",
     "history": "History",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "bookings": "Bookings",
+    "payments": "Payments"
   },
   "refresh": "Refresh",
   "All_statuses": "All statuses",
@@ -2167,5 +2169,8 @@
     "filterStatus": "Status",
     "filterFloor": "Floor"
   },
-  "select_item": "Select items..."
+  "select_item": "Select items...",
+  "remainingBalanceTitle": "Remaining Balance",
+  "dueDatePrefix": "Due by",
+  "payNowButton": "Pay Now"
 }
