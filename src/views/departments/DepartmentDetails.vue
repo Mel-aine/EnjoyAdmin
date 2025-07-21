@@ -144,7 +144,7 @@
                                         <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">{{
                                             $t('cardTitle') }}</h2>
                                         <p class="text-gray-600 text-sm leading-relaxed">{{ $t('noMembersMessage')
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                 </div>
 
@@ -216,15 +216,10 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted, computed } from 'vue'
-import { BuildingIcon, ClockIcon, DollarSignIcon, MapPin, User, UserRound } from 'lucide-vue-next';
-import { Mail } from 'lucide-vue-next';
-import { Phone } from 'lucide-vue-next';
-import { Calendar } from 'lucide-vue-next';
+import { ClockIcon, User } from 'lucide-vue-next';
 import { CreditCard } from 'lucide-vue-next';
-import { Info } from 'lucide-vue-next';
 import { Bookmark } from 'lucide-vue-next';
 import { Users } from 'lucide-vue-next';
-import CustomCalendar from '@/components/calendars/CustomCalendar.vue';
 import { useI18n } from 'vue-i18n'
 import InfoIcon from '@/icons/InfoIcon.vue';
 import CalendarIcon from '@/icons/CalendarIcon.vue';
@@ -232,8 +227,6 @@ import { isLoading } from '@/composables/spinner';
 import DetailRow from '../Room/DetailRow.vue';
 import router from '@/router';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
-import BookingTable from '@/components/tables/booking-tables/BookingTable.vue';
-import PaymentTable from '@/components/tables/PaymentTable.vue';
 import { getServiceDepartmentDetails } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore';
 import UsersTable from '@/components/tables/UsersTable.vue';
@@ -241,27 +234,28 @@ import DepartmentTaskStaff from '../StaffManagement/DepartmentTaskStaff.vue';
 import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
 import LegendItem from '@/components/calendars/LegendItem.vue';
 interface CalendarDay {
-  date: Date
-  day: number
-  isCurrentMonth: boolean
-  isToday: boolean
-  isReserved: boolean
-  reservation?: {
-    checkInDate: string
-    checkOutDate: string
-    roomNumber: string
-    reservationNumber: string
-    [key: string]: any
-  }
+    date: Date
+    day: number
+    isCurrentMonth: boolean
+    isToday: boolean
+    isReserved: boolean
+    reservation?: {
+        checkInDate: string
+        checkOutDate: string
+        roomNumber: string
+        reservationNumber: string
+        [key: string]: any
+    }
 }
-const { t ,locale} = useI18n()
-const openPayment = ref(false);
+const { t, locale } = useI18n()
 const emitAssignOwner = () => {
 
 }
 const emitAddSchedule = () => {
 
 }
+
+const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const departmentId = router.currentRoute.value.params.id as string;
 const currentDate = ref<Date>(new Date())
 const serviceStore = useServiceStore();
@@ -275,41 +269,58 @@ const tabs = computed(() => [
     { id: 'history', label: t('tab.history'), icon: ClockIcon },
 ])
 
-const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    })
-}
 
 
 
 
 const currentMonth = computed(() => {
-  return currentDate.value.toLocaleDateString(locale.value, {
-    month: 'long',
-    year: 'numeric',
-  })
+    return currentDate.value.toLocaleDateString(locale.value, {
+        month: 'long',
+        year: 'numeric',
+    })
 })
 const previousMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
 }
 
 const nextMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
 }
 const calendarDays = computed<CalendarDay[]>(() => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
 
-  const firstDay = new Date(year, month, 1)
+    const year = currentDate.value.getFullYear()
+    const month = currentDate.value.getMonth()
 
-  const startDate = new Date(firstDay)
-  startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)) // lundi = début
+    const firstDay = new Date(year, month, 1)
 
-  return []
+    const startDate = new Date(firstDay)
+    startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)) // lundi = début
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate())
+    const days: CalendarDay[] = []
+
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate)
+        date.setDate(startDate.getDate() + i)
+
+        let isReserved = false
+
+        days.push({
+            date,
+            day: date.getDate(),
+            isCurrentMonth: date.getMonth() === month,
+            isToday: false,
+            isReserved,
+            reservation: {
+                checkInDate: '',
+                checkOutDate: '',
+                roomNumber: '',
+                reservationNumber: '',
+            },
+            
+        })
+    }
+    return days
 })
 const goBack = (): void => {
     window.history.back()
