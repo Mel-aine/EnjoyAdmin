@@ -2143,7 +2143,19 @@
   "check-in": "Enregistrement",
   "checked_in": "Enregistré",
   "checked in": "Enregistré",
-  "reservationNumber": "Numéro de réservation"
+  "reservationNumber": "Numéro de réservation",
+  "processed": "Traitée",
+  "roomsSearch": {
+    "searchByRoomNumber": "Numéro de chambre",
+    "searchPlaceholder": "ex. : 101",
+    "filterEquipment": "Équipement",
+    "multiSelectHint": "Vous pouvez sélectionner plusieurs options",
+    "filterRoomType": "Type de chambre",
+    "filterAll": "Tous",
+    "filterStatus": "Statut",
+    "filterFloor": "Étage"
+  },
+  "select_item": "Sélectionner des éléments..."
 
 
     
