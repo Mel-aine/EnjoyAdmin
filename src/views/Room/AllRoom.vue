@@ -1,31 +1,10 @@
 <template>
   <div class="">
     <AdminLayout>
-      <div class="min-h-screen">
+      <FullScreenLayout>
         <PageBreadcrumb :pageTitle="currentPageTitle" />
-        <div class="flex justify-end pb-5">
-          <DropdownMenu :menu-items="menuItems">
-            <template #icon>
-              <button class="border border-gray-300 bg-purple-400 rounded-lg relative">
-                <svg
-                  class="h-8 w-8 text-white"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </button>
-            </template>
-          </DropdownMenu>
-        </div>
+
+        <RoomFilter @filter="applyFilter" :loading="loading" />
 
         <div class="mt-10">
           <div class="space-y-6">
@@ -38,24 +17,36 @@
               :showHeader="true"
               :title="$t('Rooms')"
               :pageSize="15"
+              :searchable="false"
               :showButtonAllElement="true"
               @edit="onEditProduct"
               @delete="onDeleteProduct"
               @view-details="showRoomDetails"
               class="modern-table"
-            />
-
-            <!-- Modal pour les détails complets -->
-            <!-- <RoomDetailsModal
-              v-model="roomDetailsModal"
-              :room="selectedRoom"
-              @edit="onEditFromModal"
-              @delete="onDeleteFromModal"
-              @close="closeRoomDetails"
-            /> -->
+            >
+              <template v-slot:headerActions>
+                <div class="flex justify-end">
+                  <button
+                    @click="OpenModal"
+                    class="block px-4 py-2 dark:hover:text-white bg-primary hover:bg-primary/85 text-white font-bold rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 items-center"
+                  >
+                    {{ $t('AddRoom') }}
+                  </button>
+                </div>
+                <div>
+                  <button
+                    @click="importDefaultDefaults"
+                    class="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    📥
+                    {{ t('importdefault') }}
+                  </button>
+                </div>
+              </template>
+            </TableComponent>
           </div>
         </div>
-      </div>
+      </FullScreenLayout>
     </AdminLayout>
     <Modal v-if="modalOpen" @close="closeModal()">
       <template #body>
@@ -370,6 +361,7 @@ import {
   getTypeProductByServiceId,
   createRoom,
   createRoomOptions,
+  filterRoom,
 } from '@/services/api'
 import type { OptionType, ServiceProductType, ProductOptionType } from '@/types/option'
 import { useToast } from 'vue-toastification'
@@ -384,6 +376,9 @@ import TableComponent from '@/components/tables/TableComponent.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import PopupModal from '@/components/modal/PopupModal.vue'
 import { useRouter } from 'vue-router'
+import RoomFilter from './RoomFilter.vue'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import type { RoomFilterItem } from '@/utils/models'
 
 const { t, locale } = useI18n()
 const serviceStore = useServiceStore()
@@ -1146,6 +1141,25 @@ const importDefaultDefaults = async () => {
     isLoading.value = false
   }
 }
+
+const applyFilter = async (filter: RoomFilterItem) => {
+  loading.value = true
+  const res = await filterRoom(serviceStore.serviceId!, filter)
+   ServiceProduct.value = res.data
+  console.log('re', res)
+
+  loading.value = false
+}
+onMounted(async () => {
+  await applyFilter({
+    searchText: '',
+    status: '',
+    roomType: '',
+    equipment: [],
+    floor: '',
+  })
+  loading.value = false
+})
 </script>
 
 <style scoped>

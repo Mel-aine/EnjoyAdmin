@@ -1840,7 +1840,7 @@
   "room_occupied_no_other_available": "The hotel is fully booked for your requested extension dates. We cannot accommodate your request.",
   "room_occupied_other_available": "Your current room is booked for the new dates, but other room types are available. A room change will be necessary.",
   "extension_successful": "Your extension request has been sent and is awaiting approval. You will be notified shortly.",
-  "checkExtendStayBtn":"Check Extention",
+  "checkExtendStayBtn": "Check Extention",
   "options": {
     "Accommodation Type": "Accommodation Type",
     "Bed Type": "Bed Type",
@@ -1937,21 +1937,21 @@
     }
   },
   "statut": {
-      "available": "Available",
-      "booked": "Booked",
-      "occupied": "Occupied",
-      "preCheckout": "Pre-checkout",
-      "checkoutPending": "Checkout pending",
-      "dirty": "To Clean",
-      "cleaning": "Cleaning",
-      "clean": "Clean (Available)",
-      "maintenance": "Maintenance",
-      "outOfOrder": "Out of order",
-      "out_of_order" : "Out of order",
-      "Disponible": "Available",
-      "À nettoyer": "To Clean",
-      "Hors service" : "Out of order"
-    },
+    "available": "Available",
+    "booked": "Booked",
+    "occupied": "Occupied",
+    "preCheckout": "Pre-checkout",
+    "checkoutPending": "Checkout pending",
+    "dirty": "To Clean",
+    "cleaning": "Cleaning",
+    "clean": "Clean (Available)",
+    "maintenance": "Maintenance",
+    "outOfOrder": "Out of order",
+    "out_of_order": "Out of order",
+    "Disponible": "Available",
+    "À nettoyer": "To Clean",
+    "Hors service": "Out of order"
+  },
   "guestArriving": "Guest arriving soon",
   "guestPresent": "Guest currently in room",
   "checkoutTime": "Checkout time approaching",
@@ -2001,8 +2001,8 @@
     "details": "Details",
     "history": "History",
     "calendar": "Calendar",
-    "bookings":"Bookings",
-    "payments":"Payments"
+    "bookings": "Bookings",
+    "payments": "Payments"
   },
   "refresh": "Refresh",
   "All_statuses": "All statuses",
@@ -2078,75 +2078,99 @@
     "tableReason": "Reason",
     "tableStatus": "Status",
     "noRefundsFound": "No refunds found matching the selected criteria.",
-    "completedRefunds" : "Completed Refunds",
-    "pendingRefunds" : "Pending Refunds",
-    "failedRefunds" : "Failed Refunds"
+    "completedRefunds": "Completed Refunds",
+    "pendingRefunds": "Pending Refunds",
+    "failedRefunds": "Failed Refunds"
   },
   "reservationsList": {
-      "headerTitle": "Hotel Reservations Management",
-      "headerSubtitle": "Search, filter, and manage bookings",
-      "filterSectionTitle": "Search & Filters",
-      "searchByNameOrNumber": "Search by Guest Name or Reservation Number",
-      "searchPlaceholder": "e.g., Martin Sophie or RES-001",
-      "filterStatus": "Status",
-      "filterRoomType": "Room Type",
-      "filterCheckInDate": "Check-in Date (from)",
-      "filterCheckOutDate": "Check-out Date (to)",
-      "filterAll": "All",
-      "applyFilters": "Apply Filters",
-      "clearFilters": "Clear Filters",
-      "listSectionTitle": "Reservations List",
-      "tableReservationId": "ID",
-      "tableReservationNumber": "Reservation No.",
-      "tableGuestName": "Guest Name",
-      "tableCheckIn": "Check-in",
-      "tableCheckOut": "Check-out",
-      "tableRoomType": "Room Type",
-      "tableStatus": "Status",
-      "tableTotalAmount": "Total Amount",
-      "noReservationsFound": "No reservations found matching the selected criteria."
+    "headerTitle": "Hotel Reservations Management",
+    "headerSubtitle": "Search, filter, and manage bookings",
+    "filterSectionTitle": "Search & Filters",
+    "searchByNameOrNumber": "Search by Guest Name or Reservation Number",
+    "searchPlaceholder": "e.g., Martin Sophie or RES-001",
+    "filterStatus": "Status",
+    "filterRoomType": "Room Type",
+    "filterCheckInDate": "Check-in Date (from)",
+    "filterCheckOutDate": "Check-out Date (to)",
+    "filterAll": "All",
+    "applyFilters": "Apply Filters",
+    "clearFilters": "Clear Filters",
+    "listSectionTitle": "Reservations List",
+    "tableReservationId": "ID",
+    "tableReservationNumber": "Reservation No.",
+    "tableGuestName": "Guest Name",
+    "tableCheckIn": "Check-in",
+    "tableCheckOut": "Check-out",
+    "tableRoomType": "Room Type",
+    "tableStatus": "Status",
+    "tableTotalAmount": "Total Amount",
+    "noReservationsFound": "No reservations found matching the selected criteria."
+  },
+  "reservationStatus": {
+    "Confirmed": "Confirmed",
+    "Cancelled": "Cancelled",
+    "Checked-in": "Checked-in",
+    "Checked-out": "Checked-out",
+    "Pending": "Pending",
+    "No-show": "No-show"
+  },
+  "refunded": "Refunded",
+  "cancelled": "Cancelled",
+  "check-in": "Check-in",
+  "checked_in": "Checked In",
+  "checked in": "Checked in",
+  "reservationNumber": "Reservation Number",
+  "processed": "Processed",
+  "customerDetails": {
+    "headerTitle": "Customer Details",
+    "headerSubtitle": "Comprehensive view of customer information",
+    "basicInfo": {
+      "title": "Basic Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "gender": "Gender",
+      "dateOfBirth": "Date of Birth",
+      "nationality": "Nationality"
     },
-    "reservationStatus": {
-      "Confirmed": "Confirmed",
-      "Cancelled": "Cancelled",
-      "Checked-in": "Checked-in",
-      "Checked-out": "Checked-out",
-      "Pending": "Pending",
-      "No-show": "No-show"
+    "contactInfo": {
+      "title": "Contact Information",
+      "email": "Email",
+      "phone": "Phone Number",
+      "address": "Address"
     },
-    "refunded":"Refunded",
-    "cancelled":"Cancelled",
-    "check-in":"Check-in",
-    "checked_in":"Checked In",
-    "checked in":"Checked in",
-    "reservationNumber":"Reservation Number",
-    "processed" : "Processed",
-    "customerDetails": {
-      "headerTitle": "Customer Details",
-      "headerSubtitle": "Comprehensive view of customer information",
-      "basicInfo": {
-        "title": "Basic Information",
-        "firstName": "First Name",
-        "lastName": "Last Name",
-        "gender": "Gender",
-        "dateOfBirth": "Date of Birth",
-        "nationality": "Nationality"
-      },
-      "contactInfo": {
-        "title": "Contact Information",
-        "email": "Email",
-        "phone": "Phone Number",
-        "address": "Address"
-      },
-      "paymentInfo": {
-        "title": "Payment Preferences",
-        "preferredMethod": "Preferred Payment Method",
-        "loyaltyProgram": "Loyalty Program Member"
-      }
-    },
-    "currentlyStayingFull": "Ongoing stay – Reservation {number}, {room}, from {start} to {end}",
-    "remainingBalanceTitle": "Remaining Balance",
-    "dueDatePrefix": "Due by",
-    "payNowButton": "Pay Now"
-
+    "paymentInfo": {
+      "title": "Payment Preferences",
+      "preferredMethod": "Preferred Payment Method",
+      "loyaltyProgram": "Loyalty Program Member"
+    }
+  },
+  "currentlyStayingFull": "Ongoing stay – Reservation {number}, {room}, from {start} to {end}",
+  "reasons": {
+    "plumbing": "plumbing",
+    "electrical": "electrical",
+    "deepCleaning": "Deep Cleaning",
+    "renovation": "Renovation",
+    "other": "Other"
+  },
+  "maintenanceDetails": "Maintenance Details",
+  "endDate": "End date (estimated)",
+  "startDate": "Start date",
+  "cleaningCompleted": "Cleaning Completed",
+  "selectReason": "Select Reason",
+  "additionalNotes": "Additional Notes",
+  "maintenanceSetup": "Maintenance Setup",
+  "roomsSearch": {
+    "searchByRoomNumber": "Room Number",
+    "searchPlaceholder": "e.g., 101",
+    "filterEquipment": "Equipement",
+    "multiSelectHint": "MultiSelect Hint",
+    "filterRoomType": "Room Type",
+    "filterAll": "All",
+    "filterStatus": "Status",
+    "filterFloor": "Floor"
+  },
+  "select_item": "Select items...",
+  "remainingBalanceTitle": "Remaining Balance",
+  "dueDatePrefix": "Due by",
+  "payNowButton": "Pay Now"
 }

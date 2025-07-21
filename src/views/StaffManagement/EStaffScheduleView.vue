@@ -274,7 +274,7 @@ const serviceStore = useServiceStore()
 const authStore = useAuthStore()
 const currentWeek = ref(new Date())
 const showScheduleModal = ref(false)
-const editingSchedule = ref(null)
+const editingSchedule = ref<any>(null)
 const toast = useToast()
 const isLoading = ref(false)
 const newSchedule = ref({
@@ -288,10 +288,15 @@ const newSchedule = ref({
 const selectedType = ref('em')
 const types = ref([{ value: "em", label: "Employees" }, { value: "dp", label: "Departments" }])
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const schedules = ref([])
-const staff = ref([])
-const departmentsData = ref([])
-
+const schedules = ref<any[]>([])
+const staff = ref<any[]>([])
+const departmentsData = ref<any[]>([])
+const headers = {
+  headers: {
+    Authorization: `Bearer ${authStore.token}`,
+  },
+  withCredentials: true,
+}
 // const staff = ref([])
 function getWeekDates(startDate) {
   const week = []
@@ -384,9 +389,9 @@ async function handleCreateOrUpdateSchedule() {
     const API = import.meta.env.VITE_API_URL
     let response
     if (editingSchedule.value) {
-      response = await axios.put(`${API}/schedules/${editingSchedule.value.id}`, scheduleData)
+      response = await axios.put(`${API}/schedules/${editingSchedule.value.id}`, scheduleData ,headers)
     } else {
-      response = await axios.post(`${API}/schedules`, scheduleData)
+      response = await axios.post(`${API}/schedules`, scheduleData,headers)
     }
 
     console.log("API response:", response)
@@ -418,7 +423,8 @@ async function handleCreateOrUpdateSchedule() {
 
 const fetchSchedules = async () => {
   try {
-    const response = await getSchedules(serviceStore.serviceId)
+    const serviceId = serviceStore.serviceId
+    const response = await getSchedules(serviceId)
     schedules.value = response.data.data
     console.log('Schedules:', schedules.value)
   } catch (error) {
