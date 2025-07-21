@@ -123,6 +123,10 @@ export const getServiceById = (id: number | null): Promise<AxiosResponse<any>> =
   return axios.get(`${API_URL}/services/${id}`, headers)
 }
 
+//get service by id
+export const getServiceDepartmentDetails = (id: number, departmentId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/services/${id}/departments/${departmentId}/details`, headers)
+}
 
 export const getServiceProductAndReservationById = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/service_products/${id}`, headers)

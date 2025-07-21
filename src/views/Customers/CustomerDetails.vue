@@ -131,7 +131,7 @@
             <PaymentTable :datas="customer.paymentHistory" />
           </div>
           <div v-if="activeTab === 'bookings'" class="bg-white rounded-xl border-gray-200">
-            <BookingTable :datas="customer.reservations"/>
+            <BookingTable :datas="customer.reservations" />
           </div>
 
           <!-- History Tab -->
@@ -154,10 +154,14 @@
           </div>
         </div>
 
-        
+
       </div>
       <OverLoading v-if="isLoading" />
     </div>
+    <template v-if="selectBooking">
+      <PaymentModal :reservation="selectBooking" :is-open="openPayment" @close="openPayment = false"
+        @payment-recorded="getPaymentDetails" />
+    </template>
   </AdminLayout>
 </template>
 
@@ -186,9 +190,13 @@ import { format } from 'date-fns';
 import PaymentModal from '../Bookings/PaymentModal.vue';
 import BookingTable from '@/components/tables/booking-tables/BookingTable.vue';
 import PaymentTable from '@/components/tables/PaymentTable.vue';
-
+const selectBooking = ref(null);
 const { t } = useI18n()
-
+const openPayment = ref(false);
+const getPaymentDetails = () => {
+  openPayment.value = false;
+  getCustomerProfileDetails();
+};
 const customer_id = router.currentRoute.value.params.id as string;
 
 const store = useBookingStore()
@@ -213,7 +221,7 @@ onMounted(() => {
 })
 
 const emitPayNow = () => {
-
+  openPayment.value = true
 }
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
@@ -279,6 +287,14 @@ const getCustomerProfileDetails = async () => {
   console.log('this is the customer_id', response)
   if (response.status === 200) {
     customer.value = response.data;
+    if (customer.value.outstandingBalances.hasOutstanding) {
+      selectBooking.value = customer.value.reservations.find((res: any) => res.id === customer.value.outstandingBalances.details[0].reservationId)
+    }
+    customer.value.reservations = customer.value.reservations.map((res: any) => {
+
+      return { ...res, user: customer.value.customerDetails }
+    })
+
   }
   isLoading.value = false;
 }

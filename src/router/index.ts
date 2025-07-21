@@ -136,6 +136,11 @@ const router = createRouter({
       name: 'department',
       component: () => import('../views/DepartmentView.vue'),
     },
+     {
+      path: '/departments/:id',
+      name: 'departmentDetails',
+      component: () => import('../views/departments/DepartmentDetails.vue'),
+    },
     {
       path: '/allInvoice',
       name: 'allInvoice',
