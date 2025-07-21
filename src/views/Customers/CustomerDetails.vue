@@ -1,232 +1,154 @@
 <template>
   <AdminLayout>
-  <div
-    class="min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900"
-  >
     <div class="container mx-auto px-4 py-8">
       <!-- Header -->
       <div class="mb-8 slide-in">
         <div class="flex items-center gap-4 mb-4">
-          <button
-            @click="goBack"
-            class="text-gray-400 hover:text-gray-700 transition-colors"
-          >
-             ← {{ $t('Back') }}
+          <button @click="goBack"
+            class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-1 px-2 rounded-lg transition-all duration-200 shadow">
+            ← {{ $t('Back') }}
           </button>
-          <h1 class="text-3xl font-bold dark:text-white text-gray-900">{{ $t('customer_detail') }}</h1>
-        </div>
-        <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
-      </div>
-
-      <!-- Customer Info Cards -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Personal Info -->
-        <div class="lg:col-span-2 glass-effect rounded-xl p-6 slide-in">
-          <div class="flex items-center gap-3 mb-6">
-            <div
-              class="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center"
-            >
-               <UserRound class="text-indigo-400" />
-            </div>
-            <div>
-              <h2 class="text-2xl font-bold text-gray-600">
-                {{ customer.userFullName }}
-              </h2>
-              <p class="text-gray-500">ID: {{ customer.id }}</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-3">
-              <div class="flex items-center gap-3">
-                <Mail class="text-indigo-400"/>
-                <span class="text-gray-600">{{ customer.email }}</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <Phone class="text-indigo-400"/>
-                <span class="text-gray-600">{{ customer.phone_number }}</span>
-              </div>
-            </div>
-            <div class="space-y-3">
-              <div class="flex items-center gap-3">
-                <Users class="text-indigo-400"/>
-                <span class="text-gray-600">
-                  {{ reservationCustomer.guestCount }} {{ $t('guests') }}
-                </span>
-              </div>
-              <div class="flex items-center gap-3">
-                <Bookmark class="text-indigo-400"/>
-                <span class="text-gray-600">{{ reservationCustomer.reservationType }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Status Card -->
-        <div class="glass-effect rounded-xl p-6 slide-in">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('Status') }}</h3>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-gray-500">{{ $t('Booking') }}</span>
-              <span
-                class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm status-badge"
-              >
-                {{$t(`${reservationCustomer.status}`)}}
-              </span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-gray-500">{{ $t('Payment') }}</span>
-              <span
-                class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm"
-              >
-                {{ $t(`${reservationCustomer.paymentStatus}`) }}
-              </span>
-            </div>
-          </div>
         </div>
       </div>
-
-      <!-- Reservation Details -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Dates -->
-        <div class="glass-effect rounded-xl p-6 slide-in">
-          <h3
-            class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
-          >
-            <Calendar class="text-indigo-400"/>
-           {{ $t('stay_dates') }}
-          </h3>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-gray-500 text-sm">{{ $t('ArrivedDate') }}</span>
-                <p class="text-gray-600 font-medium">
-                  {{ formatDate(reservationCustomer.arrivedDate) }}
-                </p>
-              </div>
-              <div class="text-right">
-                <span class="text-gray-500 text-sm">{{ $t('DepartDate') }}</span>
-                <p class="text-gray-600 font-medium">
-                  {{ formatDate(reservationCustomer.departDate) }}
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center justify-center">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        v-if="customer && customer.customerDetails">
+        <!-- Header -->
+        <div class="text-white p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
               <div
-                class="px-4 py-2 bg-indigo-500/20 text-indigo-400 rounded-lg"
-              >
-                {{ calculateStayDuration() }} {{ $t('nights') }}
+                class="w-16 h-16 bg-blue-100 bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <Users class="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-800">
+                  {{ customer.customerDetails.firstName }} {{ customer.customerDetails.lastName }}
+                </h1>
+                <p class="text-black font-medium">{{ customer.roomType }}</p>
+                <div class="flex items-center space-x-4 mt-2">
+                  <span
+                    class="inline-flex items-center px-3 py-1 bg-blue-50 text-gray-950 bg-opacity-20 rounded-full text-sm font-medium">
+                    <DollarSignIcon class="w-4 h-4 mr-1" />
+                    {{ customer.price?.toLocaleString() || 0 }}
+                  </span>
+                  <span v-if="customer.hotelStatus.isPresent" :class="[
+                    'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+                    getStatusColor(''),
+                  ]">
+                    {{ $t('currentlyStayingFull', {
+                      number: customer.hotelStatus.reservationDetails.reservationNumber,
+                      room: customer.hotelStatus.reservationDetails.roomNumber,
+                      start: formatDate(customer.hotelStatus.reservationDetails.checkInDate),
+                      end: formatDate(customer.hotelStatus.reservationDetails.checkOutDate),
+                    })
+                    }}
+                  </span>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
 
-        <!-- Financial Info -->
-        <div class="glass-effect rounded-xl p-6 slide-in">
-          <h3
-            class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
-          >
-            <CreditCard class="text-indigo-400"/>
-            {{ $t('financial_info') }}
-          </h3>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-500">{{ $t('TotalAmount') }}</span>
-              <span class="text-gray-600 font-medium">
-                {{ formatCurrency(reservationCustomer.totalAmount) }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">{{ $t('discount') }}</span>
-              <span class="text-gray-600 font-medium">
-                {{ formatCurrency(reservationCustomer.discountAmount) }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">{{ $t('taxes') }}</span>
-              <span class="text-gray-600 font-medium">
-                {{ formatCurrency(reservationCustomer.taxAmount) }}
-              </span>
-            </div>
-            <div class="border-t border-gray-700 pt-3">
-              <div class="flex justify-between">
-                <span class="text-gray-500">{{ $t('final_amount') }}</span>
-                <span class="text-green-400 font-bold text-lg">
-                  {{ formatCurrency(reservationCustomer.finalAmount) }}
-                </span>
+        <!-- Navigation Tabs -->
+        <div class="border-b border-gray-200">
+          <nav class="flex space-x-8 px-6">
+            <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+              'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+              activeTab === tab.id
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+            ]">
+              <div class="flex items-center space-x-2">
+                <component :is="tab.icon" class="w-5 h-5" />
+                <span>{{ tab.label }}</span>
+              </div>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6">
+          <!-- Details Tab -->
+          <div v-if="activeTab === 'details'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Informations de base -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
+                {{ $t('Basic_Information') }}
+              </h3>
+              <div class="space-y-1">
+                <DetailRow :label="$t('customerDetails.basicInfo.firstName')"
+                  :value="customer.customerDetails.firstName || 'N/A'" />
+                <DetailRow :label="$t('customerDetails.basicInfo.lastName')"
+                  :value="customer.customerDetails.lastName || 'N/A'" />
+                <DetailRow :label="$t('customerDetails.basicInfo.gender')" :value="'N/A'" />
+                <DetailRow :label="$t('customerDetails.basicInfo.dateOfBirth')"
+                  :value="customer.customerDetails.roomType || 'N/A'" />
+                <DetailRow :label="$t('customerDetails.basicInfo.nationality')"
+                  :value="customer.customerDetails.nationality || 'N/A'" type="badge" />
               </div>
             </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">{{ $t('amount_paid') }}</span>
-              <span class="text-blue-400 font-medium">
-                {{ formatCurrency(reservationCustomer.paidAmount) }}
-              </span>
+            <!-- Équipements -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                <Mail class="w-5 h-5 mr-2 text-purple-600" />
+                {{ $t('customerDetails.contactInfo.title') }}
+              </h3>
+              <div class="space-y-1">
+                <DetailRow :label="$t('customerDetails.contactInfo.email')" :value="customer.customerDetails.email" />
+                <DetailRow :label="$t('customerDetails.contactInfo.phone')"
+                  :value="customer.customerDetails.phoneNumber" />
+                <DetailRow :label="$t('customerDetails.contactInfo.address')"
+                  :value="customer.customerDetails.address" />
+
+              </div>
+            </div>
+          </div>
+
+          <!-- History Tab -->
+          <div v-if="activeTab === 'history'" class="bg-white rounded-xl border border-gray-200">
+            <template v-if="customer.
+              activityLogs && customer.activityLogs.length > 0">
+              <ActivitiesLogs :activity-logs="customer.activityLogs" />
+            </template>
+            <template v-else>
+              <div class="flex flex-col items-center justify-center text-gray-500 py-10">
+                <FileSearch class="w-12 h-12 mb-3 text-gray-400" />
+                <p class="text-sm">{{ $t('no_recente_activity') }}</p>
+              </div>
+            </template>
+          </div>
+
+          <!-- Calendar Tab -->
+          <div v-if="activeTab === 'calendar'" class="bg-white rounded-xl border border-gray-200">
+            <CustomCalendar :calendar-title="$t('Calendar')" />
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 border-t border-gray-200 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-500">
+              {{ $t('Last_updated') }}: {{ formatDateTime(customer.updatedAt) }}
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span class="text-sm text-gray-600">{{ $t('system_update') }}</span>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Additional Info -->
-      <div class="glass-effect rounded-xl p-6 slide-in">
-        <h3
-          class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
-        >
-          <Info class="text-indigo-400"/>
-          {{ $t('additional_information') }}
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div>
-            <span class="text-gray-500 text-sm">{{ $t('Createdon') }}</span>
-            <p class="text-gray-600">
-              {{ formatDateTime(reservationCustomer.createdAt) }}
-            </p>
-          </div>
-          <div>
-            <span class="text-gray-500 text-sm">{{ $t('Modifiedon') }}</span>
-            <p class="text-gray-600">
-              {{ formatDateTime(reservationCustomer.updatedAt) }}
-            </p>
-          </div>
-          <div>
-            <span class="text-gray-500 text-sm">{{ $t('Comment') }}</span>
-            <p class="text-gray-600">
-              {{ reservationCustomer.comment || $t('no_comment') }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <!-- <div class="flex gap-4 mt-8 slide-in">
-        <button
-          class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 px-6 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 font-medium"
-        >
-          <i class="fas fa-edit mr-2"></i>
-          Modifier
-        </button>
-        <button
-          class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-6 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 font-medium"
-        >
-          <i class="fas fa-envelope mr-2"></i>
-          Contacter
-        </button>
-        <button
-          class="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white py-3 px-6 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300 font-medium"
-        >
-          <i class="fas fa-print mr-2"></i>
-          Imprimer
-        </button>
-      </div> -->
+      <OverLoading v-if="isLoading" />
     </div>
-  </div>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useBookingStore } from '@/composables/booking';
-import { ref, onMounted } from 'vue'
-import { UserRound } from 'lucide-vue-next';
+import { ref, onMounted, computed } from 'vue'
+import { BuildingIcon, ClockIcon, DollarSignIcon, MapPin, UserRound } from 'lucide-vue-next';
 import { Mail } from 'lucide-vue-next';
 import { Phone } from 'lucide-vue-next';
 import { Calendar } from 'lucide-vue-next';
@@ -234,18 +156,34 @@ import { CreditCard } from 'lucide-vue-next';
 import { Info } from 'lucide-vue-next';
 import { Bookmark } from 'lucide-vue-next';
 import { Users } from 'lucide-vue-next';
+import CustomCalendar from '@/components/calendars/CustomCalendar.vue';
+import { useI18n } from 'vue-i18n'
+import InfoIcon from '@/icons/InfoIcon.vue';
+import CalendarIcon from '@/icons/CalendarIcon.vue';
+import { isLoading } from '@/composables/spinner';
+import DetailRow from '../Room/DetailRow.vue';
+import { getCustomerProfile } from '@/services/api';
+import router from '@/router';
+import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
+import { format } from 'date-fns';
 
+const { t } = useI18n()
 
+const customer_id = router.currentRoute.value.params.id as string;
 
 const store = useBookingStore()
 const customer = ref<any>({})
-let reservationCustomer = ref<any>({})
 const dateArrived = ref('')
 const dateDepart = ref('')
-
+const activeTab = ref<string>('details')
+const tabs = computed(() => [
+  { id: 'details', label: t('tab.details'), icon: InfoIcon },
+  { id: 'history', label: t('tab.history'), icon: ClockIcon },
+  { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon },
+])
 onMounted(() => {
   customer.value = store.selectedCustomer
-  reservationCustomer = customer.value.lastReservation
+  console.log('value', customer.value)
   dateArrived.value = customer.value.lastReservation.arrivedDate
   dateDepart.value = customer.value.lastReservation.departDate
 
@@ -291,12 +229,39 @@ const calculateStayDuration = (): number => {
 const goBack = (): void => {
   window.history.back()
 }
-
+// Méthodes utilitaires
+const getStatusColor = (status: any) => {
+  switch (status) {
+    case 'available':
+      return 'bg-green-100 text-green-800'
+    case 'booked':
+      return 'bg-blue-100 text-blue-800'
+    case 'maintenance':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'occupied':
+      return 'bg-red-100 text-red-800'
+    case 'dirty':
+      return 'bg-red-50 text-orange-700'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
 onMounted(() => {
-  document.querySelectorAll('.slide-in').forEach((el, i) => {
-    ;(el as HTMLElement).style.animationDelay = `${i * 0.1}s`
-  })
+  getCustomerProfileDetails()
 })
+const getCustomerProfileDetails = async () => {
+  isLoading.value = true;
+  const response = await getCustomerProfile(parseInt(customer_id))
+  console.log('this is the customer_id', response)
+  if (response.status === 200) {
+    customer.value = response.data;
+  }
+  isLoading.value = false;
+}
+  // Generate the full status message
+  const formatTime = (date: string) => {
+    return format(new Date(date), 'MMMM d, yyyy')
+  }
 </script>
 
 <style scoped>
@@ -305,19 +270,23 @@ onMounted(() => {
   background: rgba(245, 245, 245, 1);
   border: 1px solid rgba(75, 85, 99, 0.3);
 }
+
 .status-badge {
   animation: pulse 2s infinite;
 }
+
 @keyframes slideIn {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .slide-in {
   animation: slideIn 0.6s ease-out;
 }
