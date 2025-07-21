@@ -9,7 +9,7 @@ import type {
   ReservationType,
   userDataType,
 } from '@/types/option'
-import type { FitlterItem } from '@/utils/models'
+import type { FitlterItem , RoomFilterItem } from '@/utils/models'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 const authStore = useAuthStore()
@@ -233,14 +233,18 @@ export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any
   return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
 }
 
-export const getSchedules = (serviceId: number): Promise<AxiosResponse<any>> => {
+export const getSchedules = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/schedules`, {
     params: {
-      headers,
       service_id: serviceId,
     },
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
   })
 }
+
 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`, headers)
@@ -251,6 +255,14 @@ export const getRoomCountByRoomType =(serviceId: number,productTypeId:number):Pr
 
 export const getRefunds = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/refund/${serviceId}`, headers)
+}
+
+export const getServiceProductsWithDetails = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/service-products/${serviceId}/details`, headers)
+}
+
+export const getOptionsEquipement = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/option_equipement`, headers)
 }
 // --- Services API post --- //
 
@@ -513,6 +525,13 @@ export const filterReservation = (id: number, filter: FitlterItem): Promise<Axio
   }
   return axios.get(`${API_URL}/services/${id}/reservation/search${qs}`, headers)
 }
+
+//find room
+export const filterRoom = (id: number, filter: RoomFilterItem): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/service_product/${id}/filter`, filter, headers)
+}
+
+
 
 //----- SERVICE API Delete ----//
 

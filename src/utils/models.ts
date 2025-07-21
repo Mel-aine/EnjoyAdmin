@@ -258,3 +258,11 @@ export interface FitlterItem {
   checkInDate: string
   checkOutDate: string
 }
+
+export interface RoomFilterItem {
+  searchText: string
+  status: string
+  roomType: string
+  equipment: Array<{label: string, value: string}>
+  floor: string
+}

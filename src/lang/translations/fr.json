@@ -519,7 +519,7 @@
   "Allstatuses": "Tous les statuts",
   "Occupied": "Occupé",
   "Release": "Libération",
-  "Cleaning": "Nettoyage",
+  "Cleaning": "En Cours de Nettoyage",
   "no room": "Aucune chambre ne correspond aux critères sélectionnés",
   "roomStatus": {
     "available": "Disponible",
@@ -527,7 +527,7 @@
     "occupied": "Occupé",
     "checked-in": "Vérification",
     "checkout": "Libération",
-    "cleaning": "Nettoyage",
+    "cleaning": "En Cours de Nettoyage",
     "dirty": "A Nettoyé",
     "maintenance": "Entretien",
     "unknown": "Inconnu"
@@ -757,7 +757,7 @@
       "done": "Terminées"
     },
     "types": {
-      "cleaning": "Nettoyage",
+      "cleaning": "En Cours de Nettoyage",
       "maintenance": "Maintenance",
       "frontDesk": "Réception",
       "security": "Sécurité",
@@ -1906,7 +1906,7 @@
     "preCheckout": "Pré-départ",
     "checkoutPending": "Départ en attente",
     "dirty": "À Nettoyer",
-    "cleaning": "Nettoyage",
+    "cleaning": "En Cours de Nettoyage",
     "clean": "Propre (Disponible)",
     "maintenance": "Maintenance",
     "outOfOrder": "Hors service",
@@ -1986,7 +1986,7 @@
   "booked": "Réservé",
   "occupied": "Occupé",
   "checkout": "Libération",
-  "cleaning": "Nettoyage",
+  "cleaning": "En Cours de Nettoyage",
   "maintenance": "Entretien",
   "unknown": "Inconnu",
   "expected_departure_date": "Date de départ prévue",

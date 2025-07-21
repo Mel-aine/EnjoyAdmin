@@ -96,8 +96,8 @@
             <div class="p-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
                   </div>
                 </div>
                 <div class="ml-3">
@@ -128,8 +128,8 @@
             <div class="p-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
                   </div>
                 </div>
                 <div class="ml-3">
@@ -334,7 +334,7 @@
             <option value="">{{ $t('selectReason') }}</option>
             <option value="plumbing">{{ $t('reasons.plumbing') }}</option>
             <option value="electrical">{{ $t('reasons.electrical') }}</option>
-            <option value="cleaning">{{ $t('reasons.deepCleaning') }}</option>
+            <option value="deepCleaning">{{ $t('reasons.deepCleaning') }}</option>
             <option value="renovation">{{ $t('reasons.renovation') }}</option>
             <option value="other">{{ $t('reasons.other') }}</option>
           </select>
@@ -433,7 +433,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import RoomCard from './RoomCard.vue'
 import StatusChangeModal from './StatusChangeModal.vue'
 import { useServiceStore } from '@/composables/serviceStore';
-import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus } from "@/services/api";
+import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus,getServiceProductsWithDetails } from "@/services/api";
 import { checkInReservations, checkOutReservations, getRoomReservations } from "@/services/reservation";
 import { useI18n } from "vue-i18n";
 import Spinner from "@/components/spinner/Spinner.vue";
@@ -521,63 +521,66 @@ const fetchServiceProduct = async () => {
 
   try {
     const serviceId = serviceStore.serviceId;
-    const response = await getServiceProductWithOptions(serviceId);
-    const serviceProductsData = response.data;
-    console.log("serviceProductsData ",serviceProductsData )
+    const response = await getServiceProductsWithDetails(serviceId)
+    // const response = await getServiceProductWithOptions(serviceId);
+    // const serviceProductsData = response.data;
+    // console.log("serviceProductsData ",serviceProductsData )
 
-    if (Array.isArray(serviceProductsData)) {
-      const serviceProductWithOptions = await Promise.all(
-        serviceProductsData.map(async (product: any) => {
-          const associatedOptions = product.options?.filter((option: any) =>
-            option.serviceProductId === product.id
-          ) || [];
+    // if (Array.isArray(serviceProductsData)) {
+    //   const serviceProductWithOptions = await Promise.all(
+    //     serviceProductsData.map(async (product: any) => {
+    //       const associatedOptions = product.options?.filter((option: any) =>
+    //         option.serviceProductId === product.id
+    //       ) || [];
 
-          let reservations: any[] = [];
+    //       let reservations: any[] = [];
 
-          try {
-            const response = await getRoomReservations(product.id);
-            reservations = response;
-          } catch (error) {
-            console.warn(`Erreur lors de la récupération des réservations pour ${product.id}:`, error);
-          }
+    //       try {
+    //         const response = await getRoomReservations(product.id);
+    //         reservations = response;
+    //       } catch (error) {
+    //         console.warn(`Erreur lors de la récupération des réservations pour ${product.id}:`, error);
+    //       }
 
-          let nextAvailable: string | null = null;
-          let checkOutTime: string | null = null;
+    //       let nextAvailable: string | null = null;
+    //       let checkOutTime: string | null = null;
 
-          const reservationsWithDepartDate = reservations.filter(r => r.reservation?.departDate);
+    //       const reservationsWithDepartDate = reservations.filter(r => r.reservation?.departDate);
 
-          if (reservationsWithDepartDate.length > 0) {
-            const sortedByDepartDateDesc = reservationsWithDepartDate.sort(
-              (a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime()
-            );
+    //       if (reservationsWithDepartDate.length > 0) {
+    //         const sortedByDepartDateDesc = reservationsWithDepartDate.sort(
+    //           (a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime()
+    //         );
 
-            const latestReservation = sortedByDepartDateDesc[0];
-            nextAvailable = latestReservation?.reservation?.departDate || null;
-            checkOutTime = latestReservation?.reservation?.departDate || null;
-          }
+    //         const latestReservation = sortedByDepartDateDesc[0];
+    //         nextAvailable = latestReservation?.reservation?.departDate || null;
+    //         checkOutTime = latestReservation?.reservation?.departDate || null;
+    //       }
 
 
-          const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in' );
+    //       const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in' );
 
-          const guestName = checkedInGuest
-            ? `${checkedInGuest.creator?.firstName ?? ''} ${checkedInGuest.creator?.lastName ?? ''}`.trim()
-            : null;
-          console.log("checkedInGuest",guestName)
-          return {
-            ...product,
-            maintenanceInfo:product.maintenance,
-            options: associatedOptions,
-            reservations: reservations,
-            guestName: guestName,
-            nextAvailable,
-            checkOutTime,
-            status: product.status || 'available'
-          };
-        })
-      );
+    //       const guestName = checkedInGuest
+    //         ? `${checkedInGuest.creator?.firstName ?? ''} ${checkedInGuest.creator?.lastName ?? ''}`.trim()
+    //         : null;
+    //       console.log("checkedInGuest",guestName)
+    //       return {
+    //         ...product,
+    //         maintenanceInfo:product.maintenance,
+    //         options: associatedOptions,
+    //         reservations: reservations,
+    //         guestName: guestName,
+    //         nextAvailable,
+    //         checkOutTime,
+    //         status: product.status || 'available'
+    //       };
+    //     })
+    //   );
 
-      serviceProducts.value = serviceProductWithOptions;
-    }
+    //   serviceProducts.value = serviceProductWithOptions;
+    // }
+    serviceProducts.value = response.data
+    console.log("serviceProducts",serviceProducts.value)
   } catch (error: any) {
     console.error('Erreur lors de la récupération des produits:', error);
     error.value = 'Erreur lors du chargement des chambres';

@@ -2118,6 +2118,31 @@
     "checked_in":"Checked In",
     "checked in":"Checked in",
     "reservationNumber":"Reservation Number",
-    "processed" : "Processed"
+    "processed" : "Processed",
+     "reasons": {
+    "plumbing": "plumbing",
+    "electrical": "electrical",
+    "deepCleaning": "Deep Cleaning",
+    "renovation": "Renovation",
+    "other": "Other"
+  },
+  "maintenanceDetails": "Maintenance Details",
+  "endDate": "End date (estimated)",
+  "startDate": "Start date",
+  "cleaningCompleted": "Cleaning Completed",
+  "selectReason": "Select Reason",
+  "additionalNotes": "Additional Notes",
+  "maintenanceSetup": "Maintenance Setup",
+  "roomsSearch" : {
+    "searchByRoomNumber" :"Room Number",
+    "searchPlaceholder" : "e.g., 101",
+    "filterEquipment" : "Equipement",
+    "multiSelectHint" : "MultiSelect Hint",
+    "filterRoomType" :"Room Type",
+    "filterAll" :"All",
+    "filterStatus" :"Status",
+    "filterFloor" : "Floor"
+  },
+  "select_item"  : "Select items..."
 
 }

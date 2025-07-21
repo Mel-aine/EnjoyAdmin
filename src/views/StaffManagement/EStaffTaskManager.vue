@@ -301,6 +301,12 @@ const newTask = ref({
   estimated_hours: 1.0,
   room_number: '',
 })
+const headers = {
+  headers: {
+    Authorization: `Bearer ${authStore.token}`,
+  },
+  withCredentials: true,
+}
 
 const filterButtons = computed(() => [
   { value: 'all', label: t('taskManagement.filters.all'), count: Tasks.value.length },
@@ -386,7 +392,7 @@ async function handleCreateTask() {
 
     console.log('taskData ready to send:', taskData)
     const API = import.meta.env.VITE_API_URL
-    const response = await axios.post(`${API}/tasks`, taskData)
+    const response = await axios.post(`${API}/tasks`, taskData ,headers)
     console.log('API response:', response)
     if (response.status === 201) {
       showCreateModal.value = false
