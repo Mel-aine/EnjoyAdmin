@@ -316,18 +316,7 @@ const getCustomerProfileDetails = async () => {
   }
   isLoading.value = false;
 }
-  // Generate the full status message
-  const formatTime = (date: string) => {
-    return format(new Date(date), 'MMMM d, yyyy')
-  }
 
-  interface Reservation {
-  id: number
-  checkIn: string
-  checkOut: string
-  guest: string
-  status: string
-}
 
 interface CalendarDay {
   date: Date
