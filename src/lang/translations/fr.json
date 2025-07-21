@@ -510,7 +510,7 @@
   "Available": "Disponible",
   "Availables": "Disponibles",
   "Booked": "Réservé",
-  "Maintenance": "Entretien",
+  "Maintenance": "Maintenance",
   "occupancy": "Occupation",
   "PleaseSelectRoom": "Veuillez sélectionner une chambre",
   "RemoveRoom": "Supprimer la chambre",
@@ -529,7 +529,7 @@
     "checkout": "Libération",
     "cleaning": "En Cours de Nettoyage",
     "dirty": "A Nettoyé",
-    "maintenance": "Entretien",
+    "maintenance": "Maintenance",
     "unknown": "Inconnu"
   },
   "ConfirmPayment": "Confirmer le Paiement",
@@ -1987,7 +1987,7 @@
   "occupied": "Occupé",
   "checkout": "Libération",
   "cleaning": "En Cours de Nettoyage",
-  "maintenance": "Entretien",
+  "maintenance": "Maintenance",
   "unknown": "Inconnu",
   "expected_departure_date": "Date de départ prévue",
   "expected_arrive_date": "Date prévue d'arrivée",
@@ -2156,7 +2156,13 @@
     "filterStatus": "Statut",
     "filterFloor": "Étage"
   },
-  "select_item": "Sélectionner des éléments..."
+  "select_item": "Sélectionner des éléments...",
+  "selected_items" : "éléments sélectionnés",
+  "selected_item" : "élément sélectionné",
+  "all_select" : "Tout sélectionner",
+  "all_dis" : "Tout désélectionner",
+  "no_fund" : "Aucun élément trouvé",
+  "selected" : "sélectionnés"
 
 
     

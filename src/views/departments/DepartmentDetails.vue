@@ -125,42 +125,65 @@
                             class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
                             <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                                 <User class="w-5 h-5 mr-2 text-purple-600" />
-                               {{ $t('activeMemberTodays')
-                                    }}
+                                {{ $t('activeMemberTodays')
+                                }}
                             </h3>
                             <div class="flex items-center flex-col justify-start ">
 
-                                    <div class="text-center mb-6">
-                                        <div v-if="department.currentMembers?.length > 0">
-                                            <p class="text-gray-600 text-sm leading-relaxed mb-2">{{
-                                                $t('currentMembersLabel') }}:</p>
-                                            <ul class="list-disc list-inside text-left mx-auto max-w-fit text-gray-800">
-                                                <li v-for="(member, index) in department.currentMembers" :key="index"
-                                                    class="mb-1">
-                                                    {{ member }}</li>
-                                            </ul>
-                                        </div>
-                                        <div v-else>
-                                             <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">{{
-                                        $t('cardTitle') }}</h2>
-                                            <p class="text-gray-600 text-sm leading-relaxed">{{ $t('noMembersMessage')
-                                            }}</p>
-                                        </div>
+                                <div class="text-center mb-6">
+                                    <div v-if="department.currentMembers?.length > 0">
+                                        <p class="text-gray-600 text-sm leading-relaxed mb-2">{{
+                                            $t('currentMembersLabel') }}:</p>
+                                        <ul class="list-disc list-inside text-left mx-auto max-w-fit text-gray-800">
+                                            <li v-for="(member, index) in department.currentMembers" :key="index"
+                                                class="mb-1">
+                                                {{ member }}</li>
+                                        </ul>
                                     </div>
+                                    <div v-else>
+                                        <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">{{
+                                            $t('cardTitle') }}</h2>
+                                        <p class="text-gray-600 text-sm leading-relaxed">{{ $t('noMembersMessage')
+                                        }}</p>
+                                    </div>
+                                </div>
 
-                                    <button @click="emitAddSchedule"
-                                        class="w-full bg-primary hover:bg-primary/80 text-white font-bold py-3 px-4 rounded-lg
+                                <button @click="emitAddSchedule"
+                                    class="w-full bg-primary hover:bg-primary/80 text-white font-bold py-3 px-4 rounded-lg
                transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
-                                        {{ $t('addScheduleButton') }}
-                                    </button>
+                                    {{ $t('addScheduleButton') }}
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div v-if="activeTab === 'planning'" class="bg-white rounded-xl  border-gray-200">
-                        <CustomCalendar :calendar-title="$t('Calendar')" />
+                        <!-- <CustomCalendar :calendar-title="$t('Calendar')" /> -->
+                        <BaseCalendar :title="$t('Calendar')" :currentMonth="currentMonth" :days="calendarDays"
+                            @previous-month="previousMonth" @next-month="nextMonth">
+                            <template #day-content="{ day }">
+                                <div v-if="day.isReserved" class=" bg-red-50 border-red-300">
+                                    <div class="h-1 bg-red-500 rounded-full mb-1"></div>
+                                    <div class="text-blue-600 truncate">
+                                        {{ day.reservation?.reservationNumber }}
+                                    </div>
+                                    <div class="text-red-600 truncate">
+                                        {{ day.reservation?.roomNumber }}
+                                    </div>
+                                </div>
+                            </template>
+
+
+
+                            <template #legend>
+                                <div class="flex items-center justify-center space-x-6">
+                                    <LegendItem color="blue" :label="$t('now')" />
+                                    <LegendItem color="red" label="roomStatus.booked" />
+                                </div>
+                            </template>
+                        </BaseCalendar>
                     </div>
                     <div v-if="activeTab === 'staff'" class="bg-white rounded-xl border-gray-200">
-                        <UsersTable :datas="department.staff" :department-id="parseInt(departmentId)"/>
+                        <UsersTable :datas="department.staff" :department-id="parseInt(departmentId)" />
                     </div>
                     <!-- Calendar Tab -->
                     <div v-if="activeTab === 'tasks'" class="bg-white rounded-xl  border-gray-200">
@@ -215,8 +238,23 @@ import { getServiceDepartmentDetails } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore';
 import UsersTable from '@/components/tables/UsersTable.vue';
 import DepartmentTaskStaff from '../StaffManagement/DepartmentTaskStaff.vue';
-const selectBooking = ref(null);
-const { t } = useI18n()
+import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
+import LegendItem from '@/components/calendars/LegendItem.vue';
+interface CalendarDay {
+  date: Date
+  day: number
+  isCurrentMonth: boolean
+  isToday: boolean
+  isReserved: boolean
+  reservation?: {
+    checkInDate: string
+    checkOutDate: string
+    roomNumber: string
+    reservationNumber: string
+    [key: string]: any
+  }
+}
+const { t ,locale} = useI18n()
 const openPayment = ref(false);
 const emitAssignOwner = () => {
 
@@ -225,11 +263,9 @@ const emitAddSchedule = () => {
 
 }
 const departmentId = router.currentRoute.value.params.id as string;
-
+const currentDate = ref<Date>(new Date())
 const serviceStore = useServiceStore();
 const department = ref<any>({})
-const dateArrived = ref('')
-const dateDepart = ref('')
 const activeTab = ref<string>('details')
 const tabs = computed(() => [
     { id: 'details', label: t('tab.details'), icon: InfoIcon },
@@ -251,8 +287,30 @@ const formatDate = (dateString: string): string => {
 
 
 
+const currentMonth = computed(() => {
+  return currentDate.value.toLocaleDateString(locale.value, {
+    month: 'long',
+    year: 'numeric',
+  })
+})
+const previousMonth = () => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+}
 
+const nextMonth = () => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+}
+const calendarDays = computed<CalendarDay[]>(() => {
+  const year = currentDate.value.getFullYear()
+  const month = currentDate.value.getMonth()
 
+  const firstDay = new Date(year, month, 1)
+
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)) // lundi = début
+
+  return []
+})
 const goBack = (): void => {
     window.history.back()
 }

@@ -107,11 +107,10 @@
         <div class="mt-6 flex justify-end gap-3 lg:col-span-2">
           <button
             @click="applyFilters"
-            :disabled="props.loading"
             class="relative bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center disabled:opacity-50"
           >
-            <svg
-              v-if="props.loading"
+            <!-- <svg
+              v-if="loading"
               class="animate-spin h-4 w-4 mr-2 text-white"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -123,9 +122,9 @@
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
               />
-            </svg>
+            </svg> -->
 
-            <SearchIcon v-else class="mr-2" :size="18" />
+            <SearchIcon class="mr-2" :size="18" />
             {{ $t('reservationsList.applyFilters') }}
           </button>
 
@@ -156,9 +155,9 @@ import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
 const emits = defineEmits(['filter'])
 
 
-const props = defineProps<{
-  loading: boolean
-}>()
+// const props = defineProps<{
+//   loading: boolean
+// }>()
 
 
 // Filter state
@@ -192,7 +191,6 @@ const floorOptions = ref([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
 const applyFilters = async () => {
 emits('filter', filters.value)
-
 }
 
 
@@ -202,7 +200,7 @@ const clearFilters = () => {
   filters.value.roomType = ''
   filters.value.equipment = []
   filters.value.floor = ''
-  applyFilters()
+   applyFilters()
 }
 
 const fetchRoomType = async () => {
