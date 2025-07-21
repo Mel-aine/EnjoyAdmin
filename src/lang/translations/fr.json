@@ -2144,9 +2144,7 @@
   "checked_in": "Enregistré",
   "checked in": "Enregistré",
   "reservationNumber": "Numéro de réservation",
-  "currentlyStayingFull": "Ongoing stay – Reservation {number}, Room No. {room}, from {start} to {end}"
-}
-  "reservationNumber": "Numéro de réservation",
+  "currentlyStayingFull": "Ongoing stay – Reservation {number}, Room No. {room}, from {start} to {end}",
   "processed": "Traitée",
   "roomsSearch": {
     "searchByRoomNumber": "Numéro de chambre",
