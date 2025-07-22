@@ -3,7 +3,7 @@
   <AdminLayout>
     <FullScreenLayout>
       <div class="p-4 sm:p-6 lg:p-8">
-        <div class="w-full md:max-w-6xl mx-auto space-y-8">
+        <div class="w-full max-w-7xl space-y-8">
           <div>
             <h2 class="text-3xl font-bold text-gray-900">{{ $t('refundsList.headerTitle') }}</h2>
             <p class="text-gray-600 mt-1">{{ $t('refundsList.headerSubtitle') }}</p>
@@ -116,7 +116,6 @@
               class="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-md w-10 h-10 flex items-center justify-center transition-all duration-300 hover:scale-105"
             >
               <FilterIcon class="w-6 h-6 text-white" />
-              <!-- <XIcon v-else class="w-6 h-6 text-white" /> -->
             </button>
           </div>
 
@@ -125,17 +124,17 @@
             v-if="showFilter"
             class="bg-white rounded-3xl border border-gray-100 overflow-hidden"
           >
-            <div class="bg-gradient-to-r from-white to-blue-50 px-8 py-3 border-b border-gray-100">
+            <div class="bg-gradient-to-r from-white to-indigo-50 px-8 py-3 border-b border-gray-100">
               <div
                 class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0"
               >
                 <div class="flex justify-between items-center w-full">
                   <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                    <FilterIcon class="mr-2 text-blue-600" :size="20" />
+                    <FilterIcon class="mr-2 text-primary" :size="20" />
                     {{ $t('refundsList.filterSectionTitle') }}
                   </h2>
                   <button @click="showFilter = false">
-                    <XIcon class="w-6 h-6 text-blue-500" />
+                    <XCircleIcon class="mr-2 text-primary" :size="20" />
                   </button>
                 </div>
               </div>
@@ -144,34 +143,35 @@
             <div class="p-8">
               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 <!-- Date Start -->
-                <div>
-                  <label class="block text-gray-700 text-sm font-bold mb-2">{{
-                    $t('refundsList.filterStartDate')
-                  }}</label>
-                  <div class="relative">
-                    <input
-                      type="date"
-                      v-model="filters.startDate"
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
-                    />
-                    <CalendarIcon class="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+                  <div>
+                    <label for="checkInDate" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('refundsList.filterStartDate') }}:</label>
+                    <div class="relative">
+                      <flat-pickr v-model="filters.startDate" :config="flatpickrConfig"
+                        class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        :placeholder="$t('Selectdate')" />
+                      <span
+                        class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                        <CalendarIcon />
+                      </span>
+                    </div>
                   </div>
-                </div>
 
                 <!-- Date End -->
-                <div>
-                  <label class="block text-gray-700 text-sm font-bold mb-2">{{
-                    $t('refundsList.filterEndDate')
-                  }}</label>
-                  <div class="relative">
-                    <input
-                      type="date"
-                      v-model="filters.endDate"
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
-                    />
-                    <CalendarIcon class="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+
+                  <div>
+                    <label for="checkOutDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+                         $t('refundsList.filterEndDate') }}:</label>
+                    <div class="relative">
+                      <flat-pickr  v-model="filters.endDate" :config="flatpickrConfig"
+                        class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        :placeholder="$t('Selectdate')" />
+                      <span
+                        class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                        <CalendarIcon />
+                      </span>
+                    </div>
                   </div>
-                </div>
+
 
                 <!-- Room Type Filter -->
                 <div>
@@ -181,10 +181,10 @@
                   <select
                     id="roomType"
                     v-model="filters.roomType"
-                    class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
                   >
                     <option value="">{{ $t('refundsList.filterAll') }}</option>
-                    <option v-for="type in uniqueRoomTypes" :key="type" :value="type">
+                    <option v-for="type in uniqueRoomTypes" :key="type" :value="type.id">
                       {{ type }}
                     </option>
                   </select>
@@ -198,7 +198,7 @@
                   <select
                     id="specificRoom"
                     v-model="filters.specificRoomId"
-                    class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                   class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
                   >
                     <option value="">{{ $t('refundsList.filterAll') }}</option>
                     <option v-for="room in uniqueRooms" :key="room.id" :value="room.id">
@@ -212,7 +212,7 @@
               <div class="mt-10 flex flex-wrap gap-4 justify-end">
                 <button
                   @click="applyFilters"
-                  class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center"
+                  class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center"
                 >
                   <SearchIcon class="w-5 h-5 mr-2" />
                   {{ $t('refundsList.applyFilters') }}
@@ -221,7 +221,7 @@
                   @click="clearFilters"
                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center"
                 >
-                  <RefreshCwIcon class="w-5 h-5 mr-2" />
+                  <XCircleIcon class="mr-2" :size="18" />
                   {{ $t('refundsList.clearFilters') }}
                 </button>
               </div>
@@ -229,6 +229,7 @@
           </div>
 
           <!-- Refunds Table Section -->
+           <div>
           <TableComponent
             :items="titles"
             :datas="filteredRefunds"
@@ -241,6 +242,7 @@
             :showButtonAllElement="true"
             class="modern-table"
           />
+          </div>
         </div>
       </div>
     </FullScreenLayout>
@@ -254,17 +256,20 @@ import { FilterIcon, XIcon } from 'lucide-vue-next'
 import { SearchIcon } from 'lucide-vue-next'
 import { RefreshCwIcon } from 'lucide-vue-next'
 import { ListIcon } from 'lucide-vue-next'
-import { CalendarIcon } from 'lucide-vue-next'
 import { CreditCardIcon } from 'lucide-vue-next'
 import { CheckCircleIcon } from 'lucide-vue-next'
 import { ClockIcon } from 'lucide-vue-next'
 import { XCircleIcon } from 'lucide-vue-next'
 import { SearchX } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { getRefunds } from '@/services/api'
+import { getRefunds ,filterRefund} from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import flatPickr from 'vue-flatpickr-component'
+
+import 'flatpickr/dist/flatpickr.css'
+import CalendarIcon from '@/icons/CalendarIcon.vue';
 
 const { t } = useI18n()
 const showFilter = ref(false)
@@ -272,14 +277,14 @@ const serviceStore = useServiceStore()
 const allRefunds = ref<any[]>([])
 const filteredRefunds = ref<any[]>([])
 const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const loading = ref(false)
 
 // Filter state
 const filters = ref({
   startDate: '',
   endDate: '',
-  roomType: '',
-  specificRoomId: '',
+  roomType: null,
+  specificRoomId: null,
 })
 
 const titles = computed(() => [
@@ -288,6 +293,7 @@ const titles = computed(() => [
     label: t('refundsList.tableRefundId'),
     type: 'text',
     filterable: false,
+    width: 'min-w-[10px]'
   },
   {
     name: 'reservationId',
@@ -433,11 +439,12 @@ const getStatusClass = (status: string) => {
 
 const fetchRefunds = async () => {
   try {
+    loading.value = true
     const serviceId = serviceStore.serviceId
     const response = await getRefunds(serviceId)
 
     allRefunds.value = response.data.map((r: any) => {
-      const statusClasses = getStatusClass(r.status).split(' ')
+      const statusClasses = getStatusClass(r.refund.status).split(' ')
 
       const product = r.reservation.products[0] || {}
       return {
@@ -462,40 +469,46 @@ const fetchRefunds = async () => {
     applyFilters()
   } catch (error) {
     console.error('error fetchRefund', error)
+  } finally {
+    loading.value = false
   }
 }
 
-const applyFilters = () => {
-  filteredRefunds.value = allRefunds.value.filter((refund) => {
-    // Date filters
-    if (filters.value.startDate) {
-      const refundDate = new Date(refund.refund.date)
-      const startDate = new Date(filters.value.startDate)
-      if (refundDate < startDate) return false
-    }
+const applyFilters = async () => {
+  try {
+    loading.value = true
+    const serviceId = serviceStore.serviceId
+    const response = await filterRefund(serviceId, filters.value)
+    console.log('Filtered Refunds:', response.data)
+     console.log("filters",filters.value)
 
-    if (filters.value.endDate) {
-      const refundDate = new Date(refund.refund.date)
-      const endDate = new Date(filters.value.endDate)
-      if (refundDate > endDate) return false
-    }
+    filteredRefunds.value = response.data.map((r: any) => {
+      const statusClasses = getStatusClass(r.refund.status).split(' ')
 
-    // Room type filter
-    if (filters.value.roomType) {
-      const roomType = refund.reservation.products[0]?.room_type
-      if (roomType !== filters.value.roomType) return false
-    }
-
-    // Specific room filter
-    if (filters.value.specificRoomId) {
-      const roomId = refund.reservation.products[0]?.id
-      if (roomId !== parseInt(filters.value.specificRoomId)) return false
-    }
-
-    return true
-  })
-
-  currentPage.value = 1
+      const product = r.reservation.products[0] || {}
+      return {
+        ...r,
+        refundId: r.refund.id,
+        reservationId: r.reservation.id,
+        client: r.reservation.client?.name || 'N/A',
+        room: product.name || 'N/A',
+        roomType: product.room_type || 'N/A',
+        amount: formatCurrency(parseFloat(r.refund.amount)),
+        method: r.refund.method || 'N/A',
+        date: formatDate(r.refund.date),
+        reason: r.refund.reason || '',
+        statusColor: {
+          label: r.refund.status,
+          bg: statusClasses[0],
+          text: statusClasses[1],
+        },
+      }
+    })
+  } catch (error) {
+    console.error('Error applying filters:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 const clearFilters = () => {
@@ -506,10 +519,15 @@ const clearFilters = () => {
   applyFilters()
 }
 
-
-
 onMounted(() => {
   fetchRefunds()
-  applyFilters()
+
 })
+
+const flatpickrConfig = {
+  dateFormat: 'Y-m-d',
+  altInput: true,
+  altFormat: 'F j, Y',
+  wrap: true,
+}
 </script>

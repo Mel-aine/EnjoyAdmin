@@ -154,25 +154,26 @@
             <!-- <CustomCalendar :calendar-title="$t('Calendar')" /> -->
             <BaseCalendar
               :title="$t('Calendar')"
-              :currentMonth="currentMonth"
-              :days="calendarDays"
-              @previous-month="previousMonth"
-              @next-month="nextMonth"
+              :initial-date="selectedDate"
+              :events="calendarEvents"
+              :day-modifiers="getDayModifiers"
+              @month-changed="onMonthChanged"
+              @day-click="onDayClick"
             >
               <template #day-content="{ day }">
-              <div v-if="day.isReserved" class=" bg-red-50 border-red-300">
+              <div
+                v-if="day.events.length > 0 && day.events[0].type === 'reserved'"
+                class="bg-red-50 border-red-300"
+              >
                 <div class="h-1 bg-red-500 rounded-full mb-1"></div>
                 <div class="text-blue-600 truncate">
-                  {{ day.reservation?.reservationNumber }}
+                  {{ day.events[0].reservation?.reservationNumber }}
                 </div>
                 <div class="text-red-600 truncate">
-                  {{ day.reservation?.roomNumber }}
+                  {{ day.events[0].reservation?.roomNumber }}
                 </div>
               </div>
-            </template>
-
-
-
+              </template>
               <template #legend>
                 <div class="flex items-center justify-center space-x-6">
                   <LegendItem color="blue" :label="$t('now')" />
@@ -194,7 +195,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useBookingStore } from '@/composables/booking';
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed,reactive } from 'vue'
 import { BuildingIcon, ClockIcon, DollarSignIcon, MapPin, UserRound } from 'lucide-vue-next';
 import { Mail } from 'lucide-vue-next';
 import { Phone } from 'lucide-vue-next';
@@ -258,16 +259,6 @@ const formatDate = (dateString: string): string => {
   })
 }
 
-const formatDateTime = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleString('fr-FR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 const formatCurrency = (amount: string): string => {
   return new Intl.NumberFormat('fr-FR', {
@@ -277,12 +268,7 @@ const formatCurrency = (amount: string): string => {
   }).format(parseFloat(amount))
 }
 
-const calculateStayDuration = (): number => {
-  const arrival = new Date(dateArrived.value)
-  const departure = new Date(dateDepart.value)
-  const diff = Math.abs(departure.getTime() - arrival.getTime())
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
+
 
 const goBack = (): void => {
   window.history.back()
@@ -318,94 +304,84 @@ const getCustomerProfileDetails = async () => {
 }
 
 
-interface CalendarDay {
-  date: Date
-  day: number
-  isCurrentMonth: boolean
-  isToday: boolean
-  isReserved: boolean
-  reservation?: {
-    checkInDate: string
-    checkOutDate: string
-    roomNumber: string
-    reservationNumber: string
-    [key: string]: any
-  }
-}
 
-
-const currentMonth = computed(() => {
-  return currentDate.value.toLocaleDateString(locale.value, {
-    month: 'long',
-    year: 'numeric',
-  })
-})
-
-const calendarDays = computed<CalendarDay[]>(() => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
-
-  const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
-
-  const startDate = new Date(firstDay)
-  startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)) // lundi = début
-
-  const today = new Date()
-  const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
+const calendarEvents = computed<any[]>(() => {
   const status = customer.value?.hotelStatus
-  const isPresent = status?.isPresent === true
   const reservation = status?.reservationDetails
 
-  const days: CalendarDay[] = []
+  if (!status?.isPresent || !reservation) return []
 
-  for (let i = 0; i < 42; i++) {
-    const date = new Date(startDate)
-    date.setDate(startDate.getDate() + i)
+  const checkIn = new Date(reservation.checkInDate)
+  const checkOut = new Date(reservation.checkOutDate)
 
-    let isReserved = false
-    let reservationInfo
+  const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
-    if (isPresent && reservation) {
-      const checkIn = new Date(reservation.checkInDate)
-      const checkOut = new Date(reservation.checkOutDate)
+  const events = []
+  let current = new Date(checkIn)
 
-      if (
-        normalizeDate(date) >= normalizeDate(checkIn) &&
-        normalizeDate(date) <= normalizeDate(checkOut)
-      ) {
-        isReserved = true
-        reservationInfo = reservation
-      }
-    }
-
-    days.push({
-      date,
-      day: date.getDate(),
-      isCurrentMonth: date.getMonth() === month,
-      isToday: normalizeDate(date).toDateString() === normalizeDate(today).toDateString(),
-      isReserved,
-      reservation: isReserved ? reservationInfo : undefined,
+  while (normalizeDate(current) <= normalizeDate(checkOut)) {
+    events.push({
+      date: new Date(current),
+      type: 'reserved',
+      reservation: reservation
     })
+    current.setDate(current.getDate() + 1)
   }
 
-  return days
+  return events
 })
 
 
 
 
-const previousMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+
+
+
+
+const selectedDate = ref(new Date())
+
+
+
+const onMonthChanged = (date: Date) => {
+  console.log('Mois changé:', date)
+  // loadEventsForMonth(date)
 }
 
-const nextMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+const onDayClick = (day: any) => {
+  console.log('Jour cliqué:', day)
+  selectedDate.value = day.date
+
+  // Logique métier du parent
+  if (day.events.length > 0) {
+    // Afficher les détails des événements
+    showEventDetails(day.events)
+  } else {
+    // Permettre d'ajouter un nouvel événement
+    openNewEventDialog(day.date)
+  }
 }
-// Generate the full status message
-const formatTime = (date: string) => {
-  return format(new Date(date), 'MMMM d, yyyy')
+
+
+const getDayModifiers = (day: any) => {
+  if (day.events?.some(e => e.type === 'reserved')) {
+    return 'bg-red-100 border-red-300'
+  }
+
+  return ''
+}
+
+
+// Méthodes utilitaires
+const showEventDetails = (events: any[]) => {
+  // Logique pour afficher les détails
+}
+
+const openNewEventDialog = (date: Date) => {
+  // Logique pour ouvrir le dialog de nouvel événement
+}
+
+const loadEventsForMonth = (date: Date) => {
+  // Charger les événements du mois depuis l'API
 }
 </script>
 

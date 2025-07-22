@@ -386,23 +386,27 @@
             </div> -->
             <BaseCalendar
               :title="$t('booking_calendar')"
-              :currentMonth="currentMonth"
-              :days="calendarDays"
-              :dayModifiers="dayModifiers"
-              @previous-month="previousMonth"
-              @next-month="nextMonth"
-              @day-click="onDayClick"
+              :initial-date="selectedDate"
+              :events="calendarEvents"
+              :day-modifiers="dayModifiers"
             >
-              <template #day-content="{ day }">
-                <div v-if="day.isReserved && !day.isMaintenance" class="bg-red-50 border-red-300">
+            <template #day-content="{ day }">
+              <div v-for="event in day.events" :key="event.date">
+                <div v-if="event.type === 'reserved'" class="bg-red-50 border-red-300 p-1 rounded">
                   <div class="h-1 bg-red-500 rounded-full mb-1"></div>
-                  <div class="text-xs text-red-600 truncate">{{ day.reservation?.guest }}</div>
+                  <div class="text-xs text-red-600 truncate">
+                    {{ event.reservation?.guest }}
+                  </div>
                 </div>
-                <div v-if="day.isMaintenance" class="bg-yellow-50 border-yellow-300">
+
+                <div v-else-if="event.type === 'maintenance'" class="bg-yellow-50 border-yellow-300 p-1 rounded mt-1">
                   <div class="h-1 bg-yellow-500 rounded-full mb-1"></div>
-                  <div class="text-xs text-yellow-600 truncate">{{ $t('maintenance') }}</div>
+                  <div class="text-xs text-yellow-600 truncate">
+                    {{ $t('maintenance') }}
+                  </div>
                 </div>
-              </template>
+              </div>
+            </template>
 
               <template #legend>
                 <div class="flex items-center justify-center space-x-6">
@@ -473,25 +477,6 @@ import {
 } from 'lucide-vue-next'
 
 
-interface Reservation {
-  id: number
-  checkIn: string
-  checkOut: string
-  guest: string
-  status: string
-}
-
-interface CalendarDay {
-  date: Date
-  day: number
-  isCurrentMonth: boolean
-  isToday: boolean
-  isReserved: boolean
-  isMaintenance: boolean
-  reservation?: Reservation
-}
-
-
 
 // Reactive data
 const activeTab = ref<string>('details')
@@ -515,74 +500,6 @@ const tabs = computed(() => [
 
 
 
-
-const currentMonth = computed(() => {
-  return currentDate.value.toLocaleDateString(locale.value, {
-    month: 'long',
-    year: 'numeric',
-  })
-})
-
-const calendarDays = computed<CalendarDay[]>(() => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
-  const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
-  const startDate = new Date(firstDay)
-  startDate.setDate(startDate.getDate() - firstDay.getDay())
-  const days: CalendarDay[] = []
-  const today = new Date()
-  const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
-
-  for (let i = 0; i < 42; i++) {
-    const date = new Date(startDate)
-    date.setDate(startDate.getDate() + i)
-
-    // Check if the room is reserved for this date
-    const isReserved = selectedRoom.value.reservations.some((reservation:any) => {
-      const checkIn = new Date(reservation.checkIn)
-      const checkOut = new Date(reservation.checkOut)
-      return normalizeDate(date) >= normalizeDate(checkIn) && normalizeDate(date) <= normalizeDate(checkOut)
-    })
-
-    // Check if the room is in maintenance for this date
-    const maintenance = selectedRoom.value.maintenance
-
-    const isMaintenance =
-      maintenance &&
-      normalizeDate(date) >= normalizeDate(new Date(maintenance.startDate)) &&
-      normalizeDate(date) <= normalizeDate(new Date(maintenance.endDate))
-
-    days.push({
-      date,
-      day: date.getDate(),
-      isCurrentMonth: date.getMonth() === month,
-      isToday: date.toDateString() === today.toDateString(),
-      isReserved,
-      isMaintenance,
-      reservation: isReserved
-        ? selectedRoom.value.reservations.find((r) => {
-            const checkIn = new Date(r.checkIn)
-            const checkOut = new Date(r.checkOut)
-            return normalizeDate(date) >= normalizeDate(checkIn) && normalizeDate(date) <= normalizeDate(checkOut)
-
-          })
-        : undefined,
-    })
-  }
-  return days
-})
-
-
-
-const previousMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
-}
-
-const nextMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
-}
 
 // Méthodes utilitaires
 const getStatusColor = (status:any) => {
@@ -637,10 +554,58 @@ function goBack() {
 }
 
 function dayModifiers(day: any): string {
-  if (day.isReserved && !day.isMaintenance) return 'bg-red-50 border-red-300'
-  if (day.isMaintenance) return 'bg-yellow-50 border-yellow-300'
+  const hasReserved = day.events?.some((e: any) => e.type === 'reserved')
+  const hasMaintenance = day.events?.some((e: any) => e.type === 'maintenance')
+
+  if (hasReserved && !hasMaintenance) return 'bg-red-50 border-red-300'
+  if (hasMaintenance) return 'bg-yellow-50 border-yellow-300'
+  if (day.isToday) return 'bg-blue-100 border-blue-300 font-bold'
   return 'hover:bg-gray-50'
 }
+
+
+const calendarEvents = computed<any[]>(() => {
+  const events = []
+  const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+  const selectedRoomData = selectedRoom.value
+  if (!selectedRoomData) return []
+
+  selectedRoomData.reservations?.forEach((reservation: any) => {
+    if (reservation.status !== 'checked-in') return
+    let current = new Date(reservation.checkIn)
+    const checkOut = new Date(reservation.checkOut)
+
+    while (normalizeDate(current) <= normalizeDate(checkOut)) {
+      events.push({
+        date: new Date(current),
+        type: 'reserved',
+        reservation
+      })
+      current.setDate(current.getDate() + 1)
+    }
+  })
+
+  const maintenance = selectedRoomData.maintenance
+  if (maintenance) {
+    let current = new Date(maintenance.startDate)
+    const end = new Date(maintenance.endDate)
+
+    while (normalizeDate(current) <= normalizeDate(end)) {
+      events.push({
+        date: new Date(current),
+        type: 'maintenance'
+      })
+      current.setDate(current.getDate() + 1)
+    }
+
+  }
+
+  return events
+})
+
+const selectedDate = ref(new Date())
+
 
 function onDayClick(day: any) {
   console.log(day)
