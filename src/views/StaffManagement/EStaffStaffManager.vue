@@ -53,8 +53,8 @@ interface Form {
   email: string
   password: string
   roleId: string | number | undefined
-  hire_date : string,
-  department : number
+  hire_date: string,
+  department: number
 }
 
 const form = ref<Form>({
@@ -64,8 +64,8 @@ const form = ref<Form>({
   phoneNumber: '',
   email: '',
   password: '',
-  department: 0 ,
-  hire_date :''
+  department: 0,
+  hire_date: ''
 })
 
 const togglePasswordVisibility = () => {
@@ -87,8 +87,8 @@ const saveUser = async () => {
       phone_number: form.value.phoneNumber,
       role_id: form.value.roleId,
       password: form.value.password,
-      department_id : form.value.department,
-      hire_date : form.value.hire_date,
+      department_id: form.value.department,
+      hire_date: form.value.hire_date,
       created_by: userStore.UserId,
       last_modified_by: userStore.UserId,
       role: roleLabel,
@@ -106,8 +106,8 @@ const saveUser = async () => {
       phoneNumber: '',
       email: '',
       password: '',
-      department: 0 ,
-      hire_date :''
+      department: 0,
+      hire_date: ''
     }
 
     if (response.status === 201) {
@@ -126,7 +126,7 @@ const fetchUser = async () => {
   try {
     const serviceId = serviceStore.serviceId
     if (!serviceId) throw new Error('Service ID is not defined')
-     const response = await getUserAssignmentById(serviceId)
+    const response = await getUserAssignmentById(serviceId)
 
     const assignmentsWithNames = await Promise.all(
       response.data.map(async (assignment: any) => {
@@ -298,7 +298,7 @@ const handleUserAction = (action: string, user: any) => {
     form.value.email = user.email
     form.value.roleId = user.roleId
     form.value.department = user.departmentId
-      const hireDate = new Date(user.hireDate)
+    const hireDate = new Date(user.hireDate)
     form.value.hire_date = hireDate.toISOString().split('T')[0]
     isEditMode.value = true
     modalOpen.value = true
@@ -367,8 +367,8 @@ const updateFormData = async () => {
       phoneNumber: '',
       email: '',
       password: '',
-      department: 0 ,
-      hire_date :''
+      department: 0,
+      hire_date: ''
     }
     selectedUser.value = null
     isEditMode.value = false
@@ -406,8 +406,8 @@ const closeModal = () => {
     phoneNumber: '',
     email: '',
     password: '',
-    department: 0 ,
-    hire_date :''
+    department: 0,
+    hire_date: ''
   }
 }
 
@@ -453,11 +453,11 @@ const fetchDepartment = async () => {
     console.log('Service ID:', serviceId);
 
     const departmentsResponse = await getDepartment(serviceId);
-    departments.value = departmentsResponse.data.map((d:any)=>{
-      return{
+    departments.value = departmentsResponse.data.map((d: any) => {
+      return {
         ...d,
-        label : d.name,
-        value:d.id
+        label: d.name,
+        value: d.id
       }
     });
     console.log('Departments:', departments.value);
@@ -483,18 +483,10 @@ const getDepartmentName = (id: number) => {
             <h2 class="text-3xl font-bold text-gray-900">{{ $t('staffManager.title') }}</h2>
             <p class="text-gray-600 mt-1">{{ $t('staffManager.subtitle') }}</p>
           </div>
-            <!-- Add User Button -->
-          <button
-            @click="OpenModal"
-            class="flex items-center bg-purple-500 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700 transition"
-          >
-            <svg
-              class="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
+          <!-- Add User Button -->
+          <button @click="OpenModal"
+            class="flex items-center bg-purple-500 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700 transition">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             {{ t('AddUser') }}
@@ -506,38 +498,29 @@ const getDepartmentName = (id: number) => {
           <!-- View Mode Toggle Buttons -->
           <div class="flex items-center space-x-2">
             <!-- Grid View Button -->
-            <button
-              @click="viewMode = 'grid'"
-              :class="[
-                'p-2 rounded-lg transition-colors',
-                viewMode === 'grid'
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300',
-              ]"
-            >
+            <button @click="viewMode = 'grid'" :class="[
+              'p-2 rounded-lg transition-colors',
+              viewMode === 'grid'
+                ? 'bg-orange-500 text-white'
+                : 'bg-gray-200 text-gray-600 hover:bg-gray-300',
+            ]">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
-                  d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                />
+                  d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
               </svg>
             </button>
 
             <!-- List View Button -->
-            <button
-              @click="viewMode = 'list'"
-              :class="[
-                'p-2 rounded-lg transition-colors',
-                viewMode === 'list'
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300',
-              ]"
-            >
+            <button @click="viewMode = 'list'" :class="[
+              'p-2 rounded-lg transition-colors',
+              viewMode === 'list'
+                ? 'bg-orange-500 text-white'
+                : 'bg-gray-200 text-gray-600 hover:bg-gray-300',
+            ]">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
+                <path fill-rule="evenodd"
                   d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                  clip-rule="evenodd"
-                />
+                  clip-rule="evenodd" />
               </svg>
             </button>
           </div>
@@ -545,11 +528,8 @@ const getDepartmentName = (id: number) => {
 
         <div v-if="viewMode === 'grid'">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="staffMember in usersWithRoleLabels"
-              :key="staffMember.id"
-              class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-            >
+            <div v-for="staffMember in usersWithRoleLabels" :key="staffMember.id"
+              class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
               <div class="flex items-center space-x-4 mb-4">
                 <div class="flex-shrink-0 h-12 w-12">
                   <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -558,10 +538,8 @@ const getDepartmentName = (id: number) => {
                 </div>
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-gray-900">{{ staffMember.user_name }}</h3>
-                  <span
-                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                    :class="getRoleColor(staffMember.role)"
-                  >
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                    :class="getRoleColor(staffMember.role)">
                     {{ staffMember.role }}
                   </span>
                 </div>
@@ -587,14 +565,10 @@ const getDepartmentName = (id: number) => {
                 </div>
                 <div class="flex items-center text-sm">
                   <span class="text-gray-500 w-24">{{ $t('staffManager.status') }}</span>
-                  <span
-                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                    :class="
-                      staffMember.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    "
-                  >
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" :class="staffMember.status === 'active'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                    ">
                     {{
                       staffMember.status === 'active'
                         ? $t('staffManager.active')
@@ -607,18 +581,22 @@ const getDepartmentName = (id: number) => {
 
                 <div class="flex justify-end space-x-2">
                   <!-- Bouton Modifier -->
-                  <button @click="onEditUser(staffMember)" title="Modifier" class="p-2 hover:bg-blue-50 rounded transition">
-                    <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z"/>
-                      <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-                      <path d="M9 15h3l8.5-8.5a1.5 1.5 0 0 0 -3-3L9 12v3"/>
+                  <button @click="onEditUser(staffMember)" title="Modifier"
+                    class="p-2 hover:bg-blue-50 rounded transition">
+                    <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                      fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" />
+                      <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                      <path d="M9 15h3l8.5-8.5a1.5 1.5 0 0 0 -3-3L9 12v3" />
                     </svg>
                   </button>
 
                   <!-- Bouton Supprimer -->
-                  <button @click="onDeleteUser(staffMember)" title="Supprimer" class="p-2 hover:bg-red-50 rounded transition">
+                  <button @click="onDeleteUser(staffMember)" title="Supprimer"
+                    class="p-2 hover:bg-red-50 rounded transition">
                     <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
                 </div>
@@ -636,45 +614,22 @@ const getDepartmentName = (id: number) => {
         </div>
 
         <div v-else class="space-y-4">
-          <TableComponent
-            :items="titles"
-            :datas="usersWithRoleLabels"
-            :filterable="true"
-            :pagination="true"
-            :loading="loading"
-            :showHeader="true"
-            :title="$t('user')"
-            :pageSize="15"
-            :showButtonAllElement="true"
-            @edit="onEditUser"
-            @delete="onDeleteUser"
-            class="modern-table"
-          />
+          <TableComponent :items="titles" :datas="usersWithRoleLabels" :filterable="true" :pagination="true"
+            :loading="loading" :showHeader="true" :title="$t('user')" :pageSize="15" :showButtonAllElement="true"
+            @edit="onEditUser" @delete="onDeleteUser" class="modern-table" />
         </div>
 
         <Modal v-if="modalOpen" @close="closeModal()">
           <template #body>
             <div
-              class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-            >
-              <button
-                @click="closeModal()"
-                class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-              >
-                <svg
-                  class="fill-current"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+              class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+              <button @click="closeModal()"
+                class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
+                <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
                     d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-                    fill=""
-                  />
+                    fill="" />
                 </svg>
               </button>
               <div class="px-2 pr-14">
@@ -687,137 +642,72 @@ const getDepartmentName = (id: number) => {
                   <div class="space-y-8">
                     <div>
                       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
-                        <Input
-                          :lb="$t('FirstName')"
-                          :id="'name'"
-                          :forLabel="'name'"
-                          v-model="form.firstName"
-                        />
+                        <Input :lb="$t('FirstName')" :id="'name'" :forLabel="'name'" v-model="form.firstName" />
 
-                        <Input
-                          :lb="$t('LastName')"
-                          :id="'last'"
-                          :forLabel="'last'"
-                          v-model="form.lastName"
-                        />
-                        <Input
-                          :lb="$t('Phone')"
-                          :id="'phone'"
-                          :forLabel="'phone'"
-                          :inputType="'phone'"
-                          v-model="form.phoneNumber"
-                        />
+                        <Input :lb="$t('LastName')" :id="'last'" :forLabel="'last'" v-model="form.lastName" />
+                        <Input :lb="$t('Phone')" :id="'phone'" :forLabel="'phone'" :inputType="'phone'"
+                          v-model="form.phoneNumber" />
 
                         <div>
-                          <label
-                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                          >
+                          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                             {{ $t('Email') }}
                           </label>
                           <div class="relative">
                             <span
-                              class="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400"
-                            >
-                              <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
+                              class="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
                                   d="M3.04175 7.06206V14.375C3.04175 14.6511 3.26561 14.875 3.54175 14.875H16.4584C16.7346 14.875 16.9584 14.6511 16.9584 14.375V7.06245L11.1443 11.1168C10.457 11.5961 9.54373 11.5961 8.85638 11.1168L3.04175 7.06206ZM16.9584 5.19262C16.9584 5.19341 16.9584 5.1942 16.9584 5.19498V5.20026C16.9572 5.22216 16.946 5.24239 16.9279 5.25501L10.2864 9.88638C10.1145 10.0062 9.8862 10.0062 9.71437 9.88638L3.07255 5.25485C3.05342 5.24151 3.04202 5.21967 3.04202 5.19636C3.042 5.15695 3.07394 5.125 3.11335 5.125H16.8871C16.9253 5.125 16.9564 5.15494 16.9584 5.19262ZM18.4584 5.21428V14.375C18.4584 15.4796 17.563 16.375 16.4584 16.375H3.54175C2.43718 16.375 1.54175 15.4796 1.54175 14.375V5.19498C1.54175 5.1852 1.54194 5.17546 1.54231 5.16577C1.55858 4.31209 2.25571 3.625 3.11335 3.625H16.8871C17.7549 3.625 18.4584 4.32843 18.4585 5.19622C18.4585 5.20225 18.4585 5.20826 18.4584 5.21428Z"
-                                  fill="#667085"
-                                />
+                                  fill="#667085" />
                               </svg>
                             </span>
-                            <input
-                              type="email"
-                              v-model="form.email"
-                              placeholder="info@gmail.com"
-                              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                            />
+                            <input type="email" v-model="form.email" placeholder="info@gmail.com"
+                              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                           </div>
                         </div>
                         <div>
-                          <label
-                            for="password"
-                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                          >
+                          <label for="password"
+                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                             {{ $t('Password') }}
                           </label>
                           <div class="relative">
-                            <input
-                              v-model="form.password"
-                              :type="showPassword ? 'text' : 'password'"
-                              id="password"
-                              autocomplete="current-password"
-                              :placeholder="$t('Enteryourpassword')"
-                              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-
-                            />
-                            <span
-                              @click="togglePasswordVisibility"
-                              class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400"
-                            >
-                              <svg
-                                v-if="!showPassword"
-                                class="fill-current"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
+                            <input v-model="form.password" :type="showPassword ? 'text' : 'password'" id="password"
+                              autocomplete="current-password" :placeholder="$t('Enteryourpassword')"
+                              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                            <span @click="togglePasswordVisibility"
+                              class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400">
+                              <svg v-if="!showPassword" class="fill-current" width="20" height="20" viewBox="0 0 20 20"
+                                fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
                                   d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z"
-                                  fill="#98A2B3"
-                                />
+                                  fill="#98A2B3" />
                               </svg>
-                              <svg
-                                v-else
-                                class="fill-current"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
+                              <svg v-else class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
                                   d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z"
-                                  fill="#98A2B3"
-                                />
+                                  fill="#98A2B3" />
                               </svg>
                             </span>
                           </div>
                         </div>
                         <Select :lb="$t('Role')" v-model="form.roleId" :options="roles" />
-                         <Select :lb="$t('staffManager.department')" v-model="form.department" :options="departments" />
-                          <Input :lb="$t('staffManager.hireDate')" :id="'date'" :forLabel="'date'" :inputType="'date'" v-model="form.hire_date"/>
+                        <Select :lb="$t('staffManager.department')" v-model="form.department" :options="departments" />
+                        <Input :lb="$t('staffManager.hireDate')" :id="'date'" :forLabel="'date'" :inputType="'date'"
+                          v-model="form.hire_date" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-                  <button
-                    @click="closeModal()"
-                    type="button"
+                  <button @click="closeModal()" type="button"
                     class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-                    :disabled="isLoading"
-                  >
+                    :disabled="isLoading">
                     {{ $t('Cancel') }}
                   </button>
-                  <button
-                    type="submit"
-                    :disabled="isLoading"
-                    class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto"
-                  >
+                  <button type="submit" :disabled="isLoading"
+                    class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto">
                     <span v-if="!isLoading"> {{ isEditMode ? $t('EditUser') : $t('Save') }}</span>
                     <span v-else class="flex items-center gap-2">
                       <Spinner class="w-4 h-4" />
@@ -829,12 +719,7 @@ const getDepartmentName = (id: number) => {
             </div>
           </template>
         </Modal>
-        <ModalDelete
-          v-if="show"
-          @close="show = false"
-          @delete="confirmDelete"
-          :isLoading="loadingDelete"
-        />
+        <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
       </div>
     </FullScreenLayout>
   </AdminLayout>

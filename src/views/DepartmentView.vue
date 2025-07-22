@@ -93,7 +93,7 @@
 
         <TableComponent :items="titles" :datas="departmentsData" :filterable="true" :pagination="true"
           :searchable="false" :loading="loading" :showHeader="true" :title="$t('Department')" :pageSize="15"
-          :showButtonAllElement="true" @edit="onEditDept" @delete="onDeleteDept" class="modern-table">
+          :showButtonAllElement="true" @edit="onEditDept" @delete="onDeleteDept" class="modern-table" @view="onView">
           <template v-slot:headerActions>
             <div class="flex justify-end  gap-2">
 
@@ -129,6 +129,7 @@ import TableComponent from '@/components/tables/TableComponent.vue'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
 import { departments } from '@/assets/data/department';
+import router from '@/router';
 
 
 
@@ -353,7 +354,7 @@ const fetchDepartment = async () => {
     console.log('Final departments data:', departmentsData.value);
   } catch (error) {
     console.error('Erreur lors de la récupération :', error);
-  }finally{
+  } finally {
     loading.value = false
   }
 };
@@ -415,6 +416,11 @@ const titles = computed(() => [
     type: 'action',
     actions: [
       {
+        name: 'View',
+        event: 'view',
+        icone: ` <svg class="h-6 w-6 text-orange-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
+      },
+      {
         name: 'Edit',
         event: 'edit',
         icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -438,6 +444,9 @@ const titles = computed(() => [
 
 const onEditDept = (dept: any) => handleDeptAction('edit', dept)
 const onDeleteDept = (dept: any) => handleDeptAction('delete', dept)
+const onView = (dept: any) => {
+  router.push({ name: 'departmentDetails', params: { id: dept.id } })
+}
 const deptId = ref(null)
 const handleDeptAction = (action: string, dept: any) => {
   deptId.value = dept.id

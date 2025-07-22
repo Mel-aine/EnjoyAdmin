@@ -2002,7 +2002,10 @@
     "history": "History",
     "calendar": "Calendar",
     "bookings": "Bookings",
-    "payments": "Payments"
+    "payments": "Payments",
+    "planning": "Planning",
+    "staff": "Staff",
+    "tasks": "Tasks"
   },
   "refresh": "Refresh",
   "All_statuses": "All statuses",
@@ -2172,5 +2175,15 @@
   "select_item": "Select items...",
   "remainingBalanceTitle": "Remaining Balance",
   "dueDatePrefix": "Due by",
-  "payNowButton": "Pay Now"
+  "payNowButton": "Pay Now",
+  "numberEmployees": "Number Employees",
+  "assignOwnerTitle": "Action Required: Assign Owner",
+  "departmentLabel": "Department",
+  "issueDescription": "There is currently no responsible person assigned to this department. Please assign an owner to ensure proper oversight.",
+  "assignOwnerButton": "Assign Owner Now",
+  "cardTitle": "Department Staff Overview",
+    "noMembersMessage": "There are currently no staff members scheduled for this department. Please add their work schedule.",
+    "addScheduleButton": "Add Staff Schedule",
+    "currentMembersLabel": "Current Staff Members",
+    "activeMemberTodays":"Working Members Todays"
 }

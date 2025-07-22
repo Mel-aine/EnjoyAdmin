@@ -184,7 +184,7 @@ const savePayment = async (amount: number) => {
   isLoading.value = true
   try {
     const payload = {
-      user_id: authStore.UserId,
+      user_id: props.reservation.userId,
       reservation_id: props.reservation.id,
       payment_type: paymentMethod.value,
       amount_paid: amount,
