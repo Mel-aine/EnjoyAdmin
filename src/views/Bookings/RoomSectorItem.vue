@@ -67,7 +67,7 @@
                         :id="'extraGuest'" :forLabel="'extraGuest'" v-model="localRoomSelection.extra_guest" :min="0" />
                 </div>
                 <div>
-                    <Input :lb="$t('children')" :inputType="'Number'" :placeholder="$t('children')" :id="'children'"
+                    <Input :lb="$t('Children')" :inputType="'Number'" :placeholder="$t('children')" :id="'children'"
                         :forLabel="'children'" v-model="localRoomSelection.children" :min="0" />
                 </div>
                 <div>
@@ -260,7 +260,7 @@ const findRoomService = async () => {
         try {
             const rooms = await finAvailableHome(props.serviceId, localRoomSelection.value.roomTypeSelect, extractDate(props.arrivalDate), extractDate(props.departureDate));
            console.log('error', rooms);
-           
+
             roomsAvailableByTypes.value = rooms.data.map((room: any) => {
                 return {
                     id: room?.id,

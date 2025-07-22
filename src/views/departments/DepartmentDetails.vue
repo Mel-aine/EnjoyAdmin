@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+      <FullScreenLayout>
         <div class="container mx-auto px-4 py-8">
             <!-- Header -->
             <div class="mb-8 slide-in">
@@ -210,6 +211,7 @@
             </div>
             <OverLoading v-if="isLoading" />
         </div>
+        </FullScreenLayout>
     </AdminLayout>
 </template>
 
@@ -233,6 +235,7 @@ import UsersTable from '@/components/tables/UsersTable.vue';
 import DepartmentTaskStaff from '../StaffManagement/DepartmentTaskStaff.vue';
 import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
 import LegendItem from '@/components/calendars/LegendItem.vue';
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 interface CalendarDay {
     date: Date
     day: number
@@ -317,7 +320,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
                 roomNumber: '',
                 reservationNumber: '',
             },
-            
+
         })
     }
     return days

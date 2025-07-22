@@ -116,7 +116,7 @@ export function useBooking() {
     }
   }
 
-  const reservationCustomerTypeOptions = ref([
+  const reservationCustomerTypeOptions = computed(()=> [
     { id: 'Individual', label: t('Individual') },
     { id: 'Group', label: t('Group') },
     { id: 'Corporate', label: t('Corporate') },

@@ -1969,7 +1969,12 @@
   "tab": {
     "details": "Détails",
     "history": "Historique",
-    "calendar": "Calendrier"
+    "calendar": "Calendrier",
+    "bookings": "Réservations",
+    "payments": "Paiements",
+    "planning": "Planification",
+    "staff": "Personnel",
+    "tasks": "Tâches"
   },
   "refresh": "Rafraîchir",
   "All_statuses": "Tous les statuts",
@@ -2027,7 +2032,8 @@
       "notesInfo": "Ces notes seront utilisées pour informer les clients ou le personnel."
     },
     "saveButton": "Enregistrer la Politique d'Annulation",
-    "savedMessage": "Paramètres enregistrés avec succès !"
+    "savedMessage": "Paramètres enregistrés avec succès !",
+    "updateButton": "Mettre à jour la politique d'annulation"
   },
   "cancellationNotSet": "La politique d'annulation n'a pas encore été définie pour cet hôtel. Veuillez la configurer pour que les réservations puissent être traitées correctement.",
   "anErrorOcurr": "Une erreur est survenue",
@@ -2144,7 +2150,6 @@
   "checked_in": "Enregistré",
   "checked in": "Enregistré",
   "reservationNumber": "Numéro de réservation",
-  "currentlyStayingFull": "Ongoing stay – Reservation {number}, Room No. {room}, from {start} to {end}",
   "processed": "Traitée",
   "roomsSearch": {
     "searchByRoomNumber": "Numéro de chambre",
@@ -2157,14 +2162,78 @@
     "filterFloor": "Étage"
   },
   "select_item": "Sélectionner des éléments...",
-  "selected_items" : "éléments sélectionnés",
-  "selected_item" : "élément sélectionné",
-  "all_select" : "Tout sélectionner",
-  "all_dis" : "Tout désélectionner",
-  "no_fund" : "Aucun élément trouvé",
-  "selected" : "sélectionnés"
-
-
-    
-
+  "selected_items": "éléments sélectionnés",
+  "selected_item": "élément sélectionné",
+  "all_select": "Tout sélectionner",
+  "all_dis": "Tout désélectionner",
+  "no_fund": "Aucun élément trouvé",
+  "selected": "sélectionnés",
+  "toggle_language": "Français",
+  "cancel_reservation_button": "Annuler la réservation",
+  "confirm_cancellation_title": "Confirmer l'annulation",
+  "cancellation_confirmation_message": "Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible.",
+  "cancellation_admin_note": "L'annulation sera soumise à l'approbation de l'administrateur et aux politiques de l'hôtel.",
+  "cancel_button": "Annuler",
+  "confirm_button": "Confirmer l'annulation",
+  "cancellation_sent_message": "Demande d'annulation envoyée à l'administrateur. La réservation sera annulée après approbation.",
+  "extend_stay_button": "Prolonger le séjour",
+  "extend_stay_title": "Demande de prolongation du séjour",
+  "extend_stay_message": "Veuillez indiquer votre nouvelle date de départ souhaitée.",
+  "new_departure_date_label": "Nouvelle date de départ :",
+  "extend_stay_admin_note": "Votre demande de prolongation sera soumise à l'approbation de l'administrateur et à la disponibilité des chambres.",
+  "confirm_extension_button": "Confirmer la prolongation",
+  "extension_sent_message": "Demande de prolongation envoyée à l'administrateur. Vous serez informé du résultat.",
+  "room_occupied_no_other_available": "L'hôtel est complet pour les dates demandées. Nous ne pouvons pas satisfaire votre demande.",
+  "room_occupied_other_available": "Votre chambre actuelle est réservée pour les nouvelles dates, mais d'autres types de chambres sont disponibles. Un changement de chambre sera nécessaire.",
+  "extension_successful": "Votre demande de prolongation a été envoyée et est en attente d'approbation. Vous serez informé prochainement.",
+  "checkExtendStayBtn": "Vérifier la prolongation",
+  "remainingBalanceTitle": "Solde restant",
+  "dueDatePrefix": "À régler avant le",
+  "payNowButton": "Payer maintenant",
+  "numberEmployees": "Nombre d'employés",
+  "assignOwnerTitle": "Action requise : Assigner un responsable",
+  "departmentLabel": "Département",
+  "issueDescription": "Aucun responsable n'est actuellement assigné à ce département. Veuillez en assigner un pour garantir une bonne gestion.",
+  "assignOwnerButton": "Assigner un responsable maintenant",
+  "cardTitle": "Aperçu du personnel du département",
+  "noMembersMessage": "Aucun membre du personnel n'est actuellement planifié pour ce département. Veuillez ajouter leur planning.",
+  "addScheduleButton": "Ajouter le planning du personnel",
+  "currentMembersLabel": "Membres actuels du personnel",
+  "activeMemberTodays": "Membres en service aujourd'hui",
+  "select_option": "Choisir une option ",
+  "TransactionRef": "Référence de la transaction",
+  "Optional": "Facultatif",
+  "Owner": "Responsable",
+  "customerDetails": {
+    "headerTitle": "Détails du client",
+    "headerSubtitle": "Vue détaillée des informations client",
+    "basicInfo": {
+      "title": "Informations de base",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "gender": "Genre",
+      "dateOfBirth": "Date de naissance",
+      "nationality": "Nationalité"
+    },
+    "contactInfo": {
+      "title": "Coordonnées",
+      "email": "Email",
+      "phone": "Téléphone",
+      "address": "Adresse"
+    },
+    "paymentInfo": {
+      "title": "Préférences de paiement",
+      "preferredMethod": "Méthode de paiement préférée",
+      "loyaltyProgram": "Membre du programme de fidélité"
+    }
+  },
+  "currentlyStayingFull": "Séjour en cours - Réservation {number}, {room}, du {start} au {end}",
+  "Email": "E-mail",
+  "Action": {
+    "update": "Mettre à jour",
+    "clone": "Cloner",
+    "save": "Enregistrer"
+  },
+  "email": "E-mail",
+  "phone": "Téléphone"
 }

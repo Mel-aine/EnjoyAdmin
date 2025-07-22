@@ -47,7 +47,7 @@ const tabs = computed(() => [
   { label: t('Service'), name: 'hotel', icon: Hotel },
   { label: t('E-mail'), name: 'email', icon: MailIcon },
   { label: t('Security'), name: 'security', icon: ShieldCheck },
-  { label: t('Amenity'), name: 'amenity', icon: CommandIcon },
+  { label: t('amenities'), name: 'amenity', icon: CommandIcon },
   { label: t('cancellationPolicy.settingTab'), name: 'cancellationPolicy', icon: InfoIcon }
 ]);
 

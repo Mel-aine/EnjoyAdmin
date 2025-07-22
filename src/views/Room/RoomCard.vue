@@ -47,12 +47,12 @@
     </div>
 
     <!-- Informations client -->
-    <div v-if="room.guestName && room.status === 'occupied'" class="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+    <div v-if="room.guestName && room.status === 'occupied'" class="mb-3 p-3 bg-red-50 rounded-lg border border-red-200">
       <div class="flex items-center gap-2 mb-1">
-        <User class="w-4 h-4 text-blue-600" />
-        <p class="text-sm font-medium text-blue-900">{{ room.guestName }}</p>
+        <User class="w-4 h-4 text-red-600" />
+        <p class="text-sm font-medium text-red-900">{{ room.guestName }}</p>
       </div>
-      <div class="grid grid-cols-2 gap-2 text-xs text-blue-700">
+      <div class="grid grid-cols-2 gap-2 text-xs text-red-700">
         <div v-if="room.checkInTime" class="flex items-center gap-1">
           <LogIn class="w-3 h-3" />
           <span>{{ $t('arrive') }}: {{ formatDate(room.checkInTime) }}</span>
