@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-8xl px-2">
+  <div class="md:max-w-7xl lg:max-w-full w-full mx-auto  px-2">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
 
       <!-- Header - reste identique -->
