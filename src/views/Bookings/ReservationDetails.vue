@@ -344,7 +344,7 @@ const isArrivalDateInFuture = computed(() => {
   // This checks if the arrival date is *after* the current date.
   // If you want "not yet arrived", it means the arrival date is in the future.
   // So, isBefore(currentDate, arrivalDate)
-  return isBefore(new Date(), parseISO(selectBooking.value.arrivedDate));
+  return isBefore(new Date(), parseISO(selectBooking.value.arrivedDate))  ;
 });
 
 const isArrivalDateTodayOrPast = computed(() => {
@@ -357,7 +357,7 @@ const isArrivalDateTodayOrPast = computed(() => {
 const isReservationConfirmOrPending = computed(() => {
   if (!selectBooking.value?.status) return false;
   const status = selectBooking.value.status.toLowerCase();
-  return status === 'confirmed' || status === 'en attente';
+  return status === 'confirmed' || status === 'pending';
 });
 
 const isReservationCheckedIn = computed(() => {

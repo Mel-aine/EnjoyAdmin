@@ -127,6 +127,7 @@ export function useBooking() {
     altInput: true,
     altFormat: 'F j, Y',
     wrap: true,
+    minDate: "today",
   }
 
   watch(totalPersons, (newVal: number) => {
@@ -343,6 +344,14 @@ export function useBooking() {
     return diffDays > 0 ? diffDays : 0
   })
 
+  const canSave = computed(() => {
+    return (
+      selectedProducts.value.length > 0 &&
+      !!form.value.arrivalDate &&
+      !!form.value.departureDate &&
+      selectedProducts.value.every((product) => product.roomType)
+    )
+  })
   const loadReservationData = async () => {
     const rawId = route.params.id
 
@@ -690,5 +699,6 @@ export function useBooking() {
     finalTotalPrice,
     remainingAmount,
     roomChange,
+    canSave,
   }
 }

@@ -134,7 +134,7 @@
           </div>
         </form>
 
-        <ButtonComponent type="button" :disabled="!!dateError || isLoading" @click="handleSubmit">
+        <ButtonComponent type="button" :disabled="!canSave || !!dateError || isLoading" @click="handleSubmit">
           <span v-if="!isLoading"> {{ isEditMode ? $t('update') : $t('SaveBooking') }}</span>
           <span v-else class="flex items-center gap-2">
             <Spinner class="w-4 h-4" />
@@ -205,6 +205,7 @@ const {
   finalTotalPrice,
   remainingAmount,
   roomChange,
+  canSave,
 } = useBooking()
 
 onMounted(async () => {

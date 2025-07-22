@@ -321,6 +321,9 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta.requiresAuth && !authStore.token) {
       return next('/')
     }
+    if(to.path==='/' && authStore.token && authStore.user && authStore.UserId ){
+      next("/dashboard")
+    }
 
     // if (to.path === '/signin' && authStore.token) {
     //   const category = serviceStore.serviceCategory?.toLowerCase();
