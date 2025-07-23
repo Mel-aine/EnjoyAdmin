@@ -234,6 +234,7 @@ export interface Room {
   roomType: number
   roomTypeSelect: number
   maxOccupancy?: number
+  roomNumber?: string
 }
 
 export interface CancellationPolicy {
