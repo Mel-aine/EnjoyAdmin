@@ -2208,5 +2208,9 @@
   "room_force": "The room is occupied. Do you want to force the status change?",
   "status_change_cancelled": "Status change cancelled",
   "reason": "Reason",
-  "no_recente_activity": "No Recent Activity"
+  "no_recente_activity": "No Recent Activity",
+  "Errors": {
+    "roomNumberExists": "This room number already exists!",
+    "capacityExceeded": "Capacity cannot exceed {max} for this room type"
+  }
 }

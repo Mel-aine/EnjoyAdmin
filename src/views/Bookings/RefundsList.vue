@@ -377,12 +377,12 @@ const pendingRefunds = computed(() => {
 })
 
 const failedRefunds = computed(() => {
-  return allRefunds.value.filter((refund) => refund.refund.status === 'failed').length
+  return allRefunds.value.filter((refund:any) => refund.refund.status === 'failed').length
 })
 
-const uniqueRoomTypes = computed<string[]>(() => {
+const uniqueRoomTypes = computed<any[]>(() => {
   const types = new Set<string>()
-  allRefunds.value.forEach((refund) => {
+  allRefunds.value.forEach((refund:any) => {
     const type = refund.reservation.products[0]?.room_type
     if (type) {
       types.add(type)
@@ -514,8 +514,8 @@ const applyFilters = async () => {
 const clearFilters = () => {
   filters.value.startDate = ''
   filters.value.endDate = ''
-  filters.value.roomType = ''
-  filters.value.specificRoomId = ''
+  filters.value.roomType = null
+  filters.value.specificRoomId = null
   applyFilters()
 }
 

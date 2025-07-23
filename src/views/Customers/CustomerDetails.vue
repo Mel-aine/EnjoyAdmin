@@ -375,7 +375,7 @@ const onDayClick = (day: any) => {
 
 
 const getDayModifiers = (day: any) => {
-  if (day.events?.some(e => e.type === 'reserved')) {
+  if (day.events?.some((e:any) => e.type === 'reserved')) {
     return 'bg-red-100 border-red-300'
   }
 

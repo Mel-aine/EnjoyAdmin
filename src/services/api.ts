@@ -538,7 +538,7 @@ export const filterRoom = (id: number, filter: RoomFilterItem): Promise<AxiosRes
 }
 
 //find Refund
-export const filterRefund = (serviceId: number, filter: any): Promise<AxiosResponse<any>>=>{
+export const filterRefund = (serviceId: number | null , filter: any): Promise<AxiosResponse<any>>=>{
   return axios.post(`${API_URL}/refund/filter/${serviceId}`, filter, headers)
 }
 

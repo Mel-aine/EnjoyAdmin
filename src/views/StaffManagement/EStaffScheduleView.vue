@@ -57,7 +57,7 @@
                       <div class="flex-shrink-0 h-10 w-10">
                         <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                           <span class="text-sm font-medium text-blue-600">
-                            {{staffMember.user_name.split(' ').map(n => n[0]).join('')}}
+                             {{ getInitials(staffMember.user_name) }}
                           </span>
                         </div>
                       </div>
@@ -101,7 +101,7 @@
                   <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <select v-model="selectedType"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-                      <option v-for="option in types" :key="option.id" :value="option.value">
+                      <option v-for="option in types" :key="option.value" :value="option.value">
                         {{ option.label }}
                       </option>
                     </select>
@@ -128,7 +128,7 @@
                         <div class="flex-shrink-0 h-10 w-10">
                           <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                             <span class="text-sm font-medium text-blue-600">
-                              {{staffMember.user_name.split(' ').map(n => n[0]).join('')}}
+                               {{ getInitials(staffMember.user_name) }}
                             </span>
                           </div>
                         </div>
@@ -298,7 +298,7 @@ const headers = {
   withCredentials: true,
 }
 // const staff = ref([])
-function getWeekDates(startDate) {
+function getWeekDates(startDate:any) {
   const week = []
   const start = new Date(startDate)
   start.setDate(start.getDate() - start.getDay())
@@ -311,17 +311,22 @@ function getWeekDates(startDate) {
 }
 const weekDates = computed(() => getWeekDates(currentWeek.value))
 
-function setCurrentWeek(offset) {
+function setCurrentWeek(offset:any) {
   currentWeek.value = new Date(currentWeek.value.getTime() + offset * 7 * 24 * 60 * 60 * 1000)
 }
 
-function getScheduleForStaffAndDate(staffId, date) {
+function getScheduleForStaffAndDate(staffId:any, date:any) {
   const dateStr = date.toISOString().split('T')[0]
-  return schedules.value.find(s => s.userId === Number(staffId) && s.scheduleDate === dateStr)
+  return schedules.value.find((s:any) => s.userId === Number(staffId) && s.scheduleDate === dateStr)
 }
 
-
-function getStatusColor(status) {
+function getInitials(fullName: string): string {
+  return fullName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+}
+function getStatusColor(status:any) {
   switch (status) {
     case 'working': return 'bg-green-100 text-green-800'
     case 'rest': return 'bg-gray-100 text-gray-800'
@@ -351,7 +356,7 @@ function openCreateModal(staffId = '', date = '') {
   showScheduleModal.value = true
 }
 
-function handleEditSchedule(schedule) {
+function handleEditSchedule(schedule:any) {
   editingSchedule.value = schedule
   console.log("editingSchedule.value ", schedule)
   newSchedule.value = {
@@ -364,7 +369,7 @@ function handleEditSchedule(schedule) {
   }
   showScheduleModal.value = true
 }
-function extractTimeOnly(time) {
+function extractTimeOnly(time:any) {
   const [hour, minute] = time.split(':')
   return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}:00`
 }
@@ -446,7 +451,7 @@ const fetchStaff = async () => {
     const response = await getUserAssignmentById(serviceId)
 
     const assignmentsWithNames = await Promise.all(
-      response.data.map(async (assignment) => {
+      response.data.map(async (assignment:any) => {
         const user = await getUserId(assignment.userId)
         return {
           ...assignment,
@@ -463,7 +468,7 @@ const fetchStaff = async () => {
   }
 }
 
-function formatTime(datetimeStr) {
+function formatTime(datetimeStr : any) {
   const date = new Date(datetimeStr)
   return date.toISOString().substring(11, 16)
 }
@@ -478,7 +483,7 @@ const fetchDepartment = async () => {
 
     const departmentsResponse = await getDepartment(serviceId);
     const departments = departmentsResponse.data;
-    departmentsData.value = departments.map((d) => {
+    departmentsData.value = departments.map((d:any) => {
       const statusClasses = getStatusColor(d.status).split(' ')
       return {
         ...d,

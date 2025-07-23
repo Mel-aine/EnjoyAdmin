@@ -2237,5 +2237,9 @@
     "save": "Enregistrer"
   },
   "email": "E-mail",
-  "phone": "Téléphone"
+  "phone": "Téléphone",
+  "Errors": {
+    "roomNumberExists": "Ce numéro de chambre existe déjà !",
+    "capacityExceeded": "La capacité ne peut pas dépasser {max} pour ce type de chambre"
+  }
 }

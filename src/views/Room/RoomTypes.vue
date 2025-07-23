@@ -666,7 +666,7 @@ const fetchRoomType = async () => {
       }
     })
 
-    roomTypeData.value = roomTypesWithCount.sort((a, b) => a.name.localeCompare(b.name))
+    roomTypeData.value = roomTypesWithCount.sort((a:any, b:any) => a.name.localeCompare(b.name))
   } catch (error) {
     console.error('Erreur lors de la récupération des options:', error)
   }

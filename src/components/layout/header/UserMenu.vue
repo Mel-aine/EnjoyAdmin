@@ -132,10 +132,10 @@ const Email = computed(() => {
 
 
 
-const signOut = async () => {
+const signOut =  () => {
 
- try {
-    await logout();
+//  try {
+//     await logout();
 
   authStore.logout()
   serviceStore.clearServiceId()
@@ -147,9 +147,9 @@ const signOut = async () => {
   authStore.clearsetUser()
   closeDropdown()
   router.push('/')
-  } catch (error) {
-    console.error('Erreur lors du logout', error);
-  }
+  // } catch (error) {
+  //   console.error('Erreur lors du logout', error);
+  // }
 
 }
 

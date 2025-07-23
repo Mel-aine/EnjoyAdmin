@@ -1,7 +1,7 @@
 <template>
     <TableComponent :items="titles" :datas="reservations" :filterable="true" :pagination="true" :loading="loading"
         :showHeader="true" :title="$t('Bookings')" :pageSize="15" :showButtonAllElement="true" :searchable="false"
-        @edit="onEditBooking" @delete="onDeleteBooking" @view="onviewBooking" class="modern-table">
+        @edit="onEditBooking" @view="onviewBooking" class="modern-table">
 
     </TableComponent>
 </template>
@@ -146,7 +146,7 @@ const titles = computed(() => [
           <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
         </svg>`,
             },
-           
+
         ],
     },
 ])

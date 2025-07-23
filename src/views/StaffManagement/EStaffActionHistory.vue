@@ -114,14 +114,14 @@
                   :disabled="currentPage === 1"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <ChevronsLeft size="20"/>
+                    <ChevronsLeft :size="20"/>
                 </button>
                 <button
                   @click="goToPage(currentPage - 1)"
                   :disabled="currentPage === 1"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronLeft size="20"/>
+                  <ChevronLeft :size="20"/>
                 </button>
 
                 <div class="flex items-center space-x-1">
@@ -146,14 +146,14 @@
                   :disabled="currentPage === totalPages"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronRight size="20"/>
+                  <ChevronRight :size="20"/>
                 </button>
                 <button
                   @click="goToPage(totalPages)"
                   :disabled="currentPage === totalPages"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronsRight size="20"/>
+                  <ChevronsRight :size="20"/>
                 </button>
               </div>
             </div>

@@ -412,7 +412,7 @@ const isEditMode = ref(false)
 import Papa from 'papaparse'
 const menuItems = computed(() => [
   { label: t('AddRoom'), onClick: () => OpenModal() },
-  { label: t('importdefault'), onClick: () => importDefaultDefaults() },
+  // { label: t('importdefault'), onClick: () => importDefaultDefaults() },
 ])
 const router = useRouter()
 const store = useBookingStore()
@@ -635,15 +635,24 @@ const saveFormData = async () => {
   isLoading.value = true
   try {
     // Validation de l'unicité du numéro
-    if (ServiceProduct.value.some((room: any) => room.roomNumber === formData.value.number)) {
-      showError('Ce numéro de chambre existe déjà !')
+      const existingRoomNumbers = ServiceProduct.value
+      .map((room: any) => String(room.roomNumber))
+      .filter((num:any) => num !== 'null' && num !== 'undefined')
+
+    if (existingRoomNumbers.includes(String(formData.value.number))) {
+      showError(t('errors.roomNumberExists'))
       return
     }
 
+
+
     // Validation de la capacité selon le type
     const roomType = roomTypeData.value.find((t: any) => t.id === formData.value.roomType)
-    if (roomType && formData.value.capacity! > roomType.defaultGuest) {
-      showError(`La capacité ne peut pas dépasser ${roomType.defaultGuest} pour ce type de chambre`)
+    const requestedCapacity = Number(formData.value.capacity)
+    const maxAllowedCapacity = Number(roomType?.defaultGuest)
+
+    if (roomType && requestedCapacity > maxAllowedCapacity) {
+      showError(t('errors.capacityExceeded', { max: maxAllowedCapacity }))
       return
     }
 
@@ -874,18 +883,22 @@ const confirmDelete = async () => {
 const updateFormData = async () => {
   isLoading.value = true
   try {
-    const isNumberUsed = ServiceProduct.value.some(
-      (room) => room.roomNumber === formData.value.number && room.id !== selectedRoom.value?.id,
-    )
+     const existingRoomNumbers = ServiceProduct.value
+      .map((room: any) => String(room.roomNumber))
+      .filter((num:any) => num !== 'null' && num !== 'undefined')
 
-    if (isNumberUsed) {
-      showError('Ce numéro de chambre existe déjà !')
+    if (existingRoomNumbers.includes(String(formData.value.number))) {
+      showError(t('errors.roomNumberExists'))
       return
     }
 
+    // Validation de la capacité selon le type
     const roomType = roomTypeData.value.find((t: any) => t.id === formData.value.roomType)
-    if (roomType && formData.value.capacity! > roomType.defaultGuest) {
-      showError(`La capacité ne peut pas dépasser ${roomType.defaultGuest} pour ce type de chambre`)
+    const requestedCapacity = Number(formData.value.capacity)
+    const maxAllowedCapacity = Number(roomType?.defaultGuest)
+
+    if (roomType && requestedCapacity > maxAllowedCapacity) {
+      showError(t('errors.capacityExceeded', { max: maxAllowedCapacity }))
       return
     }
     const roomPayload = {
