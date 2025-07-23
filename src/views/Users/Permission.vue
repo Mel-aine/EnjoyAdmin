@@ -461,7 +461,7 @@ const fetchRoles = async () => {
   try {
     const serviceId = serviceStore.serviceId
     const response = await getRoles(serviceId)
-    roles.value = response.data.roles.filter(role => role.name.toLowerCase() !== 'admin')
+    roles.value = response.data.roles.filter((role: any) => role.name.toLowerCase() !== 'admin')
 
   } catch (error) {
     console.error('Erreur lors du chargement des rôles', error)
