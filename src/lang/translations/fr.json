@@ -2240,6 +2240,7 @@
   "phone": "Téléphone",
   "Errors": {
     "roomNumberExists": "Ce numéro de chambre existe déjà !",
-    "capacityExceeded": "La capacité ne peut pas dépasser {max} pour ce type de chambre"
+    "capacityExceeded": "La capacité ne peut pas dépasser {max} pour ce type de chambre",
+    "positivePrice": "Le prix doit être un nombre positif"
   }
 }

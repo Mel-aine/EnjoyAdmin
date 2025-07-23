@@ -314,7 +314,7 @@ router.beforeEach(async (to, from, next) => {
   try {
     // Si on a un token mais pas encore de données utilisateur, on les récupère
     if (authStore.token && !authStore.user) {
-      // await authStore.fetchUser(); // Implémente cette méthode dans ton store
+
     }
 
     // Si la route nécessite une auth mais qu’on n’est pas connecté
@@ -325,18 +325,6 @@ router.beforeEach(async (to, from, next) => {
       next("/dashboard")
     }
 
-    // if (to.path === '/signin' && authStore.token) {
-    //   const category = serviceStore.serviceCategory?.toLowerCase();
-
-    //   switch (category) {
-    //     case 'hotel':
-    //       return next('/');
-    //     case 'restaurant':
-    //       return next('/dashboard');
-    //     default:
-    //       return next('/');
-    //   }
-    // }
     return next()
   } catch (error) {
     console.error('Error in navigation guard:', error)

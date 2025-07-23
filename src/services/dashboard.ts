@@ -31,6 +31,7 @@ const headers = {
 
 export const getGeneralStats = async (serviceId: number | null): Promise<any> => {
   try {
+    console.log('-->Header:', headers)
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
       `/availability/${serviceId}`,headers
     )

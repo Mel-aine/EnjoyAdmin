@@ -2211,6 +2211,7 @@
   "no_recente_activity": "No Recent Activity",
   "Errors": {
     "roomNumberExists": "This room number already exists!",
-    "capacityExceeded": "Capacity cannot exceed {max} for this room type"
+    "capacityExceeded": "Capacity cannot exceed {max} for this room type",
+     "positivePrice": "The price must be a positive number"
   }
 }

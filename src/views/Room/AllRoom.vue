@@ -640,7 +640,7 @@ const saveFormData = async () => {
       .filter((num:any) => num !== 'null' && num !== 'undefined')
 
     if (existingRoomNumbers.includes(String(formData.value.number))) {
-      showError(t('errors.roomNumberExists'))
+      showError(t('Errors.roomNumberExists'))
       return
     }
 
@@ -652,7 +652,7 @@ const saveFormData = async () => {
     const maxAllowedCapacity = Number(roomType?.defaultGuest)
 
     if (roomType && requestedCapacity > maxAllowedCapacity) {
-      showError(t('errors.capacityExceeded', { max: maxAllowedCapacity }))
+      showError(t('Errors.capacityExceeded', { max: maxAllowedCapacity }))
       return
     }
 
@@ -883,12 +883,20 @@ const confirmDelete = async () => {
 const updateFormData = async () => {
   isLoading.value = true
   try {
-     const existingRoomNumbers = ServiceProduct.value
-      .map((room: any) => String(room.roomNumber))
-      .filter((num:any) => num !== 'null' && num !== 'undefined')
+    const roomId = selectedRoom.value?.id
+    if (!roomId) {
+      throw new Error('Aucune chambre sélectionnée pour la mise à jour.')
+    }
 
+    // Obtenir tous les numéros de chambres, sauf celle en cours de mise à jour
+    const existingRoomNumbers = ServiceProduct.value
+      .filter((room: any) => room.id !== roomId)
+      .map((room: any) => String(room.roomNumber))
+      .filter((num: any) => num !== 'null' && num !== 'undefined')
+
+    // Vérifier si un autre a déjà ce numéro
     if (existingRoomNumbers.includes(String(formData.value.number))) {
-      showError(t('errors.roomNumberExists'))
+      showError(t('Errors.roomNumberExists'))
       return
     }
 
@@ -898,9 +906,10 @@ const updateFormData = async () => {
     const maxAllowedCapacity = Number(roomType?.defaultGuest)
 
     if (roomType && requestedCapacity > maxAllowedCapacity) {
-      showError(t('errors.capacityExceeded', { max: maxAllowedCapacity }))
+      showError(t('Errors.capacityExceeded', { max: maxAllowedCapacity }))
       return
     }
+
     const roomPayload = {
       service_id: serviceStore.serviceId,
       product_name: formData.value.name,
@@ -911,11 +920,6 @@ const updateFormData = async () => {
       capacity: formData.value.capacity,
       room_number: formData.value.number,
       floor: formData.value.floor,
-    }
-
-    const roomId = selectedRoom.value?.id
-    if (!roomId) {
-      throw new Error('Aucune chambre sélectionnée pour la mise à jour.')
     }
 
     console.log('Mise à jour de la chambre ID:', roomId)
@@ -930,7 +934,7 @@ const updateFormData = async () => {
           option_type: optionMeta?.type || null,
           value: value,
         }
-      },
+      }
     )
 
     console.log('Payload des options à mettre à jour:', optionsPayload)

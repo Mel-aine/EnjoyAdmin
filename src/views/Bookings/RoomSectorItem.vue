@@ -35,7 +35,7 @@
                                 }}
                             </option>
                             <option v-for="room in availableRoomsByType" :key="room.id" :value="room.id">
-                                {{ room.label }}
+                                {{ room.label }} {{ room.roomNumber }}
                             </option>
                         </select>
                     </div>
@@ -265,6 +265,7 @@ const findRoomService = async () => {
                 return {
                     id: room?.id,
                     productName: room.productName,
+                    roomNumber : room.roomNumber,
                     price: room.roomPrice,
                     label: room.productName,
                     roomType: room?.id,

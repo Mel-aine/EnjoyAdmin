@@ -354,7 +354,6 @@ const handleSubmit = async () => {
     }
 
     // Stocker les permissions
-    // const allPermissions = res.data.data.permissions.flatMap((p:any) => p.permissions)
     serviceStore.setPermissions(res.data.data.permissions)
 
 
@@ -364,8 +363,7 @@ const handleSubmit = async () => {
 
     console.log("res.data.data",res.data.data)
     if (user) {
-      // authStore.setUser(user)
-      await nextTick()
+
       router.push('/service');
     } else {
       error.value = "Aucun service disponible pour cet utilisateur.";

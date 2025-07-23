@@ -55,6 +55,7 @@ export const getOptions = (): Promise<AxiosResponse<{ data: OptionType[] }>> => 
 
 //get les services product by serviceId
 export const getServiceProduct = (serviceId: number | null): Promise<AxiosResponse<any[]>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/service_product_by_serviceId/${serviceId}`, headers)
 }
 
@@ -74,6 +75,7 @@ export const getService = (serviceId?: number | null): Promise<AxiosResponse<any
 
 //get lees actions
 export const getStocksHistories = (id?: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/activity-logs/user/${id}`, headers)
 }
 
@@ -129,6 +131,7 @@ export const getServiceDepartmentDetails = (id: number, departmentId:number): Pr
 }
 
 export const getServiceProductAndReservationById = (id: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/service_products/${id}`, headers)
 }
 
@@ -139,10 +142,12 @@ export const getUserId = (id: number | null): Promise<AxiosResponse<any>> => {
 
 //get payment
 export const getPayment = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/payments/${serviceId}`, headers)
 }
 
 export const getPaymentById = (id: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/payment/${id}`, headers)
 }
 
@@ -155,18 +160,22 @@ export const getSupplier = (serviceId: number | null): Promise<AxiosResponse<any
 }
 
 export const getProduct = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/prooductService/${serviceId}`, headers)
 }
 
 export const getDepartment = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/department/${serviceId}`, headers)
 }
 
 export const getMovementService = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/movement/${serviceId}`, headers)
 }
 
 export const getExpense = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/expenses/${serviceId}`, headers)
 }
 
@@ -179,6 +188,7 @@ export const getRoute = (serviceId: number | null): Promise<AxiosResponse<any>> 
 }
 
 export const getRole = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/services/${serviceId}/roles`, headers)
 }
 
@@ -189,9 +199,11 @@ export const getRoles = (serviceId: number | null): Promise<AxiosResponse<any>> 
 export const getReservationServiceProduct = (
   reservationId: number | null,
 ): Promise<AxiosResponse<any>> => {
+    console.log('-->Header:', headers)
   return axios.get(`${API_URL}/reservation_service/${reservationId}`, headers)
 }
 export const getReservationDetailsById = (reservationId: number): Promise<AxiosResponse<any>> => {
+    console.log('-->Header:', headers)
   return axios.get(`${API_URL}/reservations/${reservationId}/details`, headers)
 }
 export const getReservationHistoryById = (reservationId: number): Promise<AxiosResponse<any>> => {
@@ -208,6 +220,7 @@ export const getRoomHistoryById = (roomId: number): Promise<AxiosResponse<any>> 
   )
 }
 export const getUserAssignment = (): Promise<AxiosResponse<any>> => {
+    console.log('-->Header:', headers)
   return axios.get(`${API_URL}/assigmentUser`, headers)
 }
 
@@ -227,6 +240,7 @@ export const getPermission = (): Promise<AxiosResponse<any>> => {
 }
 
 export const getTasks = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/tasks/${serviceId}`, headers)
 }
 
@@ -240,6 +254,7 @@ export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any
 }
 
 export const getSchedules = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/schedules`, {
     params: {
       service_id: serviceId,
@@ -260,6 +275,7 @@ export const getRoomCountByRoomType =(serviceId: number,productTypeId:number):Pr
 }
 
 export const getRefunds = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/refund/${serviceId}`, headers)
 }
 

@@ -313,7 +313,7 @@
                   <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('final_price') }}</label>
                     <div class="h-11 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
-                      {{ formatted }}
+                      {{ totalWithVat }}
                     </div>
                   </div>
                   <div>
@@ -350,6 +350,13 @@
 
   <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
   <Spinner v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75" />
+   <PopupModal
+    v-if="showMessage"
+    :title="$t('warning')"
+    :message="popupMessage"
+    :isOpen="showMessage"
+    @close="showMessage = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -372,6 +379,7 @@ import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { defaultRoomTypes } from '@/assets/data/roomtype'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import PopupModal from '@/components/modal/PopupModal.vue'
 
 // États principaux
 const isLoading = ref(false)
@@ -392,10 +400,16 @@ const searchQuery = ref('')
 const statusFilter = ref('')
 const gridCurrentPage = ref<any>(1)
 const gridPageSize = ref(12)
-
+const showMessage = ref(false)
+const popupMessage = ref('')
 // Données
 const roomTypeData = ref<RoomTypeData[]>([])
 const currentPageTitle = computed(() => t('RoomTypes'))
+
+function showError(message: string) {
+  popupMessage.value = message
+  showMessage.value = true
+}
 
 const status = computed(() => [
   { value: 'active', label: t('Active') },
@@ -589,7 +603,8 @@ const getStatusColor = (status: string) => {
   }
 }
 
-// Fonctions API
+
+
 const SaveRoomType = async () => {
   isLoading.value = true
   try {
@@ -598,6 +613,14 @@ const SaveRoomType = async () => {
     if (!serviceId) {
       throw new Error('Service ID is not defined')
     }
+
+    //  Validation du prix
+    if (Number(totalWithVat.value) <= 0) {
+      showError(t('Errors.positivePrice'))
+      isLoading.value = false
+      return
+    }
+
     const Payload = {
       name: form.value.name,
       description: form.value.description,
@@ -608,7 +631,7 @@ const SaveRoomType = async () => {
       extra_guest_price: form.value.extra_guest,
       default_deposit: form.value.default_deposit,
     }
-
+    console.log("Payload",Payload)
     const roomResponse = await createRoomType(Payload)
     modalOpen.value = false
     form.value = {
@@ -621,7 +644,7 @@ const SaveRoomType = async () => {
       default_deposit: 0,
       vat: 19.25,
     }
-    console.log("roomResponse",roomResponse)
+    console.log("roomResponse", roomResponse)
     fetchRoomType()
     toast.success(t('toast.roomtypesuccess'))
   } catch (error) {
