@@ -13,9 +13,9 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
-      // meta: { requiresAuth: true },
+      meta: { requiresAuth: true },
     },
-     {
+    {
       path: '/welcome',
       name: 'welcome',
       component: () => import('../views/Pages/Welcome.vue'),
@@ -35,12 +35,17 @@ const router = createRouter({
       component: () => import('../views/Bookings/AddBooking.vue'),
       meta: {
         title: 'Add Booking',
+        requiresAuth: true,
       },
     },
     {
       path: '/addbooking/:id',
       name: 'AddBooking',
       component: () => import('../views/Bookings/AddBooking.vue'),
+      meta: {
+        title: 'Edit Booking',
+        requiresAuth: true,
+      },
     },
 
     {
@@ -48,36 +53,60 @@ const router = createRouter({
       name: 'EditBooking',
       component: () => import('../views/Bookings/AddBooking.vue'),
       props: true,
+      meta: {
+        title: 'Edit Booking',
+        requiresAuth: true,
+      },
     },
     {
       path: '/booking_detail/:id',
       name: 'BookingDetails',
       component: () => import('../views/Bookings/BookingDetails.vue'),
-      props: true
+      props: true,
+      meta: {
+        title: 'Booking Details',
+        requiresAuth: true,
+      },
     },
     {
       path: '/reservation_details/:id',
       name: 'reservationDetails',
       component: () => import('../views/Bookings/ReservationDetails.vue'),
-      props: true
+      props: true,
+      meta: {
+        title: 'Booking Details',
+        requiresAuth: true,
+      },
     },
     {
       path: '/customer_detail/:id',
       name: 'CustomerDetails',
       component: () => import('../views/Customers/CustomerDetails.vue'),
-      props: true
+      props: true,
+      meta: {
+        title: 'Customers Details',
+        requiresAuth: true,
+      },
     },
     {
       path: '/room_detail/:id',
       name: 'RoomDetailsModal',
       component: () => import('../views/Room/RoomDetailsModal.vue'),
-      props: true
+      props: true,
+      meta: {
+        title: 'Room Details',
+        requiresAuth: true,
+      },
     },
-      {
+    {
       path: '/refunds',
       name: 'refunds',
       component: () => import('../views/Bookings/RefundsList.vue'),
-      props: true
+      props: true,
+      meta: {
+        title: 'Refund',
+        requiresAuth: true,
+      },
     },
     {
       path: '/all_room',
@@ -85,6 +114,7 @@ const router = createRouter({
       component: () => import('../views/Room/AllRoom.vue'),
       meta: {
         title: 'All Room',
+        requiresAuth: true,
       },
     },
     {
@@ -93,89 +123,154 @@ const router = createRouter({
       component: () => import('../views/Room/RoomTypes.vue'),
       meta: {
         title: 'Room Type',
+        requiresAuth: true,
       },
     },
     {
       path: '/occupancy',
       name: 'Occupancy',
       component: () => import('../views/Room/OccupancyView.vue'),
+      meta: {
+        title: 'Occupancy',
+        requiresAuth: true,
+      },
     },
 
     {
       path: '/stock/product',
       name: 'stock product',
       component: () => import('../views/Reports/Stocks/ProductList.vue'),
+       meta: {
+        title: 'Stock product',
+        requiresAuth: true,
+      },
     },
     {
       path: '/stock/movements',
       name: 'stock movement',
       component: () => import('../views/Reports/Stocks/StockMovement.vue'),
+       meta: {
+        title: 'Stock movement',
+        requiresAuth: true,
+      },
     },
     {
       path: '/stock/categorie',
       name: 'stock categorie',
       component: () => import('../views/Reports/Stocks/StockCategorie.vue'),
+       meta: {
+        title: 'Stock categorie',
+        requiresAuth: true,
+      },
     },
     {
       path: '/stock/suppliers',
       name: 'supplier',
       component: () => import('../views/Reports/Stocks/SupplierList.vue'),
+       meta: {
+        title: 'Supplier',
+        requiresAuth: true,
+      },
     },
     {
       path: '/user',
       name: 'user',
       component: () => import('../views/Users/UsersTable.vue'),
+      meta: {
+        title: 'User',
+        requiresAuth: true,
+      },
     },
     {
       path: '/expense',
       name: 'expense',
       component: () => import('../views/Reports/ExpensesTable.vue'),
+      meta: {
+        title: 'Expense',
+        requiresAuth: true,
+      },
     },
     {
       path: '/department',
       name: 'department',
       component: () => import('../views/DepartmentView.vue'),
+      meta: {
+        title: 'Department',
+        requiresAuth: true,
+      },
     },
-     {
+    {
       path: '/departments/:id',
       name: 'departmentDetails',
       component: () => import('../views/departments/DepartmentDetails.vue'),
+      meta: {
+        title: 'Department Details',
+        requiresAuth: true,
+      },
     },
     {
       path: '/allInvoice',
       name: 'allInvoice',
       component: () => import('../views/Payment/InvoiceList.vue'),
+      meta: {
+        title: 'All Invoice',
+        requiresAuth: true,
+      },
     },
     {
       path: '/invoice',
       name: 'invoice',
       component: () => import('../views/Payment/InvoiceDetail.vue'),
+      meta: {
+        title: 'Invoice',
+        requiresAuth: true,
+      },
     },
     {
       path: '/invoice/:id',
       name: 'ViewInvoice',
       component: () => import('../views/Payment/InvoiceDetail.vue'),
+      meta: {
+        title: 'View Invoice',
+        requiresAuth: true,
+      },
       props: true,
     },
     {
       path: '/customers',
       name: 'Customers',
       component: () => import('../views/Customers/CustomersTable.vue'),
+      meta: {
+        title: 'Customers',
+        requiresAuth: true,
+      },
     },
     {
       path: '/setting',
       name: 'Setting',
       component: () => import('../views/Setting/Setting.vue'),
+      meta: {
+        title: 'Setting',
+        requiresAuth: true,
+      },
     },
     {
       path: '/permission',
       name: 'Permission',
       component: () => import('../views/Users/Permission.vue'),
+      meta: {
+        title: 'Permission',
+        requiresAuth: true,
+      },
     },
     {
       path: '/service',
       name: 'Service',
       component: () => import('../views/Services/ServiceView.vue'),
+      meta: {
+        title: 'Service',
+        requiresAuth: true,
+      },
     },
     {
       path: '/calendar',
@@ -183,6 +278,7 @@ const router = createRouter({
       component: () => import('../views/Others/Calendar.vue'),
       meta: {
         title: 'Calendar',
+        requiresAuth: true,
       },
     },
     {
@@ -191,6 +287,7 @@ const router = createRouter({
       component: () => import('../views/Others/UserProfile.vue'),
       meta: {
         title: 'Profile',
+        requiresAuth: true,
       },
     },
 
@@ -200,6 +297,7 @@ const router = createRouter({
       component: () => import('../views/Forms/FormElements.vue'),
       meta: {
         title: 'Form Elements',
+        requiresAuth: true,
       },
     },
     {
@@ -208,6 +306,7 @@ const router = createRouter({
       component: () => import('../views/Tables/BasicTables.vue'),
       meta: {
         title: 'Basic Tables',
+        requiresAuth: true,
       },
     },
 
@@ -233,9 +332,11 @@ const router = createRouter({
       path: '/customer',
       name: 'Customer',
       component: () => import('../views/Customers/CustomerTable.vue'),
+       meta: {
+        title: 'Customer',
+        requiresAuth: true,
+      },
     },
-
-
 
     //travel
     {
@@ -263,6 +364,10 @@ const router = createRouter({
       path: '/schedules',
       name: 'schedules',
       component: () => import('../views/Travel/Planning/ScheduleView.vue'),
+       meta: {
+        title: 'Schedules',
+        requiresAuth: true,
+      },
     },
     {
       path: '/driver',
@@ -276,32 +381,56 @@ const router = createRouter({
       path: '/staff_management/dashboard',
       name: 'Dashboard Overview',
       component: () => import('../views/StaffManagement/EStaffDashboardView.vue'),
+      meta: {
+        title: 'Dashboard Overview',
+        requiresAuth: true,
+      },
     },
     {
       path: '/staff_management/task_management',
       name: 'Task Management',
       component: () => import('../views/StaffManagement/EStaffTaskManager.vue'),
+      meta: {
+        title: 'Task Management',
+        requiresAuth: true,
+      },
     },
     {
       path: '/staff_management/staff_schedule',
       name: 'Staff Schedule',
       component: () => import('../views/StaffManagement/EStaffScheduleView.vue'),
+      meta: {
+        title: 'Staff Schedule',
+        requiresAuth: true,
+      },
     },
     {
       path: '/staff_management/staff_management',
       name: 'Staff Management',
       component: () => import('../views/StaffManagement/EStaffStaffManager.vue'),
+      meta: {
+        title: 'Staff Management',
+        requiresAuth: true,
+      },
     },
     {
       path: '/staff_management/action_history',
       name: 'Action History',
       component: () => import('../views/StaffManagement/EStaffActionHistory.vue'),
+      meta: {
+        title: 'Action History',
+        requiresAuth: true,
+      },
     },
 
     {
       path: '/vehicle_assignment',
       name: 'vehicle assigment',
       component: () => import('../views/Travel/Planning/VehicleAssignement.vue'),
+      meta: {
+        title: 'Vehicle assigment',
+        requiresAuth: true,
+      },
     },
   ],
 })
@@ -312,17 +441,15 @@ router.beforeEach(async (to, from, next) => {
   // const serviceStore = useServiceStore();
 
   try {
-    // Si on a un token mais pas encore de données utilisateur, on les récupère
-    if (authStore.token && !authStore.user) {
-
-    }
-
+    console.log('user', authStore.user)
+    console.log('token', authStore.token)
+    console.log('UserId', authStore.UserId)
     // Si la route nécessite une auth mais qu’on n’est pas connecté
-    if (to.meta.requiresAuth && !authStore.token) {
+    if (to.meta.requiresAuth && (!authStore.token || !authStore.user)) {
       return next('/')
     }
-    if(to.path==='/' && authStore.token && authStore.user && authStore.UserId ){
-      next("/dashboard")
+    if (to.path === '/' && authStore.token && authStore.user && authStore.UserId) {
+      next('/dashboard')
     }
 
     return next()
@@ -340,8 +467,3 @@ router.afterEach(() => {
 
 export default router
 
-// router.beforeEach((to, from, next) => {
-//   // document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
-//   document.title = "Enjoy"
-//   next()
-// })
