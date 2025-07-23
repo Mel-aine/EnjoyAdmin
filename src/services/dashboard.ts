@@ -1,6 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
+import { error } from 'console'
 
 export interface ApiResponse<T = any> {
   message: string
@@ -31,9 +32,18 @@ const headers = {
 
 export const getGeneralStats = async (serviceId: number | null): Promise<any> => {
   try {
-    console.log('-->Header:', headers)
+    const _headers = {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+      withCredentials: true,
+    }
+    console.log('-->Header:', _headers)
+    if(!authStore.token)
+      throw new Error("Token not founded");
+
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/availability/${serviceId}`,headers
+      `/availability/${serviceId}`,_headers
     )
     return response.data || []
   } catch (error) {
