@@ -183,9 +183,9 @@
                           row[item.name].text || 'text-gray-800 dark:text-white',
                           'inline-flex items-center px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold capitalize shadow-sm truncate max-w-full'
                         ]"
-                        :title="$t(row[item.name].label.toLowerCase())"
+                        :title="row[item.name].label"
                       >
-                        {{ $t(row[item.name].label.toLowerCase()) }}
+                        {{ row[item.name].label }}
                       </span>
                     </template>
 

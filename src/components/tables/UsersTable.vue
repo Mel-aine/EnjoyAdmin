@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
-import { Building2, Wrench, UserCog, User } from 'lucide-vue-next'
+import { Building2, Wrench, UserCog, User,CalendarIcon } from 'lucide-vue-next'
 import { ref, watch, computed, defineAsyncComponent, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
@@ -19,6 +19,8 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/composables/user'
 import type { userDataType } from '@/types/option'
 import TableComponent from '@/components/tables/TableComponent.vue'
+import flatPickr from 'vue-flatpickr-component'
+import 'flatpickr/dist/flatpickr.css'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -75,6 +77,12 @@ const form = ref<Form>({
     hire_date: ''
 })
 
+const flatpickrConfig = {
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'F j, Y',
+    wrap: true,
+}
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value
 }
@@ -102,9 +110,9 @@ const saveUser = async () => {
         }
 
         const response = await createUser(userPayload)
-
-        modalOpen.value = false
         fetchUser()
+        modalOpen.value = false
+
 
         form.value = {
             firstName: '',
@@ -146,13 +154,13 @@ const fetchUser = async () => {
     }
 }
 
-onMounted(async () => {
-    await fetchDepartment();
-    await fetchRole()
+onMounted( () => {
+     fetchDepartment();
+     fetchRole()
     form.value.department = props.departmentId
 })
 
-onMounted(async () => {
+onMounted( () => {
     fetchUser()
 })
 const titles = computed(() => [
@@ -534,7 +542,7 @@ const fetchDepartment = async () => {
                                                 </svg>
                                             </span>
                                             <input type="email" v-model="form.email" placeholder="info@gmail.com"
-                                                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                                         </div>
                                     </div>
                                     <div>
@@ -567,9 +575,19 @@ const fetchDepartment = async () => {
                                     <Select :lb="$t('staffManager.department')" v-model="form.department" :disabled="true"
                                         :options="departments" />
                                     <Select :lb="$t('Role')" v-model="form.roleId" :options="roles" />
-                                    
-                                    <Input :lb="$t('staffManager.hireDate')" :id="'date'" :forLabel="'date'"
-                                        :inputType="'date'" v-model="form.hire_date" />
+                                    <div>
+                                    <label for="hireDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+                                        $t('staffManager.hireDate') }}:</label>
+                                    <div class="relative">
+                                        <flat-pickr v-model="form.hire_date" :config="flatpickrConfig"
+                                            class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                                            :placeholder="$t('Selectdate')" />
+                                        <span
+                                            class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                            <CalendarIcon />
+                                        </span>
+                                    </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

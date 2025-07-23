@@ -318,6 +318,7 @@ const handleServiceSelect = async (service: Service) => {
   await router.push('/welcome')
 
 
+
   // if (categoryName) {
   //   const category = categoryName.toLowerCase()
   //   if (category === 'hotels & stays' || category === 'restaurants') {

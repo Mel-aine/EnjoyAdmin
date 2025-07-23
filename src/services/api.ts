@@ -73,8 +73,8 @@ export const getService = (serviceId?: number | null): Promise<AxiosResponse<any
 }
 
 //get lees actions
-export const getStocksHistories = (serviceId?: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/action/${serviceId}`, headers)
+export const getStocksHistories = (id?: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/activity-logs/user/${id}`, headers)
 }
 
 export const getServices = (): Promise<AxiosResponse<any>> => {

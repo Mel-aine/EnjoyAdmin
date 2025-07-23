@@ -21,7 +21,7 @@
                 <input
                   v-model="searchTerm"
                   type="text"
-                  class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   :placeholder="$t('actionHistory.searchPlaceholder')"
                 />
               </div>
@@ -29,20 +29,21 @@
             <div class="flex items-center space-x-4">
               <select
                 v-model="selectedActionType"
-                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
               >
                 <option value="">{{ $t('actionHistory.allActions') }}</option>
-                <option value="created">{{ $t('actionHistory.created') }}</option>
-                <option value="updated">{{ $t('actionHistory.updated') }}</option>
-                <option value="deleted">{{ $t('actionHistory.deleted') }}</option>
-                <option value="completed">{{ $t('actionHistory.completed') }}</option>
-                <option value="login">{{ $t('actionHistory.login') }}</option>
-                <option value="logout">{{ $t('actionHistory.logout') }}</option>
+                <option value="CREATE">{{ $t('actionHistory.CREATE') }}</option>
+                <option value="UPDATE">{{ $t('actionHistory.UPDATE') }}</option>
+                <option value="CANCEL">{{ $t('actionHistory.CANCEL') }}</option>
+                <option value="CHECK_IN">{{ $t('actionHistory.CHECK_IN') }}</option>
+                <option value="CHECK_OUT">{{ $t('actionHistory.CHECK_OUT') }}</option>
+                <option value="LOGIN">{{ $t('actionHistory.LOGIN') }}</option>
+                <option value="LOGOUT">{{ $t('actionHistory.LOGOUT') }}</option>
               </select>
 
               <select
                 v-model="itemsPerPage"
-                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
               >
                 <option value="10">10 / page</option>
                 <option value="25">25 / page</option>
@@ -66,7 +67,7 @@
         </div>
 
         <div v-if="loading" class="flex items-center justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
 
         <div v-else>
@@ -78,19 +79,19 @@
             >
               <div class="flex items-start space-x-3">
                 <div class="flex-shrink-0">
-                  <span class="text-lg">{{ getActionIcon(log.actionType) }}</span>
+                  <span class="text-lg">{{ getActionIcon(log.action) }}</span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2">
                     <span
                       class="inline-flex px-2 py-1 text-sm font-semibold rounded-full"
-                      :class="getActionColor(log.actionType)"
+                      :class="getActionColor(log.action)"
                     >
-                      {{ $t(`actionHistory.${log.actionType}`) }}
+                      {{ $t(`actionHistory.${log.action}`) }}
                     </span>
-                    <span class="text-sm text-gray-500 capitalize">{{ log.resourceType }}</span>
+                    <span class="text-sm text-gray-500 capitalize">{{ log.entityType }}</span>
                   </div>
-                  <p class="text-sm text-gray-900 mt-1">{{ $t(`${log.actionDescription}`) }}</p>
+                  <p class="text-sm text-gray-900 mt-1">{{ $t(`${log.description}`) }}</p>
                   <p class="text-xs text-gray-500 mt-1">
                     {{ new Date(log.createdAt).toLocaleString() }}
                   </p>
@@ -113,14 +114,14 @@
                   :disabled="currentPage === 1"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ⏮️
+                    <ChevronsLeft size="20"/>
                 </button>
                 <button
                   @click="goToPage(currentPage - 1)"
                   :disabled="currentPage === 1"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ◀️
+                  <ChevronLeft size="20"/>
                 </button>
 
                 <div class="flex items-center space-x-1">
@@ -131,7 +132,7 @@
                     :class="[
                       'px-3 py-1 text-sm font-medium rounded-md',
                       page === currentPage
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-indigo-600 text-white'
                         : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                     ]"
                   >
@@ -145,14 +146,14 @@
                   :disabled="currentPage === totalPages"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ▶️
+                  <ChevronRight size="20"/>
                 </button>
                 <button
                   @click="goToPage(totalPages)"
                   :disabled="currentPage === totalPages"
                   class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ⏭️
+                  <ChevronsRight size="20"/>
                 </button>
               </div>
             </div>
@@ -173,14 +174,21 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { actionsMock } from "@/assets/data/StaffData";
-import {getStocksHistories , getStocksHistories} from "@/services/api"
+import {getStocksHistories } from "@/services/api"
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import { useServiceStore } from '@/composables/serviceStore';
+import {useAuthStore} from '@/composables/user';
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
+import { ChevronsLeft } from 'lucide-vue-next';
+import { ChevronLeft } from 'lucide-vue-next';
+import { ChevronRight } from 'lucide-vue-next';
+import { ChevronsRight } from 'lucide-vue-next';
+
 
 const actionLogs = ref<Record<string, any>>([])
 const loading = ref(true)
 const serviceStore = useServiceStore()
+const authStore = useAuthStore()
 
 // Paramètres de pagination et filtres
 const currentPage = ref(1)
@@ -196,15 +204,15 @@ const filteredLogs = computed(() => {
   if (searchTerm.value) {
     const term = searchTerm.value.toLowerCase()
     filtered = filtered.filter((log:any) =>
-      log.actionDescription?.toLowerCase().includes(term) ||
-      log.resourceType?.toLowerCase().includes(term) ||
-      log.actionType?.toLowerCase().includes(term)
+      log.description?.toLowerCase().includes(term) ||
+      log.entityType?.toLowerCase().includes(term) ||
+      log.action?.toLowerCase().includes(term)
     )
   }
 
   // Filtrer par type d'action
   if (selectedActionType.value) {
-    filtered = filtered.filter((log:any) => log.actionType === selectedActionType.value)
+    filtered = filtered.filter((log:any) => log.action === selectedActionType.value)
   }
 
   return filtered
@@ -254,24 +262,24 @@ const showEllipsis = computed(() => {
 // Fonctions
 function getActionIcon(action: string) {
   switch (action) {
-    case 'created': return '➕'
-    case 'updated': return '✏️'
-    case 'deleted': return '🗑️'
-    case 'completed': return '✅'
-    case 'login' : return '🔐'
-    case 'logout' : return '🔓'
+    case 'CREATE': return '➕'
+    case 'UPDATE': return '✏️'
+    case 'CANCEL': return '🗑️'
+    case 'CHECK_IN': return '✅'
+    case 'LOGIN' : return '🔐'
+    case 'LOGOUT' : return '🔓'
     default: return '📝'
   }
 }
 
 function getActionColor(action: string) {
   switch (action) {
-    case 'created': return 'bg-green-100 text-green-800'
-    case 'updated': return 'bg-blue-100 text-blue-800'
-    case 'deleted': return 'bg-red-100 text-red-800'
-    case 'completed': return 'bg-purple-100 text-purple-800'
-    case 'login': return 'bg-orange-100 text-orange-800'
-    case 'logout': return 'bg-pink-100 text-pink-800'
+    case 'CREATE': return 'bg-green-100 text-green-800'
+    case 'UPDATE': return 'bg-indigo-100 text-indigo-800'
+    case 'CANCEL': return 'bg-red-100 text-red-800'
+    case 'CHECK_IN': return 'bg-purple-100 text-purple-800'
+    case 'LOGIN': return 'bg-orange-100 text-orange-800'
+    case 'LOGOUT': return 'bg-pink-100 text-pink-800'
     default: return 'bg-gray-100 text-gray-800'
   }
 }
@@ -289,11 +297,11 @@ watch([searchTerm, selectedActionType, itemsPerPage], () => {
 
 onMounted(async () => {
   try {
-    const serviceId = serviceStore.serviceId
-    const response = await getStocksHistories(serviceId)
+    const id = authStore.UserId
+    const response = await getStocksHistories(id)
 
-    console.log("......responseActions",response.data.data)
-    actionLogs.value = response.data.data
+    console.log("......responseActions",response.data)
+    actionLogs.value = response.data
   } catch (error) {
     console.error('Error fetching action logs:', error)
     // Optionally, you can set an error state here
