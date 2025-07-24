@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
-import { error } from 'console'
+
 
 export interface ApiResponse<T = any> {
   message: string

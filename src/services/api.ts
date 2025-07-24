@@ -250,6 +250,7 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
 
 
 export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
 }
 
@@ -268,9 +269,11 @@ export const getSchedules = (serviceId: number | null): Promise<AxiosResponse<an
 
 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/staff_management/dashboard/${serviceId}`, headers)
 }
 export const getRoomCountByRoomType =(serviceId: number,productTypeId:number):Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/type-products/room-count?service_id=${serviceId}&product_type_id=${productTypeId}`, headers)
 }
 
@@ -280,10 +283,12 @@ export const getRefunds = (serviceId: number | null): Promise<AxiosResponse<any>
 }
 
 export const getServiceProductsWithDetails = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/service-products/${serviceId}/details`, headers)
 }
 
 export const getOptionsEquipement = (): Promise<AxiosResponse<any>> => {
+  console.log('-->Header:', headers)
   return axios.get(`${API_URL}/option_equipement`, headers)
 }
 // --- Services API post --- //
