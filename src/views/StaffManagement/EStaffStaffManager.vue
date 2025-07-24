@@ -155,17 +155,12 @@ const fetchUser = async () => {
   }
 }
 
-onMounted(async () => {
-  await fetchRole()
-  await fetchDepartment()
-})
+// onMounted(async () => {
+//   await fetchRole()
+//   await fetchDepartment()
+// })
 
-onMounted(async () => {
-  setTimeout(async () => {
-    await fetchUser()
-    loading.value = false
-  }, 500)
-})
+
 const titles = computed(() => [
   {
     name: 'id',
@@ -480,6 +475,9 @@ const getDepartmentName = (id: number) => {
   const found = departments.value.find((s: any) => s.value === Number(id))
   return found ? found.label : ''
 }
+onMounted(fetchUser)
+onMounted(fetchRole)
+onMounted(fetchDepartment)
 </script>
 
 <template>

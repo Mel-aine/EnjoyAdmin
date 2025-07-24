@@ -260,6 +260,8 @@ const handleSubmit = async () => {
       keepLoggedIn: keepLoggedIn.value,
     });
 
+    console.log('-->res', res);
+
 
     const { user, user_token } = res.data.data;
     const token = user_token.token;
@@ -281,26 +283,25 @@ const handleSubmit = async () => {
 
     console.log("res.data.data",res.data.data)
     if (user) {
-
       router.push('/service');
     } else {
       error.value = "Aucun service disponible pour cet utilisateur.";
     }
 
   } catch (err: any) {
-  if (err.response) {
-    // Erreur renvoyée par le backend
-    error.value = err.response.data?.message || err.response.data?.error || "Une erreur s’est produite côté serveur.";
-    console.error("Erreur de connexion:", error.value);
-  } else if (err.message) {
-    // Erreur générée côté client
-    error.value = err.message;
-    console.error("Erreur de connexion (client):", error.value);
-  } else {
-    // Cas totalement inconnu
-    error.value = "Une erreur inconnue s’est produite.";
-    console.error("Erreur inconnue:", err);
-  }
+    if (err.response) {
+      // Erreur renvoyée par le backend
+      error.value = err.response.data?.message || err.response.data?.error || "Une erreur s’est produite côté serveur.";
+      console.error("Erreur de connexion:", error.value);
+    } else if (err.message) {
+      // Erreur générée côté client
+      error.value = err.message;
+      console.error("Erreur de connexion (client):", error.value);
+    } else {
+      // Cas totalement inconnu
+      error.value = "Une erreur inconnue s’est produite.";
+      console.error("Erreur inconnue:", err);
+    }
 
     console.error("Erreur handleSubmit:", err);
   } finally {

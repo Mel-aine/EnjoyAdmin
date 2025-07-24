@@ -18,7 +18,7 @@
               </svg>
             </button>
             <h2 class="text-lg font-semibold mb-4">{{ isEditing ? $t('edit') : $t('add') }}</h2>
-            <form @submit.prevent="addDepartment">
+            <form @submit.prevent="onAddDepartment">
               <div class="mb-4">
                 <Input :lb="$t('Name')" v-model="newDepartment.name" />
               </div>
@@ -200,13 +200,14 @@ const updateData = async () => {
       service_id: serviceId,
       name: newDepartment.value.name,
       description: newDepartment.value.description,
-      responsible: newDepartment.value.manager,
+      responsible_user_id: newDepartment.value.manager,
       number_employees: newDepartment.value.employeeCount
 
     };
-
-    await updateDpt(id, Payload);
-
+    console.log('-->Payload', Payload);
+    const result = await updateDpt(id, Payload);
+    console.log('-->result', result);
+    
     newDepartment.value = {
       name: '',
       description: '',
@@ -217,8 +218,9 @@ const updateData = async () => {
     selected.value = null;
     isEditing.value = false;
     showModal.value = false;
-
+    toast.success(t('toast.SucessUpdate'));
   } catch (error) {
+    toast.error(t('error'));
     console.error('Erreur lors de la mise à jour:', error);
 
   } finally {
@@ -236,6 +238,7 @@ const fetchUser = async () => {
 
     const response = await getUser();
     console.log("All users:", response.data.data);
+    console.log("-->serviceId", serviceId);
     Users.value = response.data.data
       .filter((user: any) => user.serviceId === serviceId)
       .map((item: any) => ({
@@ -255,8 +258,7 @@ const addDepartment = async () => {
   const serviceId = serviceStore.serviceId;
   try {
     if (isEditing.value) {
-      await updateData()
-      toast.success(t('toast.SucessUpdate'));
+      await updateData();
 
     } else {
       // Création d'un nouveau mouvement
@@ -443,6 +445,7 @@ const titles = computed(() => [
 
 
 const onEditDept = (dept: any) => handleDeptAction('edit', dept)
+const onAddDepartment = (dept: any) => handleDeptAction('new', dept)
 const onDeleteDept = (dept: any) => handleDeptAction('delete', dept)
 const onView = (dept: any) => {
   router.push({ name: 'departmentDetails', params: { id: dept.id } })
@@ -471,6 +474,8 @@ const handleDeptAction = (action: string, dept: any) => {
       selectedDepartment.value = dept
       showModal.value = true
     }
+  } else if (action === 'new') {
+   addDepartment();
   }
 }
 
