@@ -20,7 +20,7 @@
                 </p>
               </div>
               <div>
-                
+
                 <form @submit.prevent="handleSubmit">
 
                   <div class="space-y-3">
@@ -250,16 +250,11 @@ const handleSubmit = async () => {
 
   try {
 
-   // await validateEmail(email.value);
-   // await validatePassword(email.value, password.value);
-
-
     const res = await auth({
       email: email.value,
       password: password.value,
       keepLoggedIn: keepLoggedIn.value,
     });
-
 
     const { user, user_token } = res.data.data;
     const token = user_token.token;
@@ -271,10 +266,7 @@ const handleSubmit = async () => {
       sessionStorage.setItem('auth_token', token);
     }
 
-    // Stocker les permissions
     serviceStore.setPermissions(res.data.data.permissions)
-
-
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);

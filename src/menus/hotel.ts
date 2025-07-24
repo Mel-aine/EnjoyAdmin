@@ -25,7 +25,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
           icon: CalendarCheck2,
           name: t('Bookings'),
-          // permission: 'bookings_view',
+          permission: ['bookings_read', 'bookings_create'],
           subItems: [
             { name: t('AllBooking'), path: '/all_booking', permission: 'bookings_read' },
             { name: t('AddBooking'), path: '/add_booking', permission: 'bookings_create' },
@@ -34,7 +34,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
           icon: BedDouble,
           name: t('Room'),
-          // permission: 'rooms_view',
+          permission: 'rooms_view',
           subItems: [
             { name: t('AllRooms'), path: '/all_room', permission: 'rooms_read' },
             { name: t('RoomTypes'), path: '/room_type', permission: 'rooms_manage' },

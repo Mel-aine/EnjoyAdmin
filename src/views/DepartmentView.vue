@@ -200,10 +200,11 @@ const updateData = async () => {
       service_id: serviceId,
       name: newDepartment.value.name,
       description: newDepartment.value.description,
-      responsible: newDepartment.value.manager,
+      responsible_user_id: newDepartment.value.manager,
       number_employees: newDepartment.value.employeeCount
 
     };
+    console.log('Payload:', Payload);
 
     await updateDpt(id, Payload);
 

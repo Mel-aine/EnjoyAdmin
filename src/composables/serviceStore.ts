@@ -56,9 +56,17 @@ export const useServiceStore = defineStore('service', {
      * Vérifie si l'utilisateur a une ou plusieurs permissions
      * @param names string | string[]
      */
+    // hasPermission(names: string | string[]) {
+    //   const perms = Array.isArray(names) ? names : [names]
+    //   return this.permissions.some((p) => perms.includes(p.name))
+    // },
     hasPermission(names: string | string[]) {
+      // Si names est déjà un array, l'utiliser directement
+      // Sinon, le convertir en array
       const perms = Array.isArray(names) ? names : [names]
-      return this.permissions.some((p) => perms.includes(p.name))
+
+      // Vérifier si l'utilisateur a AU MOINS UNE des permissions demandées
+      return this.permissions.some((userPerm) => perms.includes(userPerm.name))
     },
 
     /**

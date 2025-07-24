@@ -189,26 +189,7 @@ const authStore = useAuthStore()
 const { t } = useI18n();
 const openSubSubmenu = ref<string | null>(null);
 
-// const fetchService = async () => {
-//   try {
-//     const serviceId = serviceStore.serviceId;
-//     const response = await getServices();
 
-//     const foundService = response.data.data.find(
-//       (service: any) => service.id === serviceId
-//     );
-
-//     if (foundService) {
-//       serviceName.value = foundService.name;
-//     } else {
-//       serviceName.value = 'Unknown Service';
-//     }
-
-//     console.log("service", foundService);
-//   } catch (error) {
-//     console.error('fetch failed:', error);
-//   }
-// };
 
 onMounted(() => {
   console.log("serviceStore",JSON.parse(serviceStore.currentService).name)
@@ -251,32 +232,24 @@ export interface MenuGroupWrapper {
 }
 
 
-// const currentUserRoleId = computed(() => authStore.roleId);
-// const currentCategoryName = computed(() => serviceStore.serviceCategory);
-
-
-// // const rawMenu = computed(() => getMenuByCategoryName(currentCategoryName));
-// const rawMenu = computed(() =>
-//   getMenuByCategoryName(currentCategoryName.value)
-// );
-
-
-
-
 const filteredMenu = computed(() => {
   console.log('🔍 Permissions dans le store :', serviceStore.permissions.map(p => p.name))
 
   if (!serviceStore.permissions.length) {
-    console.log(' Aucune permission trouvée, menu vide.')
+    console.log('❌ Aucune permission trouvée, menu vide.')
     return []
   }
 
   const result = rawMenu.value
     .map((group: any) => {
-
       const filteredItems = group.items
         .map((item: any) => {
-          const hasItemPermission = !item.permission || serviceStore.hasPermission(item.permission)
+          // ✅ CORRECTION : Gérer les permissions en array
+          const hasItemPermission = !item.permission || (
+            Array.isArray(item.permission)
+              ? item.permission.some(perm => serviceStore.hasPermission(perm))
+              : serviceStore.hasPermission(item.permission)
+          )
 
           const filteredSubItems = item.subItems?.map((subItem: any) => {
             const hasSubItemPermission = !subItem.permission || serviceStore.hasPermission(subItem.permission)
@@ -325,8 +298,6 @@ const filteredMenu = computed(() => {
   console.log('✅ Menu final filtré :', result)
   return result
 })
-
-
 const currentUserRoleId = computed(() => authStore.roleId || 0);
 const currentCategoryName = computed(() => serviceStore.serviceCategory || '');
 
@@ -380,19 +351,7 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
   );
 };
 
-// const isSubSubmenuOpen = (groupIndex: number, itemIndex: number, subItemName: string): boolean => {
-//   const key = `${groupIndex}-${itemIndex}-${subItemName}`;
-//   const item = rawMenu.value[groupIndex]?.items[itemIndex];
 
-//   if (!item || !('subItems' in item) || !Array.isArray(item.subItems)) return false;
-
-//   const subItem = item.subItems.find((si:any) => si.name === subItemName);
-
-//   return (
-//     openSubSubmenu.value === key ||
-//     (subItem?.subItems?.some((subSubItem:any) => isActive(subSubItem.path)) ?? false)
-//   );
-// };
 const isSubSubmenuOpen = (
   groupIndex: number,
   itemIndex: number,
@@ -417,9 +376,6 @@ const isSubSubmenuOpen = (
 };
 
 
-
-
-
 // Vérifie si un des sous-menus contient une route active
 const isAnySubmenuRouteActive = computed<boolean>(() => {
   return rawMenu.value.some((group: any) =>
@@ -431,23 +387,7 @@ const isAnySubmenuRouteActive = computed<boolean>(() => {
   );
 });
 
-// Vérifie si le sous-menu est ouvert ou contient une route active
-// const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean | undefined => {
-//   const key = `${groupIndex}-${itemIndex}`;
-//   const item = rawMenu.value[groupIndex]?.items[itemIndex];
 
-//   if (!item) return false;
-
-//   const isSubSubmenuActive = item.subItems?.some((subItem: any) =>
-//     subItem.subItems?.some((subSubItem: any) => isActive(subSubItem.path))
-//   );
-
-//   return (
-//     openSubmenu.value === key ||
-//     (isAnySubmenuRouteActive.value &&
-//       (item.subItems?.some((subItem: any) => isActive(subItem.path)) || isSubSubmenuActive))
-//   );
-// };
 
 // Transition pour ouvrir le menu avec animation
 const startTransition = (el: Element): void => {
