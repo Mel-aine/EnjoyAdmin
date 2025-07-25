@@ -254,6 +254,7 @@ export function useBooking() {
         isPaymentModalOpen.value = true
       }
     } catch (error: unknown) {
+      console.log(error)
       const message = 'Error while saving reservation'
       if (error instanceof Object && 'response' in error && error.response) {
         const axiosError = error as { response: { data: { message: string } } }
