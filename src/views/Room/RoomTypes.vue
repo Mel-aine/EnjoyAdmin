@@ -672,7 +672,8 @@ const fetchRoomType = async () => {
     )
       console.log("roomCounts",roomCounts)
     const roomTypesWithCount = response.data.map((roomType:any, index:any) => {
-      const statusClasses = getStatusColor(roomType.status).split(' ')
+      const status = roomType.status || t('Unknown')
+      const statusClasses = getStatusColor(status).split(' ')
 
       return {
         ...roomType,
@@ -682,7 +683,7 @@ const fetchRoomType = async () => {
         },
         roomCount: roomCounts[index].data.total_rooms || 0,
         statusColor: {
-          label: t(roomType.status),
+          label: t(status),
           bg: statusClasses[0],
           text: statusClasses[1],
         },
