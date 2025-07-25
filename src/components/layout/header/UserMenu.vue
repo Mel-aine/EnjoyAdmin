@@ -106,14 +106,11 @@ const serviceStore = useServiceStore()
 const router = useRouter()
 
 const fullName = computed(() => {
-  const userData = authStore.user
-  console.log("userData",userData)
-  const user = JSON.parse(userData);
+  const user = authStore.user;
    return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 })
 const Email = computed(() => {
-  const userData = authStore.user
-  const user = JSON.parse(userData);
+  const user = authStore.user;
    return `${user?.email ?? ''}`
 })
 

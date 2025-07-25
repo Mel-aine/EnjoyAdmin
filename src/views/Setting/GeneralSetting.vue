@@ -123,24 +123,24 @@ const toast = useToast()
 
 
 const Firstname = computed(() => {
-  const userData = authStore.user
-  const user = JSON.parse(userData);
+  // const userData = authStore.user
+  const user = authStore.user;
   return `${user?.firstName ?? ''}`
 })
 const LastName = computed(() => {
-  const userData = authStore.user
-  const user = JSON.parse(userData);
+  // const userData = authStore.user
+  const user = authStore.user;
   return `${user?.lastName ?? ''}`
 })
 const Email = computed(() => {
-  const userData = authStore.user
-  const user = JSON.parse(userData);
+  // const userData = authStore.user
+  const user = authStore.user;
   return `${user?.email ?? ''}`
 })
 
 const Phone = computed(() => {
-  const userData = authStore.user
-  const user = JSON.parse(userData);
+  // const userData = authStore.user
+  const user = authStore.user;
   return `${user?.phoneNumber ?? ''}`
 })
 

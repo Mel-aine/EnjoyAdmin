@@ -180,8 +180,8 @@ const mouvementTypes = computed(() => [
 
 // const roleId = roleStore.roleId
 
-const userData = authStore.user
-const user = JSON.parse(userData)
+// const userData = authStore.user
+const user = authStore.user
 
 const currentMovement = reactive<StockMovement>({
   date: new Date().toISOString().split('T')[0],

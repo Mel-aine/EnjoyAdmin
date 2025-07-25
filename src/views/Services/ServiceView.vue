@@ -295,7 +295,7 @@ const services = computed(() => serviceStore.getService)
 
 onMounted(() => {
   if (authStore.user) {
-    user.value = JSON.parse(authStore.user)
+    user.value = authStore.user
     console.log("services (computed)", services.value)
   }
 })

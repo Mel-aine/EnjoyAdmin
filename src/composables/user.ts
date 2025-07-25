@@ -18,7 +18,8 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     login(user: any, token: any) {
-      this.user = JSON.stringify(user)
+      console.log('-->login.any', typeof user);
+      this.user = {...user}
       this.token = token
       this.roleId = user.roleId;
       this.UserId = user.UserId;
