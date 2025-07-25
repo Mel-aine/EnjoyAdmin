@@ -96,7 +96,7 @@
                   <transition @enter="startTransition" @after-enter="endTransition" @before-leave="startTransition"
                     @after-leave="endTransition">
                     <div v-show="isSubmenuOpen(groupIndex, index) &&
-                      (isExpanded || isHovered || isMobileOpen)
+                      (isExpanded || isHovered || isMobileOpen ) || item.name === 'Bookings'
                       ">
                       <ul class="mt-2 space-y-1 ml-9">
                         <li v-for="subItem in item.subItems" :key="subItem.name">
