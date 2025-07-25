@@ -7,7 +7,7 @@
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-2 text-white text-center rounded-t-xl">
           <h1 class="text-2xl font-bold mb-2">{{ $t('hotel_reservation_details') }}</h1>
           <p class="text-lg">{{ $t('reservation_id') }}: <span class="font-semibold">{{ selectBooking?.reservationNumber
-              }}</span></p>
+          }}</span></p>
         </div>
 
         <div class="p-6 space-y-8">
@@ -21,7 +21,7 @@
                   :alt="$t('profile')" class="w-8 h-8 rounded-full mr-2" />
                 <Mail class="mr-2 text-gray-500" :size="18" />
                 <span class="font-medium">{{ $t('email') }}:</span> <span class="ml-1">{{ selectBooking.user?.email
-                  }}</span>
+                }}</span>
               </div>
               <DetailItem :icon="Phone" :label="$t('phone')" :value="selectBooking.user?.phoneNumber" />
               <DetailItem :icon="Tag" :label="$t('booking_source')" :value="selectBooking.bookingSource" />
@@ -341,10 +341,7 @@ const anyRoomCheckedOut = computed(() => selectBooking.value?.reservationService
 // New computed properties for date and status checks
 const isArrivalDateInFuture = computed(() => {
   if (!selectBooking.value?.arrivedDate) return false;
-  // This checks if the arrival date is *after* the current date.
-  // If you want "not yet arrived", it means the arrival date is in the future.
-  // So, isBefore(currentDate, arrivalDate)
-  return isBefore(new Date(), parseISO(selectBooking.value.arrivedDate))  ;
+  return isBefore(new Date(), parseISO(selectBooking.value.arrivedDate));
 });
 
 const isArrivalDateTodayOrPast = computed(() => {
@@ -372,18 +369,18 @@ const canEditOrCancel = computed(() => {
 
 const canCheckInAll = computed(() => {
   if (!selectBooking.value) return false;
-  return (selectBooking.value.status.toLowerCase() === 'confirmed' || selectBooking.value.status.toLowerCase() === 'en attente') &&
+  return (selectBooking.value.status.toLowerCase() === 'confirmed' || selectBooking.value.status.toLowerCase() === 'pending') &&
     isArrivalDateTodayOrPast.value &&
     !allRoomsCheckedIn.value &&
     selectBooking.value.status.toLowerCase() !== 'cancelled' &&
     selectBooking.value.status.toLowerCase() !== 'no-show' &&
-    paymentStatus.value === 'Fully Paid';
+    (paymentStatus.value === 'Fully Paid' || paymentStatus.value === 'Overpaid');
 });
 
 const canCheckOutAll = computed(() => {
   if (!selectBooking.value) return false;
   return allRoomsCheckedIn.value &&
-    !allRoomsCheckedOut.value &&
+   !allRoomsCheckedOut.value &&
     selectBooking.value.status.toLowerCase() !== 'cancelled' &&
     selectBooking.value.status.toLowerCase() !== 'no-show' &&
     selectBooking.value.status.toLowerCase() !== 'checked-out';
@@ -393,7 +390,7 @@ const canCheckInRoom = (room: any) => {
   if (!selectBooking.value) return false;
   return room.status?.toLowerCase() === 'pending' &&
     isArrivalDateTodayOrPast.value &&
-    paymentStatus.value === 'Fully Paid';
+    (paymentStatus.value === 'Fully Paid' || paymentStatus.value === 'Overpaid');
 };
 
 const canCheckOutRoom = (room: any) => {
@@ -423,6 +420,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     if (selectBooking.value?.id) {
       const response = await checkInReservation(selectBooking.value?.id, requestBody);
       if (response.status === 200) {
+        getBookingDetails();
         //Success Message
       } else {
         //TODO Error Message
@@ -438,6 +436,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
       const response = await checkOutReservation(selectBooking.value?.id, requestBody);
       if (response.status === 200) {
         //Success Message
+        getBookingDetails();
       } else {
         //TODO Error Message
       }
@@ -451,6 +450,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     if (selectBooking.value?.id) {
       const response = await checkInReservation(selectBooking.value?.id, requestBody);
       if (response.status === 200) {
+        getBookingDetails();
         //Success Message
       } else {
         //TODO Error Message
@@ -466,6 +466,8 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
       const response = await checkOutReservation(selectBooking.value?.id, requestBody);
       if (response.status === 200) {
         //Success Message
+        getBookingDetails();
+
       } else {
         //TODO Error Message
       }
@@ -499,7 +501,7 @@ const statusClass = (status: string) => {
   // Explicitly list the status values for clarity, matching the proposed enum/union type
   switch (status.toLowerCase()) {
     case 'available': return 'bg-green-100 text-green-800';
-    case 'confirmedd': return 'bg-green-100 text-green-800';
+    case 'confirmed': return 'bg-green-100 text-green-800';
     case 'confirmed': return 'bg-green-100 text-green-800';
     case 'pending': return 'bg-yellow-100 text-yellow-800';
     case 'en attente': return 'bg-yellow-100 text-yellow-800';

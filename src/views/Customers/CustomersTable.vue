@@ -236,7 +236,7 @@ import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { ref, onMounted, computed, reactive } from 'vue'
-import { getCustomer } from '@/services/api'
+import {  getCustomersList } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { userDataType, ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
@@ -300,7 +300,7 @@ const titles = computed(() => [
     filterable: true,
   },
   {
-    name: 'phone_number',
+    name: 'phoneNumber',
     label: t('Phone'),
     type: 'text',
     filterable: false,
@@ -374,12 +374,11 @@ const fetchCustomers = async () => {
   try {
     loading.value = true
     const serviceId = serviceStore.serviceId;
-    const response = await getCustomer(serviceId);
+    const response = await getCustomersList(serviceId!);
     customers.value= response.data.map((c:any)=>{
       return{
         ...c,
-        userFullName: `${c.first_name} ${c.last_name}`,
-
+        userFullName: `${c.firstName} ${c.lastName}`,
       }
     })
     console.log("customers",customers.value)

@@ -213,7 +213,6 @@ import DetailRow from '../Room/DetailRow.vue';
 import { getCustomerProfile } from '@/services/api';
 import router from '@/router';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
-import { format } from 'date-fns';
 import PaymentModal from '../Bookings/PaymentModal.vue';
 import BookingTable from '@/components/tables/booking-tables/BookingTable.vue';
 import PaymentTable from '@/components/tables/PaymentTable.vue';
@@ -229,12 +228,8 @@ const getPaymentDetails = () => {
 };
 const customer_id = router.currentRoute.value.params.id as string;
 
-const store = useBookingStore()
 const customer = ref<any>({})
-const dateArrived = ref('')
-const dateDepart = ref('')
 const activeTab = ref<string>('details')
-const currentDate = ref<Date>(new Date())
 const tabs = computed(() => [
   { id: 'details', label: t('tab.details'), icon: InfoIcon },
   { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon },
@@ -242,14 +237,6 @@ const tabs = computed(() => [
   { id: 'payments', label: t('tab.payments'), icon: CreditCard },
   { id: 'history', label: t('tab.history'), icon: ClockIcon },
 ])
-onMounted(() => {
-  customer.value = store.selectedCustomer
-  console.log('value', customer.value)
-  dateArrived.value = customer.value.lastReservation.arrivedDate
-  dateDepart.value = customer.value.lastReservation.departDate
-
-  console.log('customer.value :', customer.value.lastReservation.departDate)
-})
 
 const emitPayNow = () => {
   openPayment.value = true
