@@ -422,6 +422,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+     {
+      path: '/users/:id/view',
+      name: 'usersDetails',
+      component: () => import('../views/StaffManagement/EStaffDetails.vue'),
+      meta: {
+        title: 'Users Details',
+        requiresAuth: true,
+      },
+    },
 
     {
       path: '/vehicle_assignment',
