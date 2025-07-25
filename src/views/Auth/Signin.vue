@@ -222,7 +222,7 @@ import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
-import { auth } from '@/services/api'
+import { auth, validateEmail, validatePassword } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
 import ButtonLanguage from '@/components/buttons/ButtonLanguage.vue'
 
@@ -250,8 +250,8 @@ const handleSubmit = async () => {
 
   try {
 
-   // await validateEmail(email.value);
-   // await validatePassword(email.value, password.value);
+    await validateEmail(email.value);
+    //await validatePassword(email.value, password.value);
 
 
     const res = await auth({
