@@ -31,6 +31,14 @@ const isRedirecting = ref(true)
 const { t } = useI18n()
 
 onMounted(() => {
+  //recuperation des permissions de l'utilisateur en fonction de son role service id
+  // serviceStore.fetchPermissions().then(() => {
+  //   isRedirecting.value = false
+  // }).catch((error) => {
+  //   console.error('Error fetching permissions:', error)
+  //   noAccess.value = true
+  //   isRedirecting.value = false
+  // })
   const menuItems = getHotelMenu(t)[0].items
   const routeList = extractRoutesFromMenu(menuItems)
 
