@@ -73,7 +73,7 @@
           <!-- Details Tab -->
           <div v-if="activeTab === 'details'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <!-- Informations de base -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+            <div class="bg-gradient-to-br bg-white border-1 border-gray-200 rounded-xl p-6 ">
               <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
                 {{ $t('Basic_Information') }}
@@ -91,7 +91,7 @@
               </div>
             </div>
             <!-- Équipements -->
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+            <div class="bg-gradient-to-brbg-white border-1 border-gray-200 rounded-xl p-6 ">
               <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <Mail class="w-5 h-5 mr-2 text-purple-600" />
                 {{ $t('customerDetails.contactInfo.title') }}
@@ -105,7 +105,7 @@
 
               </div>
             </div>
-            <div class="bg-gradient-to-br from-yellow-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+            <div class="bg-gradient-to-br bg-white border-1 border-gray-200 rounded-xl p-6">
               <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">{{ $t('remainingBalanceTitle') }}</h2>
 
               <div class="flex items-baseline justify-center mb-6">

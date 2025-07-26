@@ -149,6 +149,9 @@ export const getUserId = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/users/${id}`, headers)
 }
 
+export const getEmployeesDetails = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/users/${id}/details`, headers)
+}
 //get payment
 export const getPayment = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   console.log('-->Header:', headers)
