@@ -143,15 +143,15 @@
                                 {{ $t('Owner') }}
                             </h3>
                             <div class="space-y-1"
-                                v-if="department.responsibleUser && department.responsibleUserId">
+                                v-if="departmentRaw.departmentDetails?.responsibleUser && departmentRaw.departmentDetails?.responsibleUserId">
                                 <DetailRow :label="$t('Name')"
-                                    :value="department.responsibleUser.firstName" />
+                                    :value="departmentRaw.departmentDetails.responsibleUser.firstName" />
                                 <DetailRow :label="$t('email')"
-                                    :value="department.responsibleUser.email" />
+                                    :value="departmentRaw.departmentDetails.responsibleUser.email" />
                                 <DetailRow :label="$t('phone')"
-                                    :value="department.responsibleUser.phoneNumber" />
+                                    :value="departmentRaw.departmentDetails.responsibleUser.phoneNumber" />
                                 <DetailRow :label="$t('Address')"
-                                    :value="department.responsibleUser.address" />
+                                    :value="departmentRaw.departmentDetails.responsibleUser.address" />
                             </div>
                             <div class="space-y-1" v-else>
                                 <div class="">
@@ -483,7 +483,7 @@ onMounted(() => {
 const getDepartmentDetails = async () => {
     isLoading.value = true;
     const response = await getServiceDepartmentDetails(serviceStore.serviceId!, parseInt(departmentId))
-    console.log('this is the getDepartmentDetails', response)
+    console.log('this is the getDepartmentDetails', response.data)
     if (response.status === 200) {
         departmentRaw.value = response.data;
         department.value = {
@@ -494,15 +494,6 @@ const getDepartmentDetails = async () => {
             status: response.data.departmentDetails.status,
             id: response.data.departmentDetails.id,
         }
-
-        console.log("-->", {
-            description: response.data.departmentDetails.description,
-            employeeCount: response.data.departmentDetails.numberEmployees,
-            manager: response.data.departmentDetails.responsibleUser.firstName?.toUpperCase() + " " + response.data.departmentDetails.responsibleUser.lastName?.toUpperCase(),
-            name: response.data.departmentDetails.name,
-            status: response.data.departmentDetails.status,
-            id: response.data.departmentDetails.id,
-        })
     }
     isLoading.value = false;
 }
