@@ -10,10 +10,7 @@
         </h3>
         <profile-card :full-name="fullName" :email="email" />
         <personal-info-card
-          :email="email"
-          :firstname="firstname"
-          :lastname="lastname"
-          :phone="phone"
+          :user="parsedUser"
           @updateProfile="saveChanges"
         />
         <!-- <address-card /> -->

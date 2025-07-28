@@ -278,3 +278,52 @@ export interface RoomFilterItem {
   equipment: Array<{ label: string; value: string }>
   floor: string
 }
+
+export interface Form {
+    firstName: string
+    lastName: string
+    phoneNumber: string
+    email: string
+    password: string
+    roleId: string | number | undefined
+    hire_date: string,
+    department: number
+    dateOfBirth: string,
+    placeOfBirth: string,
+    gender?: string,
+    city?: string,
+    country?: string,
+    emergencyPhone?: string,
+    personalEmail?: string,
+    socialSecurityNumber?: string,
+    nationalIdNumber?: string,
+    contractType?: string,
+    contractEndDate: string,
+    dataProcessingConsent?: boolean,
+    consentDate: string,
+}
+export const defaultData = (): Form => {
+    return {
+        firstName: '',
+        lastName: '',
+        roleId: 0,
+        phoneNumber: '',
+        email: '',
+        password: '',
+        department: 0,
+        hire_date: '',
+        dateOfBirth: '',
+        placeOfBirth: '',
+        gender: '',
+        city: '',
+        country: '',
+        emergencyPhone: '',
+        personalEmail: '',
+        socialSecurityNumber: '',
+        nationalIdNumber: '',
+        contractType: '',
+        contractEndDate: '',
+        dataProcessingConsent: true,
+        consentDate: '',
+    }
+}

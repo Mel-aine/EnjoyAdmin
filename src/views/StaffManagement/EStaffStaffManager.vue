@@ -15,7 +15,7 @@ import TableComponent from '@/components/tables/TableComponent.vue'
 import router from '@/router'
 import UserUpsertModal from '@/components/modal/UserUpsertModal.vue'
 import UserFilters from '@/components/filters/UserFilters.vue'
-import type { FitlterItem } from '@/utils/models'
+import { defaultData, type FitlterItem, type Form } from '@/utils/models'
 const isLoading = ref(false)
 const loadingDelete = ref(false)
 const loading = ref(false)
@@ -29,16 +29,7 @@ const selectedUser = ref<any>(null)
 const isEditMode = ref(false)
 const { t } = useI18n()
 
-interface Form {
-  firstName: string
-  lastName: string
-  phoneNumber: string
-  email: string
-  password: string
-  roleId: string | number | undefined
-  hire_date: string,
-  department: number
-}
+
 const filter = ref<FitlterItem>({
   checkInDate: "",
   checkOutDate: "",
@@ -49,16 +40,7 @@ const filter = ref<FitlterItem>({
   roleId: ""
 
 })
-const form = ref<Form>({
-  firstName: '',
-  lastName: '',
-  roleId: 0,
-  phoneNumber: '',
-  email: '',
-  password: '',
-  department: 0,
-  hire_date: ''
-})
+const form = ref<Form>(defaultData())
 
 const refresh = () => {
   modalOpen.value = false;
@@ -225,7 +207,8 @@ const handleUserAction = (action: string, user: any) => {
     form.value.phoneNumber = user.phone_number;
     form.value.email = user.email
     form.value.roleId = user.role_id
-    form.value.department = user.department?.id
+    form.value.department = user.department?.id;
+
     if (user.hire_date) {
       const hireDate = new Date(user.hire_date)
       form.value.hire_date = hireDate.toISOString().split('T')[0]
@@ -265,16 +248,7 @@ const closeModal = () => {
   modalOpen.value = false
   isEditMode.value = false
 
-  form.value = {
-    firstName: '',
-    lastName: '',
-    roleId: 0,
-    phoneNumber: '',
-    email: '',
-    password: '',
-    department: 0,
-    hire_date: ''
-  }
+  form.value = defaultData()
 }
 
 const OpenModal = () => {

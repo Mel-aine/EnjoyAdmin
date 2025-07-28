@@ -2234,7 +2234,36 @@
   "contractType": "Contract Type",
   "contractEndDate": "Contract End Date",
   "dataProcessingConsent": "Data Processing Consent",
-  "consentDate": "Consent Date"
-  
-
+  "consentDate": "Consent Date",
+  "contract_types": {
+    "cdi": "Permanent Contract (CDI)",
+    "cdd": "Fixed-Term Contract (CDD)",
+    "seasonal": "Seasonal Work Contract",
+    "apprenticeship": "Apprenticeship Contract",
+    "temporary_work": "Temporary Work Contract (Interim)",
+    "internship": "Internship"
+  },
+  "phoneNumberLabel": "Phone Number:",
+  "phoneNumberPlaceholder": "e.g., 678901234",
+  "phoneNumberRequired": "Phone number is required for Cameroon.",
+  "invalidCameroonFormat": "Invalid Cameroon phone number format. Must be 9 digits starting with 2, 3, 5, 6, 7, or 8.",
+  "phoneNumberDigitsOnly": "Phone number must contain only digits.",
+  "phoneNumberValid": "Phone number format is valid!",
+  "selectedCountryCode": "Selected Country Code",
+  "enteredPhoneNumber": "Entered Phone Number",
+  "fullNumberExample": "Full Number (Example)",
+  "male": "Male",
+  "female": "Female",
+  "contract_info": "Contract info",
+  "hireDate": "Hire Date",
+  "payroll": "Payroll",
+  "cdi": "Permanent Contract (CDI)",
+  "cdd": "Fixed-Term Contract (CDD)",
+  "seasonal": "Seasonal Work Contract",
+  "apprenticeship": "Apprenticeship Contract",
+  "temporary_work": "Temporary Work Contract (Interim)",
+  "internship": "Internship",
+  "contractStartDate": "Contract Start Date",
+  "changeContract":"Change Contract",
+  "documents":"Documents"
 }

@@ -14,3 +14,14 @@ export  enum TaskStatus {
   CANCELLED = 'cancelled',
   PENDING = 'pending',
 }
+
+
+export enum CONTRACTTYPE {
+  CDI='cdi',
+  CDD="cdd",
+  SEASONAL="seasonal",
+  APPRENTICESHIP="apprenticeship",
+  TEMPORARY="temporary",
+  INTERN="intern",
+
+}
