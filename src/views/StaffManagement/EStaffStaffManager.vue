@@ -288,8 +288,8 @@ const applyFilters = (filterOp: FitlterItem) => {
 
 
 onMounted(fetchUser)
-onMounted(fetchRole)
-onMounted(fetchDepartment)
+// onMounted(fetchRole)
+// onMounted(fetchDepartment)
 </script>
 
 <template>

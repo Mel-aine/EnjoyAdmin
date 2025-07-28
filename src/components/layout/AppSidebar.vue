@@ -7,7 +7,7 @@
       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z" />
     </svg>
   </div>
-  
+
   <aside>
     <div :class="[
       'fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
@@ -26,17 +26,17 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
         <router-link to="/dashboard" class="flex items-center gap-2">
-          <img v-if="isExpanded || isHovered || isMobileOpen" 
+          <img v-if="isExpanded || isHovered || isMobileOpen"
             class="dark:hidden rounded-full w-10"
-            src="/src/assets/images/header/logo2.png" 
+            src="/src/assets/images/header/logo2.png"
             alt="Logo" />
-          <img v-if="isExpanded || isHovered || isMobileOpen" 
+          <img v-if="isExpanded || isHovered || isMobileOpen"
             class="hidden dark:block rounded-full w-10"
-            src="/src/assets/images/header/logo2.png" 
+            src="/src/assets/images/header/logo2.png"
             alt="Logo" />
-          <img v-else 
-            class="rounded-full w-10" 
-            src="/src/assets/images/header/logo2.png" 
+          <img v-else
+            class="rounded-full w-10"
+            src="/src/assets/images/header/logo2.png"
             alt="Logo" />
           <span v-if="isExpanded || isHovered || isMobileOpen"
             class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
@@ -47,17 +47,17 @@
 
       <!-- Zone de navigation scrollable -->
       <div class="flex-1 overflow-hidden"
-        @mouseenter="!isExpanded && (isHovered = true)" 
+        @mouseenter="!isExpanded && (isHovered = true)"
         @mouseleave="isHovered = false">
-        
+
         <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
           <div class="flex flex-col gap-2 pb-6">
             <div v-for="(menuGroup, groupIndex) in filteredMenu" :key="groupIndex">
               <ul class="flex flex-col gap-3" v-if="menuGroup">
                 <li v-for="(item, index) in menuGroup.items" :key="item.name" >
-                  
+
                   <!-- Menu avec sous-éléments -->
-                  <button v-if="item.subItems && item.subItems.length > 0" 
+                  <button v-if="item.subItems && item.subItems.length > 0"
                     @click="toggleSubmenu(groupIndex, index)"
                     :class="[
                       'menu-item group text-md w-full',
@@ -74,11 +74,11 @@
                     ]">
                       <component :is="item.icon" />
                     </span>
-                    <span v-if="isExpanded || isHovered || isMobileOpen" 
+                    <span v-if="isExpanded || isHovered || isMobileOpen"
                       class="menu-item-text">
                       {{ item.name }}
                     </span>
-                    <ChevronDownIcon v-if="isExpanded || isHovered || isMobileOpen" 
+                    <ChevronDownIcon v-if="isExpanded || isHovered || isMobileOpen"
                       :class="[
                         'ml-auto w-5 h-5 transition-transform duration-200',
                         {
@@ -88,9 +88,9 @@
                   </button>
 
                   <!-- Menu sans sous-éléments -->
-                  <router-link v-else-if="item.path" 
-                    :to="item.path" 
-                    @click="startLoading" 
+                  <router-link v-else-if="item.path"
+                    :to="item.path"
+                    @click="startLoading"
                     :class="[
                       'menu-item group',
                       {
@@ -105,22 +105,22 @@
                     ]">
                       <component :is="item.icon" />
                     </span>
-                    <span v-if="isExpanded || isHovered || isMobileOpen" 
+                    <span v-if="isExpanded || isHovered || isMobileOpen"
                       class="menu-item-text">
                       {{ item.name }}
                     </span>
                   </router-link>
 
                   <!-- Sous-menus avec transition -->
-                  <transition @enter="startTransition" @after-enter="endTransition" 
+                  <transition @enter="startTransition" @after-enter="endTransition"
                     @before-leave="startTransition" @after-leave="endTransition">
                     <div v-show="isSubmenuOpen(groupIndex, index) && (isExpanded || isHovered || isMobileOpen)">
                       <ul class="mt-2 space-y-1 ml-9">
                         <li v-for="subItem in item.subItems" :key="subItem.name">
-                          
+
                           <!-- Submenu avec sous-sous-éléments -->
                           <div v-if="subItem.subItems && subItem.subItems.length > 0">
-                            <button @click="toggleSubSubmenu(groupIndex, index, subItem.name)" 
+                            <button @click="toggleSubSubmenu(groupIndex, index, subItem.name)"
                               :class="[
                                 'menu-dropdown-item text-md flex items-center justify-between w-full',
                                 {
@@ -143,8 +143,8 @@
                               <ul v-show="isSubSubmenuOpen(groupIndex, index, subItem.name)"
                                 class="mt-1 space-y-1 ml-4">
                                 <li v-for="subSubItem in subItem.subItems" :key="subSubItem.name">
-                                  <router-link :to="subSubItem.path" 
-                                    @click="startLoading" 
+                                  <router-link :to="subSubItem.path"
+                                    @click="startLoading"
                                     :class="[
                                       'menu-dropdown-item text-md',
                                       {
@@ -160,9 +160,9 @@
                           </div>
 
                           <!-- Submenu simple -->
-                          <router-link v-else 
-                            :to="subItem.path" 
-                            @click="startLoading" 
+                          <router-link v-else
+                            :to="subItem.path"
+                            @click="startLoading"
                             :class="[
                               'menu-dropdown-item text-md',
                               {
@@ -194,13 +194,9 @@ import {
 
   ChevronDownIcon
 } from "../../icons";
-// import { Building2 } from 'lucide-vue-next'
-
 import { useSidebar } from "@/composables/useSidebar";
 import { isLoading } from '@/composables/spinner';
-// import { CalendarCheck2 } from 'lucide-vue-next'
 import { useServiceStore } from '@/composables/serviceStore';
-import { getServices } from '@/services/api'
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from '@/composables/user'
 import { filterMenuByPermissions } from '@/utils/menuUtil'
@@ -262,35 +258,35 @@ export interface MenuGroupWrapper {
 
 const filteredMenu = computed(() => {
   try {
-    console.log('🔍 Permissions dans le store :', serviceStore.permissions.map(p => p.name))
-    
+    console.log(' Permissions dans le store :', serviceStore.permissions.map(p => p.name))
+
     if (!serviceStore.permissions.length) {
-      console.log('❌ Aucune permission trouvée, menu vide.')
+      console.log(' Aucune permission trouvée, menu vide.')
       return []
     }
 
     const categoryName = serviceStore.serviceCategory
-    console.log('📂 Catégorie de service:', categoryName)
-    
+    console.log(' Catégorie de service:', categoryName)
+
     const menuGroups = getMenuByCategoryName(categoryName, t)
-    console.log('📋 Groupes de menu récupérés:', menuGroups.length)
-    
+    console.log(' Groupes de menu récupérés:', menuGroups.length)
+
     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
-      console.warn('⚠️ Aucun menu trouvé pour la catégorie:', categoryName)
+      console.warn(' Aucun menu trouvé pour la catégorie:', categoryName)
       return []
     }
 
     // Filtrer chaque groupe de menu
     const result = menuGroups.map(group => {
       if (!group || !Array.isArray(group.items)) {
-        console.warn('⚠️ Groupe de menu invalide:', group)
+        console.warn(' Groupe de menu invalide:', group)
         return null
       }
 
       const filteredItems = filterMenuByPermissions(group.items, serviceStore.hasPermission)
-      
+
       if (filteredItems.length === 0) {
-        console.log(`📭 Groupe exclu (aucun item autorisé): ${group.title}`)
+        console.log(` Groupe exclu (aucun item autorisé): ${group.title}`)
         return null
       }
 
@@ -300,11 +296,11 @@ const filteredMenu = computed(() => {
       }
     }).filter(Boolean)
 
-    console.log('✅ Menu final filtré:', result.length, 'groupes')
+    console.log(' Menu final filtré:', result.length, 'groupes')
     return result
-    
+
   } catch (error) {
-    console.error('❌ Erreur dans filteredMenu:', error)
+    console.error(' Erreur dans filteredMenu:', error)
     return []
   }
 })
@@ -336,7 +332,7 @@ const isSubSubmenuOpen = (
   subItemName: string
 ): boolean => {
   const key = `${groupIndex}-${itemIndex}-${subItemName}`;
-  
+
   const item = filteredMenu.value[groupIndex]?.items[itemIndex];
 
   if (!item || typeof item !== 'object' || !('subItems' in item) || !Array.isArray((item as any).subItems)) {
@@ -386,7 +382,7 @@ const startTransition = (el: Element): void => {
   htmlEl.style.height = 'auto';
   const height = htmlEl.scrollHeight;
   htmlEl.style.height = '0px';
-  void htmlEl.offsetHeight; 
+  void htmlEl.offsetHeight;
   htmlEl.style.height = height + 'px';
 };
 
@@ -397,32 +393,12 @@ const endTransition = (el: Element): void => {
 };
 </script>
 <style scoped>
-/* Personnalisation de la scrollbar */
+.sidebar-scroll {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
 .sidebar-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.3);
-  border-radius: 3px;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.5);
-}
-
-/* Pour Firefox */
-.sidebar-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
-}
-
-/* Smooth scroll */
-.sidebar-scroll {
-  scroll-behavior: smooth;
+  display: none;  /* Safari and Chrome */
 }
 </style>

@@ -14,7 +14,67 @@
           </div>
 
           <!-- User Profile -->
-          <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+           <div class="mt-4 sm:mt-0 relative">
+              <!-- Bouton utilisateur -->
+              <button
+                @click="toggleDropdown"
+                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                :class="{ 'bg-gray-100': isDropdownOpen }"
+              >
+                <!-- Avatar -->
+                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                  <span class="text-white font-semibold">
+                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                  </span>
+                </div>
+
+                <!-- Informations utilisateur -->
+                <div class="hidden sm:block text-left">
+                  <p class="text-sm font-medium text-gray-900">{{ user.firstName }} {{ user.lastName }}</p>
+                  <p class="text-sm text-gray-500">{{ user.email }}</p>
+                </div>
+
+                <!-- Icône chevron -->
+                <ChevronDownIcon
+                  class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                  :class="{ 'rotate-180': isDropdownOpen }"
+                />
+              </button>
+
+              <!-- Dropdown Menu -->
+              <transition
+                enter-active-class="transition ease-out duration-200"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-150"
+                leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <div
+                  v-show="isDropdownOpen"
+                  class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-gray-300 ring-opacity-5 z-50"
+                >
+                  <div class="py-1">
+                    <!-- Déconnexion -->
+                    <button
+                      @click="handleLogout"
+                      class="flex items-center w-full px-4 py-3 text-sm text-orange-600 hover:text-orange-800 transition-colors duration-150"
+                    >
+                      <LogoutIcon class="w-4 h-4 mr-3" />
+                      Se déconnecter
+                    </button>
+                  </div>
+                </div>
+              </transition>
+
+              <!-- Overlay pour fermer le dropdown -->
+              <div
+                v-show="isDropdownOpen"
+                @click="closeDropdown"
+                class="fixed inset-0 z-40"
+              ></div>
+           </div>
+          <!-- <div class="mt-4 sm:mt-0 flex items-center space-x-3">
             <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
               <span class="text-white font-semibold">
                 {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
@@ -24,7 +84,7 @@
               <p class="text-sm font-medium text-gray-900">{{ user.firstName }} {{ user.lastName }}</p>
               <p class="text-sm text-gray-500">{{ user.email }}</p>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -258,13 +318,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted , computed, watch, defineEmits,watchEffect } from 'vue'
+import { ref, onMounted , computed, watch, defineEmits,nextTick } from 'vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
+import { ChevronDownIcon, LogoutIcon} from '@/icons'
+import { logout } from '@/services/api';
 
-
-const user = ref<User | null>(null)
+const user = ref<any | null>(null)
 const router = useRouter()
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
@@ -274,14 +335,6 @@ const currentPage = ref(1)
 const servicesPerPage = ref(12)
 const viewMode = ref<'grid' | 'list'>('grid')
 
-interface User {
-  id: number;
-  lastName: string;
-  firstName:string;
-  email:string;
-  services: Service[];
-
-}
 
 interface Service {
   id: number;
@@ -317,21 +370,6 @@ const handleServiceSelect = async (service: Service) => {
   emit('service-selected', service)
   await router.push('/welcome')
 
-
-
-  // if (categoryName) {
-  //   const category = categoryName.toLowerCase()
-  //   if (category === 'hotels & stays' || category === 'restaurants') {
-  //     await router.push('/dashboard')
-  //   } else if (category === 'travel') {
-  //     await router.push('/dashboardTravel')
-  //   } else {
-  //     await router.push('/')
-  //   }
-  // } else {
-  //   console.warn('No category found, redirecting to home')
-  //   await router.push('/')
-  // }
 }
 
 
@@ -419,6 +457,57 @@ const handleImageError = (event: Event) => {
 watch([searchQuery, selectedCategory], () => {
   currentPage.value = 1
 })
+
+const isDropdownOpen = ref(false)
+
+// Methods
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value
+}
+
+const closeDropdown = () => {
+  isDropdownOpen.value = false
+}
+
+const signOut = async () => {
+  try {
+    closeDropdown();
+    authStore.forceLogout();
+    serviceStore.clearServiceId();
+    serviceStore.clearCurrentService();
+    serviceStore.clearServiceCategory();
+    serviceStore.clearPermissions();
+    serviceStore.clearUserService();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('roleId');
+    localStorage.removeItem('UserId');
+
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('roleId');
+    sessionStorage.removeItem('UserId');
+    sessionStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_token');
+
+    await nextTick();
+
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Erreur API logout:', err);
+    }
+
+    await router.replace('/');
+  } catch (error) {
+    console.error('Erreur lors du logout:', error);
+  }
+};
+
+const handleLogout = () => {
+  closeDropdown()
+  signOut()
+}
 </script>
 <style scoped>
 .line-clamp-2 {

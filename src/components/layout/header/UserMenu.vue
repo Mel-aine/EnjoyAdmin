@@ -84,7 +84,7 @@ import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIc
 import ServiceSwitcher from '@/views/Services/ServiceSwitcher.vue'
 import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
-import { ref, onMounted, onUnmounted ,computed} from 'vue'
+import { ref, onMounted, onUnmounted ,computed , nextTick} from 'vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
@@ -114,84 +114,32 @@ const Email = computed(() => {
    return `${user?.email ?? ''}`
 })
 
-// Solution 1: Nettoyer AVANT de rediriger
-// const signOut = async () => {
-//   console.log('=== DÉBUT LOGOUT ===');
-  
-//   try {
-//     // 1. FERMER LE DROPDOWN IMMÉDIATEMENT
-//     closeDropdown();
-    
-//     // 2. NETTOYAGE COMPLET DU STORE EN PREMIER
-//     console.log('Nettoyage du store...');
-//     authStore.forceLogout();
-    
-//     // 3. NETTOYAGE DES TOKENS DE SESSION
-//     sessionStorage.removeItem('auth_token');
-//     localStorage.removeItem('auth_token');
-    
-//     // 4. NETTOYAGE DES AUTRES STORES
-//     serviceStore.clearServiceId();
-//     serviceStore.clearCurrentService();
-//     serviceStore.clearServiceCategory();
-//     serviceStore.clearPermissions();
-//     serviceStore.clearUserService();
-    
-//     // 5. ATTENDRE UN PEU POUR QUE LE STORE SOIT VRAIMENT NETTOYÉ
-//     await new Promise(resolve => setTimeout(resolve, 100));
-    
-//     console.log('Store après nettoyage:', {
-//       isFullyAuthenticated: authStore.isFullyAuthenticated,
-//       token: !!authStore.token,
-//       user: !!authStore.user,
-//       UserId: !!authStore.UserId,
-//       roleId: !!authStore.roleId
-//     });
-    
-//     // 6. APPEL API APRÈS LE NETTOYAGE (non bloquant)
-//     try {
-//       await logout();
-//       console.log('API logout OK');
-//     } catch (apiError) {
-//       console.error('Erreur API logout:', apiError);
-//     }
-    
-//     // 7. REDIRECTION SEULEMENT APRÈS NETTOYAGE COMPLET
-//     console.log('Redirection vers /');
-//     await router.replace('/');
-    
-//     console.log('=== FIN LOGOUT ===');
-    
-//   } catch (error) {
-//     console.error('Erreur lors du logout:', error);
-//   }
-// };
 
-import { nextTick } from 'vue';
+
+
 
 const signOut = async () => {
   try {
     closeDropdown();
     authStore.forceLogout();
-
-    sessionStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_token');
-
     serviceStore.clearServiceId();
     serviceStore.clearCurrentService();
     serviceStore.clearServiceCategory();
     serviceStore.clearPermissions();
     serviceStore.clearUserService();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('roleId');
+    localStorage.removeItem('UserId');
 
-    await nextTick(); 
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('roleId');
+    sessionStorage.removeItem('UserId');
+    sessionStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_token');
 
-    console.log('Store après nettoyage:', {
-      isFullyAuthenticated: authStore.isFullyAuthenticated,
-      token: !!authStore.token?.value,
-      user: !!authStore.user?.value,
-      UserId: !!authStore.UserId?.value,
-      roleId: !!authStore.roleId?.value,
-    }); 
+    await nextTick();
 
     try {
       await logout();

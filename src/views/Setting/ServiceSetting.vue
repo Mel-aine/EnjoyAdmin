@@ -236,7 +236,7 @@
           />
         </div>
       </div>
-      <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <!-- <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('PaymentMethod') }}</h3>
 
         <div v-if="payment.length" class="space-y-2">
@@ -256,7 +256,7 @@
         </div>
         <div v-else class="text-gray-500 italic">{{ $t('NoPaymentMethods') }}</div>
 
-        <!-- Input + Add button -->
+
         <div class="mt-4 flex items-center gap-2">
           <Input
             v-model="newPayment"
@@ -272,7 +272,10 @@
             {{ $t('add') }}
           </button>
         </div>
-      </div>
+      </div> -->
+      <PaymentMethod v-model="selectedPaymentMethods"
+      @update:modelValue="handlePaymentMethodsUpdate"  />
+
     </div>
 
     <!-- Boutons d'action -->
@@ -316,7 +319,7 @@ import { getService, updateService } from '@/services/api'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useToast } from 'vue-toastification'
-// import ScheduleManagement from './ScheduleManagement.vue'
+import PaymentMethod from './PaymentMethod.vue'
 import InfoGeneral from './InfoGeneral.vue'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 
@@ -354,6 +357,7 @@ const logoUrl = ref('')
 const availableServices = ref<string[]>([])
 const Logo = ref<any>('')
 const Images = ref<any[]>([])
+const selectedPaymentMethods = ref<any[]>([])
 
 const addPayment = () => {
   if (newPayment.value && !payment.value.includes(newPayment.value)) {
@@ -390,11 +394,12 @@ const hotelInfo = ref({
 })
 
 const pricingParameters = reactive<PricingParameters>({
-  currency: 'EUR',
-  taxRate: 20,
+  currency: 'XAF',
+  taxRate: 19.25,
 })
 
 const availableCurrencies = computed(() => [
+  { code: 'XAF', name: t('currencies.XAF') },
   { code: 'EUR', name: t('currencies.EUR') },
   { code: 'USD', name: t('currencies.USD') },
   { code: 'GBP', name: t('currencies.GBP') },
@@ -409,32 +414,101 @@ const currencyOptions = computed(() =>
   })),
 )
 
-onMounted(async () => {
-  const serviceId = serviceStore.serviceId
-  const data = await getService(serviceId)
-  payment.value = data.data.paymentMethods
-  serviceStore.currentService = JSON.stringify(data.data);
-  availableServices.value = data.data.facilities
+// onMounted(async () => {
+//   const serviceId = serviceStore.serviceId
+//   const data = await getService(serviceId)
+//   selectedPaymentMethods.value = data.data.paymentMethods
+//   serviceStore.currentService = JSON.stringify(data.data);
+//   availableServices.value = data.data.facilities
 
-  logoUrl.value = data.data.logo
-  console.log('logoUrl.value :', logoUrl.value)
-  console.log('payment :', payment.value)
-  console.log('Adresse brute:', data.data.addressService)
-  console.log('facilities :', data.data.facilities)
-  let address = data.data.addressService
-  if (typeof address === 'string') {
-    try {
-      address = JSON.parse(address)
-    } catch (e) {
-      console.error('Erreur de parsing de addressService:', e)
-      address = { text: '' }
+//   logoUrl.value = data.data.logo
+//   console.log('logoUrl.value :', logoUrl.value)
+//   console.log('payment :', payment.value)
+//   console.log('Adresse brute:', data.data.addressService)
+//   console.log('facilities :', data.data.facilities)
+//   let address = data.data.addressService
+//   if (typeof address === 'string') {
+//     try {
+//       address = JSON.parse(address)
+//     } catch (e) {
+//       console.error('Erreur de parsing de addressService:', e)
+//       address = { text: '' }
+//     }
+//   }
+//   hotelInfo.value = {
+//     name: data.data.name,
+//     address: address,
+//     phone: data.data.phoneNumberService,
+//     email: data.data.emailService,
+//   }
+// })
+
+const handlePaymentMethodsUpdate = (newPaymentMethods) => {
+  console.log('Méthodes de paiement mises à jour:', newPaymentMethods)
+  selectedPaymentMethods.value = newPaymentMethods
+  // Vous pouvez ici sauvegarder les changements si nécessaire
+  // await updateServicePaymentMethods(serviceStore.serviceId, newPaymentMethods)
+}
+
+onMounted(async () => {
+  try {
+    const serviceId = serviceStore.serviceId
+    const data = await getService(serviceId)
+
+    console.log('Données complètes de l\'API:', data.data)
+    console.log('Type de paymentMethods:', typeof data.data.paymentMethods)
+    console.log('Valeur brute de paymentMethods:', data.data.paymentMethods)
+
+    // Initialiser les méthodes de paiement
+    // Assurez-vous que data.data.paymentMethods est un tableau
+    if (Array.isArray(data.data.paymentMethods)) {
+      selectedPaymentMethods.value = [...data.data.paymentMethods]
+    } else if (typeof data.data.paymentMethods === 'string') {
+      // Si c'est une chaîne JSON, la parser
+      try {
+        const parsed = JSON.parse(data.data.paymentMethods)
+        selectedPaymentMethods.value = Array.isArray(parsed) ? parsed : []
+      } catch (e) {
+        console.error('Erreur de parsing des méthodes de paiement:', e)
+        selectedPaymentMethods.value = []
+      }
+    } else if (data.data.paymentMethods) {
+
+      selectedPaymentMethods.value = Object.values(data.data.paymentMethods)
+    } else {
+      selectedPaymentMethods.value = []
     }
-  }
-  hotelInfo.value = {
-    name: data.data.name,
-    address: address,
-    phone: data.data.phoneNumberService,
-    email: data.data.emailService,
+
+    console.log('selectedPaymentMethods final:', selectedPaymentMethods.value)
+
+    serviceStore.currentService = JSON.stringify(data.data)
+    availableServices.value = data.data.facilities
+    logoUrl.value = data.data.logo
+
+    console.log('logoUrl.value :', logoUrl.value)
+    console.log('Adresse brute:', data.data.addressService)
+    console.log('facilities :', data.data.facilities)
+
+    let address = data.data.addressService
+    if (typeof address === 'string') {
+      try {
+        address = JSON.parse(address)
+      } catch (e) {
+        console.error('Erreur de parsing de addressService:', e)
+        address = { text: '' }
+      }
+    }
+
+    hotelInfo.value = {
+      name: data.data.name,
+      address: address,
+      phone: data.data.phoneNumberService,
+      email: data.data.emailService,
+    }
+
+  } catch (error) {
+    console.error('Erreur lors du chargement du service:', error)
+    selectedPaymentMethods.value = []
   }
 })
 
@@ -451,7 +525,7 @@ const updateParameters = async () => {
       email_service: hotelInfo.value.email,
       phone_number_service: hotelInfo.value.phone,
       facilities: JSON.stringify(availableServices.value),
-      payment_methods: JSON.stringify(payment.value),
+      payment_methods: JSON.stringify(selectedPaymentMethods.value),
       logo: Logo.value,
       images: JSON.stringify(Images.value),
     }

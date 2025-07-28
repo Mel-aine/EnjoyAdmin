@@ -30,30 +30,7 @@
               class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
-          <div class="flex justify-end gap-3">
-              <button
-                @click="toggleEditMode"
-                :class="
-                  editMode
-                    ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-                    : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-                "
-                class="px-4 py-2 rounded-lg border transition-colors"
-              >
-                {{ editMode ? $t('Cancel') : $t('edit') }}
-              </button>
-              <button
-                v-if="editMode"
-                @click="savePermissions"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-              <span v-if="!isLoading"> {{ $t('Save') }}</span>
-                <span v-else class="flex items-center gap-2">
-                  <Spinner class="w-4 h-4" />
-                  {{ $t('Processing') }}...
-                </span>
-              </button>
-          </div>
+
         </div>
         </div>
 
@@ -118,6 +95,26 @@
                   </div>
                 </label>
               </div>
+              <div class="mt-6 flex justify-end gap-3">
+                <button
+                      @click="toggleEditMode"
+
+                      class="px-4 py-2 rounded-lg border transition-colorsbg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                    >
+                        {{ $t('Cancel') }}
+                    </button>
+                    <button
+                      v-if="editMode"
+                      @click="savePermissions"
+                      class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                    <span v-if="!isLoading"> {{ $t('Save') }}</span>
+                      <span v-else class="flex items-center gap-2">
+                        <Spinner class="w-4 h-4" />
+                        {{ $t('Processing') }}...
+                      </span>
+                    </button>
+              </div>
             </div>
             <div v-else>
               <div
@@ -133,6 +130,15 @@
                       {{ selectedRole.permissions?.service?.length || 0 }} {{$t('permission')}}{{ selectedRole.permissions?.service?.length>0 ? 's' : '' }} {{$t('assigned')}}
                     </p>
                     <p class="text-sm text-gray-500 mt-1">{{ selectedRole.description }}</p>
+                  </div>
+                  <div class="flex justify-end gap-3">
+                    <button
+                      @click="toggleEditMode"
+
+                      class="px-4 py-2 rounded-lg border transition-colors bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                    >
+                        {{ $t('edit') }}
+                    </button>
                   </div>
                 </div>
 

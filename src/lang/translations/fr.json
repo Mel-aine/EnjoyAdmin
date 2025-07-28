@@ -408,6 +408,7 @@
   "Terminate": "Terminer",
   "PasswordRequirements": "Mot de passe requis",
   "currencies": {
+    "XAF": "Franc CFA",
     "EUR": "Euro",
     "USD": "Dollar américain",
     "GBP": "Livre sterling",
