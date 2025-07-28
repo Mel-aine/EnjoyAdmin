@@ -123,13 +123,14 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue';
-import { createDepartment, getDepartment, updateDpt, deleteDpt, getUser } from "@/services/api";
+import { createDepartment, getDepartment, updateDpt, deleteDpt, getUser, getUserByServiceId } from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
 import { departments } from '@/assets/data/department';
 import router from '@/router';
+import { json } from 'stream/consumers';
 
 
 
@@ -236,15 +237,13 @@ const fetchUser = async () => {
       throw new Error('Service ID is not defined');
     }
 
-    const response = await getUser();
-    console.log("All users:", response.data.data);
-    console.log("-->serviceId", serviceId);
-    Users.value = response.data.data
-      .filter((user: any) => user.serviceId === serviceId)
-      .map((item: any) => ({
-        label: item.firstName + ' ' + item.lastName,
-        value: item.id
-      }));
+    const response = await getUserByServiceId(serviceId);
+    const _users = JSON.parse(response.data.data);
+    console.log("-->_users", _users);
+    Users.value = _users.map((item: any) => ({
+      label: item.user.firstName + ' ' + item.user.lastName,
+      value: item.user.id
+    }));
 
 
     console.log("Filtered users:", Users.value);
@@ -319,22 +318,24 @@ const fetchDepartment = async () => {
     const departments = departmentsResponse.data;
     console.log('Departments:', departments);
 
-    const usersResponse = await getUser();
-    const users = usersResponse.data.data.filter(
-      (user: any) => Number(user.serviceId) === Number(serviceId)
-    );
-    console.log('Filtered users:', users);
+    if (!serviceId) {
+      throw new Error('Service ID is not defined');
+    }
+
+    const response = await getUserByServiceId(serviceId);
+    const userDetails = JSON.parse(response.data.data);
+    console.log("-->_userDetails", userDetails);
 
     departments.forEach((dept: any) => {
       console.log('Processing dept:', dept.name, 'Responsible ID:', dept.responsibleUserId);
 
-      const responsibleUser = users.find(
-        (user: any) => Number(user.id) === Number(dept.responsibleUserId)
+      const responsibleUser = userDetails.find(
+        (item: any) => Number(item.user.id) === Number(dept.responsibleUserId)
       );
 
       if (responsibleUser) {
-        console.log('Found responsible user:', responsibleUser.firstName ?? responsibleUser.firstName, responsibleUser.lastName ?? responsibleUser.lastName);
-        dept.responsibleUserName = `${responsibleUser.firstName ?? responsibleUser.firstName} ${responsibleUser.lastName ?? responsibleUser.lastName}`;
+        console.log('Found responsible user:', responsibleUser.user.firstName ?? responsibleUser.user.firstName, responsibleUser.user.lastName ?? responsibleUser.user.lastName);
+        dept.responsibleUserName = `${responsibleUser.user.firstName ?? responsibleUser.user.firstName} ${responsibleUser.user.lastName ?? responsibleUser.user.lastName}`;
       } else {
         console.log('No responsible user found for dept:', dept.name);
         dept.responsibleUserName = t('Unknown');

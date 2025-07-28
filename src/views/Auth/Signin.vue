@@ -266,13 +266,7 @@ const handleSubmit = async () => {
     const { user, user_token } = res.data.data;
     const token = user_token.token;
     serviceStore.setService(res.data.data.userServices)
-
-    if (keepLoggedIn.value) {
-      localStorage.setItem('auth_token', token);
-    } else {
-      sessionStorage.setItem('auth_token', token);
-    }
-
+    
     // Stocker les permissions
     serviceStore.setPermissions(res.data.data.permissions)
 

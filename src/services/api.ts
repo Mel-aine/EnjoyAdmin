@@ -106,6 +106,11 @@ export const getTypeProductByServiceId = (id: number | null): Promise<AxiosRespo
 export const getUser = (): Promise<AxiosResponse<{ data: userDataType[] }>> => {
   return axios.get(`${API_URL}/users`, headers)
 }
+
+export const getUserByServiceId = (id:number): Promise<AxiosResponse<{ data: string }>> => {
+  console.log("-->API", headers);
+  return axios.get(`${API_URL}/usersbyservice/${id}`, headers)
+}
 export const getCustomerProfile = (id:number): Promise<AxiosResponse<{ data: userDataType[] }>> => {
   return axios.get(`${API_URL}/users/${id}/profile`, headers)
 }
