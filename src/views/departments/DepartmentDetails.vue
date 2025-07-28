@@ -143,7 +143,7 @@
                                 {{ $t('Owner') }}
                             </h3>
                             <div class="space-y-1"
-                                v-if="departmentRaw.departmentDetails.responsibleUser && departmentRaw.departmentDetails?.responsibleUserId">
+                                v-if="departmentRaw.departmentDetails?.responsibleUser && departmentRaw.departmentDetails?.responsibleUserId">
                                 <DetailRow :label="$t('Name')"
                                     :value="departmentRaw.departmentDetails.responsibleUser.firstName" />
                                 <DetailRow :label="$t('email')"
@@ -163,7 +163,7 @@
                                         </p>
                                     </div>
 
-                                    <button @click="handleOpenEditModal"
+                                    <button @click="emitAssignOwner"
                                         class="w-full bg-primary hover:bg-primary/85 text-white font-bold py-3 px-4 rounded-lg
                transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
                                         {{ $t('assignOwnerButton') }}
