@@ -258,6 +258,7 @@ const addDepartment = async () => {
   try {
     if (isEditing.value) {
       await updateData();
+      await fetchDepartment();
 
     } else {
       // Création d'un nouveau mouvement
