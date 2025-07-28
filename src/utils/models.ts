@@ -261,7 +261,16 @@ export interface FitlterItem {
   roleId?:string
   department?: string
 }
-
+export interface TaskFitlterItem {
+  userId: string
+  status: string
+  dueDate: string
+  createdDate: string
+  roleId?:string
+  departmentId?: string
+  serviceId?: number
+  searchText?:string
+}
 export interface RoomFilterItem {
   searchText: string
   status: string
