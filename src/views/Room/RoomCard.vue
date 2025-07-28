@@ -7,7 +7,7 @@
       <div>
         <div class="flex items-center space-x-2">
           <h3 class="text-xl font-semibold text-gray-900 tracking-tight">
-            {{ room.productName || room.name }}
+            {{ room.productName || room.name }} {{ room.roomNumber ? `${room.roomNumber}` : '' }}
           </h3>
           <button
             @click="$emit('request-status-change', room)"

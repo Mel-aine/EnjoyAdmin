@@ -8,7 +8,7 @@
 
     <!-- section upLoader l image  -->
 
-    <div class="max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg py-8 mb-8">
+    <div class="max-w-full mx-auto p-6 bg-white rounded-lg  py-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $t('image_logo') }}</h2>
       <div class="flex justify-end">
         <img :src="logoUrl" alt="Logo" class="w-15 h-auto rounded-full border border-gray-300" />
@@ -207,12 +207,12 @@
       </div>
     </div>
 
-    <!-- <div class="mb-8">
-    <ScheduleManagement/>
-    </div> -->
+     <div class="mb-8">
+    <GeneralSetting/>
+    </div>
 
     <!-- Section Paramètres de Tarification -->
-    <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg">
       <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('pricingSettings') }}</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -236,43 +236,7 @@
           />
         </div>
       </div>
-      <!-- <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('PaymentMethod') }}</h3>
 
-        <div v-if="payment.length" class="space-y-2">
-          <div
-            v-for="(method, index) in payment"
-            :key="index"
-            class="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-md"
-          >
-            <span class="text-gray-700">{{ method }}</span>
-            <button
-              @click="removePayment(index)"
-              class="text-red-500 hover:text-red-700 transition"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-        <div v-else class="text-gray-500 italic">{{ $t('NoPaymentMethods') }}</div>
-
-
-        <div class="mt-4 flex items-center gap-2">
-          <Input
-            v-model="newPayment"
-            type="text"
-            :placeholder="$t('addPayment')"
-            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          <button
-            @click="addPayment"
-            :disabled="!newPayment"
-            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
-          >
-            {{ $t('add') }}
-          </button>
-        </div>
-      </div> -->
       <PaymentMethod v-model="selectedPaymentMethods"
       @update:modelValue="handlePaymentMethodsUpdate"  />
 
@@ -322,6 +286,7 @@ import { useToast } from 'vue-toastification'
 import PaymentMethod from './PaymentMethod.vue'
 import InfoGeneral from './InfoGeneral.vue'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
+import GeneralSetting from './GeneralSetting.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -414,40 +379,12 @@ const currencyOptions = computed(() =>
   })),
 )
 
-// onMounted(async () => {
-//   const serviceId = serviceStore.serviceId
-//   const data = await getService(serviceId)
-//   selectedPaymentMethods.value = data.data.paymentMethods
-//   serviceStore.currentService = JSON.stringify(data.data);
-//   availableServices.value = data.data.facilities
 
-//   logoUrl.value = data.data.logo
-//   console.log('logoUrl.value :', logoUrl.value)
-//   console.log('payment :', payment.value)
-//   console.log('Adresse brute:', data.data.addressService)
-//   console.log('facilities :', data.data.facilities)
-//   let address = data.data.addressService
-//   if (typeof address === 'string') {
-//     try {
-//       address = JSON.parse(address)
-//     } catch (e) {
-//       console.error('Erreur de parsing de addressService:', e)
-//       address = { text: '' }
-//     }
-//   }
-//   hotelInfo.value = {
-//     name: data.data.name,
-//     address: address,
-//     phone: data.data.phoneNumberService,
-//     email: data.data.emailService,
-//   }
-// })
 
-const handlePaymentMethodsUpdate = (newPaymentMethods) => {
+const handlePaymentMethodsUpdate = (newPaymentMethods:any) => {
   console.log('Méthodes de paiement mises à jour:', newPaymentMethods)
   selectedPaymentMethods.value = newPaymentMethods
-  // Vous pouvez ici sauvegarder les changements si nécessaire
-  // await updateServicePaymentMethods(serviceStore.serviceId, newPaymentMethods)
+
 }
 
 onMounted(async () => {
@@ -459,12 +396,9 @@ onMounted(async () => {
     console.log('Type de paymentMethods:', typeof data.data.paymentMethods)
     console.log('Valeur brute de paymentMethods:', data.data.paymentMethods)
 
-    // Initialiser les méthodes de paiement
-    // Assurez-vous que data.data.paymentMethods est un tableau
     if (Array.isArray(data.data.paymentMethods)) {
       selectedPaymentMethods.value = [...data.data.paymentMethods]
     } else if (typeof data.data.paymentMethods === 'string') {
-      // Si c'est une chaîne JSON, la parser
       try {
         const parsed = JSON.parse(data.data.paymentMethods)
         selectedPaymentMethods.value = Array.isArray(parsed) ? parsed : []

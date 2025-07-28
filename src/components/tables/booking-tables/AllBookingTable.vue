@@ -64,7 +64,9 @@ const formatDate = (dateString: string) => {
 
 const applyFilter = async (filter: FitlterItem) => {
   loading.value = true;
+  console.log(' filter:', filter);
   const res = await filterReservation(serviceStore.serviceId!, filter);
+
   reservations.value =[];
   if (res.status === 200 || res.status === 201) {
     console.log(res.data)

@@ -36,8 +36,8 @@
             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
 
             <option value="">{{ $t('reservationsList.filterAll') }}</option>
-            <option v-for="statusOption in statusOptions" :key="statusOption" :value="statusOption">{{
-              $t(`reservationStatus.${statusOption}`) }}</option>
+            <option v-for="statusOption in statusOptions" :key="statusOption.value" :value="statusOption.value">{{
+              $t(`reservationStatus.${statusOption.label}`) }}</option>
           </select>
         </div>
 
@@ -49,7 +49,7 @@
             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
             >
             <option value="">{{ $t('reservationsList.filterAll') }}</option>
-            <option v-for="type in activeRoomTypes" :key="type.id" :value="type.id">{{ type.label }}</option>
+            <option v-for="type in activeRoomTypes" :key="type.id" :value="type.label">{{ type.label }}</option>
           </select>
         </div>
 
@@ -125,9 +125,18 @@ const filters = ref<FitlterItem>({
 const showFilter = ref(false);
 const serviceStore = useServiceStore()
 // Options for status dropdown
-const statusOptions = ref([
-  'Confirmed', 'Cancelled', 'Checked-in', 'Checked-out', 'Pending', 'No-show'
-]);
+// const statusOptions = ref([
+//   'Confirmed', 'Cancelled', 'Checked-in', 'Checked-out', 'Pending', 'No-show'
+// ]);
+const rawStatuses = ['Confirmed', 'Cancelled', 'Checked-in', 'Checked-out', 'Pending', 'No-show']
+
+const statusOptions = ref(
+  rawStatuses.map(label => ({
+    label,
+    value: label.toLowerCase().replace(/-/g, '_').replace(/\s/g, '_')
+  }))
+)
+
 const flatpickrConfig = {
   dateFormat: 'Y-m-d',
   altInput: true,
@@ -171,6 +180,7 @@ const fetchRoomType = async () => {
 onMounted(() => {
   fetchRoomType();
   applyFilters();
+
 });
 </script>
 

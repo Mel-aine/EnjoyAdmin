@@ -696,6 +696,7 @@ const fetchServiceProduct = async () => {
     const serviceId = serviceStore.serviceId
     const response = await getServiceProductWithOptions(serviceId)
     const serviceProducts = response.data
+    console.log('Service Products:', serviceProducts)
 
     if (Array.isArray(serviceProducts)) {
       console.log('response.data est un tableau')

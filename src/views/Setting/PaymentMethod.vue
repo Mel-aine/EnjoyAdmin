@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-8 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+  <div class="mb-8 max-w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
     <h3 class="text-xl font-semibold text-gray-700 mb-6">{{ $t('PaymentMethod') }}</h3>
 
     <!-- Grid de méthodes de paiement -->
@@ -81,41 +81,61 @@ import { ref, watch } from 'vue'
 // Méthodes de paiement disponibles
 const paymentMethods = ref([
   {
-    value: 'cash',
+    value: 'Cash',
     label: 'Cash',
     description: 'PaymentCash',
     icon: '💵'
   },
   {
-    value: 'credit_card',
+    value: 'SmallPay',
+    label: 'SmallPay',
+    description: 'PaymentSmallPay',
+    icon: 'S'
+  },
+  {
+    value: 'Credit Card',
     label: 'CreditCard',
     description: 'PaymentCreditCard',
     icon: '💳'
   },
   {
-    value: 'debit_card',
+    value: 'debit card',
     label: 'DebitCard',
     description: 'PaymentDebitCard',
     icon: '🏧'
   },
   {
-    value: 'bank_transfer',
+    value: 'Bank Transfer',
     label: 'BankTransfer',
     description: 'PaymentBankTransfer',
     icon: '🏦'
   },
   {
-    value: 'mobile_money',
+    value: 'Mobile Money',
     label: 'MobileMoney',
     description: 'PaymentMobileMoney',
     icon: '📱'
   },
+   {
+    value: 'Orange Money',
+    label: 'OrangeMoney',
+    description: 'PaymentOrangeMoney',
+    icon: '📱'
+  },
   {
-    value: 'paypal',
+    value: 'PayPal',
     label: 'PayPal',
     description: 'PaymentPayPal',
     icon: '🅿️'
-  }
+  },
+  {
+  value: 'Check',
+  label: 'check',
+  description: 'PaymentCheck',
+  icon: '📝'
+}
+
+
 ])
 
 

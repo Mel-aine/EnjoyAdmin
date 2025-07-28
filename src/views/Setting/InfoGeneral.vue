@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-8 bg-white rounded-lg p-6 max-w-full mx-auto shadow-lg">
+  <div class="mb-8 bg-white rounded-lg p-6 max-w-full mx-auto ">
     <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ $t('generalInfo') }}</h3>
 
     <div class="mb-4">
