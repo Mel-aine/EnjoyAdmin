@@ -2213,5 +2213,11 @@
     "roomNumberExists": "This room number already exists!",
     "capacityExceeded": "Capacity cannot exceed {max} for this room type",
      "positivePrice": "The price must be a positive number"
-  }
+  },
+  "userList": {
+    "searchByName":"Search by name",
+    "searchPlaceholder":"Search by name"
+  },
+  "user_permissions":"User permissions",
+  "no_permissions":"No Permission assign to user role"
 }

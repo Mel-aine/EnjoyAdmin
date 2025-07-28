@@ -18,17 +18,17 @@
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ lastname }}</p>
             </div>
             <div>
-              <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{ $t('Email') }}</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ email }}</p>
+              <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{ $t('Birthday') }}</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ birthday??'N/A' }}</p>
             </div>
             <div>
-              <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{ $t('Phone') }}</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ phone }}</p>
+              <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{ $t('Sex') }}</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ sex ?? 'N/A' }}</p>
             </div>
           </div>
         </div>
 
-        <button type="button" @click="openModal" class="inline-flex dark:text-white">
+        <button type="button" @click="editUser" class="inline-flex dark:text-white">
           <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18">
             <path
               fill-rule="evenodd"
@@ -41,115 +41,22 @@
       </div>
     </div>
 
-    <!-- Modal d’édition -->
-    <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
-      <template #body>
-        <div class="relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-          <button
-            @click="isProfileInfoModal = false"
-            class="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-white/[0.07]"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-              />
-            </svg>
-          </button>
-
-          <div class="px-2 pr-14">
-            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              {{ $t('editPersonalInformation') }}
-            </h4>
-            <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-              {{ $t('updateInfo') }}
-            </p>
-          </div>
-
-          <!-- Formulaire -->
-          <form class="flex flex-col">
-            <div class="custom-scrollbar h-[300px] overflow-y-auto p-2">
-              <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Input v-model="localFirstname" :lb="$t('FirstName')" :id="'first'" :forLabel="'first'"/>
-                </div>
-
-                <div>
-                  <Input v-model="localLastname" :lb="$t('LastName')" :id="'firs'" :forLabel="'firs'" />
-                </div>
-
-                <div>
-                  <Input v-model="localEmail" :lb="$t('Email')" :id="'fir'" :forLabel="'fir'"/>
-                </div>
-
-                <div>
-                  <Input v-model="localPhone" :lb="$t('Phone')" :id="'phone'" :forLabel="'phone'" />
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <button
-                @click="isProfileInfoModal = false"
-                type="button"
-                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 sm:w-auto"
-              >
-                {{ $t('Cancel') }}
-              </button>
-              <button
-                @click="saveChanges"
-                type="button"
-                class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
-              >
-                {{ $t('SaveChanges') }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </template>
-    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from 'vue'
-import Modal from '@/components/profile/Modal.vue'
-import Input from '../forms/FormElements/Input.vue'
-
 const props = defineProps({
   firstname: String,
   lastname: String,
-  email: String,
-  phone: String,
+  birthday: String,
+  sex: String,
 })
 
 const emit = defineEmits(['updateProfile'])
 
-const isProfileInfoModal = ref(false)
-
-const localFirstname = ref('')
-const localLastname = ref('')
-const localEmail = ref('')
-const localPhone = ref('')
-
-const openModal = () => {
-  localFirstname.value = props.firstname || ''
-  localLastname.value = props.lastname || ''
-  localEmail.value = props.email || ''
-  localPhone.value = props.phone || ''
-  isProfileInfoModal.value = true
-}
-
-const saveChanges = () => {
-  emit('updateProfile', {
-    firstname: localFirstname.value,
-    lastname: localLastname.value,
-    email: localEmail.value,
-    phone: localPhone.value,
-  })
-  isProfileInfoModal.value = false
-}
+const editUser = () => {
+  emit('updateProfile')}
 </script>
 
 <!-- <style scoped>

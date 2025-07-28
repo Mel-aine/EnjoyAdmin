@@ -61,13 +61,13 @@
           </button>
 
 
-          <button
+          <!-- <button
             @click="importDefaultDefaults"
             class="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             📥
             {{ t('importdefault') }}
-          </button>
+          </button> -->
         </div>
 
       </div>
@@ -672,7 +672,8 @@ const fetchRoomType = async () => {
     )
       console.log("roomCounts",roomCounts)
     const roomTypesWithCount = response.data.map((roomType:any, index:any) => {
-      const statusClasses = getStatusColor(roomType.status).split(' ')
+      const status = roomType.status || t('Unknown')
+      const statusClasses = getStatusColor(status).split(' ')
 
       return {
         ...roomType,
@@ -682,7 +683,7 @@ const fetchRoomType = async () => {
         },
         roomCount: roomCounts[index].data.total_rooms || 0,
         statusColor: {
-          label: t(roomType.status),
+          label: t(status),
           bg: statusClasses[0],
           text: statusClasses[1],
         },
@@ -769,42 +770,42 @@ const confirmDelete = async () => {
   }
 }
 
-const importDefaultDefaults = async () => {
-  const defaultRoomTypesData = defaultRoomTypes
-  if (defaultRoomTypesData && defaultRoomTypesData.length > 0) {
-    isLoading.value = true
-    try {
-      const serviceId = serviceStore.serviceId
+// const importDefaultDefaults = async () => {
+//   const defaultRoomTypesData = defaultRoomTypes
+//   if (defaultRoomTypesData && defaultRoomTypesData.length > 0) {
+//     isLoading.value = true
+//     try {
+//       const serviceId = serviceStore.serviceId
 
-      if (!serviceId) {
-        throw new Error('Service ID is not defined')
-      }
+//       if (!serviceId) {
+//         throw new Error('Service ID is not defined')
+//       }
 
-      for (const roomType of defaultRoomTypesData) {
-        const Payload = {
-          name: roomType.name,
-          description: roomType.description,
-          status: 'active',
-          service_id: serviceId,
-          price: roomType.Prix,
-          default_guest: roomType.DefaultGuest,
-          extra_guest_price: roomType.ExtraGuestPrice,
-          default_deposit: roomType.DefaultDeposit,
-        }
+//       for (const roomType of defaultRoomTypesData) {
+//         const Payload = {
+//           name: roomType.name,
+//           description: roomType.description,
+//           status: 'active',
+//           service_id: serviceId,
+//           price: roomType.Prix,
+//           default_guest: roomType.DefaultGuest,
+//           extra_guest_price: roomType.ExtraGuestPrice,
+//           default_deposit: roomType.DefaultDeposit,
+//         }
 
-        await createRoomType(Payload)
-      }
+//         await createRoomType(Payload)
+//       }
 
-      fetchRoomType()
-      toast.success(t('toast.defaultRoomTypesImported'))
-    } catch (error) {
-      console.error('Erreur lors de l\'importation des types de chambre par défaut', error)
-      toast.error(t('toast.importError'))
-    } finally {
-      isLoading.value = false
-    }
-  }
-}
+//       fetchRoomType()
+//       toast.success(t('toast.defaultRoomTypesImported'))
+//     } catch (error) {
+//       console.error('Erreur lors de l\'importation des types de chambre par défaut', error)
+//       toast.error(t('toast.importError'))
+//     } finally {
+//       isLoading.value = false
+//     }
+//   }
+// }
 
 // Gestionnaires d'événements
 const onEditRoomType = (type: any) => handleBookingAction('edit', type)

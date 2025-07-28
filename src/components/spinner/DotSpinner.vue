@@ -3,8 +3,8 @@
   <div class="flex items-center justify-center">
     <div class="flex space-x-2 ">
       <div class="w-2 h-2 bg-blue-500 rounded-full spinner-dot-animation spinner-dot-1"></div>
-      <div class="w-4 h-4 bg-blue-500 rounded-full spinner-dot-animation spinner-dot-2"></div>
-      <div class="w-4 h-4 bg-blue-500 rounded-full spinner-dot-animation spinner-dot-3"></div>
+      <div class="w-2 h-2 bg-blue-500 rounded-full spinner-dot-animation spinner-dot-2"></div>
+      <div class="w-2 h-2 bg-blue-500 rounded-full spinner-dot-animation spinner-dot-3"></div>
     </div>
   </div>
 </template>

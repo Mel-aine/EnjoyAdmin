@@ -45,7 +45,9 @@ watch(selectedCustomer, (newVal) => {
 
 
 const selectCustomer = (customer: any) => {
-
+  if (!customer){
+    return
+  }
   selectedCustomer.value.firstName = customer.firstName ?? selectedCustomer.value.firstName;
   selectedCustomer.value.lastName = customer.lastName ?? selectedCustomer.value.lastName;
   selectedCustomer.value.email = customer.email ?? selectedCustomer.value.email;
