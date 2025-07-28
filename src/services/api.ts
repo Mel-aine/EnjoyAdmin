@@ -657,6 +657,8 @@ export const deleteSupplier = (id: number | null): Promise<AxiosResponse<any>> =
 }
 
 export const deleteDpt = (id: number | null): Promise<AxiosResponse<any>> => {
+
+  console.log('-->deleteDpt.id', id)
   return axios.delete(`${API_URL}/department/${id}`, headers)
 }
 
