@@ -461,6 +461,7 @@ const fetchRoles = async () => {
   try {
     const serviceId = serviceStore.serviceId
     const response = await getRoles(serviceId)
+    console.log("fetchRoles",response.data)
     roles.value = response.data.roles.filter((role: any) => role.name.toLowerCase() !== 'admin')
 
   } catch (error) {

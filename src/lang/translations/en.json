@@ -1709,11 +1709,6 @@
   "welcome_no_access_line1": "You do not have access to any main page.",
   "welcome_no_access_line2": "Please contact an administrator.",
   "welcome_redirecting": "Redirecting...",
-  "status": {
-    "paid": "Paid",
-    "unpaid": "Unpaid",
-    "pending": "Pending"
-  },
   "Déconnexion de l'application": "Logout from the application",
   "Connexion à l'application": "Login to the application",
   "checked-out": "Checked-out",
@@ -1952,7 +1947,10 @@
     "out_of_order": "Out of order",
     "Disponible": "Available",
     "À nettoyer": "To Clean",
-    "Hors service": "Out of order"
+    "Hors service": "Out of order",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "pending": "Pending"
   },
   "guestArriving": "Guest arriving soon",
   "guestPresent": "Guest currently in room",
@@ -2217,5 +2215,6 @@
   "userList": {
     "searchByName":"Search by name",
     "searchPlaceholder":"Search by name"
-  }
+  },
+  "Refunds" : "Refunds"
 }

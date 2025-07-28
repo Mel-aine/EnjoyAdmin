@@ -8,9 +8,10 @@
         {{ t('welcome_no_access_line2') }}
       </p>
 
-      <!-- <p class="text-gray-600" v-else>
+      <div v-else-if="isLoading" class="text-gray-600">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
         {{ t('welcome_redirecting') }}
-      </p> -->
+      </div>
     </div>
   </div>
 </template>
@@ -22,28 +23,74 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { getHotelMenu } from '@/menus/hotel'
 import { extractRoutesFromMenu } from '@/utils/menuUtil'
 import { useI18n } from 'vue-i18n'
+
 const router = useRouter()
 const serviceStore = useServiceStore()
 const noAccess = ref(false)
 const isRedirecting = ref(true)
-
+const isLoading = ref(true)
 
 const { t } = useI18n()
 
-onMounted(() => {
+// Fonction pour trouver la première route accessible
+const findFirstAccessibleRoute = () => {
   const menuItems = getHotelMenu(t)[0].items
   const routeList = extractRoutesFromMenu(menuItems)
 
+  // Ordre de priorité pour la redirection
+  const priorityRoutes = [
+    'dashboard_view',
+    'bookings_view', 
+    'rooms_view',
+    'calendar_view',
+    'customers_view'
+  ]
 
-  const accessibleRoute = routeList.find((route) =>
-    serviceStore.hasPermission(route.permission)
+  // Chercher d'abord dans les routes prioritaires
+  for (const permission of priorityRoutes) {
+    const route = routeList.find(r => r.permission === permission)
+    if (route && serviceStore.hasPermission(permission)) {
+      return route
+    }
+  }
+
+  // Si aucune route prioritaire n'est accessible, prendre la première disponible
+  return routeList.find((route) => 
+    !route.permission || serviceStore.hasPermission(route.permission)
   )
+}
 
-  if (accessibleRoute) {
-    router.replace(accessibleRoute.path)
-  } else {
+onMounted(async () => {
+  try {
+    // Attendre que les permissions soient chargées
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    console.log('🔍 Permissions disponibles:', serviceStore.permissions.map(p => p.name))
+    
+    if (!serviceStore.permissions.length) {
+      console.log('❌ Aucune permission trouvée')
+      noAccess.value = true
+      isRedirecting.value = false
+      isLoading.value = false
+      return
+    }
+
+    const accessibleRoute = findFirstAccessibleRoute()
+
+    if (accessibleRoute) {
+      console.log('✅ Redirection vers:', accessibleRoute.path)
+      await router.replace(accessibleRoute.path)
+    } else {
+      console.log('❌ Aucune route accessible trouvée')
+      noAccess.value = true
+      isRedirecting.value = false
+    }
+  } catch (error) {
+    console.error('Erreur lors de la redirection:', error)
     noAccess.value = true
     isRedirecting.value = false
+  } finally {
+    isLoading.value = false
   }
 })
 </script>

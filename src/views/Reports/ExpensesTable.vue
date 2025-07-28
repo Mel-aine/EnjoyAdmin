@@ -877,7 +877,7 @@ const fetchExpense = async() =>{
         return {
           ...e,
           statusColor: {
-            label: t(`status.${e.status}`),
+            label: t(`statut.${e.status}`),
             bg: statusClasses[0],
             text: statusClasses[1],
           },

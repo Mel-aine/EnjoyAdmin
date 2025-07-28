@@ -1912,7 +1912,10 @@
     "clean": "Propre (Disponible)",
     "maintenance": "Maintenance",
     "outOfOrder": "Hors service",
-    "out_of_order": "Hors service"
+    "out_of_order": "Hors service",
+    "paid": "Payé",
+    "unpaid": "Non payé",
+    "pending": "En attente"
   },
   "guestArriving": "Client arrivant bientôt",
   "guestPresent": "Client actuellement dans la chambre",
@@ -2242,5 +2245,6 @@
     "roomNumberExists": "Ce numéro de chambre existe déjà !",
     "capacityExceeded": "La capacité ne peut pas dépasser {max} pour ce type de chambre",
     "positivePrice": "Le prix doit être un nombre positif"
-  }
+  },
+  "Refunds" : "Remboursements"
 }

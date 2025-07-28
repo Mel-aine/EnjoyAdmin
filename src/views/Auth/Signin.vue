@@ -247,61 +247,63 @@ const togglePasswordVisibility = () => {
 const handleSubmit = async () => {
   isLoading.value = true;
   error.value = null;
-
   try {
-
     await validateEmail(email.value);
     //await validatePassword(email.value, password.value);
-
-
     const res = await auth({
       email: email.value,
       password: password.value,
       keepLoggedIn: keepLoggedIn.value,
     });
-
-
     const { user, user_token } = res.data.data;
     const token = user_token.token;
-    serviceStore.setService(res.data.data.userServices)
-
+    
+    // Stocker les services et permissions
+    serviceStore.setService(res.data.data.userServices);
+    serviceStore.setPermissions(res.data.data.permissions);
     if (keepLoggedIn.value) {
       localStorage.setItem('auth_token', token);
     } else {
       sessionStorage.setItem('auth_token', token);
     }
-
-    // Stocker les permissions
-    serviceStore.setPermissions(res.data.data.permissions)
-
-
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
-
-    console.log("res.data.data",res.data.data)
+    console.log("res.data.data", res.data.data);
+    
     if (user) {
-
-      router.push('/service');
+      const userServices = res.data.data.userServices || [];
+      
+      if (userServices.length > 1) {
+        router.push('/service');
+      } else if (userServices.length === 1) {
+        const service = userServices[0];
+        serviceStore.setServiceId(service.id);
+        serviceStore.setCurrentService(service);
+        
+        const rawCategory = service?.category;
+        const categoryName = typeof rawCategory === 'object' ? rawCategory.categoryName : rawCategory;
+        serviceStore.setServiceCategory(categoryName);
+        router.push('/welcome');
+      } else {
+        // Aucun service : afficher une erreur
+        error.value = "Aucun service disponible pour cet utilisateur.";
+      }
     } else {
-      error.value = "Aucun service disponible pour cet utilisateur.";
+      error.value = "Erreur d'authentification utilisateur.";
     }
-
   } catch (err: any) {
-  if (err.response) {
-    // Erreur renvoyée par le backend
-    error.value = err.response.data?.message || err.response.data?.error || "Une erreur s’est produite côté serveur.";
-    console.error("Erreur de connexion:", error.value);
-  } else if (err.message) {
-    // Erreur générée côté client
-    error.value = err.message;
-    console.error("Erreur de connexion (client):", error.value);
-  } else {
-    // Cas totalement inconnu
-    error.value = "Une erreur inconnue s’est produite.";
-    console.error("Erreur inconnue:", err);
-  }
-
+    if (err.response) {
+      error.value = err.response.data?.message || err.response.data?.error || "Une erreur s'est produite côté serveur.";
+      console.error("Erreur de connexion:", error.value);
+    } else if (err.message) {
+      error.value = err.message;
+      console.error("Erreur de connexion (client):", error.value);
+    } else {
+      // Cas totalement inconnu
+      error.value = "Une erreur inconnue s'est produite.";
+      console.error("Erreur inconnue:", err);
+    }
     console.error("Erreur handleSubmit:", err);
   } finally {
     isLoading.value = false;

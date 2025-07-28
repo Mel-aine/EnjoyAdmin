@@ -91,6 +91,9 @@ export const useServiceStore = defineStore('service', {
     clearPermissions() {
       this.permissions = []
     },
+    clearUserService(){
+      this.userService = []
+    }
   },
 
   persist: true,

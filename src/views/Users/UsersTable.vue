@@ -333,7 +333,7 @@ const saveUser = async () => {
       password: '',
     }
 
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
       toast.success(t('toast.userCreated'))
     } else {
       toast.error(t('toast.userErrorCreated'))

@@ -442,31 +442,75 @@ const router = createRouter({
       },
     },
   ],
-})
+ })
+// router.beforeEach(async (to, from, next) => {
+//   isLoading.value = true
+
+//   const authStore = useAuthStore()
+//   // const serviceStore = useServiceStore();
+
+//   try {
+//     console.log('user', authStore.user)
+//     console.log('token', authStore.token)
+//     console.log('UserId', authStore.UserId)
+//     // Si la route nécessite une auth mais qu’on n’est pas connecté
+//     if (to.meta.requiresAuth && (!authStore.token || !authStore.user)) {
+//       return next('/')
+//     }
+//     if (to.path === '/' && authStore.token && authStore.user && authStore.UserId) {
+//       next('/dashboard')
+//     }
+
+//     return next()
+//   } catch (error) {
+//     console.error('Error in navigation guard:', error)
+//     return next('/')
+//   }
+// })
 router.beforeEach(async (to, from, next) => {
   isLoading.value = true
 
   const authStore = useAuthStore()
-  // const serviceStore = useServiceStore();
-
+  
   try {
-    console.log('user', authStore.user)
-    console.log('token', authStore.token)
-    console.log('UserId', authStore.UserId)
-    // Si la route nécessite une auth mais qu’on n’est pas connecté
-    if (to.meta.requiresAuth && (!authStore.token || !authStore.user)) {
-      return next('/')
+    const { token, user, UserId, roleId } = authStore;
+    
+    console.log('Navigation state:', { 
+      hasToken: !!token, 
+      hasUser: !!user, 
+      hasUserId: !!UserId, 
+      hasRoleId: !!roleId,
+      isFullyAuthenticated: authStore.isFullyAuthenticated
+    });
+    
+    // Utiliser la getter isFullyAuthenticated
+    const isAuthenticated = authStore.isFullyAuthenticated;
+    
+    // Si la route nécessite une auth
+    if (to.meta.requiresAuth && !isAuthenticated) {
+      console.log('❌ Redirection - auth manquante');
+      return next('/');
     }
-    if (to.path === '/' && authStore.token && authStore.user && authStore.UserId) {
-      next('/dashboard')
+    
+    // Redirection dashboard seulement si COMPLÈTEMENT authentifié
+    if (to.path === '/' && isAuthenticated) {
+      console.log('✅ Redirection vers dashboard - utilisateur complètement connecté');
+      return next('/dashboard');
+    }
+    
+    if (to.path === '/') {
+      console.log('✅ Accès à la page de login autorisé');
     }
 
-    return next()
+    return next();
+    
   } catch (error) {
-    console.error('Error in navigation guard:', error)
-    return next('/')
+    console.error('Error in navigation guard:', error);
+    return next('/');
+  } finally {
+    isLoading.value = false;
   }
-})
+});
 
 router.afterEach(() => {
   setTimeout(() => {

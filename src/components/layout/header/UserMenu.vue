@@ -117,41 +117,96 @@ const Email = computed(() => {
    return `${user?.email ?? ''}`
 })
 
-// const signOut = () => {
-//   authStore.logout()
-//   serviceStore.clearServiceId();
-//   serviceStore.clearCurrentService();
-//   serviceStore.clearServiceCategory();
-//   serviceStore.clearPermissions();
-//   authStore.clearsetRoleId();
-//   authStore.clearsetUserId()
-//   authStore.clearsetUser()
-//   closeDropdown()
-//   router.push('/')
-// }
+// Solution 1: Nettoyer AVANT de rediriger
+// const signOut = async () => {
+//   console.log('=== DÉBUT LOGOUT ===');
+  
+//   try {
+//     // 1. FERMER LE DROPDOWN IMMÉDIATEMENT
+//     closeDropdown();
+    
+//     // 2. NETTOYAGE COMPLET DU STORE EN PREMIER
+//     console.log('Nettoyage du store...');
+//     authStore.forceLogout();
+    
+//     // 3. NETTOYAGE DES TOKENS DE SESSION
+//     sessionStorage.removeItem('auth_token');
+//     localStorage.removeItem('auth_token');
+    
+//     // 4. NETTOYAGE DES AUTRES STORES
+//     serviceStore.clearServiceId();
+//     serviceStore.clearCurrentService();
+//     serviceStore.clearServiceCategory();
+//     serviceStore.clearPermissions();
+//     serviceStore.clearUserService();
+    
+//     // 5. ATTENDRE UN PEU POUR QUE LE STORE SOIT VRAIMENT NETTOYÉ
+//     await new Promise(resolve => setTimeout(resolve, 100));
+    
+//     console.log('Store après nettoyage:', {
+//       isFullyAuthenticated: authStore.isFullyAuthenticated,
+//       token: !!authStore.token,
+//       user: !!authStore.user,
+//       UserId: !!authStore.UserId,
+//       roleId: !!authStore.roleId
+//     });
+    
+//     // 6. APPEL API APRÈS LE NETTOYAGE (non bloquant)
+//     try {
+//       await logout();
+//       console.log('API logout OK');
+//     } catch (apiError) {
+//       console.error('Erreur API logout:', apiError);
+//     }
+    
+//     // 7. REDIRECTION SEULEMENT APRÈS NETTOYAGE COMPLET
+//     console.log('Redirection vers /');
+//     await router.replace('/');
+    
+//     console.log('=== FIN LOGOUT ===');
+    
+//   } catch (error) {
+//     console.error('Erreur lors du logout:', error);
+//   }
+// };
 
+import { nextTick } from 'vue';
 
+const signOut = async () => {
+  try {
+    closeDropdown();
+    authStore.forceLogout();
 
-const signOut =  () => {
+    sessionStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_token');
 
-//  try {
-//     await logout();
+    serviceStore.clearServiceId();
+    serviceStore.clearCurrentService();
+    serviceStore.clearServiceCategory();
+    serviceStore.clearPermissions();
+    serviceStore.clearUserService();
 
-  authStore.logout()
-  serviceStore.clearServiceId()
-  serviceStore.clearCurrentService()
-  serviceStore.clearServiceCategory()
-  serviceStore.clearPermissions()
-  authStore.clearsetRoleId()
-  authStore.clearsetUserId()
-  authStore.clearsetUser()
-  closeDropdown()
-  router.push('/')
-  // } catch (error) {
-  //   console.error('Erreur lors du logout', error);
-  // }
+    await nextTick(); 
 
-}
+    console.log('Store après nettoyage:', {
+      isFullyAuthenticated: authStore.isFullyAuthenticated,
+      token: !!authStore.token?.value,
+      user: !!authStore.user?.value,
+      UserId: !!authStore.UserId?.value,
+      roleId: !!authStore.roleId?.value,
+    }); 
+
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Erreur API logout:', err);
+    }
+
+    await router.replace('/');
+  } catch (error) {
+    console.error('Erreur lors du logout:', error);
+  }
+};
 
 
 const toggleDropdown = () => {
