@@ -6,3 +6,22 @@ export enum ReservationStatus {
   CANCELLED = 'cancelled',
   COMPLETED = 'completed',
 }
+
+export  enum TaskStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  DONE = 'done',
+  CANCELLED = 'cancelled',
+  PENDING = 'pending',
+}
+
+
+export enum CONTRACTTYPE {
+  CDI='cdi',
+  CDD="cdd",
+  SEASONAL="seasonal",
+  APPRENTICESHIP="apprenticeship",
+  TEMPORARY="temporary",
+  INTERN="intern",
+
+}

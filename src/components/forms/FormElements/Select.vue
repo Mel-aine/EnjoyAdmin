@@ -22,7 +22,7 @@
         class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
         <li v-for="option in options" :key="option.value" @click="selectOption(option)" :class="[
-          'px-5 py-2 cursor-pointer hover:bg-brand-100 uppercase',
+          'px-5 py-2 cursor-pointer hover:bg-brand-100 ',
           disabled ? 'cursor-not-allowed text-gray-400' : ''
         ]" role="option" :aria-selected="selectedOption?.value === option.value">
           {{ option.label }}

@@ -12,15 +12,16 @@
                         <div class="flex items-center gap-2">
                             <span>{{ $t('status') }}: <span
                                     :class="`${getStatusColor(user.status)} px-1 rounded-2xl text-sm py-1`">{{
-                                    $t(user.status??'') }}</span></span>
+                                        $t(user.status ?? '') }}</span></span>
                             <span>{{ $t('roles') }}: <span
                                     :class="`${getRoleBadge(user.role).bg} ${getRoleBadge(user.role).text} px-1 text-sm rounded-2xl py-1`">{{
-                                    $t(user.role) }}</span></span>
+                                        $t(user.role) }}</span></span>
                             <span>{{ $t('department') }}: <span
-                                    :class="`${getRoleBadge(user.department?.name??'').bg} ${getRoleBadge(user.department?.name??'').text} px-1 text-sm rounded-2xl py-1`">{{
-                                    $t(user.department?.name??'') }}</span></span>
+                                    :class="`${getRoleBadge(user.department?.name ?? '').bg} ${getRoleBadge(user.department?.name ?? '').text} px-1 text-sm rounded-2xl py-1`">{{
+                                        $t(user.department?.name ?? '') }}</span></span>
 
                         </div>
+
                     </template>
                 </profile-card>
 
@@ -44,10 +45,9 @@
                     <!-- Details Tab -->
                     <div v-if="activeTab === 'details'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                         <!-- Informations de base -->
-                        <personal-info-card :email="email" :firstname="firstname" :lastname="lastname" :phone="phone"
-                            @update-profile="editUser" />
+                        <personal-info-card :user="user" @update-profile="editUser" />
 
-                        <!-- contack info -->
+                        <!-- contact info -->
                         <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                             <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                                 <div>
@@ -55,27 +55,41 @@
                                         {{ $t('customerDetails.contactInfo.title') }}
                                     </h4>
 
-                                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+                                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-20">
                                         <div>
                                             <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
                                                 $t('customerDetails.contactInfo.email') }}</p>
                                             <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
                                                 user.email
-                                            }}</p>
+                                                }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('personalEmail') }}</p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
+                                                user.personalEmail
+                                                }}</p>
                                         </div>
                                         <div>
                                             <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
                                                 $t('customerDetails.contactInfo.phone') }}</p>
                                             <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ user.
                                                 phoneNumber
-                                            }}</p>
+                                                }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('emergencyPhone') }}</p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ user.
+                                                emergencyPhone
+                                                }}</p>
                                         </div>
                                         <div>
                                             <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
                                                 $t('customerDetails.contactInfo.address') }}</p>
                                             <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
                                                 user.address ?? 'N/A'
-                                            }}
+                                                }}
                                             </p>
                                         </div>
 
@@ -83,25 +97,70 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- permission-->
-                        <!-- contack info -->
+                        <!-- Contract Info-->
                         <div class="p-5 mb-6 border w border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                             <div class="flex  gap-6 justify-between">
                                 <div class="w-full">
-                                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-                                        {{ $t('user_permissions') }}
-                                    </h4>
-                                    <template v-if="user.
-                                        permissions && user.permissions.length > 0">
-                                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+                                    <div class="flex justify-between items-center lg:mb-6">
+                                        <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 ">
+                                            {{ $t('contract_info') }}
+                                        </h4>
+
+                                        <button type="button" @click="editContract" class="inline-flex dark:text-white">
+                                            <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18">
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                    d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z" />
+                                            </svg>
+                                            {{ $t('edit') }}
+                                        </button>
+
+                                    </div>
+                                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-20">
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('hireDate') }}
+                                            </p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
+                                                user.hireDate }}</p>
                                         </div>
-                                    </template>
-                                    <template v-else>
-                                        <div class="flex flex-col w-full items-center justify-center text-gray-500">
-                                            <FileSearch class="w-12 h-12 mb-3 text-gray-400" />
-                                            <p class="text-sm">{{ $t('no_permissions') }}</p>
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('contractType') }}
+                                            </p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
+                                                $t(user.contractType) }}</p>
                                         </div>
-                                    </template>
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('contractStartDate') }}
+                                            </p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
+                                                user.contractStartDate ?? 'N/A' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('contractEndDate') }}
+                                            </p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
+                                                user.contractEndDate ?? 'N/A' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('status') }}
+                                            </p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
+                                                user.contractStatus ?? 'N/A' }}</p>
+                                        </div>
+
+                                        <div>
+                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
+                                                $t('dataProcessingConsent') }}
+                                            </p>
+                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">
+                                                <input type="checkbox" v-model="user.dataProcessingConsent" />
+                                            </p>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>
@@ -158,6 +217,8 @@ const user_id = router.currentRoute.value.params.id as string;
 const tabs = computed(() => [
     { id: 'details', label: t('tab.details'), icon: InfoIcon },
     { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon },
+    { id: 'payroll', label: t('payroll'), icon: CreditCard },
+    { id: 'documents', label: t('documents'), icon: Bookmark },
     { id: 'history', label: t('tab.history'), icon: ClockIcon },
 ])
 const activeTab = ref<string>('details')
@@ -167,17 +228,7 @@ const selectedUser = ref<any>(null)
 const { t } = useI18n()
 const user = ref<any>({})
 const editUser = () => {
-    selectedUser.value = {}
-    selectedUser.value.first_name = user.value.firstName
-    selectedUser.value.last_name = user.value.lastName
-    selectedUser.value.phone_number = user.value.phoneNumber;
-    selectedUser.value.email = user.value.email
-    selectedUser.value.role_id = user.value.roleId
-    selectedUser.value.department = user.value.department
-    if (user.value.hireDate) {
-        const hireDate = new Date(user.value.hireDate)
-        selectedUser.value.hire_date = hireDate.toISOString().split('T')[0]
-    }
+    selectedUser.value = user.value
     modalOpen.value = true
 }
 const closeModal = () => {
@@ -187,14 +238,10 @@ const fullName = computed(() =>
     `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`.trim()
 )
 const email = computed(() => user.value.email ?? '')
-const firstname = computed(() => user.value.firstName ?? '')
-const lastname = computed(() => user.value.lastName ?? '')
-const phone = computed(() => user.value.phoneNumber ?? '')
 
 const getUserLocal = async () => {
     isLoading.value = true
     const response = await getEmployeesDetails(parseInt(user_id))
-    console.log('this is the user_id', response)
     user.value = response.data;
     isLoading.value = false;
 }
@@ -251,5 +298,7 @@ const getStatusColor = (status: string) => {
             return 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500'
     }
 }
+const editContract=()=>{
 
+}
 </script>

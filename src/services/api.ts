@@ -10,7 +10,7 @@ import type {
   ReservationType,
   userDataType,
 } from '@/types/option'
-import type { FitlterItem, RoomFilterItem } from '@/utils/models'
+import type { FitlterItem, RoomFilterItem, TaskFitlterItem } from '@/utils/models'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 const authStore = useAuthStore()
@@ -109,8 +109,8 @@ export const getCustomersList = (id: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/${id}/clients`, headers)
 }
 
-export const getUserByServiceId = (id:number): Promise<AxiosResponse<{ data: string }>> => {
-  console.log("-->API", headers);
+export const getUserByServiceId = (id: number): Promise<AxiosResponse<{ data: string }>> => {
+  console.log('-->API', headers)
   return axios.get(`${API_URL}/usersbyservice/${id}`, headers)
 }
 export const getCustomerProfile = (
@@ -657,6 +657,8 @@ export const deleteSupplier = (id: number | null): Promise<AxiosResponse<any>> =
 }
 
 export const deleteDpt = (id: number | null): Promise<AxiosResponse<any>> => {
+
+  console.log('-->deleteDpt.id', id)
   return axios.delete(`${API_URL}/department/${id}`, headers)
 }
 
@@ -689,4 +691,45 @@ export const insertCancellationPolicy = (datas: any): Promise<AxiosResponse<any>
 }
 export const updateCancellationPolicy = (id: number, datas: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/cancellation-policies/${id}`, datas, headers)
+}
+
+/**
+ * Fetches tasks from the API based on a set of filter criteria.
+ *
+ * @param {object} filters - The filter criteria for the tasks.
+ * @param {number} [filters.serviceId] - The ID of the service to scope the tasks.
+ * @param {number} [filters.userId] - The ID of the user the tasks are assigned to.
+ * @param {number} [filters.departmentId] - The ID of the department to get tasks for all its members.
+ * @param {string} [filters.createdDate] - The creation date of the task (format: 'YYYY-MM-DD'). This filters on the `created_at` field.
+ * @param {string} [filters.dueDate] - The due date of the task (format: 'YYYY-MM-DD').
+ * @param {'todo' | 'in_progress' | 'done' | 'cancelled' | 'pending'} [filters.status] - The status of the task.
+ * @returns {Promise<Array>} A promise that resolves to an array of task objects.
+ */
+export const findTasks = (filters: TaskFitlterItem): Promise<AxiosResponse<any>> => {
+  let qs = ``
+  if (filters.departmentId) {
+    if (qs) qs += `&departmentId=${filters.departmentId}`
+    else qs += `?departmentId=${filters.departmentId}`
+  }
+  if (filters.status) {
+    if (qs) qs += `&status=${filters.status}`
+    else qs += `?status=${filters.status}`
+  }
+  if (filters.dueDate) {
+    if (qs) qs += `&dueDate=${filters.dueDate}`
+    else qs += `?dueDate=${filters.dueDate}`
+  }
+  if (filters.createdDate) {
+    if (qs) qs += `&createdDate=${filters.createdDate}`
+    else qs += `?createdDate=${filters.createdDate}`
+  }
+  if (filters.serviceId) {
+    if (qs) qs += `&serviceId=${filters.serviceId}`
+    else qs += `?serviceId=${filters.serviceId}`
+  }
+  if(filters.searchText){
+     if (qs) qs += `&searchText=${filters.searchText}`
+    else qs += `?searchText=${filters.searchText}`
+  }
+  return axios.get(`${API_URL}/tasks_search/filter${qs}`, headers)
 }
