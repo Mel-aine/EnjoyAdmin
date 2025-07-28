@@ -8,7 +8,7 @@
     >
       <app-header />
       <!-- <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6"> -->
-        <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+        <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6 ">
         <slot></slot>
       </div>
       <app-footer/>
@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import AppSidebar from './AppSidebar.vue'
 import AppFooter from './AppFooter.vue'
 import AppHeader from './AppHeader.vue'

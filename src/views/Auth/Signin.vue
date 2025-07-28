@@ -20,7 +20,7 @@
                 </p>
               </div>
               <div>
-                
+
                 <form @submit.prevent="handleSubmit">
 
                   <div class="space-y-3">
@@ -257,7 +257,7 @@ const handleSubmit = async () => {
     });
     const { user, user_token } = res.data.data;
     const token = user_token.token;
-    
+
     // Stocker les services et permissions
     serviceStore.setService(res.data.data.userServices);
     serviceStore.setPermissions(res.data.data.permissions);
@@ -270,17 +270,17 @@ const handleSubmit = async () => {
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
     console.log("res.data.data", res.data.data);
-    
+
     if (user) {
       const userServices = res.data.data.userServices || [];
-      
+
       if (userServices.length > 1) {
         router.push('/service');
       } else if (userServices.length === 1) {
         const service = userServices[0];
         serviceStore.setServiceId(service.id);
         serviceStore.setCurrentService(service);
-        
+
         const rawCategory = service?.category;
         const categoryName = typeof rawCategory === 'object' ? rawCategory.categoryName : rawCategory;
         serviceStore.setServiceCategory(categoryName);

@@ -18,7 +18,7 @@
               </svg>
             </button>
             <h2 class="text-lg font-semibold mb-4">{{ isEditing ? $t('edit') : $t('add') }}</h2>
-            <form @submit.prevent="addDepartment">
+            <form @submit.prevent="onAddDepartment">
               <div class="mb-4">
                 <Input :lb="$t('Name')" v-model="newDepartment.name" />
               </div>
@@ -123,13 +123,14 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue';
-import { createDepartment, getDepartment, updateDpt, deleteDpt, getUser } from "@/services/api";
+import { createDepartment, getDepartment, updateDpt, deleteDpt, getUser, getUserByServiceId } from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
 import { departments } from '@/assets/data/department';
 import router from '@/router';
+import { json } from 'stream/consumers';
 
 
 
@@ -200,13 +201,14 @@ const updateData = async () => {
       service_id: serviceId,
       name: newDepartment.value.name,
       description: newDepartment.value.description,
-      responsible: newDepartment.value.manager,
+      responsible_user_id: newDepartment.value.manager,
       number_employees: newDepartment.value.employeeCount
 
     };
-
-    await updateDpt(id, Payload);
-
+    console.log('-->Payload', Payload);
+    const result = await updateDpt(id, Payload);
+    console.log('-->result', result);
+    
     newDepartment.value = {
       name: '',
       description: '',
@@ -217,8 +219,9 @@ const updateData = async () => {
     selected.value = null;
     isEditing.value = false;
     showModal.value = false;
-
+    toast.success(t('toast.SucessUpdate'));
   } catch (error) {
+    toast.error(t('error'));
     console.error('Erreur lors de la mise à jour:', error);
 
   } finally {
@@ -234,14 +237,13 @@ const fetchUser = async () => {
       throw new Error('Service ID is not defined');
     }
 
-    const response = await getUser();
-    console.log("All users:", response.data.data);
-    Users.value = response.data.data
-      .filter((user: any) => user.serviceId === serviceId)
-      .map((item: any) => ({
-        label: item.firstName + ' ' + item.lastName,
-        value: item.id
-      }));
+    const response = await getUserByServiceId(serviceId);
+    const _users = JSON.parse(response.data.data);
+    console.log("-->_users", _users);
+    Users.value = _users.map((item: any) => ({
+      label: item.user.firstName + ' ' + item.user.lastName,
+      value: item.user.id
+    }));
 
 
     console.log("Filtered users:", Users.value);
@@ -255,8 +257,8 @@ const addDepartment = async () => {
   const serviceId = serviceStore.serviceId;
   try {
     if (isEditing.value) {
-      await updateData()
-      toast.success(t('toast.SucessUpdate'));
+      await updateData();
+      await fetchDepartment();
 
     } else {
       // Création d'un nouveau mouvement
@@ -317,22 +319,24 @@ const fetchDepartment = async () => {
     const departments = departmentsResponse.data;
     console.log('Departments:', departments);
 
-    const usersResponse = await getUser();
-    const users = usersResponse.data.data.filter(
-      (user: any) => Number(user.serviceId) === Number(serviceId)
-    );
-    console.log('Filtered users:', users);
+    if (!serviceId) {
+      throw new Error('Service ID is not defined');
+    }
+
+    const response = await getUserByServiceId(serviceId);
+    const userDetails = JSON.parse(response.data.data);
+    console.log("-->_userDetails", userDetails);
 
     departments.forEach((dept: any) => {
       console.log('Processing dept:', dept.name, 'Responsible ID:', dept.responsibleUserId);
 
-      const responsibleUser = users.find(
-        (user: any) => Number(user.id) === Number(dept.responsibleUserId)
+      const responsibleUser = userDetails.find(
+        (item: any) => Number(item.user.id) === Number(dept.responsibleUserId)
       );
 
       if (responsibleUser) {
-        console.log('Found responsible user:', responsibleUser.firstName ?? responsibleUser.firstName, responsibleUser.lastName ?? responsibleUser.lastName);
-        dept.responsibleUserName = `${responsibleUser.firstName ?? responsibleUser.firstName} ${responsibleUser.lastName ?? responsibleUser.lastName}`;
+        console.log('Found responsible user:', responsibleUser.user.firstName ?? responsibleUser.user.firstName, responsibleUser.user.lastName ?? responsibleUser.user.lastName);
+        dept.responsibleUserName = `${responsibleUser.user.firstName ?? responsibleUser.user.firstName} ${responsibleUser.user.lastName ?? responsibleUser.user.lastName}`;
       } else {
         console.log('No responsible user found for dept:', dept.name);
         dept.responsibleUserName = t('Unknown');
@@ -443,6 +447,7 @@ const titles = computed(() => [
 
 
 const onEditDept = (dept: any) => handleDeptAction('edit', dept)
+const onAddDepartment = (dept: any) => handleDeptAction('new', dept)
 const onDeleteDept = (dept: any) => handleDeptAction('delete', dept)
 const onView = (dept: any) => {
   router.push({ name: 'departmentDetails', params: { id: dept.id } })
@@ -471,6 +476,8 @@ const handleDeptAction = (action: string, dept: any) => {
       selectedDepartment.value = dept
       showModal.value = true
     }
+  } else if (action === 'new') {
+   addDepartment();
   }
 }
 

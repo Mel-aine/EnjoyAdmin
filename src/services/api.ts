@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
@@ -107,6 +108,11 @@ export const getUser = (): Promise<AxiosResponse<{ data: userDataType[] }>> => {
 export const getCustomersList = (id: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/services/${id}/clients`, headers)
 }
+
+export const getUserByServiceId = (id:number): Promise<AxiosResponse<{ data: string }>> => {
+  console.log("-->API", headers);
+  return axios.get(`${API_URL}/usersbyservice/${id}`, headers)
+}
 export const getCustomerProfile = (
   id: number,
 ): Promise<AxiosResponse<{ data: userDataType[] }>> => {
@@ -149,6 +155,9 @@ export const getUserId = (id: number | null): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/users/${id}`, headers)
 }
 
+export const getEmployeesDetails = (id: number | null): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/users/${id}/details`, headers)
+}
 //get payment
 export const getPayment = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   console.log('-->Header:', headers)
