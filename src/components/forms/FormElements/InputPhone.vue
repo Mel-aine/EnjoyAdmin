@@ -10,7 +10,7 @@ interface Country {
 
 // Define props for v-model support
 const props = defineProps<{
-    modelValue: string; // The full phone number string (e.g., "+237671234567"),
+    modelValue: string |undefined; // The full phone number string (e.g., "+237671234567"),
     title: string,
     isRequired: boolean
 }>();
@@ -142,7 +142,7 @@ watch(phoneNumber, () => {
 // Watch for external modelValue changes and update internal state
 watch(() => props.modelValue, (newValue) => {
     if (newValue !== fullPhoneNumber.value) { // Prevent infinite loop
-        fullPhoneNumber.value = newValue;
+        fullPhoneNumber.value = newValue as string;
     }
 }, { immediate: true }); // Run immediately on component mount
 
