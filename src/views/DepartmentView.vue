@@ -123,14 +123,13 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue';
-import { createDepartment, getDepartment, updateDpt, deleteDpt, getUser, getUserByServiceId } from "@/services/api";
+import { createDepartment, getDepartment, updateDpt, deleteDpt, getUserByServiceId } from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import TableComponent from '@/components/tables/TableComponent.vue'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification';
 import { departments } from '@/assets/data/department';
 import router from '@/router';
-import { json } from 'stream/consumers';
 
 
 

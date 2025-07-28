@@ -20,3 +20,12 @@ export interface MenuGroupWrapper {
   title: string;
   items: MenuItem[];
 }
+
+export interface IDepartement {
+  id?: string;
+  name: string;
+  description: string;
+  manager: number;
+  employeeCount: number;
+  status: string;
+}
