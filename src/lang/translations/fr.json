@@ -2280,9 +2280,7 @@
   "internship": "Stage",
   "contractStartDate": "Date de début du contrat",
   "changeContract": "Modifier le contrat",
-  "documents": "Documents"
-}
-  "Refunds" : "Remboursements",
+  "documents": "Documents",
   "SelectedMethods": "Méthodes sélectionnées",
   "NoPaymentMethodsSelected": "Aucune méthode de paiement sélectionnée",
   "Cash": "Espèces",

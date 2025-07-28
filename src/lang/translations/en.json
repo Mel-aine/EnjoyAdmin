@@ -2266,11 +2266,7 @@
   "internship": "Internship",
   "contractStartDate": "Contract Start Date",
   "changeContract":"Change Contract",
-  "documents":"Documents"
-}
-  "user_permissions":"User permissions",
-  "no_permissions":"No Permission assign to user role",
-  "Refunds" : "Refunds",
+  "documents":"Documents",
   "SelectedMethods": "Selected Methods",
   "NoPaymentMethodsSelected": "No payment methods selected",
   "Cash": "Cash",
