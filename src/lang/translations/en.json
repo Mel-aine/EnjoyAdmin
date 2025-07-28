@@ -2217,7 +2217,6 @@
     "searchPlaceholder":"Search by name"
   },
   "user_permissions":"User permissions",
-  "no_permissions":"No Permission assign to user role"
-  },
+  "no_permissions":"No Permission assign to user role",
   "Refunds" : "Refunds"
 }

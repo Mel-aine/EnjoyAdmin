@@ -2246,5 +2246,7 @@
     "capacityExceeded": "La capacité ne peut pas dépasser {max} pour ce type de chambre",
     "positivePrice": "Le prix doit être un nombre positif"
   },
+  "user_permissions": "Permissions utilisateur", 
+  "no_permissions": "Aucune autorisation attribuée au rôle utilisateur",
   "Refunds" : "Remboursements"
 }
