@@ -76,7 +76,7 @@
                                     {{ department.name }}
                                 </h1>
                                 <p class="text-black font-medium">{{ $t('numberEmployees') }} {{
-                                    department.numberEmployees }}
+                                    department.employeeCount }}
                                     <span :class="[
                                         'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ms-5',
                                         getStatusColor(department.status),
