@@ -8,45 +8,33 @@
             <p class="text-gray-600 mt-1">{{ $t('taskManagement.subtitle') }}</p>
           </div>
           <div class="flex items-center space-x-4">
-            <button
-              @click="showCreateModal = true"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-            >
+            <button @click="showCreateModal = true"
+              class="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2">
               <span>{{ $t('taskManagement.createTask') }}</span>
             </button>
             <div class="flex space-x-2">
-              <button
-                v-for="btn in filterButtons"
-                :key="btn.value"
-                @click="filter = btn.value"
-                :class="[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  filter === btn.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-                ]"
-              >
+              <button v-for="btn in filterButtons" :key="btn.value" @click="filter = btn.value" :class="[
+                'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                filter === btn.value
+                  ? 'bg-primary/75 text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+              ]">
                 {{ $t(`taskManagement.filters.${btn.value}`) }} ({{ btn.count }})
               </button>
             </div>
           </div>
         </div>
+        <TaskFilter @filter="applyFilters" />
+
         <!-- Create Task Modal -->
-        <div
-          v-if="showCreateModal"
-          class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-99999 h-full"
-        >
-          <div
-            class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 max-h-screen overflow-y-auto"
-          >
+        <div v-if="showCreateModal"
+          class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-99999 h-full">
+          <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 max-h-screen overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
               <h3 class="text-xl font-semibold text-gray-900">
                 {{ $t('taskManagement.createNewTask') }}
               </h3>
-              <button
-                @click="showCreateModal = false"
-                class="text-gray-400 hover:text-gray-600 text-2xl"
-              >
+              <button @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
                 ×
               </button>
             </div>
@@ -55,33 +43,25 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{
                   $t('taskManagement.titleLabel')
                 }}</label>
-                <input
-                  type="text"
-                  v-model="newTask.title"
+                <input type="text" v-model="newTask.title"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  :placeholder="$t('taskManagement.titlePlaceholder')"
-                />
+                  :placeholder="$t('taskManagement.titlePlaceholder')" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{
                   $t('taskManagement.descriptionLabel')
                 }}</label>
-                <textarea
-                  v-model="newTask.description"
+                <textarea v-model="newTask.description"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows="3"
-                  :placeholder="$t('taskManagement.descriptionPlaceholder')"
-                />
+                  rows="3" :placeholder="$t('taskManagement.descriptionPlaceholder')" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">{{
                     $t('taskManagement.taskType')
                   }}</label>
-                  <select
-                    v-model="newTask.task_type"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
+                  <select v-model="newTask.task_type"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="cleaning">{{ $t('taskManagement.types.cleaning') }}</option>
                     <option value="maintenance">
                       {{ $t('taskManagement.types.maintenance') }}
@@ -95,10 +75,8 @@
                   <label class="block text-sm font-medium text-gray-700 mb-2">{{
                     $t('taskManagement.priority')
                   }}</label>
-                  <select
-                    v-model="newTask.priority"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
+                  <select v-model="newTask.priority"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="low">{{ $t('taskManagement.priorities.low') }}</option>
                     <option value="medium">{{ $t('taskManagement.priorities.medium') }}</option>
                     <option value="high">{{ $t('taskManagement.priorities.high') }}</option>
@@ -109,16 +87,10 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{
                   $t('taskManagement.assignTo')
                 }}</label>
-                <select
-                  v-model.number="newTask.assigned_to"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
+                <select v-model.number="newTask.assigned_to"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="">{{ $t('taskManagement.selectStaff') }}</option>
-                  <option
-                    v-for="staffMember in staff"
-                    :key="staffMember.id"
-                    :value="staffMember.userId"
-                  >
+                  <option v-for="staffMember in staff" :key="staffMember.id" :value="staffMember.userId">
                     {{ staffMember.user_name }} ({{ staffMember.role }})
                   </option>
                 </select>
@@ -128,34 +100,23 @@
                   <label class="block text-sm font-medium text-gray-700 mb-2">{{
                     $t('taskManagement.dueDate')
                   }}</label>
-                  <input
-                    type="datetime-local"
-                    v-model="newTask.due_date"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <input type="datetime-local" v-model="newTask.due_date"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">{{
                     $t('taskManagement.estimatedHours')
                   }}</label>
-                  <input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    v-model="newTask.estimated_hours"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <input type="number" min="0.5" step="0.5" v-model="newTask.estimated_hours"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{
                   $t('taskManagement.roomNumber')
                 }}</label>
-                <select
-                  type="text"
-                  v-model="newTask.room_number"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
+                <select type="text" v-model="newTask.room_number"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="">{{ $t('taskManagement.selectRoom') }}</option>
                   <option v-for="room in rooms" :key="room.id" :value="room.id">
                     {{ room.productName }}
@@ -163,21 +124,17 @@
                 </select>
               </div>
               <div class="flex space-x-3 pt-4">
-                <button
-                  @click="handleCreateTask"
+                <button @click="handleCreateTask"
                   :disabled="!newTask.title || !newTask.assigned_to || !newTask.due_date"
-                  class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-                >
+                  class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                   <span v-if="!isLoading">{{ $t('taskManagement.createTask') }}</span>
                   <span v-else class="flex items-center gap-2">
                     <Spinner class="w-4 h-4" />
                     {{ $t('Processing') }}...
                   </span>
                 </button>
-                <button
-                  @click="showCreateModal = false"
-                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-                >
+                <button @click="showCreateModal = false"
+                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                   {{ $t('common.cancel') }}
                 </button>
               </div>
@@ -186,11 +143,8 @@
         </div>
         <!-- Tasks Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="task in filteredTasks"
-            :key="task.id"
-            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-          >
+          <div v-for="task in filteredTasks" :key="task.id"
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center space-x-2">
                 <component :is="getTaskTypeIcon(task.task_type)" class="w-6 h-6 text-gray-700" />
@@ -201,10 +155,7 @@
                   </p>
                 </div>
               </div>
-              <span
-                class="px-2 py-1 rounded-full text-xs font-medium"
-                :class="getPriorityColor(task.priority)"
-              >
+              <span class="px-2 py-1 rounded-full text-xs font-medium" :class="getPriorityColor(task.priority)">
                 {{ $t(`taskManagement.priorities.${task.priority}`) }}
               </span>
             </div>
@@ -228,12 +179,9 @@
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-sm text-gray-500">{{ $t('taskManagement.status') }}</span>
-                <select
-                  v-model="task.status"
-                  @change="handleStatusUpdate(task.id, task.status)"
+                <select v-model="task.status" @change="handleStatusUpdate(task.id, task.status)"
                   class="px-3 py-1 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-blue-500"
-                  :class="getStatusColor(task.status)"
-                >
+                  :class="getStatusColor(task.status)">
                   <option value="todo">{{ $t('taskManagement.filters.todo') }}</option>
                   <option value="in_progress">
                     {{ $t('taskManagement.filters.in_progress') }}
@@ -262,14 +210,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { tasks, staffData } from '@/assets/data/StaffData'
 import axios from 'axios'
 import { Wrench, Building2, Shield, ClipboardList } from 'lucide-vue-next'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
+  findTasks,
   getServiceProduct,
-  getTasks,
   getUserAssignmentById,
   getUserId,
   updateTaskStatus,
@@ -277,19 +224,20 @@ import {
 import { useToast } from 'vue-toastification'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
+import TaskFilter from '@/components/filters/TaskFilter.vue'
+import type { TaskFitlterItem } from '@/utils/models'
+import { isLoading } from '@/composables/spinner'
 
 const { t } = useI18n()
 const emit = defineEmits(['update-status'])
 const toast = useToast()
 const filter = ref('all')
 const showCreateModal = ref(false)
-const tasksk = ref(tasks)
 const staff = ref<any[]>([])
 const serviceStore = useServiceStore()
 const authStore = useAuthStore()
 const rooms = ref<any[]>([])
 const Tasks = ref<any[]>([])
-const isLoading = ref(false)
 const newTask = ref({
   title: '',
   description: '',
@@ -326,10 +274,6 @@ const filterButtons = computed(() => [
     count: Tasks.value.filter((t) => t.status === 'done').length,
   },
 ])
-// const filteredTasks = computed(() => {
-//     if (filter.value === 'all') return tasksk.value
-//     return tasksk.value.filter(task => task.status === filter.value)
-// })
 const filteredTasks = computed(() => {
   if (filter.value === 'all') return Tasks.value
   return Tasks.value.filter((task) => task.status === filter.value)
@@ -372,6 +316,15 @@ function getTaskTypeIcon(type: string) {
       return ClipboardList
   }
 }
+const filters = ref<TaskFitlterItem>({
+  createdDate: "",
+  dueDate: "",
+  status: "",
+  userId: "",
+  departmentId: "",
+  serviceId: serviceStore.serviceId!,
+  searchText: ""
+})
 async function handleCreateTask() {
   isLoading.value = true
   try {
@@ -392,7 +345,7 @@ async function handleCreateTask() {
 
     console.log('taskData ready to send:', taskData)
     const API = import.meta.env.VITE_API_URL
-    const response = await axios.post(`${API}/tasks`, taskData ,headers)
+    const response = await axios.post(`${API}/tasks`, taskData, headers)
     console.log('API response:', response)
     if (response.status === 201) {
       showCreateModal.value = false
@@ -416,17 +369,6 @@ async function handleCreateTask() {
     console.error('Erreur lors de la creation:', error)
   } finally {
     isLoading.value = false
-  }
-}
-
-const getRoom = async () => {
-  try {
-    const serviceId = serviceStore.serviceId
-    const response = await getServiceProduct(serviceId)
-    rooms.value = response.data
-    console.log('response getRoom', rooms.value)
-  } catch (error) {
-    console.error('Erreur lors de la recuperation:', error)
   }
 }
 
@@ -455,34 +397,28 @@ const fetchStaff = async () => {
 }
 
 const fetchTasks = async () => {
+  isLoading.value = true
   try {
-    const serviceId = serviceStore.serviceId
-
-    const taskRes = await getTasks(serviceId)
+    const taskRes = await findTasks(filters.value)
     const taskList = taskRes.data
+    console.log('change', taskList)
+    Tasks.value = taskList
 
-    if (!rooms.value || rooms.value.length === 0) {
-      console.warn('rooms.value est vide ou non chargé')
-      return
-    }
-
-    const roomMap = Object.fromEntries(rooms.value.map((room:any) => [room.id, room.productName]))
-
-    Tasks.value = taskList.map((task:any) => ({
-      ...task,
-      roomName: roomMap[task.serviceProductId] || '—',
-    }))
-
-    console.log('Tâches  avec roomName:', Tasks.value)
   } catch (error) {
     console.error('Erreur lors de la récupération des tâches:', error)
+  } finally {
+    isLoading.value = false
   }
 }
-
+const applyFilters = (filterOp: TaskFitlterItem) => {
+  filters.value = filterOp;
+  fetchTasks()
+}
 onMounted(async () => {
-  await getRoom()
+  getRoom()
   await fetchTasks()
   await fetchStaff()
+
 })
 
 const handleStatusUpdate = async (taskId: number, newStatus: string) => {
@@ -491,6 +427,17 @@ const handleStatusUpdate = async (taskId: number, newStatus: string) => {
     console.log(`Tâche ${taskId} mise à jour avec succès`)
   } catch (error) {
     console.error('Erreur lors de la mise à jour du statut:', error)
+  }
+}
+
+const getRoom = async () => {
+  try {
+    const serviceId = serviceStore.serviceId
+    const response = await getServiceProduct(serviceId)
+    rooms.value = response.data
+    console.log('response getRoom', rooms.value)
+  } catch (error) {
+    console.error('Erreur lors de la recuperation:', error)
   }
 }
 </script>

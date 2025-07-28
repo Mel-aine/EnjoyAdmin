@@ -176,7 +176,7 @@
     "roomDelete": "Room successfully delete ✅",
     "updateRoom": "Room successfully updated ✅",
     "roomTypeUpdatedSuccess": "Room Type successfully updated ✅",
-    "roomTypeDeleted": "Room Type successfully delete ✅", 
+    "roomTypeDeleted": "Room Type successfully delete ✅",
     "roomTypeDeleteError": "Error while deleting room type ❌",
     "selectError": "No users selected for update.",
     "roomtypesuccess": "Room Type created successfully ✅",
@@ -2210,13 +2210,31 @@
   "Errors": {
     "roomNumberExists": "This room number already exists!",
     "capacityExceeded": "Capacity cannot exceed {max} for this room type",
-     "positivePrice": "The price must be a positive number"
+    "positivePrice": "The price must be a positive number"
   },
   "userList": {
-    "searchByName":"Search by name",
-    "searchPlaceholder":"Search by name"
+    "searchByName": "Search by name",
+    "searchPlaceholder": "Search by name"
   },
-  "user_permissions":"User permissions",
-  "no_permissions":"No Permission assign to user role",
-  "Refunds" : "Refunds"
+  "user_permissions": "User permissions",
+  "no_permissions": "No Permission assign to user role",
+  "Refunds": "Refunds",
+  "in_progress": "In Progress",
+  "createdDate": "Created Date",
+  "dueDate": "Due Date",
+  "placeOfBirth": "Place of Birth",
+  "dateOfBirth": "Date of Birth",
+  "gender": "Gender",
+  "city": "City",
+  "country": "Country",
+  "emergencyPhone": "Emergency Phone",
+  "personalEmail": "Personal email",
+  "socialSecurityNumber": "Social security Number",
+  "nationalIdNumber": "National Id Number",
+  "contractType": "Contract Type",
+  "contractEndDate": "Contract End Date",
+  "dataProcessingConsent": "Data Processing Consent",
+  "consentDate": "Consent Date"
+  
+
 }
