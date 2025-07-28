@@ -286,10 +286,6 @@ const applyFilters = (filterOp: FitlterItem) => {
   fetchUser()
 }
 
-
-onMounted(fetchUser)
-onMounted(fetchRole)
-onMounted(fetchDepartment)
 </script>
 
 <template>
