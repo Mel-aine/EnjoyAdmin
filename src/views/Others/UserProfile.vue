@@ -11,6 +11,7 @@
         <personal-info-card :user="authStore.user!" @updateProfile="saveChanges" />
       </div>
     </div>
+    </div>
   </admin-layout>
 </template>
 
