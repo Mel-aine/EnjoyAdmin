@@ -26,7 +26,7 @@
             </div>
             <div class="mb-6 bg-amber-600 p-4" v-if="responseWrapper.summaryMessage">
                 <p class="text-white dark:text-gray-300">
-                    {{ $t(responseWrapper.policyName) }}
+                    {{ responseWrapper.policyName }}
                 </p>
                 <p class="mt-2 text-sm text-white dark:text-gray-400">
                     {{ responseWrapper.summaryMessage }}

@@ -659,6 +659,7 @@ span.flatpickr-weekday,
 .event-fc-color.fc-bg-warning .fc-daygrid-event-dot {
   @apply bg-orange-500;
 }
+
 .fc-direction-ltr .fc-timegrid-slot-label-frame {
   @apply px-3 py-1.5 text-left text-sm font-medium text-gray-500 dark:text-gray-400;
 }

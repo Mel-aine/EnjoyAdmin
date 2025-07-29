@@ -155,7 +155,8 @@
     "reservationType": "Type de réservation",
     "arrival": "Arrivée",
     "departure": "Départ",
-    "comment": "Remarques"
+    "comment": "Remarques",
+    "info": "Glissez pour déplacer, tirez les bords pour modifier la durée"
   },
   "EditUser": "Modifier l'utilisateur",
   "toast": {
@@ -2304,5 +2305,32 @@
   "PaymentPayPal": "Paiement PayPal",
   "PaymentCheck": "Paiement par chèque",
   "checked_out" : "Départ de l'hôtel effectué",
-  "anErrorOccur": "Une erreur s'est produite"
+  "anErrorOccur": "Une erreur s'est produite",
+  "cannotModifyReservation": "Vous ne pouvez pas modifier cette réservation",
+  "reservationUpdated": "Réservation mise à jour avec succès. Nouvelles dates: {dates}",
+  "updateError": "Erreur lors de la mise à jour de la réservation",
+  "countries": {
+    "Cameroun": "Cameroun",
+    "France": "France",
+    "Allemagne": "Allemagne",
+    "Belgique": "Belgique",
+    "Suisse": "Suisse",
+    "Canada": "Canada",
+    "États-Unis": "États-Unis",
+    "Royaume-Uni": "Royaume-Uni",
+    "Italie": "Italie",
+    "Espagne": "Espagne",
+    "Portugal": "Portugal",
+    "Pays-Bas": "Pays-Bas",
+    "Suède": "Suède",
+    "Norvège": "Norvège",
+    "Danemark": "Danemark",
+    "Autriche": "Autriche",
+    "Autre": "Autre"
+  },
+  "add_new_customer": "Ajouter un nouveau client",
+  "contact_info": "Informations de contact",
+  "preferencesAndSpecialRequests": "Préférences et demandes spéciales",
+  "stayInformation": "Informations de séjour",
+  "EditCustomer": "Modifier le client"
 }

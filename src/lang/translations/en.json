@@ -156,7 +156,8 @@
     "reservationType": "Reservation Type",
     "arrival": "Check-in",
     "departure": "Check-out",
-    "comment": "Remarks"
+    "comment": "Remarks",
+    "info": "Drag to move, pull edges to change duration"
   },
   "EditUser": "Edit User",
   "toast": {
@@ -2315,5 +2316,36 @@
   "EditProduct":"EditProduct",
   "NewProduct":"New Product",
   "EditHotelService":"Edit Hotel Service",
-  "NewHotelService":"New Hotel Service"
+  "NewHotelService":"New Hotel Service",
+  "ConfirmReservationChange" : "Confirm Reservation Change",
+  "NewDates" : "New Dates",
+  "OldDates" : "Old Dates",
+  "cannotModifyReservation": "You cannot modify this reservation",
+  "reservationUpdated": "Reservation successfully updated. New dates: {dates}",
+  "updateError": "Error while updating the reservation",
+  "countries": {
+  "Cameroun": "Cameroon",
+  "France": "France",
+  "Allemagne": "Germany",
+  "Belgique": "Belgium",
+  "Suisse": "Switzerland",
+  "Canada": "Canada",
+  "États-Unis": "United States",
+  "Royaume-Uni": "United Kingdom",
+  "Italie": "Italy",
+  "Espagne": "Spain",
+  "Portugal": "Portugal",
+  "Pays-Bas": "Netherlands",
+  "Suède": "Sweden",
+  "Norvège": "Norway",
+  "Danemark": "Denmark",
+  "Autriche": "Austria",
+  "Autre": "Other"
+  },
+  "add_new_customer" : "Add New Customer",
+  "contact_info": "Contact Information",
+  "preferencesAndSpecialRequests": "Preferences and Special Requests",
+  "stayInformation": "Stay Information",
+  "EditCustomer" : "Edit Customer"
+
 }
