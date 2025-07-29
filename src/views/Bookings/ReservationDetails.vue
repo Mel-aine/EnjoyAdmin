@@ -409,10 +409,10 @@ const getPaymentStatus = () => {
 
 const paymentStatus = computed(getPaymentStatus);
 console.log('paymentStatus', paymentStatus.value);
-const allRoomsCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.every(room => room.serviceProduct.status === 'Checked-in'));
-const allRoomsCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.every(room => room.serviceProduct.status === 'Checked-out'));
-const anyRoomCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.some(room => room.serviceProduct.status === 'Checked-in'));
-const anyRoomCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.some(room => room.serviceProduct.status === 'Checked-out'));
+const allRoomsCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.every(serviceProduct => serviceProduct.status === 'checked-in'));
+const allRoomsCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.every(serviceProduct => serviceProduct.status === 'Checked-out'));
+const anyRoomCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.some(serviceProduct => serviceProduct.status === 'checked-in'));
+const anyRoomCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.some(serviceProduct => serviceProduct.status === 'Checked-out'));
 
 // New computed properties for date and status checks
 const isArrivalDateInFuture = computed(() => {
@@ -434,7 +434,7 @@ const isReservationConfirmOrPending = computed(() => {
 });
 
 const isReservationCheckedIn = computed(() => {
-  return selectBooking.value?.status.toLowerCase() === 'checked-in';
+  return selectBooking.value?.status.toLowerCase() === 'checked_in';
 });
 
 // Computed properties for button visibility/disability
