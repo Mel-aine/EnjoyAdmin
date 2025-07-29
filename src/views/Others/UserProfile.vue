@@ -44,10 +44,7 @@ const parsedUser = computed(() => {
 const fullName = computed(() =>
   `${parsedUser.value.firstName ?? ''} ${parsedUser.value.lastName ?? ''}`.trim()
 )
-const email = computed(() => parsedUser.value.email ?? '')
-const firstname = computed(() => parsedUser.value.firstName ?? '')
-const lastname = computed(() => parsedUser.value.lastName ?? '')
-const phone = computed(() => parsedUser.value.phoneNumber ?? '')
+const email = computed(() => parsedUser.value.email ?? '') 
 
 // Reactive profile form
 const profileData = reactive({
