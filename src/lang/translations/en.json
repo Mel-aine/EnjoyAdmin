@@ -2316,10 +2316,7 @@
   "EditProduct":"EditProduct",
   "NewProduct":"New Product",
   "EditHotelService":"Edit Hotel Service",
-  "NewHotelService":"New Hotel Service"
-}
-  "checked_out" : "Checked-out",
-  "anErrorOccur": "An error occurred",
+  "NewHotelService":"New Hotel Service",
   "ConfirmReservationChange" : "Confirm Reservation Change",
   "NewDates" : "New Dates",
   "OldDates" : "Old Dates",
