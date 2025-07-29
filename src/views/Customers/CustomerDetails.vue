@@ -198,7 +198,6 @@
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { useBookingStore } from '@/composables/booking';
 import { ref, onMounted, computed,reactive } from 'vue'
 import { BuildingIcon, ClockIcon, DollarSignIcon, MapPin, UserRound } from 'lucide-vue-next';
 import { Mail } from 'lucide-vue-next';

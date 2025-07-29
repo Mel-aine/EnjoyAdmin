@@ -246,7 +246,6 @@ onMounted(async () => {
   // console.log("serviceId",responseService)
   newEmail.value = response.data.email
   const user = JSON.parse(authStore.user || '{}');
-  console.log("eeee", user)
   primaryEmail.value = user.email || ''
 });
 
