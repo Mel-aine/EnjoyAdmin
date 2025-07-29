@@ -263,15 +263,17 @@ watch(primaryEmail, (newVal:any, oldVal:any) => {
 onMounted(async () => {
   const id = authStore.UserId;
 
- const response =  await getUserId(id);
- console.log("serviceId",response.data)
-  // const responseService =    await getService(response.data.serviceId)
-  // console.log("serviceId",responseService)
-  newEmail.value = response.data.email
-  const user = JSON.parse(authStore.user || '{}');
-          console.log("eeee",user)
-    primaryEmail.value = user.email || ''
+  const response = await getUserId(id);
+  newEmail.value = response.data.email;
+
+  const rawUser = authStore.user;
+  const user = typeof rawUser === 'string' ? JSON.parse(rawUser) : rawUser;
+
+  console.log("eeee", user);
+
+  primaryEmail.value = user.email || '';
 });
+
 
 const addEmail = () => {
   if (isValidEmail(newEmail.value)) {

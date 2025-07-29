@@ -47,8 +47,16 @@
                 </div>
               </div>
             </div>
+            <div class="flex items-center space-x-4 mt-2">
+                <button @click="handleOpenEditModal"
+                   class=" bg-primary text-white px-4 py-1 rounded-lg shadow hover:bg-primary/80 transition ">{{
+                     $t('edit') }}
+                </button>
+
+            </div>
 
           </div>
+
         </div>
 
         <!-- Navigation Tabs -->
@@ -192,6 +200,10 @@
       <PaymentModal :reservation="selectBooking" :is-open="openPayment" @close="openPayment = false"
         @payment-recorded="getPaymentDetails" />
     </template>
+    <template v-if="modalOpen">
+      <ModalCustomer :isOpen="modalOpen" :isEditMode="true" @close="closeModal" />
+    </template>
+
     </FullScreenLayout>
   </AdminLayout>
 </template>
@@ -219,6 +231,7 @@ import PaymentTable from '@/components/tables/PaymentTable.vue';
 const selectBooking = ref(null);import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
 import LegendItem from '@/components/calendars/LegendItem.vue';
+import ModalCustomer from './ModalCustomer.vue';
 
 const { t ,locale } = useI18n()
 const openPayment = ref(false);
@@ -227,7 +240,7 @@ const getPaymentDetails = () => {
   getCustomerProfileDetails();
 };
 const customer_id = router.currentRoute.value.params.id as string;
-
+const modalOpen = ref(false);
 const customer = ref<any>({})
 const activeTab = ref<string>('details')
 const tabs = computed(() => [
@@ -369,6 +382,9 @@ const getDayModifiers = (day: any) => {
   return ''
 }
 
+const closeModal = () => {
+    modalOpen.value = false
+}
 
 // Méthodes utilitaires
 const showEventDetails = (events: any[]) => {
@@ -381,6 +397,9 @@ const openNewEventDialog = (date: Date) => {
 
 const loadEventsForMonth = (date: Date) => {
   // Charger les événements du mois depuis l'API
+}
+const handleOpenEditModal = () =>{
+  modalOpen.value = true
 }
 </script>
 
