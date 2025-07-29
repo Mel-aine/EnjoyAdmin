@@ -2,17 +2,12 @@
   <admin-layout>
     <PageBreadcrumb :pageTitle="$t('userProfile')" />
     <div class="h-screen">
-      <div
-        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6"
-      >
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
           {{ $t('profile') }}
         </h3>
         <profile-card :full-name="fullName" :email="email" />
-        <personal-info-card
-          :user="parsedUser"
-          @updateProfile="saveChanges"
-        />
+        <personal-info-card :user="parsedUser" @updateProfile="saveChanges" />
         <!-- <address-card /> -->
       </div>
     </div>
@@ -131,13 +126,13 @@ const saveChanges = async (updatedData: {
 onMounted(async () => {
   const id = authStore.UserId
   const response = await getUserId(id)
-const userData = response.data
-authStore.user = JSON.stringify(userData)
+  const userData = response.data
+  authStore.user = JSON.stringify(userData)
 
-profileData.firstName = userData.firstName || ''
-profileData.lastName = userData.lastName || ''
-profileData.email = userData.email || ''
-profileData.phone = userData.phoneNumber || ''
+  profileData.firstName = userData.firstName || ''
+  profileData.lastName = userData.lastName || ''
+  profileData.email = userData.email || ''
+  profileData.phone = userData.phoneNumber || ''
 
 })
 

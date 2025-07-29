@@ -258,7 +258,7 @@ export interface FitlterItem {
   roomType: string
   checkInDate: string
   checkOutDate: string
-  roleId?:string
+  roleId?: string
   department?: string
 }
 export interface TaskFitlterItem {
@@ -266,10 +266,10 @@ export interface TaskFitlterItem {
   status: string
   dueDate: string
   createdDate: string
-  roleId?:string
+  roleId?: string
   departmentId?: string
   serviceId?: number
-  searchText?:string
+  searchText?: string
 }
 export interface RoomFilterItem {
   searchText: string
@@ -280,50 +280,100 @@ export interface RoomFilterItem {
 }
 
 export interface Form {
-    firstName: string
-    lastName: string
-    phoneNumber: string
-    email: string
-    password: string
-    roleId: string | number | undefined
-    hire_date: string,
-    department: number
-    dateOfBirth: string,
-    placeOfBirth: string,
-    gender?: string,
-    city?: string,
-    country?: string,
-    emergencyPhone?: string,
-    personalEmail?: string,
-    socialSecurityNumber?: string,
-    nationalIdNumber?: string,
-    contractType?: string,
-    contractEndDate: string,
-    dataProcessingConsent?: boolean,
-    consentDate: string,
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  email: string
+  password: string
+  roleId: string | number | undefined
+  hire_date: string
+  department: number
+  dateOfBirth: string
+  placeOfBirth: string
+  gender?: string
+  city?: string
+  country?: string
+  emergencyPhone?: string
+  personalEmail?: string
+  socialSecurityNumber?: string
+  nationalIdNumber?: string
+  contractType?: string
+  contractEndDate: string
+  dataProcessingConsent?: boolean
+  consentDate: string
 }
 export const defaultData = (): Form => {
-    return {
-        firstName: '',
-        lastName: '',
-        roleId: 0,
-        phoneNumber: '',
-        email: '',
-        password: '',
-        department: 0,
-        hire_date: '',
-        dateOfBirth: '',
-        placeOfBirth: '',
-        gender: '',
-        city: '',
-        country: '',
-        emergencyPhone: '',
-        personalEmail: '',
-        socialSecurityNumber: '',
-        nationalIdNumber: '',
-        contractType: '',
-        contractEndDate: '',
-        dataProcessingConsent: true,
-        consentDate: '',
-    }
+  return {
+    firstName: '',
+    lastName: '',
+    roleId: 0,
+    phoneNumber: '',
+    email: '',
+    password: '',
+    department: 0,
+    hire_date: '',
+    dateOfBirth: '',
+    placeOfBirth: '',
+    gender: '',
+    city: '',
+    country: '',
+    emergencyPhone: '',
+    personalEmail: '',
+    socialSecurityNumber: '',
+    nationalIdNumber: '',
+    contractType: '',
+    contractEndDate: '',
+    dataProcessingConsent: true,
+    consentDate: '',
+  }
+}
+
+// --- TypeScript Interfaces for Payloads ---
+
+export interface AmenityCategoryPayload {
+  name: string
+  description?: string | null
+  service_id: number
+  status?: 'active' | 'inactive' | 'archived'
+  source_type: 'External' | 'Internal'
+  external_system_id?: string | ''
+}
+
+export interface UpdateAmenityCategoryPayload {
+  name?: string
+  description?: string | null
+  service_id?: number
+  status: 'active' | 'inactive' | 'archived'
+  source_type?: 'External' | 'Internal'
+  external_system_id?: string | null
+}
+export const defaultAmenityCategoryPayload = (): AmenityCategoryPayload => {
+  return {
+    name: '',
+    description: '',
+    service_id: 0,
+    status: 'active',
+    source_type: 'Internal',
+    external_system_id: '',
+  }
+}
+
+export interface AmenityProductPayload {
+  name: string
+  price: number
+  description?: string | null
+  status?: 'active' | 'inactive' | 'archived'
+  amenities_category_id: number
+  service_id: number
+}
+
+export const defaultAmenityProductPayloadPayload = (): AmenityProductPayload => {
+  return {
+    name: '',
+    description: '',
+    service_id: 0,
+    status: 'active',
+    amenities_category_id: 0,
+    price: 0,
+  }
 }

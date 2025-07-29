@@ -10,7 +10,6 @@
           <SecuritySetting v-if="openTab === 3" />
           <HotelAmentis v-if="openTab === 4" />
           <CancellationPolicyConfig v-if="openTab === 5" />
-
         </SettingTables>
       </div>
     </AdminLayout>
