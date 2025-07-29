@@ -155,7 +155,8 @@
     "reservationType": "Type de réservation",
     "arrival": "Arrivée",
     "departure": "Départ",
-    "comment": "Remarques"
+    "comment": "Remarques",
+    "info": "Glissez pour déplacer, tirez les bords pour modifier la durée"
   },
   "EditUser": "Modifier l'utilisateur",
   "toast": {

@@ -156,7 +156,8 @@
     "reservationType": "Reservation Type",
     "arrival": "Check-in",
     "departure": "Check-out",
-    "comment": "Remarks"
+    "comment": "Remarks",
+    "info": "Drag to move, pull edges to change duration"
   },
   "EditUser": "Edit User",
   "toast": {

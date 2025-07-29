@@ -1,7 +1,8 @@
 <template>
     <admin-layout>
         <PageBreadcrumb :pageTitle="$t('userProfile')" />
-        <div class="h-screen" v-if="user && user.id">
+        <FullScreenLayout>
+        <div class="" v-if="user && user.id">
             <div
                 class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
                 <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
@@ -128,7 +129,7 @@
                                                 $t('contractType') }}
                                             </p>
                                             <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                                $t(user.contractType) }}</p>
+                                                (user.contractType) }}</p>
                                         </div>
                                         <div>
                                             <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
@@ -190,6 +191,7 @@
                 <!-- <address-card /> -->
             </div>
         </div>
+        </FullScreenLayout>
     </admin-layout>
     <template v-if="modalOpen">
         <UserUpsertModal :is-edit-mode="true" :selected-user="selectedUser" :modal-open="modalOpen" @close="closeModal"
@@ -208,6 +210,7 @@ import { Bookmark, ClockIcon, CreditCard, FileSearch } from 'lucide-vue-next'
 import { isLoading } from '@/composables/spinner'
 import UserUpsertModal from '@/components/modal/UserUpsertModal.vue'
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 
 const AdminLayout = defineAsyncComponent(() => import('../../components/layout/AdminLayout.vue'))
 const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
