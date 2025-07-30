@@ -10,7 +10,6 @@ import { useI18n } from 'vue-i18n'
 import { defaultAmenityProductPayloadPayload, type AmenityProductPayload } from '@/utils/models'
 import { useServiceStore } from '@/composables/serviceStore'
 import InputCurrency from '../forms/FormElements/InputCurrency.vue'
-import { number } from 'echarts'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -18,10 +17,8 @@ const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'
 const isLoading = ref(false)
 const serviceStore = useServiceStore()
 const toast = useToast()
-const services = ref<any[]>([])
 const { t } = useI18n()
 const emits = defineEmits(['refresh', 'close']);
-const isLoadingService = ref(false);
 const props = defineProps({
     isEditMode: {
         type: Boolean,
@@ -66,6 +63,15 @@ const saveAmenitieService = async () => {
 }
 
 const status = ref([{ label: t('active'), value: 'active' }, { label: t('inactive'), value: 'inactive' }])
+const timeUnits = ref([
+    { label: t('hour'), value: 'hour' },
+    { label: t('day'), value: 'day' },
+])
+
+const pricingModels = ref([
+    { label: t('flat_rate'), value: 'flat_rate' },
+    { label: t('time_based'), value: 'time_based' },
+])
 
 const updateFormData = async () => {
     isLoading.value = true
@@ -82,7 +88,7 @@ const updateFormData = async () => {
         form.value.amenities_category_id = props.categoriesId!
         console.log('Payload envoyé :', form.value)
         await updateAmenityProduct(id, form.value)
-
+        form.value = defaultAmenityProductPayloadPayload()
         toast.success(t('toast.UpdatedSuccess'))
         emits('refresh')
     } catch (error) {
@@ -123,6 +129,8 @@ onMounted(() => {
         form.value.service_id = props.selectedAmentyProduct.service_id
         form.value.amenities_category_id = props.selectedAmentyProduct.amenities_category_id;
         form.value.amenities_category_id = props.categoriesId!
+        form.value.pricing_model = props.selectedAmentyProduct.pricing_model;
+        form.value.time_unit = props.selectedAmentyProduct.time_unit;
     }
 })
 </script>
@@ -144,7 +152,7 @@ onMounted(() => {
                     </button>
                     <div class="px-2 pr-14">
                         <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                            {{ isEditMode ? $t('EditProduct') : $t('NewProduct') }}
+                            {{ isEditMode ? $t('editProduct') : $t('NewProduct') }}
                         </h4>
                     </div>
                     <form @submit.prevent="handleSubmit" class="flex flex-col">
@@ -154,10 +162,14 @@ onMounted(() => {
                                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
                                         <Input :lb="$t('Name')" :id="'name'" :forLabel="'name'" v-model="form.name"
                                             :is-required="true" :placeholder="$t('Name')" />
-                                        <InputCurrency v-model="form.price" :lb="$t('price')" />
-                                        <!-- gender-->
                                         <Select :is-required="true" :lb="$t('Status')" v-model="form.status"
                                             :options="status" />
+                                        <Select :is-required="true" :lb="$t('pricing_model')"
+                                            v-model="form.pricing_model" :options="pricingModels" />
+                                        <Select v-if="form.pricing_model === 'time_based'" :is-required="true" :lb="$t('time_unit')" v-model="form.time_unit"
+                                            :options="timeUnits" />
+                                        <InputCurrency v-model="form.price" :lb="$t('price')" />
+
 
                                         <div class="mb-4 col-span-2">
                                             <label
@@ -180,7 +192,7 @@ onMounted(() => {
                             </button>
                             <button type="submit" :disabled="isLoading"
                                 class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto">
-                                <span v-if="!isLoading"> {{ isEditMode ? $t('EditProduct') : $t('Save') }}</span>
+                                <span v-if="!isLoading"> {{ isEditMode ? $t('editProduct') : $t('Save') }}</span>
                                 <span v-else class="flex items-center gap-2">
                                     <Spinner class="w-4 h-4" />
                                     {{ $t('Processing') }}...

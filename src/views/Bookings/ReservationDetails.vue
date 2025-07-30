@@ -13,7 +13,7 @@
       </div>
       <div class="bg-white rounded-xl border border-gray-200 overflow-hidden" v-if="selectBooking && selectBooking.id">
         <!-- Header -->
-        <div class="text-white p-6">
+        <div class="text-white p-6 flex items-center justify-between">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <div
@@ -27,10 +27,30 @@
                 <p class="text-lg text-black font-medium">{{ $t('reservation_id') }}: <span class="font-semibold">{{
                   selectBooking?.reservationNumber
                     }}</span></p>
+                <div class="mt-2 flex items-center space-x-2" v-if="unpaidDetails && unpaidDetails.totalUnpaidAmenitiesAmount > 0">
+                  <span v-if="unpaidDetails.totalUnpaidAmenitiesAmount > 0"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    {{ $t('amenities_order_unpaid') }}: <span class="font-semibold">{{
+                      formatCurrency(unpaidDetails.totalUnpaidAmenitiesAmount) }}</span>
+                  </span>
+                  <span v-if="unpaidDetails.totalRemainingPrice > 0"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    {{ $t('remaining_balance') }}: <span class="font-semibold">{{
+                      formatCurrency(unpaidDetails.totalRemainingPrice) }}</span>
+                  </span>
+                  <button @click="startPaymentAmenity"
+                    class="flex items-center justify-center px-4 py-2  font-semibold text-sm rounded-full transition duration-300 ease-in-out transform hover:scale-105 bg-red-600 hover:bg-red-700 text-white">
+                    {{ $t('pay_now') }}
+                  </button>
+                </div>
               </div>
             </div>
 
           </div>
+          <button @click="placeOrder" v-if="canPlaceOrder"
+            class="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white font-semibold py-1 px-2 rounded-lg transition-all duration-200 shadow">
+            <ShoppingCart /> {{ $t('place_order') }}
+          </button>
         </div>
 
         <!-- Navigation Tabs -->
@@ -242,58 +262,61 @@
               </section>
             </div>
           </div>
-          <div v-if="activeTab ==='room_breakdown'">
+          <div v-if="activeTab === 'room_breakdown'">
 
-              <!-- 2. Room Breakdown -->
-              <section class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <SectionHeader :icon="Bed" :title="$t('room_breakdown')" />
-                <div v-for="(room, index) in selectBooking?.reservationServiceProducts" :key="room.id"
-                  class="mb-6 p-4 rounded-lg border"
-                  :class="index % 2 === 0 ? 'border-blue-200 bg-blue-50' : 'border-purple-200 bg-purple-50'">
-                  <h3 class="flex items-center text-lg font-semibold text-gray-800 mb-3">
-                    <Hotel class="mr-2 text-blue-700" :size="18" />
-                    {{ room.serviceProduct.productName }}
-                  </h3>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
-                    <DetailItem :icon="Users" :label="$t('guests')"
-                      :value="`${room.totalAdult} ${$t('adults')}, ${room.totalChildren} ${$t('children')}`" />
-                    <div class="flex items-center">
-                      <RefreshCcw class="mr-2 text-gray-500" :size="18" />
-                      <span class="font-medium">{{ $t('status') }}:</span>
-                      <span class="ml-2 px-3 py-1 rounded-full text-sm font-semibold"
-                        :class="statusClass(room.status ?? '')">
-                        {{ room.status ? $t(room.status?.toLowerCase().replace(' ', '_')) : '' }}
-                      </span>
-                    </div>
-                    <DetailItem :icon="DollarSign" :label="$t('rate_per_night')"
-                      :value="formatCurrency(room.ratePerNight)" />
-                    <DetailItem :icon="Tag" :label="$t('taxes')" :value="formatCurrency(room.taxes)" />
-                    <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuest')"
-                      :value="`${room.extraGuest}`" />
-                    <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuestFee')"
-                      :value="`${formatCurrency(room.totalExtraGuestPrice ?? 0)}`" />
-                    <DetailItem :icon="Clock" :label="$t('check_in')"
-                      :value="`${room.checkInDate ? formatDateT(room.checkInDate) : ''}`" />
-                    <DetailItem :icon="Clock" :label="$t('check_out')"
-                      :value="`${room.checkOutDate ? formatDateT(room.checkOutDate) : ''}`" />
-
-                    <DetailItem :icon="Tag" :label="$t('discounts')" :value="`-${formatCurrency(room.discounts)}`" />
-                    <DetailItem :icon="CreditCard" :label="$t('total_room_price')"
-                      :value="formatCurrency(room.totalAmount)" />
+            <!-- 2. Room Breakdown -->
+            <section class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <SectionHeader :icon="Bed" :title="$t('room_breakdown')" />
+              <div v-for="(room, index) in selectBooking?.reservationServiceProducts" :key="room.id"
+                class="mb-6 p-4 rounded-lg border"
+                :class="index % 2 === 0 ? 'border-blue-200 bg-blue-50' : 'border-purple-200 bg-purple-50'">
+                <h3 class="flex items-center text-lg font-semibold text-gray-800 mb-3">
+                  <Hotel class="mr-2 text-blue-700" :size="18" />
+                  {{ room.serviceProduct.productName }}
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
+                  <DetailItem :icon="Users" :label="$t('guests')"
+                    :value="`${room.totalAdult} ${$t('adults')}, ${room.totalChildren} ${$t('children')}`" />
+                  <div class="flex items-center">
+                    <RefreshCcw class="mr-2 text-gray-500" :size="18" />
+                    <span class="font-medium">{{ $t('status') }}:</span>
+                    <span class="ml-2 px-3 py-1 rounded-full text-sm font-semibold"
+                      :class="statusClass(room.status ?? '')">
+                      {{ room.status ? $t(room.status?.toLowerCase().replace(' ', '_')) : '' }}
+                    </span>
                   </div>
+                  <DetailItem :icon="DollarSign" :label="$t('rate_per_night')"
+                    :value="formatCurrency(room.ratePerNight)" />
+                  <DetailItem :icon="Tag" :label="$t('taxes')" :value="formatCurrency(room.taxes)" />
+                  <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuest')"
+                    :value="`${room.extraGuest}`" />
+                  <DetailItem v-if="room.extraGuest" :icon="User2Icon" :label="$t('ExtraGuestFee')"
+                    :value="`${formatCurrency(room.totalExtraGuestPrice ?? 0)}`" />
+                  <DetailItem :icon="Clock" :label="$t('check_in')"
+                    :value="`${room.checkInDate ? formatDateT(room.checkInDate) : ''}`" />
+                  <DetailItem :icon="Clock" :label="$t('check_out')"
+                    :value="`${room.checkOutDate ? formatDateT(room.checkOutDate) : ''}`" />
+
+                  <DetailItem :icon="Tag" :label="$t('discounts')" :value="`-${formatCurrency(room.discounts)}`" />
+                  <DetailItem :icon="CreditCard" :label="$t('total_room_price')"
+                    :value="formatCurrency(room.totalAmount)" />
                 </div>
-              </section>
+              </div>
+            </section>
 
           </div>
           <div v-if="activeTab === 'payments'" class="bg-white rounded-xl  border-gray-200">
-            <PaymentTable  :datas="selectBooking?.payments" />
+            <PaymentTable :datas="selectBooking?.payments" />
+          </div>
+          <div v-if="activeTab === 'amenitie_booking'" class="bg-white ">
+            <AmenityBooked />
           </div>
 
           <!-- History Tab -->
           <div v-if="activeTab === 'history'" class="bg-white rounded-xl border border-gray-200">
             <template v-if="activitiesLogs && activitiesLogs.length > 0">
-                <ActivitiesLogs :activity-logs="activitiesLogs" />
-              </template>
+              <ActivitiesLogs :activity-logs="activitiesLogs" />
+            </template>
             <template v-else>
               <div class="flex flex-col items-center justify-center text-gray-500 py-10">
                 <FileSearch class="w-12 h-12 mb-3 text-gray-400" />
@@ -301,7 +324,7 @@
               </div>
             </template>
           </div>
-</div>
+        </div>
 
       </div>
       <OverLoading v-if="isLoading" />
@@ -319,6 +342,10 @@
       <PaymentModal :reservation="selectBooking" :is-open="openPayment" @close="openPayment = false"
         @payment-recorded="getPaymentDetails" />
     </template>
+    <template v-if="selectBooking">
+      <AmenytiePaymentModal :reservation="selectBooking" :is-open="openPaymentAmenity"
+        @close="openPaymentAmenity = false" @payment-recorded="getPaymentDetails" :un-paid-details="unpaidDetails" />
+    </template>
   </AdminLayout>
 </template>
 
@@ -332,13 +359,14 @@ import {
   User, Mail, Phone, Calendar, Hotel, DollarSign, CreditCard, CheckCircle, XCircle,
   Clock, Tag, Bed, Users, Download, Edit, Trash2, Key, LogIn, LogOut,
   MessageSquare, PlusCircle, AlertCircle, RefreshCcw, User2Icon,
-  Bookmark,
   ClockIcon,
-  FileSearch
+  FileSearch,
+  BookImageIcon,
+  ShoppingCart
 } from 'lucide-vue-next';
 import type { ActivityLog, ReservationDetails } from '@/utils/models';
 import router from '@/router';
-import { getReservationDetailsById, getReservationHistoryById } from '@/services/api';
+import { getReservationDetailsById, getReservationHistoryById, getUnPaidAmenityBookingByReservationId } from '@/services/api';
 import OverLoading from '@/components/spinner/OverLoading.vue';
 import { formatCurrency, formatDateT } from '@/components/utilities/UtilitiesFunction';
 import PaymentModal from './PaymentModal.vue';
@@ -349,14 +377,21 @@ import CancelBookingDetails from './CancelBookingDetails.vue';
 import ExtendStay from './ExtendStay.vue';
 import PaymentTable from '@/components/tables/PaymentTable.vue';
 import InfoIcon from '@/icons/InfoIcon.vue';
-import CalendarIcon from '@/icons/CalendarIcon.vue';
 import { useI18n } from 'vue-i18n'
+import AmenityBooked from '../hotelServices/AmenityBooked.vue';
+import AmenytiePaymentModal from './AmenytiePaymentModal.vue';
 const goBack = (): void => {
   window.history.back()
 }
+const placeOrder = () => {
+  router.push({ name: "Amenities Booking Interface", params: { id: reservation_id } });
+}
+
+const unpaidDetails = ref<any>(null);
 const { t } = useI18n()
 const reservation_id = router.currentRoute.value.params.id as string;
 const isLoading = ref(false);
+const openPaymentAmenity = ref(false);
 const activitiesLogs = ref<ActivityLog[]>([]);
 const getBookingDetails = async () => {
   isLoading.value = true;
@@ -368,11 +403,21 @@ const getBookingDetails = async () => {
   }
   isLoading.value = false;
 }
+const getUnPaidAmenityBooking = async () => {
+  isLoading.value = true;
+  const response = await getUnPaidAmenityBookingByReservationId(parseInt(reservation_id))
+  console.log('this is the unPaid Amenity Booking', response)
+  if (response.status === 200) {
+    unpaidDetails.value = response.data;
+  }
+  isLoading.value = false;
+}
 const activeTab = ref<string>('details')
 const tabs = computed(() => [
   { id: 'details', label: t('tab.details'), icon: InfoIcon },
   { id: 'payments', label: t('tab.payments'), icon: CreditCard },
   { id: 'room_breakdown', label: t('room_breakdown'), icon: Bed },
+  { id: 'amenitie_booking', label: t('amenities_booking.amenitie_booking'), icon: BookImageIcon },
   { id: 'history', label: t('tab.history'), icon: ClockIcon },
 ])
 const openPayment = ref(false);
@@ -389,7 +434,10 @@ const refrechPage = () => {
 }
 const isCancel = ref(false);
 const isExtendStay = ref(false);
-
+const canPlaceOrder = computed(() => {
+  if (!selectBooking.value) return false;
+  return isArrivalDateTodayOrPast.value && selectBooking.value.status !== 'cancelled' && selectBooking.value.status !== 'checked_out';
+});
 const getPaymentStatus = () => {
   const payment = {
     totalAmount: parseFloat(`${selectBooking.value?.finalAmount ?? 0}`),
@@ -482,7 +530,6 @@ const canExtendStay = computed(() => {
     selectBooking.value.status.toLowerCase() !== 'no-show';
 });
 const handleAction = async (actionType: string, roomId: number | null = null) => {
-  console.log(`Action: ${actionType} for Room ID: ${roomId || 'All Rooms'}`);
   const rooms = selectBooking.value?.reservationServiceProducts.map((e) => {
     const room = e.serviceProduct;
     return room;
@@ -578,7 +625,6 @@ const statusClass = (status: string) => {
   switch (status.toLowerCase()) {
     case 'available': return 'bg-green-100 text-green-800';
     case 'confirmed': return 'bg-green-100 text-green-800';
-    case 'confirmed': return 'bg-green-100 text-green-800';
     case 'pending': return 'bg-yellow-100 text-yellow-800';
     case 'en attente': return 'bg-yellow-100 text-yellow-800';
     case 'cancelled': return 'bg-red-100 text-red-800';
@@ -594,10 +640,16 @@ const downloadReceipt = async () => {
 }
 onMounted(() => {
   getBookingDetails();
+  getUnPaidAmenityBooking();
 });
 const getPaymentDetails = async () => {
   getBookingDetails();
   openPayment.value = false;
+  openPaymentAmenity.value = false;
+
+}
+const startPaymentAmenity = () => {
+  openPaymentAmenity.value = true;
 }
 const editReservation = async () => {
   router.push({ name: 'EditBooking', params: { id: selectBooking.value?.id } })

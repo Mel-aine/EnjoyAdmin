@@ -26,7 +26,7 @@
                                 <p class="text-sm opacity-90 text-black">{{ $t('amenities') }}</p>
                                 <span
                                     :class="['inline-flex items-center  px-3 py-1 rounded-full text-sm font-medium mt-2', getStatusColor(amenity.status!)]">
-                                    {{ $t(amenity.status??'') }}
+                                    {{ $t(amenity.status ?? '') }}
                                 </span>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                     </div>
 
                     <!-- Content -->
-                    <div class="p-6" v-if="activeTab=='details'">
+                    <div class="p-6" v-if="activeTab == 'details'">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-gray-50 rounded-lg p-4 border">
                                 <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
@@ -59,7 +59,7 @@
                                 <div class="space-y-2">
                                     <DetailRow :label="$t('Name')" :value="amenity.name || 'N/A'" />
                                     <DetailRow :label="$t('Description')" :value="amenity.description || 'N/A'" />
-                                    <DetailRow :label="$t('status')" :value="$t(amenity.status??'N/A')" />
+                                    <DetailRow :label="$t('status')" :value="$t(amenity.status ?? 'N/A')" />
                                     <DetailRow :label="$t('source_type')"
                                         :value="$t((amenity.source_type?.toLowerCase() || 'N/A'))" />
                                     <DetailRow v-if="amenity.source_type === 'External'"
@@ -69,7 +69,10 @@
                             </div>
                         </div>
                     </div>
-                    <AmenityProduct  v-if="activeTab==='products'"/>
+                    <AmenityProduct v-if="activeTab === 'products'" />
+                    <template v-if="activeTab === 'amenity_booked'">
+                        <AmenityBookedServices />
+                    </template>
                 </div>
                 <OverLoading v-if="isLoading" />
             </div>
@@ -88,13 +91,15 @@ import { getAmenityCategoryById } from '@/services/api';
 import { defaultAmenityCategoryPayload, type AmenityCategoryPayload } from '@/utils/models';
 import DetailRow from '@/views/Room/DetailRow.vue';
 import InfoIcon from '@/icons/InfoIcon.vue';
-import { ClockIcon, HotelIcon,PackageIcon } from 'lucide-vue-next';
+import { ClockIcon, HotelIcon, PackageIcon, ShoppingBagIcon } from 'lucide-vue-next';
 import AmenityProduct from './AmenityProduct.vue';
+import AmenityBookedServices from './AmenityBookedServices.vue';
 const activeTab = ref<string>('details')
 const tabs = computed(() => [
-  { id: 'details', label: t('tab.details'), icon: InfoIcon },
-  { id: 'products', label: t('products'), icon: PackageIcon },
-  { id: 'history', label: t('tab.history'), icon: ClockIcon},
+    { id: 'details', label: t('tab.details'), icon: InfoIcon },
+    { id: 'products', label: t('products'), icon: PackageIcon },
+    { id: "amenity_booked", label: t('amenities_booking.amenitie_booking'), icon: ShoppingBagIcon },
+    { id: 'history', label: t('tab.history'), icon: ClockIcon },
 ])
 const route = useRoute();
 const router = useRouter();

@@ -13,9 +13,11 @@ import type {
 import type {
   AmenityCategoryPayload,
   AmenityProductPayload,
+  CreateAmenityBookingPayload,
   FitlterItem,
   RoomFilterItem,
   TaskFitlterItem,
+  UpdateAmenityBookingPayload,
   UpdateAmenityCategoryPayload,
 } from '@/utils/models'
 
@@ -758,9 +760,7 @@ export const getAmenitiesByServiceId = (
  * @param id The ID of the amenity category.
  * @returns A promise that resolves to the amenity category.
  */
-export const getAmenityCategoryById = (
-  id: number | string,
-): Promise<AxiosResponse<any>> => {
+export const getAmenityCategoryById = (id: number | string): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/amenities-categories/${id}`, headers)
 }
 
@@ -797,9 +797,6 @@ export const deleteAmenityCategory = async (id: number | string): Promise<AxiosR
   return axios.delete(`${API_URL}/amenities-categories/${id}`, headers)
 }
 
-
-
-
 /*
 
  * Fetches all amenity categories for a specific service.
@@ -810,7 +807,10 @@ export const getAmenitiesProductByServiceId = (
   serviceId: number | string,
   categoryId: number | string,
 ): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/amenity-products/service/${serviceId}/category/${categoryId}`, headers)
+  return axios.get(
+    `${API_URL}/amenity-products/service/${serviceId}/category/${categoryId}`,
+    headers,
+  )
 }
 
 /**
@@ -818,9 +818,7 @@ export const getAmenitiesProductByServiceId = (
  * @param id The ID of the amenity product.
  * @returns A promise that resolves to the amenity product.
  */
-export const getAmenityProductById = (
-  id: number | string,
-): Promise<AxiosResponse<any>> => {
+export const getAmenityProductById = (id: number | string): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/amenity-products/${id}`, headers)
 }
 
@@ -855,4 +853,60 @@ export const updateAmenityProduct = async (
  */
 export const deleteAmenityProduct = async (id: number | string): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/amenity-products/${id}`, headers)
+}
+
+
+
+
+export const getAmenityBookingByReservationIdAndServiceId = (
+  reservationId: number,
+  serviceId: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/reservations/${reservationId}/services/${serviceId}/amenity-bookings`,
+    headers,
+  )
+}
+export const getUnPaidAmenityBookingByReservationId = (
+  reservationId: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/reservations/${reservationId}/unpaid-amenities`,
+    headers,
+  )
+}
+export const amenitiesPaymentByReservationId = (
+  reservationId: number,
+  data: any
+): Promise<AxiosResponse<any>> => {
+  return axios.post(
+    `${API_URL}/reservations/${reservationId}/pay-amenities`,
+    data,
+    headers,
+  )
+}
+
+export const getByAmenityBookingByCategoryId = (categoryId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenity-categories/${categoryId}/amenity-bookings`, headers)
+}
+
+export const getAmenityBookingById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenity-bookings/${id}`, headers)
+}
+
+export const createAmenityBooking = (
+  data: CreateAmenityBookingPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/amenity-bookings`, data, headers)
+}
+
+export const updateAmenityBooking = (
+  id: number,
+  data: UpdateAmenityBookingPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/amenity-bookings/${id}`, data, headers)
+}
+
+export const deleteAmenityBooking = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/amenity-bookings/${id}`, headers)
 }

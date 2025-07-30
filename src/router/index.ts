@@ -378,7 +378,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-        {
+    {
       path: '/amenities/:id/view',
       name: 'amenitiesView',
       component: () => import('../views/hotelServices/HotelServiceDetails.vue'),
@@ -387,7 +387,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-
+   {
+      path: '/amenities_booking_view/:id',
+      name: 'Amenities Booking Interface',
+      component: () => import('../views/hotelServices/AmenitiesBookingInterface.vue'),
+      meta: {
+        title: 'Amenities',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/driver',
       name: 'driver',

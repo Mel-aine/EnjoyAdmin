@@ -3,19 +3,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
-    deleteAmenityCategory,
     deleteAmenityProduct,
     getAmenitiesProductByServiceId,
 } from '@/services/api'
 import { useI18n } from 'vue-i18n'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import router from '@/router'
-import AmenitiesUpsertModal from '@/components/modal/AmenitiesUpsertModal.vue'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import AmenityProductUpsertModal from '@/components/modal/AmenityProductUpsertModal.vue'
-const isLoading = ref(false)
 const loadingDelete = ref(false)
 const loading = ref(false)
 const serviceStore = useServiceStore()
@@ -71,24 +66,31 @@ const titles = computed(() => [
         type: 'text',
         filterable: true,
     },
-      {
+    {
         name: 'price',
         label: t('price'),
         type: 'currency',
         filterable: true,
     },
     {
-        name: 'description',
-        label: t('description'),
-        type: 'url',
-        event: 'view',
+        name: 'pricingModel',
+        label: t('pricing_model'),
+        type: 'text',
         filterable: true,
+        isTranslatable: true,
+    },
+    {
+        name: 'timeUnit',
+        label: t('time_unit'),
+        type: 'text',
+        filterable: true,
+        isTranslatable: true,
     },
 
     {
         name: 'createdAt',
         label: t('createdAt'),
-        type: 'text',
+        type: 'date',
         filterable: false,
     },
 

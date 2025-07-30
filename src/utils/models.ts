@@ -365,6 +365,8 @@ export interface AmenityProductPayload {
   status?: 'active' | 'inactive' | 'archived'
   amenities_category_id: number
   service_id: number
+  pricing_model: 'flat_rate' | 'time_based'
+  time_unit?: 'hour' | 'day'
 }
 
 export const defaultAmenityProductPayloadPayload = (): AmenityProductPayload => {
@@ -375,5 +377,52 @@ export const defaultAmenityProductPayloadPayload = (): AmenityProductPayload => 
     status: 'active',
     amenities_category_id: 0,
     price: 0,
+    pricing_model: 'flat_rate',
   }
+}
+
+
+// Interface pour un article de réservation
+export interface AmenityBookingItemPayload {
+  amenity_product_id: number
+  quantity: number
+}
+
+// Interface pour la création d'une réservation
+export interface CreateAmenityBookingPayload {
+  reservation_id: number
+  status: 'pending' | 'completed' | 'cancelled'
+  items: AmenityBookingItemPayload[]
+}
+
+// Interface pour la mise à jour d'une réservation
+export interface UpdateAmenityBookingPayload {
+  status?: 'pending' | 'completed' | 'cancelled'
+  items?: AmenityBookingItemPayload[]
+}
+
+
+// Interfaces
+export interface TableColumn {
+    name: string
+    label: string
+    type?: 'text' | 'date' | 'url' | 'badge' | 'percentage' | 'image' | 'action' | 'imageText' | 'rating' | 'currency' | 'TextRoom'
+    sortable?: boolean
+    filterable?: boolean
+    style?: string
+    minWidth?: string
+    width?: string
+    actions?: Array<{
+        name: string
+        event: string
+        icone: string
+        color?: string
+    }>
+    inputField?: {
+        type: string
+        placeholder: string
+    }
+    event?: string | any
+    colored?: boolean,
+    isTranslatable: boolean
 }
