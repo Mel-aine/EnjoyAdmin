@@ -281,6 +281,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+     {
+      path: '/reservation_calendar',
+      name: 'ReservationCalendar',
+      component: () => import('../views/Bookings/BookinCalender.vue'),
+      meta: {
+        title: 'Reservation Calendar',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/profile',
       name: 'Profile',

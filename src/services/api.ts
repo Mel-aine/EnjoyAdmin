@@ -855,9 +855,6 @@ export const deleteAmenityProduct = async (id: number | string): Promise<AxiosRe
   return axios.delete(`${API_URL}/amenity-products/${id}`, headers)
 }
 
-
-
-
 export const getAmenityBookingByReservationIdAndServiceId = (
   reservationId: number,
   serviceId: number,
@@ -870,23 +867,18 @@ export const getAmenityBookingByReservationIdAndServiceId = (
 export const getUnPaidAmenityBookingByReservationId = (
   reservationId: number,
 ): Promise<AxiosResponse<any>> => {
-  return axios.get(
-    `${API_URL}/reservations/${reservationId}/unpaid-amenities`,
-    headers,
-  )
+  return axios.get(`${API_URL}/reservations/${reservationId}/unpaid-amenities`, headers)
 }
 export const amenitiesPaymentByReservationId = (
   reservationId: number,
-  data: any
+  data: any,
 ): Promise<AxiosResponse<any>> => {
-  return axios.post(
-    `${API_URL}/reservations/${reservationId}/pay-amenities`,
-    data,
-    headers,
-  )
+  return axios.post(`${API_URL}/reservations/${reservationId}/pay-amenities`, data, headers)
 }
 
-export const getByAmenityBookingByCategoryId = (categoryId: number): Promise<AxiosResponse<any>> => {
+export const getByAmenityBookingByCategoryId = (
+  categoryId: number,
+): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/amenity-categories/${categoryId}/amenity-bookings`, headers)
 }
 
@@ -909,4 +901,22 @@ export const updateAmenityBooking = (
 
 export const deleteAmenityBooking = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/amenity-bookings/${id}`, headers)
+}
+
+/**
+ * Fetches tasks from the API based on a set of filter criteria.
+ * @param {int} [serviceId] -
+ * @param {string} [start_date] - (format: 'YYYY-MM-DD').
+ * @param {string} [end_date] - (format: 'YYYY-MM-DD').
+ * @returns {Promise<Array>} A promise that resolves to an array of task objects.
+ */
+export const getDailyOccupancyAndReservations = (
+  serviceId: number,
+  start_date: string,
+  end_date: string,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/dashboard/service/${serviceId}/daily-occupancy?start_date=${start_date}&end_date=${end_date}`,
+    headers,
+  )
 }

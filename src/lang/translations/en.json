@@ -2419,5 +2419,18 @@
   "alert.overpayment_confirmation": "The payment amount ({paymentAmount}) is greater than the remaining balance ({remainingBalance}). Do you want to proceed with an overpayment?",
   "alert.partial_payment_confirmation": "The payment amount ({paymentAmount}) is less than the total amount due ({remainingBalance}). Do you want to record a partial payment?",
   "toast.paymentSucess": "Payment recorded successfully!",
-  "toast.paymentError": "Failed to record payment."
+  "toast.paymentError": "Failed to record payment.",
+  "reservation_code": "Reservation code",
+  "Amount Due": "Amount Due",
+  "Confirmed reservation": "Confirmed reservation",
+  "Reservation Request": "Reservation Request",
+  "Complimentary": "Complimentary",
+  "Blocked Room": "Blocked Room",
+  "Check Out": "Check Out",
+  "Departures today": "Departures today",
+  "In House": "In House",
+  "Unassigned reservations":"Unassigned reservations",
+  "Allocations":"Allocations",
+  "Occupancy":"Occupancy",
+  "Available Rooms":"Available Rooms"
 }
