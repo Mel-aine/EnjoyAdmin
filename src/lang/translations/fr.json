@@ -2405,5 +2405,18 @@
   "alert.overpayment_confirmation": "Le montant du paiement ({paymentAmount}) est supérieur au solde restant ({remainingBalance}). Voulez-vous continuer avec un trop-perçu ?",
   "alert.partial_payment_confirmation": "Le montant du paiement ({paymentAmount}) est inférieur au montant total dû ({remainingBalance}). Voulez-vous enregistrer un paiement partiel ?",
   "toast.paymentSucess": "Paiement enregistré avec succès !",
-  "toast.paymentError": "Échec de l'enregistrement du paiement."
+  "toast.paymentError": "Échec de l'enregistrement du paiement.",
+  "reservation_code": "Code de réservation",
+  "Amount Due": "Montant dû",
+  "Confirmed reservation": "Réservation confirmée",
+  "Reservation Request": "Demande de réservation",
+  "Complimentary": "Offert",
+  "Blocked Room": "Chambre bloquée",
+  "Check Out": "Départ",
+  "Departures today": "Départs aujourd'hui",
+  "In House": "En interne",
+  "Unassigned reservations": "Réservations non attribuées",
+  "Allocations": "Allocations",
+  "Occupancy": "Occupation",
+  "Available Rooms": "Chambres disponibles"
 }
