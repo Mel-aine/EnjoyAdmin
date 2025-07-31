@@ -11,6 +11,7 @@
                 <CalendarIcon />
             </span>
         </div>
+        <div v-if="errorMsg.length > 0" class="text-red-500 text-sm font-light italic">{{ errorMsg }}</div>
     </div>
 </template>
 <script setup lang="ts">
@@ -41,10 +42,14 @@ const props = defineProps({
     }, minDate: {
         type: String,
         default: ''
-    }
+    },
+    errorMsg: {
+        type: String,
+        default: ""
+    },
 })
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue', 'clear-error'])
 const localValue = ref(props.modelValue);
 const flatpickrConfig = computed(() => {
     const config:any = {
@@ -64,6 +69,7 @@ const flatpickrConfig = computed(() => {
     return config
 })
 const updateValue = () => {
+    emits('clear-error')
     emits('update:modelValue', localValue.value)
 }
 

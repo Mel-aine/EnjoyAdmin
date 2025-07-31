@@ -11,6 +11,7 @@ import type {
   userDataType,
 } from '@/types/option'
 import type { FitlterItem, RoomFilterItem, TaskFitlterItem } from '@/utils/models'
+import type { IContract, IPayroll, ICreatePayroll } from '@/types/type'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 const authStore = useAuthStore()
@@ -732,4 +733,25 @@ export const findTasks = (filters: TaskFitlterItem): Promise<AxiosResponse<any>>
     else qs += `?searchText=${filters.searchText}`
   }
   return axios.get(`${API_URL}/tasks_search/filter${qs}`, headers)
+}
+
+//create contract
+export const createContract = (contract: IContract): Promise<AxiosResponse<{ id: number }>> => {
+  return axios.post(`${API_URL}/employment_contracts`, contract, headers)
+}
+export const updateContract = (contract: IContract): Promise<AxiosResponse<{ id: number }>> => {
+  return axios.put(`${API_URL}/employment_contracts/${contract.contract_id}`, contract, headers)
+}
+export const terminateContract = (contractId: string): Promise<AxiosResponse<{ id: number }>> => {
+  return axios.put(`${API_URL}/employment_contracts/${contractId}/terminate`, {}, headers)
+}
+
+
+//payroll
+export const getPayrollsByContractId = (contractId: string): Promise<AxiosResponse<IPayroll[]>> => {
+  return axios.get(`${API_URL}/payroll/by-contract/${contractId}`, headers)
+}
+
+export const createPayroll = (payload: IPayroll): Promise<AxiosResponse<IPayroll>> => {
+  return axios.post(`${API_URL}/payroll`, payload, headers)
 }
