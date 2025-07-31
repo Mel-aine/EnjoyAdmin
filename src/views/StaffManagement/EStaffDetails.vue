@@ -1,7 +1,8 @@
 <template>
     <admin-layout>
         <PageBreadcrumb :pageTitle="$t('userProfile')" />
-        <div class="h-screen" v-if="user && user.id"> 
+        <FullScreenLayout>
+        <div class="" v-if="user && user.id"> 
             <ModalConfirmation v-if="showTerminationModal" @close="showTerminationModal = false" @confirm="handleConfirmTermination" :isLoading="isTerminating" :action="'DANGER'" :title="$t('contract.break')" :message="$t('contract.break_confirmation') + ' ' + user.firstName + user.firstName + ' '  + ' ?'" />
             <Modal v-if="isCreateContractModalOpen" @close="isCreateContractModalOpen = false">
                 <template #body>
@@ -416,7 +417,7 @@
                                                 $t('contractType') }}
                                             </p>
                                             <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                               contractInfo.is_cdi ? "CDI": "CDD" }}</p>
+                                                (user.contractType) }}</p>
                                         </div>
                                         <div>
                                             <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">{{
@@ -523,6 +524,7 @@
                 <OverLoading v-if="isLoading" />
             </div>
         </div>
+        </FullScreenLayout>
     </admin-layout>
     <template v-if="modalOpen">
         <UserUpsertModal :is-edit-mode="true" :selected-user="selectedUser" :modal-open="modalOpen" @close="closeModal"
@@ -541,6 +543,7 @@ import { Bookmark, ClockIcon, CreditCard, FileSearch } from 'lucide-vue-next'
 import UserUpsertModal from '@/components/modal/UserUpsertModal.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import type { IContract, IContractFormData, IPayroll, IPayrollFormData, ICreatePayroll } from '@/types/type'
 import Input from '@/components/forms/FormElements/Input.vue'

@@ -69,7 +69,12 @@
         </button>
         <SearchBar />
       </div>
-
+      <div class="lg:flex self-center justify-center align-middle hidden">
+        <button class="flex flex-nowrap px-4" @click="gotoCalendar">
+        <Calendar class="w-4 me-2"/>  {{ $t('Reservations') }}
+        </button>
+        
+      </div>
       <div
         :class="[isApplicationMenuOpen ? 'flex' : 'hidden']"
         class="items-center justify-between w-full gap-4 px-5 py-4 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none"
@@ -94,6 +99,8 @@ import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 import ButtonLanguage from '../buttons/ButtonLanguage.vue';
+import { Calendar } from 'lucide-vue-next'
+import router from '@/router'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
 
@@ -117,5 +124,8 @@ const isApplicationMenuOpen = ref(false)
 
 const toggleApplicationMenu = () => {
   isApplicationMenuOpen.value = !isApplicationMenuOpen.value
+}
+const gotoCalendar =()=>{
+  router.push({name:"ReservationCalendar"})
 }
 </script>

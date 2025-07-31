@@ -140,7 +140,7 @@ const router = createRouter({
       path: '/stock/product',
       name: 'stock product',
       component: () => import('../views/Reports/Stocks/ProductList.vue'),
-       meta: {
+      meta: {
         title: 'Stock product',
         requiresAuth: true,
       },
@@ -149,7 +149,7 @@ const router = createRouter({
       path: '/stock/movements',
       name: 'stock movement',
       component: () => import('../views/Reports/Stocks/StockMovement.vue'),
-       meta: {
+      meta: {
         title: 'Stock movement',
         requiresAuth: true,
       },
@@ -158,7 +158,7 @@ const router = createRouter({
       path: '/stock/categorie',
       name: 'stock categorie',
       component: () => import('../views/Reports/Stocks/StockCategorie.vue'),
-       meta: {
+      meta: {
         title: 'Stock categorie',
         requiresAuth: true,
       },
@@ -167,7 +167,7 @@ const router = createRouter({
       path: '/stock/suppliers',
       name: 'supplier',
       component: () => import('../views/Reports/Stocks/SupplierList.vue'),
-       meta: {
+      meta: {
         title: 'Supplier',
         requiresAuth: true,
       },
@@ -281,6 +281,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+     {
+      path: '/reservation_calendar',
+      name: 'ReservationCalendar',
+      component: () => import('../views/Bookings/BookinCalender.vue'),
+      meta: {
+        title: 'Reservation Calendar',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/profile',
       name: 'Profile',
@@ -332,7 +341,7 @@ const router = createRouter({
       path: '/customer',
       name: 'Customer',
       component: () => import('../views/Customers/CustomerTable.vue'),
-       meta: {
+      meta: {
         title: 'Customer',
         requiresAuth: true,
       },
@@ -364,8 +373,35 @@ const router = createRouter({
       path: '/schedules',
       name: 'schedules',
       component: () => import('../views/Travel/Planning/ScheduleView.vue'),
-       meta: {
+      meta: {
         title: 'Schedules',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/amenities',
+      name: 'amenities',
+      component: () => import('../views/Setting/AmenitiesPay.vue'),
+      meta: {
+        title: 'Amenities',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/amenities/:id/view',
+      name: 'amenitiesView',
+      component: () => import('../views/hotelServices/HotelServiceDetails.vue'),
+      meta: {
+        title: 'Amenities',
+        requiresAuth: true,
+      },
+    },
+   {
+      path: '/amenities_booking_view/:id',
+      name: 'Amenities Booking Interface',
+      component: () => import('../views/hotelServices/AmenitiesBookingInterface.vue'),
+      meta: {
+        title: 'Amenities',
         requiresAuth: true,
       },
     },
@@ -422,7 +458,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-     {
+    {
       path: '/users/:id/view',
       name: 'usersDetails',
       component: () => import('../views/StaffManagement/EStaffDetails.vue'),
@@ -442,7 +478,7 @@ const router = createRouter({
       },
     },
   ],
- })
+})
 // router.beforeEach(async (to, from, next) => {
 //   isLoading.value = true
 
@@ -471,46 +507,45 @@ router.beforeEach(async (to, from, next) => {
   isLoading.value = true
 
   const authStore = useAuthStore()
-  
+
   try {
-    const { token, user, UserId, roleId } = authStore;
-    
-    console.log('Navigation state:', { 
-      hasToken: !!token, 
-      hasUser: !!user, 
-      hasUserId: !!UserId, 
+    const { token, user, UserId, roleId } = authStore
+
+    console.log('Navigation state:', {
+      hasToken: !!token,
+      hasUser: !!user,
+      hasUserId: !!UserId,
       hasRoleId: !!roleId,
-      isFullyAuthenticated: authStore.isFullyAuthenticated
-    });
-    
+      isFullyAuthenticated: authStore.isFullyAuthenticated,
+    })
+
     // Utiliser la getter isFullyAuthenticated
-    const isAuthenticated = authStore.isFullyAuthenticated;
-    
+    const isAuthenticated = authStore.isFullyAuthenticated
+
     // Si la route nécessite une auth
     if (to.meta.requiresAuth && !isAuthenticated) {
-      console.log('❌ Redirection - auth manquante');
-      return next('/');
-    }
-    
-    // Redirection dashboard seulement si COMPLÈTEMENT authentifié
-    if (to.path === '/' && isAuthenticated) {
-      console.log('✅ Redirection vers dashboard - utilisateur complètement connecté');
-      return next('/dashboard');
-    }
-    
-    if (to.path === '/') {
-      console.log('✅ Accès à la page de login autorisé');
+      console.log('❌ Redirection - auth manquante')
+      return next('/')
     }
 
-    return next();
-    
+    // Redirection dashboard seulement si COMPLÈTEMENT authentifié
+    if (to.path === '/' && isAuthenticated) {
+      console.log('✅ Redirection vers dashboard - utilisateur complètement connecté')
+      return next('/dashboard')
+    }
+
+    if (to.path === '/') {
+      console.log('✅ Accès à la page de login autorisé')
+    }
+
+    return next()
   } catch (error) {
-    console.error('Error in navigation guard:', error);
-    return next('/');
+    console.error('Error in navigation guard:', error)
+    return next('/')
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 router.afterEach(() => {
   setTimeout(() => {
@@ -519,4 +554,3 @@ router.afterEach(() => {
 })
 
 export default router
-

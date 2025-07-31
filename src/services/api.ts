@@ -10,7 +10,16 @@ import type {
   ReservationType,
   userDataType,
 } from '@/types/option'
-import type { FitlterItem, RoomFilterItem, TaskFitlterItem } from '@/utils/models'
+import type {
+  AmenityCategoryPayload,
+  AmenityProductPayload,
+  CreateAmenityBookingPayload,
+  FitlterItem,
+  RoomFilterItem,
+  TaskFitlterItem,
+  UpdateAmenityBookingPayload,
+  UpdateAmenityCategoryPayload,
+} from '@/utils/models'
 import type { IContract, IPayroll, ICreatePayroll } from '@/types/type'
 
 const API_URL = import.meta.env.VITE_API_URL as string
@@ -658,7 +667,6 @@ export const deleteSupplier = (id: number | null): Promise<AxiosResponse<any>> =
 }
 
 export const deleteDpt = (id: number | null): Promise<AxiosResponse<any>> => {
-
   console.log('-->deleteDpt.id', id)
   return axios.delete(`${API_URL}/department/${id}`, headers)
 }
@@ -728,11 +736,190 @@ export const findTasks = (filters: TaskFitlterItem): Promise<AxiosResponse<any>>
     if (qs) qs += `&serviceId=${filters.serviceId}`
     else qs += `?serviceId=${filters.serviceId}`
   }
-  if(filters.searchText){
-     if (qs) qs += `&searchText=${filters.searchText}`
+  if (filters.searchText) {
+    if (qs) qs += `&searchText=${filters.searchText}`
     else qs += `?searchText=${filters.searchText}`
   }
   return axios.get(`${API_URL}/tasks_search/filter${qs}`, headers)
+}
+
+// --- API Functions ---
+
+/**
+ * Fetches all amenity categories for a specific service.
+ * @param serviceId The ID of the service.
+ * @returns A promise that resolves to an array of amenity categories.
+ */
+export const getAmenitiesByServiceId = (
+  serviceId: number | string,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenities-categories/service/${serviceId}`, headers)
+}
+
+/**
+ * Fetches a single amenity category by its ID.
+ * @param id The ID of the amenity category.
+ * @returns A promise that resolves to the amenity category.
+ */
+export const getAmenityCategoryById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenities-categories/${id}`, headers)
+}
+
+/**
+ * Creates a new amenity category.
+ * @param data The data for the new amenity category.
+ * @returns A promise that resolves to the newly created amenity category.
+ */
+export const createAmenityCategory = async (
+  data: AmenityCategoryPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/amenities-categories`, data, headers)
+}
+
+/**
+ * Updates an existing amenity category.
+ * @param id The ID of the amenity category to update.
+ * @param data The new data for the amenity category.
+ * @returns A promise that resolves to the updated amenity category.
+ */
+export const updateAmenityCategory = async (
+  id: number | string,
+  data: AmenityCategoryPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/amenities-categories/${id}`, data, headers)
+}
+
+/**
+ * Deletes an amenity category.
+ * @param id The ID of the amenity category to delete.
+ * @returns A promise that resolves when the deletion is successful.
+ */
+export const deleteAmenityCategory = async (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/amenities-categories/${id}`, headers)
+}
+
+/*
+
+ * Fetches all amenity categories for a specific service.
+ * @param serviceId The ID of the service.
+ * @returns A promise that resolves to an array of amenity categories.
+ */
+export const getAmenitiesProductByServiceId = (
+  serviceId: number | string,
+  categoryId: number | string,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/amenity-products/service/${serviceId}/category/${categoryId}`,
+    headers,
+  )
+}
+
+/**
+ * Fetches a single amenity product by its ID.
+ * @param id The ID of the amenity product.
+ * @returns A promise that resolves to the amenity product.
+ */
+export const getAmenityProductById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenity-products/${id}`, headers)
+}
+
+/**
+ * Creates a new amenity product.
+ * @param data The data for the new amenity product.
+ * @returns A promise that resolves to the newly created amenity product.
+ */
+export const createAmenityProduct = async (
+  data: AmenityProductPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/amenity-products`, data, headers)
+}
+
+/**
+ * Updates an existing amenity product.
+ * @param id The ID of the amenity product to update.
+ * @param data The new data for the amenity product.
+ * @returns A promise that resolves to the updated amenity product.
+ */
+export const updateAmenityProduct = async (
+  id: number | string,
+  data: AmenityProductPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/amenity-products/${id}`, data, headers)
+}
+
+/**
+ * Deletes an amenity product.
+ * @param id The ID of the amenity category to delete.
+ * @returns A promise that resolves when the deletion is successful.
+ */
+export const deleteAmenityProduct = async (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/amenity-products/${id}`, headers)
+}
+
+export const getAmenityBookingByReservationIdAndServiceId = (
+  reservationId: number,
+  serviceId: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/reservations/${reservationId}/services/${serviceId}/amenity-bookings`,
+    headers,
+  )
+}
+export const getUnPaidAmenityBookingByReservationId = (
+  reservationId: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservations/${reservationId}/unpaid-amenities`, headers)
+}
+export const amenitiesPaymentByReservationId = (
+  reservationId: number,
+  data: any,
+): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/reservations/${reservationId}/pay-amenities`, data, headers)
+}
+
+export const getByAmenityBookingByCategoryId = (
+  categoryId: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenity-categories/${categoryId}/amenity-bookings`, headers)
+}
+
+export const getAmenityBookingById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/amenity-bookings/${id}`, headers)
+}
+
+export const createAmenityBooking = (
+  data: CreateAmenityBookingPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/amenity-bookings`, data, headers)
+}
+
+export const updateAmenityBooking = (
+  id: number,
+  data: UpdateAmenityBookingPayload,
+): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/amenity-bookings/${id}`, data, headers)
+}
+
+export const deleteAmenityBooking = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/amenity-bookings/${id}`, headers)
+}
+
+/**
+ * Fetches tasks from the API based on a set of filter criteria.
+ * @param {int} [serviceId] -
+ * @param {string} [start_date] - (format: 'YYYY-MM-DD').
+ * @param {string} [end_date] - (format: 'YYYY-MM-DD').
+ * @returns {Promise<Array>} A promise that resolves to an array of task objects.
+ */
+export const getDailyOccupancyAndReservations = (
+  serviceId: number,
+  start_date: string,
+  end_date: string,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(
+    `${API_URL}/dashboard/service/${serviceId}/daily-occupancy?start_date=${start_date}&end_date=${end_date}`,
+    headers,
+  )
 }
 
 //create contract
