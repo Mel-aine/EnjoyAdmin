@@ -1,35 +1,44 @@
 <template>
   <div class="reservation-calendar font-sans h-screen flex flex-col ">
-    <div class="flex items-center justify-between mb-4 me-5 ms-5 sticky top-0 mt-5  bg-white z-20 pb-2">
-      <div class="flex items-center gap-2">
-        <button @click="router.back()" class="bg-red-900 text-white rounded-full flex px-2 text-sm py-1">
-          <X class="w-4"></X> {{ $t('Close') }}
+
+    <div
+      class="sticky top-0 z-30 mb-4 bg-gradient-to-r from-primary to-blue-700 shadow-lg px-6 py-4 flex items-center justify-between rounded-b-lg">
+      <div class="flex items-center gap-4">
+        <button @click="router.back()"
+          class="bg-white text-primary rounded-lg flex items-center px-3 py-1 shadow hover:bg-gray-100 transition">
+          <X class="w-5 h-5 mr-2" />
+          <span class="font-semibold">{{ $t('Close') }}</span>
         </button>
-        <h2 class="text-2xl font-bold">{{ $t('Reservations Calendar') }}</h2>
+        <div>
+          <h1 class="text-3xl font-extrabold text-white drop-shadow">{{ $t('Reservations Calendar') }}</h1>
+          <div class="text-sm text-blue-100 font-medium mt-1">{{ $t('Manage and view all reservations by date and room')
+          }}</div>
+        </div>
       </div>
-      <div class="flex gap-2 flex-wrap ">
-        <button @click="addReservation" class="btn bg-primary text-white rounded-full px-2 text-sm">
-          {{ $t('Add reservation') }}</button>
-        <input type="date" v-model="selectedDate" class="border rounded px-2 py-1" />
-        <button class="btn" @click="prevDay">&lt;</button>
-        <button class="btn btn-default" @click="nextDay">&gt;</button>
-        <button class="btn rounded-full px-3 text-sm"
-          :class="selectedDate === new Date().toISOString().split('T')[0] ? 'bg-primary text-white' : 'btn-default'"
-          @click="setToday">{{ $t('Today') }}</button>
-        <button class="btn rounded-full px-2 text-sm"
-          :class="daysToShow === 7 ? 'bg-primary text-white' : 'btn-default'" @click="setDays(7)">7 {{ $t('Days')
-          }}</button>
-        <button class="btn rounded-full px-2 text-sm"
-          :class="daysToShow === 15 ? 'bg-primary text-white' : 'btn-default'" @click="setDays(15)">15 {{ $t('Days')
-          }}</button>
-        <button class="btn rounded-full px-2 text-sm"
-          :class="daysToShow === 30 ? 'bg-primary text-white' : 'btn-default'" @click="setDays(30)">30 {{ $t('Days')
-          }}</button>
+      <div class="flex gap-2 flex-wrap items-center">
+        <button @click="addReservation"
+          class="bg-primary text-white font-semibold rounded-lg px-4 py-3 shadow hover:bg-primary/45 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          {{ $t('Add reservation') }}
+        </button>
+
+        <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="selectedDate" />
+        <div
+          class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-300 focus:ring focus:ring-primary/30">
+          <label>{{ $t('show') }}</label>
+          <select v-model="daysToShow" @change="setDays(Number(daysToShow))" class="outline-0">
+            <option :value="7">7 {{ $t('days') }}</option>
+            <option :value="15">15 {{ $t('days') }}</option>
+            <option :value="30">30 {{ $t('days') }}</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="flex-1 flex flex-col min-h-0">
       <div class="flex-1 overflow-y-auto">
-        <table class="min-w-full border border-gray-300 rounded overflow-hidden text-xs">
+        <table class="min-w-full border border-gray-300 rounded overflow-hidden text-sm">
           <thead>
             <tr>
               <th class="bg-gray-100 px-2 py-1 border border-gray-300 w-24 min-w-[6rem]">{{ $t('Room') }}</th>
@@ -68,19 +77,24 @@
                       <div :class="[
                         'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[95%]',
                         getReservationColor(cell.reservation.reservation_status)
-                      ]" @click="showReservationModal(cell.reservation)">
+                      ]" @click="showReservationModal(cell.reservation)"
+                        @mouseenter="showReservationTooltip(cell.reservation, $event)"
+                        @mouseleave="hideReservationTooltip">
                         <span>
                           {{ cell.reservation.guest_name }}
                           <br>
                         </span>
+
                       </div>
+
                     </td>
-                    <td v-else-if="cell.type === 'room'" class="px-0 py-0 h-12 border border-gray-300">
+                    <td
+                      v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
+                      class="px-0 py-0 h-12 border border-gray-300">
                       <div
                         :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
                         <component :is="getRoomStatusIcon(room.room_status)"
                           :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
-                        <span class="text-xs font-semibold">{{ $t(room.room_status || '-') }}</span>
                       </div>
                     </td>
                     <td v-else class="px-0 py-0 h-12 border border-gray-300"></td>
@@ -98,7 +112,7 @@
               <td colspan="1" class="bg-gray-100 font-bold border border-gray-300 w-24 min-w-[6rem]">
                 {{ $t('Room Legend') }}
               </td>
-              <td colspan="99" class="bg-gray-50 border border-gray-300">
+              <td colspan="99" class="bg-gray-50 border border-gray-300 p-3">
                 <span v-for="legend in legends" :key="legend.type" class="inline-flex items-center gap-1 mr-4">
                   <span :class="['inline-block w-4 h-4 rounded', getReservationColor(legend.type)]"></span>
                   <span class="text-xs">{{ $t(legend.label) }}</span>
@@ -133,73 +147,80 @@
       </div>
     </div>
   </div>
-  <!-- Reservation Modal -->
-  <div v-if="modalReservation" class="fixed inset-0 z-50 flex items-center justify-center bg-black/2 bg-opacity-40">
-    <div class="bg-white rounded-lg shadow-lg w-[400px] max-w-full relative">
-      <button @click="closeReservationModal" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">
-        <X class="w-5 h-5 text-white" />
-      </button>
-      <div class="bg-primary text-white rounded-t-lg px-4 py-2">
-        <div class="font-bold">{{ $t('guests') }}: {{ modalReservation.guests }} {{ $t('guests') }}</div>
-        <div>{{ $t('Guest name') }}: <span class="font-bold">{{ modalReservation.guest_name }}</span></div>
-        <div>{{ $t('reservation_id') }}: <span class="font-bold">{{ modalReservation.reservation_id }}</span></div>
-        <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ modalReservation.reservation_code }}</span></div>
-        <div class="flex gap-3 mt-2">
-          <span class="flex items-center gap-1">
-            <component :is="getReservationTypeIcon(modalReservation.reservation_type)" class="w-4 h-4" />
-            <span class="text-xs">{{ $t(modalReservation.reservation_type || '-') }}</span>
-          </span>
-          <span class="flex items-center gap-1">
-            <component :is="getCustomerTypeIcon(modalReservation.customer_type)" class="w-4 h-4" />
-            <span class="text-xs">{{ $t(modalReservation.customer_type || '-') }}</span>
-          </span>
-        </div>
-      </div>
-
-      <div class="">
-        <ChevronInfo>
-          <template #left>
-            <div class="text-center">
-              <div class="font-bold text-xl">{{ formatDate(new Date(modalReservation.check_in_date)) }}</div>
-              <div class="text-md text-black">{{ formatDay(new Date(modalReservation.check_in_date)) }}</div>
-            </div>
-          </template>
-          <template #right>
-            <div class="text-center">
-              <div class="font-bold text-xl">{{ formatDate(new Date(modalReservation.check_out_date)) }}</div>
-              <div class="text-md text-black">{{ formatDay(new Date(modalReservation.check_out_date)) }}</div>
-            </div>
-          </template>
-        </ChevronInfo>
-      </div>
-      <div class="flex justify-between items-center mb-2 mt-2 px-2">
-        <div class="flex gap-2">
-          <div class="text-md text-gray-500">{{ $t('Comment') }}:</div>
-          <div>{{ modalReservation.comment || 'none' }}</div>
-        </div>
-      </div>
-      <div class="">
-        <ChevronInfo>
-          <template #left>
-            <div class="text-center">
-              <div class="font-bold text-sm ">{{ $t('Amount Due') }}</div>
-              <div class="font-bold text-xl">{{ formatCurrency(modalReservation.remaining_amount ?? 0) }}</div>
-            </div>
-          </template>
-          <template #right>
-            <div class="text-center">
-              <div class="font-bold text-sm">{{ $t('paid') }}</div>
-              <div class="font-bold text-xl">{{ formatCurrency(modalReservation.total_amount ?? 0) }}</div>
-            </div>
-          </template>
-        </ChevronInfo>
+  <!--tooltip-->
+  <div v-if="tooltipReservation && tooltipPosition"
+    :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y + 12}px;z-index:1000;`"
+    class="rounded-lg bg-white w-90 max-w-fulltext-sm pointer-events-none">
+    <div class="bg-primary shadow-lg border text-white rounded-t-lg px-4 py-2 mb-2">
+      <div class="font-bold">{{ $t('guests') }}: {{ tooltipReservation.guests }} {{ $t('guests') }}</div>
+      <div>{{ $t('Guest name') }}: <span class="font-bold">{{ tooltipReservation.guest_name }}</span></div>
+      <div>{{ $t('reservation_id') }}: <span class="font-bold">{{ tooltipReservation.reservation_id }}</span></div>
+      <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span></div>
+      <div class="flex gap-3 mt-2">
+        <span class="flex items-center gap-1">
+          <component :is="getReservationTypeIcon(tooltipReservation.reservation_type)" class="w-4 h-4" />
+          <span class="text-xs">{{ $t(tooltipReservation.reservation_type || '-') }}</span>
+        </span>
+        <span class="flex items-center gap-1">
+          <component :is="getCustomerTypeIcon(tooltipReservation.customer_type)" class="w-4 h-4" />
+          <span class="text-xs">{{ $t(tooltipReservation.customer_type || '-') }}</span>
+        </span>
       </div>
     </div>
+    <ChevronInfo>
+      <template #left>
+        <div class="text-center">
+          <div class="font-bold text-xl">{{ formatDate(new Date(tooltipReservation.check_in_date)) }}</div>
+          <div class="text-md text-black">{{ formatDay(new Date(tooltipReservation.check_in_date)) }}</div>
+        </div>
+      </template>
+      <template #right>
+        <div class="text-center">
+          <div class="font-bold text-xl">{{ formatDate(new Date(tooltipReservation.check_out_date)) }}</div>
+          <div class="text-md text-black">{{ formatDay(new Date(tooltipReservation.check_out_date)) }}</div>
+        </div>
+      </template>
+    </ChevronInfo>
+    <div class="flex gap-2 mt-2 mb-2">
+      <div class="text-md text-gray-500">{{ $t('Comment') }}:</div>
+      <div>{{ tooltipReservation.comment || 'none' }}</div>
+    </div>
+    <ChevronInfo>
+      <template #left>
+        <div class="text-center">
+          <div class="font-bold text-sm ">{{ $t('Amount Due') }}</div>
+          <div class="font-bold text-xl">{{ formatCurrency(tooltipReservation.remaining_amount ?? 0) }}</div>
+        </div>
+      </template>
+      <template #right>
+        <div class="text-center">
+          <div class="font-bold text-sm">{{ $t('paid') }}</div>
+          <div class="font-bold text-xl">{{ formatCurrency(tooltipReservation.total_amount ?? 0) }}</div>
+        </div>
+      </template>
+    </ChevronInfo>
   </div>
+  <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
+  <template v-if="modalReservation && showDetail">
+    <ReservationDetailsModal :reservation_id="modalReservation.reservation_id" @close="closeReservationModal" />
+  </template>
 </template>
 
 <script setup lang="ts">
 import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon } from 'lucide-vue-next'
+
+import { watch } from 'vue'
+import { CheckCircle, X } from 'lucide-vue-next'
+import ChevronInfo from '../common/ChevronInfo.vue'
+import { formatCurrency } from '../utilities/UtilitiesFunction'
+import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
+import AddBookingModal from '../modal/AddBookingModal.vue';
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useServiceStore } from '@/composables/serviceStore'
+import { getDailyOccupancyAndReservations } from "@/services/api"
+import router from '@/router'
+import { isLoading } from '@/composables/spinner'
 
 function getReservationTypeIcon(type: string) {
   switch (type) {
@@ -218,7 +239,8 @@ function getCustomerTypeIcon(type: string) {
   }
 }
 // --- ROOM STATUS COLOR & ICON ---
-import { CheckIcon, ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
+import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
+import ReservationDetailsModal from '../modal/ReservationDetailsModal.vue'
 
 function getRoomStatusColor(status: string): string {
   switch (status) {
@@ -241,17 +263,12 @@ function getRoomStatusIcon(status: string) {
     default: return GridIcon;
   }
 }
-import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useServiceStore } from '@/composables/serviceStore'
-import { getDailyOccupancyAndReservations } from "@/services/api"
-import router from '@/router'
-import { isLoading } from '@/composables/spinner'
 
 const serviceStore = useServiceStore()
 const { t, locale } = useI18n()
 const serviceResponse = ref<any>({})
-
+const showModalAddingModal = ref<boolean>(false);
+const showDetail = ref<boolean>(false)
 const legends = [
   { type: 'confirmed', label: t('Confirmed reservation') },
   { type: 'request', label: t('Reservation Request') },
@@ -263,10 +280,12 @@ const legends = [
 ]
 const modalReservation = ref<any | null>(null)
 function showReservationModal(reservation: any) {
+  showDetail.value = true
   modalReservation.value = reservation
 }
 function closeReservationModal() {
-  modalReservation.value = null
+  modalReservation.value = null;
+  showDetail.value = false
 }
 const selectedDate = ref((new Date()).toISOString().split('T')[0])
 const daysToShow = ref(15)
@@ -295,21 +314,21 @@ function getRoomRowCellsApi(group: any, room: any) {
   const cells = []
   let i = 0
   const reservations = (group.reservations || []).filter(
-    (r:any) => r.assigned_room_number === room.room_number || room.room_number === null
+    (r: any) => r.assigned_room_number === room.room_number || room.room_number === null
   )
   while (i < visibleDates.value.length) {
     const date = visibleDates.value[i]
     const dStr = date.toISOString().split('T')[0]
 
     // Find reservation starting on this date
-    let reservation = reservations.find((r:any) => {
+    let reservation = reservations.find((r: any) => {
       // If reservation starts today
       return r.check_in_date.startsWith(dStr)
     })
 
     // If no reservation starts today, check if a reservation started before and is still ongoing
     if (!reservation) {
-      reservation = reservations.find((r:any) => {
+      reservation = reservations.find((r: any) => {
         const start = new Date(r.check_in_date)
         const end = new Date(r.check_out_date)
         return start < date && end >= date
@@ -419,15 +438,24 @@ onMounted(() => {
   getLocaleDailyOccupancyAndReservations()
 })
 
-import { watch } from 'vue'
-import { CheckCheckIcon, CheckCircle, X } from 'lucide-vue-next'
-import ChevronInfo from '../common/ChevronInfo.vue'
-import { formatCurrency } from '../utilities/UtilitiesFunction'
 watch([selectedDate, daysToShow], () => {
   getLocaleDailyOccupancyAndReservations()
 })
 
 const addReservation = () => {
-  router.push({ name: "Add Booking" })
+  showModalAddingModal.value = true;
+}
+
+
+const tooltipReservation = ref<any | null>(null)
+const tooltipPosition = ref<{ x: number, y: number } | null>(null)
+
+function showReservationTooltip(reservation: any, event: MouseEvent) {
+  tooltipReservation.value = reservation
+  tooltipPosition.value = { x: event.clientX, y: event.clientY }
+}
+function hideReservationTooltip() {
+  tooltipReservation.value = null
+  tooltipPosition.value = null
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label for="consentDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+        <label for="consentDate" class="block text-gray-700 text-sm font-bold mb-2" v-if="title">{{
             title }} <span class="text-red-500" v-if="isRequired">*</span></label>
         <div class="relative">
             <flat-pickr v-model="localValue" :config="flatpickrConfig" @on-change="updateValue"
@@ -52,20 +52,20 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'clear-error'])
 const localValue = ref(props.modelValue);
 const flatpickrConfig = computed(() => {
-    const config:any = {
+    const config: any = {
         dateFormat: 'Y-m-d',
         altInput: true,
         altFormat: 'F j, Y',
         wrap: true,
-       
+
     };
-    if(props.maxDate){
+    if (props.maxDate) {
         config.maxDate = props.maxDate
     }
-    if(props.minDate){
+    if (props.minDate) {
         config.minDate = props.minDate
     }
-    
+
     return config
 })
 const updateValue = () => {

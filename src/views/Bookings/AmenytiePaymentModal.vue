@@ -54,7 +54,7 @@
                     <div>
                         <label for="paymentAmount"
                             class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
-                                $t('Amount') }} (XAF):</label>
+                                $t('Amount') }}:</label>
                         <input type="number" id="paymentAmount" v-model="paymentAmount" min="0.01" step="0.01"
                             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                             :placeholder="`Ex: ${totalAmountDue.toFixed(2)}`" required />
@@ -78,9 +78,9 @@
                             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                             :placeholder="$t('TransactionRefPlaceholder')" />
                     </div>
-                    <button type="submit"
-                        class="mt-4 w-full flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 font-bold text-white shadow-md transition duration-300 ease-in-out hover:bg-blue-700 transform hover:scale-105">
-                        <Spinner v-if="isLoading" />
+                    <button type="submit" :disabled="isLoading"
+                        class="mt-4 w-full flex items-center justify-center rounded-md bg-primary px-4 py-2 font-bold text-white shadow-md transition duration-300 ease-in-out hover:bg-primary/50 transform hover:scale-105">
+                        <DotSpinner v-if="isLoading" />
                         <DollarSign v-else class="mr-2" :size="18" />
                         {{ $t('RecordPayment') }}
                     </button>
@@ -116,7 +116,7 @@
                                 <ul class="list-disc list-inside ml-4 mt-2 text-sm">
                                     <li v-for="item in booking.items" :key="item.id">
                                         {{ item.amenityProduct.name }} ({{ item.quantity }} x {{
-                                        formatCurrency(item.pricePerUnit) }}) =
+                                            formatCurrency(item.pricePerUnit) }}) =
                                         {{ formatCurrency(item.subtotal) }}
                                     </li>
                                 </ul>
@@ -126,12 +126,9 @@
                     <p class="mt-4 text-lg font-bold text-gray-800 dark:text-white flex items-center justify-between">
                         <span>{{ $t('SelectedAmenitiesTotal') }}:</span>
                         <span class="text-blue-700 dark:text-blue-400">{{ formatCurrency(totalSelectedAmenitiesAmount)
-                            }}</span>
+                        }}</span>
                     </p>
                 </div>
-
-
-
             </div>
         </div>
     </div>
@@ -146,9 +143,10 @@ import { Wallet, DollarSign, CreditCard, Banknote, CheckCircle, AlertCircle, Sho
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/composables/user';
-import { amenitiesPaymentByReservationId, createPayment } from '@/services/api'; // Assuming this API call exists
+import { amenitiesPaymentByReservationId } from '@/services/api'; // Assuming this API call exists
 import { useRouter } from 'vue-router';
 import Spinner from '@/components/spinner/Spinner.vue';
+import DotSpinner from '@/components/spinner/DotSpinner.vue';
 
 // Define the new interfaces based on the provided data structure
 interface AmenityProduct {

@@ -11,10 +11,13 @@ const props = defineProps(['cardTitle'])
           {{ props.cardTitle }}
         </h3>
       </div>
-      <slot name="header" />
+      <slot name="header" class="w-full" />
     </div>
     <div class="p-4">
       <slot />
     </div>
+    <slot name="footer">
+
+    </slot>
   </div>
 </template>
