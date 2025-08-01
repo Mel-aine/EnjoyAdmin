@@ -22,6 +22,9 @@
                         <div class="mb-4">
                             <InputDatePicker v-model="contractInfoFormData.probation_start_date" :is-required="true" @clear-error="contractInfoFormData.probation_start_date_error = ''"
                                             :title="$t('probation_start_date')" />
+                                <div v-if="contractInfoFormData.probation_start_date_error" class="text-red-500 text-sm italic">
+                                    {{ contractInfoFormData.probation_start_date_error }}
+                                </div>
                         </div>
 
                         <div class="mb-4">
@@ -29,6 +32,9 @@
                                 @clear-error="contractInfoFormData.probation_end_date_error = ''"
                                 :title="$t('probation_end_date')"
                             />
+                                <div v-if="contractInfoFormData.probation_end_date_error" class="text-red-500 text-sm italic">
+                                    {{ contractInfoFormData.probation_end_date_error }}
+                                </div>
                         </div>
 
                         <div class="mb-4">
@@ -36,6 +42,9 @@
                                 @clear-error="contractInfoFormData.contract_start_date_error = ''"
                                 :title="$t('contract_start_date')"
                             />
+                                <div v-if="contractInfoFormData.contract_start_date_error" class="text-red-500 text-sm italic">
+                                    {{ contractInfoFormData.contract_start_date_error }}
+                                </div>
                         </div>
 
 
@@ -53,18 +62,13 @@
                         </div>
 
                         <div class="mb-4" v-if="!contractInfoFormData.is_cdi">
-                            <Input
-                                inputType="date"
-                                :errorMsg="contractInfoFormData.contract_end_date_error"
-                                :lb="$t('contract_end_date')"
-                                :isRequired="true"
-                                v-model="contractInfoFormData.contract_end_date"
-                                @clear-error="contractInfoFormData.contract_end_date_error = ''"
-                            />
                             <InputDatePicker v-model="contractInfoFormData.contract_end_date_error" :is-required="true"
                                 @clear-error="contractInfoFormData.contract_end_date_error = ''"
                                 :title="$t('contract_end_date')"
                             />
+                                <div v-if="contractInfoFormData.contract_end_date_error" class="text-red-500 text-sm italic">
+                                    {{ contractInfoFormData.contract_end_date_error }}
+                                </div>
                         </div>
 
                         <div class="mb-4">
@@ -631,7 +635,7 @@ const payrollForm = ref<IPayrollFormData>({
   ribEmploye_error: '',
 
   payslipFilePath: '',
-  payslipFilePath_error: '',
+  payslip_file_path_error: '',
 
   status: 'Pending',
   status_error: '',
@@ -812,8 +816,8 @@ const fetchPayrolls = async (contractId: string) => {
 }
 
 const downloadPayslip = (payroll: IPayroll) => {
-    if (payroll.payslipFilePath) {
-        window.open(payroll.payslipFilePath, '_blank');
+    if (payroll.payslip_file_path) {
+        window.open(payroll.payslip_file_path, '_blank');
     } else {
         toast.error(t('payslip_not_available'));
     }
@@ -872,7 +876,7 @@ const getUserLocal = async () => {
     isLoading.value = false;
 }
 
-function handleFileUpload(event) {
+function handleFileUpload(event: any) {
   const file = event.target.files[0]
   contractInfoFormData.value.contract_file_path = file
 }

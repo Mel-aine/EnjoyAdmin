@@ -87,6 +87,7 @@ export interface IPayroll {
   net_salary: number;
   rib_employe: string;
   payslip_file_path: string;
+  status?: string;
 }
 
 export interface IPayrollFormData {
