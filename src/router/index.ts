@@ -227,6 +227,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/booking/:id/invoice',
+      name: 'BookingInvoice',
+      component: () => import('../components/invoice/HotelInvoice.vue'),
+      meta: {
+        title: 'Booking Invoice',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/invoice/:id',
       name: 'ViewInvoice',
       component: () => import('../views/Payment/InvoiceDetail.vue'),

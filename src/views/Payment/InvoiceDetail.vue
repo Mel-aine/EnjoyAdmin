@@ -122,7 +122,6 @@ import { defineProps } from "vue";
 import { useRoute } from 'vue-router'
 import { getPaymentById,getUserId,getServiceById,getReservationById} from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
-import { useVueToPrint } from 'vue-to-print';
 import { formatCurrency } from "@/components/utilities/UtilitiesFunction";
 
 defineProps<{ id: string }>()

@@ -933,7 +933,6 @@ export const terminateContract = (contractId: string): Promise<AxiosResponse<{ i
   return axios.put(`${API_URL}/employment_contracts/${contractId}/terminate`, {}, headers)
 }
 
-
 //payroll
 export const getPayrollsByContractId = (contractId: string): Promise<AxiosResponse<IPayroll[]>> => {
   return axios.get(`${API_URL}/payroll/by-contract/${contractId}`, headers)
@@ -941,4 +940,9 @@ export const getPayrollsByContractId = (contractId: string): Promise<AxiosRespon
 
 export const createPayroll = (payload: IPayroll): Promise<AxiosResponse<IPayroll>> => {
   return axios.post(`${API_URL}/payroll`, payload, headers)
+}
+export const getReservationInvoice = (
+  reservationId: string,
+): Promise<AxiosResponse<IPayroll[]>> => {
+  return axios.get(`${API_URL}/reservations/${reservationId}/invoice`, headers)
 }

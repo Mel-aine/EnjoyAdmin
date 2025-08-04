@@ -130,7 +130,7 @@
                                         <div class="flex items-center">
                                             <CreditCard class="mr-2 text-blue-600" :size="20" />
                                             <span>{{ $t('amount_paid') }}: {{ formatCurrency(selectBooking?.paidAmount)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                     <div class="mb-4">
@@ -170,7 +170,11 @@
                                     <div class="mt-4 pt-4 border-t border-gray-200 flex gap-2.5">
                                         <button v-if="selectBooking?.invoiceAvailable" @click="downloadReceipt"
                                             class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md inline-flex items-center shadow-sm transition duration-300 ease-in-out transform hover:scale-105">
-                                            <Download :size="18" class="mr-2" /> {{ $t('download_invoice_receipt') }}
+
+                                            <DotSpinner v-if="isWating" />
+                                            <Download v-else :size="18" class="mr-2" />
+
+                                            {{ $t('download_invoice_receipt') }}
                                         </button>
                                     </div>
                                     <div v-if="selectBooking.status === 'Cancelled' && selectBooking?.paidAmount > 0"
@@ -314,6 +318,9 @@
                 <AmenytiePaymentModal v-if="selectBooking" :reservation="selectBooking" :is-open="openPaymentAmenity"
                     @close="openPaymentAmenity = false" @payment-recorded="getPaymentDetails"
                     :un-paid-details="unpaidDetails" />
+                <HotelInvoice v-if="selectBooking" :key="selectBooking.id" :id="selectBooking.id"
+                    :style="{ display: 'none' }" :elementId="'invoice-content-' + selectBooking.id" @ready="getReady" />
+
             </div>
         </div>
     </div>
@@ -357,7 +364,11 @@ const isCancel = ref(false);
 const isExtendStay = ref(false);
 const openPayment = ref(false);
 const openPaymentAmenity = ref(false);
-
+import html2pdf from 'html2pdf.js';
+import HotelInvoice from '../invoice/HotelInvoice.vue';
+import DotSpinner from '../spinner/DotSpinner.vue';
+const isReady = ref(false);
+const isWating = ref(false);
 const activeTab = ref<string>('details');
 const tabs = computed(() => [
     { id: 'details', label: t('tab.details'), icon: BookImageIcon },
@@ -385,7 +396,13 @@ const getUnPaidAmenityBooking = async () => {
     }
     isLoading.value = false;
 };
-
+const getReady = () => {
+    isReady.value = true;
+    if (isWating.value) {
+        downloadReceipt();
+        isWating.value = false
+    }
+}
 const refrechPage = () => {
     getBookingDetails();
     isExtendStay.value = false;
@@ -597,9 +614,29 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     }
 };
 
-const downloadReceipt = async () => {
-    if (!selectBooking.value?.payments || selectBooking.value?.payments.length < 1) return;
-    router.push({ name: 'ViewInvoice', params: { id: selectBooking.value?.payments[0].id } });
+const downloadReceipt = () => {
+    if (!selectBooking.value?.payments || selectBooking.value?.payments.length < 1) return
+
+    // Use a local ref to target the HotelInvoice.vue content
+    const invoiceContent = document.getElementById(`invoice-content-${selectBooking.value.id}`);
+    if (!isReady.value) {
+        isWating.value = true;
+        return
+    }
+    if (!invoiceContent) {
+        console.error('Invoice content not found!');
+        return;
+    }
+
+    const options = {
+        margin: 0.5,
+        filename: `invoice-${selectBooking.value.user.firstName}-${selectBooking.value.user.lastName}-${selectBooking.value.id}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().from(invoiceContent).set(options).save();
 };
 
 const editReservation = async () => {
