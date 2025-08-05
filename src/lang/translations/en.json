@@ -191,7 +191,8 @@
     "emailSettingsSaved": "Email settings saved successfully!",
     "importError": "Error importing default rooms",
     "defaultRoomsImported": "The import of default rooms was successful.",
-    "roomtypeerror": "Error saving room type ❌"
+    "roomtypeerror": "Error saving room type ❌",
+    "emailAlreadyUsed": "This email is already in use for this service."
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -2347,7 +2348,7 @@
   },
   "add_new_customer": "Add New Customer",
   "contact_info": "Contact Information",
-  "preferencesAndSpecialRequests": "Preferences and Special Requests",
+  "preferencesAndSpecialRequests": "Preferences",
   "stayInformation": "Stay Information",
   "EditCustomer": "Edit Customer",
   "pricing_model": "Pricing Model",
@@ -2533,5 +2534,6 @@
   "feedback_contact": "For feedback or inquiries, please contact us at {email} or {phone}.",
   "signature": "Signature",
   "date": "Date"
-}
+},
+  "specialPreferences": "Special Preferences"
 }

@@ -426,3 +426,10 @@ export interface TableColumn {
     colored?: boolean,
     isTranslatable: boolean
 }
+
+export interface PaymentFilterItem {
+  paymentId : number
+  searchText: string
+  status: string,
+  serviceId?: number
+}

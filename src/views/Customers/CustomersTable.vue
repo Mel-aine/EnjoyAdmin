@@ -43,7 +43,8 @@
       </div>
     </AdminLayout>
 
-    <ModalCustomer :isOpen="showModal" @close="showModal = false" />
+    <ModalCustomer :isOpen="showModal"  :isEditMode="false" @close="handleCloseModal"
+      @submit="handleAddCustomer"  />
 
   </div>
 </template>
@@ -51,11 +52,10 @@
 <script setup lang="ts">
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import Input from '@/components/forms/FormElements/Input.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
 import { ref, onMounted, computed, reactive } from 'vue'
-import {  getCustomersList } from '@/services/api'
+import {  getCustomersList ,createCustomer } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useAuthStore } from '@/composables/user'
 import type { userDataType, ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
@@ -63,46 +63,22 @@ import TableComponent from '@/components/tables/TableComponent.vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from '@/composables/booking'
 import ModalCustomer from './ModalCustomer.vue'
+import { useToast } from 'vue-toastification';
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const showModal = ref(false)
 const loading = ref(false)
 const store = useBookingStore()
-
+const toast = useToast();
+const currentPageTitle = computed(() => t('CustomersLists'))
+const selectedCustomer = ref<any>(null)
+const customers = ref<ReservationType[]>([])
 const menuItems = computed(() => [
   { label: t('AddCustomers'), onClick: () => (showModal.value = true) },
 ])
-
-const modalOpen = ref(false)
-const users = ref<userDataType[]>([])
-const currentPageTitle = computed(() => t('CustomersLists'))
-
-const Package = computed(() => [
-  { value: 'Strater', label: t('StraterPackage') },
-  { value: 'Honeymoon', label: t('HoneymoonPackage') },
-  { value: 'Vacation', label: t('VacationPackage') },
-  { value: 'Spring', label: t('SpringPackage') },
-])
-
-const Group = computed(() => [
-  { value: 'Gold', label: t('Gold') },
-  { value: 'Silver', label: t('Silver') },
-  { value: 'Bronze', label: t('Bronze') },
-  { value: 'Platinum', label: t('Platinum') },
-])
-
-// Form data for adding customer
-const customerForm = reactive({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: '',
-  package: '',
-  group: '',
-  address: ''
-})
 
 const titles = computed(() => [
   {
@@ -169,26 +145,6 @@ const handleCustomerAction = async (action: string, c: any) => {
   }
 }
 
-const selectedCustomer = ref<any>(null)
-
-const countryCodes = {
-  CM: '+237',
-  US: '+1',
-  GB: '+44',
-  AU: '+61',
-}
-
-const selectedCountry = ref('CM')
-
-const updatePhoneNumber = () => {
-  const countryCode = countryCodes[selectedCountry.value as keyof typeof countryCodes]
-  customerForm.phoneNumber = countryCode
-}
-
-
-
-const customers = ref<ReservationType[]>([])
-
 const fetchCustomers = async () => {
   try {
     loading.value = true
@@ -209,53 +165,46 @@ const fetchCustomers = async () => {
   }
 };
 
+const handleCloseModal = () => {
+  showModal.value = false
+}
 
-
-const handleAddCustomer = async () => {
+// Fonction pour gérer l'ajout d'un client
+const handleAddCustomer = async (payload: any) => {
   try {
     loading.value = true
 
-    // Validation basique
-    if (!customerForm.firstName || !customerForm.lastName || !customerForm.email) {
-      console.error('Champs requis manquants')
-      return
-    }
-    console.log('Adding customer:', customerForm)
+    const { data } = payload
+    data.service_id = serviceStore.serviceId
+    console.log('Add customer:', data)
+
+    await createCustomer(data)
+    toast.success(t('toast.Sucess'))
+
+    // Rafraîchir la liste
     await fetchCustomers()
+    showModal.value = false
 
-    // Fermer le modal et réinitialiser le formulaire
-    modalOpen.value = false
-    Object.assign(customerForm, {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phoneNumber: '',
-      package: '',
-      group: '',
-      address: ''
-    })
-
-  } catch (error) {
-    console.error('Failed to add customer:', error)
+  } catch (error: any) {
+    if (error.response && error.response.status === 409) {
+  const serverMessage = error.response.data?.message
+      if (serverMessage === 'This email is already in use for this service') {
+        toast.error(t('toast.emailAlreadyUsed'))
+      } else {
+        toast.error(serverMessage || t('toast.error'))
+      }
+    }
   } finally {
     loading.value = false
   }
 }
 
+
 onMounted(async () => {
-  updatePhoneNumber()
   await fetchCustomers()
 })
 
-const formatDate = (date: any) =>
-  new Date(date).toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  })
 
-const formatDateTime = (dateTime: any) =>
-  new Date(dateTime).toLocaleString('fr-FR')
 </script>
 
 <style scoped>

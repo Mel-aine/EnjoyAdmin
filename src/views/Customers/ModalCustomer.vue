@@ -56,7 +56,7 @@
                     :lb="$t('FirstName')"
                     :id="'name'"
                     :forLabel="'name'"
-                    v-model="customerForm.firstName"
+                    v-model="customerForm.first_name"
                     :is-required="true"
                   />
                 </div>
@@ -66,14 +66,14 @@
                     :lb="$t('LastName')"
                     :id="'last'"
                     :forLabel="'last'"
-                    v-model="customerForm.lastName"
+                    v-model="customerForm.last_name"
                     :is-required="true"
                   />
                 </div>
 
                 <div>
                   <InputDatePicker
-                    v-model="customerForm.birthDate"
+                    v-model="customerForm.date_of_birth"
                     :is-required="true"
                     :title="$t('dateOfBirth')"
                     :placeholder="$t('dateOfBirth')"
@@ -81,18 +81,19 @@
                 </div>
 
                 <div>
-                   <Select
+                   <Input
                     :is-required="true"
-                    :lb="$t('customerDetails.basicInfo.nationality')"
-                    v-model="customerForm.nationality"
-                    :options="countries"
+                    :lb="$t('country')"
+                    :id="'country'"
+                    :forLabel="'country'"
+                    v-model="customerForm.country"
                   />
                 </div>
 
                 <div>
                   <Input :lb="$t('nationalIdNumber')" :id="'nationalIdNumber'"
                     :forLabel="'nationalIdNumber'" :inputType="'text'" :is-required="true"
-                    v-model="customerForm.idNumber"
+                    v-model="customerForm.national_id_number"
                   />
                 </div>
 
@@ -119,7 +120,7 @@
                 <div>
                   <InputPhone
                     :is-required="true"
-                    v-model="customerForm.phone"
+                    v-model="customerForm.phone_number"
                     :id="'phone'"
                     :title="$t('Phone')"
                   />
@@ -131,7 +132,7 @@
                   </label>
                   <textarea
                     v-model="customerForm.address"
-                    rows="3"
+                    rows="1"
                     :placeholder="$t('Address')"
                     class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-400"
                   ></textarea>
@@ -139,7 +140,7 @@
               </div>
             </div>
 
-            <!-- Informations de séjour -->
+            <!-- Informations de séjour
             <div class="mb-8">
               <h5
                 class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
@@ -166,15 +167,12 @@
                 </div>
 
                 <div>
-                  <Input :lb="$t('TotalGuests')" :inputType="'Number'" :placeholder="$t('TotalGuests')"
-                        :id="'totalGuests'" :forLabel="'totalGuests'"
-                        v-model="customerForm.adults" :min="1" :required="true" />
+                  <Input :lb="$t('room_number')" :inputType="'Number'" :placeholder="$t('room_number')"
+                        :id="'room_number'" :forLabel="'room_number'"
+                        v-model="customerForm.room_number" :min="1" :required="true" />
                 </div>
 
-                <!-- <div>
-                   <Input :lb="$t('Children')" :inputType="'Number'" :placeholder="$t('children')" :id="'children'"
-                        :forLabel="'children'" v-model="customerForm.children" :min="0" />
-                </div> -->
+
 
                 <div>
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -193,40 +191,28 @@
                   </select>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Préférences et demandes spéciales -->
             <div class="mb-4">
               <h5
                 class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
               >
-                {{ $t('preferencesAndSpecialRequests') }}
+                {{ $t('Preferences') }}
               </h5>
               <div class="grid grid-cols-1 gap-x-6 gap-y-5">
+
                 <div>
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{$t('special_request')}}
+                    {{$t('specialPreferences')}}
                   </label>
                   <textarea
-                    v-model="customerForm.specialRequests"
+                    v-model="customerForm.special_preferences"
                     rows="3"
-                    :placeholder="$t('special_request')"
+                    :placeholder="$t('specialPreferences')"
                     class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-400"
                   ></textarea>
                 </div>
-
-                <!-- <div class="flex items-center space-x-4">
-                  <label class="flex items-center">
-                    <input
-                      v-model="customerForm.newsletter"
-                      type="checkbox"
-                      class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-800"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-400">
-                      J'accepte de recevoir des offres promotionnelles
-                    </span>
-                  </label>
-                </div> -->
               </div>
             </div>
           </div>
@@ -279,7 +265,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, defineAsyncComponent,computed } from 'vue'
+import { ref, reactive, defineAsyncComponent,computed,watch } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
@@ -292,24 +278,15 @@ const { t } = useI18n()
 
 interface CustomerForm {
   gender: string
-  firstName: string
-  lastName: string
-  birthDate: string
-  nationality: string
-  idType: string
-  idNumber: string
-  profession: string
+  first_name: string
+  last_name: string
+  date_of_birth: string
+  country: string
+  national_id_number: string
   email: string
-  phone: string
+  phone_number: string
   address: string
-  checkInDate: string
-  checkOutDate: string
-  adults: number
-  children: number
-  roomType: string
-  stayPurpose: string
-  specialRequests: string
-  newsletter: boolean
+  special_preferences: string
 }
 
 const props = defineProps({
@@ -321,7 +298,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+   customerData: {
+    type: Object as () => Partial<CustomerForm>,
+    default: () => ({}),
+  },
 })
+
 
 const emit = defineEmits(['close', 'submit'])
 const genders = ref([
@@ -330,60 +312,67 @@ const genders = ref([
 ])
 
 const loading = ref(false)
-const selectedCountryCode = ref('+237')
+
 
 const getEmptyCustomerForm = (): CustomerForm => ({
   gender: '',
-  firstName: '',
-  lastName: '',
-  birthDate: '',
-  nationality: '',
-  idType: '',
-  idNumber: '',
-  profession: '',
+  first_name: '',
+  last_name: '',
+  date_of_birth: '',
+  country: '',
+  national_id_number: '',
   email: '',
-  phone: '',
+  phone_number: '',
   address: '',
-  checkInDate: '',
-  checkOutDate: '',
-  adults: 1,
-  children: 0,
-  roomType: '',
-  stayPurpose: '',
-  specialRequests: '',
-  newsletter: false,
+  special_preferences: '',
 })
 
 const customerForm = reactive<CustomerForm>(getEmptyCustomerForm())
 
- const countries = computed(() => [
-      { label: t('countries.Cameroun'), value: 'Cameroun' },
-      { label: t('countries.France'), value: 'France' },
-      { label: t('countries.Allemagne'), value: 'Allemagne' },
-      { label: t('countries.Belgique'), value: 'Belgique' },
-      { label: t('countries.Suisse'), value: 'Suisse' },
-      { label: t('countries.Canada'), value: 'Canada' },
-      { label: t('countries.États-Unis'), value: 'États-Unis' },
-      { label: t('countries.Royaume-Uni'), value: 'Royaume-Uni' },
-      { label: t('countries.Italie'), value: 'Italie' },
-      { label: t('countries.Espagne'), value: 'Espagne' },
-      { label: t('countries.Portugal'), value: 'Portugal' },
-      { label: t('countries.Pays-Bas'), value: 'Pays-Bas' },
-      { label: t('countries.Suède'), value: 'Suède' },
-      { label: t('countries.Norvège'), value: 'Norvège' },
-      { label: t('countries.Danemark'), value: 'Danemark' },
-      { label: t('countries.Autriche'), value: 'Autriche' },
-      { label: t('countries.Autre'), value: 'Autre' },
-    ])
+// Fonction pour remplir le formulaire avec les données existantes
+const populateForm = (data: Partial<CustomerForm>) => {
+  Object.keys(customerForm).forEach(key => {
+    if (data[key as keyof CustomerForm] !== undefined) {
+      (customerForm as any)[key] = data[key as keyof CustomerForm]
+    }
+  })
+}
 
+// Fonction pour réinitialiser le formulaire
+const resetForm = () => {
+  Object.assign(customerForm, getEmptyCustomerForm())
+}
 
+// Watcher pour gérer l'ouverture de la modal
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      if (props.isEditMode && props.customerData) {
+        populateForm(props.customerData)
+      } else {
+        resetForm()
+      }
+    }
+  },
+  { immediate: true }
+)
 
 const handleSubmit = async () => {
   loading.value = true
   try {
     await new Promise((resolve) => setTimeout(resolve, 2000))
-    emit('submit', { ...customerForm })
-    Object.assign(customerForm, getEmptyCustomerForm())
+
+    // Émettre les données avec un flag pour indiquer le mode
+    emit('submit', {
+      data: { ...customerForm },
+      isEdit: props.isEditMode
+    })
+
+    // Ne réinitialiser le formulaire qu'en mode ajout
+    if (!props.isEditMode) {
+      resetForm()
+    }
   } catch (error) {
     console.error("Erreur lors de l'enregistrement du client:", error)
   } finally {

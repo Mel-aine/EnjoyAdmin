@@ -111,6 +111,11 @@ const fullPhoneNumber = computed<string>({
         return `${selectedCountryCode.value}${phoneNumber.value}`;
     },
     set(newValue: string) {
+        if (typeof newValue !== 'string') {
+          selectedCountryCode.value = '+237'
+          phoneNumber.value = ''
+          return
+        }
         // When v-model updates, parse the new value to update internal refs
         let foundCountryCode = false;
         for (const country of africanCountries) {
@@ -128,6 +133,8 @@ const fullPhoneNumber = computed<string>({
         }
     }
 });
+
+
 
 // Watchers for reactivity
 watch(selectedCountryCode, () => {

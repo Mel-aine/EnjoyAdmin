@@ -1,5 +1,6 @@
 <template>
   <AdminLayout>
+    <FullScreenLayout>
 
     <div class="container mx-auto px-4 py-8">
       <!-- Header -->
@@ -346,6 +347,7 @@
       <AmenytiePaymentModal :reservation="selectBooking" :is-open="openPaymentAmenity"
         @close="openPaymentAmenity = false" @payment-recorded="getPaymentDetails" :un-paid-details="unpaidDetails" />
     </template>
+    </FullScreenLayout>
   </AdminLayout>
 </template>
 
@@ -380,6 +382,7 @@ import InfoIcon from '@/icons/InfoIcon.vue';
 import { useI18n } from 'vue-i18n'
 import AmenityBooked from '../hotelServices/AmenityBooked.vue';
 import AmenytiePaymentModal from './AmenytiePaymentModal.vue';
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 const goBack = (): void => {
   window.history.back()
 }

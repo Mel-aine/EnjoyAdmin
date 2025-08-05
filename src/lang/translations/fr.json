@@ -190,7 +190,8 @@
     "emailSettingsSaved": "Paramètres e-mail enregistrés avec succès !",
     "importError": "Erreur lors de l'importation des chambres par défaut",
     "defaultRoomsImported": "L'importation des chambres par défaut a réussi.",
-    "roomtypeerror": "Erreur lors de l'enregistrement du type de chambre ❌"
+    "roomtypeerror": "Erreur lors de l'enregistrement du type de chambre ❌",
+    "emailAlreadyUsed": "Cet email est déjà utilisé pour ce service."
   },
   "EditRoomType": "Modifier le type de chambre",
   "detailsCustomers": "Détails du client",
@@ -2485,5 +2486,21 @@
   },
   "Reservations Calendar": "Calendrier des réservations",
   "Manage and view all reservations by date and room": "Gérer et visualiser toutes les réservations par date et par chambre",
-  "Add reservation": "Ajouter une réservation"
+  "Add reservation": "Ajouter une réservation",
+  "specialPreferences": "Préférences particulières",
+  "createdDate": "Date de création",
+  "dueDate": "Date d'échéance",
+  "placeOfBirth": "Lieu de naissance",
+  "dateOfBirth": "Date de naissance",
+  "gender": "Genre",
+  "city": "Ville",
+  "country": "Pays",
+  "emergencyPhone": "Téléphone d'urgence",
+  "personalEmail": "Email personnel",
+  "socialSecurityNumber": "Numéro de sécurité sociale",
+  "nationalIdNumber": "Numéro d'identité nationale",
+  "contractType": "Type de contrat",
+  "contractEndDate": "Date de fin de contrat",
+  "dataProcessingConsent": "Consentement au traitement des données",
+  "consentDate": "Date du consentement"
 }

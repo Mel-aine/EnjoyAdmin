@@ -447,6 +447,11 @@ export const createNewRole = (Data: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/roles`, Data, headers)
 }
 
+//create customer
+export const createCustomer = (Data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/customers`, Data, headers)
+}
+
 // --- Services API put --- //
 
 export const updateMovementService = (
@@ -466,6 +471,12 @@ export const putReservation = (id: number | null, payload: any): Promise<AxiosRe
 export const updateUser = (id: number | null, userPayload: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/users_update/${id}`, userPayload, headers)
 }
+
+//update customer
+export const updateCustomer = (id: number | null, userPayload: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/update_customer/${id}`, userPayload, headers)
+}
+
 
 //update room option
 export const updateRoomOptions = (

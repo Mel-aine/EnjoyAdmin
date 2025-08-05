@@ -91,11 +91,11 @@
                   :value="customer.customerDetails.firstName || 'N/A'" />
                 <DetailRow :label="$t('customerDetails.basicInfo.lastName')"
                   :value="customer.customerDetails.lastName || 'N/A'" />
-                <DetailRow :label="$t('customerDetails.basicInfo.gender')" :value="'N/A'" />
+                <DetailRow :label="$t('customerDetails.basicInfo.gender')" :value="customer.customerDetails.gender ||'N/A'" />
                 <DetailRow :label="$t('customerDetails.basicInfo.dateOfBirth')"
-                  :value="customer.customerDetails.roomType || 'N/A'" />
+                  :value="customer.customerDetails.dateOfBirth || 'N/A'" />
                 <DetailRow :label="$t('customerDetails.basicInfo.nationality')"
-                  :value="customer.customerDetails.nationality || 'N/A'" type="badge" />
+                  :value="customer.customerDetails.country || 'N/A'" type="badge" />
               </div>
             </div>
             <!-- Équipements -->
@@ -201,7 +201,7 @@
         @payment-recorded="getPaymentDetails" />
     </template>
     <template v-if="modalOpen">
-      <ModalCustomer :isOpen="modalOpen" :isEditMode="true" @close="closeModal" />
+      <ModalCustomer :isOpen="modalOpen" :isEditMode="true" @close="closeModal" :customerData="customerDataForEdit"  @submit="handleEditCustomer"  />
     </template>
 
     </FullScreenLayout>
@@ -221,7 +221,7 @@ import InfoIcon from '@/icons/InfoIcon.vue';
 import CalendarIcon from '@/icons/CalendarIcon.vue';
 import { isLoading } from '@/composables/spinner';
 import DetailRow from '../Room/DetailRow.vue';
-import { getCustomerProfile } from '@/services/api';
+import { getCustomerProfile ,updateCustomer } from '@/services/api';
 import router from '@/router';
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue';
 import PaymentModal from '../Bookings/PaymentModal.vue';
@@ -231,9 +231,13 @@ const selectBooking = ref(null);import FullScreenLayout from '@/components/layou
 import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
 import LegendItem from '@/components/calendars/LegendItem.vue';
 import ModalCustomer from './ModalCustomer.vue';
+import { useToast } from 'vue-toastification';
 
 const { t ,locale } = useI18n()
 const openPayment = ref(false);
+const selectedDate = ref(new Date())
+const loading = ref(false)
+const toast = useToast();
 const getPaymentDetails = () => {
   openPayment.value = false;
   getCustomerProfileDetails();
@@ -346,13 +350,6 @@ const calendarEvents = computed<any[]>(() => {
 
 
 
-
-
-
-const selectedDate = ref(new Date())
-
-
-
 const onMonthChanged = (date: Date) => {
   console.log('Mois changé:', date)
   // loadEventsForMonth(date)
@@ -399,6 +396,45 @@ const loadEventsForMonth = (date: Date) => {
 }
 const handleOpenEditModal = () =>{
   modalOpen.value = true
+}
+
+const customerDataForEdit = computed(() => {
+  if (!customer.value?.customerDetails) return {}
+
+  return {
+    gender: customer.value.customerDetails.gender || '',
+    first_name: customer.value.customerDetails.firstName || '',
+    last_name: customer.value.customerDetails.lastName || '',
+    date_of_birth: customer.value.customerDetails.dateOfBirth || '',
+    country: customer.value.customerDetails.country || '',
+    national_id_number: customer.value.customerDetails.nationalIdNumber || '',
+    email: customer.value.customerDetails.email || '',
+    phone_number: customer.value.customerDetails.phoneNumber || '',
+    address: customer.value.customerDetails.address || '',
+    special_preferences: customer.value.customerDetails.specialPreferences || '',
+  }
+})
+
+
+// Fonction pour gérer l'édition d'un client
+const handleEditCustomer = async (payload: any) => {
+  try {
+    loading.value = true
+
+    const { data } = payload
+    console.log('Édition de client:', data)
+     await updateCustomer(Number(customer_id), data)
+     toast.success(t('toast.SucessUpdate'))
+    // Rafraîchir les détails du client
+    await getCustomerProfileDetails()
+
+    modalOpen.value = false
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du client:', error)
+    toast.error(t('toast.updateError'))
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
