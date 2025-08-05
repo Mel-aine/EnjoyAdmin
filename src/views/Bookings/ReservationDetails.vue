@@ -309,7 +309,7 @@
             <PaymentTable :datas="selectBooking?.payments" />
           </div>
           <div v-if="activeTab === 'amenitie_booking'" class="bg-white ">
-            <AmenityBooked />
+            <AmenityBooked :reservation_id="`${selectBooking.id}`" />
           </div>
 
           <!-- History Tab -->

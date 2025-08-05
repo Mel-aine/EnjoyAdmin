@@ -145,7 +145,6 @@ import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/composables/user';
 import { amenitiesPaymentByReservationId } from '@/services/api'; // Assuming this API call exists
 import { useRouter } from 'vue-router';
-import Spinner from '@/components/spinner/Spinner.vue';
 import DotSpinner from '@/components/spinner/DotSpinner.vue';
 
 // Define the new interfaces based on the provided data structure
@@ -225,7 +224,6 @@ const paymentMethod = ref('');
 const transactionRef = ref(generateTransactionId());
 const selectedAmenityBookingIds = ref<number[]>([]); // To store IDs of selected amenity bookings
 const router = useRouter();
-const authStore = useAuthStore();
 const isLoading = ref(false);
 
 // Computed Properties
@@ -367,8 +365,6 @@ const savePayment = async () => {
         if (response.status === 201 || response.status === 200) {
             toast.success(t('toast.paymentSucess'));
             emit('payment-recorded');
-            // Assuming ViewInvoice can handle a payment ID for either reservation or amenity
-            router.push({ name: 'ViewInvoice', params: { id: response.data.id } });
         } else {
             toast.error(t('toast.paymentError'));
         }

@@ -130,7 +130,7 @@
                                         <div class="flex items-center">
                                             <CreditCard class="mr-2 text-blue-600" :size="20" />
                                             <span>{{ $t('amount_paid') }}: {{ formatCurrency(selectBooking?.paidAmount)
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
                                     <div class="mb-4">
@@ -293,7 +293,7 @@
                             <PaymentTable :datas="selectBooking?.payments" />
                         </div>
                         <div v-if="activeTab === 'amenitie_booking'" class="bg-white ">
-                            <AmenityBooked />
+                            <AmenityBooked :reservation_id="selectBooking.id" />
                         </div>
                         <div v-if="activeTab === 'history'" class="bg-white rounded-xl border border-gray-200">
                             <template v-if="activitiesLogs && activitiesLogs.length > 0">
@@ -420,8 +420,12 @@ const startPaymentAmenity = () => {
 };
 
 const placeOrder = () => {
-    // You may want to use your router here
-};
+    const routeData = router.resolve({
+        name: "Amenities Booking Interface",
+        params: { id: props.reservation_id }
+    });
+    window.open(routeData.href, '_blank');
+}
 
 onMounted(() => {
     getBookingDetails();
@@ -536,7 +540,7 @@ const canExtendStay = computed(() => {
 });
 
 const handleAction = async (actionType: string, roomId: number | null = null) => {
-    const rooms = selectBooking.value?.reservationServiceProducts.map((e:any) => {
+    const rooms = selectBooking.value?.reservationServiceProducts.map((e: any) => {
         const room = e.serviceProduct;
         return room;
     });
@@ -544,7 +548,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     if (actionType === 'checkInAll') {
         isLoading.value = true;
         const requestBody = {
-            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e:any) => e.id)
+            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e: any) => e.id)
         };
         if (selectBooking.value?.id) {
             const response = await checkInReservation(selectBooking.value?.id, requestBody);
@@ -559,7 +563,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     } else if (actionType === 'checkOutAll') {
         isLoading.value = true;
         const requestBody = {
-            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e :any) => e.id)
+            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e: any) => e.id)
         };
         if (selectBooking.value?.id) {
             const response = await checkOutReservation(selectBooking.value?.id, requestBody);
