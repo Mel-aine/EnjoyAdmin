@@ -469,9 +469,9 @@ const paymentStatus = computed(() => {
     return 'Unknown';
 });
 
-const allRoomsCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.every(serviceProduct => serviceProduct.status === 'checked-in'));
-const allRoomsCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.every(serviceProduct => serviceProduct.status === 'Checked-out'));
-const anyRoomCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.some(serviceProduct => serviceProduct.status === 'Checked-out'));
+const allRoomsCheckedIn = computed(() => selectBooking.value?.reservationServiceProducts.every((serviceProduct: any) => serviceProduct.status === 'checked-in'));
+const allRoomsCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.every((serviceProduct: any) => serviceProduct.status === 'Checked-out'));
+const anyRoomCheckedOut = computed(() => selectBooking.value?.reservationServiceProducts.some((serviceProduct: any) => serviceProduct.status === 'Checked-out'));
 
 const isArrivalDateTodayOrPast = computed(() => {
     if (!selectBooking.value?.arrivedDate) return false;
@@ -536,7 +536,7 @@ const canExtendStay = computed(() => {
 });
 
 const handleAction = async (actionType: string, roomId: number | null = null) => {
-    const rooms = selectBooking.value?.reservationServiceProducts.map((e) => {
+    const rooms = selectBooking.value?.reservationServiceProducts.map((e:any) => {
         const room = e.serviceProduct;
         return room;
     });
@@ -544,7 +544,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     if (actionType === 'checkInAll') {
         isLoading.value = true;
         const requestBody = {
-            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e) => e.id)
+            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e:any) => e.id)
         };
         if (selectBooking.value?.id) {
             const response = await checkInReservation(selectBooking.value?.id, requestBody);
@@ -559,7 +559,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     } else if (actionType === 'checkOutAll') {
         isLoading.value = true;
         const requestBody = {
-            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e) => e.id)
+            reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e :any) => e.id)
         };
         if (selectBooking.value?.id) {
             const response = await checkOutReservation(selectBooking.value?.id, requestBody);

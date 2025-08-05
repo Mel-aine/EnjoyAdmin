@@ -171,8 +171,8 @@ import html2pdf from 'html2pdf.js'
 
 const invoiceId = router.currentRoute.value.params.id as string
 const invoiceContent = ref<HTMLElement | null>(null);
-const hotel = ref({})
-const guest = ref({})
+const hotel = ref<any>({})
+const guest = ref<any>({})
 
 const props = defineProps({
     elementId: { type: String, required: true },
@@ -186,13 +186,13 @@ const checkinTime = ref('')
 const checkoutDate = ref('')
 const checkoutTime = ref('')
 const nights = ref(0)
-const rooms = ref([])
+const rooms = ref<any>([])
 const roomSubtotal = ref(0)
-const services = ref([])
+const services = ref<any>([])
 const serviceSubtotal = ref(0)
-const taxes = ref([])
+const taxes = ref<any>([])
 const grandTotal = ref(0)
-const payments = ref([]) // Now a list of payments
+const payments = ref<any>([]) // Now a list of payments
 const notes = ref('')
 const today = new Date().toLocaleDateString()
 
