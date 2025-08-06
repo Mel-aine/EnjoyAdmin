@@ -57,8 +57,8 @@ const formatReservation = async () => {
         const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
         return {
             ...res,
-            date: formatDate(res.arrivedDate),
-            dateD: formatDate(res.departDate),
+            date: res.arrivedDate,
+            dateD: res.departDate,
             email: user?.email || '',
             phone: user?.phoneNumber || '',
             userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',

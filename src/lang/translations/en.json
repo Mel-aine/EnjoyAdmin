@@ -193,7 +193,9 @@
     "defaultRoomsImported": "The import of default rooms was successful.",
     "roomtypeerror": "Error saving room type ❌",
     "emailAlreadyUsed": "This email is already in use for this service.",
-    "deleteError" : "An error occurred while deleting the customer ❌"
+    "deleteError" : "An error occurred while deleting the customer ❌",
+    "SuccessCreated" : "created successfully ✅",
+    "ErrorCreated": "Error saving ❌"
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",

@@ -192,7 +192,9 @@
     "defaultRoomsImported": "L'importation des chambres par défaut a réussi.",
     "roomtypeerror": "Erreur lors de l'enregistrement du type de chambre ❌",
     "emailAlreadyUsed": "Cet email est déjà utilisé pour ce service.",
-    "deleteError": "Une erreur s'est produite lors de la suppression du client ❌"
+    "deleteError": "Une erreur s'est produite lors de la suppression du client ❌",
+    "SuccessCreated": "créé avec succès ✅",
+    "ErrorCreated": "Erreur lors de l'enregistrement ❌"
   },
   "EditRoomType": "Modifier le type de chambre",
   "detailsCustomers": "Détails du client",
@@ -2510,5 +2512,36 @@
   "payment.searchByName": "Rechercher par nom de client ou identifiant de paiement",
   "payment.searchPlaceholder": "ex: Martin Sophie ou 10",
   "system_timezone": "Fuseau horaire du système",
-  "current_system_time": "Heure Système Actuelle"
+  "current_system_time": "Heure Système Actuelle",
+  "AmenitiesPay": {
+  "title": "Gestion des Services Payants de l'Hôtel",
+  "subtitle": "Ces services sont les prestations pour lesquelles le client paie directement l'hôtel.",
+  "services": "Services de l'Hôtel",
+  "addService": "Ajouter un Nouveau",
+  "newAmenityService": "Nouveau Service Payant",
+  "editMentisService": "Modifier un Service Payant"
+  },
+  "source_type": "Type de Source",
+  "externalReferenceCode": "Référence Externe du Service",
+  "inactive": "Inactif",
+  "internal": "Interne",
+  "external": "Externe",
+  "products": "Produits",
+  "amenityProduct": {
+    "title": "Produits Associés aux Services",
+    "subtitle": "Liste des produits liés aux services payants.",
+    "products": "Produits",
+    "addProduct": "Ajouter un Produit"
+  },
+  "createdAt": "Créé le",
+  "EditProduct": "Modifier le Produit",
+  "NewProduct": "Nouveau Produit",
+  "EditHotelService": "Modifier le Service de l'Hôtel",
+  "NewHotelService": "Nouveau Service de l'Hôtel",
+  "ConfirmReservationChange": "Confirmer la Modification de la Réservation",
+  "NewDates": "Nouvelles Dates",
+  "OldDates": "Anciennes Dates"
+
+
+
 }
