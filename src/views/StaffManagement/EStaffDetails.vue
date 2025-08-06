@@ -635,7 +635,6 @@ const payrollForm = ref<IPayrollFormData>({
   ribEmploye_error: '',
 
   payslipFilePath: '',
-  payslip_file_path_error: '',
 
   status: 'Pending',
   status_error: '',
@@ -670,7 +669,7 @@ watch(
 const payrollsForTable = computed(() => {
   return payrollsData.value.map((p: IPayroll) => ({
     ...p,
-    statusColor: getPayrollStatusColor(p.status)
+    statusColor: getPayrollStatusColor(p.status!)
   }));
 });
 

@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
-    deleteAmenityProduct,
     getAmenityBookingByReservationIdAndServiceId,
 } from '@/services/api'
 import { useI18n } from 'vue-i18n'
@@ -15,7 +14,7 @@ import type { TableColumn } from '@/utils/models'
 const loadingDelete = ref(false)
 const loading = ref(false)
 const serviceStore = useServiceStore()
-const reservation_id = router.currentRoute.value.params.id;
+const reservation_id =ref<string>('');
 const toast = useToast()
 const selectedAmenityProductId = ref<number | null>(null)
 const show = ref(false)
@@ -24,7 +23,11 @@ const amenitiesBooking = ref<any[]>([])
 const selectedAmenityProduct = ref<any>(null)
 const isEditMode = ref(false)
 const { t } = useI18n()
-
+const props = defineProps({
+    reservation_id:{
+        type: String, required: true 
+    }
+})
 const refresh = () => {
     modalOpen.value = false;
     isEditMode.value = false;
@@ -35,7 +38,7 @@ const fetchAmenitiesBooking = async () => {
     try {
         const serviceId = serviceStore.serviceId
         if (!serviceId) throw new Error('Service ID is not defined')
-        const response = await getAmenityBookingByReservationIdAndServiceId(parseInt(`${reservation_id}`)!, serviceId)
+        const response = await getAmenityBookingByReservationIdAndServiceId(parseInt(`${props.reservation_id}`)!, serviceId)
         console.log('response', response)
         amenitiesBooking.value = response.data
     } catch (error) {
@@ -147,6 +150,7 @@ const bookingItemsColumn = computed(() => [
         filterable: false,
     },
 ] as TableColumn[])
+
 </script>
 
 <template>
