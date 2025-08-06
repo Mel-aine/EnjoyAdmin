@@ -217,6 +217,7 @@ import { useI18n } from 'vue-i18n'
 import GlobalFilter from '@/components/filters/GlobalFilter.vue'
 import type { FitlterItem } from '@/utils/models'
 import { isLoading } from '@/composables/spinner'
+import { formatDateT } from '@/components/utilities/UtilitiesFunction'
 
 const loading = ref(false)
 const calendarRef = ref<any>(null)
@@ -598,7 +599,7 @@ const calendarOptions = reactive({
         <div><strong>📧 ${t('tooltip.email')}  :</strong> ${info.event.extendedProps.email}</div>
         <div><strong>🚪 ${t('tooltip.room')}:</strong> ${info.event.extendedProps.room}</div>
         <div><strong>👤 ${t('tooltip.reservationType')} :</strong> ${info.event.extendedProps.reservationType}</div>
-        <div><strong>🛬 ${t('tooltip.arrival')} :</strong> ${info.event.start?.toISOString().split('T')[0] || ''}</div>
+        <div><strong>🛬 ${t('tooltip.arrival')} :</strong> ${ formatDateT(info.event.start) || ''}</div>
         <div><strong>🛫 ${t('tooltip.departure')} :</strong> ${info.event.end?.toISOString().split('T')[0] || ''}</div>
 
         ${
