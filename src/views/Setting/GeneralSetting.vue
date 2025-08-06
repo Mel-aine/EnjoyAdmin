@@ -54,6 +54,19 @@
               ></div>
             </label>
           </div>
+
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg my-6">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h3 class="font-semibold text-gray-800">{{ $t('current_system_time') }}</h3>
+                    <p class="text-2xl font-mono text-indigo-600">{{ formatTime(hotelTimezone) }}</p>
+                  </div>
+                  <div class="w-1/3">
+                    <Select :lb="$t('system_timezone')" :options="timezones" v-model="hotelTimezone"/>
+                  </div>
+                </div>
+              </div>
+
         </div>
       </div>
     </div>
@@ -63,6 +76,7 @@
 <script setup lang="ts">
 import { ref,computed,defineAsyncComponent,onMounted } from 'vue';
 import { useTheme } from '@/components/layout/ThemeProvider.vue'
+import Select from '@/components/forms/FormElements/Select.vue';
 const { toggleTheme }: any = useTheme()
 import { useI18n } from 'vue-i18n';
 import { watch } from 'vue'
@@ -84,6 +98,7 @@ watch(() => preferences.value.darkMode, (isDark:boolean) => {
 
 
 const timezones = computed(() => [
+  { value: 'Africa/Douala', label: t('timezones.wat') },
   { value: 'UTC', label: t('timezones.utc') },
   { value: 'America/New_York', label: t('timezones.et') },
   { value: 'America/Chicago', label: t('timezones.ct') },
@@ -91,4 +106,18 @@ const timezones = computed(() => [
   { value: 'America/Los_Angeles', label: t('timezones.pt') },
   { value: 'Europe/Paris', label: t('timezones.cet') },
 ])
+const hotelTimezone = ref('Africa/Douala');
+const currentTime = ref(new Date());
+
+function formatTime(timezone: string): string {
+  return currentTime.value.toLocaleString('fr-FR', {
+    timeZone: timezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    // second: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
 </script>

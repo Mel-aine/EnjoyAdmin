@@ -18,11 +18,11 @@
                     <XCircleIcon class="mr-2 text-primary" :size="20" />
                 </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                 <!-- Search by Name/ID -->
 
 
-                <div class="lg:col-span-2">
+                <div class="">
                     <Input :lb="$t('payment.searchByName')" :inputType="'text'"
                         :placeholder="$t('payment.searchPlaceholder')" :id="'searchText'"
                         :forLabel="'payment.searchByName'" v-model="filters.searchText" />
@@ -77,7 +77,7 @@ const filters = ref<PaymentFilterItem>({
 });
 const status = ref<any[]>([
 
-{ label: 'All', value: '' },
+{ label: t('All'), value: '' },
 { label: t(PaymentStatus.PAID), value: PaymentStatus.PAID },
 { label: t(PaymentStatus.REFUNDED), value: PaymentStatus.REFUNDED },
 { label: t(PaymentStatus.PENDING), value: PaymentStatus.PENDING}

@@ -192,7 +192,8 @@
     "importError": "Error importing default rooms",
     "defaultRoomsImported": "The import of default rooms was successful.",
     "roomtypeerror": "Error saving room type ❌",
-    "emailAlreadyUsed": "This email is already in use for this service."
+    "emailAlreadyUsed": "This email is already in use for this service.",
+    "deleteError" : "An error occurred while deleting the customer ❌"
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -312,6 +313,7 @@
   "profile": "Profile",
   "userProfile": "User Profile",
   "timezones": {
+    "wat": "West Africa Time (WAT)",
     "utc": "UTC",
     "et": "Eastern Time (ET)",
     "ct": "Central Time (CT)",
@@ -2535,5 +2537,11 @@
   "signature": "Signature",
   "date": "Date"
 },
-  "specialPreferences": "Special Preferences"
+  "specialPreferences": "Special Preferences",
+  "deleteCustomer": "Delete Customer",
+  "deleteCustomerMessage": "Are you sure you want to delete this customer? This action cannot be undone.",
+  "payment.searchByName": "Search by Customer Name or Payment ID",
+  "payment.searchPlaceholder": "e.g., Martin Sophie or 10",
+  "current_system_time": "Current System Time",
+  "system_timezone": "System Timezone"
 }

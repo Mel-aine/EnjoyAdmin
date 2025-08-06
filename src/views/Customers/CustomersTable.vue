@@ -187,13 +187,14 @@ const handleAddCustomer = async (payload: any) => {
 
   } catch (error: any) {
     if (error.response && error.response.status === 409) {
-  const serverMessage = error.response.data?.message
+      const serverMessage = error.response.data?.message
       if (serverMessage === 'This email is already in use for this service') {
         toast.error(t('toast.emailAlreadyUsed'))
       } else {
         toast.error(serverMessage || t('toast.error'))
       }
     }
+
   } finally {
     loading.value = false
   }

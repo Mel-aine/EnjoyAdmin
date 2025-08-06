@@ -11,7 +11,7 @@
               d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button> -->
-        <div class="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
+    <div class="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
             <div
               class="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[10px]"
               aria-hidden="true"
@@ -28,8 +28,14 @@
             </svg>
           </div>
 
-          <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">{{ $t('confirmDelete') }}</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{$t('youaresure')}}? {{ $t('thisAction') }}.</p>
+          <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            {{ title || $t('confirmDelete') }}
+          </h2>
+
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            {{ message || ($t('youaresure') + '? ' + $t('thisAction') + '.') }}
+          </p>
+
 
           <!-- Boutons -->
           <div class="flex justify-center gap-4">
@@ -55,11 +61,20 @@
 
 <script setup>
 import Spinner from '@/components/spinner/Spinner.vue';
+
 defineProps({
   isOpen: Boolean,
   isLoading: {
     type: Boolean,
     default: false
+  },
+  title: {
+    type: String,
+    default: '',
+  },
+  message: {
+    type: String,
+    default: '',
   }
 })
 
