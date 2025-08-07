@@ -296,7 +296,7 @@
               <div>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 mb-6">
                   <div>
-                    <Input :lb="$t('RoomName')" :placeholder="$t('RoomName')" :id="'room'" :forLabel="'room'" v-model="form.name" />
+                    <Input :lb="$t('Name')" :placeholder="$t('Name')" :id="'room'" :forLabel="'room'" v-model="form.name" />
                   </div>
                   <div>
                     <Input :lb="$t('DefaultGuest')" :placeholder="$t('DefaultGuest')" :id="'default_guest'" inputType="Number" :forLabel="'default_guest'" v-model.number="form.default_guest" />
@@ -307,7 +307,7 @@
                   <div>
                     <InputCurrency :lb="$t('ExtraGuestPrice')" :placeholder="$t('ExtraGuestPrice')" :id="'extra_guest'" :forLabel="'extra_guest'" v-model.number="form.extra_guest" />
                   </div>
-                  <div>
+                  <!--<div>
                     <Input :lb="$t('Vat(%)')" :placeholder="$t('Vat')" :id="'vat'" inputType="Number" :disabled="true" :forLabel="'vat'" v-model.number="form.vat" />
                   </div>
                   <div>
@@ -315,7 +315,7 @@
                     <div class="h-11 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
                       {{ totalWithVat }}
                     </div>
-                  </div>
+                  </div>-->
                   <div>
                     <InputCurrency :lb="$t('DefaultDeposit')" :placeholder="$t('DefaultDeposit')" :id="'default_deposit'" :forLabel="'default_deposit'" v-model.number="form.default_deposit" />
                   </div>
@@ -571,8 +571,8 @@ const form = ref<any>({
 
 const totalWithVat = computed(() => {
   const base = form.value.price || 0
-  const vatRate = form.value.vat || 0
-  return Number((base + (base * vatRate) / 100).toFixed(2))
+ // const vatRate = form.value.vat || 0
+  return Number((base).toFixed(2))
 })
 
 const formatted = computed(() => {
@@ -615,7 +615,7 @@ const SaveRoomType = async () => {
     }
 
     //  Validation du prix
-    if (Number(totalWithVat.value) <= 0) {
+    if (Number(form.value.price) <= 0) {
       showError(t('Errors.positivePrice'))
       isLoading.value = false
       return
@@ -626,7 +626,7 @@ const SaveRoomType = async () => {
       description: form.value.description,
       status: form.value.status,
       service_id: serviceId,
-      price: Number(totalWithVat.value),
+      price: Number(form.value.price),
       default_guest: form.value.default_guest,
       extra_guest_price: form.value.extra_guest,
       default_deposit: form.value.default_deposit,
@@ -819,13 +819,12 @@ const handleBookingAction = (action: string, type: any) => {
     if (roomTypeToEdit) {
       const priceTTC = roomTypeToEdit.price
       const vatRate = form.value.vat || 0
-      const priceHT = Math.round(priceTTC / (1 + vatRate / 100))
 
       form.value = {
         name: roomTypeToEdit.name,
         status: roomTypeToEdit.status,
         description: roomTypeToEdit.description,
-        price: priceHT,
+        price: priceTTC,
         default_guest: Number(roomTypeToEdit.defaultGuest),
         extra_guest: roomTypeToEdit.extraGuestPrice,
         default_deposit: roomTypeToEdit.defaultDeposit,
