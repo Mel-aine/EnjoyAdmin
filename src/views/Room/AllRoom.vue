@@ -468,7 +468,7 @@ const defaultOptionsByType = computed(() => {
   return grouped
 })
 watch(() => formData.value.number, (va: string) => {
-  formData.value.name = `${t('Room')} ${va}`
+  formData.value.name = va?`${t('Room')} ${va}`:""
 });
 const defaultOptionsMap = computed(() => {
   const map: Record<number, OptionType> = {}
@@ -481,7 +481,7 @@ const defaultOptionsMap = computed(() => {
 const resetFormData = () => {
   formData.value = {
     name: '',
-    status: '',
+    status: 'available',
     description: '',
     rent: '',
     roomType: null,
