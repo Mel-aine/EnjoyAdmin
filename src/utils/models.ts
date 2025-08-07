@@ -316,7 +316,7 @@ export const defaultData = (): Form => {
     placeOfBirth: '',
     gender: '',
     city: '',
-    country: '',
+    country: 'CM',
     emergencyPhone: '',
     personalEmail: '',
     socialSecurityNumber: '',

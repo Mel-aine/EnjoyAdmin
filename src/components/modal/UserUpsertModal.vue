@@ -17,6 +17,7 @@ import { CONTRACTTYPE } from '@/utils/constants'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
 import InputEmail from '../forms/FormElements/InputEmail.vue'
 import InputPhone from '../forms/FormElements/InputPhone.vue'
+import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -111,7 +112,7 @@ const saveUser = async () => {
     }
 }
 
-const genders = ref([{ label: t('Male'), value: 'male' }, { label: t('Female'), value: 'female' }]);
+const genders = ref([{ label: t('male'), value: 'male' }, { label: t('female'), value: 'female' }]);
 const contractTypes = ref([{ label: t('contract_types.cdi'), value: CONTRACTTYPE.CDI },
 { label: t('contract_types.cdd'), value: CONTRACTTYPE.CDD },
 { label: t('contract_types.seasonal'), value: CONTRACTTYPE.SEASONAL },
@@ -346,7 +347,7 @@ onMounted(() => {
                                         <Input :lb="$t('city')" :id="'last'" :forLabel="'last'" v-model="form.city"
                                             :is-required="true" />
                                         <!--Country-->
-                                        <Input :lb="$t('country')" :id="'last'" :forLabel="'last'"
+                                        <InputCountries :lb="$t('country')" :id="'last'" :forLabel="'last'"
                                             v-model="form.country" :is-required="true" />
 
                                         <Input :lb="$t('socialSecurityNumber')" :id="'socialSecurityNumber'"

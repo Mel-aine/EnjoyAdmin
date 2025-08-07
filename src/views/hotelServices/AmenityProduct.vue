@@ -172,6 +172,7 @@ const confirmDelete = async () => {
 const closeModal = () => {
     modalOpen.value = false
     isEditMode.value = false
+    selectedAmenityProduct.value = null
 }
 
 const OpenModal = () => {

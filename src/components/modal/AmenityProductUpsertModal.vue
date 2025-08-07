@@ -113,6 +113,7 @@ const handleSubmit = async () => {
 }
 
 const closeModal = () => {
+    console.log('closeModal')
     form.value = defaultAmenityProductPayloadPayload()
     emits('close')
 }
