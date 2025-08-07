@@ -8,28 +8,14 @@
 
         <div class="mt-10">
           <div class="space-y-6">
-            <TableComponent
-              :items="essentialColumns"
-              :datas="flattenServiceProducts"
-              :filterable="true"
-              :pagination="true"
-              :loading="loading"
-              :showHeader="true"
-              :title="$t('Rooms')"
-              :pageSize="15"
-              :searchable="false"
-              :showButtonAllElement="true"
-              @edit="onEditProduct"
-              @delete="onDeleteProduct"
-              @view-details="showRoomDetails"
-              class="modern-table"
-            >
+            <TableComponent :items="essentialColumns" :datas="flattenServiceProducts" :filterable="true"
+              :pagination="true" :loading="loading" :showHeader="true" :title="$t('Rooms')" :pageSize="15"
+              :searchable="false" :showButtonAllElement="true" @edit="onEditProduct" @delete="onDeleteProduct"
+              @view-details="showRoomDetails" class="modern-table">
               <template v-slot:headerActions>
                 <div class="flex justify-end">
-                  <button
-                    @click="OpenModal"
-                    class="block px-4 py-2 dark:hover:text-white bg-primary hover:bg-primary/85 text-white font-bold rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 items-center"
-                  >
+                  <button @click="OpenModal"
+                    class="block px-4 py-2 dark:hover:text-white bg-primary hover:bg-primary/85 text-white font-bold rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 items-center">
                     {{ $t('AddRoom') }}
                   </button>
                 </div>
@@ -45,27 +31,15 @@
     <Modal v-if="modalOpen" @close="closeModal()">
       <template #body>
         <div
-          class="no-scrollbar relative w-full max-w-[900px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-        >
+          class="no-scrollbar relative w-full max-w-[900px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <!-- close btn -->
-          <button
-            @click="closeModal()"
-            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-          >
-            <svg
-              class="fill-current"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+          <button @click="closeModal()"
+            class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
+            <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
                 d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-                fill=""
-              />
+                fill="" />
             </svg>
           </button>
           <div class="px-2 pr-14">
@@ -86,64 +60,35 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                 <!-- Nom de la chambre -->
                 <div class="space-y-2">
-                  <label
-                    for="room-number"
-                    class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    >{{ $t('room_number') }}</label
-                  >
-                  <input
-                    type="number"
-                    id="room-number"
-                    name="room-number"
-                    :placeholder="'Ex : 101'"
-                    min="1"
+                  <label for="room-number" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{
+                    $t('room_number') }}</label>
+                  <input type="number" id="room-number" name="room-number" :placeholder="'Ex : 101'" min="1"
                     v-model="formData.number"
                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                    required
-                  />
+                    required />
                 </div>
                 <div class="space-y-2">
-                  <Input :lb="$t('Name')" :id="'name'" :forLabel="'name'" v-model="formData.name" />
+                  <Input :lb="$t('Name')" :id="'name'" :forLabel="'name'" v-model="formData.name" :disabled="true" />
                 </div>
                 <div class="space-y-2">
-                  <Select
-                    :lb="$t('RoomTypes')"
-                    :options="roomTypeData"
-                    v-model="formData.roomType"
-                  />
+                  <Select :lb="$t('RoomTypes')" :options="roomTypeData" v-model="formData.roomType" />
                 </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Loyer mensuel -->
                 <div class="space-y-2">
-                  <InputCurrency
-                    :lb="$t('Rent')"
-                    :placeholder="'Ex: 10000 '"
-                    :id="'rent'"
-                    :forLabel="'rent'"
-                    :disabled="true"
-                    v-model="formData.rent"
-                  />
+                  <InputCurrency :lb="$t('Rent')" :placeholder="'Ex: 10000 '" :id="'rent'" :forLabel="'rent'"
+                    :disabled="true" v-model="formData.rent" />
                 </div>
 
                 <div class="space-y-2">
-                  <Input
-                    :lb="$t('capacity')"
-                    :id="'capacity'"
-                    :forLabel="'capacity'"
-                    :input-type="'number'"
-                    v-model="formData.capacity"
-                  />
+                  <Input :lb="$t('capacity')" :id="'capacity'" :forLabel="'capacity'" :input-type="'number'"
+                    v-model="formData.capacity" :disabled="true" />
                 </div>
 
                 <div class="space-y-2">
-                  <Input
-                    :lb="$t('floor')"
-                    :id="'etage'"
-                    :forLabel="'etage'"
-                    :input-type="'number'"
-                    v-model="formData.floor"
-                  />
+                  <Input :lb="$t('floor')" :id="'etage'" :forLabel="'etage'" :input-type="'number'"
+                    v-model="formData.floor" />
                 </div>
 
                 <!-- Statut -->
@@ -157,32 +102,21 @@
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {{ $t('Description') }}
                   </label>
-                  <textarea
-                    v-model="formData.description"
-                    :placeholder="$t('Largetext')"
-                    rows="4"
-                    class="dark:bg-dark-900 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  ></textarea>
+                  <textarea v-model="formData.description" :placeholder="$t('Largetext')" rows="4"
+                    class="dark:bg-dark-900 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"></textarea>
                 </div>
                 <div class="space-y-2">
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {{ $t('Note') }}
                   </label>
-                  <textarea
-                    :placeholder="$t('Largetext')"
-                    rows="4"
-                    class="dark:bg-dark-900 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  ></textarea>
+                  <textarea :placeholder="$t('Largetext')" rows="4"
+                    class="dark:bg-dark-900 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"></textarea>
                 </div>
               </div>
             </fieldset>
 
             <!-- Section des options dynamiques -->
-            <div
-              v-for="(optionsArray, category) in defaultOptionsByType"
-              :key="category"
-              class="mt-6"
-            >
+            <div v-for="(optionsArray, category) in defaultOptionsByType" :key="category" class="mt-6">
               <fieldset class="border rounded-xl p-4 shadow-sm">
                 <legend class="text-xl font-semibold mb-4 flex items-center gap-3 px-2">
                   <span class="text-2xl" :aria-label="`Catégorie: ${category}`">{{
@@ -194,29 +128,17 @@
                 <!-- Boucle sur chaque option de cette catégorie -->
                 <div v-for="option in optionsArray" :key="option.id" class="mb-6">
                   <!-- Radios pour boolean ou picklist binaire (Oui/Non) -->
-                  <div
-                    v-if="
-                      option.type === 'boolean' ||
-                      (option.type === 'picklist' && option.values && option.values.length < 4)
-                    "
-                    class="space-y-2"
-                  >
+                  <div v-if="
+                    option.type === 'boolean' ||
+                    (option.type === 'picklist' && option.values && option.values.length < 4)
+                  " class="space-y-2">
                     <p class="text-sm font-medium text-gray-700">
                       {{ t(`options.${option.optionName}`) }}
                     </p>
                     <div class="flex flex-wrap gap-4">
-                      <label
-                        v-for="val in option.values"
-                        :key="val.value"
-                        class="flex items-center cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          :name="`option_${option.id}`"
-                          :value="val.value"
-                          v-model="formData.options[option.id]"
-                          class="w-4 h-4 text-purple-500 focus:ring-purple-500"
-                        />
+                      <label v-for="val in option.values" :key="val.value" class="flex items-center cursor-pointer">
+                        <input type="radio" :name="`option_${option.id}`" :value="val.value"
+                          v-model="formData.options[option.id]" class="w-4 h-4 text-purple-500 focus:ring-purple-500" />
                         <span class="ml-2 text-sm text-gray-700">{{
                           t(`options.values.${val.label}`)
                         }}</span>
@@ -230,18 +152,12 @@
                       {{ t(`options.${option.optionName}`) }}
                     </p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <label
-                        v-for="val in option.values"
-                        :key="val.value"
-                        class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          :value="val.value"
+                      <label v-for="val in option.values" :key="val.value"
+                        class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" :value="val.value"
                           :checked="formData.options[option.id]?.includes(val.value)"
                           @change="onMultiSelectChange(Number(option.id), val.value, $event)"
-                          class="w-4 h-4 text-purple-500 rounded focus:ring-purple-500"
-                        />
+                          class="w-4 h-4 text-purple-500 rounded focus:ring-purple-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">{{
                           t(`options.values.${val.label}`)
                         }}</span>
@@ -250,24 +166,15 @@
                   </div>
 
                   <!-- Select pour picklists avec plus de 2 valeurs -->
-                  <div
-                    v-else-if="
-                      option.type === 'picklist' && option.values && option.values.length > 3
-                    "
-                    class="space-y-2"
-                  >
-                    <label
-                      :for="`option_${option.id}`"
-                      class="block text-sm font-medium text-gray-700"
-                    >
+                  <div v-else-if="
+                    option.type === 'picklist' && option.values && option.values.length > 3
+                  " class="space-y-2">
+                    <label :for="`option_${option.id}`" class="block text-sm font-medium text-gray-700">
                       {{ t(`options.${option.optionName}`) }}
                     </label>
-                    <select
-                      :id="`option_${option.id}`"
-                      v-model="formData.options[option.id]"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                    >
-                      <option disabled value="">-- {{ $t('select_option')}}--</option>
+                    <select :id="`option_${option.id}`" v-model="formData.options[option.id]"
+                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
+                      <option disabled value="">-- {{ $t('select_option') }}--</option>
                       <option v-for="val in option.values" :key="val.value" :value="val.value">
                         {{ t(`options.values.${val.label}`) }}
                       </option>
@@ -276,19 +183,12 @@
 
                   <!-- Champ texte par défaut pour les autres types -->
                   <div v-else class="space-y-2">
-                    <label
-                      :for="`option_${option.id}`"
-                      class="block text-sm font-medium text-gray-700"
-                    >
+                    <label :for="`option_${option.id}`" class="block text-sm font-medium text-gray-700">
                       {{ t(`options.${option.optionName}`) }}
                     </label>
-                    <input
-                      :id="`option_${option.id}`"
-                      type="text"
-                      v-model="formData.options[option.id]"
+                    <input :id="`option_${option.id}`" type="text" v-model="formData.options[option.id]"
                       :placeholder="option.optionName"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    />
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
                   </div>
                 </div>
               </fieldset>
@@ -297,13 +197,9 @@
 
           <!-- Boutons d'action -->
           <div
-            class="flex flex-col sm:flex-row-reverse gap-4 pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white"
-          >
-            <button
-              type="button"
-              @click.prevent="handleSubmit"
-              class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 bg-purple-400 rounded-md hover:from-primary-dark hover:to-purple-500 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform whitespace-nowrap"
-            >
+            class="flex flex-col sm:flex-row-reverse gap-4 pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white">
+            <button type="button" @click.prevent="handleSubmit"
+              class="flex-1 text-white sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 bg-purple-400 rounded-md hover:from-primary-dark hover:to-purple-500 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform whitespace-nowrap">
               <span v-if="!isLoading">{{ isEditMode ? $t('EditRoom') : $t('AddRoom') }}</span>
               <span v-else class="flex items-center gap-2">
                 <Spinner class="w-4 h-4" />
@@ -311,11 +207,8 @@
               </span>
             </button>
 
-            <button
-              type="button"
-              @click.prevent="closeModal()"
-              class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
-            >
+            <button type="button" @click.prevent="closeModal()"
+              class="flex-1 sm:flex-grow-0 px-4 py-2 w-1/2 text-sm h-11 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium">
               {{ $t('Cancel') }}
             </button>
           </div>
@@ -323,19 +216,9 @@
       </template>
     </Modal>
   </div>
-  <ModalDelete
-    v-if="Show"
-    @close="Show = false"
-    @delete="confirmDelete"
-    :isLoading="loadingDelete"
-  />
-  <PopupModal
-    v-if="showMessage"
-    :title="$t('warning')"
-    :message="popupMessage"
-    :isOpen="showMessage"
-    @close="showMessage = false"
-  />
+  <ModalDelete v-if="Show" @close="Show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
+  <PopupModal v-if="showMessage" :title="$t('warning')" :message="popupMessage" :isOpen="showMessage"
+    @close="showMessage = false" />
 </template>
 
 <script setup lang="ts">
@@ -363,7 +246,6 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { useBookingStore } from '@/composables/booking'
 import { useI18n } from 'vue-i18n'
-import DropdownMenu from '@/components/common/DropdownMenu.vue'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
@@ -391,7 +273,6 @@ const ServiceProduct = ref<ServiceProductType[]>([])
 const currentPageTitle = computed(() => t('RoomList'))
 const selectedRoom = ref<any>(null)
 const isEditMode = ref(false)
-import Papa from 'papaparse'
 const menuItems = computed(() => [
   { label: t('AddRoom'), onClick: () => OpenModal() },
   // { label: t('importdefault'), onClick: () => importDefaultDefaults() },
@@ -418,7 +299,7 @@ const initializeFormData = () => {
 }
 const formData = ref<any>({
   name: '',
-  status: '',
+  status: 'available',
   description: '',
   rent: '',
   roomType: null,
@@ -521,6 +402,7 @@ watch(
   (selectedId: any) => {
     const selectedRoom = roomTypeData.value.find((room: any) => room.id === selectedId)
     formData.value.rent = selectedRoom ? selectedRoom.price : 0
+    formData.value.capacity = selectedRoom ? selectedRoom.defaultGuest : 0
   },
 )
 
@@ -585,7 +467,9 @@ const defaultOptionsByType = computed(() => {
     })
   return grouped
 })
-
+watch(() => formData.value.number, (va: string) => {
+  formData.value.name = `${t('Room')} ${va}`
+});
 const defaultOptionsMap = computed(() => {
   const map: Record<number, OptionType> = {}
   options.value.forEach((opt: OptionType) => {
@@ -617,9 +501,9 @@ const saveFormData = async () => {
   isLoading.value = true
   try {
     // Validation de l'unicité du numéro
-      const existingRoomNumbers = ServiceProduct.value
+    const existingRoomNumbers = ServiceProduct.value
       .map((room: any) => String(room.roomNumber))
-      .filter((num:any) => num !== 'null' && num !== 'undefined')
+      .filter((num: any) => num !== 'null' && num !== 'undefined')
 
     if (existingRoomNumbers.includes(String(formData.value.number))) {
       showError(t('Errors.roomNumberExists'))
@@ -1088,7 +972,7 @@ const onDeleteFromModal = (room: any) => {
 const applyFilter = async (filter: RoomFilterItem) => {
   loading.value = true
   const res = await filterRoom(serviceStore.serviceId!, filter)
-   ServiceProduct.value = res.data
+  ServiceProduct.value = res.data
   console.log('re', res)
 
   loading.value = false
