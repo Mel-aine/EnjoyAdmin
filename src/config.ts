@@ -1,2 +1,2 @@
-export const CLOUDINARY_NAME = 'djfalibod'
-export const CLOUDINARY_UPLOAD_PRESET = 'my_unsigned_preset'
+export const CLOUDINARY_NAME = 'dpcxvovre'
+export const CLOUDINARY_UPLOAD_PRESET = 'unsigned_preset'

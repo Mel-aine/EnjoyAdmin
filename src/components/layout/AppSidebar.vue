@@ -25,18 +25,18 @@
         'pt-4 pb-4 flex-shrink-0',
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
-        <router-link to="/dashboard" class="flex items-center gap-2">
+        <router-link to="/dashboard" class="flex items-center gap-2" >
           <img v-if="isExpanded || isHovered || isMobileOpen"
             class="dark:hidden rounded-full w-10"
-            src="/src/assets/images/header/logo2.png"
+            :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
             alt="Logo" />
           <img v-if="isExpanded || isHovered || isMobileOpen"
             class="hidden dark:block rounded-full w-10"
-            src="/src/assets/images/header/logo2.png"
+          :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
             alt="Logo" />
           <img v-else
             class="rounded-full w-10"
-            src="/src/assets/images/header/logo2.png"
+           :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
             alt="Logo" />
           <span v-if="isExpanded || isHovered || isMobileOpen"
             class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
@@ -325,6 +325,14 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
       (item.subItems.some((subItem: any) => isActive(subItem.path)) || isSubSubmenuActive))
   );
 };
+const currentService = computed(() => {
+  try {
+    return JSON.parse(serviceStore.currentService || '{}');
+  } catch (e:any) {
+    return {};
+  }
+});
+
 
 const isSubSubmenuOpen = (
   groupIndex: number,

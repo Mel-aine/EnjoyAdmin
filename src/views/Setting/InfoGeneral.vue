@@ -38,7 +38,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="mb-4">
-        <Select :lb="t('Numberofstars')" :options="stars" />
+        <Select :lb="t('Numberofstars')" :options="stars" v-model="formData.stars" />
       </div>
 
       <div class="mb-4">
