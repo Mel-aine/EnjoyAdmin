@@ -308,8 +308,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit'])
 const genders = ref([
-  { label: t('Male'), value: 'male' },
-  { label: t('Female'), value: 'female' },
+  { label: t('male'), value: 'male' },
+  { label: t('female'), value: 'female' },
 ])
 
 const africanCountries = computed(() => [

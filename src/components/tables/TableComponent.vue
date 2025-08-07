@@ -245,6 +245,11 @@
                           class="text-gray-900 dark:text-white font-medium text-sm capitalize truncate block max-w-full"
                           :title="$t(row[item.name]??'')">{{ $t(row[item.name]??'') }}</span>
                       </template>
+                      <template v-else-if="item.isCountry">
+<span
+                          class="text-gray-900 dark:text-white font-medium text-sm capitalize truncate block max-w-full"
+                          :title="$t( row[item.name]?('countries_list.'+row[item.name]):'')">{{$t( row[item.name]?('countries_list.'+row[item.name]).toLowerCase():'')}}</span>
+                      </template>
                       <template v-else>
                         <span
                           class="text-gray-900 dark:text-white font-medium text-sm capitalize truncate block max-w-full"
@@ -336,7 +341,8 @@ interface TableColumn {
     placeholder: string
   }
   event?: string | any
-  colored?: boolean
+  colored?: boolean,
+  isCountry?:boolean
 }
 
 interface FilterOption {

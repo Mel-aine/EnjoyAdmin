@@ -7,17 +7,8 @@
           <DropdownMenu :menu-items="menuItems">
             <template #icon>
               <button class="border border-gray-300 bg-purple-400 rounded-lg relative">
-                <svg
-                  class="h-8 w-8 text-white"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
+                <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" />
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
@@ -27,24 +18,13 @@
           </DropdownMenu>
         </div>
 
-        <TableComponent
-          :items="titles"
-          :datas="customers"
-          :filterable="true"
-          :pagination="true"
-          :loading="loading"
-          :showHeader="true"
-          :title="$t('Customers')"
-          :pageSize="15"
-          :showButtonAllElement="true"
-          @view="onView"
-          class="modern-table"
-        />
+        <TableComponent :items="titles" :datas="customers" :filterable="true" :pagination="true" :loading="loading"
+          :showHeader="true" :title="$t('Customers')" :pageSize="15" :showButtonAllElement="true" @view="onView"
+          class="modern-table" />
       </div>
     </AdminLayout>
 
-    <ModalCustomer :isOpen="showModal"  :isEditMode="false" @close="handleCloseModal"
-      @submit="handleAddCustomer"  />
+    <ModalCustomer :isOpen="showModal" :isEditMode="false" @close="handleCloseModal" @submit="handleAddCustomer" />
 
   </div>
 </template>
@@ -53,7 +33,7 @@
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted, computed, reactive } from 'vue'
-import {  getCustomersList ,createCustomer } from '@/services/api'
+import { getCustomersList, createCustomer } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import type { userDataType, ReservationType } from '@/types/option'
@@ -100,12 +80,19 @@ const titles = computed(() => [
     type: 'text',
     filterable: false,
   },
-  // {
-  //   name: 'comment',
-  //   label: t('Comment'),
-  //   type: 'text',
-  //   filterable: true,
-  // },
+  {
+    name: 'country',
+    label: t('country'),
+    type: 'text',
+    filterable: true,
+    isCountry:true
+  },
+  {
+    name: 'address',
+    label: t('address'),
+    type: 'text',
+    filterable: true,
+  },
   {
     name: 'actions',
     label: t('Actions'),
@@ -150,17 +137,17 @@ const fetchCustomers = async () => {
     loading.value = true
     const serviceId = serviceStore.serviceId;
     const response = await getCustomersList(serviceId!);
-    customers.value= response.data.map((c:any)=>{
-      return{
+    customers.value = response.data.map((c: any) => {
+      return {
         ...c,
         userFullName: `${c.firstName} ${c.lastName}`,
       }
     })
-    console.log("customers",customers.value)
+    console.log("customers", customers.value)
 
   } catch (error) {
     console.error('Failed to fetch reservations:', error);
-  }finally {
+  } finally {
     loading.value = false
   }
 };
@@ -208,6 +195,4 @@ onMounted(async () => {
 
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
