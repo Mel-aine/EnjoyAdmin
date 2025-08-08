@@ -194,13 +194,13 @@
       <template #left>
         <div class="text-center">
           <div class="font-bold text-sm ">{{ $t('Amount Due') }}</div>
-          <div class="font-bold text-xl">{{ formatCurrency(tooltipReservation.remaining_amount ?? 0) }}</div>
+          <div class="font-bold text-lg">{{ formatCurrency(tooltipReservation.remaining_amount ?? 0) }}</div>
         </div>
       </template>
       <template #right>
         <div class="text-center">
           <div class="font-bold text-sm">{{ $t('paid') }}</div>
-          <div class="font-bold text-xl">{{ formatCurrency(tooltipReservation.total_amount ?? 0) }}</div>
+          <div class="font-bold text-lg">{{ formatCurrency(tooltipReservation.total_amount ?? 0) }}</div>
         </div>
       </template>
     </ChevronInfo>
@@ -225,8 +225,9 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getDailyOccupancyAndReservations } from "@/services/api"
 import router from '@/router'
-import { isLoading } from '@/composables/spinner'
 
+
+const isLoading = ref(false);
 function getReservationTypeIcon(type: string) {
   switch (type) {
     case 'Direct Booking': return BookIcon;
