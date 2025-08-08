@@ -678,6 +678,7 @@ const titles = computed(() => [
     label: t('category'),
     type: 'text',
     filterable: true,
+    isTranslatable:true
   },
   // {
   //   name: 'departmentName',
@@ -909,7 +910,7 @@ onMounted(async () => {
 
     const responseData = await getCategory(serviceId)
     expenseCategories.value = responseData.data.map((c: any) => ({
-      label: c.name,
+      label: t(c.name),
       value: c.id,
     }))
 

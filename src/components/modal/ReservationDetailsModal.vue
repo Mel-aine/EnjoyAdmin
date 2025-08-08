@@ -556,7 +556,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
                 getBookingDetails();
                 toast.success(t('messages.success_checkin'));
             } else {
-                toast.error(t('messages.error_checkin'));
+               // toast.error(t('messages.error_checkin'));
             }
         }
         isLoading.value = false;
@@ -571,7 +571,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
                 getBookingDetails();
                 toast.success(t('messages.success_checkout'));
             } else {
-                toast.error(t('messages.error_checkout'));
+                //toast.error(t('messages.error_checkout'));
             }
         }
         isLoading.value = false;
@@ -586,7 +586,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
                 getBookingDetails();
                 toast.success(t('messages.success_checkin'));
             } else {
-                toast.error(t('messages.error_checkin'));
+                //toast.error(t('messages.error_checkin'));
             }
         }
         isLoading.value = false;
@@ -601,7 +601,7 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
                 getBookingDetails();
                 toast.success(t('messages.success_checkout'));
             } else {
-                toast.error(t('messages.error_checkout'));
+                //toast.error(t('messages.error_checkout'));
             }
         }
         isLoading.value = false;
