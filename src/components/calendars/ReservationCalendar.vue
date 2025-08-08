@@ -469,6 +469,7 @@ const getLocaleDailyOccupancyAndReservations = async () => {
   isLoading.value = false;
 }
 const refresh =async ()=>{
+  showModalAddingModal.value = false;
   const serviceId = serviceStore.serviceId!
   const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
   serviceResponse.value = response.data

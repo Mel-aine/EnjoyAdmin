@@ -187,9 +187,7 @@ import OutputFieldCurrency from '@/components/forms/FormElements/outputFieldCurr
 import { useBooking } from '@/composables/useBooking'
 import PaymentModal from '@/views/Bookings/PaymentModal.vue'
 
-const emit = defineEmits(['refresh'])
-emit('refresh');
-
+const emit = defineEmits(['refresh','close'])
 const {
     isLoading,
     isPaymentModalOpen,
