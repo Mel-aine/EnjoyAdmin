@@ -2762,6 +2762,7 @@
     "zw": "Zimbabwe"
   },
   "payLater": "Payer plus tard",
+  "RevPAR" : "Revenus par Mois",
   "none":"Aucun",
   "inventory_management": "Gestion des stocks",
   "cash_register": "Caisse"

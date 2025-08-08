@@ -2771,4 +2771,6 @@
   "none":"None",
   "inventory_management":"Inventories",
   "cash_register":"Cash register"
+  "search_country": "Search for a country...",
+  "RevPAR" : "Earnings per Month"
 }

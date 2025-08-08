@@ -43,7 +43,7 @@
 
       <!-- Stats Dashboard -->
       <div class="px-4 sm:px-6 lg:px-8 py-6">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-4">
               <div class="flex items-center">
@@ -76,7 +76,7 @@
             </div>
           </div>
 
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <!-- <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -90,7 +90,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-4">
@@ -168,7 +168,7 @@
                 >
                   <option value="">{{ $t('All_statuses') }}</option>
                   <option value="available">{{ $t('Available') }}</option>
-                  <option value="booked">{{ $t('Booked') }}</option>
+                  <!-- <option value="booked">{{ $t('Booked') }}</option> -->
                   <option value="occupied">{{ $t('Occupied') }}</option>
                   <option value="out_of_order">{{ $t('statut.outOfOrder') }}</option>
                   <option value="cleaning">{{ $t('Cleaning') }}</option>
