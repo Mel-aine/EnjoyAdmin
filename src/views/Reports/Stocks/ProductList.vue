@@ -195,7 +195,7 @@ const titles = computed(() => [
   {
     name: 'categoryName',
     label: t('category'),
-    type: 'date',
+    type: 'text',
     filterable: true,
   },
   // {
