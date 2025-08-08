@@ -389,15 +389,15 @@ function goBack() {
                                     {{ amenity.description }}
                                 </p>
                                 <div
-                                    class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-auto pt-4 border-t border-gray-100">
-                                    <span class="text-xl sm:text-2xl font-bold text-blue-600 mb-3 sm:mb-0">
+                                    class="flex flex-row  md:flex-col   justify-between items-start sm:items-center mt-auto pt-4 border-t border-gray-100">
+                                    <div class="text-xl sm:text-2xl font-bold text-blue-600 mb-7 sm:mb-0">
                                         {{ formatCurrency(amenity.price) }}
                                         <span v-if="amenity.pricingModel === 'time_based' && amenity.timeUnit"
                                             class="text-base font-normal text-gray-500">
                                             / {{ $t(amenity.timeUnit) }}
                                         </span>
-                                    </span>
-                                    <div class="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+                                    </div>
+                                    <div class="mt-4 flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                                         <div v-if="bookingCart.find(item => item.id === amenity.id)"
                                             class="flex items-center space-x-2 bg-gray-100 rounded-lg p-1 shadow-inner">
                                             <button @click="handleUpdateQuantity(amenity.id, -1)"
@@ -478,10 +478,10 @@ function goBack() {
                     </ul>
                     <div class="mt-6 pt-4 border-t-2 border-gray-200 flex justify-between items-center">
                         <span class="text-xl sm:text-2xl font-bold text-gray-800">{{ t('amenities_booking.total')
-                        }}</span>
+                            }}</span>
                         <span class="text-xl sm:text-2xl font-bold text-blue-600">{{
                             formatCurrency(totalBookingAmount.toFixed(2))
-                            }}</span>
+                        }}</span>
                     </div>
                     <button @click="proceedCheckout"
                         class="mt-6 w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg hover:from-blue-700 hover:to-indigo-800 transition duration-200 shadow-lg text-lg sm:text-xl font-semibold transform hover:scale-105 flex items-center justify-center"
