@@ -49,6 +49,7 @@ export function useBooking() {
   const manualTotalGuests = ref<number | null>(null)
   const availableTakens = ref<string[]>([])
   const selectBooking = ref<ReservationDetails | null>(null)
+  const emit = defineEmits(['refresh'])
   const updateRoomSelections = (newSelections: RoomSelection[]) => {
     selectedProducts.value = newSelections
   }
@@ -270,6 +271,10 @@ export function useBooking() {
     isPaymentModalOpen.value = false
     if (selectBooking.value)
       router.push({ name: 'reservationDetails', params: { id: selectBooking.value.id } })
+  }
+  const closeModalPayment = ()=>{
+        isPaymentModalOpen.value = false;
+        emit('refresh');
   }
   const savePayment = async () => {
     isLoading.value = true
@@ -701,5 +706,6 @@ export function useBooking() {
     remainingAmount,
     roomChange,
     canSave,
+    closeModalPayment
   }
 }

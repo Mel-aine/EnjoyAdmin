@@ -165,7 +165,7 @@
                 </DefaultCard>
             </div>
             <template v-if="selectBooking">
-                <PaymentModal :reservation="selectBooking" :is-open="isPaymentModalOpen" @close="closePaymentModal" @payment-recorded="closePaymentModal" />
+                <PaymentModal :reservation="selectBooking" :is-open="isPaymentModalOpen" @close="closeModalPayment" @payment-recorded="closeModalPayment" />
             </template>
         </div>
     </div>
@@ -197,7 +197,7 @@ const {
     availableTakens,
     updateRoomSelections,
     updateTotalPrice,
-    closePaymentModal,
+    closeModalPayment,
     selectBooking,
     fetchServiceData,
     fetchServiceProduct,

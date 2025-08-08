@@ -98,4 +98,10 @@ const selectRoomChange = (roomSelect: RoomSelection, index: number) => {
 const roomChange = (room_id: string) => {
   emit('roomChange', room_id)
 }
+ watch(()=>props.numberOfNights,(va)=>{
+  roomSelections.value = roomSelections.value.map((e:any)=>{
+    e.numberOfNights = va
+    return e
+  })
+ })
 </script>

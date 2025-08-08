@@ -188,7 +188,7 @@
     </ChevronInfo>
     <div class="flex gap-2 mt-2 mb-2">
       <div class="text-md text-gray-500">{{ $t('Comment') }}:</div>
-      <div>{{ tooltipReservation.comment || 'none' }}</div>
+      <div>{{ tooltipReservation.comment || $t('none') }}</div>
     </div>
     <ChevronInfo>
       <template #left>
@@ -205,7 +205,7 @@
       </template>
     </ChevronInfo>
   </div>
-  <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
+  <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
   <template v-if="modalReservation && showDetail">
     <ReservationDetailsModal :reservation_id="modalReservation.reservation_id" @close="closeReservationModal" />
   </template>
@@ -419,6 +419,8 @@ function formatTime(dt: string) {
 function getReservationStyle(cell: any) {
   const { is_check_in, is_check_out, colspan } = cell;
 
+
+
   let width = 'calc(100% - 4px)';
   let left = '2px';
 
@@ -434,9 +436,8 @@ function getReservationStyle(cell: any) {
     } else if (is_check_in) {
       width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
       left = `calc(${0.5 / colspan * 100}% + 2px)`;
-    } else if (is_check_out) {
-      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
-      left = '2px';
+    }  else if (is_check_out) {
+        width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
     }
   }
 
@@ -466,6 +467,11 @@ const getLocaleDailyOccupancyAndReservations = async () => {
   serviceResponse.value = response.data
   console.log('this is the response', response)
   isLoading.value = false;
+}
+const refresh =async ()=>{
+  const serviceId = serviceStore.serviceId!
+  const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+  serviceResponse.value = response.data
 }
 function prevDay() {
   const d = new Date(selectedDate.value)

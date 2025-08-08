@@ -2761,5 +2761,6 @@
     "zm": "Zambie",
     "zw": "Zimbabwe"
   },
-  "payLater": "Payer plus tard"
+  "payLater": "Payer plus tard",
+  "none":"Aucun"
 }
