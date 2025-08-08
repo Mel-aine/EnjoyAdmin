@@ -212,6 +212,7 @@ const titles = computed(() => [
     label: t('product'),
     type: 'text',
     filterable: true,
+    isTranslatable:true
   },
   {
     name: 'statusColor',
@@ -230,6 +231,7 @@ const titles = computed(() => [
     label: t('category'),
     type: 'text',
     filterable: true,
+    isTranslatable:true
   },
   {
     name: 'destination',
@@ -342,7 +344,7 @@ const fetchCategorie = async () => {
     const response = await getCategory(serviceId)
 
     categories.value = response.data.map((item: any) => ({
-      label: item.name,
+      label: t(item.name),
       value: item.id,
     }))
     console.log('cate:', categories.value)
@@ -582,7 +584,7 @@ watch(
     // If the currently selected product is not in the filtered list, reset it
     productData.value = product.value.filter((p: any) => p.stockCategoryId === newSourceId)?.map((el: any) => ({
       value: el.id,
-      label: el.name,
+      label: t(el.name),
     }))
   }
 )

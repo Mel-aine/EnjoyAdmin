@@ -98,6 +98,7 @@ const titles = computed(() => [
     label: t('Name'),
     type: 'text',
     filterable: true,
+    isTranslatable:true
   },
 
   {
@@ -269,9 +270,8 @@ const fetchCategorie = async () => {
 }
 
 onMounted(async () => {
-  fetchCategorie()
-  await new Promise(resolve => setTimeout(resolve, 500))
-
+  loading.value = true
+  await fetchCategorie()
   loading.value = false
 })
 

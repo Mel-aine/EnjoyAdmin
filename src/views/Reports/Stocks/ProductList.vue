@@ -14,9 +14,9 @@
           <div v-if="isDropdownOpen" class="absolute right-0 mt-10 w-44 bg-white rounded-lg shadow z-50">
             <ul class="py-2 text-sm text-gray-700">
               <li><button @click="modalOpen = true" class="block px-4 py-2 hover:text-purple-600">{{ $t('addProduct')
-                  }}</button></li>
+              }}</button></li>
               <li><button @click="importProducts" class="block px-4 py-2 hover:text-purple-600">{{ $t('importProduct')
-                  }}</button></li>
+              }}</button></li>
             </ul>
           </div>
         </div>
@@ -26,7 +26,7 @@
 
           <TableComponent :items="titles" :datas="filteredProductWithNames" :filterable="true" :pagination="true"
             :loading="loading" :showHeader="true" :title="$t('products')" :pageSize="15" :showButtonAllElement="true"
-            @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table"  />
+            @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table" />
         </div>
       </FullScreenLayout>
     </AdminLayout>
@@ -172,6 +172,7 @@ const titles = computed(() => [
     name: 'name',
     label: t('Name'),
     type: 'text',
+    isTranslatable: true,
     filterable: false,
   },
   {
@@ -197,6 +198,8 @@ const titles = computed(() => [
     label: t('category'),
     type: 'text',
     filterable: true,
+    isTranslatable: true
+
   },
   // {
   //   name: 'statusColor',
@@ -540,7 +543,7 @@ const importProducts = () => {
       isLoading.value = false;
 
     });
-  } catch (e:any) {
+  } catch (e: any) {
     console.error('Error importing products:', e);
     isLoading.value = false;
     toast.error(t('toast.importError'));
