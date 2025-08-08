@@ -20,7 +20,7 @@
             ></div>
           </div>
         </button>
-        <button
+        <!-- <button
           class="text-gray-400 hover:text-gray-700 relative"
           :class="getButtonClass('monthly')"
           @click="handleViewChange('monthly')"
@@ -35,7 +35,7 @@
               class="w-4 h-4 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"
             ></div>
           </div>
-        </button>
+        </button> -->
         <button
           class="text-gray-400 hover:text-gray-700 relative"
           :class="getButtonClass('yearly')"

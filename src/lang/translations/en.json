@@ -2767,5 +2767,6 @@
     "zw": "Zimbabwe"
   },
   "payLater": "Pay later",
-  "search_country": "Search for a country..."
+  "search_country": "Search for a country...",
+  "RevPAR" : "Earnings per Month"
 }

@@ -42,7 +42,7 @@
 
       <!-- Typologie des clients -->
       <div class="col-span-12 xl:col-span-5">
-        <guest-demographics :stay-duration="stayDuration" :originData="Demographic" />
+        <guest-demographics :stay-duration="stayDuration" :originData="Demographic" :customerTypes="customerTypes" />
       </div>
 
       <!-- Réservations récentes -->
@@ -68,7 +68,8 @@ import {
   getStayDuration,
   getRecentReservation,
   getDemographic,
-  getReservationType
+  getReservationType,
+  getCustomerType
 } from '@/services/dashboard'
 
 const AdminLayout = defineAsyncComponent(() => import('../components/layout/AdminLayout.vue'))
@@ -99,6 +100,7 @@ const EarningsData = ref<any>(null)
 const reservations = ref<any[]>([])
 const Demographic = ref<any[]>([])
 const Reservations = ref<any[]>([])
+const customerTypes = ref<Record<string, string>[]>([])
 
 const fetchGeneralStat = async () => {
   try {
@@ -254,8 +256,19 @@ const fetchRevenuData = async () => {
   }
 }
 
+// const fetchCustomerTypes = async() => {
+//     try {
+//       const serviceId = serviceStore.serviceId
+//       const response = await getCustomerType(serviceId)
+//       console.log('Customer Types:', response.data)
+//       customerTypes.value = response.data
+//     } catch (error) {
+//       console.error('Erreur lors de la récupération des types de clients:', error)
+//     }
+// }
 
-
-
+// onMounted(() => {
+//   fetchCustomerTypes()
+// })
 
 </script>

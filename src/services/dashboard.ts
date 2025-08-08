@@ -185,6 +185,18 @@ export const getDemographic = async (serviceId: number | null): Promise<any> => 
   }
 }
 
+export const getCustomerType = async (serviceId: number | null): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
+      `/customer-types/${serviceId}`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération de getCustomerType:', error)
+    return []
+  }
+}
+
 export const getReservationType = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
