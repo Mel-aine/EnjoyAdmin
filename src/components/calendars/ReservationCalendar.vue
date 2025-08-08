@@ -12,7 +12,7 @@
         <div>
           <h1 class="text-3xl font-extrabold text-white drop-shadow">{{ $t('Reservations Calendar') }}</h1>
           <div class="text-sm text-blue-100 font-medium mt-1">{{ $t('Manage and view all reservations by date and room')
-          }}</div>
+            }}</div>
         </div>
       </div>
       <div class="flex gap-2 flex-wrap items-center">
@@ -50,7 +50,7 @@
             </tr>
           </thead>
           <tbody>
-            <template v-if="isLoading">
+            <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
               <tr v-for="i in 8" :key="i">
                 <td class="px-2 py-1">
                   <div class="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
@@ -74,10 +74,14 @@
                   <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
                     <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
                       class="relative px-0 py-0 h-12 border border-gray-300">
+
                       <div :class="[
-                        'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[95%]',
-                        getReservationColor(cell.reservation.reservation_status)
-                      ]" @click="showReservationModal(cell.reservation)"
+                        'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                        getReservationColor(cell.reservation.reservation_status),
+                      ]" 
+                      
+                      :style="getReservationStyle(cell)"
+                      @click="showReservationModal(cell.reservation)"
                         @mouseenter="showReservationTooltip(cell.reservation, $event)"
                         @mouseleave="hideReservationTooltip">
                         <span>
@@ -155,7 +159,8 @@
       <div class="font-bold">{{ $t('guests') }}: {{ tooltipReservation.guests }} {{ $t('guests') }}</div>
       <div>{{ $t('Guest name') }}: <span class="font-bold">{{ tooltipReservation.guest_name }}</span></div>
       <div>{{ $t('reservation_id') }}: <span class="font-bold">{{ tooltipReservation.reservation_id }}</span></div>
-      <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span></div>
+      <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span>
+      </div>
       <div class="flex gap-3 mt-2">
         <span class="flex items-center gap-1">
           <component :is="getReservationTypeIcon(tooltipReservation.reservation_type)" class="w-4 h-4" />
@@ -342,10 +347,27 @@ function getRoomRowCellsApi(group: any, room: any) {
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
       const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
 
+
+
+      const is_check_in = reservation.check_in_date.startsWith(dStr);
+
+      const reservationDates = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible);
+      const lastVisibleDateOfReservation = reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null;
+      const checkOutDate = new Date(reservation.check_out_date);
+
+      const is_check_out = lastVisibleDateOfReservation && (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() && lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() && lastVisibleDateOfReservation.getDate() === checkOutDate.getDate());
+
+
+
+
+
       cells.push({
         type: 'reservation',
         reservation,
+        middle: reservation.check_in_date.startsWith(dStr),
         colspan,
+        is_check_in,
+        is_check_out,
         date,
         key: i
       })
@@ -393,6 +415,33 @@ function formatDay(date: Date) {
 function formatTime(dt: string) {
   return new Date(dt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
+
+function getReservationStyle(cell: any) {
+  const { is_check_in, is_check_out, colspan } = cell;
+
+  let width = 'calc(100% - 4px)';
+  let left = '2px';
+
+  if (colspan > 0) {
+    if (is_check_in && is_check_out) {
+      if (colspan === 1) {
+        width = 'calc(50% - 4px)';
+        left = 'calc(25% + 2px)';
+      } else {
+        width = `calc(${(colspan - 1) / colspan * 100}% - 4px)`;
+        left = `calc(${0.5 / colspan * 100}% + 2px)`;
+      }
+    } else if (is_check_in) {
+      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
+      left = `calc(${0.5 / colspan * 100}% + 2px)`;
+    } else if (is_check_out) {
+      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
+      left = '2px';
+    }
+  }
+
+  return { width, left };
+}
 function getReservationColor(type: string) {
   switch (type) {
     case 'confirmed': return 'bg-green-500'
@@ -407,6 +456,7 @@ function getReservationColor(type: string) {
     default: return 'bg-gray-400'
   }
 }
+
 
 // --- API CALL ---
 const getLocaleDailyOccupancyAndReservations = async () => {
