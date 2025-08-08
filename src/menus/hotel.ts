@@ -23,6 +23,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           path: '/dashboard',
           permission: 'dashboard_view',
         },
+
         {
           icon: CalendarCheck2,
           name: t('Bookings'),
@@ -39,6 +40,29 @@ export const getHotelMenu = (t: (key: string) => string) => {
               permission: 'bookings_create',
             },
           ],
+        },
+        {
+          icon: Banknote,
+          name: t('cash_register'),
+          subItems: [
+            {
+              name: t('Expenses'),
+              path: '/expense',
+              permission: 'expenses_view',
+            },
+            {
+              name: t('Payments'),
+              path: '/allInvoice',
+              permission: 'billing_manage',
+            },
+            { name: t('Refunds'), path: '/refunds' }, // Pas de permission spécifique définie
+          ],
+        },
+        {
+          icon: UsersRound,
+          name: t('Customers'),
+          path: '/customers',
+          permission: 'customers_view',
         },
         {
           icon: BedDouble,
@@ -62,84 +86,59 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
           ],
         },
-        {
+        /* {
           icon: CalendarDays,
           name: t('Calendar'),
           path: '/calendar',
           permission: 'calendar_view',
-        },
+        },*/
         {
           icon: CommandIcon,
           name: t('amenities'),
           path: '/amenities',
         },
         {
-          icon: Building2,
-          name: t('Department'),
-          path: '/department',
-          permission: 'departments_view',
-        },
-        {
           icon: ClipboardPlus,
-          name: t('Reports'),
+          name: t('inventory_management'),
           permission: 'reports_view',
           subItems: [
             {
-              name: t('Stocks'),
-              path: '/stock',
-              permission: 'inventory_view',
-              subItems: [
-                {
-                  name: t('StockList'),
-                  path: '/stock/product',
-                  permission: 'inventory_read',
-                },
-                {
-                  name: t('StockMovements'),
-                  path: '/stock/movements',
-                  permission: 'inventory_history_view',
-                },
-                {
-                  name: t('StockCategory'),
-                  path: '/stock/categorie',
-                  permission: 'inventory_category_view',
-                },
-                {
-                  name: t('Suppliers'),
-                  path: '/stock/suppliers',
-                  permission: 'suppliers_view',
-                },
-              ],
+              name: t('StockList'),
+              path: '/stock/product',
+              permission: 'inventory_read',
             },
             {
-              name: t('Expenses'),
-              path: '/expense',
-              permission: 'expenses_view',
+              name: t('StockMovements'),
+              path: '/stock/movements',
+              permission: 'inventory_history_view',
             },
-            { name: t('Refunds'), path: '/refunds' }, // Pas de permission spécifique définie
+            {
+              name: t('StockCategory'),
+              path: '/stock/categorie',
+              permission: 'inventory_category_view',
+            },
+            {
+              name: t('Suppliers'),
+              path: '/stock/suppliers',
+              permission: 'suppliers_view',
+            },
           ],
         },
         {
-          icon: UsersRound,
-          name: t('Customers'),
-          path: '/customers',
-          permission: 'customers_view',
-        },
-        {
-          icon: Banknote,
-          name: t('Payments'),
-          path: '/allInvoice',
-          permission: 'billing_manage',
-        },
-        {
           icon: UserCircleIcon,
-          name: t('Staff Management'),
+          name: t('HR'),
           permission: 'staff_view',
           subItems: [
             {
               name: t('Dashboard Overview'),
               path: '/staff_management/dashboard',
               permission: 'staff_dashboard_view',
+            },
+            {
+              icon: Building2,
+              name: t('Department'),
+              path: '/department',
+              permission: 'departments_view',
             },
             {
               name: t('Staff Management'),

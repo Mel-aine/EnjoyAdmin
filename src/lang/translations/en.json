@@ -2768,5 +2768,7 @@
   },
   "payLater": "Pay later",
   "search_country": "Search for a country...",
-  "none":"None"
+  "none":"None",
+  "inventory_management":"Inventories",
+  "cash_register":"Cash register"
 }
