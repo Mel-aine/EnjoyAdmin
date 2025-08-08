@@ -2,32 +2,32 @@
   <div>
     <AdminLayout>
       <FullScreenLayout>
-      <PageBreadcrumb :pageTitle="$t('product')" />
-      <div class="flex justify-end pb-5 relative">
-        <!-- Add/Import Dropdown -->
-        <button class="border border-gray-300 bg-purple-400 rounded-lg" @click="toggleDropdown">
-          <svg class="h-8 w-8 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-        <div v-if="isDropdownOpen" class="absolute right-0 mt-10 w-44 bg-white rounded-lg shadow z-50">
-          <ul class="py-2 text-sm text-gray-700">
-            <li><button @click="modalOpen = true" class="block px-4 py-2 hover:text-purple-600">{{ $t('addProduct')
-                }}</button></li>
-            <li><button @click="importProducts" class="block px-4 py-2 hover:text-purple-600">{{ $t('importProduct')
-                }}</button></li>
-          </ul>
+        <PageBreadcrumb :pageTitle="$t('products')" />
+        <div class="flex justify-end pb-5 relative">
+          <!-- Add/Import Dropdown -->
+          <button class="border border-gray-300 bg-purple-400 rounded-lg" @click="toggleDropdown">
+            <svg class="h-8 w-8 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+          <div v-if="isDropdownOpen" class="absolute right-0 mt-10 w-44 bg-white rounded-lg shadow z-50">
+            <ul class="py-2 text-sm text-gray-700">
+              <li><button @click="modalOpen = true" class="block px-4 py-2 hover:text-purple-600">{{ $t('addProduct')
+                  }}</button></li>
+              <li><button @click="importProducts" class="block px-4 py-2 hover:text-purple-600">{{ $t('importProduct')
+                  }}</button></li>
+            </ul>
+          </div>
         </div>
-      </div>
 
-      <!-- Data Table -->
-      <div class="space-y-5 sm:space-y-6 mt-10">
+        <!-- Data Table -->
+        <div class="space-y-5 sm:space-y-6 mt-10">
 
-        <TableComponent :items="titles" :datas="filteredProductWithNames" :filterable="true" :pagination="true"
-          :loading="loading" :showHeader="true" :title="$t('product')" :pageSize="15" :showButtonAllElement="true"
-          @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table" />
-      </div>
+          <TableComponent :items="titles" :datas="filteredProductWithNames" :filterable="true" :pagination="true"
+            :loading="loading || isLoading" :showHeader="true" :title="$t('products')" :pageSize="15" :showButtonAllElement="true"
+            @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table"  />
+        </div>
       </FullScreenLayout>
     </AdminLayout>
 
@@ -126,7 +126,7 @@ const toggleDropdown = () => {
 interface Product {
   name: string,
   code: string,
-  quantity:  string | number | undefined,
+  quantity: string | number | undefined,
   supplier: string | number | undefined,
   status: string,
   category: string | number | undefined,
@@ -302,8 +302,6 @@ onMounted(async () => {
   await fetchCategorie()
   await new Promise(resolve => setTimeout(resolve, 500))
   await fetchProduct()
-  console.log("eeeeeeeeeeeeeee", filteredProductWithNames.value)
-
   loading.value = false
 })
 
@@ -369,7 +367,7 @@ const fetchProduct = async () => {
       const statusClasses = getStatusColor(p.status).split(' ');
       return {
         ...p,
-        name:t(p.name),
+        name: t(p.name),
         statusColor: {
           label: p.status,
           bg: statusClasses[0],
@@ -512,34 +510,40 @@ const confirmDelete = async () => {
 const importProducts = () => {
   const productCategories = defaultProducts;
   isLoading.value = true
-  const serviceId = serviceStore.serviceId;
-  console.log('categories.value:', categories.value);
-  productCategories.forEach(async (category: any) => {
-    const categoryId = categories.value.find((s: any) => s.label === category.name)?.value;
-    if (!categoryId) {
-      console.error(`Category not found for name: ${category.name}`);
-      return;
-    }
-    console.log('Category ID:', categoryId);
-    for (const product of category.products) {
-      const productPayload = {
-        code: product.code,
-        name: product.name,
-        quantity_available: 0,
-        service_id: serviceId,
-        stock_category_id: categoryId,
-        price: 0,
-        supplier_name: null,
-        status: 'active',
-      };
-      const productResponse = await createProduct(productPayload);
-      console.log('Product created:', productResponse.data);
-    }
-    toast.success(t('toast.importSuccess'));
-    fetchProduct();
-    isLoading.value = false;
+  try {
+    const serviceId = serviceStore.serviceId;
+    console.log('categories.value:', categories.value);
+    productCategories.forEach(async (category: any) => {
+      const categoryId = categories.value.find((s: any) => s.label === category.name)?.value;
+      if (!categoryId) {
+        console.error(`Category not found for name: ${category.name}`);
+        return;
+      }
+      console.log('Category ID:', categoryId);
+      for (const product of category.products) {
+        const productPayload = {
+          code: product.code,
+          name: product.name,
+          quantity_available: 0,
+          service_id: serviceId,
+          stock_category_id: categoryId,
+          price: 0,
+          supplier_name: null,
+          status: 'active',
+        };
+        const productResponse = await createProduct(productPayload);
+        console.log('Product created:', productResponse.data);
+      }
+      toast.success(t('toast.importSuccess'));
+      fetchProduct();
+      isLoading.value = false;
 
-  });
+    });
+  } catch (e:any) {
+    console.error('Error importing products:', e);
+    isLoading.value = false;
+    toast.error(t('toast.importError'));
+  }
 }
 </script>
 

@@ -126,7 +126,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         },
         {
           icon: UserCircleIcon,
-          name: t('HR'),
+          name: t('RH'),
           permission: 'staff_view',
           subItems: [
             {

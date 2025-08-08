@@ -2764,5 +2764,6 @@
   "payLater": "Payer plus tard",
   "none":"Aucun",
   "inventory_management": "Gestion des stocks",
-  "cash_register": "Caisse"
+  "cash_register": "Caisse",
+  "RH":"HR"
 }
