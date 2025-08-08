@@ -187,6 +187,9 @@ import OutputFieldCurrency from '@/components/forms/FormElements/outputFieldCurr
 import { useBooking } from '@/composables/useBooking'
 import PaymentModal from '@/views/Bookings/PaymentModal.vue'
 
+const emit = defineEmits(['refresh'])
+emit('refresh');
+
 const {
     isLoading,
     isPaymentModalOpen,
@@ -197,7 +200,6 @@ const {
     availableTakens,
     updateRoomSelections,
     updateTotalPrice,
-    closeModalPayment,
     selectBooking,
     fetchServiceData,
     fetchServiceProduct,
@@ -230,6 +232,10 @@ onMounted(async () => {
     await fetchRoomType()
     await loadReservationData()
 })
+  const closeModalPayment = ()=>{
+        isPaymentModalOpen.value = false;
+        emit('refresh');
+  }
 </script>
 <style>
 
