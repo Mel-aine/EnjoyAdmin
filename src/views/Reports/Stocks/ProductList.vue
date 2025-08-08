@@ -25,7 +25,7 @@
         <div class="space-y-5 sm:space-y-6 mt-10">
 
           <TableComponent :items="titles" :datas="filteredProductWithNames" :filterable="true" :pagination="true"
-            :loading="loading || isLoading" :showHeader="true" :title="$t('products')" :pageSize="15" :showButtonAllElement="true"
+            :loading="loading" :showHeader="true" :title="$t('products')" :pageSize="15" :showButtonAllElement="true"
             @edit="onEditProduct" @delete="onDeleteProduct" class="modern-table"  />
         </div>
       </FullScreenLayout>
@@ -195,7 +195,7 @@ const titles = computed(() => [
   {
     name: 'categoryName',
     label: t('category'),
-    type: 'date',
+    type: 'text',
     filterable: true,
   },
   // {
@@ -298,6 +298,7 @@ const fetchCategorie = async () => {
 }
 
 onMounted(async () => {
+  loading.value = true
   await fetchSupplier()
   await fetchCategorie()
   await new Promise(resolve => setTimeout(resolve, 500))

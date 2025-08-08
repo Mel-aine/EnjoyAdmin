@@ -495,6 +495,7 @@ const getStatusColor = (status: string) => {
 }
 
 onMounted(async () => {
+  loading.value = true
   await fetchProduct()
   await fetchDepartment()
   await fetchCategorie()
@@ -506,6 +507,7 @@ onMounted(async () => {
 
 
 const fetchMovements = async () => {
+  loading.value = true
   try {
     const serviceId = serviceStore.serviceId
     const response = await getMovementService(serviceId)
