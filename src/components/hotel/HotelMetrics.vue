@@ -25,7 +25,7 @@
         <div class="p-4 bg-green-50 rounded-lg">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-gray-500">RevPAR</p>
+              <p class="text-sm text-gray-500">{{ $t('RevPAR') }}</p>
               <h3 class="text-2xl font-bold text-green-600">{{ revPAR }} XAF</h3>
 
               <p class="text-xs" :class="(revPARTrend ?? 0) > 0 ? 'text-green-500' : 'text-red-500'">
