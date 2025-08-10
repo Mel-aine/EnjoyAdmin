@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <ReportsLayout>
+    <div>
     <AdminLayout>
       <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('StockCategory')" />
@@ -52,7 +53,8 @@
       </Modal>
       </FullScreenLayout>
     </AdminLayout>
-  </div>
+    </div>
+  </ReportsLayout>
   <ModalDelete v-if="show" @close="closed" @delete="confirmDelete" :isLoading="loadingDelete" />
 </template>
 
@@ -71,6 +73,7 @@ import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import ModalDelete from "@/components/modal/ModalDelete.vue";
 import { hotel_product_categories } from "@/assets/data/productCategories";
+import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 // Données simulées
 const categories = ref<any[]>([]);
 const isLoading = ref(false)

@@ -16,6 +16,52 @@
 
             <!-- Quick Actions -->
             <div class="flex items-center space-x-3">
+              <!-- View Mode Toggle -->
+              <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                <button
+                  @click="viewMode = 'grid'"
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+                    viewMode === 'grid'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  {{ $t('Grid') }}
+                </button>
+                <button
+                  @click="viewMode = 'list'"
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+                    viewMode === 'list'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  {{ $t('List') }}
+                </button>
+                <button
+                  @click="viewMode = 'status'"
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+                    viewMode === 'status'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0V17m0-10a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2" />
+                  </svg>
+                  {{ $t('Status') }}
+                </button>
+              </div>
+
               <button
                 @click="refreshRooms"
                 :disabled="isLoading"
@@ -36,13 +82,24 @@
                 </svg>
                 {{ $t('export') }}
               </button>
+
+              <button
+                @click="openAuditTrail"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {{ $t('audit_trial') }}
+              </button>
             </div>
           </div>
 
       </div>
 
-      <!-- Stats Dashboard -->
-      <div class="px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Status View -->
+      <div v-if="viewMode === 'status'" class="px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Stats Dashboard -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-4">
@@ -141,7 +198,99 @@
           </div>
         </div>
 
-        <!-- Filters and Search -->
+        <!-- Status View Table -->
+        <div class="bg-white shadow rounded-lg mb-6">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">{{ $t('House Status View') }}</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {{ $t('Room Types') }}
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <div class="flex items-center justify-center">
+                        <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                        {{ $t('No Status') }}
+                      </div>
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <div class="flex items-center justify-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        {{ $t('Clean') }}
+                      </div>
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <div class="flex items-center justify-center">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                        {{ $t('Dirty') }}
+                      </div>
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <div class="flex items-center justify-center">
+                        <div class="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
+                        {{ $t('Out Of Order') }}
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr v-for="roomType in roomTypeStats" :key="roomType.id" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {{ roomType.name }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {{ roomType.noStatus }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {{ roomType.clean }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      <div class="flex flex-col space-y-1">
+                        <span>{{ roomType.dirty }}</span>
+                        <div v-if="roomType.dirtyRooms.length > 0" class="space-y-1">
+                          <div v-for="room in roomType.dirtyRooms" :key="room.id" 
+                               class="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clip-rule="evenodd" />
+                            </svg>
+                            {{ room.productName }}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {{ roomType.outOfOrder }}
+                    </td>
+                  </tr>
+                  <!-- Total Row -->
+                  <tr class="bg-gray-50 font-semibold">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                      {{ $t('Total') }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      {{ totalStats.noStatus }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      {{ totalStats.clean }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      {{ totalStats.dirty }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      {{ totalStats.outOfOrder }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters and Search (for Grid and List views) -->
+      <div v-if="viewMode !== 'status'" class="px-4 sm:px-6 lg:px-8">
         <div class="bg-white shadow rounded-lg mb-6">
           <div class="p-4 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
@@ -217,7 +366,8 @@
         </div>
 
 
-          <div  class="mt-10">
+          <!-- Room Grid View -->
+          <div v-if="viewMode === 'grid'" class="mt-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
@@ -231,6 +381,19 @@
                 @status-change="handleQuickStatusChange"
               />
             </div>
+          </div>
+
+          <!-- Room Table View -->
+          <div v-if="viewMode === 'list'" class="mt-10 bg-white rounded-lg shadow">
+            <ReusableTable
+              :data="paginatedRooms"
+              :columns="tableColumns"
+              :actions="tableActions"
+              :loading="isLoading"
+              :searchable="false"
+              :selectable="false"
+              @action="onTableAction"
+            />
           </div>
 
 
@@ -432,6 +595,7 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import { ref, computed, onMounted, watch } from 'vue'
 import RoomCard from './RoomCard.vue'
 import StatusChangeModal from './StatusChangeModal.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useServiceStore } from '@/composables/serviceStore';
 import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus,getServiceProductsWithDetails } from "@/services/api";
 import { checkInReservations, checkOutReservations, getRoomReservations } from "@/services/reservation";
@@ -459,6 +623,7 @@ const currentPage = ref<any>(1);
 const showStatusModal = ref(false);
 const selectedRoom = ref<any>(null);
 const showMaintenanceModal = ref(false)
+const viewMode = ref<'grid' | 'list'>('grid')
 const { t, locale } = useI18n()
 const showMessage = ref(false)
 const popupMessage = ref('')
@@ -689,9 +854,117 @@ const getRoomTypeName = (id: number): string => {
   return roomTypeData.value.find((t: any) => t.value === id)?.label || '';
 };
 
+// Room type statistics for status table
+const roomTypeStats = computed(() => {
+  const typeStats: any[] = [];
+  
+  roomTypeData.value.forEach(roomType => {
+    const roomsOfType = flattenServiceProducts.value.filter((room: any) => room.productType === roomType.value);
+    
+    const stats = {
+      id: roomType.value,
+      name: roomType.label,
+      noStatus: roomsOfType.filter((room: any) => !room.status || room.status === 'available').length,
+      clean: roomsOfType.filter((room: any) => room.status === 'cleaning').length,
+      dirty: roomsOfType.filter((room: any) => room.status === 'occupied').length,
+      outOfOrder: roomsOfType.filter((room: any) => room.status === 'maintenance' || room.status === 'out_of_order').length,
+      dirtyRooms: roomsOfType.filter((room: any) => room.status === 'occupied')
+    };
+    
+    typeStats.push(stats);
+  });
+  
+  return typeStats;
+});
+
+// Total statistics
+const totalStats = computed(() => {
+  return roomTypeStats.value.reduce((total, roomType) => {
+    total.noStatus += roomType.noStatus;
+    total.clean += roomType.clean;
+    total.dirty += roomType.dirty;
+    total.outOfOrder += roomType.outOfOrder;
+    return total;
+  }, { noStatus: 0, clean: 0, dirty: 0, outOfOrder: 0 });
+});
+
+// Table configuration for ReusableTable
+const tableColumns = computed(() => [
+  {
+    key: 'productName',
+    label: t('Room'),
+    type: 'text'
+  },
+  {
+    key: 'productTypeName',
+    label: t('Type'),
+    type: 'text'
+  },
+  {
+    key: 'status',
+    label: t('Status'),
+    type: 'badge',
+    badgeColors: {
+      'available': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'occupied': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      'cleaning': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      'maintenance': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      'out_of_order': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+    },
+    translatable: true
+  },
+  {
+    key: 'guestName',
+    label: t('Guest'),
+    type: 'text'
+  },
+  {
+    key: 'checkInTime',
+    label: t('Check-in'),
+    type: 'date'
+  },
+  {
+    key: 'checkOutTime',
+    label: t('Check-out'),
+    type: 'date'
+  }
+]);
+
+const tableActions = computed(() => [
+  {
+    label: t('Change Status'),
+    handler: (room: any) => handleQuickStatusChange(room, room.status),
+    icon: 'edit',
+    variant: 'primary'
+  },
+  {
+    label: t('Maintenance'),
+    handler: (room: any) => handleMaintenance(room, 'maintenance'),
+    icon: 'settings',
+    variant: 'warning',
+    condition: (room: any) => room.status !== 'maintenance'
+  }
+]);
+
 
 const refreshRooms = async () => {
   await fetchServiceProduct();
+};
+
+// Handle table actions
+const onTableAction = (action: string, room: any) => {
+  console.log('Table action:', action, 'on room:', room);
+};
+
+// Open audit trail
+const openAuditTrail = () => {
+  // TODO: Implement audit trail functionality
+  toast.add({
+    severity: 'info',
+    summary: t('Info'),
+    detail: t('Audit trail functionality will be implemented'),
+    life: 3000
+  });
 };
 
 const exportData = () => {

@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <ReportsLayout>
+    <div>
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('Suppliers')" />
 
@@ -76,7 +77,8 @@
         </template>
       </Modal>
     </AdminLayout>
-  </div>
+    </div>
+  </ReportsLayout>
   <ModalDelete v-if="show" @close="show = false"
       @delete="confirmDelete"
       :isLoading="loadingDelete"/>
@@ -96,6 +98,7 @@ import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import ModalDelete from "@/components/modal/ModalDelete.vue";
 import TableComponent from "@/components/tables/TableComponent.vue";
+import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 
 
 

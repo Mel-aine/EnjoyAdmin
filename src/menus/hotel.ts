@@ -10,6 +10,8 @@ import {
   UsersRound,
   Banknote,
   CommandIcon,
+  FileText,
+  BarChart3,
 } from 'lucide-vue-next'
 
 export const getHotelMenu = (t: (key: string) => string) => {
@@ -17,13 +19,134 @@ export const getHotelMenu = (t: (key: string) => string) => {
     {
       title: 'Menu',
       items: [
+        //From office
         {
           icon: LayoutDashboard,
-          name: t('Dashboard'),
-          path: '/dashboard',
+          name: t('Front Office'),
           permission: 'dashboard_view',
+          subItems: [
+            {
+              name: t('Dashboard'),
+              path: '/dashboard',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Reservations'),
+              path: '/reservations_grid',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Stay View'),
+              path: '/stay_view',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Room View'),
+              path: '/room_view',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Guest Database'),
+              path: '/guest_database',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Insert Transaction'),
+              path: '/insert_transaction',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Lost and Found'),
+              path: '/lost_and_found',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Night Audit'),
+              path: '/night_audit',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Guest Reviews'),
+              path: '/guest_reviews',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Unsettled Folios'),
+              path: '/unsettled_folios',
+              permission: 'dashboard_view',
+            },
+          ]
         },
+        //From Cashiering
+        {
+          icon: LayoutDashboard,
+          name: t('Cashiering'),
+          permission: 'dashboard_view',
+          subItems: [
+            {
+              name: t('Cashiering Center'),
+              path: '/dashboard',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Travel Agent Database'),
+              path: '/reservations',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Sales Person Database'),
+              path: '/stay_view',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Expense Voucher'),
+              path: '/room_view',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('POS'),
+              path: '/guest_database',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('Exchange Rate'),
+              path: '/insert_transaction',
+              permission: 'dashboard_view',
+            }
 
+          ]
+        }
+        ,
+        // Housekeeping
+
+        {
+          icon: CalendarCheck2,
+          name: t('Housekeeping'),
+          subItems: [
+            {
+              name: t('House status'),
+              path: '/all_booking',
+              permission: 'bookings_read',
+            },
+            {
+              name: t('maintenance block'),
+              path: '/add_booking',
+              permission: 'bookings_create',
+            },
+            {
+              name: t('Work Order'),
+              path: '/add_booking',
+              permission: 'bookings_create',
+            },
+          ],
+        },
+        //back office
+        {
+          name: t('Back Office'),
+          path: '/all_booking',
+          permission: 'bookings_read',
+        },
+        /*
         {
           icon: CalendarCheck2,
           name: t('Bookings'),
@@ -91,7 +214,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Calendar'),
           path: '/calendar',
           permission: 'calendar_view',
-        },*/
+        },
         {
           icon: CommandIcon,
           name: t('amenities'),
@@ -172,7 +295,21 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Setting'),
           path: '/setting',
           permission: 'settings_manage',
+        },*/
+        {
+          icon: FileText,
+          name: t('Reports'),
+          permission: 'dashboard_view',
+          path: '/reports',
         },
+ {
+          icon: FileText,
+          name: t('Configuration'),
+          permission: 'dashboard_view',
+          path: '/reports',
+        },
+        
+        
       ],
     },
   ]

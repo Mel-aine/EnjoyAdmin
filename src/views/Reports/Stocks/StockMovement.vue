@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <ReportsLayout>
+    <div>
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('StockMovements')" />
       <FullScreenLayout>
@@ -120,13 +121,15 @@
       </Modal>
       </FullScreenLayout>
     </AdminLayout>
-  </div>
-  <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
+    </div>
+    <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
+  </ReportsLayout>
 </template>
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 import Modal from '@/components/profile/Modal.vue'

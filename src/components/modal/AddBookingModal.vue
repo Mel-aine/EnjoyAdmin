@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed inset-0 z-50 flex items-center hide-scrollbar justify-center bg-black/25 bg-opacity-40">
+    <div class="fixed inset-0 z-999 flex items-center hide-scrollbar justify-center bg-black/25 bg-opacity-40">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl relative ">
 
             <!-- Main AddBooking content -->
@@ -234,8 +234,7 @@ onMounted(async () => {
         isPaymentModalOpen.value = false;
         emit('refresh');
   }
-</script>
-<style>
+</script><style>
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {

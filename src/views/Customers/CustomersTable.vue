@@ -2,25 +2,37 @@
   <div>
     <AdminLayout>
       <div class="min-h-screen">
-        <PageBreadcrumb :pageTitle="currentPageTitle" />
-        <div class="flex justify-end pb-5">
-          <DropdownMenu :menu-items="menuItems">
-            <template #icon>
-              <button class="border border-gray-300 bg-purple-400 rounded-lg relative">
-                <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </button>
-            </template>
-          </DropdownMenu>
-        </div>
-
-        <TableComponent :items="titles" :datas="customers" :filterable="true" :pagination="true" :loading="loading"
-          :showHeader="true" :title="$t('Customers')" :pageSize="15" :showButtonAllElement="true" @view="onView"
-          class="modern-table" />
+        <ReusableTable
+          :title="$t('Customers')"
+          :columns="columns"
+          :data="customers"
+          :actions="actions"
+          :selectable="false"
+          :loading="loading"
+          v-model="searchQuery"
+          @search-change="onSearchChange"
+          class="modern-table"
+        >
+          <template #header-actions="{ searchQuery }">
+            <BasicButton
+              :label="$t('AddCustomers')"
+              variant="primary"
+              :icon="UserIcon"
+              @click="showModal = true"
+            />
+            <BasicButton
+              :label="$t('export')"
+              variant="secondary"
+              :icon="FolderOutputIcon"
+            />
+            <BasicButton
+              :label="$t('audit_trial')"
+              variant="secondary"
+              :icon="IdCard"
+            />
+            <UserFilters />
+          </template>
+        </ReusableTable>
       </div>
     </AdminLayout>
 
@@ -30,20 +42,22 @@
 </template>
 
 <script setup lang="ts">
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted, computed, reactive } from 'vue'
 import { getCustomersList, createCustomer } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
-import type { userDataType, ReservationType } from '@/types/option'
+import type {  ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
-import DropdownMenu from '@/components/common/DropdownMenu.vue'
-import TableComponent from '@/components/tables/TableComponent.vue'
+import { UserIcon, FolderOutputIcon, IdCard } from 'lucide-vue-next'
+
+import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from '@/composables/booking'
 import ModalCustomer from './ModalCustomer.vue'
 import { useToast } from 'vue-toastification';
+import BasicButton from '../../components/buttons/BasicButton.vue'
+import UserFilters from '../../components/filters/UserFilters.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -56,63 +70,74 @@ const toast = useToast();
 const currentPageTitle = computed(() => t('CustomersLists'))
 const selectedCustomer = ref<any>(null)
 const customers = ref<ReservationType[]>([])
-const menuItems = computed(() => [
-  { label: t('AddCustomers'), onClick: () => (showModal.value = true) },
-])
 
-const titles = computed(() => [
+
+const columns = computed(() => [
   {
-    name: 'userFullName',
+    key: 'userFullName',
     label: t('User'),
     type: 'text',
-    filterable: false,
+    sortable: true,
+    translatable: false
   },
   {
-    name: 'email',
+    key: 'email',
     label: t('Email'),
-    type: 'url',
-    event: 'view',
-    filterable: true,
+    type: 'email',
+    sortable: true,
+    translatable: false
   },
   {
-    name: 'phoneNumber',
+    key: 'phoneNumber',
     label: t('Phone'),
     type: 'text',
-    filterable: false,
+    sortable: true,
+    translatable: false
   },
   {
-    name: 'country',
-    label: t('country'),
-    type: 'text',
-    filterable: true,
-    isCountry:true
-  },
-  {
-    name: 'address',
+    key: 'address',
     label: t('address'),
     type: 'text',
-    filterable: true,
+    sortable: true,
+    translatable: true
   },
   {
-    name: 'actions',
-    label: t('Actions'),
-    type: 'action',
-    actions: [
-      {
-        name: 'View',
-        event: 'view',
-        icone: `<svg class="h-6 w-6 text-orange-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="2" /><path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" /><path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
-      },
-    ],
-  },
+    key: 'createdAt',
+    label: t('Created Date'),
+    type: 'date',
+    sortable: true,
+    dateFormat: 'short',
+    translatable: false
+  }
 ])
 
-const onView = (c: any) => handleCustomerAction('view', c)
+const actions = computed(() => [
+  {
+    label: 'View',
+    handler: (item: any) => handleCustomerAction('view', item)
+  },
+  {
+    label: 'Edit',
+    handler: (item: any) => handleCustomerAction('edit', item)
+  }
+])
+
+// Header actions are now handled through slots
+
+// Search functionality
+const searchQuery = ref('')
+
+const onSearchChange = (query: string) => {
+  console.log('Search query changed:', query)
+  // Add any additional search logic here if needed
+}
+
+// Actions are now handled directly through handler functions in the actions configuration
 
 const handleCustomerAction = async (action: string, c: any) => {
   console.log('Customer action:', action, c)
 
-  if (action === 'view') {
+  if (action === 'view' || action === 'edit') {
     // Trouver le customer dans la liste
     const customer = customers.value.find((cu: any) => cu.id === parseInt(c.id))
 

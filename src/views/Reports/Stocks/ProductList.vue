@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <ReportsLayout>
+    <div>
     <AdminLayout>
       <FullScreenLayout>
         <PageBreadcrumb :pageTitle="$t('products')" />
@@ -82,11 +83,12 @@
         </div>
       </template>
     </Modal>
-  </div>
+    </div>
   <ModalDelete v-if="show" @close="show = false" @delete="confirmDelete" :isLoading="loadingDelete" />
   <Spinner v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-50">
     <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
   </Spinner>
+  </ReportsLayout>
 </template>
 
 <script setup lang="ts">
@@ -105,6 +107,7 @@ import TableComponent from "@/components/tables/TableComponent.vue";
 import ModalDelete from "@/components/modal/ModalDelete.vue";
 import { defaultProducts } from "@/assets/data/productCategories";
 import FullScreenLayout from "@/components/layout/FullScreenLayout.vue";
+import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 
 
 const modalOpen = ref(false);
