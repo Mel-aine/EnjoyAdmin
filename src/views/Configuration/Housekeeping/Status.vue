@@ -1,112 +1,63 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">Housekeeping Status</h1>
-      
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
+      <div class="mb-6">
+        <p class="text-gray-600">
           Define all the housekeeping status for the rooms from here. You can assign colors to each status for easy identification.
         </p>
-        
-        <div class="flex justify-between items-center mb-6">
-          <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal">
-              <Plus class="w-4 h-4 mr-2" />
-              Add Housekeeping Status
-            </BasicButton>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status Name
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Color
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Modified By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="status in statuses" :key="status.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{ status.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 rounded-full border border-gray-300" :style="{ backgroundColor: status.color }"></div>
-                    <span class="text-sm text-gray-600">{{ status.color }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ status.createdBy }}<br>
-                  <span class="text-xs text-gray-400">{{ status.createdDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ status.modifiedBy }}<br>
-                  <span class="text-xs text-gray-400">{{ status.modifiedDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="status.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    {{ status.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <button @click="editStatus(status)" class="text-blue-600 hover:text-blue-900">
-                      <Edit class="w-4 h-4" />
-                    </button>
-                    <button @click="deleteStatus(status.id)" class="text-red-600 hover:text-red-900">
-                      <Trash class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
-    </div>
+      
+      <ReusableTable
+        title="Housekeeping Status Management"
+        :columns="columns"
+        :data="statuses"
+        :actions="actions"
+        search-placeholder="Search housekeeping status..."
+        :selectable="false"
+        empty-state-title="No housekeeping status found"
+        empty-state-message="Get started by adding a new housekeeping status."
+        @action="onAction"
+      >
+        <template #header-actions>
+          <BasicButton 
+            variant="primary" 
+            :label="'Add Housekeeping Status'"
+            :icon="'Plus'"
+            @click="openAddModal"
+          />
+        </template>
 
-    <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
-            {{ isEditing ? 'Edit Housekeeping Status' : 'Add Housekeeping Status' }}
+            <div class="w-6 h-6 rounded-full border border-gray-300" :style="{ backgroundColor: item.color }"></div>
+            <span class="text-sm text-gray-600">{{ item.color }}</span>
+
+        <template #column-status="{ item }">
+          <span 
+            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+          >
+            {{ item.status }}
+          </span>
+        </template>
+      </ReusableTable>
+
+      <!-- Add/Edit Modal -->
+      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {{ isEditing ? 'Edit Housekeeping Status' : 'Add New Housekeeping Status' }}
           </h3>
           
-          <form @submit.prevent="saveStatus">
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Status Name *
-              </label>
-              <input 
-                v-model="formData.name" 
-                type="text" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter status name"
-              />
-            </div>
+          <form @submit.prevent="saveStatus" class="space-y-4">
+            <Input 
+              :lb="'Status Name'"
+              :inputType="'text'"
+              :isRequired="true"
+              v-model="formData.name"
+              :placeholder="'Enter status name'"
+            />
             
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Color *
               </label>
               <div class="flex items-center space-x-3">
@@ -116,23 +67,29 @@
                   required
                   class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
                 />
-                <input 
-                  v-model="formData.color" 
-                  type="text" 
-                  required
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="#000000"
+                <Input 
+                  :lb="''"
+                  :inputType="'text'"
+                  :isRequired="true"
+                  v-model="formData.color"
+                  :placeholder="'#000000'"
+                  class="flex-1"
                 />
               </div>
             </div>
             
-            <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal">
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" variant="primary">
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton 
+                :label="'Cancel'"
+                variant="secondary" 
+                @click="closeModal"
+                type="button"
+              />
+              <BasicButton 
+                :label="isEditing ? 'Update' : 'Save'"
+                variant="primary" 
+                type="submit"
+              />
             </div>
           </form>
         </div>
@@ -141,20 +98,45 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
-import { Plus, Edit, Trash } from 'lucide-vue-next'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import BasicButton from '@/components/buttons/BasicButton.vue'
+import Input from '@/components/forms/FormElements/Input.vue'
+import { Plus } from 'lucide-vue-next'
 
+// Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const editingId = ref<number | null>(null)
 
-const formData = ref({
+const formData = reactive({
   name: '',
   color: '#3B82F6'
 })
+
+// Table configuration
+const columns = [
+  { key: 'name', label: 'Status Name', type: 'text' },
+  { key: 'color', label: 'Color', type: 'custom' },
+  { key: 'createdBy', label: 'Created By', type: 'text' },
+  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
+  { key: 'status', label: 'Status', type: 'custom' }
+]
+
+const actions = [
+  {
+    label: 'Edit',
+    handler: (item: any) => editStatus(item),
+    variant: 'primary'
+  },
+  {
+    label: 'Delete',
+    handler: (item: any) => deleteStatus(item.id),
+    variant: 'danger'
+  }
+]
 
 const statuses = ref([
   { 
@@ -199,68 +181,71 @@ const statuses = ref([
   }
 ])
 
+// Functions
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.value = {
-    name: '',
-    color: '#3B82F6'
-  }
+  formData.name = ''
+  formData.color = '#3B82F6'
   showModal.value = true
 }
 
-const editStatus = (status) => {
+const editStatus = (status: any) => {
   isEditing.value = true
   editingId.value = status.id
-  formData.value = {
-    name: status.name,
-    color: status.color
-  }
+  formData.name = status.name
+  formData.color = status.color
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  formData.value = {
-    name: '',
-    color: '#3B82F6'
-  }
+  isEditing.value = false
+  editingId.value = null
+  formData.name = ''
+  formData.color = '#3B82F6'
 }
 
 const saveStatus = () => {
-  if (isEditing.value) {
+  if (isEditing.value && editingId.value) {
+    // Update existing status
     const index = statuses.value.findIndex(s => s.id === editingId.value)
     if (index !== -1) {
       statuses.value[index] = {
         ...statuses.value[index],
-        name: formData.value.name,
-        color: formData.value.color,
+        name: formData.name,
+        color: formData.color,
         modifiedBy: 'admin',
         modifiedDate: new Date().toISOString().split('T')[0]
       }
     }
   } else {
-    const newId = Math.max(...statuses.value.map(s => s.id)) + 1
-    statuses.value.push({
-      id: newId,
-      name: formData.value.name,
-      color: formData.value.color,
+    // Add new status
+    const newStatus = {
+      id: Math.max(...statuses.value.map(s => s.id)) + 1,
+      name: formData.name,
+      color: formData.color,
       createdBy: 'admin',
       createdDate: new Date().toISOString().split('T')[0],
       modifiedBy: 'admin',
       modifiedDate: new Date().toISOString().split('T')[0],
       status: 'Active'
-    })
+    }
+    statuses.value.push(newStatus)
   }
   closeModal()
 }
 
-const deleteStatus = (id) => {
-  if (confirm('Are you sure you want to delete this status?')) {
+const deleteStatus = (id: number) => {
+  if (confirm('Are you sure you want to delete this housekeeping status?')) {
     const index = statuses.value.findIndex(s => s.id === id)
     if (index !== -1) {
       statuses.value.splice(index, 1)
     }
   }
+}
+
+const onAction = (action: string, item: any) => {
+  console.log('Action:', action, 'Item:', item)
 }
 </script>

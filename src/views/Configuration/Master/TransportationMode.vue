@@ -15,10 +15,10 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
+            icon="Plus"
+            label="Add Transportation Mode"
             @click="openAddModal"
-          >
-            Add Transportation Mode
-          </BasicButton>
+          />
         </template>
 
         <template #column-status="{ item }">

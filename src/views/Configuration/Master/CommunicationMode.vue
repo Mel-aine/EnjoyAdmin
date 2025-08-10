@@ -11,9 +11,11 @@
             Set up communication preferences and methods.
           </p>
           <div class="mt-6">
-            <BasicButton variant="primary">
-              Configure Communication Mode
-            </BasicButton>
+            <BasicButton 
+              variant="primary"
+              icon="Settings"
+              label="Configure Communication Mode"
+            />
           </div>
         </div>
       </div>
@@ -23,6 +25,6 @@
 
 <script setup>
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { Settings } from 'lucide-vue-next'
 </script>

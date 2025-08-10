@@ -15,10 +15,10 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
+            icon="Plus"
+            label="Add Discount"
             @click="openAddModal"
-          >
-            Add Discount
-          </BasicButton>
+          />
         </template>
 
         <template #column-status="{ item }">

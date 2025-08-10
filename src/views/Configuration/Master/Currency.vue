@@ -3,76 +3,25 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Currency</h1>
-        <BasicButton variant="primary" @click="openAddModal">
-          <Plus class="w-4 h-4 mr-2" />
-          Add Currency
-        </BasicButton>
+        <BasicButton variant="primary" @click="openAddModal" :icon="PlusIcon" label="Add Currency" />
       </div>
       
-      <div class="bg-white rounded-lg shadow">
-        <div class="p-6">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Currency Code
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Currency Name
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Symbol
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Exchange Rate
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Default
-                  </th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="currency in currencies" :key="currency.id">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {{ currency.code }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ currency.name }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ currency.symbol }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ currency.exchangeRate }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span v-if="currency.isDefault" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                      Default
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <BasicButton variant="outline" size="sm" @click="editCurrency(currency)" class="mr-2">
-                      <Edit class="w-4 h-4" />
-                    </BasicButton>
-                    <BasicButton 
-                      variant="danger" 
-                      size="sm" 
-                      @click="deleteCurrency(currency.id)"
-                      :disabled="currency.isDefault"
-                    >
-                      <Trash class="w-4 h-4" />
-                    </BasicButton>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <ReusableTable
+        title="Currency Management"
+        :columns="columns"
+        :data="currencies"
+        :actions="actions"
+        search-placeholder="Search currencies..."
+        empty-title="No currencies found"
+        empty-description="Start by adding your first currency."
+        @action="onAction"
+      >
+        <template #isDefault="{ item }">
+          <span v-if="item.isDefault" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+            Default
+          </span>
+        </template>
+      </ReusableTable>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -106,27 +55,21 @@
             </div>
             
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Currency *
-              </label>
-              <input 
+              <Input 
                 v-model="formData.name" 
+                label="Currency *"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter currency name"
               />
             </div>
             
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Sign *
-              </label>
-              <input 
+              <Input 
                 v-model="formData.symbol" 
+                label="Sign *"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter currency symbol"
               />
             </div>
@@ -158,29 +101,23 @@
             </div>
             
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Currency Code *
-              </label>
-              <input 
+              <Input 
                 v-model="formData.code" 
+                label="Currency Code *"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: USD (For United States)"
               />
             </div>
             
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Digits after Decimal *
-              </label>
-              <input 
+              <Input 
                 v-model="formData.decimalPlaces" 
+                label="Digits after Decimal *"
                 type="number" 
                 min="0"
                 max="4"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter digits after decimal"
               />
             </div>
@@ -216,12 +153,8 @@
             </div>
             
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal">
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" variant="primary">
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" />
+              <BasicButton type="submit" variant="primary" :label="isEditing ? 'Update' : 'Save'" />
             </div>
           </form>
         </div>
@@ -230,11 +163,13 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
-import { Plus, Edit, Trash } from 'lucide-vue-next'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import BasicButton from '@/components/buttons/BasicButton.vue'
+import Input from '@/components/forms/FormElements/Input.vue'
+import PlusIcon from '@/icons/PlusIcon.vue'
 
 const currencies = ref([
   { id: 1, code: 'USD', name: 'US Dollar', symbol: '$', exchangeRate: 1.00, isDefault: true, country: 'US', position: 'prefix', decimalPlaces: 2 },
@@ -243,11 +178,37 @@ const currencies = ref([
   { id: 4, code: 'JPY', name: 'Japanese Yen', symbol: '¥', exchangeRate: 110.00, isDefault: false, country: 'JP', position: 'prefix', decimalPlaces: 0 },
 ])
 
+const columns = [
+  { key: 'code', label: 'Currency Code', type: 'text' },
+  { key: 'name', label: 'Currency Name', type: 'text' },
+  { key: 'symbol', label: 'Symbol', type: 'text' },
+  { key: 'exchangeRate', label: 'Exchange Rate', type: 'text' },
+  { key: 'isDefault', label: 'Default', type: 'custom' }
+]
+const editCurrency = (currency: any) => {
+  isEditing.value = true
+  editingId.value = currency.id
+  Object.assign(formData, currency)
+  showModal.value = true
+}
+const deleteCurrency = (id: number) => {
+  if (confirm('Are you sure you want to delete this currency?')) {
+    const index = currencies.value.findIndex(c => c.id === id)
+    if (index !== -1) {
+      currencies.value.splice(index, 1)
+    }
+  }
+}
+const actions = [
+  { key: 'edit', label: 'Edit', handler: editCurrency },
+  { key: 'delete', label: 'Delete', handler: deleteCurrency }
+]
+
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const editingId = ref<number | null>(null)
 
-const formData = ref({
+const formData = reactive({
   country: '',
   name: '',
   symbol: '',
@@ -269,18 +230,18 @@ const countryToCurrency = {
 }
 
 const onCountryChange = () => {
-  const currencyInfo = countryToCurrency[formData.value.country]
+  const currencyInfo = countryToCurrency[formData.country]
   if (currencyInfo) {
-    formData.value.name = currencyInfo.name
-    formData.value.symbol = currencyInfo.symbol
-    formData.value.code = currencyInfo.code
+    formData.name = currencyInfo.name
+    formData.symbol = currencyInfo.symbol
+    formData.code = currencyInfo.code
   }
 }
 
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.value = {
+  Object.assign(formData, {
     country: '',
     name: '',
     symbol: '',
@@ -289,16 +250,11 @@ const openAddModal = () => {
     decimalPlaces: 2,
     exchangeRate: '',
     isDefault: false
-  }
+  })
   showModal.value = true
 }
 
-const editCurrency = (currency) => {
-  isEditing.value = true
-  editingId.value = currency.id
-  formData.value = { ...currency }
-  showModal.value = true
-}
+
 
 const closeModal = () => {
   showModal.value = false
@@ -311,32 +267,28 @@ const saveCurrency = () => {
     // Update existing currency
     const index = currencies.value.findIndex(c => c.id === editingId.value)
     if (index !== -1) {
-      currencies.value[index] = { ...formData.value, id: editingId.value }
+      currencies.value[index] = { ...formData, id: editingId.value }
     }
   } else {
     // Add new currency
     const newId = Math.max(...currencies.value.map(c => c.id)) + 1
-    currencies.value.push({ ...formData.value, id: newId })
+    currencies.value.push({ ...formData, id: newId })
   }
   
   // If setting as default, remove default from others
-  if (formData.value.isDefault) {
+  if (formData.isDefault) {
     currencies.value.forEach(currency => {
       if (currency.id !== editingId.value) {
         currency.isDefault = false
       }
     })
   }
-  
   closeModal()
 }
 
-const deleteCurrency = (id) => {
-  const currency = currencies.value.find(c => c.id === id)
-  if (currency && !currency.isDefault) {
-    if (confirm('Are you sure you want to delete this currency?')) {
-      currencies.value = currencies.value.filter(c => c.id !== id)
-    }
-  }
+
+
+const onAction = (action: string, item: any) => {
+  console.log('Action:', action, 'Item:', item)
 }
 </script>

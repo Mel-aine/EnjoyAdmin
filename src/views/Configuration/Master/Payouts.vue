@@ -15,10 +15,10 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
+            icon="Plus"
+            label="Add Payout Reason"
             @click="openAddModal"
-          >
-            Add Payout Reason
-          </BasicButton>
+          />
         </template>
 
         <template #column-status="{ item }">

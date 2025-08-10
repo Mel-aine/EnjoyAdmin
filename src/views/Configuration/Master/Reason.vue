@@ -15,10 +15,10 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
+            icon="Plus"
+            label="Add Reason"
             @click="openAddModal"
-          >
-            Add Reason
-          </BasicButton>
+          />
         </template>
 
         <template #column-status="{ item }">

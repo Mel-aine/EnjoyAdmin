@@ -11,9 +11,11 @@
             Configure booking source channels.
           </p>
           <div class="mt-6">
-            <BasicButton variant="primary">
-              Configure Source Book
-            </BasicButton>
+            <BasicButton 
+              variant="primary"
+              icon="Settings"
+              label="Configure Source Book"
+            />
           </div>
         </div>
       </div>
@@ -23,6 +25,6 @@
 
 <script setup>
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { Settings } from 'lucide-vue-next'
 </script>

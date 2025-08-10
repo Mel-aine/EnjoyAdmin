@@ -10,10 +10,12 @@
         
         <div class="flex justify-between items-center mb-6">
           <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal">
-              <Plus class="w-4 h-4 mr-2" />
-              Add Identity Type
-            </BasicButton>
+            <BasicButton 
+              variant="primary" 
+              :icon="Plus"
+              label="Add Identity Type"
+              @click="openAddModal"
+            />
           </div>
         </div>
 
@@ -114,7 +116,7 @@
 <script setup>
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { Plus, Edit, Trash } from 'lucide-vue-next'
 
 const showModal = ref(false)

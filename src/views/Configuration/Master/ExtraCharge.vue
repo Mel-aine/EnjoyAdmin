@@ -10,93 +10,33 @@
         
         <div class="flex justify-between items-center mb-6">
           <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal">
-              <Plus class="w-4 h-4 mr-2" />
-              Add Charge
-            </BasicButton>
+            <BasicButton variant="primary" @click="openAddModal" icon="Plus" label="Add Charge" />
           </div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Short Code
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rate
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tax
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rate Inclusive Tax
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fixed Price
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="charge in extraCharges" :key="charge.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{ charge.shortCode }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ charge.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${{ charge.rate.toFixed(2) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ charge.tax }}%
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${{ charge.rateInclusiveTax.toFixed(2) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="charge.fixedPrice ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
-                    {{ charge.fixedPrice ? 'Yes' : 'No' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ charge.createdBy }}<br>
-                  <span class="text-xs text-gray-400">{{ charge.createdDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="charge.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    {{ charge.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <button @click="editExtraCharge(charge)" class="text-blue-600 hover:text-blue-900">
-                      <Edit class="w-4 h-4" />
-                    </button>
-                    <button @click="deleteExtraCharge(charge.id)" class="text-red-600 hover:text-red-900">
-                      <Trash class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ReusableTable
+          title="Extra Charges Management"
+          :columns="columns"
+          :data="extraCharges"
+          :actions="actions"
+          search-placeholder="Search extra charges..."
+          empty-title="No extra charges found"
+          empty-description="Start by adding your first extra charge."
+          @action="onAction"
+        >
+          <template #fixedPrice="{ item }">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                  :class="item.fixedPrice ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+              {{ item.fixedPrice ? 'Yes' : 'No' }}
+            </span>
+          </template>
+          <template #status="{ item }">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                  :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ item.status }}
+            </span>
+          </template>
+        </ReusableTable>
       </div>
     </div>
 
@@ -111,27 +51,21 @@
           <form @submit.prevent="saveExtraCharge">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Short Code *
-                </label>
-                <input 
+                <Input 
                   v-model="formData.shortCode" 
+                  label="Short Code *"
                   type="text" 
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter short code"
                 />
               </div>
               
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Name *
-                </label>
-                <input 
+                <Input 
                   v-model="formData.name" 
+                  label="Name *"
                   type="text" 
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter charge name"
                 />
               </div>
@@ -139,16 +73,13 @@
             
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Rate *
-                </label>
-                <input 
+                <Input 
                   v-model="formData.rate" 
+                  label="Rate *"
                   type="number" 
                   step="0.01"
                   required
                   @input="calculateRateInclusiveTax"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter rate amount"
                 />
               </div>
@@ -198,13 +129,10 @@
               </div>
               
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Front Desk Sort Key
-                </label>
-                <input 
+                <Input 
                   v-model="formData.frontDeskSortKey" 
+                  label="Front Desk Sort Key"
                   type="number" 
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter sort order"
                 />
               </div>
@@ -238,12 +166,8 @@
             </div>
             
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal">
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" variant="primary">
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" />
+              <BasicButton type="submit" variant="primary" :label="isEditing ? 'Update' : 'Save'" />
             </div>
           </form>
         </div>
@@ -252,17 +176,33 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
-import { Plus, Edit, Trash } from 'lucide-vue-next'
+import ReusableTable from '../../../components/tables/ReusableTable.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
+import Input from '../../../components/forms/FormElements/Input.vue'
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const editingId = ref<number | null>(null)
 
-const formData = ref({
+const columns = [
+  { key: 'shortCode', label: 'Short Code' },
+  { key: 'name', label: 'Name' },
+  { key: 'rate', label: 'Rate' },
+  { key: 'tax', label: 'Tax %' },
+  { key: 'rateInclusiveTax', label: 'Rate Inc. Tax' },
+  { key: 'fixedPrice', label: 'Fixed Price' },
+  { key: 'status', label: 'Status' }
+]
+
+const actions = [
+  { key: 'edit', label: 'Edit', variant: 'outline' },
+  { key: 'delete', label: 'Delete', variant: 'danger' }
+]
+
+const formData = reactive({
   shortCode: '',
   name: '',
   rate: 0,
@@ -346,15 +286,15 @@ const extraCharges = ref([
 ])
 
 const calculateRateInclusiveTax = () => {
-  const rate = parseFloat(formData.value.rate) || 0
-  const tax = parseFloat(formData.value.tax) || 0
-  formData.value.rateInclusiveTax = rate + (rate * tax / 100)
+  const rate = parseFloat(formData.rate) || 0
+  const tax = parseFloat(formData.tax) || 0
+  formData.rateInclusiveTax = rate + (rate * tax / 100)
 }
 
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.value = {
+  Object.assign(formData, {
     shortCode: '',
     name: '',
     rate: 0,
@@ -364,20 +304,20 @@ const openAddModal = () => {
     frontDeskSortKey: 1,
     publishOnWeb: false,
     voucherNo: 'auto_general'
-  }
+  })
   showModal.value = true
 }
 
-const editExtraCharge = (charge) => {
+const editExtraCharge = (charge: any) => {
   isEditing.value = true
   editingId.value = charge.id
-  formData.value = { ...charge }
+  Object.assign(formData, charge)
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  formData.value = {
+  Object.assign(formData, {
     shortCode: '',
     name: '',
     rate: 0,
@@ -387,7 +327,7 @@ const closeModal = () => {
     frontDeskSortKey: 1,
     publishOnWeb: false,
     voucherNo: 'auto_general'
-  }
+  })
 }
 
 const saveExtraCharge = () => {
@@ -395,7 +335,7 @@ const saveExtraCharge = () => {
     const index = extraCharges.value.findIndex(c => c.id === editingId.value)
     if (index !== -1) {
       extraCharges.value[index] = {
-        ...formData.value,
+        ...formData,
         id: editingId.value,
         modifiedBy: 'admin',
         modifiedDate: new Date().toISOString().split('T')[0]
@@ -404,7 +344,7 @@ const saveExtraCharge = () => {
   } else {
     const newId = Math.max(...extraCharges.value.map(c => c.id)) + 1
     extraCharges.value.push({
-      ...formData.value,
+      ...formData,
       id: newId,
       createdBy: 'admin',
       createdDate: new Date().toISOString().split('T')[0],
@@ -416,12 +356,20 @@ const saveExtraCharge = () => {
   closeModal()
 }
 
-const deleteExtraCharge = (id) => {
+const deleteExtraCharge = (id: number) => {
   if (confirm('Are you sure you want to delete this extra charge?')) {
     const index = extraCharges.value.findIndex(c => c.id === id)
     if (index !== -1) {
       extraCharges.value.splice(index, 1)
     }
+  }
+}
+
+const onAction = (action: string, item: any) => {
+  if (action === 'edit') {
+    editExtraCharge(item)
+  } else if (action === 'delete') {
+    deleteExtraCharge(item.id)
   }
 }
 </script>

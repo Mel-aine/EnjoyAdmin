@@ -10,88 +10,34 @@
         
         <div class="flex justify-between items-center mb-6">
           <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal">
-              <Plus class="w-4 h-4 mr-2" />
-              Add Payment Method
-            </BasicButton>
+            <BasicButton variant="primary" @click="openAddModal" icon="Plus" label="Add Payment Method" />
           </div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Short Code
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Payment Method
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Card Processing
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Modified By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="method in payMethods" :key="method.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{ method.shortCode }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ method.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ method.type }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="method.cardProcessing ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
-                    {{ method.cardProcessing ? 'Yes' : 'No' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ method.createdBy }}<br>
-                  <span class="text-xs text-gray-400">{{ method.createdDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ method.modifiedBy }}<br>
-                  <span class="text-xs text-gray-400">{{ method.modifiedDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="method.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    {{ method.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <button @click="editPayMethod(method)" class="text-blue-600 hover:text-blue-900">
-                      <Edit class="w-4 h-4" />
-                    </button>
-                    <button @click="deletePayMethod(method.id)" class="text-red-600 hover:text-red-900">
-                      <Trash class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ReusableTable
+          title="Payment Methods"
+          :columns="columns"
+          :data="payMethods"
+          :actions="actions"
+          @action="onAction"
+          search-placeholder="Search payment methods..."
+          empty-title="No payment methods found"
+          empty-description="Get started by adding your first payment method."
+        >
+          <template #cardProcessing="{ item }">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                  :class="item.cardProcessing ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+              {{ item.cardProcessing ? 'Yes' : 'No' }}
+            </span>
+          </template>
+          
+          <template #status="{ item }">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                  :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ item.status }}
+            </span>
+          </template>
+        </ReusableTable>
       </div>
     </div>
 
@@ -106,27 +52,21 @@
           <form @submit.prevent="savePayMethod">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Short Code *
-                </label>
-                <input 
+                <Input 
                   v-model="formData.shortCode" 
+                  label="Short Code *"
                   type="text" 
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter short code"
                 />
               </div>
               
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Method *
-                </label>
-                <input 
+                <Input 
                   v-model="formData.name" 
+                  label="Payment Method *"
                   type="text" 
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., Cash, VISA, MASTERCARD"
                 />
               </div>
@@ -189,14 +129,11 @@
                 </div>
                 
                 <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Value
-                  </label>
-                  <input 
+                  <Input 
                     v-model="formData.surchargeValue" 
+                    label="Value"
                     type="number" 
                     step="0.01"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter value"
                   />
                 </div>
@@ -233,12 +170,8 @@
             </div>
             
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal">
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" variant="primary">
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" />
+              <BasicButton type="submit" variant="primary" :label="isEditing ? 'Update' : 'Save'" />
             </div>
           </form>
         </div>
@@ -247,17 +180,33 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
-import { Plus, Edit, Trash } from 'lucide-vue-next'
+import ReusableTable from '../../../components/tables/ReusableTable.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
+import Input from '../../../components/forms/FormElements/Input.vue'
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const editingId = ref<number | null>(null)
 
-const formData = ref({
+const columns = [
+  { key: 'shortCode', label: 'Short Code' },
+  { key: 'name', label: 'Payment Method' },
+  { key: 'type', label: 'Type' },
+  { key: 'cardProcessing', label: 'Card Processing' },
+  { key: 'createdBy', label: 'Created By' },
+  { key: 'modifiedBy', label: 'Modified By' },
+  { key: 'status', label: 'Status' }
+]
+
+const actions = [
+  { key: 'edit', label: 'Edit', variant: 'outline' },
+  { key: 'delete', label: 'Delete', variant: 'danger' }
+]
+
+const formData = reactive({
   shortCode: '',
   name: '',
   type: '',
@@ -333,7 +282,7 @@ const payMethods = ref([
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.value = {
+  Object.assign(formData, {
     shortCode: '',
     name: '',
     type: '',
@@ -343,20 +292,20 @@ const openAddModal = () => {
     surchargeValue: '',
     extraCharge: '',
     receiptNoSetting: 'auto_general'
-  }
+  })
   showModal.value = true
 }
 
-const editPayMethod = (method) => {
+const editPayMethod = (method: any) => {
   isEditing.value = true
   editingId.value = method.id
-  formData.value = { ...method }
+  Object.assign(formData, method)
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  formData.value = {
+  Object.assign(formData, {
     shortCode: '',
     name: '',
     type: '',
@@ -366,7 +315,7 @@ const closeModal = () => {
     surchargeValue: '',
     extraCharge: '',
     receiptNoSetting: 'auto_general'
-  }
+  })
 }
 
 const savePayMethod = () => {
@@ -374,7 +323,7 @@ const savePayMethod = () => {
     const index = payMethods.value.findIndex(m => m.id === editingId.value)
     if (index !== -1) {
       payMethods.value[index] = {
-        ...formData.value,
+        ...formData,
         id: editingId.value,
         modifiedBy: 'admin',
         modifiedDate: new Date().toISOString().split('T')[0]
@@ -383,7 +332,7 @@ const savePayMethod = () => {
   } else {
     const newId = Math.max(...payMethods.value.map(m => m.id)) + 1
     payMethods.value.push({
-      ...formData.value,
+      ...formData,
       id: newId,
       createdBy: 'admin',
       createdDate: new Date().toISOString().split('T')[0],
@@ -395,12 +344,20 @@ const savePayMethod = () => {
   closeModal()
 }
 
-const deletePayMethod = (id) => {
+const deletePayMethod = (id: number) => {
   if (confirm('Are you sure you want to delete this payment method?')) {
     const index = payMethods.value.findIndex(m => m.id === id)
     if (index !== -1) {
       payMethods.value.splice(index, 1)
     }
+  }
+}
+
+const onAction = (action: string, item: any) => {
+  if (action === 'edit') {
+    editPayMethod(item)
+  } else if (action === 'delete') {
+    deletePayMethod(item.id)
   }
 }
 </script>

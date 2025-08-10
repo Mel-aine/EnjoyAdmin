@@ -11,67 +11,38 @@
         
         <div class="flex justify-between items-center mb-6">
           <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal">
-              <Plus class="w-4 h-4 mr-2" />
-              Add Unit
-            </BasicButton>
+            <BasicButton 
+              variant="primary" 
+              @click="openAddModal"
+              icon="Plus"
+              label="Add Unit"
+            />
           </div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit Name
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Modified By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="unit in units" :key="unit.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{ unit.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ unit.createdBy }}<br>
-                  <span class="text-xs text-gray-400">{{ unit.createdDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ unit.modifiedBy }}<br>
-                  <span class="text-xs text-gray-400">{{ unit.modifiedDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="unit.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    {{ unit.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <button @click="editUnit(unit)" class="text-blue-600 hover:text-blue-900">
-                      <Edit class="w-4 h-4" />
-                    </button>
-                    <button @click="deleteUnit(unit.id)" class="text-red-600 hover:text-red-900">
-                      <Trash class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ReusableTable
+          title="Units"
+          :columns="columns"
+          :data="units"
+          :actions="actions"
+          search-placeholder="Search units..."
+          empty-state-title="No units found"
+          empty-state-description="Get started by adding your first unit."
+          @action="onAction"
+        >
+          <template #status="{ item }">
+            <span 
+              :class="[
+                'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
+                item.status === 'Active' 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              ]"
+            >
+              {{ item.status }}
+            </span>
+          </template>
+        </ReusableTable>
       </div>
     </div>
 
@@ -85,25 +56,27 @@
           
           <form @submit.prevent="saveUnit">
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Unit Name *
-              </label>
-              <input 
-                v-model="formData.name" 
-                type="text" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              <Input
+                v-model="formData.name"
+                label="Unit Name"
+                type="text"
                 placeholder="Enter unit name"
+                required
               />
             </div>
             
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal">
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" variant="primary">
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal"
+                label="Cancel"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary"
+                :label="isEditing ? 'Update' : 'Save'"
+              />
             </div>
           </form>
         </div>
@@ -112,19 +85,43 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
-import { Plus, Edit, Trash } from 'lucide-vue-next'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import BasicButton from '@/components/buttons/BasicButton.vue'
+import Input from '@/components/forms/FormElements/Input.vue'
+import { Plus } from 'lucide-vue-next'
 
+// Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const editingId = ref<number | null>(null)
 
-const formData = ref({
+const formData = reactive({
   name: ''
 })
+
+// Table configuration
+const columns = [
+  { key: 'name', label: 'Unit Name', type: 'text' },
+  { key: 'createdBy', label: 'Created By', type: 'text' },
+  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
+  { key: 'status', label: 'Status', type: 'custom' }
+]
+
+const actions = [
+  {
+    label: 'Edit',
+    handler: (item: any) => editUnit(item),
+    variant: 'primary'
+  },
+  {
+    label: 'Delete',
+    handler: (item: any) => deleteUnit(item.id),
+    variant: 'danger'
+  }
+]
 
 const units = ref([
   { 
@@ -156,63 +153,66 @@ const units = ref([
   }
 ])
 
+// Functions
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.value = {
-    name: ''
-  }
+  formData.name = ''
   showModal.value = true
 }
 
-const editUnit = (unit) => {
+const editUnit = (unit: any) => {
   isEditing.value = true
   editingId.value = unit.id
-  formData.value = {
-    name: unit.name
-  }
+  formData.name = unit.name
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  formData.value = {
-    name: ''
-  }
+  isEditing.value = false
+  editingId.value = null
+  formData.name = ''
 }
 
 const saveUnit = () => {
-  if (isEditing.value) {
+  if (isEditing.value && editingId.value) {
+    // Update existing unit
     const index = units.value.findIndex(u => u.id === editingId.value)
     if (index !== -1) {
       units.value[index] = {
         ...units.value[index],
-        name: formData.value.name,
+        name: formData.name,
         modifiedBy: 'admin',
         modifiedDate: new Date().toISOString().split('T')[0]
       }
     }
   } else {
-    const newId = Math.max(...units.value.map(u => u.id)) + 1
-    units.value.push({
-      id: newId,
-      name: formData.value.name,
+    // Add new unit
+    const newUnit = {
+      id: Math.max(...units.value.map(u => u.id)) + 1,
+      name: formData.name,
       createdBy: 'admin',
       createdDate: new Date().toISOString().split('T')[0],
       modifiedBy: 'admin',
       modifiedDate: new Date().toISOString().split('T')[0],
       status: 'Active'
-    })
+    }
+    units.value.push(newUnit)
   }
   closeModal()
 }
 
-const deleteUnit = (id) => {
+const deleteUnit = (id: number) => {
   if (confirm('Are you sure you want to delete this unit?')) {
     const index = units.value.findIndex(u => u.id === id)
     if (index !== -1) {
       units.value.splice(index, 1)
     }
   }
+}
+
+const onAction = (action: string, item: any) => {
+  console.log('Action:', action, 'Item:', item)
 }
 </script>

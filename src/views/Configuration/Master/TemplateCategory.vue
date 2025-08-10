@@ -15,10 +15,10 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
+            icon="Plus"
+            label="Add Template Category"
             @click="openAddModal"
-          >
-            Add Template Category
-          </BasicButton>
+          />
         </template>
 
         <template #column-status="{ item }">
