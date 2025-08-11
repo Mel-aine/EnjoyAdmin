@@ -265,7 +265,7 @@ const filteredMenu = computed(() => {
       return []
     }
 
-    const categoryName = serviceStore.serviceCategory
+    const categoryName = 'hotel'
     console.log(' Catégorie de service:', categoryName)
 
     const menuGroups = getMenuByCategoryName(categoryName, t)
