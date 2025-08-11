@@ -83,19 +83,22 @@
               :defaultValue="'Select severity level'"
             />
             
-            <div class="flex justify-end space-x-3 pt-4">
+             
+           <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 variant="secondary" 
                 @click="closeModal"
                 type="button"
+                :label="$t('cancel')"
               >
                 Cancel
               </BasicButton>
               <BasicButton 
                 variant="primary" 
                 type="submit"
+                :label="isEditing ? $t('update') : $t('save') "
+                :icon="isEditing ? Edit : Save"
               >
-                {{ isEditing ? 'Update' : 'Save' }}
               </BasicButton>
             </div>
           </form>
@@ -112,6 +115,8 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import { Edit, Save } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showModal = ref(false)
@@ -218,7 +223,7 @@ const severityOptions = [
 ]
 
 // Table configuration
-const columns = [
+const columns:Column[]= [
   { key: 'name', label: 'Reason Name', type: 'text' },
   { key: 'category', label: 'Category', type: 'text' },
   { key: 'severity', label: 'Severity', type: 'custom' },
@@ -227,7 +232,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions:Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editBlacklistReason(item),

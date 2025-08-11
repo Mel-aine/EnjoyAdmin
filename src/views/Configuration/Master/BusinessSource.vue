@@ -120,13 +120,14 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showModal = ref(false)
@@ -210,7 +211,7 @@ const statusOptions = [
 ]
 
 // Table configuration
-const columns = [
+const columns: Column[] = [
   { key: 'shortCode', label: 'Short Code', type: 'text' },
   { key: 'name', label: 'Business Source Name', type: 'text' },
   { key: 'category', label: 'Category', type: 'text' },
@@ -219,7 +220,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions: Action[] = [
   {
     label: 'Edit',
     handler: (item) => editBusinessSource(item),

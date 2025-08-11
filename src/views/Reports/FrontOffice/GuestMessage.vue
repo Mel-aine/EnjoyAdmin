@@ -90,6 +90,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -122,7 +123,7 @@ const filteredMessages = computed(() => {
 })
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'date', label: t('common.date'), type: 'date' },
   { key: 'guestName', label: t('common.guestName'), type: 'text' },
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },
@@ -131,12 +132,12 @@ const tableColumns = computed(() => [
     label: t('common.messageType'), 
     type: 'badge',
     translatable: true,
-    badgeColors: {
+ /*  badgeColors: {
       'request': 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
       'complaint': 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
       'compliment': 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
       'inquiry': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
-    }
+    }*/
   },
   { key: 'content', label: t('common.message'), type: 'custom' },
   { 

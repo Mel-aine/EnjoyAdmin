@@ -177,25 +177,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { Action, Column } from '../../utils/models'
 
-interface Column {
-  key: string
-  label: string
-  type?: 'text' | 'email' | 'badge' | 'image' | 'custom' | 'date'
-  imageKey?: string // For image type, the key for the image URL
-  badgeColors?: Record<string, string> // For badge type, color mapping
-  searchable?: boolean
-  translatable?: boolean // Whether the column content should be translated
-  dateFormat?: string // Format for date columns
-}
 
-interface Action {
-  label: string
-  handler: (item: any) => void
-  icon?: any
-  variant?: 'primary' | 'success' | 'warning' | 'danger'
-  condition?: (item: any) => boolean // Optional condition to show/hide action
-}
+
+
 
 // HeaderAction interface removed as we're using slots now
 
@@ -203,7 +189,7 @@ interface Props {
   title: string
   columns: Column[]
   data: any[]
-  actions?: Action[]
+  actions?: Action[] | any
   searchable?: boolean
   searchPlaceholder?: string
   selectable?: boolean
@@ -211,7 +197,7 @@ interface Props {
   emptyStateMessage?: string
   itemKey?: string // Key to use for unique identification
   modelValue?: string // For v-model support on searchQuery
-  showHeader:boolean
+  showHeader?:boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {

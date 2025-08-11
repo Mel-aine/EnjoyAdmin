@@ -76,7 +76,7 @@
 <script setup>
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { Save } from 'lucide-vue-next'
 
 const rates = ref([

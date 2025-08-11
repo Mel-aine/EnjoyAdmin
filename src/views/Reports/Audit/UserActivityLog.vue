@@ -204,6 +204,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import type { Action, Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -403,7 +404,7 @@ const getStatusClass = (status: string) => {
 }
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'timestamp', label: t('common.timestamp'), type: 'date' },
   { key: 'user', label: t('common.user'), type: 'text' },
   { 
@@ -436,7 +437,7 @@ const tableColumns = computed(() => [
   }
 ])
 
-const tableActions = computed(() => [
+const tableActions = computed<Action[]>(() => [
   {
     label: t('common.viewDetails'),
     handler: (item: any) => viewActivityDetails(item.id),

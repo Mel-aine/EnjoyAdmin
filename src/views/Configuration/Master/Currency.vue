@@ -152,9 +152,22 @@
               </label>
             </div>
             
-            <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" />
-              <BasicButton type="submit" variant="primary" :label="isEditing ? 'Update' : 'Save'" />
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton 
+                variant="secondary" 
+                @click="closeModal"
+                type="button"
+                :label="$t('cancel')"
+              >
+                Cancel
+              </BasicButton>
+              <BasicButton 
+                variant="primary" 
+                type="submit"
+                :label="isEditing ? $t('update') : $t('save') "
+                :icon="isEditing ? Edit : Save"
+              >
+              </BasicButton>
             </div>
           </form>
         </div>
@@ -170,20 +183,25 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
+import { Edit, Save } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
-const currencies = ref([
+const currencies = ref<any[]>([
   { id: 1, code: 'USD', name: 'US Dollar', symbol: '$', exchangeRate: 1.00, isDefault: true, country: 'US', position: 'prefix', decimalPlaces: 2 },
   { id: 2, code: 'EUR', name: 'Euro', symbol: '€', exchangeRate: 0.85, isDefault: false, country: 'EU', position: 'prefix', decimalPlaces: 2 },
   { id: 3, code: 'GBP', name: 'British Pound', symbol: '£', exchangeRate: 0.73, isDefault: false, country: 'GB', position: 'prefix', decimalPlaces: 2 },
   { id: 4, code: 'JPY', name: 'Japanese Yen', symbol: '¥', exchangeRate: 110.00, isDefault: false, country: 'JP', position: 'prefix', decimalPlaces: 0 },
 ])
 
-const columns = [
+const columns:Column[] = [
   { key: 'code', label: 'Currency Code', type: 'text' },
   { key: 'name', label: 'Currency Name', type: 'text' },
   { key: 'symbol', label: 'Symbol', type: 'text' },
   { key: 'exchangeRate', label: 'Exchange Rate', type: 'text' },
-  { key: 'isDefault', label: 'Default', type: 'custom' }
+  { key: 'isDefault', label: 'Default', type: 'custom' },
+  { key: 'country', label: 'Country', type: 'text' },
+  { key: 'position', label: 'Position', type: 'text' },
+  { key: 'decimalPlaces', label: 'Decimal Places', type: 'text' },
 ]
 const editCurrency = (currency: any) => {
   isEditing.value = true
@@ -199,9 +217,9 @@ const deleteCurrency = (id: number) => {
     }
   }
 }
-const actions = [
-  { key: 'edit', label: 'Edit', handler: editCurrency },
-  { key: 'delete', label: 'Delete', handler: deleteCurrency }
+const actions: Action[] = [
+  { label: 'Edit', handler: editCurrency, variant: 'primary' },
+  { label: 'Delete', handler: deleteCurrency, variant: 'danger' }
 ]
 
 const showModal = ref(false)
@@ -219,7 +237,7 @@ const formData = reactive({
   isDefault: false
 })
 
-const countryToCurrency = {
+const countryToCurrency:any = {
   'US': { name: 'US Dollar', symbol: '$', code: 'USD' },
   'IN': { name: 'Indian Rupee', symbol: '₹', code: 'INR' },
   'GB': { name: 'British Pound', symbol: '£', code: 'GBP' },

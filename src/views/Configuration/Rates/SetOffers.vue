@@ -23,6 +23,6 @@
 
 <script setup>
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import BasicButton from '../../../components/ui/BasicButton.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { Settings } from 'lucide-vue-next'
 </script>

@@ -15,7 +15,7 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            icon="Plus"
+            :icon="Plus"
             label="Add Template"
             @click="openAddModal"
           />
@@ -114,15 +114,16 @@
               <BasicButton 
                 variant="secondary" 
                 @click="closeModal"
-                type="button"
+                :label="$t('cancel')"
+                :icon="ShieldCloseIcon"
               >
                 Cancel
               </BasicButton>
               <BasicButton 
                 variant="primary" 
                 type="submit"
+                :label="isEditing ? $t('Update') : $t('Save')"
               >
-                {{ isEditing ? 'Update' : 'Save' }}
               </BasicButton>
             </div>
           </form>
@@ -139,6 +140,9 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import type { Action, Column } from '../../../utils/models'
+import Plus from '../../../icons/Plus.vue'
+import { ShieldCloseIcon } from 'lucide-vue-next'
 
 // Reactive data
 const showModal = ref(false)
@@ -170,7 +174,9 @@ const templates = ref([
     createdDate: '2024-01-15',
     modifiedBy: 'admin',
     modifiedDate: '2024-01-15',
-    status: 'Active'
+    status: 'Active',
+    scheduleDate: '2024-01-15',
+    messageBody:""
   },
   {
     id: 2,
@@ -268,7 +274,7 @@ const emailAccountOptions = [
 ]
 
 // Table configuration
-const columns = [
+const columns: Column[] = [
   { key: 'name', label: 'Template Name', type: 'text' },
   { key: 'category', label: 'Category', type: 'text' },
   { key: 'subject', label: 'Subject', type: 'text' },
@@ -277,7 +283,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions:Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editTemplate(item),

@@ -17,18 +17,18 @@
             <BasicButton
               :label="$t('AddCustomers')"
               variant="primary"
-              :icon="UserIcon"
+              icon="user"
               @click="showModal = true"
             />
             <BasicButton
               :label="$t('export')"
               variant="secondary"
-              :icon="FolderOutputIcon"
+              icon="folder-output"
             />
             <BasicButton
               :label="$t('audit_trial')"
               variant="secondary"
-              :icon="IdCard"
+              icon="id-card"
             />
             <UserFilters />
           </template>
@@ -76,35 +76,35 @@ const columns = computed(() => [
   {
     key: 'userFullName',
     label: t('User'),
-    type: 'text',
+    type: 'text' as const,
     sortable: true,
     translatable: false
   },
   {
     key: 'email',
     label: t('Email'),
-    type: 'email',
+    type: 'email' as const,
     sortable: true,
     translatable: false
   },
   {
     key: 'phoneNumber',
     label: t('Phone'),
-    type: 'text',
+    type: 'text' as const,
     sortable: true,
     translatable: false
   },
   {
     key: 'address',
     label: t('address'),
-    type: 'text',
+    type: 'text' as const,
     sortable: true,
     translatable: true
   },
   {
     key: 'createdAt',
     label: t('Created Date'),
-    type: 'date',
+    type: 'date' as const,
     sortable: true,
     dateFormat: 'short',
     translatable: false

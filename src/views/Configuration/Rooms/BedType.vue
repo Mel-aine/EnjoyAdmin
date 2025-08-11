@@ -138,18 +138,19 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Trash2, Edit, Trash } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
-const selectedBedTypes = ref([])
-const editingBedType = ref(null)
+const selectedBedTypes = ref<any[]>([])
+const editingBedType = ref<any>(null) 
 
 // Form data
 const formData = ref({
@@ -159,54 +160,49 @@ const formData = ref({
 })
 
 // Table configuration
-const columns = ref([
+const columns: Column[] = [
   {
     key: 'shortCode',
     label: 'Short Code',
-    sortable: true,
-    searchable: true
+    type: 'text'
   },
   {
     key: 'bedTypeName',
     label: 'Bed Type Name',
-    sortable: true,
-    searchable: true
+    type: 'text'
   },
   {
     key: 'status',
     label: 'Status',
-    sortable: true,
-    component: 'badge'
+    type: 'custom'
   },
   {
     key: 'createdInfo',
     label: 'Created By',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'modifiedInfo',
     label: 'Modified By',
-    sortable: false
+    type: 'custom'
   }
-])
+]
 
-const actions = ref([
+const actions: Action[] = [
   {
     label: 'Edit',
-    icon: 'edit',
-    variant: 'primary',
-    action: 'edit'
+    handler: (item: any) => editBedType(item),
+    variant: 'primary'
   },
   {
     label: 'Delete',
-    icon: 'trash',
-    variant: 'danger',
-    action: 'delete'
+    handler: (item: any) => deleteBedType(item.id),
+    variant: 'danger'
   }
-])
+]
 
 // Sample data
-const bedTypes = ref([
+const bedTypes = ref<any[]>([
   {
     id: 1,
     shortCode: 'KB',
@@ -260,11 +256,11 @@ const bedTypes = ref([
 ])
 
 // Methods
-const onSelectionChange = (selected) => {
+const onSelectionChange = (selected:any) => {
   selectedBedTypes.value = selected
 }
 
-const onAction = (action, item) => {
+const onAction = (action:string, item:any) => {
   if (action === 'edit') {
     editBedType(item)
   } else if (action === 'delete') {
@@ -272,7 +268,7 @@ const onAction = (action, item) => {
   }
 }
 
-const editBedType = (bedType) => {
+const editBedType = (bedType:any) => {
   editingBedType.value = bedType
   formData.value = {
     shortCode: bedType.shortCode,
@@ -282,7 +278,7 @@ const editBedType = (bedType) => {
   showEditModal.value = true
 }
 
-const deleteBedType = (bedType) => {
+const deleteBedType = (bedType:any) => {
   if (confirm(`Are you sure you want to delete the bed type "${bedType.bedTypeName}"?`)) {
     bedTypes.value = bedTypes.value.filter(bt => bt.id !== bedType.id)
   }

@@ -99,7 +99,6 @@ import type { FitlterItem } from '@/utils/models';
 import { getTypeProductByServiceId } from '@/services/api';
 import type { RoomTypeData } from '@/types/option';
 import { useServiceStore } from '@/composables/serviceStore';
-import BasicButton from '../buttons/BasicButton.vue';
 
 const emits = defineEmits(['filter']);
 defineProps({

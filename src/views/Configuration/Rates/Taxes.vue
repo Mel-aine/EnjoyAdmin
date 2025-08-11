@@ -243,7 +243,7 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
@@ -252,6 +252,7 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showAddModal = ref(false)
@@ -275,53 +276,53 @@ const formData = ref({
 })
 
 // Table columns
-const columns = ref([
+const columns: Column[] = [
   {
     key: 'shortName',
     label: 'Short Name',
-    sortable: true
+    type: 'text'
   },
   {
     key: 'taxName',
     label: 'Tax Name',
-    sortable: true
+    type: 'text'
   },
   {
     key: 'appliesFrom',
     label: 'Applies From',
-    sortable: true
+    type: 'text'
   },
   {
     key: 'exemptAfter',
     label: 'Exempt After',
-    sortable: true
+    type: 'text'
   },
   {
     key: 'taxDetails',
     label: 'Tax Details',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'applicationRules',
     label: 'Application Rules',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'status',
     label: 'Status',
-    sortable: true
+    type: 'custom'
   },
   {
     key: 'createdInfo',
     label: 'Created By',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'modifiedInfo',
     label: 'Modified By',
-    sortable: false
+    type: 'custom'
   }
-])
+]
 
 // Sample data
 const taxes = ref([
@@ -397,7 +398,7 @@ const deleteTax = (tax) => {
 }
 
 // Actions configuration
-const actions = ref([
+const actions = ref<Action[]>([
   {
     label: 'Edit',
     handler: editTax,

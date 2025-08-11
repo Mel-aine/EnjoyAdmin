@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <PageBreadcrumb title="Reusable Table Example" :breadcrumb="breadcrumb" />
+    <PageBreadcrumb pageTitle="Reusable Table Example" :breadcrumb="breadcrumb" />
     
     <div class="space-y-6">
       <!-- Example 1: Guest Database Table -->
@@ -12,6 +12,7 @@
         :header-actions="guestHeaderActions"
         search-placeholder="Quick Search by Name, Email, Contact..."
         :selectable="true"
+        :show-header="true"
         empty-state-title="No guests found"
         empty-state-message="Get started by adding a new guest to the database."
         @selection-change="onGuestSelectionChange"
@@ -27,6 +28,7 @@
         :header-actions="userHeaderActions"
         search-placeholder="Search users..."
         :selectable="false"
+        :show-header="true"
         empty-state-title="No users found"
         empty-state-message="Add users to get started."
         @action="onUserAction"
@@ -52,8 +54,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminLayout from '@/layouts/AdminLayout.vue'
-import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 
 const breadcrumb = [

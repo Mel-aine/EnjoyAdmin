@@ -147,6 +147,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -187,7 +188,7 @@ const filteredInclusions = computed(() => {
 })
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'date', label: t('common.date'), type: 'date' },
   { key: 'guestName', label: t('common.guestName'), type: 'text' },
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },

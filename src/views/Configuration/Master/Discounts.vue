@@ -108,19 +108,22 @@
               </div>
             </div>
             
-            <div class="flex justify-end space-x-3 pt-4">
+            
+           <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 variant="secondary" 
                 @click="closeModal"
                 type="button"
+                :label="$t('cancel')"
               >
                 Cancel
               </BasicButton>
               <BasicButton 
                 variant="primary" 
                 type="submit"
+                :label="isEditing ? $t('update') : $t('save') "
+                :icon="isEditing ? Edit : Save"
               >
-                {{ isEditing ? 'Update' : 'Save' }}
               </BasicButton>
             </div>
           </form>
@@ -137,6 +140,8 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import type { Action, Column } from '../../../utils/models'
+import { Edit, Save } from 'lucide-vue-next'
 
 // Reactive data
 const showModal = ref(false)
@@ -210,7 +215,7 @@ const applyOnOptions = [
 ]
 
 // Table configuration
-const columns = [
+const columns :Column[] = [
   { key: 'shortCode', label: 'Short Code', type: 'text' },
   { key: 'name', label: 'Discount Name', type: 'text' },
   { key: 'type', label: 'Type', type: 'text' },
@@ -221,7 +226,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions:Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editDiscount(item),

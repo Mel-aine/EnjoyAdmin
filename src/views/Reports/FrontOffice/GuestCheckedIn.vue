@@ -133,6 +133,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { Action, Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -174,7 +175,7 @@ const summary = computed(() => {
 })
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'guestName', label: t('common.guestName'), type: 'text' },
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },
   { key: 'roomType', label: t('common.roomType'), type: 'text' },
@@ -195,7 +196,7 @@ const tableColumns = computed(() => [
   }
 ])
 
-const tableActions = [
+const tableActions:Action[] = [
   {
     label: t('common.view'),
     handler: (item: CheckedInGuest) => viewGuestDetails(item.id),

@@ -186,24 +186,25 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
+import type { Action, Column } from '../../../utils/models'
 
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 
-const columns = [
-  { key: 'shortCode', label: 'Short Code' },
-  { key: 'name', label: 'Payment Method' },
-  { key: 'type', label: 'Type' },
-  { key: 'cardProcessing', label: 'Card Processing' },
-  { key: 'createdBy', label: 'Created By' },
-  { key: 'modifiedBy', label: 'Modified By' },
-  { key: 'status', label: 'Status' }
+const columns: Column[] = [
+  { key: 'shortCode', label: 'Short Code', type: 'text' },
+  { key: 'name', label: 'Payment Method', type: 'text' },
+  { key: 'type', label: 'Type', type: 'text' },
+  { key: 'cardProcessing', label: 'Card Processing', type: 'custom' },
+  { key: 'createdBy', label: 'Created By', type: 'text' },
+  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
+  { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
-  { key: 'edit', label: 'Edit', variant: 'outline' },
-  { key: 'delete', label: 'Delete', variant: 'danger' }
+const actions: Action[] = [
+  { label: 'Edit', handler: (item: any) => editPayMethod(item), variant: 'primary' },
+  { label: 'Delete', handler: (item: any) => deletePayMethod(item.id), variant: 'danger' }
 ]
 
 const formData = reactive({
@@ -218,7 +219,7 @@ const formData = reactive({
   receiptNoSetting: 'auto_general'
 })
 
-const payMethods = ref([
+const payMethods = ref<any[]>([
   { 
     id: 1, 
     shortCode: 'CASH', 

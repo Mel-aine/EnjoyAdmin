@@ -386,12 +386,14 @@
           <!-- Room Table View -->
           <div v-if="viewMode === 'list'" class="mt-10 bg-white rounded-lg shadow">
             <ReusableTable
+              title="Room Occupancy"
               :data="paginatedRooms"
               :columns="tableColumns"
               :actions="tableActions"
               :loading="isLoading"
               :searchable="false"
               :selectable="false"
+              :showHeader="true"
               @action="onTableAction"
             />
           </div>
@@ -623,7 +625,7 @@ const currentPage = ref<any>(1);
 const showStatusModal = ref(false);
 const selectedRoom = ref<any>(null);
 const showMaintenanceModal = ref(false)
-const viewMode = ref<'grid' | 'list'>('grid')
+const viewMode = ref<'grid' | 'list' | 'status'>('grid')
 const { t, locale } = useI18n()
 const showMessage = ref(false)
 const popupMessage = ref('')
@@ -893,17 +895,17 @@ const tableColumns = computed(() => [
   {
     key: 'productName',
     label: t('Room'),
-    type: 'text'
+    type: 'text' as const
   },
   {
     key: 'productTypeName',
     label: t('Type'),
-    type: 'text'
+    type: 'text' as const
   },
   {
     key: 'status',
     label: t('Status'),
-    type: 'badge',
+    type: 'badge' as const,
     badgeColors: {
       'available': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
       'occupied': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
@@ -916,17 +918,17 @@ const tableColumns = computed(() => [
   {
     key: 'guestName',
     label: t('Guest'),
-    type: 'text'
+    type: 'text' as const
   },
   {
     key: 'checkInTime',
     label: t('Check-in'),
-    type: 'date'
+    type: 'date' as const
   },
   {
     key: 'checkOutTime',
     label: t('Check-out'),
-    type: 'date'
+    type: 'date' as const
   }
 ]);
 
@@ -935,13 +937,13 @@ const tableActions = computed(() => [
     label: t('Change Status'),
     handler: (room: any) => handleQuickStatusChange(room, room.status),
     icon: 'edit',
-    variant: 'primary'
+    variant: 'primary' as const
   },
   {
     label: t('Maintenance'),
     handler: (room: any) => handleMaintenance(room, 'maintenance'),
     icon: 'settings',
-    variant: 'warning',
+    variant: 'warning' as const,
     condition: (room: any) => room.status !== 'maintenance'
   }
 ]);
@@ -959,7 +961,7 @@ const onTableAction = (action: string, room: any) => {
 // Open audit trail
 const openAuditTrail = () => {
   // TODO: Implement audit trail functionality
-  toast.add({
+  toast({
     severity: 'info',
     summary: t('Info'),
     detail: t('Audit trail functionality will be implemented'),

@@ -153,7 +153,8 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/common/ReusableTable.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -282,35 +283,23 @@ const getStatusClass = (status: string) => {
 }
 
 // Table configuration
-const tableColumns = computed(() => [
-  { key: 'id', label: t('common.taskId'), type: 'text', prefix: '#' },
-  { key: 'title', label: t('common.title'), type: 'custom' },
-  { key: 'department', label: t('common.department'), type: 'text', translatable: true },
-  { key: 'assignedTo', label: t('common.assignedTo'), type: 'text' },
+const tableColumns = computed<Column[]>(() => [
+  { key: 'id', label: t('common.taskId'), type: 'text' as const, prefix: '#' },
+  { key: 'title', label: t('common.title'), type: 'custom' as const },
+  { key: 'department', label: t('common.department'), type: 'text' as const, translatable: true },
+  { key: 'assignedTo', label: t('common.assignedTo'), type: 'text' as const },
   { 
     key: 'priority', 
     label: t('common.priority'), 
-    type: 'badge',
+    type: 'badge' as const,
     translatable: true,
-    badgeColors: {
-      'urgent': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      'high': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-      'medium': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      'low': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    }
   },
-  { key: 'dueDate', label: t('common.dueDate'), type: 'date' },
+  { key: 'dueDate', label: t('common.dueDate'), type: 'date' as const },
   { 
     key: 'status', 
     label: t('common.status'), 
-    type: 'badge',
+    type: 'badge' as const,
     translatable: true,
-    badgeColors: {
-      'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      'in-progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-    }
   }
 ])
 
@@ -318,12 +307,12 @@ const tableActions = computed(() => [
   {
     label: t('common.view'),
     handler: (item: any) => viewTask(item),
-    variant: 'primary'
+    variant: 'primary' as const
   },
   {
     label: t('common.update'),
     handler: (item: any) => updateTaskStatus(item),
-    variant: 'success',
+    variant: 'success' as const,
     condition: (item: any) => item.status !== 'completed'
   }
 ])

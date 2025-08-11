@@ -182,24 +182,25 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
+import type { Action, Column } from '../../../utils/models'
 
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 
-const columns = [
-  { key: 'shortCode', label: 'Short Code' },
-  { key: 'name', label: 'Name' },
-  { key: 'rate', label: 'Rate' },
-  { key: 'tax', label: 'Tax %' },
-  { key: 'rateInclusiveTax', label: 'Rate Inc. Tax' },
-  { key: 'fixedPrice', label: 'Fixed Price' },
-  { key: 'status', label: 'Status' }
+const columns :Column[]= [
+  { key: 'shortCode', label: 'Short Code', type: 'text' },
+  { key: 'name', label: 'Name', type: 'text' },
+  { key: 'rate', label: 'Rate', type: 'text' },
+  { key: 'tax', label: 'Tax %', type: 'text' },
+  { key: 'rateInclusiveTax', label: 'Rate Inc. Tax', type: 'text' },
+  { key: 'fixedPrice', label: 'Fixed Price', type: 'custom' },
+  { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
-  { key: 'edit', label: 'Edit', variant: 'outline' },
-  { key: 'delete', label: 'Delete', variant: 'danger' }
+const actions:Action[] = [
+  {  label: 'Edit', variant: 'primary',handler:(item:any)=>editExtraCharge(item)},
+  { label: 'Delete', variant: 'danger',handler:(item:any)=>deleteExtraCharge(item) }
 ]
 
 const formData = reactive({
@@ -214,7 +215,7 @@ const formData = reactive({
   voucherNo: 'auto_general'
 })
 
-const extraCharges = ref([
+const extraCharges = ref<any[]>([
   { 
     id: 1, 
     shortCode: 'WIFI', 
@@ -286,8 +287,8 @@ const extraCharges = ref([
 ])
 
 const calculateRateInclusiveTax = () => {
-  const rate = parseFloat(formData.rate) || 0
-  const tax = parseFloat(formData.tax) || 0
+  const rate = parseFloat(formData.rate.toString()) || 0
+  const tax = parseFloat(formData.tax.toString()) || 0
   formData.rateInclusiveTax = rate + (rate * tax / 100)
 }
 

@@ -193,7 +193,7 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
@@ -201,11 +201,12 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
-const editingRateType = ref(null)
+const editingRateType = ref<any>(null)
 const selectedRateTypes = ref([])
 
 // Form data
@@ -220,43 +221,43 @@ const formData = ref({
 })
 
 // Table columns
-const columns = ref([
+const columns: Column[] = [
   {
     key: 'shortCode',
     label: 'Short Code',
-    sortable: true
+    type: 'text'
   },
   {
     key: 'rateType',
     label: 'Rate Type',
-    sortable: true
+    type: 'text'
   },
   {
     key: 'nightsInfo',
     label: 'Nights Info',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'capacityInfo',
     label: 'Capacity & Room Type',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'status',
     label: 'Status',
-    sortable: true
+    type: 'custom'
   },
   {
     key: 'createdInfo',
     label: 'Created By',
-    sortable: false
+    type: 'custom'
   },
   {
     key: 'modifiedInfo',
     label: 'Modified By',
-    sortable: false
+    type: 'custom'
   }
-])
+]
 
 // Sample data
 const rateTypes = ref([
@@ -332,13 +333,13 @@ const statusOptions = ref([
 ])
 
 // Methods
-const editRateType = (rateType) => {
+const editRateType = (rateType:any) => {
   editingRateType.value = rateType
   formData.value = { ...rateType }
   showEditModal.value = true
 }
 
-const deleteRateType = (rateType) => {
+const deleteRateType = (rateType:any) => {
   if (confirm(`Are you sure you want to delete rate type "${rateType.rateType}"?`)) {
     const index = rateTypes.value.findIndex(rt => rt.id === rateType.id)
     if (index > -1) {
@@ -348,21 +349,20 @@ const deleteRateType = (rateType) => {
 }
 
 // Actions configuration
-const actions = ref([
+const actions: Action[] = [
   {
     label: 'Edit',
     handler: editRateType,
-    icon: Edit
+    variant: 'primary'
   },
   {
     label: 'Delete',
     handler: deleteRateType,
-    icon: Trash,
     variant: 'danger'
   }
-])
+]
 
-const onAction = (action, item) => {
+const onAction = (action:string, item:any) => {
   if (action === 'edit') {
     editRateType(item)
   } else if (action === 'delete') {
@@ -370,7 +370,7 @@ const onAction = (action, item) => {
   }
 }
 
-const onSelectionChange = (selected) => {
+const onSelectionChange = (selected:any) => {
   selectedRateTypes.value = selected
 }
 
@@ -400,7 +400,7 @@ const saveRateType = () => {
     rateTypes.value.push(newRateType)
   } else {
     // Update existing rate type
-    const index = rateTypes.value.findIndex(rt => rt.id === editingRateType.value.id)
+    const index = rateTypes.value.findIndex(rt => rt.id === editingRateType.value!.id)
     if (index > -1) {
       rateTypes.value[index] = {
         ...rateTypes.value[index],

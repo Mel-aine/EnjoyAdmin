@@ -65,18 +65,22 @@
               />
             </div>
             
-            <div class="flex justify-end space-x-3 mt-6">
+           <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
-                type="button" 
-                variant="outline" 
+                variant="secondary" 
                 @click="closeModal"
-                label="Cancel"
-              />
+                type="button"
+                :label="$t('cancel')"
+              >
+                Cancel
+              </BasicButton>
               <BasicButton 
-                type="submit" 
-                variant="primary"
-                :label="isEditing ? 'Update' : 'Save'"
-              />
+                variant="primary" 
+                type="submit"
+                :label="isEditing ? $t('update') : $t('save') "
+                :icon="isEditing ? Edit : Save"
+              >
+              </BasicButton>
             </div>
           </form>
         </div>
@@ -91,7 +95,8 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
-import { Plus } from 'lucide-vue-next'
+import { Edit, Plus, Save } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showModal = ref(false)
@@ -104,7 +109,7 @@ const formData = reactive({
 })
 
 // Table configuration
-const columns = [
+const columns :Column[] = [
   { key: 'name', label: 'Housekeeper', type: 'text' },
   { key: 'mobile', label: 'Mobile', type: 'text' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
@@ -112,7 +117,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions:Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editHousekeeper(item),

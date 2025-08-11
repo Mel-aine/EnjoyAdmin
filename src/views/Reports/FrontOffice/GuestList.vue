@@ -76,10 +76,11 @@
 
 <script setup lang="ts">
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/common/ReusableTable.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import type { Action, Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -160,7 +161,7 @@ const viewDetails = (guestId: string) => {
 }
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'guestName', label: t('common.guestName'), type: 'text' },
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },
   { key: 'checkInDate', label: t('common.checkInDate'), type: 'date' },
@@ -177,7 +178,7 @@ const tableColumns = computed(() => [
   }
 ])
 
-const tableActions = computed(() => [
+const tableActions = computed<Action[]>(() => [
   {
     label: t('common.view'),
     handler: (item: Guest) => viewDetails(item.id),

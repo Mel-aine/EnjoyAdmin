@@ -159,7 +159,7 @@
       </ReusableTable>
     </div>
 
-    <!-- Audit Trail -->
+    <!-- Audit Trail 
     <ReusableTable
       :title="t('reports.frontOffice.auditTrail')"
       :columns="auditTableColumns"
@@ -173,7 +173,7 @@
         </span>
         <span v-else class="text-gray-400">-</span>
       </template>
-    </ReusableTable>
+    </ReusableTable>-->
     </div>
   </ReportsLayout>
 </template>
@@ -182,7 +182,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/common/ReusableTable.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -240,7 +241,7 @@ const summary = computed(() => {
 })
 
 // Table configurations
-const paymentTableColumns = computed(() => [
+const paymentTableColumns = computed<Column[]>(() => [
   { 
     key: 'method', 
     label: t('common.paymentMethod'), 

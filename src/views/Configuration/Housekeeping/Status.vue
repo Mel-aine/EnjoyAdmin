@@ -26,9 +26,14 @@
             @click="openAddModal"
           />
         </template>
-
+        
+        <template #column-color="{ item }">
+          <div class="flex items-center">
             <div class="w-6 h-6 rounded-full border border-gray-300" :style="{ backgroundColor: item.color }"></div>
             <span class="text-sm text-gray-600">{{ item.color }}</span>
+          </div>
+        </template>
+        
 
         <template #column-status="{ item }">
           <span 
@@ -105,6 +110,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { Plus } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showModal = ref(false)
@@ -117,7 +123,7 @@ const formData = reactive({
 })
 
 // Table configuration
-const columns = [
+const columns:Column[] = [
   { key: 'name', label: 'Status Name', type: 'text' },
   { key: 'color', label: 'Color', type: 'custom' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
@@ -125,7 +131,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions: Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editStatus(item),

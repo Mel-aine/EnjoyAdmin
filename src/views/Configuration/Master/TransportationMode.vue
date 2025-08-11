@@ -57,17 +57,15 @@
             <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 variant="secondary" 
+                label="Cancel"
                 @click="closeModal"
                 type="button"
-              >
-                Cancel
-              </BasicButton>
+              />
               <BasicButton 
                 variant="primary" 
+                :label="isEditing ? 'Update' : 'Save'"
                 type="submit"
-              >
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+              />
             </div>
           </form>
         </div>
@@ -82,6 +80,7 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showModal = ref(false)
@@ -138,7 +137,7 @@ const transportationModes = ref([
 ])
 
 // Table configuration
-const columns = [
+const columns: Column[] = [
   { key: 'name', label: 'Transportation Mode', type: 'text' },
   { key: 'description', label: 'Description', type: 'text' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
@@ -146,7 +145,7 @@ const columns = [
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions: Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editTransportationMode(item),

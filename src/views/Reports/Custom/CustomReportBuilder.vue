@@ -386,7 +386,7 @@ import { ref, computed } from 'vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 
 // Report configuration
-const reportConfig = ref({
+const reportConfig = ref<any>({
   name: '',
   type: 'table',
   dataSource: '',
@@ -400,8 +400,8 @@ const reportConfig = ref({
 })
 
 // Available fields based on data source
-const availableFields = ref([])
-const selectedFields = ref([])
+const availableFields = ref<any[]>([])
+const selectedFields = ref<any[]>([])
 
 // Field definitions for different data sources
 const fieldDefinitions = {

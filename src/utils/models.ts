@@ -433,3 +433,23 @@ export interface PaymentFilterItem {
   status: string,
   serviceId?: number
 }
+
+
+export  interface Column {
+  key: string
+  label: string
+  type?: 'text' | 'email' | 'badge' | 'image' | 'custom' | 'date'
+  imageKey?: string // For image type, the key for the image URL
+  badgeColors?: Record<string, string> // For badge type, color mapping
+  searchable?: boolean
+  translatable?: boolean // Whether the column content should be translated
+  dateFormat?: string // Format for date columns
+}
+
+export interface Action {
+  label: string
+  handler: (item: any) => void
+  icon?: any
+  variant?: 'primary' | 'success' | 'warning' | 'danger'
+  condition?: (item: any) => boolean // Optional condition to show/hide action
+}

@@ -92,6 +92,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { Plus } from 'lucide-vue-next'
+import type { Action, Column } from '../../../utils/models'
 
 // Reactive data
 const showModal = ref(false)
@@ -103,14 +104,14 @@ const formData = reactive({
 })
 
 // Table configuration
-const columns = [
+const columns: Column[] = [
   { key: 'name', label: 'Unit Name', type: 'text' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
   { key: 'modifiedBy', label: 'Modified By', type: 'text' },
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
-const actions = [
+const actions: Action[] = [
   {
     label: 'Edit',
     handler: (item: any) => editUnit(item),

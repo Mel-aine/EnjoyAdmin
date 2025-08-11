@@ -155,7 +155,8 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/common/ReusableTable.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -265,7 +266,7 @@ const formatDate = (date: string) => {
 }
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'number', label: t('common.roomNumber'), type: 'text' },
   { key: 'floor', label: t('common.floor'), type: 'text' },
   { key: 'type', label: t('common.roomType'), type: 'text', translatable: true },

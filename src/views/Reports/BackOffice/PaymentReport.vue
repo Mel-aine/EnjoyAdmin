@@ -184,7 +184,6 @@
         :selectable="false"
         :empty-state-title="$t('common.noDataFound')"
         :empty-state-message="$t('reports.noPaymentsFound')"
-        @action="handleTableAction"
       >
         <template #column-amount="{ item }">
           <span class="text-sm text-gray-900 dark:text-white">
@@ -202,6 +201,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import type { Action, Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -259,7 +259,7 @@ const filteredPayments = computed(() => {
 })
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'id', label: t('common.paymentId'), type: 'text' },
   { key: 'date', label: t('common.date'), type: 'date' },
   { key: 'guestName', label: t('common.guestName'), type: 'text' },
@@ -280,7 +280,7 @@ const tableColumns = computed(() => [
   { key: 'reference', label: t('common.reference'), type: 'text' }
 ])
 
-const tableActions = computed(() => [
+const tableActions = computed<Action[]>(() => [
   {
     label: t('common.view'),
     handler: (item: Payment) => viewPayment(item.id),
@@ -405,10 +405,6 @@ const loadPaymentReport = async () => {
 }
 
 const viewPayment = (paymentId: string) => {
-  router.push(`/payment/${paymentId}`)
-}
-
-const viewPayment = (paymentId: string) => {
   // Navigate to payment details or open modal
   router.push(`/reports/payments/${paymentId}`)
 }
@@ -422,6 +418,12 @@ const processPayment = async (paymentId: string) => {
     }
   } catch (error) {
     console.error('Error processing payment:', error)
+  }
+}
+
+const handleTableAction = (action: Action, item: Payment) => {
+  if (action.handler) {
+    action.handler(item)
   }
 }
 

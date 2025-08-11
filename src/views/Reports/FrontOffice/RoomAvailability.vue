@@ -150,6 +150,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { type Action, type Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -314,7 +315,7 @@ const bookRoom = (id: string) => {
 }
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },
   { key: 'roomType', label: t('common.roomType'), type: 'text', translatable: true },
   { key: 'floor', label: t('common.floor'), type: 'text' },
@@ -335,7 +336,7 @@ const tableColumns = computed(() => [
   { key: 'nextAvailable', label: t('common.nextAvailable'), type: 'custom' }
 ])
 
-const tableActions = computed(() => [
+const tableActions = computed<Action[]>(() => [
   {
     label: t('common.view'),
     handler: (item: Room) => viewRoomDetails(item.id),

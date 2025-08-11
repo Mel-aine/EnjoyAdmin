@@ -143,9 +143,10 @@
 
 <script setup lang="ts">
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/common/ReusableTable.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { Action, Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
@@ -183,7 +184,7 @@ const filteredInventory = computed(() => {
 })
 
 // Table configuration
-const tableColumns = computed(() => [
+const tableColumns = computed<Column[]>(() => [
   { 
     key: 'type', 
     label: t('common.roomType'), 

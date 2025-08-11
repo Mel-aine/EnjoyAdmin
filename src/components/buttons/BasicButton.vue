@@ -1,18 +1,12 @@
 <script setup lang="ts">
-const props = defineProps({
-    label: {
-        type: String,
-        required: true
-    },
-    variant: {
-        type: String,
-        default: 'primary'
-    },
-    icon: {
-        type: String,
-        default: null
-    }
-})
+const props = withDefaults(defineProps<{
+  icon?: any;
+  label: string;
+  value?: any;
+  variant?: string |'primary'
+}>(), {
+    variant: 'primary'
+});
 
 const emit = defineEmits(['click'])
 
