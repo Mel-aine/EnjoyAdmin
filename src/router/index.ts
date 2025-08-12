@@ -39,6 +39,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/new_booking',
+      name: 'New Booking',
+      component: () => import('../views/Bookings/BookingForm.vue'),
+      meta: {
+        title: 'New Booking',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/addbooking/:id',
       name: 'AddBooking',
       component: () => import('../views/Bookings/AddBooking.vue'),

@@ -728,7 +728,7 @@
   "average_occupancy": "Taux d’occupation moyen",
   "average_price": "Prix moyen",
   "Earning": "Revenu",
-  "nights": "nuits",
+  "nights": "Nuits",
   "duration": "Durée du séjour",
   "see_details": "Voir les détails",
   "groups": "Groupes",
@@ -3667,5 +3667,47 @@
     "spa": "Spa",
     "wifi": "WiFi",
     "parking": "Parking"
+  },
+  "guestTitles": {
+    "mr": "M.",
+    "mrs": "Mme",
+    "ms": "Mlle"
+  },
+  "otherInfo": {
+    "emailBookingVouchers": "Envoyer les bons de réservation par email",
+    "previewVoucher": "Aperçu du bon",
+    "sendEmailAtCheckout": "Envoyer un email lors du départ",
+    "accessToGuestPortal": "Accès au portail client",
+    "successRateOnRegistrationCard": "Taux de réussite sur la fiche d'inscription"
+  },
+  "RateOffered": "Tarif proposé",
+  "Contract": "Contrat",
+  "BookAllAvailableRooms": "Réserver toutes les chambres disponibles",
+  "QuickGroupBooking": "Réservation de groupe rapide",
+  "ComplimentaryRoom": "Chambre offerte",
+  "BillingSummary": "Résumé de facturation",
+  "ConfirmBooking": "Confirmer la réservation",
+  "RoomCharges": "Frais de chambre",
+  "Taxes": "Taxes",
+  "DueAmount": "Montant dû",
+  "BillTo": "Facturer à",
+  "TaxExempt": "Exonéré de taxe",
+  "PaymentMode": "Mode de paiement",
+  "Credit": "Crédit",
+  "AddPayment": "Ajouter un paiement",
+  "booking_type": "Type de réservation",
+  "business_source": "Source commerciale",
+  "add_discount": "Ajouter une remise",
+  "guest_info": "Informations sur le client",
+  "C_Form": "Formulaire C",
+  "other_info": "Autres informations",
+  "Reserve": "Réserver",
+  "inclusion": "Inclusion",
+  "remarks": "Remarques",
+  "create_task": "Créer une tâche",
+  "pickup_dropoff": "Prise en charge / Dépôt",
+  "validation": {
+    "departureAfterArrival": "La date de départ doit être après la date d'arrivée.",
+    "invalidDateRange": "Plage de dates invalide."
   }
 }
