@@ -10,39 +10,23 @@
       </div>
 
       <!-- Seasons Table using ReusableTable -->
-      <ReusableTable
-        :title="t('seasonsList')"
-        :columns="columns"
-        :data="seasons"
-        :actions="actions"
-        :search-placeholder="t('searchSeasons')"
-        :selectable="true"
-        :empty-state-title="t('noSeasonsFound')"
-        :empty-state-message="t('addSeasonMessage')"
-        @action="onAction"
-        @selection-change="onSelectionChange"
-      >
+      <ReusableTable :title="t('seasonsList')" :columns="columns" :data="seasons" :actions="actions"
+        :search-placeholder="t('searchSeasons')" :selectable="true" :empty-state-title="t('noSeasonsFound')"
+        :empty-state-message="t('addSeasonMessage')" @action="onAction" @selection-change="onSelectionChange">
         <template #header-actions>
-          <BasicButton 
-            @click="showAddModal = true"
-            :label="t('addSeason')"
-            :icon="Plus"
-          > 
+          <BasicButton @click="showAddModal = true" :label="t('addSeason')" :icon="Plus">
           </BasicButton>
-          
-          <BasicButton 
-            v-if="selectedSeasons.length > 0"
-            @click="deleteSelected"
-            :label="t('deleteSelected')"
-            :icon="Trash2"
-          >
+
+          <BasicButton v-if="selectedSeasons.length > 0" @click="deleteSelected" :label="t('deleteSelected')"
+            :icon="Trash2">
           </BasicButton>
         </template>
 
         <!-- Custom column for period info -->
         <template #column-periodInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.fromDay }}-{{ item.fromMonth }} to {{ item.toDay }}-{{ item.toMonth }}</div>
+            <div class="text-sm text-gray-900">{{ item.fromDay }}-{{ item.fromMonth }} to {{ item.toDay }}-{{
+              item.toMonth }}</div>
             <div class="text-xs text-gray-500">{{ item.startDate }} - {{ item.expireDate }}</div>
           </div>
         </template>
@@ -65,60 +49,44 @@
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
             {{ showAddModal ? t('addSeason') : t('editSeason') }}
           </h3>
-          
+
           <form @submit.prevent="saveSeason" class="space-y-4">
-            <!-- Short Code -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('shortCode') }} *
-              </label>
-              <Input 
-                  v-model="formData.shortCode"
-                  :placeholder="t('shortCodePlaceholder')"
-                  required
-                />
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Short Code -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('shortCode') }} *
+                </label>
+                <Input v-model="formData.shortCode" :placeholder="t('shortCodePlaceholder')" required />
+              </div>
 
-            <!-- Season Name -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('seasonName') }} *
-              </label>
-              <Input 
-                  v-model="formData.seasonName"
-                  :placeholder="t('seasonNamePlaceholder')"
-                  required
-                />
+              <!-- Season Name -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('seasonName') }} *
+                </label>
+                <Input v-model="formData.seasonName" :placeholder="t('seasonNamePlaceholder')" required />
+              </div>
             </div>
-
             <!-- From Day/Date and From Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('fromDay') }} *
                 </label>
-                <Select 
-                  v-model="formData.fromDay"
-                  :options="dayOptions"
-                  :placeholder="t('selectDay')"
-                  required
-                />
+                <Select v-model="formData.fromDay" :options="dayOptions" :placeholder="t('selectDay')" required />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('fromMonth') }} *
                 </label>
-                <Select 
-                  v-model="formData.fromMonth"
-                  :options="monthOptions"
-                  :placeholder="t('selectMonth')"
-                  required
-                />
+                <Select v-model="formData.fromMonth" :options="monthOptions" :placeholder="t('selectMonth')" required />
               </div>
             </div>
 
@@ -128,23 +96,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('toDay') }} *
                 </label>
-                <Select 
-                  v-model="formData.toDay"
-                  :options="dayOptions"
-                  placeholder="Select day"
-                  required
-                />
+                <Select v-model="formData.toDay" :options="dayOptions" placeholder="Select day" required />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('toMonth') }} *
                 </label>
-                <Select 
-                  v-model="formData.toMonth"
-                  :options="monthOptions"
-                  placeholder="Select month"
-                  required
-                />
+                <Select v-model="formData.toMonth" :options="monthOptions" placeholder="Select month" required />
               </div>
             </div>
 
@@ -154,21 +112,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('startDate') }} *
                 </label>
-                <InputDatePicker 
-                    v-model="formData.startDate"
-                    :placeholder="t('startDatePlaceholder')"
-                    required
-                  />
+                <InputDatePicker v-model="formData.startDate" :placeholder="t('startDatePlaceholder')" required />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('expireDate') }} *
                 </label>
-                <InputDatePicker 
-                    v-model="formData.expireDate"
-                    :placeholder="t('expireDatePlaceholder')"
-                    required
-                  />
+                <InputDatePicker v-model="formData.expireDate" :placeholder="t('expireDatePlaceholder')" required />
               </div>
             </div>
 
@@ -177,26 +127,16 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('status') }}
               </label>
-              <Select 
-                v-model="formData.status"
-                :options="statusOptions"
-                :placeholder="t('selectStatus')"
-              />
+              <Select v-model="formData.status" :options="statusOptions" :placeholder="t('selectStatus')" />
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
+              <button type="button" @click="closeModal"
+                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
                 {{ t('cancel') }}
               </button>
-              <button 
-                type="submit"
-                :disabled="isLoading"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button type="submit" :disabled="isLoading"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {{ isLoading ? t('saving') : (showAddModal ? t('addSeason') : t('updateSeason')) }}
               </button>
             </div>
@@ -218,6 +158,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
 import { getSeasons, postSeason, updateSeasonById } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 
 // Reactive data
 const showAddModal = ref(false)
@@ -226,6 +167,7 @@ const editingSeason = ref(null)
 const selectedSeasons = ref([])
 const isLoading = ref(false)
 const { t } = useI18n()
+const toast = useToast()
 
 // Form data
 const formData = ref({
@@ -276,38 +218,6 @@ const columns = computed(() => [
 
 // Sample data
 const seasons = ref([
-  {
-    id: 1,
-    shortCode: 'SUMMER',
-    seasonName: 'Summer Season',
-    fromDay: '1',
-    fromMonth: 'June',
-    toDay: '31',
-    toMonth: 'August',
-    startDate: '2024-06-01',
-    expireDate: '2024-08-31',
-    status: 'Active',
-    createdBy: 'Admin',
-    createdDate: '2024-01-15 10:30 AM',
-    modifiedBy: 'Manager',
-    modifiedDate: '2024-01-20 02:15 PM'
-  },
-  {
-    id: 2,
-    shortCode: 'WINTER',
-    seasonName: 'Winter Season',
-    fromDay: '1',
-    fromMonth: 'December',
-    toDay: '28',
-    toMonth: 'February',
-    startDate: '2024-12-01',
-    expireDate: '2025-02-28',
-    status: 'Active',
-    createdBy: 'Admin',
-    createdDate: '2024-01-18 09:15 AM',
-    modifiedBy: 'Admin',
-    modifiedDate: '2024-01-18 09:15 AM'
-  }
 ])
 
 // Options for dropdowns
@@ -347,9 +257,15 @@ const editSeason = (season) => {
 
 const deleteSeason = (season) => {
   if (confirm(t('confirmDeleteSeason', { seasonName: season.seasonName }))) {
-    const index = seasons.value.findIndex(s => s.id === season.id)
-    if (index > -1) {
-      seasons.value.splice(index, 1)
+    try {
+      const index = seasons.value.findIndex(s => s.id === season.id)
+      if (index > -1) {
+        seasons.value.splice(index, 1)
+        toast.success(t('seasonDeletedSuccessfully'))
+      }
+    } catch (error) {
+      console.error('Error deleting season:', error)
+      toast.error(t('errorDeletingSeason'))
     }
   }
 }
@@ -383,13 +299,20 @@ const onSelectionChange = (selected) => {
 
 const deleteSelected = () => {
   if (confirm(t('confirmDeleteSelectedSeasons', { count: selectedSeasons.value.length }))) {
-    selectedSeasons.value.forEach(season => {
-      const index = seasons.value.findIndex(s => s.id === season.id)
-      if (index > -1) {
-        seasons.value.splice(index, 1)
-      }
-    })
-    selectedSeasons.value = []
+    try {
+      const deletedCount = selectedSeasons.value.length
+      selectedSeasons.value.forEach(season => {
+        const index = seasons.value.findIndex(s => s.id === season.id)
+        if (index > -1) {
+          seasons.value.splice(index, 1)
+        }
+      })
+      selectedSeasons.value = []
+      toast.success(t('seasonsDeletedSuccessfully', { count: deletedCount }))
+    } catch (error) {
+      console.error('Error deleting seasons:', error)
+      toast.error(t('errorDeletingSelectedSeasons'))
+    }
   }
 }
 
@@ -406,21 +329,21 @@ const saveSeason = async () => {
     if (showAddModal.value) {
       // Add new season
       await postSeason(formData.value)
-      alert(t('seasonAddedSuccessfully'))
+      toast.success(t('seasonAddedSuccessfully'))
       await loadData()
     } else {
       // Update existing season
       await updateSeasonById(editingSeason.value.id, formData.value)
-      alert(t('seasonUpdatedSuccessfully'))
+      toast.success(t('seasonUpdatedSuccessfully'))
       await loadData()
     }
     closeModal()
   } catch (error) {
     console.error('Error saving season:', error)
     if (showAddModal.value) {
-      alert(t('errorAddingSeason'))
+      toast.error(t('errorAddingSeason'))
     } else {
-      alert(t('errorUpdatingSeason'))
+      toast.error(t('errorUpdatingSeason'))
     }
   } finally {
     isLoading.value = false
@@ -451,7 +374,7 @@ const loadData = async () => {
     seasons.value = response.data || []
   } catch (error) {
     console.error('Error loading seasons:', error)
-    alert(t('errorLoadingSeasons'))
+    toast.error(t('errorLoadingSeasons'))
     // Keep existing mock data as fallback
   }
 }
