@@ -728,11 +728,11 @@ const router = createRouter({
       },
     },
     {
-      path: '/configuration/master/communication-mode',
-      name: 'CommunicationMode',
-      component: () => import('../views/Configuration/Master/CommunicationMode.vue'),
+      path: '/configuration/master/transportation-mode',
+      name: 'TransportationMode',
+      component: () => import('../views/Configuration/Master/TransportationMode.vue'),
       meta: {
-        title: 'Communication Mode',
+        title: 'Transportation Mode',
         requiresAuth: true,
       },
     },

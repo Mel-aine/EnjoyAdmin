@@ -1,40 +1,41 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">Pay Method</h1>
-      
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('configuration.payment_method.title') }}</h1>
+
       <div class="bg-white rounded-lg shadow p-6">
         <p class="text-gray-600 mb-6">
-          You may offer different payment options to your guests. Define all such Payment Types and you can use it when you settle your guest folio.
+          {{ $t('configuration.payment_method.description') }}
         </p>
-        
-        <div class="flex justify-between items-center mb-6">
-          <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal" icon="Plus" label="Add Payment Method" />
-          </div>
-        </div>
-
-        <ReusableTable
-          title="Payment Methods"
-          :columns="columns"
-          :data="payMethods"
+        <ReusableTable 
+          :title="$t('configuration.payment_method.table_title')" 
+          :columns="columns" 
+          :data="payMethods" 
           :actions="actions"
-          @action="onAction"
-          search-placeholder="Search payment methods..."
-          empty-title="No payment methods found"
-          empty-description="Get started by adding your first payment method."
-        >
+          :loading="loading"
+          @action="onAction" 
+          :search-placeholder="$t('configuration.payment_method.search_placeholder')" 
+          :empty-title="$t('configuration.payment_method.empty_title')"
+          :empty-description="$t('configuration.payment_method.empty_description')">
           <template #cardProcessing="{ item }">
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                  :class="item.cardProcessing ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
-              {{ item.cardProcessing ? 'Yes' : 'No' }}
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+              :class="item.cardProcessing ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+              {{ item.cardProcessing ? $t('yes') : $t('no') }}
             </span>
           </template>
-          
+          <template v-slot:header-actions>
+            <BasicButton 
+              variant="primary" 
+              @click="openAddModal" 
+              :icon="Plus" 
+              :label="$t('configuration.payment_method.add_payment_method')"
+              :loading="loading" 
+            />
+          </template>
           <template #status="{ item }">
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                  :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-              {{ item.status }}
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+              :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ $t('configuration.payment_method.status_' + item.status.toLowerCase()) }}
             </span>
           </template>
         </ReusableTable>
@@ -42,136 +43,128 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
-            {{ isEditing ? 'Edit Payment Method' : 'Add Payment Method' }}
+            {{ isEditing ? $t('configuration.payment_method.edit_payment_method') : $t('configuration.payment_method.add_payment_method') }}
           </h3>
-          
+
           <form @submit.prevent="savePayMethod">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
                 <Input 
                   v-model="formData.shortCode" 
-                  label="Short Code *"
-                  type="text" 
-                  required
-                  placeholder="Enter short code"
+                  :lb="$t('configuration.payment_method.short_code') + ' *'"
+                  inputType="text" 
+                  :isRequired="true"
+                  :placeholder="$t('configuration.payment_method.short_code_placeholder')" 
                 />
               </div>
-              
+
               <div class="mb-4">
                 <Input 
                   v-model="formData.name" 
-                  label="Payment Method *"
-                  type="text" 
-                  required
-                  placeholder="e.g., Cash, VISA, MASTERCARD"
+                  :lb="$t('configuration.payment_method.payment_method') + ' *'"
+                  inputType="text" 
+                  :isRequired="true"
+                  :placeholder="$t('configuration.payment_method.name_placeholder')" 
                 />
               </div>
             </div>
-            
+
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Type *
+                  {{ $t('configuration.payment_method.type') }} *
                 </label>
-                <select 
-                  v-model="formData.type" 
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select Type</option>
-                  <option value="CASH">CASH</option>
-                  <option value="BANK">BANK</option>
+                <select v-model="formData.type" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">{{ $t('configuration.payment_method.select_type') }}</option>
+                  <option value="CASH">{{ $t('configuration.payment_method.type_cash') }}</option>
+                  <option value="BANK">{{ $t('configuration.payment_method.type_bank') }}</option>
                 </select>
               </div>
-              
-              <div class="mb-4">
-                <label class="flex items-center">
-                  <input 
-                    v-model="formData.cardProcessing" 
-                    type="checkbox" 
-                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  />
-                  <span class="ml-2 text-sm text-gray-700">Card Processing</span>
+
+              <div class="mb-4 items-center self-center">
+                <label class="flex align-baseline ">
+                  <input v-model="formData.cardProcessing" type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                  <span class="ml-2 text-sm text-gray-700">{{ $t('configuration.payment_method.card_processing') }}</span>
                 </label>
               </div>
             </div>
-            
+
             <div class="mb-4">
               <label class="flex items-center">
-                <input 
-                  v-model="formData.surchargeSetting" 
-                  type="checkbox" 
-                  class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-                <span class="ml-2 text-sm text-gray-700">Surcharge Setting</span>
+                <input v-model="formData.surchargeSetting" type="checkbox"
+                  class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                <span class="ml-2 text-sm text-gray-700">{{ $t('configuration.payment_method.surcharge_setting') }}</span>
               </label>
             </div>
-            
+
             <div v-if="formData.surchargeSetting" class="border border-gray-200 rounded-md p-4 mb-4">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Surcharge Configuration</h4>
-              
+              <h4 class="text-sm font-medium text-gray-900 mb-3">{{ $t('configuration.payment_method.surcharge_configuration') }}</h4>
+
               <div class="grid grid-cols-2 gap-4">
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Amount/Percent
+                    {{ $t('configuration.payment_method.amount_percent') }}
                   </label>
-                  <select 
-                    v-model="formData.surchargeType" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="amount">Amount</option>
-                    <option value="percent">Percentage</option>
+                  <select v-model="formData.surchargeType"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <option value="amount">{{ $t('configuration.payment_method.amount') }}</option>
+                    <option value="percent">{{ $t('configuration.payment_method.percentage') }}</option>
                   </select>
                 </div>
-                
+
                 <div class="mb-4">
-                  <Input 
-                    v-model="formData.surchargeValue" 
-                    label="Value"
-                    type="number" 
-                    step="0.01"
-                    placeholder="Enter value"
-                  />
+                  <Input v-model="formData.surchargeValue" :lb="$t('configuration.payment_method.value')" inputType="number" step="0.01"
+                    :placeholder="$t('configuration.payment_method.enter_value')" />
                 </div>
               </div>
-              
+
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Extra Charge
+                  {{ $t('configuration.payment_method.extra_charge') }}
                 </label>
-                <select 
-                  v-model="formData.extraCharge" 
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select Extra Charge</option>
-                  <option value="service_charge">Service Charge</option>
-                  <option value="processing_fee">Processing Fee</option>
-                  <option value="convenience_fee">Convenience Fee</option>
+                <select v-model="formData.extraCharge"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">{{ $t('configuration.payment_method.select_extra_charge') }}</option>
+                  <option value="service_charge">{{ $t('configuration.payment_method.service_charge') }}</option>
+                  <option value="processing_fee">{{ $t('configuration.payment_method.processing_fee') }}</option>
+                  <option value="convenience_fee">{{ $t('configuration.payment_method.convenience_fee') }}</option>
                 </select>
               </div>
             </div>
-            
+
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Receipt No. Setting
+                {{ $t('configuration.payment_method.receipt_no_setting') }}
               </label>
-              <select 
-                v-model="formData.receiptNoSetting" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="auto_general">Auto General</option>
-                <option value="auto_private">Auto Private</option>
-                <option value="manual">Manual</option>
+              <select v-model="formData.receiptNoSetting"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="auto_general">{{ $t('configuration.payment_method.auto_general') }}</option>
+                <option value="auto_private">{{ $t('configuration.payment_method.auto_private') }}</option>
+                <option value="manual">{{ $t('configuration.payment_method.manual') }}</option>
               </select>
             </div>
-            
+
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" />
-              <BasicButton type="submit" variant="primary" :label="isEditing ? 'Update' : 'Save'" />
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="$t('cancel')" 
+                :disabled="saving"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isEditing ? $t('configuration.payment_method.update_payment_method') : $t('configuration.payment_method.save_payment_method')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -181,33 +174,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '@/composables/serviceStore'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
+import Plus from '../../../icons/Plus.vue'
+import { 
+  getPaymentMethods, 
+  postPaymentMethod, 
+  updatePaymentMethodById, 
+  deletePaymentMethodById 
+} from '@/services/configrationApi'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
 
-const columns: Column[] = [
-  { key: 'shortCode', label: 'Short Code', type: 'text' },
-  { key: 'name', label: 'Payment Method', type: 'text' },
-  { key: 'type', label: 'Type', type: 'text' },
-  { key: 'cardProcessing', label: 'Card Processing', type: 'custom' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
+const columns = computed<Column[]>(() => [
+  { key: 'shortCode', label: t('configuration.payment_method.short_code'), type: 'text' },
+  { key: 'name', label: t('configuration.payment_method.payment_method'), type: 'text' },
+  { key: 'type', label: t('configuration.payment_method.type'), type: 'text' },
+  { key: 'cardProcessing', label: t('configuration.payment_method.card_processing'), type: 'custom' },
+  { key: 'createdBy', label: t('configuration.payment_method.created_by'), type: 'text' },
+  { key: 'modifiedBy', label: t('configuration.payment_method.modified_by'), type: 'text' },
+  { key: 'status', label: t('configuration.payment_method.status'), type: 'custom' }
+])
 
-const actions: Action[] = [
-  { label: 'Edit', handler: (item: any) => editPayMethod(item), variant: 'primary' },
-  { label: 'Delete', handler: (item: any) => deletePayMethod(item.id), variant: 'danger' }
-]
+const actions = computed<Action[]>(() => [
+  { label: t('edit'), action: (item: any) => editPayMethod(item), variant: 'primary' },
+  { label: t('delete'), action: (item: any) => deletePayMethod(item), variant: 'danger' }
+])
 
-const formData = reactive({
+const formData = ref({
+  id: null as number | null,
   shortCode: '',
   name: '',
   type: '',
@@ -219,71 +228,26 @@ const formData = reactive({
   receiptNoSetting: 'auto_general'
 })
 
-const payMethods = ref<any[]>([
-  { 
-    id: 1, 
-    shortCode: 'CASH', 
-    name: 'Cash', 
-    type: 'CASH', 
-    cardProcessing: false,
-    surchargeSetting: false,
-    createdBy: 'admin', 
-    createdDate: '2013-05-13', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 2, 
-    shortCode: 'VISA', 
-    name: 'VISA Card', 
-    type: 'BANK', 
-    cardProcessing: true,
-    surchargeSetting: true,
-    surchargeType: 'percent',
-    surchargeValue: 2.5,
-    extraCharge: 'processing_fee',
-    receiptNoSetting: 'auto_general',
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 3, 
-    shortCode: 'MC', 
-    name: 'MASTERCARD', 
-    type: 'BANK', 
-    cardProcessing: true,
-    surchargeSetting: false,
-    receiptNoSetting: 'auto_private',
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 4, 
-    shortCode: 'CHQ', 
-    name: 'Cheque', 
-    type: 'BANK', 
-    cardProcessing: false,
-    surchargeSetting: false,
-    receiptNoSetting: 'manual',
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
+const payMethods = ref<any[]>([])
+
+// Fetch payment methods from API
+const fetchPaymentMethods = async () => {
+  try {
+    loading.value = true
+    const response = await getPaymentMethods()
+    payMethods.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error fetching payment methods:', error)
+    toast.error(t('configuration.payment_method.fetch_error'))
+  } finally {
+    loading.value = false
   }
-])
+}
 
 const openAddModal = () => {
   isEditing.value = false
-  editingId.value = null
-  Object.assign(formData, {
+  formData.value = {
+    id: null,
     shortCode: '',
     name: '',
     type: '',
@@ -293,63 +257,70 @@ const openAddModal = () => {
     surchargeValue: '',
     extraCharge: '',
     receiptNoSetting: 'auto_general'
-  })
+  }
   showModal.value = true
 }
 
 const editPayMethod = (method: any) => {
   isEditing.value = true
-  editingId.value = method.id
-  Object.assign(formData, method)
+  formData.value = { ...method }
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  Object.assign(formData, {
-    shortCode: '',
-    name: '',
-    type: '',
-    cardProcessing: false,
-    surchargeSetting: false,
-    surchargeType: 'amount',
-    surchargeValue: '',
-    extraCharge: '',
-    receiptNoSetting: 'auto_general'
-  })
+  isEditing.value = false
 }
 
-const savePayMethod = () => {
-  if (isEditing.value) {
-    const index = payMethods.value.findIndex(m => m.id === editingId.value)
-    if (index !== -1) {
-      payMethods.value[index] = {
-        ...formData,
-        id: editingId.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const savePayMethod = async () => {
+  try {
+    saving.value = true
+    
+    const paymentMethodData = {
+      shortCode: formData.value.shortCode,
+      name: formData.value.name,
+      type: formData.value.type,
+      cardProcessing: formData.value.cardProcessing,
+      surchargeSetting: formData.value.surchargeSetting,
+      surchargeType: formData.value.surchargeType,
+      surchargeValue: formData.value.surchargeValue,
+      extraCharge: formData.value.extraCharge,
+      receiptNoSetting: formData.value.receiptNoSetting,
+      hotelId: serviceStore.serviceId
     }
-  } else {
-    const newId = Math.max(...payMethods.value.map(m => m.id)) + 1
-    payMethods.value.push({
-      ...formData,
-      id: newId,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
-    })
+    
+    if (isEditing.value && formData.value.id) {
+      // Update existing payment method
+      await updatePaymentMethodById(formData.value.id, paymentMethodData)
+      toast.success(t('configuration.payment_method.update_success'))
+    } else {
+      // Add new payment method
+      await postPaymentMethod(paymentMethodData)
+      toast.success(t('configuration.payment_method.create_success'))
+    }
+    
+    await fetchPaymentMethods()
+    closeModal()
+  } catch (error) {
+    console.error('Error saving payment method:', error)
+    toast.error(t('configuration.payment_method.save_error'))
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deletePayMethod = (id: number) => {
-  if (confirm('Are you sure you want to delete this payment method?')) {
-    const index = payMethods.value.findIndex(m => m.id === id)
-    if (index !== -1) {
-      payMethods.value.splice(index, 1)
+const deletePayMethod = async (method: any) => {
+  if (confirm(t('configuration.payment_method.delete_confirm'))) {
+    try {
+      loading.value = true
+      await deletePaymentMethodById(method.id)
+      toast.success(t('configuration.payment_method.delete_success'))
+      await fetchPaymentMethods()
+    } catch (error) {
+      console.error('Error deleting payment method:', error)
+      toast.error(t('configuration.payment_method.delete_error'))
+    } finally {
+      loading.value = false
     }
   }
 }
@@ -358,7 +329,12 @@ const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editPayMethod(item)
   } else if (action === 'delete') {
-    deletePayMethod(item.id)
+    deletePayMethod(item)
   }
 }
+
+// Load payment methods on component mount
+onMounted(() => {
+  fetchPaymentMethods()
+})
 </script>

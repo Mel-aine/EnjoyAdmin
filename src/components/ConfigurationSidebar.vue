@@ -3,7 +3,8 @@
     :class="[
       'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
       sidebarStore.isExpanded ? 'w-64' : 'w-16',
-      sidebarStore.isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      sidebarStore.isMobileOpen ? 'translate-x-0' : '-translate-x-full',
+      'lg:translate-x-0'
     ]"
   >
     <!-- Sidebar Header -->
@@ -34,7 +35,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+    <nav class="flex-1 overflow-y-auto p-4 space-y-2 scroll-smooth">
       <!-- Rooms Section -->
       <div class="space-y-1">
         <button
@@ -275,7 +276,7 @@ const masterItems = [
   { path: '/configuration/master/identity-type', label: 'Identity Type' },
   { path: '/configuration/master/reason', label: 'Reason' },
   { path: '/configuration/master/discounts', label: 'Discounts' },
-  { path: '/configuration/master/communication-mode', label: 'Communication Mode' },
+  { path: '/configuration/master/transportation-mode', label: 'Transportation Mode' },
   { path: '/configuration/master/payouts', label: 'Payouts' },
   { path: '/configuration/master/template-category', label: 'Template Category' },
   { path: '/configuration/master/template', label: 'Template' },
@@ -336,3 +337,39 @@ const filteredSettingsItems = computed(() => {
   )
 })
 </script>
+
+<style scoped>
+/* Prevent scrolling when active item is clicked */
+.router-link-active {
+  scroll-behavior: auto;
+}
+
+/* Smooth scrolling for navigation */
+nav {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar but keep functionality */
+nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+nav::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 2px;
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Firefox scrollbar */
+nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+</style>

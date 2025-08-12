@@ -1,110 +1,75 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">Identity Type</h1>
-      
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('configuration.identity_type.title') }}</h1>
+
       <div class="bg-white rounded-lg shadow p-6">
         <p class="text-gray-600 mb-6">
-          In recent times it is very important (compulsory in most of the countries) to record guest identification. Define all such Identification Types you may record.
+          {{ $t('configuration.identity_type.description') }}
         </p>
-        
-        <div class="flex justify-between items-center mb-6">
-          <div class="flex items-center space-x-4">
-            <BasicButton 
-              variant="primary" 
-              :icon="Plus"
-              label="Add Identity Type"
-              @click="openAddModal"
-            />
+        <ReusableTable :title="$t('configuration.identity_type.table_title')" :columns="columns" :data="identityTypes"
+          :actions="actions" :loading="loading" @action="onAction"
+          :search-placeholder="$t('configuration.identity_type.search_placeholder')"
+          :empty-title="$t('configuration.identity_type.empty_title')"
+          :empty-description="$t('configuration.identity_type.empty_description')">
+          <template v-slot:header-actions>
+            <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
+              :label="$t('configuration.identity_type.add_identity_type')" :loading="loading" />
+          </template>
+           <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
           </div>
-        </div>
+        </template>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Identity Type Name
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Modified By
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="identityType in identityTypes" :key="identityType.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{ identityType.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ identityType.createdBy }}<br>
-                  <span class="text-xs text-gray-400">{{ identityType.createdDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ identityType.modifiedBy }}<br>
-                  <span class="text-xs text-gray-400">{{ identityType.modifiedDate }}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
-                        :class="identityType.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    {{ identityType.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <button @click="editIdentityType(identityType)" class="text-blue-600 hover:text-blue-900">
-                      <Edit class="w-4 h-4" />
-                    </button>
-                    <button @click="deleteIdentityType(identityType.id)" class="text-red-600 hover:text-red-900">
-                      <Trash class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
+        </template>
+          <template #status="{ item }">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+              :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
+            </span>
+          </template>
+        </ReusableTable>
       </div>
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
-            {{ isEditing ? 'Edit Identity Type' : 'Add Identity Type' }}
+            {{ isEditing ? $t('configuration.identity_type.edit_identity_type') :
+              $t('configuration.identity_type.add_identity_type') }}
           </h3>
-          
+
           <form @submit.prevent="saveIdentityType">
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Identity Type Name *
-              </label>
-              <input 
-                v-model="formData.name" 
-                type="text" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="e.g., Passport, Driver's License, National ID"
-              />
+
+             <div class="mb-2">
+               <Input v-model="formData.shortCode" :lb="$t('shortCode')" inputType="text" :isRequired="true"
+                :placeholder="$t('shortCode')" />
+             </div>
+
+              <Input v-model="formData.name" :lb="$t('configuration.identity_type.identity_type_name')"
+                inputType="text" :isRequired="true" :placeholder="$t('configuration.identity_type.name_placeholder')" />
+
             </div>
-            
+
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal">
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" variant="primary">
-                {{ isEditing ? 'Update' : 'Save' }}
-              </BasicButton>
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary" :icon="Save"
+                :label="isEditing ? $t('configuration.identity_type.update_identity_type') : $t('configuration.identity_type.save_identity_type')"
+                :loading="saving" />
             </div>
           </form>
         </div>
@@ -112,124 +77,143 @@
     </div>
   </ConfigurationLayout>
 </template>
-
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '@/composables/serviceStore'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
+import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
-import { Plus, Edit, Trash } from 'lucide-vue-next'
+import Input from '../../../components/forms/FormElements/Input.vue'
+import type { Action, Column } from '../../../utils/models'
+import Plus from '../../../icons/Plus.vue'
+import {
+  getIdentityTypes,
+  postIdentityType,
+  updateIdentityTypeById,
+  deleteIdentityTypeById
+} from '@/services/configrationApi'
+import { Save } from 'lucide-vue-next'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const loading = ref(false)
+const saving = ref(false)
+
+const columns = computed < Column[] > (() => [
+  { key: 'name', label: t('configuration.identity_type.identity_type_name'), type: 'text' },
+  { key: 'createdInfo', label: t('configuration.identity_type.created_by'), type: 'custom' },
+  { key: 'modifiedInfo', label: t('configuration.identity_type.modified_by'), type: 'custom' },
+  { key: 'shortCode', label: t('shortCode'), type: 'custom' }
+])
+
+const actions = computed < Action[] > (() => [
+  { label: t('edit'), handler: (item: any) => editIdentityType(item), variant: 'primary' },
+  { label: t('delete'), handler: (item: any) => deleteIdentityType(item), variant: 'danger' }
+])
 
 const formData = ref({
+  shortCode: "",
   name: ''
 })
 
-const identityTypes = ref([
-  { 
-    id: 1, 
-    name: 'Passport', 
-    createdBy: 'admin', 
-    createdDate: '2013-05-13', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 2, 
-    name: 'Driver\'s License', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 3, 
-    name: 'National ID Card', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 4, 
-    name: 'Voter ID', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 5, 
-    name: 'Social Security Card', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
+const identityTypes = ref < any[] > ([])
+
+// Fetch identity types from API
+const fetchIdentityTypes = async () => {
+  try {
+    loading.value = true
+    const response = await getIdentityTypes()
+    identityTypes.value = response.data.data || []
+  } catch (error) {
+    console.error('Error fetching identity types:', error)
+    toast.error(t('configuration.identity_type.fetch_error'))
+  } finally {
+    loading.value = false
   }
-])
+}
 
 const openAddModal = () => {
   isEditing.value = false
-  editingId.value = null
   formData.value = {
+    shortCode: "",
     name: ''
   }
   showModal.value = true
 }
 
-const editIdentityType = (identityType) => {
+const editIdentityType = (identityType: any) => {
   isEditing.value = true
-  editingId.value = identityType.id
   formData.value = { ...identityType }
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  formData.value = {
-    name: ''
+  isEditing.value = false
+}
+
+const saveIdentityType = async () => {
+  try {
+    saving.value = true
+
+    const identityTypeData = {
+      name: formData.value.name,
+      shortCode: formData.value.shortCode,
+      hotelId: serviceStore.serviceId
+    }
+
+    if (isEditing.value && formData.value.id) {
+      // Update existing identity type
+      await updateIdentityTypeById(formData.value.id, identityTypeData)
+      toast.success(t('configuration.identity_type.update_success'))
+    } else {
+      // Add new identity type
+      await postIdentityType(identityTypeData)
+      toast.success(t('configuration.identity_type.create_success'))
+    }
+    closeModal()
+
+    await fetchIdentityTypes()
+  } catch (error) {
+    console.error('Error saving identity type:', error)
+    toast.error(t('configuration.identity_type.save_error'))
+  } finally {
+    saving.value = false
   }
 }
 
-const saveIdentityType = () => {
-  if (isEditing.value) {
-    const index = identityTypes.value.findIndex(it => it.id === editingId.value)
-    if (index !== -1) {
-      identityTypes.value[index] = {
-        ...formData.value,
-        id: editingId.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const deleteIdentityType = async (identityType: any) => {
+  if (confirm(t('configuration.identity_type.delete_confirm'))) {
+    try {
+      loading.value = true
+      await deleteIdentityTypeById(identityType.id)
+      toast.success(t('configuration.identity_type.delete_success'))
+      await fetchIdentityTypes()
+    } catch (error) {
+      console.error('Error deleting identity type:', error)
+      toast.error(t('configuration.identity_type.delete_error'))
+    } finally {
+      loading.value = false
     }
-  } else {
-    const newId = Math.max(...identityTypes.value.map(it => it.id)) + 1
-    identityTypes.value.push({
-      ...formData.value,
-      id: newId,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
-    })
   }
-  closeModal()
 }
 
-const deleteIdentityType = (id) => {
-  if (confirm('Are you sure you want to delete this identity type?')) {
-    const index = identityTypes.value.findIndex(it => it.id === id)
-    if (index !== -1) {
-      identityTypes.value.splice(index, 1)
-    }
+const onAction = (action: string, item: any) => {
+  if (action === 'edit') {
+    editIdentityType(item)
+  } else if (action === 'delete') {
+    deleteIdentityType(item)
   }
 }
+
+// Load identity types on component mount
+onMounted(() => {
+  fetchIdentityTypes()
+})
 </script>
