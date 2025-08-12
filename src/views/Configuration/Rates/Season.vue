@@ -3,29 +3,29 @@
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Season</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ t('season') }}</h1>
         <p class="text-gray-600 mt-1">
-          Define the season so as to define rates to be charged during that season. Configure seasonal periods with start/end dates and activation periods.
+          {{ t('seasonDescription') }}
         </p>
       </div>
 
       <!-- Seasons Table using ReusableTable -->
       <ReusableTable
-        title="Seasons List"
+        :title="t('seasonsList')"
         :columns="columns"
         :data="seasons"
         :actions="actions"
-        search-placeholder="Search seasons..."
+        :search-placeholder="t('searchSeasons')"
         :selectable="true"
-        empty-state-title="No seasons found"
-        empty-state-message="Click 'Add Season' to create your first season."
+        :empty-state-title="t('noSeasonsFound')"
+        :empty-state-message="t('addSeasonMessage')"
         @action="onAction"
         @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton 
             @click="showAddModal = true"
-            label="Add Season"
+            :label="t('addSeason')"
             :icon="Plus"
           > 
           </BasicButton>
@@ -33,7 +33,7 @@
           <BasicButton 
             v-if="selectedSeasons.length > 0"
             @click="deleteSelected"
-            label="Delete Selected"
+            :label="t('deleteSelected')"
             :icon="Trash2"
           >
           </BasicButton>
@@ -68,55 +68,55 @@
       <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
-            {{ showAddModal ? 'Add Season' : 'Edit Season' }}
+            {{ showAddModal ? t('addSeason') : t('editSeason') }}
           </h3>
           
           <form @submit.prevent="saveSeason" class="space-y-4">
             <!-- Short Code -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Short Code *
+                {{ t('shortCode') }} *
               </label>
               <Input 
-                v-model="formData.shortCode"
-                placeholder="Enter the short name or code for the season"
-                required
-              />
+                  v-model="formData.shortCode"
+                  :placeholder="t('shortCodePlaceholder')"
+                  required
+                />
             </div>
 
             <!-- Season Name -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Season Name *
+                {{ t('seasonName') }} *
               </label>
               <Input 
-                v-model="formData.seasonName"
-                placeholder="Enter the name of the season"
-                required
-              />
+                  v-model="formData.seasonName"
+                  :placeholder="t('seasonNamePlaceholder')"
+                  required
+                />
             </div>
 
             <!-- From Day/Date and From Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  From Day/Date *
+                  {{ t('fromDay') }} *
                 </label>
                 <Select 
                   v-model="formData.fromDay"
                   :options="dayOptions"
-                  placeholder="Select day"
+                  :placeholder="t('selectDay')"
                   required
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  From Month *
+                  {{ t('fromMonth') }} *
                 </label>
                 <Select 
                   v-model="formData.fromMonth"
                   :options="monthOptions"
-                  placeholder="Select month"
+                  :placeholder="t('selectMonth')"
                   required
                 />
               </div>
@@ -126,7 +126,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  To Day/Date *
+                  {{ t('toDay') }} *
                 </label>
                 <Select 
                   v-model="formData.toDay"
@@ -137,7 +137,7 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  To Month *
+                  {{ t('toMonth') }} *
                 </label>
                 <Select 
                   v-model="formData.toMonth"
@@ -152,35 +152,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date *
+                  {{ t('startDate') }} *
                 </label>
                 <InputDatePicker 
-                  v-model="formData.startDate"
-                  placeholder="Enter the date from when the season settings will be activated"
-                  required
-                />
+                    v-model="formData.startDate"
+                    :placeholder="t('startDatePlaceholder')"
+                    required
+                  />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Expire Date *
+                  {{ t('expireDate') }} *
                 </label>
                 <InputDatePicker 
-                  v-model="formData.expireDate"
-                  placeholder="Enter the date on which the season settings will expired"
-                  required
-                />
+                    v-model="formData.expireDate"
+                    :placeholder="t('expireDatePlaceholder')"
+                    required
+                  />
               </div>
             </div>
 
             <!-- Status -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                {{ t('status') }}
               </label>
               <Select 
                 v-model="formData.status"
                 :options="statusOptions"
-                placeholder="Select status"
+                :placeholder="t('selectStatus')"
               />
             </div>
 
@@ -190,13 +190,14 @@
                 @click="closeModal"
                 class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
               >
-                Cancel
+                {{ t('cancel') }}
               </button>
               <button 
                 type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                :disabled="isLoading"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ showAddModal ? 'Add Season' : 'Update Season' }}
+                {{ isLoading ? t('saving') : (showAddModal ? t('addSeason') : t('updateSeason')) }}
               </button>
             </div>
           </form>
@@ -207,7 +208,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -215,12 +216,16 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
+import { getSeasons, postSeason, updateSeasonById } from '@/services/configrationApi'
+import { useI18n } from 'vue-i18n'
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const editingSeason = ref(null)
 const selectedSeasons = ref([])
+const isLoading = ref(false)
+const { t } = useI18n()
 
 // Form data
 const formData = ref({
@@ -236,35 +241,35 @@ const formData = ref({
 })
 
 // Table columns
-const columns = ref([
+const columns = computed(() => [
   {
     key: 'shortCode',
-    label: 'Short Code',
+    label: t('shortCode'),
     sortable: true
   },
   {
     key: 'seasonName',
-    label: 'Season Name',
+    label: t('seasonName'),
     sortable: true
   },
   {
     key: 'periodInfo',
-    label: 'Period Info',
+    label: t('periodInfo'),
     sortable: false
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('status'),
     sortable: true
   },
   {
     key: 'createdInfo',
-    label: 'Created By',
+    label: t('createdBy'),
     sortable: false
   },
   {
     key: 'modifiedInfo',
-    label: 'Modified By',
+    label: t('modifiedBy'),
     sortable: false
   }
 ])
@@ -341,7 +346,7 @@ const editSeason = (season) => {
 }
 
 const deleteSeason = (season) => {
-  if (confirm(`Are you sure you want to delete season "${season.seasonName}"?`)) {
+  if (confirm(t('confirmDeleteSeason', { seasonName: season.seasonName }))) {
     const index = seasons.value.findIndex(s => s.id === season.id)
     if (index > -1) {
       seasons.value.splice(index, 1)
@@ -350,17 +355,17 @@ const deleteSeason = (season) => {
 }
 
 // Actions configuration
-const actions = ref([
+const actions = computed(() => [
   {
-    label: 'Edit',
+    label: t('edit'),
     handler: editSeason,
     icon: Edit
   },
   {
-    label: 'Delete',
+    label: t('delete'),
     handler: deleteSeason,
     icon: Trash,
-    variant: 'danger'
+    class: 'text-red-600 hover:text-red-800'
   }
 ])
 
@@ -377,7 +382,7 @@ const onSelectionChange = (selected) => {
 }
 
 const deleteSelected = () => {
-  if (confirm(`Are you sure you want to delete ${selectedSeasons.value.length} selected season(s)?`)) {
+  if (confirm(t('confirmDeleteSelectedSeasons', { count: selectedSeasons.value.length }))) {
     selectedSeasons.value.forEach(season => {
       const index = seasons.value.findIndex(s => s.id === season.id)
       if (index > -1) {
@@ -388,31 +393,38 @@ const deleteSelected = () => {
   }
 }
 
-const saveSeason = () => {
-  if (showAddModal.value) {
-    // Add new season
-    const newSeason = {
-      id: Date.now(),
-      ...formData.value,
-      createdBy: 'Current User',
-      createdDate: new Date().toLocaleString(),
-      modifiedBy: 'Current User',
-      modifiedDate: new Date().toLocaleString()
-    }
-    seasons.value.push(newSeason)
-  } else {
-    // Update existing season
-    const index = seasons.value.findIndex(s => s.id === editingSeason.value.id)
-    if (index > -1) {
-      seasons.value[index] = {
-        ...seasons.value[index],
-        ...formData.value,
-        modifiedBy: 'Current User',
-        modifiedDate: new Date().toLocaleString()
-      }
-    }
+const saveSeason = async () => {
+  // Validation
+  if (!formData.value.shortCode || !formData.value.seasonName || !formData.value.fromDay || !formData.value.fromMonth || !formData.value.toDay || !formData.value.toMonth) {
+    alert(t('pleaseCompleteAllRequiredFields'))
+    return
   }
-  closeModal()
+
+  isLoading.value = true
+
+  try {
+    if (showAddModal.value) {
+      // Add new season
+      await postSeason(formData.value)
+      alert(t('seasonAddedSuccessfully'))
+      await loadData()
+    } else {
+      // Update existing season
+      await updateSeasonById(editingSeason.value.id, formData.value)
+      alert(t('seasonUpdatedSuccessfully'))
+      await loadData()
+    }
+    closeModal()
+  } catch (error) {
+    console.error('Error saving season:', error)
+    if (showAddModal.value) {
+      alert(t('errorAddingSeason'))
+    } else {
+      alert(t('errorUpdatingSeason'))
+    }
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const closeModal = () => {
@@ -431,4 +443,21 @@ const closeModal = () => {
     status: 'Active'
   }
 }
+
+// Load data from API
+const loadData = async () => {
+  try {
+    const response = await getSeasons()
+    seasons.value = response.data || []
+  } catch (error) {
+    console.error('Error loading seasons:', error)
+    alert(t('errorLoadingSeasons'))
+    // Keep existing mock data as fallback
+  }
+}
+
+// Initialize data on component mount
+onMounted(() => {
+  loadData()
+})
 </script>
