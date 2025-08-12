@@ -3,39 +3,24 @@
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Room Type</h1>
-        <p class="text-gray-600 mt-1">
-          Enter all the room types that you have in your hotel like – Deluxe, Standard, Twin, etc.
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ t('roomType') }}</h1>
+        <p class="text-gray-600">
+          {{ t('roomTypeDescription') }}
         </p>
       </div>
 
       <!-- Room Types Table using ReusableTable -->
-      <ReusableTable
-        title="Room Type List"
-        :columns="columns"
-        :data="roomTypes"
-        :actions="actions"
-        search-placeholder="Search room types..."
-        :selectable="true"
-        empty-state-title="No room types found"
-        empty-state-message="Get started by adding a new room type."
-        @selection-change="onSelectionChange"
-        @action="onAction"
-      >
+      <ReusableTable :title="t('roomTypeList')" :columns="columns" :data="roomTypes" :actions="actions"
+        :search-placeholder="t('searchRoomTypes')" :selectable="true" :empty-state-title="t('noRoomTypesFound')"
+        :empty-state-message="t('getStartedByAddingRoomType')" @selection-change="onSelectionChange"
+        @action="onAction" :loading="loading">
         <template #header-actions>
-          <BasicButton 
-            @click="showAddModal = true"
-            label="Add Room Type"
-            :icon="Plus"
-          >
+          <BasicButton @click="showAddModal = true" :label="t('addRoomType')" :icon="Plus">
           </BasicButton>
-          <button 
-            v-if="selectedRoomTypes.length > 0"
-            @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
-          >
+          <button v-if="selectedRoomTypes.length > 0" @click="deleteSelected"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
             <Trash2 class="w-4 h-4" />
-            <span>Delete Selected ({{ selectedRoomTypes.length }})</span>
+            <span>{{ t('deleteSelected') }} ({{ selectedRoomTypes.length }})</span>
           </button>
         </template>
 
@@ -56,176 +41,136 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdDate }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.modifiedBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.modifiedDate }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
-            {{ showAddModal ? 'Add Room Type' : 'Edit Room Type' }}
+            {{ showAddModal ? t('addRoomType') : t('editRoomType') }}
           </h3>
-          
+
           <form @submit.prevent="saveRoomType" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Short Code *
+                  {{ t('shortCodeRequired') }}
                 </label>
-                <input 
-                  v-model="formData.shortCode"
-                  type="text" 
-                  required
+                <input v-model="formData.shortCode" type="text" required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., DLX"
-                >
+                  :placeholder="t('shortCodePlaceholder')">
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Room Type *
+                  {{ t('roomTypeNameRequired') }}
                 </label>
-                <input 
-                  v-model="formData.roomType"
-                  type="text" 
-                  required
+                <input v-model="formData.roomTypeName" type="text" required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., Deluxe Suite"
-                >
+                  :placeholder="t('roomTypeNamePlaceholder')">
               </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Base Adult *
+                  {{ t('baseAdultRequired') }}
                 </label>
-                <input 
-                  v-model.number="formData.baseAdult"
-                  type="number" 
-                  min="1"
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
+                <input v-model.number="formData.baseAdult" type="number" min="1" required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Base Child
+                  {{ t('baseChild') }}
                 </label>
-                <input 
-                  v-model.number="formData.baseChild"
-                  type="number" 
-                  min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
+                <input v-model.number="formData.baseChild" type="number" min="0"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Max Adult *
+                  {{ t('maxAdultRequired') }}
                 </label>
-                <input 
-                  v-model.number="formData.maxAdult"
-                  type="number" 
-                  min="1"
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
+                <input v-model.number="formData.maxAdult" type="number" min="1" required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Max Child
+                  {{ t('maxChild') }}
                 </label>
-                <input 
-                  v-model.number="formData.maxChild"
-                  type="number" 
-                  min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
+                <input v-model.number="formData.maxChild" type="number" min="0"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="flex items-center space-x-2">
-                  <input 
-                    v-model="formData.publishToWebsite"
-                    type="checkbox"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  >
-                  <span class="text-sm font-medium text-gray-700">Publish to website</span>
+                  <input v-model="formData.publishToWebsite" type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="text-sm font-medium text-gray-700">{{ t('publishToWebsite') }}</span>
                 </label>
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Default Web Inventory
+                  {{ t('defaultWebInventory') }}
                 </label>
-                <input 
-                  v-model.number="formData.defaultWebInventory"
-                  type="number" 
-                  min="0"
+                <input v-model.number="formData.defaultWebInventory" type="number" min="0"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Number of rooms"
-                >
+                  :placeholder="t('numberOfRooms')">
               </div>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Color
+                {{ t('color') }}
               </label>
-              <input 
-                v-model="formData.color"
-                type="color"
-                class="w-20 h-10 border border-gray-300 rounded-md cursor-pointer"
-              >
+              <input v-model="formData.color" type="color"
+                class="w-20 h-10 border border-gray-300 rounded-md cursor-pointer">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Select Room Amenities
+                {{ t('selectRoomAmenities') }}
               </label>
               <div class="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <label v-for="amenity in availableAmenities" :key="amenity.id" class="flex items-center space-x-2">
-                    <input 
-                      v-model="formData.selectedAmenities"
-                      :value="amenity.id"
-                      type="checkbox"
-                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    >
-                    <span class="text-sm text-gray-700">{{ amenity.name }}</span>
+                    <input v-model="formData.roomAmenities" :value="amenity.id" type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <span class="text-sm text-gray-700">{{ amenity.amenityName }}</span>
                   </label>
                 </div>
               </div>
             </div>
-            
+
             <div class="flex justify-end space-x-3 pt-4">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Cancel
+              <button type="button" @click="closeModal"
+                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                {{ t('cancel') }}
               </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ showAddModal ? 'Save' : 'Update' }}
+              <button type="submit" :disabled="isLoading"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+                <svg v-if="isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ showAddModal ? t('save') : t('update') }}</span>
               </button>
             </div>
           </form>
@@ -241,75 +186,85 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
+import { getAmenities, getRoomTypes, postRoomType, updateRoomTypeById } from '../../../services/configrationApi'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const selectedRoomTypes = ref([])
 const editingRoomType = ref(null)
+const loading = ref(false)
+const isLoading = ref(false)
 
 // Form data
 const formData = ref({
   shortCode: '',
-  roomType: '',
+  roomTypeName: '',
   baseAdult: 2,
   baseChild: 0,
   maxAdult: 2,
   maxChild: 0,
   publishToWebsite: true,
-  selectedAmenities: [],
+  roomAmenities: [],
   color: '#3B82F6',
   defaultWebInventory: 0
 })
+const serviceStore = useServiceStore()
+const toast = useToast();
 
 // Available amenities (from Room Amenities)
 const availableAmenities = ref([
-  { id: 1, name: '100% combed and ring spun cotton terry bath sheets' },
-  { id: 2, name: '300-thread-count, 100% cotton bed linens' },
-  { id: 3, name: 'Alarm clock' },
-  { id: 4, name: 'CD Alarm Clocks' },
-  { id: 5, name: 'Coffee maker' },
-  { id: 6, name: 'Complimentary in-room laptop safe' },
-  { id: 7, name: 'Complimentary newspaper upon request' }
 ])
 
 // Table configuration
 const columns = ref([
   {
     key: 'shortCode',
-    label: 'Short Code',
+    label: t('shortCode'),
     sortable: true,
     searchable: true
   },
   {
-    key: 'roomType',
-    label: 'Room Type',
+    key: 'roomTypeName',
+    label: t('roomTypeName'),
     sortable: true,
     searchable: true
   },
   {
     key: 'capacityInfo',
-    label: 'Base (A/C)',
-    sortable: false
+    label: t('baseCapacity'),
+    sortable: false,
+
+    type: "custom"
   },
   {
     key: 'maxCapacityInfo',
-    label: 'Max (A/C)',
-    sortable: false
+    label: t('maxCapacity'),
+    sortable: false,
+    type: "custom"
   },
   {
     key: 'createdInfo',
-    label: 'Created By',
-    sortable: false
+    label: t('createdBy'),
+    sortable: false,
+    type: "custom"
+
+
   },
   {
     key: 'modifiedInfo',
-    label: 'Modified By',
-    sortable: false
+    label: t('modifiedBy'),
+    sortable: false,
+    type: "custom"
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('status'),
     sortable: true,
     component: 'badge'
   }
@@ -317,130 +272,21 @@ const columns = ref([
 
 const actions = ref([
   {
-    label: 'Edit',
+    label: t('edit'),
     icon: 'edit',
     variant: 'primary',
-    action: 'edit'
+    handler: (item) => onAction('edit', item)
   },
   {
-    label: 'Delete',
+    label: t('delete'),
     icon: 'delete',
     variant: 'danger',
-    action: 'delete'
+    handler: (item) => onAction('delete', item)
   }
 ])
 
 // Sample data
-const roomTypes = ref([
-  {
-    id: 1,
-    shortCode: 'DLX',
-    roomType: 'One Bed Room Deluxe Suite',
-    baseAdult: 2,
-    baseChild: 2,
-    maxAdult: 5,
-    maxChild: 3,
-    publishToWebsite: true,
-    selectedAmenities: [1, 2, 3],
-    color: '#10B981',
-    defaultWebInventory: 25,
-    createdBy: 'admin',
-    createdDate: 'on 2012-10-30',
-    modifiedBy: 'admin',
-    modifiedDate: 'on 2012-08-01',
-    status: 'Available'
-  },
-  {
-    id: 2,
-    shortCode: '2BDS',
-    roomType: 'Two Bed Room Deluxe Suite',
-    baseAdult: 2,
-    baseChild: 2,
-    maxAdult: 2,
-    maxChild: 2,
-    publishToWebsite: true,
-    selectedAmenities: [1, 2, 4, 5],
-    color: '#3B82F6',
-    defaultWebInventory: 15,
-    createdBy: 'admin',
-    createdDate: 'on 2012-10-31',
-    modifiedBy: 'admin',
-    modifiedDate: 'on 2012-11-01',
-    status: 'Available'
-  },
-  {
-    id: 3,
-    shortCode: 'PS',
-    roomType: 'Panoramic Suite',
-    baseAdult: 2,
-    baseChild: 2,
-    maxAdult: 2,
-    maxChild: 2,
-    publishToWebsite: true,
-    selectedAmenities: [1, 2, 3, 4, 5, 6],
-    color: '#8B5CF6',
-    defaultWebInventory: 5,
-    createdBy: 'admin',
-    createdDate: 'on 2012-10-31',
-    modifiedBy: 'admin',
-    modifiedDate: 'on 2012-10-31',
-    status: 'Available'
-  },
-  {
-    id: 4,
-    shortCode: 'CS',
-    roomType: 'Club Suite',
-    baseAdult: 2,
-    baseChild: 2,
-    maxAdult: 2,
-    maxChild: 2,
-    publishToWebsite: false,
-    selectedAmenities: [1, 2, 3],
-    color: '#F59E0B',
-    defaultWebInventory: 10,
-    createdBy: 'admin',
-    createdDate: 'on 2012-10-31',
-    modifiedBy: 'admin',
-    modifiedDate: 'on 2012-11-01',
-    status: 'Available'
-  },
-  {
-    id: 5,
-    shortCode: 'DS',
-    roomType: 'Diplomatic Suite',
-    baseAdult: 2,
-    baseChild: 2,
-    maxAdult: 2,
-    maxChild: 2,
-    publishToWebsite: true,
-    selectedAmenities: [1, 2, 3, 4, 5, 6, 7],
-    color: '#EF4444',
-    defaultWebInventory: 3,
-    createdBy: 'admin',
-    createdDate: 'on 2012-10-31',
-    modifiedBy: 'admin',
-    modifiedDate: 'on 2012-10-31',
-    status: 'Available'
-  },
-  {
-    id: 6,
-    shortCode: 'PS',
-    roomType: 'Presidential Suite',
-    baseAdult: 2,
-    baseChild: 2,
-    maxAdult: 2,
-    maxChild: 2,
-    publishToWebsite: true,
-    selectedAmenities: [1, 2, 3, 4, 5, 6, 7],
-    color: '#6366F1',
-    defaultWebInventory: 1,
-    createdBy: 'admin',
-    createdDate: 'on 2012-10-31',
-    modifiedBy: 'admin',
-    modifiedDate: 'on 2012-10-31',
-    status: 'Available'
-  }
-])
+const roomTypes = ref([])
 
 // Methods
 const onSelectionChange = (selection) => {
@@ -459,13 +305,13 @@ const editRoomType = (roomType) => {
   editingRoomType.value = roomType
   formData.value = {
     shortCode: roomType.shortCode,
-    roomType: roomType.roomType,
+    roomTypeName: roomType.roomTypeName,
     baseAdult: roomType.baseAdult,
     baseChild: roomType.baseChild,
     maxAdult: roomType.maxAdult,
     maxChild: roomType.maxChild,
     publishToWebsite: roomType.publishToWebsite,
-    selectedAmenities: [...roomType.selectedAmenities],
+    roomAmenities:roomType.roomAmenities && roomType.roomAmenities.length >0?[...roomType.roomAmenities]:[],
     color: roomType.color,
     defaultWebInventory: roomType.defaultWebInventory
   }
@@ -473,62 +319,82 @@ const editRoomType = (roomType) => {
 }
 
 const deleteRoomType = (id) => {
-  if (confirm('Are you sure you want to delete this room type?')) {
+  if (confirm(t('confirmDeleteRoomType'))) {
     roomTypes.value = roomTypes.value.filter(roomType => roomType.id !== id)
   }
 }
 
 const deleteSelected = () => {
-  if (confirm(`Are you sure you want to delete ${selectedRoomTypes.value.length} selected room types?`)) {
+  if (confirm(t('confirmDeleteSelectedRoomTypes', { count: selectedRoomTypes.value.length }))) {
     roomTypes.value = roomTypes.value.filter(roomType => !selectedRoomTypes.value.includes(roomType.id))
     selectedRoomTypes.value = []
   }
 }
 
-const saveRoomType = () => {
-  if (showAddModal.value) {
-    // Add new room type
-    const newRoomType = {
-      id: Date.now(),
-      shortCode: formData.value.shortCode,
-      roomType: formData.value.roomType,
-      baseAdult: formData.value.baseAdult,
-      baseChild: formData.value.baseChild,
-      maxAdult: formData.value.maxAdult,
-      maxChild: formData.value.maxChild,
-      publishToWebsite: formData.value.publishToWebsite,
-      selectedAmenities: [...formData.value.selectedAmenities],
-      color: formData.value.color,
-      defaultWebInventory: formData.value.defaultWebInventory,
-      createdBy: 'admin',
-      createdDate: `on ${new Date().toISOString().split('T')[0]}`,
-      modifiedBy: 'admin',
-      modifiedDate: `on ${new Date().toISOString().split('T')[0]}`,
-      status: 'Available'
-    }
-    roomTypes.value.push(newRoomType)
-  } else {
-    // Update existing room type
-    const index = roomTypes.value.findIndex(roomType => roomType.id === editingRoomType.value.id)
-    if (index !== -1) {
-      roomTypes.value[index] = {
-        ...roomTypes.value[index],
+const saveRoomType = async () => {
+  try {
+    isLoading.value = true
+    if (showAddModal.value) {
+      // Add new room type
+      const newRoomType = {
+        hotelId: serviceStore.serviceId,
         shortCode: formData.value.shortCode,
-        roomType: formData.value.roomType,
+        roomTypeName: formData.value.roomTypeName,
         baseAdult: formData.value.baseAdult,
         baseChild: formData.value.baseChild,
         maxAdult: formData.value.maxAdult,
         maxChild: formData.value.maxChild,
         publishToWebsite: formData.value.publishToWebsite,
-        selectedAmenities: [...formData.value.selectedAmenities],
+        roomAmenities: [...formData.value.roomAmenities],
         color: formData.value.color,
         defaultWebInventory: formData.value.defaultWebInventory,
-        modifiedBy: 'admin',
-        modifiedDate: `on ${new Date().toISOString().split('T')[0]}`
+        //status: 'Available'
+      }
+      const resp = await postRoomType(newRoomType);
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(t('roomTypeAddedSuccess'))
+        loadData();
+        closeModal()
+      } else {
+        toast.error(t('somethingWentWrong'))
+        console.error('Error adding room type:', resp);
+        return;
+      }
+
+    } else {
+      // Update existing room type
+      const index = roomTypes.value.findIndex(roomType => roomType.id === editingRoomType.value.id)
+      if (index !== -1) {
+        const updatedRoomType = {
+          shortCode: formData.value.shortCode,
+          roomTypeName: formData.value.roomTypeName,
+          baseAdult: formData.value.baseAdult,
+          baseChild: formData.value.baseChild,
+          maxAdult: formData.value.maxAdult,
+          maxChild: formData.value.maxChild,
+          publishToWebsite: formData.value.publishToWebsite,
+          roomAmenities: [...formData.value.roomAmenities],
+          color: formData.value.color,
+        }
+        const resp = await updateRoomTypeById(editingRoomType.value.id, updatedRoomType);
+        if (resp.status === 200 || resp.status === 201) {
+          toast.success(t('roomTypeUpdatedSuccess'))
+          loadData();
+          closeModal();
+        } else {
+          toast.error(t('somethingWentWrong'))
+          console.error('Error updating room type:', resp);
+          return;
+        }
       }
     }
+    closeModal()
+  } catch (error) {
+    console.error('Error saving room type:', error)
+    toast.error(t('somethingWentWrong'))
+  } finally {
+    isLoading.value = false
   }
-  closeModal()
 }
 
 const closeModal = () => {
@@ -537,15 +403,37 @@ const closeModal = () => {
   editingRoomType.value = null
   formData.value = {
     shortCode: '',
-    roomType: '',
+    roomTypeName: '',
     baseAdult: 2,
     baseChild: 0,
     maxAdult: 2,
     maxChild: 0,
     publishToWebsite: true,
-    selectedAmenities: [],
+    roomAmenities: [],
     color: '#3B82F6',
     defaultWebInventory: 0
   }
 }
+
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const resp = await getRoomTypes();
+    console.log('this is the data', resp)
+    roomTypes.value = resp.data.data.data;
+  } catch (error) {
+    console.error('Error loading room types:', error);
+    toast.error(t('errorLoadingRoomTypes'));
+  } finally {
+    loading.value = false;
+  }
+}
+
+const loadAmenities =async ()=>{
+   const resp = await getAmenities();
+   availableAmenities.value = resp.data.data.data;
+}
+
+loadData();
+loadAmenities();
 </script>

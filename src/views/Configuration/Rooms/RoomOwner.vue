@@ -3,29 +3,30 @@
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Room Owner</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ t('roomOwner') }}</h1>
         <p class="text-gray-600 mt-1">
-          When Management Company manages condominiums and apartments, they would like to enter information of the owner of condominium/apartment.
+          {{ t('roomOwnerDescription') }}
         </p>
       </div>
 
       <!-- Room Owners Table using ReusableTable -->
       <ReusableTable
-        title="Room Owners List"
+        :title="t('roomOwnersTitle')"
         :columns="columns"
         :data="roomOwners"
         :actions="actions"
-        search-placeholder="Search room owners..."
+        :search-placeholder="t('searchRoomOwners')"
         :selectable="true"
-        empty-state-title="No room owners found"
-        empty-state-message="Click 'Add Room Owner' to create your first room owner."
+        :empty-state-title="t('noRoomOwnersFound')"
+        :empty-state-message="t('noRoomOwnersMessage')"
+        :loading="loading"
         @action="onAction"
         @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton 
             @click="showAddModal = true"
-            label="Add Room Owner"
+            :label="t('addRoomOwner')"
             :icon="Plus"
           > 
           </BasicButton>
@@ -33,7 +34,7 @@
           <BasicButton 
             v-if="selectedOwners.length > 0"
             @click="deleteSelected"
-            label="Delete Selected"
+            :label="t('deleteSelected')"
             :icon="Trash2"
           >
           </BasicButton>
@@ -43,7 +44,7 @@
         <template #column-ownerInfo="{ item }">
           <div>
             <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
-            <div class="text-xs text-gray-500">{{ item.businessName || 'No business name' }}</div>
+            <div class="text-xs text-gray-500">{{ item.businessName || t('noBusinessName') }}</div>
           </div>
         </template>
 
@@ -73,7 +74,7 @@
         <!-- Custom column for room count -->
         <template #column-roomCount="{ item }">
           <div class="text-sm text-gray-900">
-            {{ item.assignedRooms.length }} room{{ item.assignedRooms.length !== 1 ? 's' : '' }}
+            {{ item.roomIds.length }} {{ item.roomIds.length === 1 ? t('room') : t('rooms') }}
           </div>
         </template>
 
@@ -97,258 +98,203 @@
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">
-            {{ showAddModal ? 'Add Room Owner' : 'Edit Room Owner' }}
-          </h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+              {{ showAddModal ? t('addRoomOwner') : t('editRoomOwner') }}
+            </h3>
           
           <form @submit.prevent="saveRoomOwner" class="space-y-6">
             <!-- Basic Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
-                </label>
-                <input 
-                  v-model="formData.name"
-                  type="text" 
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter the name of the room owner"
-                >
+                <Input 
+                  v-model="formData.name" 
+                  :lb="t('Name')"
+                  inputType="text"
+                  :isRequired="true"
+                  :placeholder="t('enterOwnerName')"
+                />
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Business Name
-                </label>
-                <input 
-                  v-model="formData.businessName"
-                  type="text" 
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter the business name (if any)"
-                >
+                <Input 
+                  v-model="formData.businessName" 
+                  :lb="t('businessName')"
+                  inputType="text"
+                  :isRequired="false"
+                  :placeholder="t('enterBusinessName')"
+                />
               </div>
             </div>
 
             <!-- Address Information -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-900">Address Information</h4>
+              <h4 class="text-md font-medium text-gray-900">{{ t('addressInformation') }}</h4>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Address *
-                </label>
-                <textarea 
-                  v-model="formData.address"
-                  required
-                  rows="2"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter the address of the room owner"
-                ></textarea>
-              </div>
+                  <Input 
+                    v-model="formData.address" 
+                    :lb="t('Address')"
+                    inputType="text"
+                    :isRequired="true"
+                    :placeholder="t('enterAddress')"
+                  />
+                </div>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Country *
-                  </label>
-                  <select 
-                    v-model="formData.country"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select country</option>
-                    <option v-for="country in availableCountries" :key="country" :value="country">
-                      {{ country }}
-                    </option>
-                  </select>
+                  <InputCountries 
+                    v-model="formData.country" 
+                    :isRequired="true"
+                  />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    State *
-                  </label>
-                  <input 
-                    v-model="formData.state"
-                    type="text" 
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter state"
-                  >
+                  <Input 
+                    v-model="formData.state" 
+                    :lb="t('State')"
+                    inputType="text"
+                    :isRequired="true"
+                    :placeholder="t('enterState')"
+                  />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    City *
-                  </label>
-                  <input 
-                    v-model="formData.city"
-                    type="text" 
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter city"
-                  >
+                  <Input 
+                    v-model="formData.city" 
+                    :lb="t('City')"
+                    inputType="text"
+                    :isRequired="true"
+                    :placeholder="t('enterCity')"
+                  />
                 </div>
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Zip Code *
-                </label>
-                <input 
-                  v-model="formData.zipCode"
-                  type="text" 
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter zip code or pin code"
-                >
+                <Input 
+                    v-model="formData.zipCode" 
+                    :lb="t('ZipCode')"
+                    inputType="text"
+                    :isRequired="true"
+                    :placeholder="t('enterZipCode')"
+                  />
               </div>
             </div>
 
             <!-- Contact Information -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-900">Contact Information</h4>
+              <h4 class="text-md font-medium text-gray-900">{{ t('contactInformation') }}</h4>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Phone *
-                  </label>
-                  <input 
-                    v-model="formData.phone"
-                    type="tel" 
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Phone number"
-                  >
+                  <InputPhone 
+                    v-model="formData.phone" 
+                    :title="t('phone')"
+                    :isRequired="true"
+                  />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Fax
-                  </label>
-                  <input 
-                    v-model="formData.fax"
-                    type="tel" 
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Fax number (if any)"
-                  >
+                  <Input 
+                    v-model="formData.fax" 
+                    :lb="t('Fax')"
+                    inputType="text"
+                    :isRequired="false"
+                    :placeholder="t('enterFax')"
+                  />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Mobile *
-                  </label>
-                  <input 
-                    v-model="formData.mobile"
-                    type="tel" 
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Mobile number"
-                  >
+                  <InputPhone 
+                    v-model="formData.mobile" 
+                    :title="t('mobile')"
+                    :isRequired="true"
+                  />
                 </div>
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
-                </label>
-                <input 
-                  v-model="formData.email"
-                  type="email" 
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Email address"
-                >
+                <InputEmail 
+                  v-model="formData.email" 
+                  :title="t('email')"
+                  :isRequired="true"
+                  :placeholder="t('emailAddress')"
+                />
               </div>
             </div>
 
             <!-- Commission & Rate Information -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-900">Commission & Rate Information</h4>
+              <h4 class="text-md font-medium text-gray-900">{{ t('commissionRateInformation') }}</h4>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Commission Plan *
-                  </label>
-                  <select 
-                    v-model="formData.commissionPlan"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select commission plan</option>
-                    <option value="% on all nights">% on all nights</option>
-                    <option value="Fixed amount per night">Fixed amount per night</option>
-                    <option value="Fixed amount per stay">Fixed amount per stay</option>
-                  </select>
+                  <Select 
+                    v-model="formData.commissionPlan" 
+                    :lb="t('commissionPlan')"
+                    :isRequired="true"
+                    :options="[
+                      { label: t('percentageOnAllNights'), value: '% on all nights' },
+                      { label: t('fixedAmountPerNight'), value: 'Fixed amount per night' },
+                      { label: t('fixedAmountPerStay'), value: 'Fixed amount per stay' }
+                    ]"
+                    :defaultValue="t('selectCommissionPlan')"
+                  />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Commission Value *
-                  </label>
-                  <input 
-                    v-model="formData.commissionValue"
-                    type="text" 
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter commission value"
-                  >
+                  <Input 
+                    v-model="formData.commissionValue" 
+                    :lb="t('commissionValue')"
+                    inputType="number"
+                    :isRequired="true"
+                    :placeholder="t('enterCommissionValue')"
+                  />
                 </div>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Rate *
-                  </label>
-                  <select 
-                    v-model="formData.rate"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select rate</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Special">Special</option>
-                    <option value="Allocated">Allocated</option>
-                  </select>
+                  <Select 
+                    v-model="formData.rate" 
+                    :lb="t('rate')"
+                    :isRequired="true"
+                    :options="[
+                      { label: t('regular'), value: 'Regular' },
+                      { label: t('special'), value: 'Special' },
+                      { label: t('allocated'), value: 'Allocated' }
+                    ]"
+                    :defaultValue="t('selectRate')"
+                  />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Room Inventory *
-                  </label>
-                  <select 
-                    v-model="formData.roomInventory"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select inventory type</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Allocated">Allocated</option>
-                  </select>
+                  <Select 
+                    v-model="formData.roomInventory" 
+                    :lb="t('roomInventory')"
+                    :isRequired="true"
+                    :options="[
+                      { label: t('regular'), value: 'Regular' },
+                      { label: t('allocated'), value: 'Allocated' }
+                    ]"
+                    :defaultValue="t('selectInventoryType')"
+                  />
                 </div>
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Opening Balance
-                </label>
-                <input 
-                  v-model.number="formData.openingBalance"
-                  type="number" 
-                  step="0.01"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter opening balance (if any)"
-                >
-                <p class="text-xs text-gray-500 mt-1">Previous balance from manual system or previous software</p>
+                <Input 
+                  v-model="formData.openingBalance" 
+                  :lb="t('openingBalance')"
+                  inputType="number"
+                  :isRequired="true"
+                  :placeholder="t('enterOpeningBalance')"
+                />
               </div>
             </div>
 
             <!-- User Creation -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-900">User Access</h4>
+              <h4 class="text-md font-medium text-gray-900">{{ t('userAccess') }}</h4>
               
               <div class="flex items-center space-x-2">
                 <input 
@@ -358,21 +304,21 @@
                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 >
                 <label for="createUser" class="text-sm text-gray-700">
-                  Create User - Create a username and password for this room owner to login and check room details
+                  {{ t('createUserDescription') }}
                 </label>
               </div>
             </div>
 
             <!-- Room Assignment -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-900">Room Assignment</h4>
-              <p class="text-sm text-gray-600">Select all the rooms that are owned by this room owner.</p>
+              <h4 class="text-md font-medium text-gray-900">{{ t('roomAssignment') }}</h4>
+              <p class="text-sm text-gray-600">{{ t('roomAssignmentDescription') }}</p>
               
               <div class="border border-gray-300 rounded-md p-4 max-h-48 overflow-y-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div v-for="room in availableRooms" :key="room.id" class="flex items-center space-x-2">
                     <input 
-                      v-model="formData.assignedRooms"
+                      v-model="formData.roomIds"
                       :value="room.id"
                       type="checkbox" 
                       :id="`room-${room.id}`"
@@ -392,13 +338,18 @@
                 @click="closeModal"
                 class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
               >
-                Cancel
+                {{ t('cancel') }}
               </button>
               <button 
                 type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                :disabled="isLoading"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
-                {{ showEditModal ? 'Update Room Owner' : 'Add Room Owner' }}
+                <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isLoading ? t('saving') : (showEditModal ? t('updateRoomOwner') : t('addRoomOwner')) }}
               </button>
             </div>
           </form>
@@ -408,21 +359,72 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Trash2, Edit, Trash, User } from 'lucide-vue-next'
+import { getRoomOwners, postRoomOwner, updateRoomOwnerById, deleteRoomOwnerById, getRooms } from '../../../services/configrationApi'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+import InputCountries from '../../../components/forms/FormElements/InputCountries.vue'
+import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
+import InputEmail from '../../../components/forms/FormElements/InputEmail.vue'
+import Select from '../../../components/forms/FormElements/Select.vue'
+import Input from '../../../components/forms/FormElements/Input.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+
+// TypeScript interfaces
+interface Room {
+  id: number
+  name: string
+  type: string
+}
+
+interface RoomOwner {
+  id?: number
+  name: string
+  businessName: string
+  address: string
+  country: string
+  state: string
+  city: string
+  zipCode: string
+  phone: string
+  fax: string
+  mobile: string
+  email: string
+  commissionPlan: string
+  commissionValue: string | number
+  rate: string
+  roomInventory: string
+  openingBalance: number
+  createUser: boolean
+  roomIds: number[]
+}
+
+interface TableColumn {
+  key: string
+  label: string
+  sortable?: boolean
+  searchable?: boolean
+}
+
+const { t } = useI18n()
+const serviceStore = useServiceStore()
+const toast = useToast()
 
 // Reactive data
-const showAddModal = ref(false)
-const showEditModal = ref(false)
-const selectedOwners = ref([])
-const editingOwner = ref(null)
+const showAddModal = ref<boolean>(false)
+const showEditModal = ref<boolean>(false)
+const selectedOwners = ref<RoomOwner[]>([])
+const editingOwner = ref<RoomOwner | null>(null)
+const isLoading = ref<boolean>(false)
+const loading = ref<boolean>(false)
 
 // Form data
-const formData = ref({
+const formData = ref<RoomOwner>({
   name: '',
   businessName: '',
   address: '',
@@ -440,182 +442,99 @@ const formData = ref({
   roomInventory: '',
   openingBalance: 0,
   createUser: false,
-  assignedRooms: []
+  roomIds: []
 })
 
 // Available options
-const availableCountries = ref([
-  'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 
-  'France', 'Italy', 'Spain', 'Japan', 'India', 'China', 'Brazil'
-])
+// Country list is now handled by InputCountries component
 
-const availableRooms = ref([
-  { id: 101, name: '101', type: 'One Bed Room Deluxe Suite' },
-  { id: 102, name: '102', type: 'Club Suite' },
-  { id: 103, name: '103', type: 'Two Bed Room Deluxe Suite' },
-  { id: 201, name: '201', type: 'Diplomatic Suite' },
-  { id: 202, name: '202', type: 'Diplomatic Suite' },
-  { id: 203, name: '203', type: 'Presidential Suite' },
-  { id: 301, name: '301', type: 'One Bed Room Deluxe Suite' },
-  { id: 302, name: '302', type: 'One Bed Room Deluxe Suite' },
-  { id: 303, name: '303', type: 'Panoramic Suite' }
+const availableRooms = ref<Room[]>([
 ])
 
 // Table configuration
-const columns = ref([
+const columns = ref<TableColumn[]>([
   {
     key: 'ownerInfo',
-    label: 'Owner Name',
+    label: t('ownerName'),
     sortable: true,
     searchable: true
   },
   {
     key: 'contactInfo',
-    label: 'Contact Info',
+    label: t('contactInfo'),
     sortable: true
   },
   {
     key: 'address',
-    label: 'Location',
+    label: t('location'),
     sortable: true,
     searchable: true
   },
   {
     key: 'commissionInfo',
-    label: 'Commission',
+    label: t('commission'),
     sortable: true
   },
   {
     key: 'rate',
-    label: 'Rate',
+    label: t('rate'),
     sortable: true
   },
   {
     key: 'roomInventory',
-    label: 'Inventory',
+    label: t('inventory'),
     sortable: true
   },
   {
     key: 'balance',
-    label: 'Balance',
+    label: t('balance'),
     sortable: true
   },
   {
     key: 'roomCount',
-    label: 'Rooms',
+    label: t('rooms'),
     sortable: true
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('status'),
     sortable: true
   },
   {
     key: 'createdInfo',
-    label: 'Created By',
+    label: t('createdBy'),
     sortable: false
   },
   {
     key: 'modifiedInfo',
-    label: 'Modified By',
+    label: t('modifiedBy'),
     sortable: false
   }
 ])
 
-// Sample data
-const roomOwners = ref([
-  {
-    id: 1,
-    name: 'John Smith',
-    businessName: 'Smith Properties LLC',
-    address: '123 Main Street, New York, NY 10001',
-    country: 'United States',
-    state: 'New York',
-    city: 'New York',
-    zipCode: '10001',
-    phone: '+1-555-0123',
-    fax: '+1-555-0124',
-    mobile: '+1-555-0125',
-    email: 'john.smith@smithproperties.com',
-    commissionPlan: '% on all nights',
-    commissionValue: '15%',
-    rate: 'Regular',
-    roomInventory: 'Regular',
-    openingBalance: 2500.00,
-    createUser: true,
-    assignedRooms: [101, 102, 103],
-    status: 'Active',
-    createdBy: 'Admin',
-    createdDate: '2024-01-15 10:30 AM',
-    modifiedBy: 'Manager',
-    modifiedDate: '2024-01-20 02:15 PM'
-  },
-  {
-    id: 2,
-    name: 'Maria Garcia',
-    businessName: 'Garcia Investments',
-    address: '456 Ocean Drive, Miami, FL 33139',
-    country: 'United States',
-    state: 'Florida',
-    city: 'Miami',
-    zipCode: '33139',
-    phone: '+1-305-555-0234',
-    fax: '',
-    mobile: '+1-305-555-0235',
-    email: 'maria@garciainvestments.com',
-    commissionPlan: 'Fixed amount per night',
-    commissionValue: '$50',
-    rate: 'Special',
-    roomInventory: 'Allocated',
-    openingBalance: -750.00,
-    createUser: true,
-    assignedRooms: [201, 202],
-    status: 'Active',
-    createdBy: 'Admin',
-    createdDate: '2024-01-18 09:15 AM',
-    modifiedBy: 'Admin',
-    modifiedDate: '2024-01-18 09:15 AM'
-  },
-  {
-    id: 3,
-    name: 'David Chen',
-    businessName: '',
-    address: '789 Sunset Boulevard, Los Angeles, CA 90028',
-    country: 'United States',
-    state: 'California',
-    city: 'Los Angeles',
-    zipCode: '90028',
-    phone: '+1-323-555-0345',
-    fax: '+1-323-555-0346',
-    mobile: '+1-323-555-0347',
-    email: 'david.chen@email.com',
-    commissionPlan: 'Fixed amount per stay',
-    commissionValue: '$200',
-    rate: 'Allocated',
-    roomInventory: 'Regular',
-    openingBalance: 1200.00,
-    createUser: false,
-    assignedRooms: [301, 302, 303],
-    status: 'Active',
-    createdBy: 'Manager',
-    createdDate: '2024-01-22 03:45 PM',
-    modifiedBy: 'Manager',
-    modifiedDate: '2024-01-22 03:45 PM'
-  }
-])
+// Data
+const roomOwners = ref<RoomOwner[]>([])
 
 // Methods
-const editRoomOwner = (owner) => {
+const editRoomOwner = (owner: RoomOwner): void => {
   editingOwner.value = owner
   formData.value = { ...owner }
   showEditModal.value = true
 }
 
-const deleteRoomOwner = (owner) => {
+const deleteRoomOwner = async (owner: RoomOwner): Promise<void> => {
   if (confirm(`Are you sure you want to delete room owner "${owner.name}"?`)) {
-    const index = roomOwners.value.findIndex(o => o.id === owner.id)
-    if (index > -1) {
-      roomOwners.value.splice(index, 1)
+    try {
+      const resp = await deleteRoomOwnerById(owner.id!)
+      if (resp.status === 200 || resp.status === 204) {
+        toast.success('Room owner deleted successfully')
+        loadData()
+      } else {
+        toast.error('Failed to delete room owner')
+      }
+    } catch (error) {
+      console.error('Error deleting room owner:', error)
+      toast.error('Error deleting room owner')
     }
   }
 }
@@ -635,7 +554,7 @@ const actions = ref([
   }
 ])
 
-const onAction = (action, item) => {
+const onAction = (action:string, item:any) => {
   if (action === 'edit') {
     editRoomOwner(item)
   } else if (action === 'delete') {
@@ -643,43 +562,92 @@ const onAction = (action, item) => {
   }
 }
 
-const onSelectionChange = (selected) => {
+const onSelectionChange = (selected:any) => {
   selectedOwners.value = selected
 }
 
-const deleteSelected = () => {
+const deleteSelected = async (): Promise<void> => {
   if (confirm(`Are you sure you want to delete ${selectedOwners.value.length} selected room owner(s)?`)) {
-    selectedOwners.value.forEach(owner => {
-      const index = roomOwners.value.findIndex(o => o.id === owner.id)
-      if (index > -1) {
-        roomOwners.value.splice(index, 1)
+    try {
+      const deletePromises = selectedOwners.value.map(owner => deleteRoomOwnerById(owner.id!))
+      await Promise.all(deletePromises)
+      toast.success('Selected room owners deleted successfully')
+      selectedOwners.value = []
+      loadData()
+    } catch (error) {
+      console.error('Error deleting selected room owners:', error)
+      toast.error('Error deleting selected room owners')
+    }
+  }
+}
+
+const saveRoomOwner = async (): Promise<void> => {
+  isLoading.value = true
+  try {
+    if (showEditModal.value && editingOwner.value) {
+      // Update existing room owner
+      const updatedOwner = {
+        ...formData.value,
+        hotelId: serviceStore.serviceId
       }
-    })
-    selectedOwners.value = []
+      const resp = await updateRoomOwnerById(editingOwner.value.id!, updatedOwner)
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success('Room owner updated successfully')
+        loadData()
+        closeModal()
+      } else {
+        toast.error('Failed to update room owner')
+      }
+    } else {
+      // Add new room owner
+      const newOwner = {
+        ...formData.value,
+        hotelId: serviceStore.serviceId,
+        status: 'Active'
+      }
+      const resp = await postRoomOwner(newOwner)
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success('Room owner created successfully')
+        loadData()
+        closeModal()
+      } else {
+        toast.error('Failed to create room owner')
+      }
+    }
+  } catch (error) {
+    console.error('Error saving room owner:', error)
+    toast.error('Error saving room owner')
+  } finally {
+    isLoading.value = false
   }
 }
 
-const saveRoomOwner = () => {
-  if (showEditModal.value) {
-    // Update existing room owner
-    const index = roomOwners.value.findIndex(o => o.id === editingOwner.value.id)
-    if (index > -1) {
-      roomOwners.value[index] = { ...formData.value, id: editingOwner.value.id }
-    }
-  } else {
-    // Add new room owner
-    const newOwner = {
-      ...formData.value,
-      id: Date.now(),
-      status: 'Active'
-    }
-    roomOwners.value.push(newOwner)
+const loadData = async (): Promise<void> => {
+  loading.value = true
+  try {
+    const resp = await getRoomOwners()
+    console.log('Room owners data:', resp)
+    roomOwners.value = resp.data.data?.data || resp.data.data || resp.data || []
+  } catch (error) {
+    console.error('Error loading room owners:', error)
+    toast.error('Error loading room owners')
+  } finally {
+    loading.value = false
   }
-  
-  closeModal()
 }
 
-const closeModal = () => {
+const loadRooms = async (): Promise<void> => {
+  try {
+    const resp = await getRooms()
+    console.log('Available rooms data:', resp)
+    availableRooms.value = resp.data.data?.data || resp.data.data || resp.data || []
+  } catch (error) {
+    console.error('Error loading rooms:', error)
+    toast.error(t('errorLoadingRooms'))
+  }
+}
+
+const closeModal = (): void => {
   showAddModal.value = false
   showEditModal.value = false
   editingOwner.value = null
@@ -703,7 +671,11 @@ const closeModal = () => {
     roomInventory: '',
     openingBalance: 0,
     createUser: false,
-    assignedRooms: []
+    roomIds: []
   }
 }
+
+// Load data on component mount
+loadData()
+loadRooms()
 </script>

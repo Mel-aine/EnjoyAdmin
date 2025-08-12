@@ -181,9 +181,10 @@
               </button>
               <button 
                 type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                :disabled="isLoading"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ showAddModal ? 'Add Rate Type' : 'Update Rate Type' }}
+                {{ isLoading ? t('saving') : (showAddModal ? 'Add Rate Type' : 'Update Rate Type') }}
               </button>
             </div>
           </form>
@@ -194,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -202,12 +203,16 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
+import { getRateTypes, postRateType, updateRateTypeById, getRoomTypes } from '@/services/configrationApi'
+import { useI18n } from 'vue-i18n'
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const editingRateType = ref<any>(null)
 const selectedRateTypes = ref([])
+const isLoading = ref(false)
+const { t } = useI18n()
 
 // Form data
 const formData = ref({
@@ -376,8 +381,8 @@ const onSelectionChange = (selected:any) => {
 
 const deleteSelected = () => {
   if (confirm(`Are you sure you want to delete ${selectedRateTypes.value.length} selected rate type(s)?`)) {
-    selectedRateTypes.value.forEach(rateType => {
-      const index = rateTypes.value.findIndex(rt => rt.id === rateType.id)
+    selectedRateTypes.value.forEach((rateType:any) => {
+      const index = rateTypes.value.findIndex(rt => rt.id === rateType?.id)
       if (index > -1) {
         rateTypes.value.splice(index, 1)
       }
@@ -386,31 +391,38 @@ const deleteSelected = () => {
   }
 }
 
-const saveRateType = () => {
-  if (showAddModal.value) {
-    // Add new rate type
-    const newRateType = {
-      id: Date.now(),
-      ...formData.value,
-      createdBy: 'Current User',
-      createdDate: new Date().toLocaleString(),
-      modifiedBy: 'Current User',
-      modifiedDate: new Date().toLocaleString()
-    }
-    rateTypes.value.push(newRateType)
-  } else {
-    // Update existing rate type
-    const index = rateTypes.value.findIndex(rt => rt.id === editingRateType.value!.id)
-    if (index > -1) {
-      rateTypes.value[index] = {
-        ...rateTypes.value[index],
-        ...formData.value,
-        modifiedBy: 'Current User',
-        modifiedDate: new Date().toLocaleString()
-      }
-    }
+const saveRateType = async () => {
+  // Validation
+  if (!formData.value.shortCode || !formData.value.rateType || !formData.value.roomType) {
+    alert(t('pleaseCompleteAllRequiredFields'))
+    return
   }
-  closeModal()
+
+  isLoading.value = true
+
+  try {
+    if (showAddModal.value) {
+      // Add new rate type
+      await postRateType(formData.value)
+      alert(t('rateTypeAddedSuccessfully'))
+      await loadData()
+    } else {
+      // Update existing rate type
+      await updateRateTypeById(editingRateType.value.id, formData.value)
+      alert(t('rateTypeUpdatedSuccessfully'))
+      await loadData()
+    }
+    closeModal()
+  } catch (error) {
+    console.error('Error saving rate type:', error)
+    if (showAddModal.value) {
+      alert(t('errorAddingRateType'))
+    } else {
+      alert(t('errorUpdatingRateType'))
+    }
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const closeModal = () => {
@@ -427,4 +439,37 @@ const closeModal = () => {
     status: 'Active'
   }
 }
+
+// Load data from API
+const loadData = async () => {
+  try {
+    const response = await getRateTypes()
+    rateTypes.value = response.data || []
+  } catch (error) {
+    console.error('Error loading rate types:', error)
+    alert(t('errorLoadingRateTypes'))
+    // Keep existing mock data as fallback
+  }
+}
+
+// Load room types for dropdown
+const loadRoomTypes = async () => {
+  try {
+    const response = await getRoomTypes()
+    const apiRoomTypes = response.data || []
+    roomTypeOptions.value = apiRoomTypes.map((roomType: any) => ({
+      value: roomType.roomTypeName || roomType.name,
+      label: roomType.roomTypeName || roomType.name
+    }))
+  } catch (error) {
+    console.error('Error loading room types:', error)
+    // Keep existing mock data as fallback
+  }
+}
+
+// Initialize data on component mount
+onMounted(() => {
+  loadData()
+  loadRoomTypes()
+})
 </script>

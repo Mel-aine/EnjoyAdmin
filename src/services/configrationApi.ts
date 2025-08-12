@@ -3,26 +3,11 @@ import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 import type {
-  OptionType,
-  ServiceProductType,
-  ProductOptionType,
   RoomTypeData,
-  ReservationType,
-  userDataType,
 } from '@/types/option'
-import type {
-  AmenityCategoryPayload,
-  AmenityProductPayload,
-  CreateAmenityBookingPayload,
-  FitlterItem,
-  RoomFilterItem,
-  TaskFitlterItem,
-  UpdateAmenityBookingPayload,
-  UpdateAmenityCategoryPayload,
-} from '@/utils/models'
-import type { IContract, IPayroll, ICreatePayroll } from '@/types/type'
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/configration`
+const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration`
+
 
 const authStore = useAuthStore()
 const headers = {
@@ -87,6 +72,16 @@ export const deleteAmenity = (id: number): Promise<AxiosResponse<any>> => {
 export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/room_types`, headers)
 }
+
+/** 
+ * update sortOrder roomtype
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/room_types/sort-order`, data, headers)
+}
+
 /**
  * Post a new room type
  * @param data 
@@ -172,7 +167,7 @@ export const deleteRoomById = (id: number): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomOwners = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/room_owners`, headers)
+  return axios.get(`${API_URL}/room-owners`, headers)
 }
 /**
  * Post a new room owner
@@ -180,7 +175,7 @@ export const getRoomOwners = (): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRoomOwner = (data: any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/room_owners`, data, headers)
+  return axios.post(`${API_URL}/room-owners`, data, headers)
 }
 /**
  * Get a room owner
@@ -188,7 +183,7 @@ export const postRoomOwner = (data: any): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/room_owners/${id}`, headers)
+  return axios.get(`${API_URL}/room-owners/${id}`, headers)
 }
 /**
  * Update a room owner
@@ -197,7 +192,7 @@ export const getRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomOwnerById = (id: number, data: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/room_owners/${id}`, data, headers)
+  return axios.put(`${API_URL}/room-owners/${id}`, data, headers)
 }
 /**
  * Delete a room owner
@@ -205,7 +200,143 @@ export const updateRoomOwnerById = (id: number, data: any): Promise<AxiosRespons
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/room_owners/${id}`, headers)
+  return axios.delete(`${API_URL}/room-owners/${id}`, headers)
 }
+
+
+
+
+////// this is the bed type sections
+/**
+ * Get all bed types
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBedTypes = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/bed_types`, headers)
+}
+/**
+ * Post a new bed type
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postBedType = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/bed_types`, data, headers)
+}
+/**
+ * Get a bed type
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBedTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/bed_types/${id}`, headers)
+}
+/**
+ * Update a bed type
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateBedTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/bed_types/${id}`, data, headers)
+}
+/**
+ * Delete a bed type
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteBedTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/bed_types/${id}`, headers)
+}
+
+
+// this section is for rate type
+/**
+ * Get all rate types
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRateTypes = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rate_types`, headers)
+}
+/**
+ * Post a new rate type
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postRateType = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/rate_types`, data, headers)
+}
+/**
+ * Get a rate type
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rate_types/${id}`, headers)
+}
+/**
+ * Update a rate type
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateRateTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/rate_types/${id}`, data, headers)
+}
+/**
+ * Delete a rate type
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/rate_types/${id}`, headers)
+}
+
+// this section is for season
+/**
+ * Get all seasons
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getSeasons = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/seasons`, headers)
+}
+/**
+ * Post a new season
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postSeason = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/seasons`, data, headers)
+}
+/**
+ * Get a season
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getSeasonById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/seasons/${id}`, headers)
+}
+/**
+ * Update a season
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateSeasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/seasons/${id}`, data, headers)
+}
+/**
+ * Delete a season
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteSeasonById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/seasons/${id}`, headers)
+}
+
+
+
+
+
+
 
 
