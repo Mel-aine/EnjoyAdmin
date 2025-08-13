@@ -222,6 +222,7 @@
           
           <div class="overflow-x-auto">
             <ResultTable 
+              title="Arrival List Results"
               :data="reservationData"
               :columns="selectedTableColumns"
               class="w-full mb-4 min-w-max"
