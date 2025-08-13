@@ -256,6 +256,40 @@ const router = createRouter({
       },
     },
     {
+      path: '/reports/reservation/reservation-activity',
+      name: 'reservationActivity',
+      component: () => import('../views/Reports/Reservation/ReservationActivity.vue'),
+      meta: {
+        title: 'Reservation Activity',
+        requiresAuth: true,
+      },
+    },    {
+      path: '/reports/reservation/release-reservation-list',
+      name: 'releaseReservationList',
+      component: () => import('../views/Reports/Reservation/ReleaseReservations.vue'),
+      meta: {
+        title: 'Release Reservation List',
+        requiresAuth: true,
+      },
+    },    {
+      path: '/reports/reservation/country-wise-reservation-statistics',
+      name: 'countryWiseReservationStatistics',
+      component: () => import('../views/Reports/Reservation/CountryWiseReservations.vue'),
+      meta: {
+        title: 'Country Wise Reservation Statistics',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/reservation/void-reservation',
+      name: 'voidReservation',
+      component: () => import('../views/Reports/Reservation/VoidReservations.vue'),
+      meta: {
+        title: 'void Reservations',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/reports/reservation/reservation-forecast',
       name: 'ReservationForecast',
       component: () => import('../views/Reports/Reservation/ReservationForecast.vue'),

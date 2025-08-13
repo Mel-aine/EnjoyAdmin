@@ -1,228 +1,271 @@
 <template>
   <ReportsLayout>
-    <div class="bg-white rounded-lg p-5 shadow-sm">
-      <div class="p-5 max-w-6xl mx-auto">
-        <h2 class="text-2xl font-semibold mb-5 text-gray-800">{{ t('reports.reservation.departureList') }}</h2>
+    <div class="p-6">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          {{ t('reports.reservation.departureList') }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          View and manage departing guest reservations
+        </p>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Filters
+        </h2>
         
-        <!-- Search Form -->
-        <div class="bg-gray-50 p-5 rounded-lg mb-5">
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Departure Dates -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('reports.reservation.departure') }}</label>
-              <div class="flex flex-col sm:flex-row items-center gap-2 w-full">
-                <InputDatepicker 
-                  v-model="filters.arrivalFrom" 
-                  :placeholder="t('common.from')"
-                  class="flex-1 w-full"
-                />
-                <span class="font-medium text-gray-500">{{ t('common.to') }}</span>
-                <InputDatepicker 
-                  v-model="filters.arrivalTo" 
-                  :placeholder="t('common.to')"
-                  class="flex-1 w-full"
-                />
-              </div>
-            </div>
-            
-            <!-- Reservation Type -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('reports.reservation.reservationType') }}</label>
-              <SelectComponent 
-                v-model="filters.reservationType"
-                :options="reservationTypeOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Departure Dates -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('reports.reservation.departure') }} From
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalFrom" 
+              :placeholder="t('common.from')"
+              class="w-full"
+            />
           </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- User -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.user') }}</label>
-              <SelectComponent 
-                v-model="filters.user"
-                :options="userOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
-            
-            <!-- Room Type -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.roomType') }}</label>
-              <SelectComponent 
-                v-model="filters.roomType"
-                :options="roomTypeOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('reports.reservation.departure') }} To
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalTo" 
+              :placeholder="t('common.to')"
+              class="w-full"
+            />
           </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Rate Type -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.rateType') }}</label>
-              <SelectComponent 
-                v-model="filters.rateType"
-                :options="rateTypeOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
-            
-            <!-- Rate Range -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('reports.reservation.rateFrom') }}</label>
-              <input 
-                v-model="filters.rateFrom" 
-                type="number" 
-                class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                :placeholder="t('common.from')"
-              />
-            </div>
-            
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.to') }}</label>
-              <input 
-                v-model="filters.rateTo" 
-                type="number" 
-                class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                :placeholder="t('common.to')"
-              />
-            </div>
-          </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Market -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.market') }}</label>
-              <SelectComponent 
-                v-model="filters.market"
-                :options="marketOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
-            
-            <!-- Travel Agent -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.travelAgent') }}</label>
-              <SelectComponent 
-                v-model="filters.travelAgent"
-                :options="travelAgentOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
-          </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Business Source -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.businessSource') }}</label>
-              <SelectComponent 
-                v-model="filters.businessSource"
-                :options="businessSourceOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
-            
-            <!-- Company -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">{{ t('common.company') }}</label>
-              <SelectComponent 
-                v-model="filters.company"
-                :options="companyOptions"
-                :placeholder="t('common.select')"
-              />
-            </div>
-          </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Tax Inclusive -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="flex items-center gap-2 font-normal cursor-pointer">
-                <input 
-                  v-model="filters.taxInclusive" 
-                  type="checkbox"
-                  class="rounded border-gray-300"
-                />
-                <span class="text-sm sm:text-base">{{ t('reports.reservation.taxInclusiveRates') }}</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Report Template and Action Buttons -->
-          <div class="flex flex-col sm:flex-row items-end justify-between mt-5 pt-5 border-t border-gray-200 gap-4">
-            <!-- Report Template -->
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-              <label class="font-medium text-gray-600 whitespace-nowrap">{{ t('reports.reportTemplate') }}</label>
-              <div class="flex items-center gap-2 w-full sm:w-auto">
-                <SelectComponent 
-                  v-model="filters.reportTemplate"
-                  :options="reportTemplateOptions"
-                  :placeholder="t('common.default')"
-                  class="min-w-32 w-full sm:w-auto"
-                />
-                <button 
-                  @click="editTemplate"
-                  class="p-1.5 border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  :title="t('common.editTemplate')"
-                >
-                  <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <ButtonComponent 
-                @click="exportData"
-                variant="secondary"
-                class="min-w-24 w-full sm:w-auto"
-              >
-                {{ t('common.export') }}
-              </ButtonComponent>
-              
-              <ButtonComponent 
-                @click="generateReport"
-                variant="primary"
-                class="min-w-24 w-full sm:w-auto"
-              >
-                {{ t('common.report') }}
-              </ButtonComponent>
-              
-              <ButtonComponent 
-                @click="resetForm"
-                variant="outline"
-                class="min-w-24 w-full sm:w-auto"
-              >
-                {{ t('common.reset') }}
-              </ButtonComponent>
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.reservationType') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.reservationType"
+              :options="reservationTypeOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
           </div>
         </div>
 
-        <!-- Results Table -->
-        <div class="bg-white rounded-lg p-5 shadow-sm" v-if="showResults">
-          <h3 class="text-blue-700 mb-2">{{ hotelName }}</h3>
-          <div class="flex flex-col sm:flex-row sm:gap-5 mb-4 text-sm text-gray-600">
-            <span>{{ t('common.dateFrom') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span>
-            <span>{{ t('common.orderBy') }}: {{ t('common.room') }}</span>
-            <span>{{ t('reports.reservation.taxInclusiveRates') }}: {{ filters.taxInclusive ? t('common.yes') : t('common.no') }}</span>
-          </div>
-          
-          <div class="overflow-x-auto">
-            <ResultTable 
-              :title="t('reports.reservation.departureResults')"
-              :data="reservationData"
-              :columns="selectedTableColumns"
-              class="w-full mb-4 min-w-max"
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- User -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.user') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.user"
+              :options="userOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
             />
           </div>
           
-          <div class="flex flex-col sm:flex-row justify-between font-medium pt-2 border-t border-gray-200 gap-2">
-            <span>{{ t('reports.reservation.totalReservations') }}: #{{ totalReservations }}</span>
-            <span>{{ t('reports.reservation.totalPax') }}: {{ totalPax }}</span>
+          <!-- Room Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.roomType') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.roomType"
+              :options="roomTypeOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Rate Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.rateType') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.rateType"
+              :options="rateTypeOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Rate Range -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('reports.reservation.rateFrom') }}
+            </label>
+            <input 
+              v-model="filters.rateFrom" 
+              type="number" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              :placeholder="t('common.from')"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.to') }}
+            </label>
+            <input 
+              v-model="filters.rateTo" 
+              type="number" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              :placeholder="t('common.to')"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.market') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.market"
+              :options="marketOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Travel Agent -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.travelAgent') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.travelAgent"
+              :options="travelAgentOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Business Source -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.businessSource') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.businessSource"
+              :options="businessSourceOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Company -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('common.company') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.company"
+              :options="companyOptions"
+              :placeholder="t('common.select')"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Tax Inclusive -->
+          <div class="flex items-end">
+            <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <input 
+                v-model="filters.taxInclusive" 
+                type="checkbox"
+                class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+              />
+              {{ t('reports.reservation.taxInclusiveRates') }}
+            </label>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+          <!-- Report Template -->
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <SelectComponent 
+                v-model="filters.reportTemplate"
+                :options="reportTemplateOptions"
+                :placeholder="t('common.default')"
+                class="min-w-32 w-full sm:w-auto"
+              />
+              <button 
+                @click="editTemplate"
+                class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :title="t('common.editTemplate')"
+              >
+                <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <ButtonComponent 
+              @click="exportData"
+              variant="secondary"
+              class="min-w-24 w-full sm:w-auto"
+            >
+              {{ t('common.export') }}
+            </ButtonComponent>
+            
+            <ButtonComponent 
+              @click="generateReport"
+              variant="primary"
+              class="min-w-24 w-full sm:w-auto"
+            >
+              {{ t('common.report') }}
+            </ButtonComponent>
+            
+            <ButtonComponent 
+              @click="resetForm"
+              variant="outline"
+              class="min-w-24 w-full sm:w-auto"
+            >
+              {{ t('common.reset') }}
+            </ButtonComponent>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Table avec ResultTable -->
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ t('reports.reservation.departureResults') }}
+          </h2>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <span>{{ hotelName }}</span> • 
+            <span>{{ t('common.dateFrom') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span> • 
+            <span>{{ t('common.orderBy') }}: {{ t('common.room') }}</span> • 
+            <span>{{ t('reports.reservation.taxInclusiveRates') }}: {{ filters.taxInclusive ? t('common.yes') : t('common.no') }}</span>
+          </div>
+        </div>
+        
+        <!-- Utilisation de ResultTable avec les classes de style similaires -->
+         <div class="overflow-x-auto">
+          <ResultTable 
+          :title="t('reports.reservation.departureResults')"
+          :data="reservationData"
+          :columns="selectedTableColumns"
+           class="w-full mb-4 min-w-max"
+        />
+         </div>
+
+        
+        <!-- Total Row -->
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+          <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div>{{ t('reports.reservation.totalReservations') }}: {{ totalReservations }}</div>
+            <div>{{ t('reports.reservation.totalPax') }}: {{ totalPax }}</div>
           </div>
         </div>
       </div>

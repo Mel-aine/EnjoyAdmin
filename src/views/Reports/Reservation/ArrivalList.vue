@@ -1,187 +1,223 @@
 <template>
   <ReportsLayout>
-    <div class="bg-white rounded-lg p-5 shadow-sm">
-      <div class="p-5 max-w-6xl mx-auto">
-        <h2 class="text-2xl font-semibold mb-5 text-gray-800">Arrival List</h2>
+    <div class="p-6">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Arrival List
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          View and manage upcoming guest arrivals
+        </p>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {{ $t('common.filters') }}
+        </h2>
         
-        <!-- Search Form -->
-        <div class="bg-gray-50 p-5 rounded-lg mb-5">
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Arrival Dates -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Arrival</label>
-              <div class="flex flex-col sm:flex-row items-center gap-2 w-full">
-                <InputDatepicker 
-                  v-model="filters.arrivalFrom" 
-                  placeholder="From"
-                  class="flex-1 w-full"
-                />
-                <span class="font-medium text-gray-500">To</span>
-                <InputDatepicker 
-                  v-model="filters.arrivalTo" 
-                  placeholder="To"
-                  class="flex-1 w-full"
-                />
-              </div>
-            </div>
-
-            <!-- Company -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Company</label>
-              <SelectComponent 
-                v-model="filters.company"
-                :options="companyOptions"
-                placeholder="--Select--"
-              />
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Arrival Dates -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Arrival From
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalFrom" 
+              placeholder="From"
+              class="w-full"
+            />
           </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Room Type -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Room Type</label>
-              <SelectComponent 
-                v-model="filters.roomType"
-                :options="roomTypeOptions"
-                placeholder="--Select--"
-              />
-            </div>
-
-            <!-- Travel Agent -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Travel Agent</label>
-              <SelectComponent 
-                v-model="filters.travelAgent"
-                :options="travelAgentOptions"
-                placeholder="--Select--"
-              />
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Arrival To
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalTo" 
+              placeholder="To"
+              class="w-full"
+            />
           </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Rate Type -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Rate Type</label>
-              <SelectComponent 
-                v-model="filters.rateType"
-                :options="rateTypeOptions"
-                placeholder="--Select--"
-              />
-            </div>
-
-            <!-- Business Source -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Business Source</label>
-              <SelectComponent 
-                v-model="filters.businessSource"
-                :options="businessSourceOptions"
-                placeholder="--Select--"
-              />
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Company
+            </label>
+            <SelectComponent 
+              v-model="filters.company"
+              :options="companyOptions"
+              placeholder="All Companies"
+              class="w-full"
+            />
           </div>
+        </div>
 
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Show Amount -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Show Amount</label>
-              <SelectComponent 
-                v-model="filters.showAmount"
-                :options="showAmountOptions"
-                placeholder="Rent Per Night"
-              />
-            </div>
-
-            <!-- Market -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Market</label>
-              <SelectComponent 
-                v-model="filters.market"
-                :options="marketOptions"
-                placeholder="--Select--"
-              />
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Room Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Room Type
+            </label>
+            <SelectComponent 
+              v-model="filters.roomType"
+              :options="roomTypeOptions"
+              placeholder="All Room Types"
+              class="w-full"
+            />
           </div>
+          
+          <!-- Travel Agent -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Travel Agent
+            </label>
+            <SelectComponent 
+              v-model="filters.travelAgent"
+              :options="travelAgentOptions"
+              placeholder="All Travel Agents"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Rate Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate Type
+            </label>
+            <SelectComponent 
+              v-model="filters.rateType"
+              :options="rateTypeOptions"
+              placeholder="All Rate Types"
+              class="w-full"
+            />
+          </div>
+        </div>
 
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Rate Range -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Rate From</label>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Business Source -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Business Source
+            </label>
+            <SelectComponent 
+              v-model="filters.businessSource"
+              :options="businessSourceOptions"
+              placeholder="All Sources"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Market -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Market
+            </label>
+            <SelectComponent 
+              v-model="filters.market"
+              :options="marketOptions"
+              placeholder="All Markets"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- User -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              User
+            </label>
+            <SelectComponent 
+              v-model="filters.user"
+              :options="userOptions"
+              placeholder="All Users"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Rate Range -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate From
+            </label>
+            <input 
+              v-model="filters.rateFrom" 
+              type="number" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="From"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate To
+            </label>
+            <input 
+              v-model="filters.rateTo" 
+              type="number" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="To"
+            />
+          </div>
+          
+          <!-- Show Amount -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Show Amount
+            </label>
+            <SelectComponent 
+              v-model="filters.showAmount"
+              :options="showAmountOptions"
+              placeholder="Rent Per Night"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Reservation Type -->
+          <div>
+            <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
+            <SelectComponent 
+              v-model="filters.reservationType"
+              :options="reservationTypeOptions"
+              placeholder="--Select--"
+            />
+          </div>
+          <!-- Tax Inclusive -->
+          <div class=" mt-12">
+            <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               <input 
-                v-model="filters.rateFrom" 
-                type="number" 
-                class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                placeholder="From"
+                v-model="filters.taxInclusive" 
+                type="checkbox"
+                class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
-            </div>
-            
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">To</label>
+              Tax Inclusive Rates (Disc./Adj. included, if applied)
+            </label>
+          </div>
+        </div>
+
+        <!-- Select Columns -->
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Select Columns (Any 5)
+          </label>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <label 
+              class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+              v-for="column in availableColumns" 
+              :key="column.value"
+            >
               <input 
-                v-model="filters.rateTo" 
-                type="number" 
-                class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                placeholder="To"
+                v-model="filters.selectedColumns" 
+                :value="column.value"
+                type="checkbox"
+                class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                :disabled="filters.selectedColumns.length >= 5 && !filters.selectedColumns.includes(column.value)"
               />
-            </div>
-
-            <!-- User -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">User</label>
-              <SelectComponent 
-                v-model="filters.user"
-                :options="userOptions"
-                placeholder="--Select--"
-              />
-            </div>
+              {{ column.label }}
+            </label>
           </div>
-
-          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
-            <!-- Reservation Type -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
-              <SelectComponent 
-                v-model="filters.reservationType"
-                :options="reservationTypeOptions"
-                placeholder="--Select--"
-              />
-            </div>
-
-            <!-- Tax Inclusive -->
-            <div class="flex-1 w-full flex flex-col">
-              <label class="flex items-center gap-2 font-normal cursor-pointer">
-                <input 
-                  v-model="filters.taxInclusive" 
-                  type="checkbox"
-                  class="rounded border-gray-300"
-                />
-                <span class="text-sm sm:text-base">Tax Inclusive Rates (Disc./Adj. included, if applied)</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Select Columns -->
-          <div class="mb-4">
-            <div class="w-full flex flex-col">
-              <label class="font-medium mb-1 text-gray-600">Select Column (Any 5)</label>
-              <div class="flex flex-wrap gap-4 mt-2">
-                <label 
-                  class="flex items-center gap-1 text-sm cursor-pointer" 
-                  v-for="column in availableColumns" 
-                  :key="column.value"
-                >
-                  <input 
-                    v-model="filters.selectedColumns" 
-                    :value="column.value"
-                    type="checkbox"
-                    class="rounded border-gray-300"
-                    :disabled="filters.selectedColumns.length >= 5 && !filters.selectedColumns.includes(column.value)"
-                    :class="{ 'opacity-50 cursor-not-allowed': filters.selectedColumns.length >= 5 && !filters.selectedColumns.includes(column.value) }"
-                  />
-                  {{ column.label }}
-                </label>
-              </div>
-            </div>
-          </div>
+        </div>
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200">
@@ -210,32 +246,37 @@
             </ButtonComponent>
           </div>
         </div>
+      </div>
 
-        <!-- Results Table -->
-        <div class="bg-white rounded-lg p-5 shadow-sm" v-if="showResults">
-          <h3 class="text-blue-700 mb-2">{{ hotelName }}</h3>
-          <div class="flex flex-col sm:flex-row sm:gap-5 mb-4 text-sm text-gray-600">
-            <span>Date From: {{ filters.arrivalFrom }} To {{ filters.arrivalTo }}</span>
-            <span>Order By: Room</span>
-            <span>Tax Inclusive Rates: {{ filters.taxInclusive ? 'Yes' : 'No' }}</span>
-          </div>
-          
-          <div class="overflow-x-auto">
-            <ResultTable 
-              title="Arrival List Results"
-              :data="reservationData"
-              :columns="selectedTableColumns"
-              class="w-full mb-4 min-w-max"
-            />
-          </div>
-          
-          <div class="flex flex-col sm:flex-row justify-between font-medium pt-2 border-t border-gray-200 gap-2">
-            <span>Total Reservation: #{{ totalReservations }}</span>
-            <span>Total Pax: {{ totalPax }}</span>
+      <!-- Results Table -->
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Arrival List Results
+          </h2>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <span>{{ hotelName }}</span> • 
+            <span>Date From: {{ filters.arrivalFrom }} To {{ filters.arrivalTo }}</span> • 
+            <span>Order By: Room</span> • 
+            <span>Tax Inclusive: {{ filters.taxInclusive ? 'Yes' : 'No' }}</span>
           </div>
         </div>
+        
+        <div class="overflow-x-auto">
+          <ResultTable 
+            title="Arrival List Results"
+            :data="reservationData"
+            :columns="selectedTableColumns"
+            class="w-full"
+          />
+        </div>
+        
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span>Total Reservation: #{{ totalReservations }}</span> • 
+          <span>Total Pax: {{ totalPax }}</span>
+        </div>
       </div>
-    </div>
+
   </ReportsLayout>
 </template>
 
