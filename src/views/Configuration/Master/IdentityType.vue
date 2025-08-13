@@ -96,7 +96,6 @@ import {
   deleteIdentityTypeById
 } from '@/services/configrationApi'
 import { Save } from 'lucide-vue-next'
-import { parse } from 'date-fns'
 
 const { t } = useI18n()
 const toast = useToast()

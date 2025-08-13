@@ -3,48 +3,34 @@
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Taxes</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ t('configuration.taxes.title') }}</h1>
         <p class="text-gray-600 mt-1">
-          This screen allows you to define the taxes. Configure tax rates, categories, and application rules for your hotel.
+          {{ t('configuration.taxes.description') }}
         </p>
       </div>
 
       <!-- Taxes Table using ReusableTable -->
-      <ReusableTable
-        title="Taxes List"
-        :columns="columns"
-        :data="taxes"
-        :actions="actions"
-        search-placeholder="Search taxes..."
-        :selectable="true"
-        empty-state-title="No taxes found"
-        empty-state-message="Click 'Add Tax' to create your first tax."
-        @action="onAction"
-        @selection-change="onSelectionChange"
-      >
+      <ReusableTable :title="t('configuration.taxes.taxes_list')" :columns="columns" :data="taxes" :actions="actions"
+        :search-placeholder="t('configuration.taxes.search_placeholder')" :selectable="true"
+        :empty-state-title="t('configuration.taxes.empty_state_title')"
+        :empty-state-message="t('configuration.taxes.empty_state_message')" :loading="loading" @action="onAction"
+        @selection-change="onSelectionChange">
         <template #header-actions>
-          <BasicButton 
-            @click="showAddModal = true"
-            label="Add Tax"
-            :icon="Plus"
-          > 
+          <BasicButton @click="openAddModal" :label="t('configuration.taxes.add_tax')" :icon="Plus" variant="primary">
           </BasicButton>
-          
-          <BasicButton 
-            v-if="selectedTaxes.length > 0"
-            @click="deleteSelected"
-            label="Delete Selected"
-            :icon="Trash2"
-          >
+
+          <BasicButton v-if="selectedTaxes.length > 0" @click="confirmDeleteSelected"
+            :label="t('configuration.taxes.delete_selected')" :icon="Trash2" variant="danger">
           </BasicButton>
         </template>
 
         <!-- Custom column for tax details -->
         <template #column-taxDetails="{ item }">
           <div>
-            <div class="text-sm font-medium text-gray-900">{{ item.postingType }}</div>
-            <div class="text-xs text-gray-500" v-if="item.postingType === 'Flat Amount'">${{ item.amount }}</div>
-            <div class="text-xs text-gray-500" v-else-if="item.postingType === 'Flat Percentage'">{{ item.percentage }}%</div>
+            <div class="text-sm font-medium text-gray-900">{{ t('configuration.taxes.'+item.postingType) }}</div>
+            <div class="text-xs text-gray-500" v-if="item.postingType === 'flat_amount'">{{ item.amount }}</div>
+            <div class="text-xs text-gray-500" v-else-if="item.postingType === 'flat_percentage'">{{ item.percentage }}%
+            </div>
             <div class="text-xs text-gray-500" v-else>Slab Based</div>
           </div>
         </template>
@@ -52,213 +38,205 @@
         <!-- Custom column for application rules -->
         <template #column-applicationRules="{ item }">
           <div>
-            <div class="text-xs text-gray-600">{{ item.applyTax }}</div>
+            <div class="text-xs text-gray-600">{{ t('configuration.taxes.'+item.applyTax) }}</div>
             <div class="text-xs text-gray-500" v-if="item.applyTaxOnRackRate">On Rack Rate</div>
           </div>
         </template>
 
-        <!-- Custom column for created info -->
-        <template #column-createdInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.createdBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdDate }}</div>
-          </div>
-        </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.modifiedBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.modifiedDate }}</div>
-          </div>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
+          <template  #column-status="{ item }">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+              :class="item.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
+            </span>
+          </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
-            {{ showAddModal ? 'Add Tax' : 'Edit Tax' }}
+            {{ showAddModal ? t('configuration.taxes.add_tax') : t('configuration.taxes.edit_tax') }}
           </h3>
-          
+
           <form @submit.prevent="saveTax" class="space-y-4">
-            <!-- Short Name and Tax Name -->
+            <!-- First Row: Short Name, Tax Name, Applies From -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Short Name *
-                </label>
-                <Input 
-                  v-model="formData.shortName"
-                  placeholder="Enter the short name of the tax"
-                  required
-                />
+                <Input v-model="formData.shortName" :lb="t('configuration.taxes.short_name')" :is-required="true" placeholder="" class="w-full" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Tax Name *
-                </label>
-                <Input 
-                  v-model="formData.taxName"
-                  placeholder="Enter the tax name (e.g., VAT, Service Charge)"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Applies From and Exempt After -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Applies From *
-                </label>
-                <InputDatePicker 
-                  v-model="formData.appliesFrom"
-                  placeholder="Select the date from when you want to apply this tax charge"
-                  required
-                />
+                <Input v-model="formData.taxName" placeholder="" class="w-full" :lb="t('configuration.taxes.tax_name')" :is-required="true" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Exempt After (Days)
-                </label>
-                <Input 
-                  v-model="formData.exemptAfter"
-                  type="number"
-                  placeholder="Tax will not be charged after mentioned number of days"
-                />
+                <InputDatePicker :title="t('configuration.taxes.applies_from')" v-model="formData.appliesFrom"
+                  :placeholder="t('configuration.taxes.applies_from_placeholder')" class="w-full" />
               </div>
-            </div>
 
-            <!-- Posting Type -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Posting Type *
-              </label>
-              <Select 
-                v-model="formData.postingType"
-                :options="postingTypeOptions"
-                placeholder="Select the type of tax calculation"
-                required
-              />
-            </div>
 
-            <!-- Dynamic fields based on posting type -->
-            <div v-if="formData.postingType === 'Flat Amount'">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Amount *
-              </label>
-              <Input 
-                v-model="formData.amount"
-                type="number"
-                step="0.01"
-                placeholder="Enter the flat amount to be charged"
-                required
-              />
-            </div>
-
-            <div v-if="formData.postingType === 'Flat Percentage'">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Percentage *
-              </label>
-              <Input 
-                v-model="formData.percentage"
-                type="number"
-                step="0.01"
-                placeholder="Enter the percentage to be charged"
-                required
-              />
-            </div>
-
-            <div v-if="formData.postingType === 'Slab'">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Slab Information *
-              </label>
-              <textarea 
-                v-model="formData.slabInfo"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows="3"
-                placeholder="Enter the slab information for the tax (e.g., 0-100: 5%, 101-500: 10%, 501+: 15%)"
-                required
-              ></textarea>
-            </div>
-
-            <!-- Apply Tax and Apply tax on Rack Rate -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Second Row: Exempt After, Posting Type -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Apply Tax *
+                  {{ t('configuration.taxes.exempt_after') }}
                 </label>
-                <Select 
-                  v-model="formData.applyTax"
-                  :options="applyTaxOptions"
-                  placeholder="Select when to apply tax"
-                  required
-                />
+                <div class="flex items-center space-x-2">
+                  <Input v-model="formData.exemptAfter" type="Number"
+                    :placeholder="t('configuration.taxes.exempt_after_placeholder')" class="flex-1" />
+                  <span class="text-sm text-gray-600">{{ t('configuration.taxes.days') }}</span>
+                </div>
+              </div>
+              <div> 
+                <Select v-model="formData.postingType" :options="postingTypeOptions"
+                :lb="t('configuration.taxes.posting_type')"
+                :is-required="true"
+                  :placeholder="t('configuration.taxes.posting_type_placeholder')" class="w-full" />
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center space-x-4 pt-6">
+                  <div class="flex items-center space-x-2">
+                    <input type="radio" id="beforeDiscount" v-model="formData.applyTax" value="before_discount"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                    <label for="beforeDiscount" class="text-sm text-gray-700">
+                      {{ t('configuration.taxes.before_discount') }}
+                    </label>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <input type="radio" id="afterDiscount" v-model="formData.applyTax" value="after_discount"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                    <label for="afterDiscount" class="text-sm text-gray-700">
+                      {{ t('configuration.taxes.after_discount') }}
+                    </label>
+                  </div>
+                </div>
+                <div class="text-sm text-gray-600 mt-1">{{ t('configuration.taxes.apply_tax') }} *</div>
+              </div>
+
+              <!-- Third Row: Dynamic fields based on posting type and Apply Tax on Rack Rate -->
+              <!-- Dynamic field based on posting type -->
+              <div v-if="formData.postingType === 'flat_amount'">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('configuration.taxes.amount') }}
+                </label>
+                <Input v-model="formData.amount" inputType="number" step="0.01" :placeholder="t('configuration.taxes.amount_placeholder')" class="w-full" />
+              </div>
+              <div v-else-if="formData.postingType === 'flat_percentage'">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('configuration.taxes.percentage') }}
+                </label>
+                <Input v-model="formData.percentage" type="number" step="0.01" :placeholder="t('configuration.taxes.percentage_placeholder')" class="w-full" />
+              </div>
+              <div v-else-if="formData.postingType === 'slab'">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('configuration.taxes.slab_information') }}
+                </label>
+                <textarea v-model="formData.slabInfo"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows="3" :placeholder="t('configuration.taxes.slab_placeholder')"></textarea>
+              </div>
+              <div v-else>
+                <div class="h-16"></div> <!-- Spacer when no posting type selected -->
+              </div>
+              <!-- Tax Apply After Section -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  {{ t('configuration.taxes.tax_apply_after') }}
+                </label>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-h-48 overflow-y-auto">
+                  <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="flex items-center space-x-2" v-for="(tax, ind) in taxes">
+                      <input type="checkbox" id="vat" v-model="formData.taxApplyAfter"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                      <label for="vat" class="text-gray-700">VAT</label>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="flex items-center space-x-2 pt-6">
-                <input 
-                  type="checkbox" 
-                  id="applyTaxOnRackRate" 
-                  v-model="formData.applyTaxOnRackRate"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
+                <input type="checkbox" id="applyTaxOnRackRate" v-model="formData.applyTaxOnRackRate"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
                 <label for="applyTaxOnRackRate" class="text-sm text-gray-700">
-                  Apply tax on Rack Rate
+                  {{ t('configuration.taxes.apply_tax_on_rack_rate') }}
                 </label>
               </div>
+
+
             </div>
 
             <!-- Status -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <Select 
-                v-model="formData.status"
-                :options="statusOptions"
-                placeholder="Select status"
-              />
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('status') }}
+                </label>
+                <Select v-model="formData.status" :options="statusOptions" :placeholder="t('select_status')" class="w-full" />
+              </div>
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ showAddModal ? 'Add Tax' : 'Update Tax' }}
-              </button>
+              <BasicButton @click="closeModal" :label="t('cancel')" variant="secondary" :disabled="loading" />
+              <BasicButton type="submit"
+                :label="showAddModal ? t('configuration.taxes.save_tax') : t('configuration.taxes.update_tax')"
+                variant="primary" :loading="loading" />
             </div>
           </form>
         </div>
       </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ModalConfirmation v-if="showDeleteModal" v-model="showConfirmModal" :title="confirmTitle" :message="confirmMessage"
+      :loading="confirmLoading" :confirm-text="t('delete')" :cancel-text="t('cancel')" @confirm="handleConfirm"
+      @close="handleConfirmClose" />
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { Plus, Trash2, Edit, Eye } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import { useServiceStore } from '@/composables/serviceStore'
+import { getTaxes, postTax, updateTaxById, deleteTaxById } from '@/services/configrationApi'
 import type { Action, Column } from '../../../utils/models'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const editingTax = ref(null)
+const showDeleteModal = ref(false);
 const selectedTaxes = ref([])
+const loading = ref(false)
+const showConfirmModal = ref(false)
+const confirmAction = ref(null)
+const confirmMessage = ref('')
+const confirmTitle = ref('')
+const confirmLoading = ref(false)
 
 // Form data
 const formData = ref({
@@ -272,201 +250,216 @@ const formData = ref({
   slabInfo: '',
   applyTax: '',
   applyTaxOnRackRate: false,
-  status: 'Active'
+  status: 'Active',
+  taxApplyAfter: []
 })
 
 // Table columns
-const columns: Column[] = [
+const columns = computed<Column[]>(() => [
   {
     key: 'shortName',
-    label: 'Short Name',
-    type: 'text'
+    label: t('configuration.taxes.short_name'),
+    sortable: true
   },
   {
     key: 'taxName',
-    label: 'Tax Name',
-    type: 'text'
+    label: t('configuration.taxes.tax_name'),
+    sortable: true
   },
   {
     key: 'appliesFrom',
-    label: 'Applies From',
-    type: 'text'
+    label: t('configuration.taxes.applies_from'),
+    sortable: true
   },
   {
     key: 'exemptAfter',
-    label: 'Exempt After',
-    type: 'text'
+    label: t('configuration.taxes.exempt_after'),
+    sortable: true
   },
   {
     key: 'taxDetails',
-    label: 'Tax Details',
+    label: t('configuration.taxes.tax_details'),
     type: 'custom'
   },
   {
     key: 'applicationRules',
-    label: 'Application Rules',
+    label: t('configuration.taxes.application_rules'),
     type: 'custom'
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('status'),
     type: 'custom'
   },
   {
     key: 'createdInfo',
-    label: 'Created By',
+    label: t('created_info'),
     type: 'custom'
   },
   {
     key: 'modifiedInfo',
-    label: 'Modified By',
+    label: t('modified_info'),
     type: 'custom'
   }
-]
+])
 
 // Sample data
 const taxes = ref([
-  {
-    id: 1,
-    shortName: 'VAT',
-    taxName: 'Value Added Tax',
-    appliesFrom: '2024-01-01',
-    exemptAfter: '30',
-    postingType: 'Flat Percentage',
-    amount: '',
-    percentage: '18.00',
-    slabInfo: '',
-    applyTax: 'After Discount',
-    applyTaxOnRackRate: true,
-    status: 'Active',
-    createdBy: 'Admin',
-    createdDate: '2024-01-15 10:30 AM',
-    modifiedBy: 'Manager',
-    modifiedDate: '2024-01-20 02:15 PM'
-  },
-  {
-    id: 2,
-    shortName: 'SC',
-    taxName: 'Service Charge',
-    appliesFrom: '2024-01-01',
-    exemptAfter: '',
-    postingType: 'Flat Amount',
-    amount: '25.00',
-    percentage: '',
-    slabInfo: '',
-    applyTax: 'Before Discount',
-    applyTaxOnRackRate: false,
-    status: 'Active',
-    createdBy: 'Admin',
-    createdDate: '2024-01-18 09:15 AM',
-    modifiedBy: 'Admin',
-    modifiedDate: '2024-01-18 09:15 AM'
-  }
 ])
 
 // Options for dropdowns
-const postingTypeOptions = ref([
-  { value: 'Flat Amount', label: 'Flat Amount' },
-  { value: 'Flat Percentage', label: 'Flat Percentage' },
-  { value: 'Slab', label: 'Slab' }
+const postingTypeOptions = computed(() => [
+  { value: 'flat_amount', label: t('configuration.taxes.flat_amount') },
+  { value: 'flat_percentage', label: t('configuration.taxes.flat_percentage') },
+  { value: 'slab', label: t('configuration.taxes.slab') }
 ])
 
 const applyTaxOptions = ref([
-  { value: 'Before Discount', label: 'Before Discount' },
-  { value: 'After Discount', label: 'After Discount' }
+  { value: 'before_discount', label: t('configuration.taxes.before_discount') },
+  { value: 'after_discount', label: t('configuration.taxes.after_discount') }
 ])
 
-const statusOptions = ref([
-  { value: 'Active', label: 'Active' },
-  { value: 'Inactive', label: 'Inactive' }
+const statusOptions = computed(() => [
+  { value: 'active', label: t('configuration.taxes.status_active') },
+  { value: 'inactive', label: t('configuration.taxes.status_inactive') }
 ])
+
+// Additional reactive variables
+const isEditing = ref(false)
+const editingTaxId = ref(null)
 
 // Methods
-const editTax = (tax) => {
-  editingTax.value = tax
-  formData.value = { ...tax }
-  showEditModal.value = true
-}
-
-const deleteTax = (tax) => {
-  if (confirm(`Are you sure you want to delete tax "${tax.taxName}"?`)) {
-    const index = taxes.value.findIndex(t => t.id === tax.id)
-    if (index > -1) {
-      taxes.value.splice(index, 1)
-    }
+const loadTaxes = async () => {
+  try {
+    loading.value = true
+    const response = await getTaxes()
+    taxes.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error loading taxes:', error)
+    toast.error(t('something_went_wrong'))
+  } finally {
+    loading.value = false
   }
 }
 
-// Actions configuration
-const actions = ref<Action[]>([
-  {
-    label: 'Edit',
-    handler: editTax,
-    icon: Edit
-  },
-  {
-    label: 'Delete',
-    handler: deleteTax,
-    icon: Trash,
-    variant: 'danger'
-  }
-])
-
-const onAction = (action, item) => {
-  if (action === 'edit') {
-    editTax(item)
-  } else if (action === 'delete') {
-    deleteTax(item)
-  }
-}
-
-const onSelectionChange = (selected) => {
-  selectedTaxes.value = selected
-}
-
-const deleteSelected = () => {
-  if (confirm(`Are you sure you want to delete ${selectedTaxes.value.length} selected tax(es)?`)) {
-    selectedTaxes.value.forEach(tax => {
-      const index = taxes.value.findIndex(t => t.id === tax.id)
-      if (index > -1) {
-        taxes.value.splice(index, 1)
-      }
-    })
-    selectedTaxes.value = []
-  }
-}
-
-const saveTax = () => {
-  if (showAddModal.value) {
-    // Add new tax
-    const newTax = {
-      id: Date.now(),
-      ...formData.value,
-      createdBy: 'Current User',
-      createdDate: new Date().toLocaleString(),
-      modifiedBy: 'Current User',
-      modifiedDate: new Date().toLocaleString()
-    }
-    taxes.value.push(newTax)
-  } else {
-    // Update existing tax
-    const index = taxes.value.findIndex(t => t.id === editingTax.value.id)
-    if (index > -1) {
-      taxes.value[index] = {
-        ...taxes.value[index],
-        ...formData.value,
-        modifiedBy: 'Current User',
-        modifiedDate: new Date().toLocaleString()
-      }
-    }
-  }
-  closeModal()
+const openAddModal = () => {
+  resetForm()
+  showAddModal.value = true
 }
 
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
-  editingTax.value = null
+  resetForm()
+}
+
+const editTax = (tax: any) => {
+  isEditing.value = true
+  editingTaxId.value = tax.taxRateId
+  formData.value = { ...tax }
+  showEditModal.value = true
+}
+
+const confirmDeleteTax = (tax: any) => {
+  confirmTitle.value = t('configuration.taxes.confirm_delete_title')
+  confirmMessage.value = t('configuration.taxes.confirm_delete_message', { name: tax.taxName })
+  showConfirmModal.value = true
+}
+
+const confirmDeleteSelected = () => {
+  confirmTitle.value = t('configuration.taxes.confirm_delete_selected_title')
+  confirmMessage.value = t('configuration.taxes.confirm_delete_selected_message', { count: selectedTaxes.value.length })
+  showConfirmModal.value = true
+}
+
+const deleteTax = async (tax: any) => {
+  try {
+    confirmLoading.value = true
+    await deleteTaxById(tax.id)
+    toast.success(t('configuration.taxes.delete_success'))
+    showConfirmModal.value = false
+    await loadTaxes()
+  } catch (error) {
+    console.error('Error deleting tax:', error)
+    toast.error(t('something_went_wrong'))
+  } finally {
+    confirmLoading.value = false
+  }
+}
+
+const deleteSelected = async () => {
+  try {
+    confirmLoading.value = true
+    await Promise.all(selectedTaxes.value.map((tax: any) => deleteTaxById(tax.taxRateId)))
+    toast.success(t('configuration.taxes.delete_selected_success'))
+    showConfirmModal.value = false
+    selectedTaxes.value = []
+    await loadTaxes()
+  } catch (error) {
+    console.error('Error deleting selected taxes:', error)
+    toast.error(t('something_went_wrong'))
+  } finally {
+    confirmLoading.value = false
+  }
+}
+
+// Actions configuration
+const actions = computed(() => [
+  {
+    label: t('edit'),
+    handler: editTax,
+    icon: Edit
+  },
+  {
+    label: t('delete'),
+    handler: confirmDeleteTax,
+    icon: Trash2,
+    variant: 'danger'
+  }
+])
+
+const onAction = (action:any, item:any) => {
+  if (action === 'edit') {
+    editTax(item)
+  } else if (action === 'delete') {
+    confirmDeleteTax(item)
+  }
+}
+
+const onSelectionChange = (selected:any) => {
+  selectedTaxes.value = selected
+}
+
+const saveTax = async () => {
+  try {
+    loading.value = true
+    const taxData = {
+      ...formData.value,
+      amount: Number(formData.value.amount),
+      percentage: Number(formData.value.percentage),
+      exemptAfter:Number(formData.value.exemptAfter),
+      hotelId: serviceStore.serviceId
+    }
+
+    if (isEditing.value) {
+      await updateTaxById(editingTaxId.value!, taxData)
+      toast.success(t('configuration.taxes.update_success'))
+    } else {
+      await postTax(taxData)
+      toast.success(t('configuration.taxes.create_success'))
+    }
+
+    closeModal()
+    await loadTaxes()
+  } catch (error) {
+    console.error('Error saving tax:', error)
+    toast.error(t('something_went_wrong'))
+  } finally {
+    loading.value = false
+  }
+}
+
+const resetForm = () => {
   formData.value = {
     shortName: '',
     taxName: '',
@@ -478,7 +471,25 @@ const closeModal = () => {
     slabInfo: '',
     applyTax: '',
     applyTaxOnRackRate: false,
-    status: 'Active'
+    status: 'active',
+    taxApplyAfter: []
+  }
+  isEditing.value = false
+  editingTaxId.value = null
+}
+
+const handleConfirm = () => {
+  if (confirmAction.value) {
   }
 }
+
+const handleConfirmClose = () => {
+  showConfirmModal.value = false
+  confirmAction.value = null
+}
+
+// Initialize data on mount
+onMounted(() => {
+  loadTaxes()
+})
 </script>

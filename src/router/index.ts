@@ -16,6 +16,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/front-office/dashboard',
+      name: 'FrontOfficeDashboard',
+      component: () => import('../views/FrontOffice/FrontOfficeDashboard.vue'),
+      meta: {
+        title: 'Front Office Dashboard',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/welcome',
       name: 'welcome',
       component: () => import('../views/Pages/Welcome.vue'),

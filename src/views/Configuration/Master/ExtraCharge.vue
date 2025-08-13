@@ -1,48 +1,45 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">Extra Charge</h1>
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ t('configuration.extra_charge.title') }}</h1>
 
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
-          Add all the extra charges for the services you offer in your hotel from this screen.
-        </p>
+      <p class="text-gray-600 mb-6">
+        {{ t('configuration.extra_charge.define_extra_charge_details') }}
+      </p>
 
-        <div class="flex justify-between items-center mb-6">
-          <div class="flex items-center space-x-4">
-            <BasicButton variant="primary" @click="openAddModal" icon="Plus" label="Add Charge" />
+
+      <ReusableTable title="Extra Charges Management" :columns="columns" :data="extraCharges" :actions="actions"
+        search-placeholder="Search extra charges..." empty-title="No extra charges found" :loading="loading"
+        :selectable="true"
+        empty-description="Start by adding your first extra charge." @action="onAction">
+        <template #header-actions>
+          <BasicButton variant="primary" @click="openAddModal" :icon="Plus" :label="t('configuration.extra_charge.add_extra_charge')" />
+        </template>
+        <template #column-taxes="{ item }">
+          <div class="flex flex-wrap gap-1">
+            <span v-for="tax in item.taxRates" :key="tax"
+              class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+              {{ tax }}%
+            </span>
+            <span v-if="!item.taxRates || item.taxRates.length === 0"
+              class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+              No Tax
+            </span>
           </div>
-        </div>
-
-        <ReusableTable title="Extra Charges Management" :columns="columns" :data="extraCharges" :actions="actions"
-          search-placeholder="Search extra charges..." empty-title="No extra charges found"
-          empty-description="Start by adding your first extra charge." @action="onAction">
-          <template #columns-taxes="{ item }">
-            <div class="flex flex-wrap gap-1">
-              <span v-for="tax in item.taxes" :key="tax"
-                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                {{ tax }}%
-              </span>
-              <span v-if="!item.taxes || item.taxes.length === 0"
-                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                No Tax
-              </span>
-            </div>
-          </template>
-          <template #columns-fixedPrice="{ item }">
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-              :class="item.fixedPrice ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
-              {{ item.fixedPrice ? 'Yes' : 'No' }}
-            </span>
-          </template>
-          <template #columns-status="{ item }">
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-              :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-              {{ item.status }}
-            </span>
-          </template>
-        </ReusableTable>
-      </div>
+        </template>
+        <template #column-fixedPrice="{ item }">
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+            :class="item.fixedPrice ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+            {{ item.fixedPrice ? 'Yes' : 'No' }}
+          </span>
+        </template>
+        <template #column-status="{ item }">
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+            :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+            {{ item.status }}
+          </span>
+        </template>
+      </ReusableTable>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -50,29 +47,37 @@
       <div
         class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
-            {{ isEditing ? t('configuration.extra_charge.edit_extra_charge') :
-              t('configuration.extra_charge.add_extra_charge') }}
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            {{ isEditing ? t('configuration.extra_charge.edit_extra_charge') : t('configuration.extra_charge.add_extra_charge') }}
           </h3>
 
           <form @submit.prevent="saveExtraCharge">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <Input v-model="formData.shortCode" :lb="t('configuration.extra_charge.short_code')" type="text"
-                  :is-required="true" :placeholder="t('configuration.extra_charge.short_code_placeholder')" />
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.short_code') }}</label>
+                <Input
+                  v-model="formData.shortCode"
+                  :placeholder="t('configuration.extra_charge.short_code_placeholder')"
+                  class="w-full"
+                />
               </div>
 
               <div class="mb-4">
-                <Input v-model="formData.name" :lb="t('configuration.extra_charge.name')" type="text" required
-                  :placeholder="t('configuration.extra_charge.name_placeholder')" />
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.name') }}</label>
+                <Input
+                  v-model="formData.name"
+                  :placeholder="t('configuration.extra_charge.name_placeholder')"
+                  class="w-full"
+                />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <Input v-model="formData.rate" :lb="t('configuration.extra_charge.rate')" type="number" step="0.01"
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.rate') }}</label>
+                <Input v-model="formData.rate" type="number" step="0.01"
                   required @input="calculateRateInclusiveTax"
-                  :placeholder="t('configuration.extra_charge.rate_placeholder')" />
+                  :placeholder="t('configuration.extra_charge.rate_placeholder')" class="w-full" />
               </div>
 
               <div class="mb-4">
@@ -85,25 +90,11 @@
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                     <span class="ml-2 text-sm text-gray-700">No Tax (0%)</span>
                   </label>
-                  <label class="flex items-center">
-                    <input v-model="formData.taxes" value="5" type="checkbox" @change="calculateRateInclusiveTax"
+                  <label class="flex items-center" v-for="(tax, index) in taxes" :key="index">
+                    <input v-model="formData.taxes" :value="tax.value" type="checkbox"
+                      @change="calculateRateInclusiveTax"
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">5% GST</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input v-model="formData.taxes" value="12" type="checkbox" @change="calculateRateInclusiveTax"
-                      class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">12% GST</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input v-model="formData.taxes" value="18" type="checkbox" @change="calculateRateInclusiveTax"
-                      class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">18% GST</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input v-model="formData.taxes" value="28" type="checkbox" @change="calculateRateInclusiveTax"
-                      class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">28% GST</span>
+                    <span class="ml-2 text-sm text-gray-700">{{ tax.name }}</span>
                   </label>
                 </div>
               </div>
@@ -115,7 +106,7 @@
               </label>
               <input v-model="formData.rateInclusiveTax" type="number" step="0.01" readonly
                 class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Auto calculated" />
+                :placeholder="t('configuration.extra_charge.rate_inclusive_tax_placeholder')" />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -128,8 +119,8 @@
               </div>
 
               <div class="mb-4">
-                <Input v-model="formData.frontDeskSortKey" :lb="t('configuration.extra_charge.front_desk_sort_key')"
-                  type="number" :placeholder="t('configuration.extra_charge.front_desk_sort_key_placeholder')" />
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.front_desk_sort_key') }}</label>
+                <Input v-model="formData.frontDeskSortKey" type="number" :placeholder="t('configuration.extra_charge.front_desk_sort_key_placeholder')" class="w-full" />
               </div>
             </div>
 
@@ -165,55 +156,58 @@
                 :placeholder="t('configuration.extra_charge.description_placeholder')"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4 mt-2">
-                <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ t('configuration.extra_charge.charge_applies_on') }}
-                  </label>
-                  <select v-model="formData.chargeAppliesOn"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    <option value="per_quantity">{{ t('configuration.extra_charge.per_quantity') }}</option>
-                    <option value="per_night">{{ t('configuration.extra_charge.per_night') }}</option>
-                    <option value="per_stay">{{ t('configuration.extra_charge.per_stay') }}</option>
-                  </select>
-                </div>
-
-                <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ t('configuration.extra_charge.apply_above_charge_on') }}
-                  </label>
-                  <select v-model="formData.applyChargeOn"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    <option value="only_on_check_in">{{ t('configuration.extra_charge.only_on_check_in') }}</option>
-                    <option value="daily">{{ t('configuration.extra_charge.daily') }}</option>
-                    <option value="on_checkout">{{ t('configuration.extra_charge.on_checkout') }}</option>
-                  </select>
-                </div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  {{ t('configuration.extra_charge.charge_applies_on') }}
+                </label>
+                <select v-model="formData.chargeAppliesOn"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  <option value="per_quantity">{{ t('configuration.extra_charge.per_quantity') }}</option>
+                  <option value="per_night">{{ t('configuration.extra_charge.per_night') }}</option>
+                  <option value="per_stay">{{ t('configuration.extra_charge.per_stay') }}</option>
+                </select>
               </div>
+
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  {{ t('configuration.extra_charge.apply_above_charge_on') }}
+                </label>
+                <select v-model="formData.applyChargeOn"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  <option value="only_on_check_in">{{ t('configuration.extra_charge.only_on_check_in') }}</option>
+                  <option value="daily">{{ t('configuration.extra_charge.daily') }}</option>
+                  <option value="on_checkout">{{ t('configuration.extra_charge.on_checkout') }}</option>
+                </select>
+              </div>
+            </div>
             <div>
               <div class="mb-2">
                 <label class="flex items-center">
                   <input v-model="formData.applyChargeAlways" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                   <span class="ml-2 text-sm text-gray-700">{{ t('configuration.extra_charge.apply_charge_always')
-                  }}</span>
+                    }}</span>
                 </label>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-
-              <div>
-                <InputDatePicker v-model="formData.validFrom" :title="t('configuration.extra_charge.valid_from')" />
+            <div class="grid grid-cols-2 gap-4 mb-6" v-if="!formData.applyChargeAlways">
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.valid_from') }}</label>
+                <InputDatePicker v-model="formData.validFrom" class="w-full" />
               </div>
-              <div>
-                <InputDatePicker v-model="formData.validTo" :title="t('configuration.extra_charge.valid_to')" />
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.valid_to') }}</label>
+                <InputDatePicker v-model="formData.validTo" class="w-full" />
               </div>
             </div>
 
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" />
-              <BasicButton type="submit" variant="primary"
-                :label="isEditing ? t('configuration.extra_charge.update_extra_charge') : t('configuration.extra_charge.save_extra_charge')" />
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                :disabled="isSaving" />
+              <BasicButton type="submit" variant="primary" :icon="Save"
+                :label="isEditing ? $t('configuration.extra_charge.update_extra_charge') : $t('configuration.extra_charge.save_extra_charge')"
+                :loading="isSaving" />
             </div>
           </form>
         </div>
@@ -231,26 +225,34 @@ import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
 import InputDatePicker from '../../../components/forms/FormElements/InputDatePicker.vue'
+import Plus from '../../../icons/Plus.vue'
+import { getExtraCharges, getTaxes, postExtraCharge, updateExtraChargeById } from '../../../services/configrationApi'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { Save } from 'lucide-vue-next'
 
 const { t } = useI18n()
 
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
-
+const loading = ref(false)
+const toast = useToast()
+const serviceStore = useServiceStore();
+const isSaving = ref(false);
+const taxes = ref<any>([])
 const columns: Column[] = [
-  { key: 'shortCode', label: 'Short Code', type: 'text' },
-  { key: 'name', label: 'Name', type: 'text' },
-  { key: 'rate', label: 'Rate', type: 'text' },
-  { key: 'taxes', label: 'Taxes %', type: 'custom' },
-  { key: 'rateInclusiveTax', label: 'Rate Inc. Tax', type: 'text' },
-  { key: 'fixedPrice', label: 'Fixed Price', type: 'custom' },
-  { key: 'status', label: 'Status', type: 'custom' }
+  { key: 'shortCode', label: t('configuration.extra_charge.short_code'), type: 'text' },
+  { key: 'name', label: t('configuration.extra_charge.name'), type: 'text' },
+  { key: 'rate', label: t('configuration.extra_charge.rate'), type: 'text' },
+  { key: 'taxes', label: t('configuration.extra_charge.tax'), type: 'custom' },
+  { key: 'rateInclusiveTax', label: t('configuration.extra_charge.rate_inclusive_tax'), type: 'text' },
+  { key: 'fixedPrice', label: t('configuration.extra_charge.fixed_price'), type: 'custom' },
 ]
 
 const actions: Action[] = [
-  { label: 'Edit', variant: 'primary', handler: (item: any) => editExtraCharge(item) },
-  { label: 'Delete', variant: 'danger', handler: (item: any) => deleteExtraCharge(item) }
+  { label: t('edit'), variant: 'primary', handler: (item: any) => editExtraCharge(item) },
+  { label: t('delete'), variant: 'danger', handler: (item: any) => deleteExtraCharge(item) }
 ]
 
 const formData = reactive({
@@ -273,74 +275,6 @@ const formData = reactive({
 })
 
 const extraCharges = ref<any[]>([
-  {
-    id: 1,
-    shortCode: 'WIFI',
-    name: 'WiFi Service',
-    rate: 10.00,
-    taxes: ['18'],
-    rateInclusiveTax: 11.80,
-    fixedPrice: true,
-    frontDeskSortKey: 1,
-    publishOnWeb: true,
-    voucherNo: 'auto_general',
-    createdBy: 'admin',
-    createdDate: '2013-05-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2013-08-03',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    shortCode: 'LAUNDRY',
-    name: 'Laundry Service',
-    rate: 25.00,
-    taxes: ['12', '5'],
-    rateInclusiveTax: 29.25,
-    fixedPrice: false,
-    frontDeskSortKey: 2,
-    publishOnWeb: true,
-    voucherNo: 'auto_private',
-    createdBy: 'admin',
-    createdDate: '2013-08-03',
-    modifiedBy: 'admin',
-    modifiedDate: '2013-08-03',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    shortCode: 'PARKING',
-    name: 'Parking Fee',
-    rate: 15.00,
-    tax: 5,
-    rateInclusiveTax: 15.75,
-    fixedPrice: true,
-    frontDeskSortKey: 3,
-    publishOnWeb: false,
-    voucherNo: 'manual',
-    createdBy: 'admin',
-    createdDate: '2013-08-03',
-    modifiedBy: 'admin',
-    modifiedDate: '2013-08-03',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    shortCode: 'MINIBAR',
-    name: 'Mini Bar',
-    rate: 50.00,
-    tax: 28,
-    rateInclusiveTax: 64.00,
-    fixedPrice: false,
-    frontDeskSortKey: 4,
-    publishOnWeb: true,
-    voucherNo: 'auto_general',
-    createdBy: 'admin',
-    createdDate: '2013-08-03',
-    modifiedBy: 'admin',
-    modifiedDate: '2013-08-03',
-    status: 'Active'
-  }
 ])
 
 const calculateRateInclusiveTax = () => {
@@ -402,34 +336,41 @@ const closeModal = () => {
   })
 }
 
-const saveExtraCharge = () => {
-  if (isEditing.value) {
-    const index = extraCharges.value.findIndex(c => c.id === editingId.value)
-    if (index !== -1) {
-      extraCharges.value[index] = {
-        ...formData,
-        id: editingId.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
+const saveExtraCharge = async () => {
+  try {
+    isSaving.value = true;
+    
+    if (isEditing.value && editingId.value) {
+      const editExtraCharge = { ...formData,  taxRateIds: formData.taxes.map((i:any)=>i.id)  }
+      const res = await updateExtraChargeById(editingId.value!, editExtraCharge);
+      if (res.status === 200 || res.status === 201) {
+        toast.success(t('configuration.extra_charge.update_extra_charge') + ' successfully');
+        closeModal()
+        await loadata()
+      } else {
+        toast.error(t('something_went_wrong'))
+      }
+    } else {
+      const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId,taxRateIds: formData.taxes.map((i:any)=>i.id)  }
+      const res = await postExtraCharge(newExtraCgarge)
+      if (res.status === 200 || res.status === 201) {
+        toast.success(t('configuration.extra_charge.save_extra_charge') + ' successfully');
+        closeModal()
+        await loadata()
+      } else {
+        toast.error(t('something_went_wrong'))
       }
     }
-  } else {
-    const newId = Math.max(...extraCharges.value.map(c => c.id)) + 1
-    extraCharges.value.push({
-      ...formData,
-      id: newId,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
-    })
+  } catch (e) {
+    console.log('error',e);
+    toast.error(t('something_went_wrong'));
+  } finally {
+    isSaving.value = false;
   }
-  closeModal()
 }
 
 const deleteExtraCharge = (id: number) => {
-  if (confirm('Are you sure you want to delete this extra charge?')) {
+  if (confirm(t('configuration.extra_charge.confirm_delete'))) {
     const index = extraCharges.value.findIndex(c => c.id === id)
     if (index !== -1) {
       extraCharges.value.splice(index, 1)
@@ -444,4 +385,34 @@ const onAction = (action: string, item: any) => {
     deleteExtraCharge(item.id)
   }
 }
+
+
+
+// Fetch identity types from API
+const loadata = async () => {
+  try {
+    loading.value = true
+    const response = await getExtraCharges()
+    console.log('response',response)
+    extraCharges.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error fetching identity types:', error)
+    toast.error(t('configuration.identity_type.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
+
+const fetchTaxes = async () => {
+  try {
+    const response = await getTaxes()
+    taxes.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error fetching taxes:', error)
+    toast.error(t('configuration.tax.fetch_error'))
+  }
+}
+
+fetchTaxes()
+loadata() 
 </script>

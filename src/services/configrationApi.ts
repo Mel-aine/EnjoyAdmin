@@ -1025,3 +1025,97 @@ export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>
   return axios.delete(`${API_URL}/business_sources/${id}`, headers)
 }
  
+// this section is for Extra Charge
+
+/**
+ * Get all extra charges
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getExtraCharges = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/extra_charges`, headers)
+}
+
+/**
+ * Post a new extra charge
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postExtraCharge = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/extra_charges`, data, headers)
+}
+
+/**
+ * Get an extra charge by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getExtraChargeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/extra_charges/${id}`, headers)
+}
+
+/**
+ * Update an extra charge
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateExtraChargeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/extra_charges/${id}`, data, headers)
+}
+
+/**
+ * Delete an extra charge
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteExtraChargeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/extra_charges/${id}`, headers)
+}
+
+
+// this section is for Tax
+
+/**
+ * Get all taxes
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getTaxes = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/taxes`, headers)
+}
+
+/**
+ * Post a new tax
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postTax = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/taxes`, data, headers)
+}
+
+/**
+ * Get a tax by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getTaxById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/taxes/${id}`, headers)
+}
+
+/**
+ * Update a tax
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateTaxById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/taxes/${id}`, data, headers)
+}
+
+/**
+ * Delete a tax
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/taxes/${id}`, headers)
+}
