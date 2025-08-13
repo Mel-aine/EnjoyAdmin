@@ -2,12 +2,10 @@
   <ConfigurationLayout>
     <div class="p-6">
       <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('configuration.payment_method.title') }}</h1>
-
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
+ <p class="text-gray-600 mb-6">
           {{ $t('configuration.payment_method.description') }}
         </p>
-        <ReusableTable 
+       <ReusableTable 
           :title="$t('configuration.payment_method.table_title')" 
           :columns="columns" 
           :data="payMethods" 
@@ -39,7 +37,6 @@
             </span>
           </template>
         </ReusableTable>
-      </div>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -211,8 +208,8 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), action: (item: any) => editPayMethod(item), variant: 'primary' },
-  { label: t('delete'), action: (item: any) => deletePayMethod(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editPayMethod(item), variant: 'primary' },
+  { label: t('delete'), handler: (item: any) => deletePayMethod(item), variant: 'danger' }
 ])
 
 const formData = ref({

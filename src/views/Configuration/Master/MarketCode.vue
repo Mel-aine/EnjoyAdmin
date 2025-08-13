@@ -1,196 +1,165 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          {{ t('configuration.market_code.title') }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {{ t('configuration.market_code.sub_title') }}
+        </p>
+      </div>
+
       <ReusableTable
-        title="Market Code Management"
+        :title="t('configuration.market_code.table_title')"
         :columns="columns"
         :data="marketCodes"
         :actions="actions"
-        search-placeholder="Search market codes..."
-        :selectable="false"
-        empty-state-title="No market codes found"
-        empty-state-message="Get started by adding a new market code."
+        :search-placeholder="t('configuration.market_code.search_placeholder')"
+        :selectable="true"
+        :empty-state-title="t('configuration.market_code.empty_state_title')"
+        :empty-state-message="t('configuration.market_code.empty_state_message')"
+        :loading="loading"
         @action="onAction"
       >
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            icon="Plus"
-            label="Add Market Code"
+            :icon="PlusIcon"
+            :label="t('configuration.market_code.add_market_code')"
             @click="openAddModal"
           />
         </template>
 
-        <template #column-status="{ item }">
-          <span 
-            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.status }}
-          </span>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </template>
+
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
         </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Market Code' : 'Add New Market Code' }}
+            {{ isEditing ? t('configuration.market_code.edit_market_code') : t('configuration.market_code.add_new_market_code') }}
           </h3>
           
           <form @submit.prevent="saveMarketCode" class="space-y-4">
             <Input 
-              :lb="'Market Code'"
-              :inputType="'text'"
-              :isRequired="true"
-              v-model="formData.code"
-              :placeholder="'Enter market code (e.g., CORP, LEISURE, GROUP)'"
-            />
-            
-            <Input 
-              :lb="'Market Name'"
+              :lb="t('configuration.market_code.name')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.name"
-              :placeholder="'Enter market name (e.g., Corporate, Leisure Travel)'"
+              :placeholder="t('configuration.market_code.name_placeholder')"
             />
             
             <Input 
-              :lb="'Description'"
+              :lb="t('configuration.market_code.code')"
               :inputType="'text'"
-              v-model="formData.description"
-              :placeholder="'Enter description (optional)'"
+              :isRequired="true"
+              v-model="formData.code"
+              :placeholder="t('configuration.market_code.code_placeholder')"
             />
             
             <Select 
-              :lb="'Market Segment'"
-              :isRequired="true"
+              :lb="t('configuration.market_code.segment')"
               v-model="formData.segment"
               :options="segmentOptions"
-              :defaultValue="'Select market segment'"
+              :defaultValue="t('configuration.market_code.segment_placeholder')"
             />
             
-             <div class="flex justify-end space-x-3 pt-4">
+            <Input 
+              :lb="t('configuration.market_code.description')"
+              :inputType="'text'"
+              v-model="formData.description"
+              :placeholder="t('configuration.market_code.description_placeholder')"
+            />
+            
+            <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 variant="secondary" 
                 @click="closeModal"
                 type="button"
-                :label="$t('cancel')"
-              >
-                Cancel
-              </BasicButton>
+                :label="t('configuration.market_code.cancel')"
+              />
               <BasicButton 
                 variant="primary" 
                 type="submit"
-                :label="isEditing ? $t('update') : $t('save') "
-                :icon="isEditing ? Edit : Save"
-              >
-              </BasicButton>
+                :icon="Save"
+                :label="isEditing ? t('configuration.market_code.update_market_code') : t('configuration.market_code.save_market_code')"
+                :loading="saving"
+                :disabled="saving"
+              />
             </div>
           </form>
         </div>
       </div>
+
+      <!-- Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showDeleteConfirmation"
+        @close="showDeleteConfirmation = false; marketCodeToDelete = null"
+        @confirm="deleteMarketCode"
+        :action="'DANGER'"
+        :title="t('configuration.market_code.delete_confirmation_title')"
+        :message="t('configuration.market_code.delete_confirmation_message', { name: marketCodeToDelete?.name || '' })"
+      />
     </div>
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { Edit, Save } from 'lucide-vue-next'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import { useServiceStore } from '@/composables/serviceStore'
+import { 
+  getMarketCodes, 
+  postMarketCode, 
+  updateMarketCodeById, 
+  deleteMarketCodeById 
+} from '@/services/configrationApi'
+import { Save } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
+import PlusIcon from '../../../icons/PlusIcon.vue'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
+const showDeleteConfirmation = ref(false)
+const marketCodeToDelete = ref<any>(null)
+const marketCodes = ref([])
 
-const formData = reactive({
-  code: '',
+const formData = ref({
   name: '',
-  description: '',
-  segment: ''
+  code: '',
+  segment: '',
+  description: ''
 })
-
-// Sample data
-const marketCodes = ref([
-  {
-    id: 1,
-    code: 'CORP',
-    name: 'Corporate',
-    description: 'Business travelers and corporate bookings',
-    segment: 'Business',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    code: 'LEISURE',
-    name: 'Leisure Travel',
-    description: 'Individual leisure and vacation travelers',
-    segment: 'Leisure',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    code: 'GROUP',
-    name: 'Group Bookings',
-    description: 'Group reservations and events',
-    segment: 'Group',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    code: 'ONLINE',
-    name: 'Online Travel Agency',
-    description: 'Bookings from online travel agencies',
-    segment: 'OTA',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Active'
-  },
-  {
-    id: 5,
-    code: 'GOVT',
-    name: 'Government',
-    description: 'Government and official bookings',
-    segment: 'Government',
-    createdBy: 'admin',
-    createdDate: '2024-01-11',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-11',
-    status: 'Active'
-  },
-  {
-    id: 6,
-    code: 'WEDDING',
-    name: 'Wedding Events',
-    description: 'Wedding ceremonies and related events',
-    segment: 'Events',
-    createdBy: 'admin',
-    createdDate: '2024-01-10',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-10',
-    status: 'Inactive'
-  }
-])
 
 // Segment options
 const segmentOptions = [
@@ -203,104 +172,167 @@ const segmentOptions = [
   { label: 'Other', value: 'Other' }
 ]
 
-// Table configuration
-const columns:Column[] = [
-  { key: 'code', label: 'Market Code', type: 'text' },
-  { key: 'name', label: 'Market Name', type: 'text' },
-  { key: 'segment', label: 'Segment', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
-
-const actions:Action[] = [
+// Computed properties
+const columns = computed<Column[]>(() => [
   {
-    label: 'Edit',
-    handler: (item: any) => editMarketCode(item),
-    variant: 'primary'
+    key: 'name',
+    label: t('name'),
+    sortable: true
   },
   {
-    label: 'Delete',
-    handler: (item: any) => deleteMarketCode(item.id),
-    variant: 'danger'
+    key: 'code',
+    label: t('configuration.market_code.market_code'),
+    sortable: true
+  },
+  {
+    key: 'segment',
+    label: t('segment'),
+    sortable: true
+  },
+  {
+    key: 'description',
+    label: t('configuration.market_code.description'),
+    sortable: true
+  },
+  {
+    key: 'createdInfo',
+    label: t('configuration.market_code.created_by'),
+    sortable: false,
+    type: 'custom'
+  },
+  {
+    key: 'modifiedInfo',
+    label: t('configuration.market_code.modified_by'),
+    sortable: false,
+    type: 'custom'
   }
-]
+])
 
-// Functions
+const actions = computed(() => [
+  {
+    label: t('configuration.market_code.edit'),
+    variant: 'primary',
+    handler: (item: any) => editMarketCode(item)
+  },
+  {
+    label: t('configuration.market_code.delete'),
+    variant: 'danger',
+    handler: (item: any) => confirmDeleteMarketCode(item)
+  }
+])
+
+// API Functions
+const fetchMarketCodes = async () => {
+  try {
+    loading.value = true
+    const response = await getMarketCodes()
+    marketCodes.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error fetching market codes:', error)
+    toast.error(t('configuration.market_code.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
+
 const openAddModal = () => {
+  formData.value = {
+    name: '',
+    code: '',
+    segment: '',
+    description: ''
+  }
   isEditing.value = false
   editingId.value = null
-  formData.code = ''
-  formData.name = ''
-  formData.description = ''
-  formData.segment = ''
   showModal.value = true
 }
 
 const editMarketCode = (marketCode: any) => {
+  formData.value = {
+    name: marketCode.name || '',
+    code: marketCode.code || '',
+    segment: marketCode.segment || '',
+    description: marketCode.description || ''
+  }
   isEditing.value = true
   editingId.value = marketCode.id
-  formData.code = marketCode.code
-  formData.name = marketCode.name
-  formData.description = marketCode.description
-  formData.segment = marketCode.segment
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
+  formData.value = {
+    name: '',
+    code: '',
+    segment: '',
+    description: ''
+  }
   isEditing.value = false
   editingId.value = null
-  formData.code = ''
-  formData.name = ''
-  formData.description = ''
-  formData.segment = ''
+  saving.value = false
 }
 
-const saveMarketCode = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing market code
-    const index = marketCodes.value.findIndex(mc => mc.id === editingId.value)
-    if (index !== -1) {
-      marketCodes.value[index] = {
-        ...marketCodes.value[index],
-        code: formData.code,
-        name: formData.name,
-        description: formData.description,
-        segment: formData.segment,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const saveMarketCode = async () => {
+  try {
+    saving.value = true
+    
+    const payload = {
+      name: formData.value.name,
+      code: formData.value.code,
+      segment: formData.value.segment,
+      description: formData.value.description,
+      hotelId: serviceStore.serviceId
     }
-  } else {
-    // Add new market code
-    const newMarketCode = {
-      id: Math.max(...marketCodes.value.map(mc => mc.id)) + 1,
-      code: formData.code,
-      name: formData.name,
-      description: formData.description,
-      segment: formData.segment,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+
+    if (isEditing.value) {
+      await updateMarketCodeById(editingId.value!, payload)
+      toast.success(t('configuration.market_code.update_success'))
+    } else {
+      await postMarketCode(payload)
+      toast.success(t('configuration.market_code.save_success'))
     }
-    marketCodes.value.push(newMarketCode)
+    
+    closeModal()
+    await fetchMarketCodes()
+  } catch (error) {
+    console.error('Error saving market code:', error)
+    const errorMessage = isEditing.value 
+      ? t('configuration.market_code.update_error')
+      : t('configuration.market_code.save_error')
+    toast.error(errorMessage)
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteMarketCode = (id: number) => {
-  if (confirm('Are you sure you want to delete this market code?')) {
-    const index = marketCodes.value.findIndex(mc => mc.id === id)
-    if (index !== -1) {
-      marketCodes.value.splice(index, 1)
-    }
+const confirmDeleteMarketCode = (marketCode: any) => {
+  marketCodeToDelete.value = marketCode
+  showDeleteConfirmation.value = true
+}
+
+const deleteMarketCode = async () => {
+  try {
+    await deleteMarketCodeById(marketCodeToDelete.value.id)
+    toast.success(t('configuration.market_code.delete_success'))
+    showDeleteConfirmation.value = false
+    marketCodeToDelete.value = null
+    await fetchMarketCodes()
+  } catch (error) {
+    console.error('Error deleting market code:', error)
+    toast.error(t('configuration.market_code.delete_error'))
   }
 }
 
 const onAction = (action: string, item: any) => {
-  console.log('Action:', action, 'Item:', item)
+  if (action === 'edit') {
+    editMarketCode(item)
+  } else if (action === 'delete') {
+    confirmDeleteMarketCode(item)
+  }
 }
+
+// Lifecycle
+onMounted(() => {
+  fetchMarketCodes()
+})
 </script>

@@ -285,7 +285,6 @@ const masterItems = [
   { path: '/configuration/master/reservation-type', label: 'Reservation Type' },
   { path: '/configuration/master/preference-type', label: 'Preference Type' },
   { path: '/configuration/master/preference', label: 'Preference' },
-  { path: '/configuration/master/source-book', label: 'Source Book' },
   { path: '/configuration/master/business-source', label: 'Business Source' }
 ]
 

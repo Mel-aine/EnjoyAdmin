@@ -1,83 +1,88 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <ReusableTable
-        title="Template Category Management"
-        :columns="columns"
-        :data="templateCategories"
-        :actions="actions"
-        search-placeholder="Search template categories..."
-        :selectable="false"
-        empty-state-title="No template categories found"
-        empty-state-message="Get started by adding a new template category."
-        @action="onAction"
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('configuration.template_category.title') }}</h1>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-gray-600 mb-6">
+          {{ $t('configuration.template_category.description') }}
+        </p>
+        <ReusableTable 
+          :title="$t('configuration.template_category.table_title')" 
+          :columns="columns" 
+          :data="templateCategories"
+          :actions="actions" 
+          :loading="loading" 
+          @action="onAction"
+          :search-placeholder="$t('configuration.template_category.search_placeholder')"
+          :empty-title="$t('configuration.template_category.empty_state_title')"
+          :empty-description="$t('configuration.template_category.empty_state_message')"
+        >
+          <template v-slot:header-actions>
+            <BasicButton 
+              variant="primary" 
+              @click="openAddModal" 
+              :icon="Plus"
+              :label="$t('configuration.template_category.add_template_category')" 
+              :loading="loading" 
+            />
+          </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
+        </ReusableTable>
+      </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto"
       >
-        <template #header-actions>
-          <BasicButton 
-            variant="primary" 
-            icon="Plus"
-            label="Add Template Category"
-            @click="openAddModal"
-          />
-        </template>
-
-        <template #column-status="{ item }">
-          <span 
-            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.status }}
-          </span>
-        </template>
-      </ReusableTable>
-
-      <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Template Category' : 'Add New Template Category' }}
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            {{ isEditing ? $t('configuration.template_category.edit_template_category') :
+              $t('configuration.template_category.add_template_category') }}
           </h3>
-          
-          <form @submit.prevent="saveTemplateCategory" class="space-y-4">
-            <Input 
-              :lb="'Category Name'"
-              :inputType="'text'"
-              :isRequired="true"
-              v-model="formData.name"
-              :placeholder="'Enter category name (e.g., Welcome, Confirmation, Cancellation)'"
-            />
-            
-            <Input 
-              :lb="'Description'"
-              :inputType="'text'"
-              v-model="formData.description"
-              :placeholder="'Enter description (optional)'"
-            />
-            
-            <Select 
-              :lb="'Usage Type'"
-              :isRequired="true"
-              v-model="formData.usageType"
-              :options="usageTypeOptions"
-              :defaultValue="'Select usage type'"
-            />
-            
-             <div class="flex justify-end space-x-3 pt-4">
+
+          <form @submit.prevent="saveTemplateCategory">
+            <div class="mb-4">
+              <Input 
+                v-model="formData.category" 
+                :lb="$t('configuration.template_category.category_name')" 
+                inputType="text"
+                :isRequired="true" 
+                :placeholder="$t('configuration.template_category.category_name_placeholder')" 
+              />
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
               <BasicButton 
-                variant="secondary" 
-                @click="closeModal"
-                type="button"
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
                 :label="$t('cancel')"
-              >
-                Cancel
-              </BasicButton>
+                :disabled="saving" 
+              />
               <BasicButton 
+                type="submit" 
                 variant="primary" 
-                type="submit"
-                :label="isEditing ? $t('update') : $t('save') "
-                :icon="isEditing ? Edit : Save"
-              >
-              </BasicButton>
+                :icon="Save"
+                :label="isEditing ? $t('configuration.template_category.update_template_category') : $t('configuration.template_category.save_template_category')"
+                :loading="saving" 
+              />
             </div>
           </form>
         </div>
@@ -87,199 +92,137 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '@/composables/serviceStore'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
-import BasicButton from '@/components/buttons/BasicButton.vue'
-import Input from '@/components/forms/FormElements/Input.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
-import { Edit, Save } from 'lucide-vue-next'
+import ReusableTable from '../../../components/tables/ReusableTable.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
+import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
+import Plus from '../../../icons/Plus.vue'
+import {
+  getTemplateCategories,
+  postTemplateCategory,
+  updateTemplateCategoryById,
+  deleteTemplateCategoryById
+} from '@/services/configrationApi'
+import { Save } from 'lucide-vue-next'
 
-// Reactive data
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
 
-const formData = reactive({
-  name: '',
-  description: '',
-  usageType: ''
-})
-
-// Sample data
-const templateCategories = ref([
-  {
-    id: 1,
-    name: 'Welcome',
-    description: 'Welcome email templates for new guests',
-    usageType: 'Guest Communication',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Confirmation',
-    description: 'Booking confirmation templates',
-    usageType: 'Reservation',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Cancellation',
-    description: 'Booking cancellation notification templates',
-    usageType: 'Reservation',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Marketing',
-    description: 'Promotional and marketing email templates',
-    usageType: 'Marketing',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Active'
-  },
-  {
-    id: 5,
-    name: 'Business Partner',
-    description: 'Communication templates for business partners',
-    usageType: 'Business Communication',
-    createdBy: 'admin',
-    createdDate: '2024-01-11',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-11',
-    status: 'Active'
-  },
-  {
-    id: 6,
-    name: 'Feedback',
-    description: 'Guest feedback and survey templates',
-    usageType: 'Guest Communication',
-    createdBy: 'admin',
-    createdDate: '2024-01-10',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-10',
-    status: 'Inactive'
-  }
+const columns = computed<Column[]>(() => [
+  { key: 'category', label: t('configuration.template_category.category_name'), type: 'text' },
+  { key: 'createdInfo', label: t('configuration.template_category.created_by'), type: 'custom' },
+  { key: 'modifiedInfo', label: t('configuration.template_category.modified_by'), type: 'custom' }
 ])
 
-// Usage type options
-const usageTypeOptions = [
-  { label: 'Guest Communication', value: 'Guest Communication' },
-  { label: 'Reservation', value: 'Reservation' },
-  { label: 'Marketing', value: 'Marketing' },
-  { label: 'Business Communication', value: 'Business Communication' },
-  { label: 'Internal', value: 'Internal' },
-  { label: 'Other', value: 'Other' }
-]
+const actions = computed<Action[]>(() => [
+  { label: t('edit'), handler: (item: any) => editTemplateCategory(item), variant: 'primary' },
+  { label: t('delete'), handler: (item: any) => deleteTemplateCategory(item), variant: 'danger' }
+])
 
-// Table configuration
-const columns:Column[] = [
-  { key: 'name', label: 'Category Name', type: 'text' },
-  { key: 'usageType', label: 'Usage Type', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
+const formData = ref<any>({
+  category: ''
+})
 
-const actions:Action[] = [
-  {
-    label: 'Edit',
-    handler: (item: any) => editTemplateCategory(item),
-    variant: 'primary'
-  },
-  {
-    label: 'Delete',
-    handler: (item: any) => deleteTemplateCategory(item.id),
-    variant: 'danger'
+const templateCategories = ref<any[]>([])
+
+// Fetch template categories from API
+const fetchTemplateCategories = async () => {
+  try {
+    loading.value = true
+    const response = await getTemplateCategories()
+    templateCategories.value = response.data.data.data|| []
+  } catch (error) {
+    console.error('Error fetching template categories:', error)
+    toast.error(t('configuration.template_category.fetch_error'))
+  } finally {
+    loading.value = false
   }
-]
+}
 
-// Functions
 const openAddModal = () => {
   isEditing.value = false
-  editingId.value = null
-  formData.name = ''
-  formData.description = ''
-  formData.usageType = ''
+  formData.value = {
+    category: ''
+  }
   showModal.value = true
 }
 
-const editTemplateCategory = (category: any) => {
+const editTemplateCategory = (templateCategory: any) => {
   isEditing.value = true
-  editingId.value = category.id
-  formData.name = category.name
-  formData.description = category.description
-  formData.usageType = category.usageType
+  formData.value = { ...templateCategory }
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
   isEditing.value = false
-  editingId.value = null
-  formData.name = ''
-  formData.description = ''
-  formData.usageType = ''
 }
 
-const saveTemplateCategory = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing template category
-    const index = templateCategories.value.findIndex(tc => tc.id === editingId.value)
-    if (index !== -1) {
-      templateCategories.value[index] = {
-        ...templateCategories.value[index],
-        name: formData.name,
-        description: formData.description,
-        usageType: formData.usageType,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const saveTemplateCategory = async () => {
+  try {
+    saving.value = true
+
+    const templateCategoryData = {
+      category: formData.value.category,
+      hotelId: serviceStore.serviceId
     }
-  } else {
-    // Add new template category
-    const newTemplateCategory = {
-      id: Math.max(...templateCategories.value.map(tc => tc.id)) + 1,
-      name: formData.name,
-      description: formData.description,
-      usageType: formData.usageType,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+
+    if (isEditing.value && formData.value.id) {
+      // Update existing template category
+      await updateTemplateCategoryById(formData.value.id!, templateCategoryData)
+      toast.success(t('configuration.template_category.update_success'))
+    } else {
+      // Add new template category
+      await postTemplateCategory(templateCategoryData)
+      toast.success(t('configuration.template_category.create_success'))
     }
-    templateCategories.value.push(newTemplateCategory)
+    closeModal()
+    await fetchTemplateCategories()
+  } catch (error) {
+    console.error('Error saving template category:', error)
+    toast.error(t('configuration.template_category.save_error'))
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteTemplateCategory = (id: number) => {
-  if (confirm('Are you sure you want to delete this template category?')) {
-    const index = templateCategories.value.findIndex(tc => tc.id === id)
-    if (index !== -1) {
-      templateCategories.value.splice(index, 1)
+const deleteTemplateCategory = async (templateCategory: any) => {
+  if (confirm(t('configuration.template_category.delete_confirm'))) {
+    try {
+      loading.value = true
+      await deleteTemplateCategoryById(templateCategory.id)
+      toast.success(t('configuration.template_category.delete_success'))
+      await fetchTemplateCategories()
+    } catch (error) {
+      console.error('Error deleting template category:', error)
+      toast.error(t('configuration.template_category.delete_error'))
+    } finally {
+      loading.value = false
     }
   }
 }
 
 const onAction = (action: string, item: any) => {
-  console.log('Action:', action, 'Item:', item)
+  if (action === 'edit') {
+    editTemplateCategory(item)
+  } else if (action === 'delete') {
+    deleteTemplateCategory(item)
+  }
 }
+
+// Load template categories on component mount
+onMounted(() => {
+  fetchTemplateCategories()
+})
 </script>

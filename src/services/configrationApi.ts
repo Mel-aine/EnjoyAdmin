@@ -640,3 +640,388 @@ export const updateTransportationModeById = (id: number, data: any): Promise<Axi
 export const deleteTransportationModeById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/transportation_modes/${id}`, headers)
 }
+
+
+// this section is for PayoutReason
+
+/**
+ * Get all payout reasons
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getPayoutReasons = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/payout_reasons`, headers)
+}
+
+/**
+ * Post a new payout reason
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postPayoutReason = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/payout_reasons`, data, headers)
+}
+
+/**
+ * Get a payout reason by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getPayoutReasonById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/payout_reasons/${id}`, headers)
+}
+
+/**
+ * Update a payout reason
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updatePayoutReasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/payout_reasons/${id}`, data, headers)
+}
+
+/**
+ * Delete a payout reason
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deletePayoutReasonById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/payout_reasons/${id}`, headers)
+}
+
+
+// this section is for Template Category
+
+/**
+ * Get all template categories
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getTemplateCategories = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/template_categories`, headers)
+}
+
+/**
+ * Post a new template category
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postTemplateCategory = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/template_categories`, data, headers)
+}
+
+/**
+ * Get a template category by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getTemplateCategoryById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/template_categories/${id}`, headers)
+}
+
+/**
+ * Update a template category
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateTemplateCategoryById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/template_categories/${id}`, data, headers)
+}
+
+/**
+ * Delete a template category
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteTemplateCategoryById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/template_categories/${id}`, headers)
+}
+
+
+// this section is for Black List Reason
+
+/**
+ * Get all black list reasons
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBlackListReasons = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/black_list_reasons`, headers)
+}
+
+/**
+ * Post a new black list reason
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postBlackListReason = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/black_list_reasons`, data, headers)
+}
+
+/**
+ * Get a black list reason by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBlackListReasonById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/black_list_reasons/${id}`, headers)
+}
+
+/**
+ * Update a black list reason
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateBlackListReasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/black_list_reasons/${id}`, data, headers)
+}
+
+/**
+ * Delete a black list reason
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteBlackListReasonById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/black_list_reasons/${id}`, headers)
+}
+
+
+// this section is for Market Code
+
+/**
+ * Get all market codes
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getMarketCodes = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/market_codes`, headers)
+}
+
+/**
+ * Post a new market code
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postMarketCode = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/market_codes`, data, headers)
+}
+
+/**
+ * Get a market code by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getMarketCodeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/market_codes/${id}`, headers)
+}
+
+/**
+ * Update a market code
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateMarketCodeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/market_codes/${id}`, data, headers)
+}
+
+/**
+ * Delete a market code
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteMarketCodeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/market_codes/${id}`, headers)
+}
+
+
+// this section is for Reservation Type
+
+/**
+ * Get all reservation types
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getReservationTypes = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservation_types`, headers)
+}
+
+/**
+ * Post a new reservation type
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postReservationType = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/reservation_types`, data, headers)
+}
+
+/**
+ * Get a reservation type by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getReservationTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservation_types/${id}`, headers)
+}
+
+/**
+ * Update a reservation type
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateReservationTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/reservation_types/${id}`, data, headers)
+}
+
+/**
+ * Delete a reservation type
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteReservationTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/reservation_types/${id}`, headers)
+}
+
+
+// this section is for Preference Type
+
+/**
+ * Get all preference types
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getPreferenceTypes = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/preference_types`, headers)
+}
+
+/**
+ * Post a new preference type
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postPreferenceType = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/preference_types`, data, headers)
+}
+
+/**
+ * Get a preference type by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getPreferenceTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/preference_types/${id}`, headers)
+}
+
+/**
+ * Update a preference type
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updatePreferenceTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/preference_types/${id}`, data, headers)
+}
+
+/**
+ * Delete a preference type
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deletePreferenceTypeById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/preference_types/${id}`, headers)
+}
+
+
+// this section is for Preference
+
+/**
+ * Get all preferences
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getPreferences = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/preferences`, headers)
+}
+
+/**
+ * Post a new preference
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postPreference = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/preferences`, data, headers)
+}
+
+/**
+ * Get a preference by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getPreferenceById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/preferences/${id}`, headers)
+}
+
+/**
+ * Update a preference
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updatePreferenceById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/preferences/${id}`, data, headers)
+}
+
+/**
+ * Delete a preference
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deletePreferenceById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/preferences/${id}`, headers)
+}
+
+
+// this section is for Business Source
+
+/**
+ * Get all business sources
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBusinessSources = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/business_sources`, headers)
+}
+
+/**
+ * Post a new business source
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postBusinessSource = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/business_sources`, data, headers)
+}
+
+/**
+ * Get a business source by ID
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBusinessSourceById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/business_sources/${id}`, headers)
+}
+
+/**
+ * Update a business source
+ * @param id 
+ * @param data 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateBusinessSourceById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/business_sources/${id}`, data, headers)
+}
+
+/**
+ * Delete a business source
+ * @param id 
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/business_sources/${id}`, headers)
+}
+ 

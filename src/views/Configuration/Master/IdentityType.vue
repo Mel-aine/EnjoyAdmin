@@ -9,6 +9,7 @@
         </p>
         <ReusableTable :title="$t('configuration.identity_type.table_title')" :columns="columns" :data="identityTypes"
           :actions="actions" :loading="loading" @action="onAction"
+          :selectable="true"
           :search-placeholder="$t('configuration.identity_type.search_placeholder')"
           :empty-title="$t('configuration.identity_type.empty_title')"
           :empty-description="$t('configuration.identity_type.empty_description')">
@@ -16,21 +17,21 @@
             <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
               :label="$t('configuration.identity_type.add_identity_type')" :loading="loading" />
           </template>
-           <!-- Custom column for created info -->
-        <template #column-createdInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-          </div>
-        </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-          </div>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
           <template #status="{ item }">
             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
               :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
@@ -54,13 +55,13 @@
           <form @submit.prevent="saveIdentityType">
             <div class="mb-4">
 
-             <div class="mb-2">
-               <Input v-model="formData.shortCode" :lb="$t('shortCode')" inputType="text" :isRequired="true"
-                :placeholder="$t('shortCode')" />
-             </div>
+              <div class="mb-2">
+                <Input v-model="formData.shortCode" :lb="$t('shortCode')" inputType="text" :isRequired="true"
+                  :placeholder="$t('shortCode')" />
+              </div>
 
-              <Input v-model="formData.name" :lb="$t('configuration.identity_type.identity_type_name')"
-                inputType="text" :isRequired="true" :placeholder="$t('configuration.identity_type.name_placeholder')" />
+              <Input v-model="formData.name" :lb="$t('configuration.identity_type.identity_type_name')" inputType="text"
+                :isRequired="true" :placeholder="$t('configuration.identity_type.name_placeholder')" />
 
             </div>
 
@@ -95,6 +96,7 @@ import {
   deleteIdentityTypeById
 } from '@/services/configrationApi'
 import { Save } from 'lucide-vue-next'
+import { parse } from 'date-fns'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -105,24 +107,25 @@ const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 
-const columns = computed < Column[] > (() => [
+const columns = computed<Column[]>(() => [
   { key: 'name', label: t('configuration.identity_type.identity_type_name'), type: 'text' },
   { key: 'createdInfo', label: t('configuration.identity_type.created_by'), type: 'custom' },
   { key: 'modifiedInfo', label: t('configuration.identity_type.modified_by'), type: 'custom' },
   { key: 'shortCode', label: t('shortCode'), type: 'custom' }
 ])
 
-const actions = computed < Action[] > (() => [
+const actions = computed<Action[]>(() => [
   { label: t('edit'), handler: (item: any) => editIdentityType(item), variant: 'primary' },
   { label: t('delete'), handler: (item: any) => deleteIdentityType(item), variant: 'danger' }
 ])
 
 const formData = ref({
+  id:'',
   shortCode: "",
   name: ''
 })
 
-const identityTypes = ref < any[] > ([])
+const identityTypes = ref<any[]>([])
 
 // Fetch identity types from API
 const fetchIdentityTypes = async () => {
@@ -141,6 +144,7 @@ const fetchIdentityTypes = async () => {
 const openAddModal = () => {
   isEditing.value = false
   formData.value = {
+    id:"",
     shortCode: "",
     name: ''
   }
@@ -163,14 +167,14 @@ const saveIdentityType = async () => {
     saving.value = true
 
     const identityTypeData = {
-      name: formData.value.name,
+      reason: formData.value.name,
       shortCode: formData.value.shortCode,
       hotelId: serviceStore.serviceId
     }
 
     if (isEditing.value && formData.value.id) {
       // Update existing identity type
-      await updateIdentityTypeById(formData.value.id, identityTypeData)
+      await updateIdentityTypeById(parseInt(`${formData.value.id}`), identityTypeData)
       toast.success(t('configuration.identity_type.update_success'))
     } else {
       // Add new identity type

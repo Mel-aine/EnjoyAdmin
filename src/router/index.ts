@@ -808,15 +808,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/configuration/master/source-book',
-      name: 'SourceBook',
-      component: () => import('../views/Configuration/Master/SourceBook.vue'),
-      meta: {
-        title: 'Source Book',
-        requiresAuth: true,
-      },
-    },
+    
     {
       path: '/configuration/master/business-source',
       name: 'BusinessSource',
@@ -1237,6 +1229,15 @@ const router = createRouter({
       component: () => import('../views/Others/RightSideModalDemo.vue'),
       meta: {
         title: 'Right Side Modal Demo',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/pdf-export-demo',
+      name: 'PDF Export Demo',
+      component: () => import('../views/Others/PdfExportDemo.vue'),
+      meta: {
+        title: 'Démonstration d\'Exportation PDF',
         requiresAuth: true,
       },
     },
