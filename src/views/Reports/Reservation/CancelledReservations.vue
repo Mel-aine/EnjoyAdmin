@@ -1,258 +1,396 @@
 <template>
   <ReportsLayout>
-    <div class="p-6">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        {{ $t('reports.reservation.cancelledReservations') }}
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400">
-        {{ $t('reports.reservation.cancelledReservationsDescription') }}
-      </p>
-    </div>
+    <div class="bg-white rounded-lg p-5 shadow-sm">
+      <div class="p-5 max-w-6xl mx-auto">
+        <h2 class="text-2xl font-semibold mb-5 text-gray-800">Cancelled Reservation</h2>
+        
+        <!-- Search Form -->
+        <div class="bg-gray-50 p-5 rounded-lg mb-5">
+          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
+            <!-- Cancellation Dates -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="font-medium mb-1 text-gray-600">Cancelled From</label>
+              <div class="flex flex-col sm:flex-row items-center gap-2 w-full">
+                <InputDatepicker 
+                  v-model="filters.arrivalFrom" 
+                  placeholder="From"
+                  class="flex-1 w-full"
+                />
+                <span class="font-medium text-gray-500">To</span>
+                <InputDatepicker 
+                  v-model="filters.arrivalTo" 
+                  placeholder="To"
+                  class="flex-1 w-full"
+                />
+              </div>
+            </div>
+            
+            <!-- Room Type -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="font-medium mb-1 text-gray-600">Room Type</label>
+              <SelectComponent 
+                v-model="filters.roomType"
+                :options="roomTypeOptions"
+                placeholder="--Select--"
+              />
+            </div>
+          </div>
 
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('common.filters') }}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.cancellationDateFrom') }}
-          </label>
-          <input
-            v-model="filters.cancellationDateFrom"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.cancellationDateTo') }}
-          </label>
-          <input
-            v-model="filters.cancellationDateTo"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.cancellationReason') }}
-          </label>
-          <select
-            v-model="filters.cancellationReason"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="guest-request">{{ $t('cancellation.reasons.guestRequest') }}</option>
-            <option value="no-payment">{{ $t('cancellation.reasons.noPayment') }}</option>
-            <option value="overbooking">{{ $t('cancellation.reasons.overbooking') }}</option>
-            <option value="other">{{ $t('cancellation.reasons.other') }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.bookingSource') }}
-          </label>
-          <select
-            v-model="filters.bookingSource"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="direct">{{ $t('bookings.sources.direct') }}</option>
-            <option value="online">{{ $t('bookings.sources.online') }}</option>
-            <option value="agent">{{ $t('bookings.sources.agent') }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="mt-4 flex gap-2">
-        <button
-          @click="loadCancelledReservations"
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          {{ $t('common.search') }}
-        </button>
-        <button
-          @click="exportReport"
-          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-        >
-          {{ $t('common.export') }}
-        </button>
-      </div>
-    </div>
+          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
+            <!-- Rate Type -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="font-medium mb-1 text-gray-600">Rate Type</label>
+              <SelectComponent 
+                v-model="filters.rateType"
+                :options="rateTypeOptions"
+                placeholder="--Select--"
+              />
+            </div>
+            
+            <!-- Cancelled By -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="font-medium mb-1 text-gray-600">Cancelled By</label>
+              <SelectComponent 
+                v-model="filters.company"
+                :options="companyOptions"
+                placeholder="--Select--"
+              />
+            </div>
+          </div>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.reservation.totalCancelled') }}</h3>
-        <p class="text-2xl font-bold text-red-600">{{ summary.totalCancelled }}</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.reservation.lostRevenue') }}</h3>
-        <p class="text-2xl font-bold text-red-600">${{ summary.lostRevenue.toFixed(2) }}</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.reservation.cancellationFees') }}</h3>
-        <p class="text-2xl font-bold text-green-600">${{ summary.cancellationFees.toFixed(2) }}</p>
-      </div>
-    </div>
+          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
+            <!-- Business Source -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="font-medium mb-1 text-gray-600">Business Source</label>
+              <SelectComponent 
+                v-model="filters.businessSource"
+                :options="businessSourceOptions"
+                placeholder="--Select--"
+              />
+            </div>
+            
+            <!-- Travel Agent -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="font-medium mb-1 text-gray-600">Travel Agent</label>
+              <SelectComponent 
+                v-model="filters.travelAgent"
+                :options="travelAgentOptions"
+                placeholder="--Select--"
+              />
+            </div>
+          </div>
 
-    <!-- Results Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-          {{ $t('reports.reservation.cancelledReservationsResults') }}
-        </h2>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.reservationId') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.guestName') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.cancellationDate') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.cancellationReason') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.originalAmount') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.cancellationFee') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.refundAmount') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.actions') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="reservation in cancelledReservations" :key="reservation.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                {{ reservation.reservationId }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ reservation.guestName }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ formatDate(reservation.cancellationDate) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ $t(`cancellation.reasons.${reservation.cancellationReason}`) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                ${{ reservation.originalAmount.toFixed(2) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                ${{ reservation.cancellationFee.toFixed(2) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                ${{ reservation.refundAmount.toFixed(2) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  @click="viewDetails(reservation.id)"
-                  class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+          <div class="flex flex-col lg:flex-row gap-5 mb-4 items-end">
+            <!-- Tax Inclusive -->
+            <div class="flex-1 w-full flex flex-col">
+              <label class="flex items-center gap-2 font-normal cursor-pointer">
+                <input 
+                  v-model="filters.taxInclusive" 
+                  type="checkbox"
+                  class="rounded border-gray-300"
+                />
+                <span class="text-sm sm:text-base">Tax Inclusive Rates (Disc./Adj. included, if applied)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Report Template and Action Buttons -->
+          <div class="flex flex-col sm:flex-row items-end justify-between mt-5 pt-5 border-t border-gray-200 gap-4">
+            <!-- Report Template -->
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <label class="font-medium text-gray-600 whitespace-nowrap">Report Template</label>
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <SelectComponent 
+                  v-model="filters.reportTemplate"
+                  :options="reportTemplateOptions"
+                  placeholder="Default"
+                  class="min-w-32 w-full sm:w-auto"
+                />
+                <button 
+                  @click="editTemplate"
+                  class="p-1.5 border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Edit Template"
                 >
-                  {{ $t('common.view') }}
+                  <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <ButtonComponent 
+                @click="exportData"
+                variant="secondary"
+                class="min-w-24 w-full sm:w-auto"
+              >
+                Export
+              </ButtonComponent>
+              
+              <ButtonComponent 
+                @click="generateReport"
+                variant="primary"
+                class="min-w-24 w-full sm:w-auto"
+              >
+                Report
+              </ButtonComponent>
+              
+              <ButtonComponent 
+                @click="resetForm"
+                variant="outline"
+                class="min-w-24 w-full sm:w-auto"
+              >
+                Reset
+              </ButtonComponent>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="bg-white rounded-lg p-5 shadow-sm" v-if="showResults">
+          <h3 class="text-blue-700 mb-2">{{ hotelName }}</h3>
+          <div class="flex flex-col sm:flex-row sm:gap-5 mb-4 text-sm text-gray-600">
+            <span>Date From: {{ filters.arrivalFrom }} To {{ filters.arrivalTo }}</span>
+            <span>Order By: Room</span>
+            <span>Tax Inclusive Rates: {{ filters.taxInclusive ? 'Yes' : 'No' }}</span>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <ResultTable 
+              title="Cancelled Reservations"
+              :data="reservationData"
+              :columns="selectedTableColumns"
+              class="w-full mb-4 min-w-max"
+            />
+          </div>
+          
+          <div class="flex flex-col sm:flex-row justify-between font-medium pt-2 border-t border-gray-200 gap-2">
+            <span>Total Reservation: #{{ totalReservations }}</span>
+            <span>Total Pax: {{ totalPax }}</span>
+          </div>
+        </div>
       </div>
-    </div>
     </div>
   </ReportsLayout>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+<script lang="ts" setup>
+import { ref, computed } from 'vue'
+import SelectComponent from '@/components/forms/FormElements/Select.vue'
+import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 
-const { t } = useI18n()
-
-interface CancelledReservation {
-  id: string
-  reservationId: string
-  guestName: string
-  cancellationDate: string
-  cancellationReason: string
-  originalAmount: number
-  cancellationFee: number
-  refundAmount: number
+interface FilterOptions {
+  value: string;
+  label: string;
 }
 
-const filters = ref({
-  cancellationDateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  cancellationDateTo: new Date().toISOString().split('T')[0],
-  cancellationReason: '',
-  bookingSource: ''
+interface Reservation {
+  resNo: string;
+  guest: string;
+  room: string;
+  rate: string;
+  arrival: string;
+  departure: string;
+  pax: string;
+  pickUp: string;
+  dropOff: string;
+  resType: string;
+  company: string;
+  user: string;
+  BusiSour: string;
+  restyp: string;
+}
+
+interface Filters {
+  arrivalFrom: string;
+  arrivalTo: string;
+  roomType: string;
+  rateType: string;
+  showAmount: string;
+  rateFrom: string;
+  rateTo: string;
+  reservationType: string;
+  company: string;
+  travelAgent: string;
+  businessSource: string;
+  market: string;
+  user: string;
+  taxInclusive: boolean;
+  selectedColumns: string[];
+  reportTemplate: string;
+}
+
+const hotelName = ref<string>('Hotel Nihal')
+const showResults = ref<boolean>(false)
+
+const filters = ref<Filters>({
+  arrivalFrom: '27/04/2019',
+  arrivalTo: '30/04/2019',
+  roomType: '',
+  rateType: '',
+  showAmount: 'Rent Per Night',
+  rateFrom: '',
+  rateTo: '',
+  reservationType: '',
+  company: '',
+  travelAgent: '',
+  businessSource: '',
+  market: '',
+  user: '',
+  taxInclusive: true,
+  selectedColumns: [],
+  reportTemplate: 'default'
 })
 
-const cancelledReservations = ref<CancelledReservation[]>([])
+// Options for selects
+const companyOptions = ref<FilterOptions[]>([
+  { value: 'company1', label: 'Company 1' },
+  { value: 'company2', label: 'Company 2' }
+])
 
-const summary = computed(() => {
-  const totalCancelled = cancelledReservations.value.length
-  const lostRevenue = cancelledReservations.value.reduce((sum, res) => sum + res.originalAmount, 0)
-  const cancellationFees = cancelledReservations.value.reduce((sum, res) => sum + res.cancellationFee, 0)
-  
-  return {
-    totalCancelled,
-    lostRevenue,
-    cancellationFees
+const roomTypeOptions = ref<FilterOptions[]>([
+  { value: 'suite', label: 'Suite Room' },
+  { value: 'standard', label: 'Standard Room' },
+  { value: 'deluxe', label: 'Deluxe Room' }
+])
+
+const rateTypeOptions = ref<FilterOptions[]>([
+  { value: 'standard', label: 'Standard Rate' },
+  { value: 'corporate', label: 'Corporate Rate' },
+  { value: 'promotional', label: 'Promotional Rate' }
+])
+
+const travelAgentOptions = ref<FilterOptions[]>([
+  { value: 'agent1', label: 'Travel Agent 1' },
+  { value: 'agent2', label: 'Travel Agent 2' }
+])
+
+const businessSourceOptions = ref<FilterOptions[]>([
+  { value: 'online', label: 'Online' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'walk_in', label: 'Walk-in' }
+])
+
+const reportTemplateOptions = ref<FilterOptions[]>([
+  { value: 'default', label: 'Default' },
+  { value: 'detailed', label: 'Detailed Report' },
+  { value: 'summary', label: 'Summary Report' },
+  { value: 'financial', label: 'Financial Report' },
+  { value: 'custom', label: 'Custom Template' }
+])
+
+// Sample data for the table
+const reservationData = ref<Reservation[]>([
+  {
+    resNo: 'BE306',
+    guest: 'Mr.eZee Test 03',
+    room: '101 - Suite Room',
+    rate: '100.00',
+    arrival: '28/04/2019 11:30:00 AM',
+    departure: '01/05/2019',
+    pax: '1/0',
+    pickUp: '',
+    dropOff: '',
+    resType: 'Confirm Booking',
+    company: '',
+    user: 'helpdesksupport',
+    BusiSour: 'Online',
+    restyp: 'Cancelled'
   }
-})
+])
 
-const loadCancelledReservations = async () => {
-  // Mock data for demonstration
-  cancelledReservations.value = [
-    {
-      id: '1',
-      reservationId: 'RES004',
-      guestName: 'Alice Brown',
-      cancellationDate: '2024-01-10',
-      cancellationReason: 'guest-request',
-      originalAmount: 600.00,
-      cancellationFee: 50.00,
-      refundAmount: 550.00
-    },
-    {
-      id: '2',
-      reservationId: 'RES005',
-      guestName: 'Charlie Davis',
-      cancellationDate: '2024-01-12',
-      cancellationReason: 'no-payment',
-      originalAmount: 300.00,
-      cancellationFee: 0.00,
-      refundAmount: 0.00
-    }
+// Computed properties
+const selectedTableColumns = computed(() => {
+  const baseColumns = [
+    { key: 'resNo', label: 'Res. No' },
+    { key: 'guest', label: 'Guest' },
+    { key: 'room', label: 'Room' },
+    { key: 'rate', label: 'Rate (Rs)' },
+    { key: 'arrival', label: 'Arrival' },
+    { key: 'departure', label: 'Departure' },
+    { key: 'pax', label: 'Pax' },
+    { key: 'BusiSour', label: 'Business Source' },
+    { key: 'restyp', label: 'Res.Type' },
+    { key: 'user', label: 'User' }
   ]
-}
-
-const exportReport = () => {
-  console.log('Exporting cancelled reservations report...')
-}
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString()
-}
-
-const viewDetails = (id: string) => {
-  console.log('Viewing details for cancelled reservation:', id)
-}
-
-onMounted(() => {
-  loadCancelledReservations()
+  
+  // Add selected columns
+  filters.value.selectedColumns.forEach(col => {
+    const columnKey = col.toLowerCase().replace(/\s+/g, '').replace('.', '')
+    baseColumns.push({
+      key: columnKey,
+      label: col
+    })
+  })
+  
+  return baseColumns
 })
+
+const totalReservations = computed(() => {
+  return reservationData.value.length
+})
+
+const totalPax = computed(() => {
+  return reservationData.value.reduce((total, reservation) => {
+    const pax = reservation.pax.split('/')[0]
+    return total + parseInt(pax || '0')
+  }, 0)
+})
+
+// Methods
+const generateReport = (): void => {
+  showResults.value = true
+  console.log('Generating report with filters:', filters.value)
+}
+
+const exportData = (): void => {
+  console.log('Exporting data...')
+}
+
+const resetForm = (): void => {
+  filters.value = {
+    arrivalFrom: '',
+    arrivalTo: '',
+    roomType: '',
+    rateType: '',
+    showAmount: 'Rent Per Night',
+    rateFrom: '',
+    rateTo: '',
+    reservationType: '',
+    company: '',
+    travelAgent: '',
+    businessSource: '',
+    market: '',
+    user: '',
+    taxInclusive: true,
+    selectedColumns: [],
+    reportTemplate: 'default'
+  }
+  showResults.value = false
+}
+
+const editTemplate = (): void => {
+  console.log('Editing template...')
+}
 </script>
+
+<style scoped>
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .flex-col > div {
+    width: 100%;
+  }
+  
+  .flex-col > div + div {
+    margin-top: 1rem;
+  }
+  
+  .items-end {
+    align-items: stretch;
+  }
+}
+</style>

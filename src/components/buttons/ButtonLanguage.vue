@@ -2,7 +2,7 @@
   <div class="relative">
   <!-- Button -->
   <div class="flex items-center gap-2 cursor-pointer">
-    <img :src="selectLanguage.icon" alt="Language icon" class="h-6 w-6 rounded-full" />
+    <!-- <img :src="selectLanguage.icon" alt="Language icon" class="h-6 w-6 rounded-full" /> -->
     <!-- <span class="font-semibold">{{ $t(selectLanguage.name) }}</span> -->
     <button @click="show = !show" type="button"
       class="relative rounded-md text-left text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -22,7 +22,7 @@
       class="relative cursor-pointer select-none py-2 pl-3 pr-4 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
       role="option" @click="setLanguage(language)">
       <div class="flex items-center gap-2">
-        <img :src="language.icon" alt="Language icon" class="h-5 w-5 rounded-full" />
+        <!-- <img :src="language.icon" alt="Language icon" class="h-5 w-5 rounded-full" /> -->
         <span class="ml-2 block truncate font-medium">{{ language.name }}</span>
       </div>
       <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600"
@@ -44,7 +44,7 @@ import cm from '@/assets/images/header/Flag_of_France.png'
 import { useI18n } from 'vue-i18n'
 import { useLanguageStore } from '@/lang/language'
 const t = useI18n({ useScope: 'global' })
-const emit = defineEmits();
+const emit = defineEmits(['changeLang']);
 
 
 
@@ -68,7 +68,7 @@ const selectLanguage = computed(() => {
 })
 const setLanguage = (lg) => {
   console.log('setLanguage', lg)
-  show.value = !show
+  show.value = !show.value
   if (lg.code !== t.locale.value) {
     t.locale.value = lg.code
     emit('changeLang', lg.code);
