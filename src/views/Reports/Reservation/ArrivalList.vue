@@ -1,232 +1,512 @@
 <template>
   <ReportsLayout>
     <div class="p-6">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        {{ $t('reports.reservation.arrivalList') }}
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400">
-        {{ $t('reports.reservation.arrivalListDescription') }}
-      </p>
-    </div>
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Arrival List
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          View and manage upcoming guest arrivals
+        </p>
+      </div>
 
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('common.filters') }}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+      <!-- Filters -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {{ $t('common.filters') }}
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Arrival Dates -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Arrival From
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalFrom" 
+              placeholder="From"
+              class="w-full"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Arrival To
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalTo" 
+              placeholder="To"
+              class="w-full"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Company
+            </label>
+            <SelectComponent 
+              v-model="filters.company"
+              :options="companyOptions"
+              placeholder="All Companies"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Room Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Room Type
+            </label>
+            <SelectComponent 
+              v-model="filters.roomType"
+              :options="roomTypeOptions"
+              placeholder="All Room Types"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Travel Agent -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Travel Agent
+            </label>
+            <SelectComponent 
+              v-model="filters.travelAgent"
+              :options="travelAgentOptions"
+              placeholder="All Travel Agents"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Rate Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate Type
+            </label>
+            <SelectComponent 
+              v-model="filters.rateType"
+              :options="rateTypeOptions"
+              placeholder="All Rate Types"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Business Source -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Business Source
+            </label>
+            <SelectComponent 
+              v-model="filters.businessSource"
+              :options="businessSourceOptions"
+              placeholder="All Sources"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Market -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Market
+            </label>
+            <SelectComponent 
+              v-model="filters.market"
+              :options="marketOptions"
+              placeholder="All Markets"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- User -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              User
+            </label>
+            <SelectComponent 
+              v-model="filters.user"
+              :options="userOptions"
+              placeholder="All Users"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Rate Range -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate From
+            </label>
+            <input 
+              v-model="filters.rateFrom" 
+              type="number" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="From"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate To
+            </label>
+            <input 
+              v-model="filters.rateTo" 
+              type="number" 
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="To"
+            />
+          </div>
+          
+          <!-- Show Amount -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Show Amount
+            </label>
+            <SelectComponent 
+              v-model="filters.showAmount"
+              :options="showAmountOptions"
+              placeholder="Rent Per Night"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <!-- Reservation Type -->
+          <div>
+            <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
+            <SelectComponent 
+              v-model="filters.reservationType"
+              :options="reservationTypeOptions"
+              placeholder="--Select--"
+            />
+          </div>
+          <!-- Tax Inclusive -->
+          <div class=" mt-12">
+            <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <input 
+                v-model="filters.taxInclusive" 
+                type="checkbox"
+                class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+              />
+              Tax Inclusive Rates (Disc./Adj. included, if applied)
+            </label>
+          </div>
+        </div>
+
+        <!-- Select Columns -->
+        <div class="mt-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.arrivalDate') }}
+            Select Columns (Any 5)
           </label>
-          <input
-            v-model="filters.arrivalDate"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <label 
+              class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+              v-for="column in availableColumns" 
+              :key="column.value"
+            >
+              <input 
+                v-model="filters.selectedColumns" 
+                :value="column.value"
+                type="checkbox"
+                class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                :disabled="filters.selectedColumns.length >= 5 && !filters.selectedColumns.includes(column.value)"
+              />
+              {{ column.label }}
+            </label>
+          </div>
+        </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200">
+            <ButtonComponent 
+              @click="exportData"
+              variant="secondary"
+              class="min-w-24"
+            >
+              Export
+            </ButtonComponent>
+            
+            <ButtonComponent 
+              @click="generateReport"
+              variant="primary"
+              class="min-w-24"
+            >
+              Report
+            </ButtonComponent>
+            
+            <ButtonComponent 
+              @click="resetForm"
+              variant="outline"
+              class="min-w-24"
+            >
+              Reset
+            </ButtonComponent>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Table -->
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Arrival List Results
+          </h2>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <span>{{ hotelName }}</span> • 
+            <span>Date From: {{ filters.arrivalFrom }} To {{ filters.arrivalTo }}</span> • 
+            <span>Order By: Room</span> • 
+            <span>Tax Inclusive: {{ filters.taxInclusive ? 'Yes' : 'No' }}</span>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <ResultTable 
+            title="Arrival List Results"
+            :data="reservationData"
+            :columns="selectedTableColumns"
+            class="w-full"
           />
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.roomType') }}
-          </label>
-          <select
-            v-model="filters.roomType"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="standard">{{ $t('rooms.types.standard') }}</option>
-            <option value="deluxe">{{ $t('rooms.types.deluxe') }}</option>
-            <option value="suite">{{ $t('rooms.types.suite') }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.status') }}
-          </label>
-          <select
-            v-model="filters.status"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="confirmed">{{ $t('bookings.status.confirmed') }}</option>
-            <option value="pending">{{ $t('bookings.status.pending') }}</option>
-          </select>
+        
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span>Total Reservation: #{{ totalReservations }}</span> • 
+          <span>Total Pax: {{ totalPax }}</span>
         </div>
       </div>
-      <div class="mt-4 flex gap-2">
-        <button
-          @click="loadArrivals"
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          {{ $t('common.search') }}
-        </button>
-        <button
-          @click="exportReport"
-          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-        >
-          {{ $t('common.export') }}
-        </button>
-      </div>
-    </div>
 
-    <!-- Results Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-          {{ $t('reports.reservation.arrivalResults') }}
-        </h2>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.guestName') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.roomNumber') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.roomType') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.arrivalDate') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.departureDate') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.nights') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.status') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {{ $t('common.actions') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="arrival in arrivals" :key="arrival.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                {{ arrival.guestName }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ arrival.roomNumber }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ arrival.roomType }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ formatDate(arrival.arrivalDate) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ formatDate(arrival.departureDate) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ arrival.nights }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="getStatusClass(arrival.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                  {{ $t(`bookings.status.${arrival.status}`) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  @click="viewDetails(arrival.id)"
-                  class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  {{ $t('common.view') }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
   </ReportsLayout>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
+import { ref, computed } from 'vue'
+import SelectComponent from '@/components/forms/FormElements/Select.vue'
+import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
-
-interface Arrival {
-  id: string
-  guestName: string
-  roomNumber: string
-  roomType: string
-  arrivalDate: string
-  departureDate: string
-  nights: number
-  status: string
+interface FilterOptions {
+  value: string;
+  label: string;
 }
 
-const filters = ref({
-  arrivalDate: new Date().toISOString().split('T')[0],
+interface Reservation {
+  resNo: string;
+  guest: string;
+  room: string;
+  rate: string;
+  arrival: string;
+  departure: string;
+  pax: string;
+  pickUp: string;
+  dropOff: string;
+  resType: string;
+  company: string;
+  user: string;
+}
+
+interface Filters {
+  arrivalFrom: string;
+  arrivalTo: string;
+  roomType: string;
+  rateType: string;
+  showAmount: string;
+  rateFrom: string;
+  rateTo: string;
+  reservationType: string;
+  company: string;
+  travelAgent: string;
+  businessSource: string;
+  market: string;
+  user: string;
+  taxInclusive: boolean;
+  selectedColumns: string[];
+}
+
+const hotelName = ref<string>('Hotel Nihal')
+const showResults = ref<boolean>(false)
+
+const filters = ref<Filters>({
+  arrivalFrom: '27/04/2019',
+  arrivalTo: '30/04/2019',
   roomType: '',
-  status: ''
+  rateType: '',
+  showAmount: 'Rent Per Night',
+  rateFrom: '',
+  rateTo: '',
+  reservationType: '',
+  company: '',
+  travelAgent: '',
+  businessSource: '',
+  market: '',
+  user: '',
+  taxInclusive: true,
+  selectedColumns: ['Pick Up', 'Drop Off', 'Res.Type', 'Company', 'User']
 })
 
-const arrivals = ref<Arrival[]>([])
+// Options for selects
+const companyOptions = ref<FilterOptions[]>([
+  { value: 'company1', label: 'Company 1' },
+  { value: 'company2', label: 'Company 2' }
+])
 
-const loadArrivals = async () => {
-  // Mock data for demonstration
-  arrivals.value = [
-    {
-      id: '1',
-      guestName: 'John Doe',
-      roomNumber: '101',
-      roomType: 'Standard',
-      arrivalDate: '2024-01-15',
-      departureDate: '2024-01-18',
-      nights: 3,
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      guestName: 'Jane Smith',
-      roomNumber: '205',
-      roomType: 'Deluxe',
-      arrivalDate: '2024-01-15',
-      departureDate: '2024-01-20',
-      nights: 5,
-      status: 'pending'
-    }
+const roomTypeOptions = ref<FilterOptions[]>([
+  { value: 'suite', label: 'Suite Room' },
+  { value: 'standard', label: 'Standard Room' },
+  { value: 'deluxe', label: 'Deluxe Room' }
+])
+
+const rateTypeOptions = ref<FilterOptions[]>([
+  { value: 'standard', label: 'Standard Rate' },
+  { value: 'corporate', label: 'Corporate Rate' },
+  { value: 'promotional', label: 'Promotional Rate' }
+])
+
+const showAmountOptions = ref<FilterOptions[]>([
+  { value: 'rent_per_night', label: 'Rent Per Night' },
+  { value: 'total_amount', label: 'Total Amount' }
+])
+
+const travelAgentOptions = ref<FilterOptions[]>([
+  { value: 'agent1', label: 'Travel Agent 1' },
+  { value: 'agent2', label: 'Travel Agent 2' }
+])
+
+const businessSourceOptions = ref<FilterOptions[]>([
+  { value: 'online', label: 'Online' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'walk_in', label: 'Walk-in' }
+])
+
+const marketOptions = ref<FilterOptions[]>([
+  { value: 'domestic', label: 'Domestic' },
+  { value: 'international', label: 'International' }
+])
+
+const userOptions = ref<FilterOptions[]>([
+  { value: 'helpdesksupport', label: 'helpdesksupport' },
+  { value: 'admin', label: 'Admin' }
+])
+
+const reservationTypeOptions = ref<FilterOptions[]>([
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'tentative', label: 'Tentative' },
+  { value: 'cancelled', label: 'Cancelled' }
+])
+
+const availableColumns = ref<FilterOptions[]>([
+  { value: 'Pick Up', label: 'Pick Up' },
+  { value: 'Drop Off', label: 'Drop Off' },
+  { value: 'Res.Type', label: 'Res.Type' },
+  { value: 'Company', label: 'Company' },
+  { value: 'User', label: 'User' },
+  { value: 'Deposit', label: 'Deposit' },
+  { value: 'Balance Due', label: 'Balance Due' },
+  { value: 'Market Code', label: 'Market Code' },
+  { value: 'Business Source', label: 'Business Source' },
+  { value: 'Meal Plan', label: 'Meal Plan' },
+  { value: 'Rate Type', label: 'Rate Type' }
+])
+
+// Sample data for the table
+const reservationData = ref<Reservation[]>([
+  {
+    resNo: 'BE306',
+    guest: 'Mr.eZee Test 03',
+    room: '101 - Suite Room',
+    rate: '100.00',
+    arrival: '28/04/2019 11:30:00 AM',
+    departure: '01/05/2019',
+    pax: '1/0',
+    pickUp: '',
+    dropOff: '',
+    resType: 'Confirm Booking',
+    company: '',
+    user: 'helpdesksupport'
+  }
+])
+
+// Computed properties
+const selectedTableColumns = computed(() => {
+  const baseColumns = [
+    { key: 'resNo', label: 'Res. No' },
+    { key: 'guest', label: 'Guest' },
+    { key: 'room', label: 'Room' },
+    { key: 'rate', label: 'Rate (Rs)' },
+    { key: 'arrival', label: 'Arrival' },
+    { key: 'departure', label: 'Departure' },
+    { key: 'pax', label: 'Pax' }
   ]
+  
+  // Add selected columns
+  filters.value.selectedColumns.forEach(col => {
+    const columnKey = col.toLowerCase().replace(/\s+/g, '').replace('.', '')
+    baseColumns.push({
+      key: columnKey,
+      label: col
+    })
+  })
+  
+  return baseColumns
+})
+
+const totalReservations = computed(() => {
+  return reservationData.value.length
+})
+
+const totalPax = computed(() => {
+  return reservationData.value.reduce((total, reservation) => {
+    const pax = reservation.pax.split('/')[0]
+    return total + parseInt(pax || '0')
+  }, 0)
+})
+
+// Methods
+const generateReport = (): void => {
+  showResults.value = true
+  // Here you could make an API call to fetch data
+  console.log('Generating report with filters:', filters.value)
 }
 
-const exportReport = () => {
-  // Implementation for exporting report
-  console.log('Exporting arrival list report...')
+const exportData = (): void => {
+  console.log('Exporting data...')
+  // Export logic
 }
 
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString()
+const resetForm = (): void => {
+  filters.value = {
+    arrivalFrom: '',
+    arrivalTo: '',
+    roomType: '',
+    rateType: '',
+    showAmount: 'Rent Per Night',
+    rateFrom: '',
+    rateTo: '',
+    reservationType: '',
+    company: '',
+    travelAgent: '',
+    businessSource: '',
+    market: '',
+    user: '',
+    taxInclusive: true,
+    selectedColumns: []
+  }
+  showResults.value = false
 }
+</script>
 
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case 'confirmed':
-      return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
+<style scoped>
+/* Add any additional responsive styles if needed */
+@media (max-width: 640px) {
+  .flex-col > div {
+    width: 100%;
+  }
+  
+  .flex-col > div + div {
+    margin-top: 1rem;
   }
 }
-
-const viewDetails = (id: string) => {
-  // Implementation for viewing reservation details
-  console.log('Viewing details for reservation:', id)
-}
-
-onMounted(() => {
-  loadArrivals()
-})
-</script>
+</style>

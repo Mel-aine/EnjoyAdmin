@@ -3711,7 +3711,11 @@
       "totalReservations": "Réservations Totales",
       "averageADR": "ADR Moyen",
       "occupancyForecastChart": "Graphique de Prévision d'Occupation",
-      "forecastDetails": "Détails des Prévisions"
+      "forecastDetails": "Détails des Prévisions",
+      "countryWiseReservationStatistics": "Country Wise Reservation Statistics",
+      "releaseReservationList": "Liste de réservation de sortie",
+      "reservationActivity": "Activité de réservation",
+      "voidReservation": "Réservations nulles"
     },
     "frontOffice": {
       "title": "Rapports Front Office",
@@ -3769,7 +3773,6 @@
       "otherRevenue": "Autres Revenus",
       "revenueChart": "Graphique des Revenus",
       "revenueBySource": "Revenus par Source",
-      "revenueByRoomType": "Revenus par Type de Chambre",
       "detailedRevenue": "Revenus Détaillés",
       "expenseReports": "Rapports de Dépenses",
       "expenseReportsDescription": "Suivre et analyser les dépenses d'entreprise",
@@ -3782,7 +3785,24 @@
       "financialSummary": "Résumé Financier",
       "financialSummaryDescription": "Vue d'ensemble financière complète et analyse",
       "paymentReport": "Rapport de Paiement",
-      "paymentReportDescription": "Suivi détaillé et analyse des paiements"
+      "paymentReportDescription": "Suivi détaillé et analyse des paiements",
+       "advanceDepositLedger": "Grand Livre des Acomptes",
+      "cityLedgerDetail": "Grand Livre Ville - Détail",
+      "cityLedgerSummary": "Grand Livre Ville - Résumé",
+      "dailyExtraChargeDetail": "Frais Supplémentaires Quotidiens - Détail",
+      "dailyReceiptDetail": "Reçus Quotidiens - Détail",
+      "dailyReceiptSummary": "Reçus Quotidiens - Résumé",
+      "dailyRefundReport": "Rapport de Remboursements Quotidiens",
+      "dailyRevenue": "Revenus Quotidiens",
+      "expenseVoucher": "Bon de Dépenses",
+      "folioList": "Liste des Folios",
+      "guestLedger": "Grand Livre Client",
+      "houseStatus": "Statut de l'Établissement",
+      "managerReport": "Rapport de Direction",
+      "revenueByRateType": "Revenus par Type de Tarif",
+      "revenueByRoomType": "Revenus par Type de Chambre",
+      "travelAgentCommissionDetail": "Commission Agent de Voyage - Détail",
+      "travelAgentCommissionSummary": "Commission Agent de Voyage - Résumé"
     },
     "audit": {
       "title": "Rapports d'Audit",
@@ -3790,7 +3810,12 @@
       "userActivityLog": "Journal d'Activité Utilisateur",
       "userActivityLogDescription": "Suivre les actions utilisateur et l'accès système",
       "modificationLog": "Journal de Modification",
-      "modificationLogDescription": "Suivre les modifications et changements de données"
+      "modificationLogDescription": "Suivre les modifications et changements de données",
+      "auditTrail": "Piste d'Audit",
+      "ipReport": "Rapport IP",
+      "voidCharge": "Annulation de Facturation",
+      "voidPayment": "Annulation de Paiement",
+      "voidTransaction": "Annulation de Transaction"
     },
     "statistical": {
       "title": "Rapports Statistiques",
@@ -3816,13 +3841,34 @@
       "marketSegmentAnalysis": "Analyse des Segments de Marché",
       "marketSegmentAnalysisDescription": "Analyser les performances par segments de marché",
       "sourceOfBusinessReport": "Rapport des Sources d'Affaires",
-      "sourceOfBusinessReportDescription": "Suivre les sources de revenus et canaux"
+      "sourceOfBusinessReportDescription": "Suivre les sources de revenus et canaux",
+      "businessAnalysis": "Analyse d'Affaires",
+      "contributionAnalysisReport": "Rapport d'Analyse de Contribution",
+      "monthlyCountryWisePaxAnalysis": "Analyse Mensuelle Pax par Pays",
+      "monthlyRevenueByIncomeStream": "Revenus Mensuels par Source de Revenus",
+      "monthlyStatistics": "Statistiques Mensuelles",
+      "monthlySummary": "Résumé Mensuel",
+      "monthlyTax": "Taxes Mensuelles",
+      "roomSaleStatistics": "Statistiques de Ventes de Chambres",
+      "roomStatistics": "Statistiques des Chambres",
+      "roomOnBooks": "Chambres Réservées",
+      "yearlyStatistics": "Statistiques Annuelles",
+      "bookingSourceWiseReservationStatistics": "Statistiques de Réservations par Source de Réservation",
+      "channelwiseBookingReport": "Rapport de Réservations par Canal",
+      "mobileDesktopWiseReservationStatistics": "Statistiques de Réservations Mobile/Ordinateur",
+      "otaWiseMonthlyBreakdown": "Répartition Mensuelle par OTA",
+      "performanceAnalysisReport": "Rapport d'Analyse de Performance"
     },
     "custom": {
       "title": "Rapports Personnalisés",
       "description": "Créer et gérer des rapports personnalisés",
       "customReportBuilder": "Générateur de Rapports Personnalisés",
-      "customReportBuilderDescription": "Créer des rapports personnalisés avec des paramètres flexibles"
+      "customReportBuilderDescription": "Créer des rapports personnalisés avec des paramètres flexibles",
+      "monthlyOccupancy": "Occupation Mensuelle",
+      "monthlyRevenue": "Revenus Mensuels",
+      "paymentSummary": "Résumé des Paiements",
+      "revenueByRateTypeSummary": "Résumé des Revenus par Type de Tarif",
+      "statisticsByRoomType": "Statistiques par Type de Chambre"
     }
   },
   "payments": {

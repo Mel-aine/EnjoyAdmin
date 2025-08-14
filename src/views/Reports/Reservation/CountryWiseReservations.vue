@@ -3,11 +3,11 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Cancelled Reservations
+           Country Wise Reservation Statistics
         </h1>
-        <p class="text-gray-600 dark:text-gray-400">
+       <!--  <p class="text-gray-600 dark:text-gray-400">
           View and manage cancelled guest reservations
-        </p>
+        </p> -->
       </div>
 
       <!-- Filters -->
@@ -38,7 +38,7 @@
               class="w-full"
             />
           </div>
-          <div>
+<!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Room Type
             </label>
@@ -48,11 +48,11 @@
               placeholder="All Room Types"
               class="w-full"
             />
-          </div>
+          </div> -->
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Rate Type -->
+        <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+           Rate Type
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate Type
@@ -65,7 +65,7 @@
             />
           </div>
           
-          <!-- Company -->
+          Company
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Company
@@ -78,7 +78,7 @@
             />
           </div>
           
-          <!-- Business Source -->
+          Business Source 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Business Source
@@ -90,10 +90,10 @@
               class="w-full"
             />
           </div>
-        </div>
-
+        </div> -->
+<!-- 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Travel Agent -->
+           Travel Agent
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Travel Agent
@@ -105,7 +105,7 @@
               class="w-full"
             />
           </div>
-          <!-- Tax Inclusive -->
+           Tax Inclusive 
           <div class="flex items-end">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               <input 
@@ -116,7 +116,7 @@
               Tax Inclusive Rates
             </label>
           </div>
-        </div>
+        </div> -->
 
         <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Report Template (déplacé à gauche) -->
@@ -347,7 +347,7 @@ const tableColumns = computed<TableColumn[]>(() => [
 ])
 
 // Options for selects
-const companyOptions = ref<FilterOptions[]>([
+/* const companyOptions = ref<FilterOptions[]>([
   { value: 'company1', label: t('common.company1') },
   { value: 'company2', label: t('common.company2') }
 ])
@@ -376,7 +376,7 @@ const businessSourceOptions = ref<FilterOptions[]>([
   { value: 'walk_in', label: t('common.businessSources.walkIn') },
   { value: 'expedia', label: t('common.businessSources.expedia') },
   { value: 'internet', label: t('common.businessSources.internet') }
-])
+]) */
 
 const reportTemplateOptions = ref<FilterOptions[]>([
   { value: 'default', label: t('common.default') },

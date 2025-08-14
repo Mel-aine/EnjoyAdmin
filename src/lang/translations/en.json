@@ -3617,7 +3617,11 @@
       "totalReservations": "Total Reservations",
       "averageADR": "Average ADR",
       "occupancyForecastChart": "Occupancy Forecast Chart",
-      "forecastDetails": "Forecast Details"
+      "forecastDetails": "Forecast Details",
+      "countryWiseReservationStatistics": "Country Wise Reservation Statistics",
+      "releaseReservationList": "Release Reservation List",
+      "reservationActivity": "Reservation Activity",
+      "voidReservation": "Void Reservations"
     },
     "frontOffice": {
       "title": "Front Office Reports",
@@ -3675,7 +3679,6 @@
       "otherRevenue": "Other Revenue",
       "revenueChart": "Revenue Chart",
       "revenueBySource": "Revenue by Source",
-      "revenueByRoomType": "Revenue by Room Type",
       "detailedRevenue": "Detailed Revenue",
       "expenseReports": "Expense Reports",
       "expenseReportsDescription": "Track and analyze business expenses",
@@ -3688,7 +3691,24 @@
       "financialSummary": "Financial Summary",
       "financialSummaryDescription": "Comprehensive financial overview and analysis",
       "paymentReport": "Payment Report",
-      "paymentReportDescription": "Detailed payment tracking and analysis"
+      "paymentReportDescription": "Detailed payment tracking and analysis",
+      "advanceDepositLedger": "Advance Deposit Ledger",
+      "cityLedgerDetail": "City Ledger - Detail",
+      "cityLedgerSummary": "City Ledger - Summary",
+      "dailyExtraChargeDetail": "Daily Extra Charge - Detail",
+      "dailyReceiptDetail": "Daily Receipt - Detail",
+      "dailyReceiptSummary": "Daily Receipt - Summary",
+      "dailyRefundReport": "Daily Refund Report",
+      "dailyRevenue": "Daily Revenue",
+      "expenseVoucher": "Expense Voucher",
+      "folioList": "Folio List",
+      "guestLedger": "Guest Ledger",
+      "houseStatus": "House Status",
+      "managerReport": "Manager Report",
+      "revenueByRateType": "Revenue By Rate Type",
+      "revenueByRoomType": "Revenue By Room Type",
+      "travelAgentCommissionDetail": "Travel Agent Commission - Detail",
+      "travelAgentCommissionSummary": "Travel Agent Commission - Summary"
     },
     "audit": {
       "title": "Audit Reports",
@@ -3696,7 +3716,12 @@
       "userActivityLog": "User Activity Log",
       "userActivityLogDescription": "Track user actions and system access",
       "modificationLog": "Modification Log",
-      "modificationLogDescription": "Track data modifications and changes"
+      "modificationLogDescription": "Track data modifications and changes",
+      "auditTrail": "Audit Trail",
+      "ipReport": "IP Report",
+      "voidCharge": "Void Charge",
+      "voidPayment": "Void Payment",
+      "voidTransaction": "Void Transaction"
     },
     "statistical": {
       "title": "Statistical Reports",
@@ -3722,13 +3747,34 @@
       "marketSegmentAnalysis": "Market Segment Analysis",
       "marketSegmentAnalysisDescription": "Analyze performance by market segments",
       "sourceOfBusinessReport": "Source of Business Report",
-      "sourceOfBusinessReportDescription": "Track revenue sources and channels"
+      "sourceOfBusinessReportDescription": "Track revenue sources and channels",
+      "businessAnalysis": "Business Analysis",
+      "contributionAnalysisReport": "Contribution Analysis Report",
+      "monthlyCountryWisePaxAnalysis": "Monthly Country wise Pax Analysis",
+      "monthlyRevenueByIncomeStream": "Monthly Revenue by Income Stream",
+      "monthlyStatistics": "Monthly Statistics",
+      "monthlySummary": "Monthly Summary",
+      "monthlyTax": "Monthly Tax",
+      "roomSaleStatistics": "Room Sale Statistics",
+      "roomStatistics": "Room Statistics",
+      "roomOnBooks": "Room On Books",
+      "yearlyStatistics": "Yearly Statistics",
+      "bookingSourceWiseReservationStatistics": "Booking Source Wise Reservation Statistics",
+      "channelwiseBookingReport": "Channelwise Booking Report",
+      "mobileDesktopWiseReservationStatistics": "Mobile/Desktop Wise Reservation Statistics",
+      "otaWiseMonthlyBreakdown": "OTA Wise Monthly Breakdown",
+      "performanceAnalysisReport": "Performance Analysis Report"
     },
     "custom": {
       "title": "Custom Reports",
       "description": "Create and manage custom reports",
       "customReportBuilder": "Custom Report Builder",
-      "customReportBuilderDescription": "Create custom reports with flexible parameters"
+      "customReportBuilderDescription": "Create custom reports with flexible parameters",
+      "monthlyOccupancy": "Monthly Occupancy",
+      "monthlyRevenue": "Monthly Revenue",
+      "paymentSummary": "Payment Summary",
+      "revenueByRateTypeSummary": "Revenue By Rate Type Summary",
+      "statisticsByRoomType": "Statistics By Room Type"
     }
   },
   "payments": {
