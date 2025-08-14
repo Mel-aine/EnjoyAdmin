@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch,computed } from 'vue'
 import Input from '@/components/forms/FormElements/Input.vue'
+import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
+import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
 import { getUser, getReservation } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
+import { useI18n } from 'vue-i18n'
+
 
 const props = defineProps({
   customer_id: String,
@@ -24,6 +29,12 @@ const customers = ref<any[]>([])
 const users = ref<any[]>([])
 const serviceStore = useServiceStore()
 const selectedCustomer = ref<any>({ ...props.modelValue })
+const { t } = useI18n()
+ const GuestTitles = computed(()=>[
+    { label: t('guestTitles.mr'), value: 'Mr' },
+    { label: t('guestTitles.mrs'), value: 'Mrs' },
+    { label: t('guestTitles.ms'), value: 'Ms' },
+  ])
 
 
 watch(() => props.modelValue, (newVal) => {
@@ -92,17 +103,23 @@ console.log("modalevalue", props.modelValue)
 </script>
 
 <template>
-  <div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-      <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
-      <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
-      <Input :lb="$t('Phone')" v-model="selectedCustomer.phoneNumber" inputType="tel" />
-      <Input :lb="$t('Email')" v-model="selectedCustomer.email" required />
-      <Input :lb="$t('Company Name')" v-model="selectedCustomer.companyName" required
-        v-if="customerType === 'Corporate'" />
-      <Input :lb="$t('Group Name')" v-model="selectedCustomer.groupName" required v-if="customerType === 'Group'" />
-    </div>
+<div class="flex md:flex-row flex-col gap-2 mt-4">
+  <div class="w-32">
+    <Select :lb="$t('Title')" :options="GuestTitles" v-model="selectedCustomer.title" :default-value="$t('guestTitles.mr')" />
   </div>
+  <div class="flex-grow">
+    <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
+  </div>
+
+  <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
+  <InputPhone :title="$t('Phone')" v-model="selectedCustomer.phoneNumber" :id="'phone'" :is-required="false" />
+  <InputEmail v-model="selectedCustomer.email" placeholder="info@gmail.com" :title="$t('Email')" required />
+
+  <Input v-if="customerType === 'Corporate'" :lb="$t('Company Name')" v-model="selectedCustomer.companyName" required />
+  <Input v-if="customerType === 'Group'" :lb="$t('Group Name')" v-model="selectedCustomer.groupName" required />
+</div>
+
+
 </template>
 
 <style></style>

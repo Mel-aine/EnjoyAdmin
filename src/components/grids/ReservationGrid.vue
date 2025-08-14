@@ -48,7 +48,7 @@
         </select>
 
         <!-- Add Booking Button -->
-        <BasicButton :label="$t('AddBooking')" @click="openBookingModal" href="/add_booking" variant="primary"
+        <BasicButton :label="$t('AddBooking')" @click="openBookingModal"  variant="primary"
           class="transform hover:scale-105">
         </BasicButton>
         <BookingFilter @filter="applyFilter" />
@@ -252,6 +252,9 @@
   <!-- Delete Modal -->
   <ModalDelete v-if="modalShow" @close="modalShow = false" @delete="confirmDelete" :isLoading="loadingDelete" />
   <AddBookingModal v-if="showBookingModal" @close="showBookingModal = false" @refresh="refresh" />
+
+  <!-- booking form view  -->
+
 </template>
 
 <script setup lang="ts">
@@ -269,6 +272,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { FitlterItem } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import AddBookingModal from '../modal/AddBookingModal.vue'
+import BookingForm from '@/views/Bookings/BookingForm.vue'
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -523,7 +527,8 @@ onMounted(async () => {
 })
 
 const openBookingModal =()=>{
-  showBookingModal.value = true
+  // showBookingModal.value = true
+  router.push({ name: 'New Booking' })
 }
 const refresh =()=>{
  applyFilter(filter)

@@ -12,7 +12,7 @@
         @input="handleInput"
         @focus="isOpen = true"
         @blur="handleBlur"
-        class="flex justify-between dark:bg-dark-900 h-11 w-full  rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        class="flex justify-between dark:bg-dark-900 h-11 w-full  focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :placeholder="$t('search_country')"
         autocomplete="off"
       />

@@ -261,6 +261,10 @@ const handleSubmit = async () => {
     // Stocker les services et permissions
     serviceStore.setService(res.data.data.userServices);
     serviceStore.setPermissions(res.data.data.permissions);
+    serviceStore.setBookingSources(res.data.data.bookingSources)
+    serviceStore.setBusinessSources(res.data.data.businessSources)
+    serviceStore.setReservationType(res.data.data.reservationTypes)
+
     if (keepLoggedIn.value) {
       localStorage.setItem('auth_token', token);
     } else {

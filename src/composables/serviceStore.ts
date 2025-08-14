@@ -8,6 +8,9 @@ export const useServiceStore = defineStore('service', {
     userService: [] as any[],
     currentService: '' as string,
     permissions: [] as { id: string; name: string; description: string }[],
+    reservationType : [] as any[],
+    businessSources : [] as any[],
+    bookingSources : [] as any[]
   }),
 
   getters: {
@@ -36,6 +39,27 @@ export const useServiceStore = defineStore('service', {
 
     setCurrentService(service: any) {
       this.currentService = JSON.stringify(service)
+    },
+
+    setBookingSources(sources: any[]) {
+      this.bookingSources = sources.map((s) => ({
+        value: s.id,
+        label: s.name
+      }))
+    },
+
+    setBusinessSources(sources: any[]) {
+      this.businessSources = sources.map((s) => ({
+        value: s.id,
+        label: s.name
+      }))
+    },
+
+    setReservationType(types: any[]) {
+      this.reservationType = types.map((t) => ({
+        value: t.id,
+        label: t.name
+      }))
     },
 
     setPermissions(permissionBlocks: any[]) {
