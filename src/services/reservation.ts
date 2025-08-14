@@ -132,7 +132,6 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
  * create Reservation
  */
 
-
 export const createReservation = async (data: any) => {
   try {
     console.log('Sending reservation data to backend:', data)
@@ -152,5 +151,39 @@ export const createReservation = async (data: any) => {
     })
 
     throw error
+  }
+}
+/**
+ * get Reservation details by Id
+ */
+export const getReservationDetailsById = async (reservationId: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${reservationId}/details`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
+
+
+
+}
+
+/**
+ *
+ * @param hotel_id
+ * @returns
+ */
+export const getCustomer = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${id}/customer`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération réservations pour chambre:', error)
+    return []
   }
 }

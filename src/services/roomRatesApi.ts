@@ -1,8 +1,7 @@
-import axios from 'axios'
-import type { AxiosResponse } from 'axios'
+import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/room-rates`
+
 
 const authStore = useAuthStore()
 const headers = {
@@ -15,19 +14,44 @@ const headers = {
 /**
  * Get Base Rate by Room and Rate Type
  */
-export const getBaseRateByRoomAndRateType = (
-  hotelId: number,
-  roomTypeId: number,
-  rateTypeId: number,
+interface BaseRateParams {
+  hotel_id: number
+  room_type_id: number
+  rate_type_id: number
   date?: string
-): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/base-rate`, {
-    ...headers,
-    params: {
-      hotel_id: hotelId,
-      room_type_id: roomTypeId,
-      rate_type_id: rateTypeId,
-      date: date || new Date().toISOString().split('T')[0],
-    },
-  })
 }
+
+interface BaseRateResponse {
+  message: string
+  baseRate: number | null
+  data:any
+}
+
+/**
+ * Récupère le base rate pour une combinaison room type + rate type + date
+ */
+
+
+export const getBaseRateByRoomAndRateType = async (params: BaseRateParams) => {
+  try {
+    const response = await apiClient.get<BaseRateResponse>('/configuration/room_rates/base-rate', {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+      withCredentials: true,
+      params: {
+        hotel_id: params.hotel_id,
+        room_type_id: params.room_type_id,
+        rate_type_id: params.rate_type_id,
+        date: params.date || new Date().toISOString().split('T')[0],
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching base rate:', error)
+    throw error
+  }
+}
+
+

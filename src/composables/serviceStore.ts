@@ -43,21 +43,21 @@ export const useServiceStore = defineStore('service', {
 
     setBookingSources(sources: any[]) {
       this.bookingSources = sources.map((s) => ({
-        value: s.id,
+        value: s.name,
         label: s.name
       }))
     },
 
     setBusinessSources(sources: any[]) {
       this.businessSources = sources.map((s) => ({
-        value: s.id,
+        value: s.name,
         label: s.name
       }))
     },
 
     setReservationType(types: any[]) {
       this.reservationType = types.map((t) => ({
-        value: t.id,
+        value: t.name,
         label: t.name
       }))
     },

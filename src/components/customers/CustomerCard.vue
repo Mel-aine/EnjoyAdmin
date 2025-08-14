@@ -5,7 +5,7 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { getUser, getReservation } from '@/services/api'
+import { getCustomer } from '@/services/reservation'
 import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
@@ -62,29 +62,20 @@ const selectCustomer = (customer: any) => {
   selectedCustomer.value.firstName = customer.firstName ?? selectedCustomer.value.firstName;
   selectedCustomer.value.lastName = customer.lastName ?? selectedCustomer.value.lastName;
   selectedCustomer.value.email = customer.email ?? selectedCustomer.value.email;
-  selectedCustomer.value.phoneNumber = customer.phoneNumber ?? selectedCustomer.value.phoneNumber;
+  selectedCustomer.value.phoneNumber = customer.phonePrimary ?? selectedCustomer.value.phonePrimary;
   emit('customerSelected', selectedCustomer.value)
 }
 
-const fetchUsers = async () => {
-  try {
-    const response = await getUser()
-    users.value = response.data.data
-  } catch (error) {
-    console.error('Failed to fetch users:', error)
-  }
-}
 
-const fetchReservation = async () => {
+const fetchGuest = async () => {
   try {
-    const serviceId = serviceStore.serviceId
-    const response = await getReservation(serviceId)
-    customers.value = response.data.map((res: any) => {
-      const user = users.value.find((u: any) => u.id === res.userId)
+    const hotelId = serviceStore.serviceId
+    const response = await getCustomer(hotelId!)
+    console.log("fetchGuest",response)
+    customers.value = response.map((guest: any) => {
       return {
-        ...res,
-        ...user,
-        userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
+        ...guest,
+        userFullName: guest ? `${guest.firstName} ${guest.lastName}` : 'Inconnu',
       }
     })
   } catch (error) {
@@ -93,8 +84,7 @@ const fetchReservation = async () => {
 }
 
 onMounted(() => {
-  fetchUsers()
-  fetchReservation()
+  fetchGuest()
 
 
 })
