@@ -81,3 +81,7 @@ export function generateTransactionId(prefix = 'PAY') {
 }
 
 
+export const  formatTime = (datetimeStr : any) => {
+  const date = new Date(datetimeStr)
+  return date.toISOString().substring(11, 16)
+}

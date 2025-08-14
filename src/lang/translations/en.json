@@ -4647,5 +4647,7 @@
   },
   "segment": "Segment",
   "created_by": "Created By",
-  "modified_by": "Modified By"
+  "modified_by": "Modified By",
+  "Room/Room types":"Room/Room types",
+  "res.no":"res.no"
 }

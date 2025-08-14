@@ -1,18 +1,24 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, PencilIcon, Pin, PlusCircle, User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
-import ChevromLeftIcon from '../../../icons/ChevromLeftIcon.vue';
-import { computed, ref } from 'vue';
+import { ArrowLeft, Building2Icon, PencilIcon,  User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue';
 import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
+import { isLoading } from '../../../composables/spinner';
+import router from '../../../router';
+import { getReservationDetailsById } from '../../../services/api';
+import AdminLayout from '../../../components/layout/AdminLayout.vue';
+import Adult from '../../../icons/Adult.vue';
+import Child from '../../../icons/Child.vue';
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
 
 // Simple Button component
 const Button = {
     template: '<button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background"><slot /></button>'
 };
 const { t } = useI18n();
-
+const reservation =ref<any>({})
 const tabs = computed(() => [
     { id: 'folio_operations', label: t('Folio Operations') },
     { id: 'booking_details', label: t('Booking Details') },
@@ -43,31 +49,45 @@ const handleOptionSelected = (option: any) => {
     console.log('Selected option:', option);
     // Add your logic here for each option
 };
+const getBookingDetailsById = async () => {
+    isLoading.value = true;
+    const id = router.currentRoute.value.params.id;
+    const response = await getReservationDetailsById(Number(id));
+    console.log('reservation resuolt',reservation)
+    if (response.status === 200) {
+        reservation.value = response.data;
+    }
+    isLoading.value = false;
+};
+onMounted(()=>{
+    getBookingDetailsById();
+})
 </script>
 
 <template>
-    <div class="h-full">
+   <AdminLayout>
+     <div class="h-full" v-if="reservation && reservation.id">
         <!--Header-->
-        <div class="shadow-sm px-4 py-2 mx-4 bg-white mt-5 flex justify-between">
+        <div class="shadow-sm px-4 py-2 mx-4 bg-white  flex justify-between">
             <div class="flex gap-2 align-middle self-center items-center">
                 <ArrowLeft></ArrowLeft>
-                <Building2Icon></Building2Icon>
-                <span class="font-bold">Mr.Tchio</span>
+                <Building2Icon class="text-primary"></Building2Icon>
+                <span class="font-bold">{{ reservation.guest?.firstName + ' ' + reservation.guest?.lastName }}</span>
                 <div class="flex">
-                    <User2Icon class="w-4" />
-                    <span class="text-sm items-end align-center self-center">1</span>
+                    <Adult class="w-5" />
+                    <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults }}</span>
                 </div>
                 <div class="flex">
-                    <User2Icon class="w-4" />
-                    <span class="text-sm items-end align-bottom self-center">1</span>
+                    <Child class="w-4" />
+                    <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child }}</span>
                 </div>
             </div>
             <div class="flex gap-8">
                 <!--arrival Days-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('Arrival') }}</span>
+                    <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>10/11/2025-19:58</span>
+                        <span>{{ formatDateT(reservation.arrivedDate) }}</span>
                         <span>
                             <PencilIcon class="w-3" />
                         </span>
@@ -75,9 +95,9 @@ const handleOptionSelected = (option: any) => {
                 </div>
                 <!--depature-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('Depature') }}</span>
+                    <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>10/11/2025-19:58</span>
+                        <span>{{formatDateT(reservation.departDate)}}</span>
                         <span @click="">
                             <PencilIcon class="w-3" />
                         </span>
@@ -85,9 +105,9 @@ const handleOptionSelected = (option: any) => {
                 </div>
                 <!--Nigth-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('night') }}</span>
+                    <span class="text-sm font-bold capitalize">{{ $t('nights') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>4</span>
+                        <span>{{ reservation.nights }}</span>
                     </span>
                 </div>
                 <!--room/roomtype-->
@@ -99,15 +119,15 @@ const handleOptionSelected = (option: any) => {
                 </div>
                 <!--depature-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('res.no') }}</span>
+                    <span class="text-sm font-bold capitalize">{{ $t('res.no') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>16</span>
+                        <span>{{reservation.reservationNumber}}</span>
                     </span>
                 </div>
             </div>
             <div class="flex gap-x-2">
                 <span
-                    class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">Reserved</span>
+                    class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">{{ $t(reservation.status) }}</span>
                 <button class="bg-primary px-4 py-1 align-middle p-1 text-sm items-center self-center">{{ $t('check in')
                 }}</button>
             </div>
@@ -149,6 +169,7 @@ const handleOptionSelected = (option: any) => {
             <FoglioOperation></FoglioOperation>
     </div>
     </div>
+   </AdminLayout>
 </template>
 
 <style></style>
