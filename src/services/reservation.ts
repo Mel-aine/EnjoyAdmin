@@ -109,7 +109,6 @@ export const setAvailable = async (id: number): Promise<any| undefined> => {
   }
 }
 
-
 // Récupérer les réservations pour une chambre
 export const getRoomReservations = async (serviceProductId: number): Promise<any> => {
   try {
@@ -119,6 +118,19 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
     return response.data || []
   } catch (error) {
     console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
+}
+
+// recuperer la liste des clients
+export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+      `/reservation/${serviceProductId}/customer`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération clients:', error)
     return []
   }
 }

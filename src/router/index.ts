@@ -987,6 +987,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+       {
+      path: '/booking/invoice',
+      name: 'Invoice',
+      component: () => import('../components/invoice/Invoicehotel.vue'),
+      meta: {
+        title: 'Invoice',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/invoice/:id',
       name: 'ViewInvoice',

@@ -50,6 +50,7 @@ import { useAuthStore } from '@/composables/user'
 import type {  ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import { UserIcon, FolderOutputIcon, IdCard } from 'lucide-vue-next'
+import { getReservatonCustomers } from '@/services/reservation'
 
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useRouter } from 'vue-router'
@@ -157,6 +158,30 @@ const handleCustomerAction = async (action: string, c: any) => {
   }
 }
 
+//fonctions pour récupérer les clients
+
+const fetchReservationsCustomers = async () => {
+  try {
+    loading.value = true
+    const serviceId = serviceStore.serviceId;
+    const response = await getReservatonCustomers(serviceId!);
+    customers.value = response.map((c:any) => {
+      return {
+        ...c,
+        phoneNumber: c.phonePrimary, // Utiliser mobilePhone si phoneNumber est vide
+        address: c.addressLine|| '', // Assurez-vous que l'adresse est définie
+        userFullName: `${c.firstName} ${c.lastName}`,
+      }
+    })
+    console.log("customers", response)
+
+  } catch (error) {
+    console.error('Failed to fetch reservations:', error);
+  } finally {
+    loading.value = false
+  }
+};
+
 const fetchCustomers = async () => {
   try {
     loading.value = true
@@ -215,6 +240,7 @@ const handleAddCustomer = async (payload: any) => {
 
 onMounted(async () => {
   await fetchCustomers()
+  await fetchReservationsCustomers()
 })
 
 
