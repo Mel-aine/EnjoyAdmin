@@ -1250,6 +1250,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/front-office/reservation/:id',
+      name: 'ReservationDetails',
+      component: () => import('../views/FrontOffice/reservation/ReservationDetails.vue'),
+      props: true,
+      meta: {
+        title: 'Reservation Details',
+        requiresAuth: true,
+      },
+    },
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',
