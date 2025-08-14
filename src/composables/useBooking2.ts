@@ -334,6 +334,7 @@ export function useBooking() {
 
         try {
           const roomTypeIds = JSON.parse(rate.roomTypes)
+
           return Array.isArray(roomTypeIds) && roomTypeIds.includes(roomTypeIdNumber)
         } catch (parseError) {
           console.error('Error parsing roomTypes JSON for rate:', rate.id, parseError)
@@ -347,6 +348,7 @@ export function useBooking() {
       }))
 
       roomTypeRateTypes.value.set(roomTypeId, rateOptions)
+
     } catch (error) {
       console.error('Error loading rate types for room type:', error)
     }
@@ -471,6 +473,7 @@ export function useBooking() {
       }
 
       const response = await getRateTypes(hotelId)
+
 
       if (!response.data?.data || !Array.isArray(response.data.data)) {
         throw new Error('Invalid rate types data structure')

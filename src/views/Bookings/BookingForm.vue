@@ -275,10 +275,10 @@
             </button>
 
             <div class="flex space-x-3">
-              <button type="button" :disabled="isLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+              <!-- <button type="button" :disabled="isLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
                 <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 {{ $t('Check-In') }}
-              </button>
+              </button> -->
               <button type="button" @click.prevent="handleSubmit()" :disabled="isLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
                 <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 {{ $t('Reserve') }}
@@ -292,8 +292,8 @@
       <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky lg:top-20 self-start">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
-          <button type="button" class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-            <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+          <button  class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+            <!-- <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div> -->
             {{ $t('ConfirmBooking') }}
           </button>
         </div>
