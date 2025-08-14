@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-[calc(100vh-160px)]  mx-4">
+  <div class="flex h-[calc(100vh-250px)]  mx-4">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue';
 import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
+import BookingDetails from '../../../components/reservations/bookingdetails/BookingDetails.vue';
 import { isLoading } from '../../../composables/spinner';
 import router from '../../../router';
 import { getReservationDetailsById } from '../../../services/api';
@@ -24,7 +25,7 @@ const tabs = computed(() => [
     { id: 'booking_details', label: t('Booking Details') },
     { id: 'guest_details', label: t('Guest Details') },
     { id: 'room_charges', label: t('Room Charges') },
-    { id: 'credid_card', label: t('Credit Card') },
+   // { id: 'credid_card', label: t('Credit Card') },
     { id: 'audit_trial', label: t('Audit Trail') },
 
 ]);
@@ -167,7 +168,10 @@ onMounted(()=>{
        </div>
        <div v-if="activeTab === 'folio_operations'">
             <FoglioOperation></FoglioOperation>
-    </div>
+       </div>
+       <div v-if="activeTab === 'booking_details'">
+            <BookingDetails :booking="reservation"></BookingDetails>
+       </div>
     </div>
    </AdminLayout>
 </template>

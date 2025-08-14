@@ -10,7 +10,7 @@
 
   <aside >
     <div :class="[
-      'fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
+      'fixed mt-16 flex flex-col lg:mt-0 top-19 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
       {
         'lg:w-[290px]': isExpanded || isMobileOpen || isHovered,
         'lg:w-[90px]': !isExpanded && !isHovered,
@@ -20,30 +20,7 @@
       },
     ]">
 
-      <!-- Header avec logo - position fixe -->
-      <div :class="[
-        'pt-4 pb-4 flex-shrink-0',
-        !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
-      ]">
-        <div class="flex items-center gap-2" >
-          <img v-if="isExpanded || isHovered || isMobileOpen"
-            class="dark:hidden rounded-full w-10"
-            :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
-            alt="Logo" />
-          <img v-if="isExpanded || isHovered || isMobileOpen"
-            class="hidden dark:block rounded-full w-10"
-          :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
-            alt="Logo" />
-          <img v-else
-            class="rounded-full w-10"
-           :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
-            alt="Logo" />
-          <span v-if="isExpanded || isHovered || isMobileOpen"
-            class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
-            {{ serviceName }}
-          </span>
-        </div>
-      </div>
+      
 
       <!-- Zone de navigation scrollable -->
       <div class="flex-1 overflow-hidden"
