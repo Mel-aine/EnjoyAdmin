@@ -3,7 +3,7 @@ import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/hotels`
+const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration/rate_types`
 
 
 const authStore = useAuthStore()
@@ -15,12 +15,10 @@ const headers = {
 }
 
 
-///// this is the amenities sections
 /**
- * Get all amenities
- * @returns {Promise<AxiosResponse<any>>}
+ * get Room Types
  */
 
-export const updateStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/${id}/status-colors`, data, headers)
+export const getRateTypes = (id:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${id}/hotel`, headers)
 }

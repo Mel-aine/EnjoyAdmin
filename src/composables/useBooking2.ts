@@ -4,9 +4,22 @@ import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
-
+import { getRoomTypes } from '@/services/roomTypeApi'
+import { getRateTypes } from '@/services/rateTypeApi'
+import {createReservation} from '@/services/reservation'
 
 // Types
+interface RoomConfiguration {
+  id: string
+  roomType: string
+  rateType: string
+  roomNumber: string
+  adultCount: number
+  childCount: number
+  rate: number
+  isOpen: boolean
+}
+
 interface Reservation {
   checkinDate: string
   checkinTime: string
@@ -17,19 +30,10 @@ interface Reservation {
   bookingSource: string
   businessSource: string
   isComplementary: boolean
-  roomType: string
-  rateType: string
-  roomNumber: string
-  adultCount: string
-  childCount: string
-  rate: number
+
 }
 
 interface Guest {
-  title: string
-  name: string
-  mobile: string
-  email: string
   address: string
   country: string
   state: string
@@ -56,20 +60,57 @@ interface Billing {
   creditType: string
 }
 
-interface ProductType {
-  id: number
-  productName: string
-  price: number
-  status: string
-  productTypeId: number
+interface Option {
+  label: string
+  value: number | string
 }
 
 interface RoomTypeData {
   id: number
-  name: string
+  hotelId: number
+  default_price?: number
+  shortCode: string
+  roomTypeName: string
+  baseAdult: number
+  baseChild: number
+  maxAdult: number
+  maxChild: number
+  publishToWebsite: boolean
+  roomAmenities: number[] | null
+  color: string
+  defaultWebInventory: number
+  sortOrder: number
+  createdByUserId: number | null
+  updatedByUserId: number | null
+  isDeleted: boolean
+  rooms: RoomData[]
+}
+
+interface RoomData {
+  id: number
+  roomNumber: string
+  roomTypeId: number
   status: string
-  defaultGuest: number
-  defaultDeposit: number
+}
+
+interface RateTypeData {
+  id: number
+  hotelId: number
+  rateTypeName: string
+  shortCode: string
+  roomTypes: string | null
+  status: string
+  isDeleted: boolean
+  isPackage: boolean | null
+  createdAt: string
+  updatedAt: string
+  createdByUserId: number
+  updatedByUserId: number
+}
+
+interface CustomerType {
+  label: string
+  value: string
 }
 
 export function useBooking() {
@@ -83,16 +124,30 @@ export function useBooking() {
 
   // Loading states
   const isLoading = ref(false)
-  const isEditMode = ref(false)
-  const isPaymentModalOpen = ref(false)
+  const isLoadingRoom = ref(false)
 
   // Data refs
-  const ServiceProduct = ref<ProductType[]>([])
-  const ProductList = ref<ProductType[]>([])
-  const ActiveRoomTypes = ref<RoomTypeData[]>([])
-  const selectedRoomType = ref<RoomTypeData | null>(null)
-  const reservationId = ref<number | null>(null)
-  const userId = ref<number | null>(null)
+  const RoomTypes = ref<Option[]>([])
+  const RoomTypesData = ref<RoomTypeData[]>([])
+  const RateTypes = ref<RateTypeData[]>([])
+
+  // Stockage des rate types et rooms par room type pour éviter les conflits
+  const roomTypeRateTypes = ref<Map<string, Option[]>>(new Map())
+  const roomTypeRooms = ref<Map<string, Option[]>>(new Map())
+
+  // Room configurations management
+  const roomConfigurations = ref<RoomConfiguration[]>([
+    {
+      id: 'room-1',
+      roomType: '',
+      rateType: '',
+      roomNumber: '',
+      adultCount: 1,
+      childCount: 0,
+      rate: 0,
+      isOpen: false
+    }
+  ])
 
   // Form data
   const reservation = ref<Reservation>({
@@ -101,28 +156,30 @@ export function useBooking() {
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     checkoutTime: '11:00',
     rooms: 1,
-    bookingType: 'confirm',
-    bookingSource: 'direct',
+    bookingType: '',
+    bookingSource: '',
     businessSource: '',
     isComplementary: false,
-    roomType: '',
-    rateType: '',
-    roomNumber: '',
-    adultCount: '2',
-    childCount: '0',
-    rate: 0,
   })
 
   const guest = ref<Guest>({
-    title: 'Mr',
-    name: '',
-    mobile: '',
-    email: '',
     address: '',
     country: '',
     state: '',
     city: '',
     zipcode: '',
+  })
+
+  const formData = ref<any>({
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    roleId: null,
+    companyName: '',
+    groupName: '',
+    title: '',
+    id: 0
   })
 
   const otherInfo = ref<OtherInfo>({
@@ -138,7 +195,7 @@ export function useBooking() {
     roomCharges: 0,
     taxes: 0,
     totalAmount: 0,
-    billTo: '',
+    billTo: 'guest',
     taxExempt: false,
     paymentMode: 'cash',
     creditType: '',
@@ -155,27 +212,10 @@ export function useBooking() {
     return diffDays > 0 ? Math.ceil(diffDays) : 0
   })
 
-
-
-  // Options
-  const bookingTypes = computed(() => [
-    { label: t('Confirm'), value: 'confirm' },
-    { label: t('Pending'), value: 'pending' },
-    { label: t('Cancelled'), value: 'cancelled' },
-  ])
-
-  const bookingSources = computed(() => [
-    { label: t('Direct'), value: 'direct' },
-    { label: t('Online'), value: 'online' },
-    { label: t('Phone'), value: 'phone' },
-    { label: t('Walk-in'), value: 'walk-in' },
-  ])
-
-  const businessSources = computed(() => [
-    { label: t('Corporate'), value: 'corporate' },
-    { label: t('Leisure'), value: 'leisure' },
-    { label: t('Group'), value: 'group' },
-  ])
+  // Options depuis le store
+  const BookingSource = computed(() => serviceStore.bookingSources || [])
+  const BusinessSource = computed(() => serviceStore.businessSources || [])
+  const BookingType = computed(() => serviceStore.reservationType || [])
 
   const creditTypes = computed(() => [
     { label: 'Visa', value: 'visa' },
@@ -195,19 +235,14 @@ export function useBooking() {
     { label: t('Welcome Email'), value: 'welcome' },
   ])
 
+  // Customer types
+  const reservationCustomerType = computed(() => [
+    { label: t('Individual'), value: 'individual' },
+    { label: t('Company'), value: 'company' },
+    { label: t('Group'), value: 'group' },
+  ])
+
   // Watchers
-  watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
-    updateBilling()
-  })
-
-  watch(() => reservation.value.rate, () => {
-    updateBilling()
-  })
-
-  watch(() => numberOfNights.value, () => {
-    updateBilling()
-  })
-
   watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
     const arrivalDate = reservation.value.checkinDate
     const departureDate = reservation.value.checkoutDate
@@ -225,10 +260,164 @@ export function useBooking() {
     } else {
       dateError.value = null
     }
+
+    updateBilling()
   })
-  // Methods
+
+  // Watch pour la synchronisation du nombre de chambres
+  watch(() => reservation.value.rooms, (newRoomCount) => {
+    const currentRoomCount = roomConfigurations.value.length
+
+    if (newRoomCount > currentRoomCount) {
+      // Ajouter des chambres
+      for (let i = currentRoomCount; i < newRoomCount; i++) {
+        addRoom()
+      }
+    } else if (newRoomCount < currentRoomCount && newRoomCount > 0) {
+      // Supprimer des chambres (en gardant au moins une)
+      roomConfigurations.value = roomConfigurations.value.slice(0, newRoomCount)
+    }
+  })
+
+  // Watch pour recalculer la facturation quand les configurations changent
+  watch(roomConfigurations, () => {
+    updateBilling()
+  }, { deep: true })
+
+  // Methods pour la gestion des room types
+  const getRateTypesForRoom = (roomId: string): Option[] => {
+    const room = roomConfigurations.value.find(r => r.id === roomId)
+    if (!room || !room.roomType) return []
+
+    return roomTypeRateTypes.value.get(room.roomType) || []
+  }
+
+  const getRoomsForRoom = (roomId: string): Option[] => {
+    const room = roomConfigurations.value.find(r => r.id === roomId)
+    if (!room || !room.roomType) return []
+
+    return roomTypeRooms.value.get(room.roomType) || []
+  }
+
+  const onRoomTypeChange = async (roomId: string, newRoomTypeId: string) => {
+    const room = roomConfigurations.value.find(r => r.id === roomId)
+    if (!room) return
+
+    // Reset les sélections dépendantes
+    room.rateType = ''
+    room.roomNumber = ''
+    room.rate = 0
+
+    if (!newRoomTypeId) return
+
+    // Charger les rate types et rooms pour ce type de chambre
+    await loadRateTypesForRoomType(newRoomTypeId)
+    await loadRoomsForRoomType(newRoomTypeId)
+
+    // Mettre à jour les informations de base selon le room type
+    const selectedRoomTypeData = RoomTypesData.value.find(rt => rt.id === Number(newRoomTypeId))
+    if (selectedRoomTypeData) {
+      room.adultCount = selectedRoomTypeData.baseAdult
+      room.childCount = selectedRoomTypeData.baseChild
+      room.rate = selectedRoomTypeData.default_price || 0
+    }
+  }
+
+  const loadRateTypesForRoomType = async (roomTypeId: string) => {
+    if (!roomTypeId || RateTypes.value.length === 0) return
+
+    const roomTypeIdNumber = Number(roomTypeId)
+
+    try {
+      const filteredRates = RateTypes.value.filter((rate: RateTypeData) => {
+        if (!rate.roomTypes) return false
+
+        try {
+          const roomTypeIds = JSON.parse(rate.roomTypes)
+          return Array.isArray(roomTypeIds) && roomTypeIds.includes(roomTypeIdNumber)
+        } catch (parseError) {
+          console.error('Error parsing roomTypes JSON for rate:', rate.id, parseError)
+          return false
+        }
+      })
+
+      const rateOptions: Option[] = filteredRates.map((rate: RateTypeData) => ({
+        label: rate.rateTypeName,
+        value: rate.id
+      }))
+
+      roomTypeRateTypes.value.set(roomTypeId, rateOptions)
+    } catch (error) {
+      console.error('Error loading rate types for room type:', error)
+    }
+  }
+
+  const loadRoomsForRoomType = async (roomTypeId: string) => {
+    if (!roomTypeId || RoomTypesData.value.length === 0) return
+
+    const roomTypeIdNumber = Number(roomTypeId)
+
+    try {
+      const selectedRoomTypeData = RoomTypesData.value.find(
+        (roomType: RoomTypeData) => roomType.id === roomTypeIdNumber
+      )
+
+      if (!selectedRoomTypeData || !selectedRoomTypeData.rooms) return
+
+      const availableRooms = selectedRoomTypeData.rooms.filter((room: RoomData) => {
+        return room.status !== 'maintenance' && room.status !== 'out_of_order'
+      })
+
+      const roomOptions: Option[] = availableRooms.map((room: RoomData) => ({
+        label: room.roomNumber,
+        value: room.id
+      }))
+
+      roomTypeRooms.value.set(roomTypeId, roomOptions)
+    } catch (error) {
+      console.error('Error loading rooms for room type:', error)
+    }
+  }
+
+  // Room configuration methods
+  const addRoom = () => {
+    const newRoom: RoomConfiguration = {
+      id: `room-${Date.now()}`,
+      roomType: '',
+      rateType: '',
+      roomNumber: '',
+      adultCount: 1,
+      childCount: 0,
+      rate: 0,
+      isOpen: false
+    }
+    roomConfigurations.value.push(newRoom)
+
+    // Synchroniser avec le nombre de chambres dans reservation
+    reservation.value.rooms = roomConfigurations.value.length
+  }
+
+  const removeRoom = (roomId: string) => {
+    if (roomConfigurations.value.length <= 1) return // Garder au moins une chambre
+
+    roomConfigurations.value = roomConfigurations.value.filter(room => room.id !== roomId)
+
+    // Synchroniser avec le nombre de chambres dans reservation
+    reservation.value.rooms = roomConfigurations.value.length
+  }
+
+  const toggleDropdown = (roomId: string) => {
+    roomConfigurations.value.forEach(room => {
+      room.isOpen = room.id === roomId ? !room.isOpen : false
+    })
+  }
+
+  // Billing methods
   const updateBilling = () => {
-    const roomCharges = reservation.value.rate * numberOfNights.value * reservation.value.rooms
+    const roomCharges = roomConfigurations.value.reduce((total, room) => {
+      return total + ((room.rate || 0) * numberOfNights.value)
+    }, 0)
+
     const taxes = roomCharges * 0.15 // 15% tax example
 
     billing.value.roomCharges = roomCharges
@@ -236,227 +425,288 @@ export function useBooking() {
     billing.value.totalAmount = roomCharges + taxes
   }
 
+  const totalRoomCharges = computed(() => billing.value.roomCharges)
+  const totalAmount = computed(() => billing.value.totalAmount)
 
+  // Data fetching methods
   const fetchRoomTypes = async () => {
     try {
-      const serviceId = serviceStore.serviceId
-      // const response = await getTypeProductByServiceId(serviceId)
+      isLoadingRoom.value = true
+      const hotelId = serviceStore.serviceId
 
-      // ActiveRoomTypes.value = response.data
-      //   .filter((type: RoomTypeData) => type.status === 'active')
-      //   .map((type: RoomTypeData) => ({
-      //     ...type,
-      //     value: type.id,
-      //     label: type.name,
-      //   }))
+      if (!hotelId) {
+        throw new Error('Hotel ID not found')
+      }
+
+      const response = await getRoomTypes(hotelId)
+
+      if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
+        throw new Error('Invalid room types data structure')
+      }
+
+      RoomTypesData.value = response.data.data.data
+
+      const roomTypeOptions: Option[] = response.data.data.data.map((room: RoomTypeData) => ({
+        label: room.roomTypeName,
+        value: room.id
+      }))
+      RoomTypes.value = roomTypeOptions
+
     } catch (error) {
       console.error('Error fetching room types:', error)
       toast.error(t('toast.errorFetchingRoomTypes'))
+      RoomTypes.value = []
+      RoomTypesData.value = []
+    } finally {
+      isLoadingRoom.value = false
     }
   }
 
-  const saveReservation = async () => {
-    // if (!canSave.value) {
-    //   toast.error(t('toast.fillRequiredFields'))
-    //   return
-    // }
-
-    isLoading.value = true
+  const fetchRateTypes = async () => {
     try {
-      const reservationPayload = {
-        // Guest information
-        first_name: guest.value.name.split(' ')[0] || '',
-        last_name: guest.value.name.split(' ').slice(1).join(' ') || '',
-        email: guest.value.email,
-        phone_number: guest.value.mobile,
+      const hotelId = serviceStore.serviceId
 
-        // Reservation details
-        service_id: serviceStore.serviceId,
-        reservation_type: reservation.value.bookingType,
-        booking_source: reservation.value.bookingSource,
-        business_source: reservation.value.businessSource,
-
-        // Dates and guests
-        arrived_date: reservation.value.checkinDate,
-        depart_date: reservation.value.checkoutDate,
-        number_of_nights: numberOfNights.value,
-
-        // Financial
-        total_amount: billing.value.roomCharges,
-        tax_amount: billing.value.taxes,
-        final_amount: billing.value.totalAmount,
-        paid_amount: 0,
-        remaining_amount: billing.value.totalAmount,
-
-        // Room details
-        room_type: reservation.value.roomType,
-        rate_type: reservation.value.rateType,
-        room_number: reservation.value.roomNumber,
-
-        // Additional info
-        special_requests: '',
-        is_complementary: reservation.value.isComplementary,
-
-        created_by: authStore.UserId,
+      if (!hotelId) {
+        throw new Error('Hotel ID not found')
       }
 
-      // const response = await createReservation(reservationPayload)
+      const response = await getRateTypes(hotelId)
 
-      // if (response.status === 201) {
-      //   reservationId.value = response.data.reservation.id
-      //   userId.value = response.data.reservation.userId
+      if (!response.data?.data || !Array.isArray(response.data.data)) {
+        throw new Error('Invalid rate types data structure')
+      }
 
-      //   toast.success(t('toast.reservationCreated'))
+      RateTypes.value = response.data.data
 
-      // }
-    } catch (error: any) {
-      console.error('Error saving reservation:', error)
-      const message = error?.response?.data?.message || t('toast.errorSavingReservation')
-      toast.error(message)
-    } finally {
-      isLoading.value = false
+    } catch (error) {
+      console.error('Error fetching rate types:', error)
+      toast.error(t('toast.errorfetchRateTypes'))
+      RateTypes.value = []
     }
   }
 
-
-
-  // const loadReservationData = async () => {
-  //   const rawId = route.params.id
-  //   if (!rawId) return
-
-  //   isEditMode.value = true
-  //   reservationId.value = Number(rawId)
-
-  //   try {
-  //     // Load reservation data
-  //     const reservationResponse = await getReservationById(reservationId.value)
-  //     const reservationData = reservationResponse.data
-
-  //     // Load customer data
-  //     const customerResponse = await getUserId(reservationData.userId)
-  //     const customerData = customerResponse.data
-
-  //     // Update forms with loaded data
-  //     reservation.value = {
-  //       checkinDate: reservationData.arrivedDate,
-  //       checkoutDate: reservationData.departDate,
-  //       checkinTime: '15:00', // Default or from data
-  //       checkoutTime: '11:00', // Default or from data
-  //       rooms: 1, // From data if available
-  //       bookingType: reservationData.reservationType,
-  //       bookingSource: reservationData.bookingSource || 'direct',
-  //       businessSource: reservationData.businessSource || '',
-  //       isComplementary: reservationData.isComplementary || false,
-  //       roomType: reservationData.roomType || '',
-  //       rateType: reservationData.rateType || '',
-  //       roomNumber: reservationData.roomNumber || '',
-  //       adultCount: String(reservationData.guestCount || 1),
-  //       childCount: '0',
-  //       rate: reservationData.totalAmount / reservationData.numberOfNights || 0,
-  //     }
-
-  //     guest.value = {
-  //       title: 'Mr', // Default or from data
-  //       name: `${customerData.firstName} ${customerData.lastName}`,
-  //       mobile: customerData.phoneNumber,
-  //       email: customerData.email,
-  //       address: customerData.address || '',
-  //       country: customerData.country || '',
-  //       state: customerData.state || '',
-  //       city: customerData.city || '',
-  //       zipcode: customerData.zipcode || '',
-  //     }
-
-  //     updateBilling()
-
-  //   } catch (error) {
-  //     console.error('Error loading reservation data:', error)
-  //     toast.error(t('toast.errorLoadingReservation'))
-  //   }
-  // }
-
-  const handleSubmit = async () => {
-    if (isEditMode.value) {
-      // await updateReservation()
+  // Customer handling
+  const onCustomerSelected = (customer: any | null) => {
+    if (customer) {
+      formData.value = {
+        ...formData.value,
+        firstName: customer.firstName || '',
+        lastName: customer.lastName || '',
+        phoneNumber: customer.phoneNumber || '',
+        email: customer.email || '',
+        companyName: customer.companyName || '',
+        groupName: customer.groupName || '',
+        title: customer.title || '',
+        id: customer.id || 0,
+        roleId: customer.roleId || null
+      }
     } else {
-      await saveReservation()
+      formData.value = {
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        email: '',
+        roleId: null,
+        companyName: '',
+        groupName: '',
+        title: '',
+        id: 0
+      }
     }
   }
 
+  // Save reservation
+ const saveReservation = async () => {
+  isLoading.value = true
+  try {
+    // Validation
+    if (!formData.value.firstName || !formData.value.email) {
+      throw new Error('Guest information is incomplete')
+    }
+
+    if (roomConfigurations.value.some(room => !room.roomType)) {
+      throw new Error('Room configuration is incomplete')
+    }
+
+    if (!serviceStore.serviceId) {
+      throw new Error('Service ID is missing')
+    }
+
+    const reservationPayload = {
+      // Guest information
+      first_name: formData.value.firstName,
+      last_name: formData.value.lastName,
+      email: formData.value.email,
+      phone_primary: formData.value.phoneNumber,
+      title: formData.value.title || '',
+      company_name: formData.value.companyName || '',
+      group_name: formData.value.groupName || '',
+      address_line: guest.value.address,
+      country: guest.value.country,
+      state: guest.value.state,
+      city: guest.value.city,
+      zipcode: guest.value.zipcode,
+
+      // Reservation details
+      hotel_id: serviceStore.serviceId,
+      reservation_type: reservation.value.bookingType,
+      booking_source: reservation.value.bookingSource,
+      business_source: reservation.value.businessSource,
+
+      // Dates and guests
+      arrived_date: reservation.value.checkinDate,
+      arrived_time: reservation.value.checkinTime,
+      depart_date: reservation.value.checkoutDate,
+      depart_time: reservation.value.checkoutTime,
+      number_of_nights: numberOfNights.value,
+      nights: numberOfNights.value,
+
+      // Room configurations avec validation
+      rooms: roomConfigurations.value
+        .filter(room => room.roomType && room.roomNumber)
+        .map(room => ({
+          room_type_id: Number(room.roomType),
+          rate_type_id: room.rateType ? Number(room.rateType) : undefined,
+          room_id: Number(room.roomNumber),
+          room_rate: Number(room.rate) || 0,
+          adult_count: Number(room.adultCount) || 1,
+          child_count: Number(room.childCount) || 0
+        })),
+
+      // Financial
+      total_amount: Number(billing.value.roomCharges) || 0,
+      tax_amount: Number(billing.value.taxes) || 0,
+      final_amount: Number(billing.value.totalAmount) || 0,
+      paid_amount: 0,
+      remaining_amount: Number(billing.value.totalAmount) || 0,
+
+      // Additional info
+      is_complementary: Boolean(reservation.value.isComplementary),
+      reservation_status: 'PENDING',
+
+      // Payment info
+      bill_to: billing.value.billTo,
+      payment_mode: billing.value.paymentMode,
+      credit_type: billing.value.creditType || undefined,
+      tax_exempt: Boolean(billing.value.taxExempt),
+
+      // Other info
+      email_booking_vouchers: Boolean(otherInfo.value.emailBookingVouchers),
+      voucher_email: otherInfo.value.voucherEmail || undefined,
+      send_email_at_checkout: Boolean(otherInfo.value.sendEmailAtCheckout),
+      email_template: otherInfo.value.emailTemplate || undefined,
+      access_to_guest_portal: Boolean(otherInfo.value.accessToGuestPortal),
+
+      created_by: Number(authStore.UserId),
+    }
+
+    // Validation finale
+    if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
+      throw new Error('At least one valid room configuration is required')
+    }
+
+    console.log('Final reservation payload:', JSON.stringify(reservationPayload, null, 2))
+
+    // Appel API
+    const response = await createReservation(reservationPayload)
+
+    toast.success(t('toast.reservationCreated'))
+
+    return response
+
+  } catch (error: any) {
+    console.error('Error saving reservation:', error)
+
+    let message = t('toast.errorSavingReservation')
+
+    if (error?.response?.data?.error) {
+      message = error.response.data.error
+    } else if (error?.response?.data?.message) {
+      message = error.response.data.message
+    } else if (error.message) {
+      message = error.message
+    }
+
+    toast.error(message)
+    throw error
+  } finally {
+    isLoading.value = false
+  }
+}
+  // Utility methods
+  const formatCurrency = (value: number): string => {
+    return `${value.toLocaleString()} XAF`
+  }
+
+  const goBack = () => {
+    router.back()
+  }
 
   const resetForm = () => {
-    reservation.value = {
+    // Reset form data
+    Object.assign(reservation.value, {
       checkinDate: new Date().toISOString().split('T')[0],
       checkinTime: '15:00',
       checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       checkoutTime: '11:00',
       rooms: 1,
-      bookingType: 'confirm',
-      bookingSource: 'direct',
+      bookingType: '',
+      bookingSource: '',
       businessSource: '',
       isComplementary: false,
+    })
+
+    // Reset room configurations
+    roomConfigurations.value = [{
+      id: 'room-1',
       roomType: '',
       rateType: '',
       roomNumber: '',
-      adultCount: '2',
-      childCount: '0',
+      adultCount: 1,
+      childCount: 0,
       rate: 0,
-    }
+      isOpen: false
+    }]
 
-    guest.value = {
-      title: 'Mr',
-      name: '',
-      mobile: '',
-      email: '',
+    // Reset other forms...
+    Object.assign(guest.value, {
       address: '',
       country: '',
       state: '',
       city: '',
       zipcode: '',
-    }
+    })
 
-    billing.value = {
-      roomCharges: 0,
-      taxes: 0,
-      totalAmount: 0,
-      billTo: '',
-      taxExempt: false,
-      paymentMode: 'cash',
-      creditType: '',
-    }
+    Object.assign(formData.value, {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      email: '',
+      roleId: null,
+      companyName: '',
+      groupName: '',
+      title: '',
+      id: 0
+    })
 
-    otherInfo.value = {
-      emailBookingVouchers: false,
-      voucherEmail: '',
-      sendEmailAtCheckout: false,
-      emailTemplate: '',
-      accessToGuestPortal: false,
-      successRateOnRegistrationCard: false,
-    }
+    // Clear maps
+    roomTypeRateTypes.value.clear()
+    roomTypeRooms.value.clear()
   }
 
-  const goBack = () => {
-    resetForm()
-    isEditMode.value = false
-    router.back()
-  }
-
-
-
-  const formatCurrency = (value: number): string => {
-    return `${value.toFixed(2)}`
-  }
-
-  // Initialize data on component mount
+  // Initialize
   const initialize = async () => {
-    await Promise.all([
-      fetchRoomTypes(),
-    ])
-
-    // Load reservation data if in edit mode
-    // if (route.params.id) {
-    //   await loadReservationData()
-    // }
+    try {
+      console.log('Initializing booking composable...')
+      await Promise.all([
+        fetchRoomTypes(),
+        fetchRateTypes()
+      ])
+      console.log('Booking composable initialized successfully')
+    } catch (error) {
+      console.error('Error initializing booking composable:', error)
+      toast.error(t('toast.errorInitializing'))
+    }
   }
 
   return {
@@ -465,44 +715,49 @@ export function useBooking() {
     guest,
     otherInfo,
     billing,
-    ServiceProduct,
-    ProductList,
-    ActiveRoomTypes,
-    selectedRoomType,
-    reservationId,
-    userId,
+    formData,
+    roomConfigurations,
+
+    // Room type data
+    RoomTypes,
+    RoomTypesData,
 
     // States
     isLoading,
-    isEditMode,
-    isPaymentModalOpen,
+    isLoadingRoom,
+    dateError,
 
     // Computed
     numberOfNights,
-    dateError,
+    totalRoomCharges,
+    totalAmount,
 
     // Options
-    bookingTypes,
-    bookingSources,
-    businessSources,
+    BookingSource,
+    BusinessSource,
+    BookingType,
     creditTypes,
     billToOptions,
     emailTemplates,
+    reservationCustomerType,
 
-    // Methods
+    // Room configuration methods
+    addRoom,
+    removeRoom,
+    toggleDropdown,
+    onRoomTypeChange,
+    getRateTypesForRoom,
+    getRoomsForRoom,
+
+    // Customer methods
+    onCustomerSelected,
+
+    // Core methods
     initialize,
-    fetchRoomTypes,
     saveReservation,
-    handleSubmit,
-    resetForm,
-    goBack,
     updateBilling,
     formatCurrency,
-
-    // Utils
-    t,
-    toast,
-    router,
-    route,
+    goBack,
+    resetForm,
   }
 }

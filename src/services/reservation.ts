@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios'
+import axios from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
@@ -123,3 +124,33 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
   }
 }
 
+
+
+
+
+/**
+ * create Reservation
+ */
+
+
+export const createReservation = async (data: any) => {
+  try {
+    console.log('Sending reservation data to backend:', data)
+
+    const response = await apiClient.post('/reservation/create', data,headers)
+
+    console.log('Backend response:', response.data)
+
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+
+    throw error
+  }
+}
