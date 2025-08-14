@@ -1,64 +1,6 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('roomRatesList') }}</h1>
-      </div>
-
-      <!-- Filter Controls -->
-      <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ t('roomType') }}
-            </label>
-            <Select 
-              v-model="selectedRoomType"
-              :options="roomTypeOptions"
-              :placeholder="t('selectRoomType')"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ t('rateType') }}
-            </label>
-            <Select 
-              v-model="selectedRateType"
-              :options="rateTypeOptions"
-              :placeholder="t('selectRateType')"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ t('seasonName') }}
-            </label>
-            <Select 
-              v-model="selectedSeason"
-              :options="seasonOptions"
-              :placeholder="t('selectSeason')"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ t('sourceName') }}
-            </label>
-            <Select 
-              v-model="selectedSource"
-              :options="sourceOptions"
-              :placeholder="t('selectSource')"
-            />
-          </div>
-          <div>
-            <BasicButton 
-              @click="getRates"
-              :label="t('getRates')"
-              class="w-full"
-            />
-          </div>
-        </div>
-      </div>
-
       <!-- Room Rates Table using ReusableTable -->
       <ReusableTable
         :title="t('roomRatesList')"
@@ -69,6 +11,7 @@
         :selectable="true"
         :empty-state-title="t('noRoomRatesFound')"
         :empty-state-message="t('clickAddRoomRate')"
+        :loading="isLoading"
         @action="onAction"
         @selection-change="onSelectionChange"
       >
@@ -104,22 +47,21 @@
             <div class="text-xs text-gray-600">{{ t('extraChild') }}: ${{ formatCurrency(item.extraChildRate) }}</div>
           </div>
         </template>
+<!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <!-- Custom column for created info -->
-        <template #column-createdInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.createdBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdDate }}</div>
-          </div>
-        </template>
-
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.modifiedBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.modifiedDate }}</div>
-          </div>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
@@ -199,24 +141,24 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Rate for Extra Adult
+                  {{ t('rateForExtraAdult') }}
                 </label>
                 <Input 
                   v-model="formData.extraAdultRate"
                   type="number"
                   step="0.01"
-                  placeholder="Enter rate for extra adult"
+                  :placeholder="t('enterRateForExtraAdult')"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Rate for Extra Child
+                  {{ t('rateForExtraChild') }}
                 </label>
                 <Input 
                   v-model="formData.extraChildRate"
                   type="number"
                   step="0.01"
-                  placeholder="Enter rate for extra child"
+                  :placeholder="t('enterRateForExtraChild')"
                 />
               </div>
             </div>
@@ -225,21 +167,21 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Effective From *
+                  {{ t('effectiveFrom') }} *
                 </label>
                 <InputDatePicker 
                   v-model="formData.effectiveFrom"
-                  placeholder="Select effective from date"
+                  :placeholder="t('selectEffectiveFromDate')"
                   required
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Effective To *
+                  {{ t('effectiveTo') }} *
                 </label>
                 <InputDatePicker 
                   v-model="formData.effectiveTo"
-                  placeholder="Select effective to date"
+                  :placeholder="t('selectEffectiveToDate')"
                   required
                 />
               </div>
@@ -248,29 +190,21 @@
             <!-- Status -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                {{ t('status') }}
               </label>
               <Select 
                 v-model="formData.status"
                 :options="statusOptions"
-                placeholder="Select status"
+                :placeholder="t('selectStatus')"
               />
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                {{ t('cancel') }}
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ showAddModal ? t('addRoomRate') : t('updateRoomRate') }}
-              </button>
+             <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                :disabled="isSaving" />
+              <BasicButton type="submit" variant="primary" :icon="Save"
+                :label="isEditing ? $t('configuration.identity_type.update_identity_type') : $t('configuration.identity_type.save_identity_type')"
+                :loading="isSaving" />
             </div>
           </form>
         </div>
@@ -290,7 +224,8 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
-import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById } from '../../../services/configrationApi'
+import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById, getRoomRates } from '../../../services/configrationApi'
+import { useServiceStore } from '../../../composables/serviceStore'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -300,6 +235,12 @@ const showAddModal = ref(false)
 const showEditModal = ref(false)
 const editingRoomRate = ref(null)
 const selectedRoomRates = ref([])
+const serviceStore = useServiceStore()
+
+// Loading states
+const isLoading = ref(false)
+const isSaving = ref(false)
+
 
 // Filter controls
 const selectedRoomType = ref('')
@@ -318,18 +259,18 @@ const formData = ref({
   extraChildRate: '',
   effectiveFrom: '',
   effectiveTo: '',
-  status: 'Active'
+  status: 'active'
 })
 
 // Table columns
 const columns = ref([
   {
-    key: 'roomType',
+    key: 'roomType.roomTypeName',
     label: t('roomType'),
     sortable: true
   },
   {
-    key: 'rateType',
+    key: 'rateType.rateTypeName',
     label: t('rateType'),
     sortable: true
   },
@@ -346,12 +287,15 @@ const columns = ref([
   {
     key: 'rateInfo',
     label: t('rate'),
-    sortable: false
+    sortable: false,
+    type: 'custom',
+  
   },
   {
     key: 'extraRates',
     label: t('extraRates'),
-    sortable: false
+    sortable: false,
+    type: 'custom',
   },
   {
     key: 'status',
@@ -361,12 +305,14 @@ const columns = ref([
   {
     key: 'createdInfo',
     label: t('createdBy'),
-    sortable: false
+    sortable: false,
+    type: 'custom',
   },
   {
     key: 'modifiedInfo',
     label: t('modifiedBy'),
-    sortable: false
+    sortable: false,
+    type: 'custom',
   }
 ])
 
@@ -388,8 +334,8 @@ const sourceOptions = ref([
 ])
 
 const statusOptions = ref([
-  { value: 'Active', label: t('active') },
-  { value: 'Inactive', label: t('inactive') }
+  { value: 'active', label: t('active') },
+  { value: 'inactive', label: t('inactive') }
 ])
 
 // Methods
@@ -400,8 +346,9 @@ const editRoomRate = (roomRate) => {
 }
 
 const deleteRoomRate = async (roomRate) => {
-  if (confirm(`Are you sure you want to delete room rate for "${roomRate.roomType} - ${roomRate.rateType}"?`)) {
+  if (confirm(t('confirmDeleteRoomRate', { roomType: roomRate.roomType, rateType: roomRate.rateType }))) {
     try {
+      isLoading.value = true
       await deleteRoomRateById(roomRate.id)
       const index = roomRates.value.findIndex(r => r.id === roomRate.id)
       if (index > -1) {
@@ -411,6 +358,8 @@ const deleteRoomRate = async (roomRate) => {
     } catch (error) {
       console.error('Error deleting room rate:', error)
       toast.error(t('errorDeletingRoomRate'))
+    } finally {
+      isLoading.value = false
     }
   }
 }
@@ -442,20 +391,47 @@ const onSelectionChange = (selected) => {
   selectedRoomRates.value = selected
 }
 
-const deleteSelected = () => {
-  if (confirm(`Are you sure you want to delete ${selectedRoomRates.value.length} selected room rate(s)?`)) {
-    selectedRoomRates.value.forEach(roomRate => {
-      const index = roomRates.value.findIndex(r => r.id === roomRate.id)
-      if (index > -1) {
-        roomRates.value.splice(index, 1)
+const deleteSelected = async () => {
+  if (confirm(t('confirmDeleteSelectedRoomRates', { count: selectedRoomRates.value.length }))) {
+    try {
+      isLoading.value = true
+      
+      // Delete each selected room rate
+      for (const roomRate of selectedRoomRates.value) {
+        await deleteRoomRateById(roomRate.id)
+        const index = roomRates.value.findIndex(r => r.id === roomRate.id)
+        if (index > -1) {
+          roomRates.value.splice(index, 1)
+        }
       }
-    })
-    selectedRoomRates.value = []
+      
+      selectedRoomRates.value = []
+      toast.success(t('selectedRoomRatesDeleted'))
+    } catch (error) {
+      console.error('Error deleting selected room rates:', error)
+      toast.error(t('errorDeletingSelectedRoomRates'))
+    } finally {
+      isLoading.value = false
+    }
   }
 }
-
+const fetchRoomRates = async () => {
+  try {
+    isLoading.value = true
+    const response = await getRoomRates()
+    roomRates.value = response.data.data.data || []
+    console.log('Room rates data:', response)
+  } catch (error) {
+    console.error('Error fetching room rates:', error)
+    toast.error(t('errorLoadingRoomRates'))
+  } finally {
+    isLoading.value = false
+  }
+}
 const saveRoomRate = async () => {
   try {
+    isSaving.value = true
+    
     if (showAddModal.value) {
       // Add new room rate
       const roomRateData = {
@@ -466,25 +442,14 @@ const saveRoomRate = async () => {
         baseRate: parseFloat(formData.value.baseRate),
         extraAdultRate: parseFloat(formData.value.extraAdultRate) || 0,
         extraChildRate: parseFloat(formData.value.extraChildRate) || 0,
-        effectiveFrom: formData.value.effectiveFrom,
-        effectiveTo: formData.value.effectiveTo,
-        status: formData.value.status || 'Active'
+        effectiveFrom: formData.value.effectiveFrom??null,
+        effectiveTo: formData.value.effectiveTo??null,
+        status: formData.value.status || 'active',
+        hotelId:serviceStore.serviceId
       }
       
       const response = await postRoomRate(roomRateData)
       console.log('Room rate created:', response)
-      
-      // Add to local data for immediate UI update
-      const newRoomRate = {
-        id: response.data.id || Date.now(),
-        ...formData.value,
-        status: formData.value.status || 'Active',
-        createdBy: 'Admin',
-        createdDate: new Date().toLocaleString(),
-        modifiedBy: 'Admin',
-        modifiedDate: new Date().toLocaleString()
-      }
-      roomRates.value.push(newRoomRate)
       toast.success(t('roomRateCreated'))
       
     } else if (showEditModal.value && editingRoomRate.value) {
@@ -505,23 +470,17 @@ const saveRoomRate = async () => {
       const response = await updateRoomRateById(editingRoomRate.value.id, roomRateData)
       console.log('Room rate updated:', response)
       
-      // Update local data for immediate UI update
-      const index = roomRates.value.findIndex(r => r.id === editingRoomRate.value.id)
-      if (index > -1) {
-        roomRates.value[index] = {
-          ...roomRates.value[index],
-          ...formData.value,
-          modifiedBy: 'Admin',
-          modifiedDate: new Date().toLocaleString()
-        }
-      }
       toast.success(t('roomRateUpdated'))
     }
     
+    // Refresh the room rates list after successful save/update
+    await fetchRoomRates()
     closeModal()
   } catch (error) {
     console.error('Error saving room rate:', error)
     toast.error(t('errorSavingRoomRate'))
+  } finally {
+    isSaving.value = false
   }
 }
 
@@ -633,6 +592,7 @@ const getRates = () => {
 
 // Load all data on component mount
 onMounted(() => {
+  fetchRoomRates()
   loadRoomTypes();
   loadRateTypes();
   loadSeasons();

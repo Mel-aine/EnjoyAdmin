@@ -2,7 +2,7 @@
   <div class="bg-white border-t-1 shadow-sm">
     <!-- Header with action buttons -->
     <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
-     <BasicButton :label="$t('Add Payment')"/>
+     <BasicButton :label="$t('Add Payment')" @click="openAddPaymentModal"/>
      <BasicButton :label="$t('Add Charges')" @click="openAddChargeModal"/>
      <BasicButton :label="$t('Apply Discount')"/>
      <BasicButton :label="$t('Folio Operations')"/>
@@ -87,6 +87,13 @@
       @close="closeAddChargeModal" 
       @save="handleSaveCharge" 
     />
+    
+    <!-- Add Payment Modal -->
+    <AddPaymentModal 
+      :is-open="isAddPaymentModalOpen" 
+      @close="closeAddPaymentModal"
+      @save="handleSavePayment"
+    />
   </div>
 </template>
 
@@ -94,6 +101,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
+import AddPaymentModal from './AddPaymentModal.vue'
 import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
@@ -102,6 +110,7 @@ const { t } = useI18n()
 
 // Modal state
 const isAddChargeModalOpen = ref(false)
+const isAddPaymentModalOpen = ref(false)
 
 interface FoglioItem {
   id: number
@@ -220,5 +229,34 @@ const handleSaveCharge = (chargeData: any) => {
   }
   
   foglioData.value.push(newCharge)
+  closeAddChargeModal()
+}
+
+// Payment modal handlers
+const openAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = true
+}
+
+const closeAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = false
+}
+
+const handleSavePayment = (paymentData: any) => {
+  console.log('Saving payment:', paymentData)
+  // Here you would typically send the data to your API
+  // For now, we'll just add it to our local data
+  const newPayment = {
+    id: foglioData.value.length + 1,
+    day: paymentData.date,
+    refNo: paymentData.recVouNumber || `PAY${Date.now()}`,
+    particulars: `${paymentData.type} Payment - ${paymentData.method}`,
+    description: paymentData.comment || `Payment via ${paymentData.method}`,
+    user: 'current_user',
+    amount: -parseFloat(paymentData.amount) || 0, // Negative for payments
+    status: 'unposted' as const
+  }
+  
+  foglioData.value.push(newPayment)
+  closeAddPaymentModal()
 }
 </script>

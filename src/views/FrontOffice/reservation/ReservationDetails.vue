@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, PencilIcon, Pin, PlusCircle, User2Icon, ChevronDown, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus } from 'lucide-vue-next';
+import { ArrowLeft, Building2Icon, PencilIcon, Pin, PlusCircle, User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus } from 'lucide-vue-next';
 import ChevromLeftIcon from '../../../icons/ChevromLeftIcon.vue';
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
+import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
 
 // Simple Button component
 const Button = {
@@ -22,7 +23,6 @@ const tabs = computed(() => [
 ]);
 const activeTab = ref<string>('folio_operations');
 const isOpen = ref(false);
-const isDropdownOpen = ref(false);
 
 const dropdownOptions = computed(() => [
     { id: 'check-in', label: t('Check-in'), icon: CheckCircle, color: 'text-blue-600' },
@@ -38,28 +38,10 @@ const dropdownOptions = computed(() => [
     { id: 'unassign-room', label: t('Unassign Room'), icon: UserMinus, color: 'text-gray-600' },
 ]);
 
-const handleOptionClick = (optionId: string) => {
-    console.log('Selected option:', optionId);
-    isDropdownOpen.value = false;
+const handleOptionSelected = (option: any) => {
+    console.log('Selected option:', option);
     // Add your logic here for each option
 };
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event: Event) => {
-    const target = event.target as HTMLElement;
-    const dropdown = document.querySelector('.dropdown-container');
-    if (dropdown && !dropdown.contains(target)) {
-        isDropdownOpen.value = false;
-    }
-};
-
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-});
 </script>
 
 <template>
@@ -122,11 +104,11 @@ onUnmounted(() => {
                     </span>
                 </div>
             </div>
-            <div class="flex gap-x-20">
+            <div class="flex gap-x-2">
                 <span
                     class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">Reserved</span>
-                <Button class="bg-primary px-4 py-1 align-middle p-1 text-sm items-center self-center">{{ $t('check in')
-                }}</Button>
+                <button class="bg-primary px-4 py-1 align-middle p-1 text-sm items-center self-center">{{ $t('check in')
+                }}</button>
             </div>
         </div>
         <!--main-->
@@ -147,26 +129,14 @@ onUnmounted(() => {
                         </button>
                     </nav>
                 </div>
-                <div class="relative align-middle self-center items-center dropdown-container">
-                    <button @click="isDropdownOpen = !isDropdownOpen"
-                        class="flex items-center gap-2 px-4 py-2  text-white rounded-md  transition-colors duration-200">
-                        <span>{{ $t('More Options') }}</span>
-                        <ChevronDown class="w-4 h-4 transition-transform duration-200"
-                            :class="{ 'rotate-180': isDropdownOpen }" />
-                    </button>
-
-                    <!-- Dropdown Menu -->
-                    <div v-if="isDropdownOpen"
-                        class="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                        <div class="py-2">
-                            <button v-for="option in dropdownOptions" :key="option.id"
-                                @click="handleOptionClick(option.id)"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150">
-                                <component :is="option.icon" class="w-5 h-5" :class="option.color" />
-                                <span class="text-gray-700 font-medium">{{ option.label }}</span>
-                            </button>
-                        </div>
-                    </div>
+                <div class="align-middle self-center items-center">
+                    <ButtonDropdown 
+                        :options="dropdownOptions"
+                        :button-text="$t('More Options')"
+                        button-class="bg-blue-600 text-white hover:bg-blue-700"
+                        dropdown-class="w-64"
+                        @option-selected="handleOptionSelected"
+                    />
                 </div>
             </div>
         </div>

@@ -32,7 +32,7 @@
               <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
             </div>
           </template>
-          <template #status="{ item }">
+          <template #column-status="{ item }">
             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
               :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
               {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
