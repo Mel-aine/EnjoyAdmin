@@ -24,3 +24,24 @@ const headers = {
 export const updateStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
   return axios.patch(`${API_URL}/${id}/status-colors`, data, headers)
 }
+
+/**
+ * update hotel information
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelInformation = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/information`, data, headers)
+}
+
+
+/**
+ * update hotel notices
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelNotices = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/notices`, data, headers)
+}

@@ -2,261 +2,190 @@
   <ConfigurationLayout>
     <div class="p-6">
       <ReusableTable
-        title="Reservation Type Management"
+        :title="t('configuration.reservation_type.title')"
+        :description="t('configuration.reservation_type.description')"
         :columns="columns"
         :data="reservationTypes"
         :actions="actions"
-        search-placeholder="Search reservation types..."
-        :selectable="false"
-        empty-state-title="No reservation types found"
-        empty-state-message="Get started by adding a new reservation type."
+        :search-placeholder="t('configuration.reservation_type.search_placeholder')"
+        :selectable="true"
+        :empty-state-title="t('configuration.reservation_type.empty_state_title')"
+        :empty-state-message="t('configuration.reservation_type.empty_state_message')"
+        :loading="loading"
         @action="onAction"
       >
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            icon="Plus"
-            label="Add Reservation Type"
+            :icon="Plus"
+            :label="t('configuration.reservation_type.add_reservation_type')"
             @click="openAddModal"
           />
         </template>
 
-        <template #column-status="{ item }">
-          <span 
-            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.status }}
-          </span>
-        </template>
+       <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <template #column-isDefault="{ item }">
-          <span 
-            :class="item.isDefault ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.isDefault ? 'Yes' : 'No' }}
-          </span>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
+ 
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Reservation Type' : 'Add New Reservation Type' }}
+            {{ isEditing ? t('configuration.reservation_type.edit_reservation_type') : t('configuration.reservation_type.add_reservation_type') }}
           </h3>
           
           <form @submit.prevent="saveReservationType" class="space-y-4">
             <Input 
-              :lb="'Reservation Type Name'"
+              :lb="t('configuration.reservation_type.name')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.name"
-              :placeholder="'Enter reservation type name'"
+              :placeholder="t('configuration.reservation_type.name_placeholder')"
             />
-            
-            <Input 
-              :lb="'Description'"
-              :inputType="'text'"
-              v-model="formData.description"
-              :placeholder="'Enter description (optional)'"
-            />
-            
-            <Select 
-              :lb="'Category'"
-              :isRequired="true"
-              v-model="formData.category"
-              :options="categoryOptions"
-              :defaultValue="'Select category'"
-            />
-            
-            <div class="flex items-center space-x-2">
-              <input 
-                type="checkbox" 
-                id="isDefault" 
-                v-model="formData.isDefault"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="isDefault" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Set as Default Reservation Type
-              </label>
-            </div>
             
              <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 variant="secondary" 
                 @click="closeModal"
                 type="button"
-                :label="$t('cancel')"
+                :label="t('configuration.reservation_type.cancel')"
               >
-                Cancel
               </BasicButton>
               <BasicButton 
                 variant="primary" 
                 type="submit"
-                :label="isEditing ? $t('update') : $t('save') "
+                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
                 :icon="isEditing ? Edit : Save"
+                :loading="saving"
+                :disabled="saving"
               >
               </BasicButton>
             </div>
           </form>
         </div>
       </div>
+
+      <!-- Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showDeleteConfirmation"
+        :title="t('configuration.reservation_type.delete_confirmation_title')"
+        :message="t('configuration.reservation_type.delete_confirmation_message')"
+        :confirm-text="t('configuration.reservation_type.delete')"
+        :cancel-text="t('configuration.reservation_type.cancel')"
+        @confirm="deleteReservationType"
+        @close="showDeleteConfirmation = false; reservationTypeToDelete = null"
+      />
     </div>
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import { useServiceStore } from '@/composables/serviceStore'
 import type { Action, Column } from '../../../utils/models'
 import { Edit, Save } from 'lucide-vue-next'
+import {
+  getReservationTypes,
+  postReservationType,
+  updateReservationTypeById,
+  deleteReservationTypeById
+} from '@/services/configrationApi'
+import Plus from '../../../icons/Plus.vue'
+
+// Initialize composables
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
+const showDeleteConfirmation = ref(false)
+const reservationTypeToDelete = ref<any>(null)
 
-const formData = reactive({
+const reservationTypes = ref<any[]>([])
+
+const formData = ref({
   name: '',
-  description: '',
-  category: '',
-  isDefault: false
 })
 
-// Sample data
-const reservationTypes = ref([
-  {
-    id: 1,
-    name: 'Confirm Booking',
-    description: 'Confirmed reservation with payment',
-    category: 'Standard',
-    isDefault: true,
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Booking Inquiry',
-    description: 'Initial inquiry without confirmation',
-    category: 'Standard',
-    isDefault: false,
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Tentative Booking',
-    description: 'Tentative reservation pending confirmation',
-    category: 'Provisional',
-    isDefault: false,
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Group Booking',
-    description: 'Group reservation for multiple rooms',
-    category: 'Group',
-    isDefault: false,
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Active'
-  },
-  {
-    id: 5,
-    name: 'Corporate Booking',
-    description: 'Corporate account reservation',
-    category: 'Corporate',
-    isDefault: false,
-    createdBy: 'admin',
-    createdDate: '2024-01-11',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-11',
-    status: 'Active'
-  },
-  {
-    id: 6,
-    name: 'Event Booking',
-    description: 'Special event or function booking',
-    category: 'Event',
-    isDefault: false,
-    createdBy: 'admin',
-    createdDate: '2024-01-10',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-10',
-    status: 'Inactive'
-  }
-])
 
-// Category options
-const categoryOptions = [
-  { label: 'Standard', value: 'Standard' },
-  { label: 'Provisional', value: 'Provisional' },
-  { label: 'Group', value: 'Group' },
-  { label: 'Corporate', value: 'Corporate' },
-  { label: 'Event', value: 'Event' },
-  { label: 'VIP', value: 'VIP' },
-  { label: 'Other', value: 'Other' }
-]
+
 
 // Table configuration
-const columns:Column[] = [
-  { key: 'name', label: 'Reservation Type', type: 'text' },
-  { key: 'category', label: 'Category', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'isDefault', label: 'Default', type: 'custom' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
+const columns = computed((): Column[] => [
+  { key: 'name', label: t('configuration.reservation_type.name'), type: 'text' },
+  { key: 'createdInfo', label: t('created_by'), type: 'custom' },
+  { key: 'modifiedInfo', label: t('modified_by'), type: 'custom' },
+])
 
-const actions:Action[] = [
+const actions = computed((): Action[] => [
   {
-    label: 'Edit',
+    label: t('configuration.reservation_type.edit'),
     handler: (item: any) => editReservationType(item),
     variant: 'primary'
   },
   {
-    label: 'Delete',
-    handler: (item: any) => deleteReservationType(item.id),
+    label: t('configuration.reservation_type.delete'),
+    handler: (item: any) => confirmDeleteReservationType(item),
     variant: 'danger'
   }
-]
+])
 
-// Functions
+// API Functions
+const fetchReservationTypes = async () => {
+  try {
+    loading.value = true
+    const response = await getReservationTypes()
+    reservationTypes.value = response.data.data.data
+  } catch (error) {
+    console.error('Error fetching reservation types:', error)
+    toast.error(t('configuration.reservation_type.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
+
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.name = ''
-  formData.description = ''
-  formData.category = ''
-  formData.isDefault = false
+  formData.value = {
+    name: '',
+  }
   showModal.value = true
 }
 
 const editReservationType = (reservationType: any) => {
   isEditing.value = true
   editingId.value = reservationType.id
-  formData.name = reservationType.name
-  formData.description = reservationType.description
-  formData.category = reservationType.category
-  formData.isDefault = reservationType.isDefault
+  formData.value = {
+    name: reservationType.name,
+  }
   showModal.value = true
 }
 
@@ -264,78 +193,72 @@ const closeModal = () => {
   showModal.value = false
   isEditing.value = false
   editingId.value = null
-  formData.name = ''
-  formData.description = ''
-  formData.category = ''
-  formData.isDefault = false
-}
-
-const saveReservationType = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing reservation type
-    const index = reservationTypes.value.findIndex(rt => rt.id === editingId.value)
-    if (index !== -1) {
-      // If setting as default, remove default from others
-      if (formData.isDefault) {
-        reservationTypes.value.forEach(rt => {
-          if (rt.id !== editingId.value) {
-            rt.isDefault = false
-          }
-        })
-      }
-      
-      reservationTypes.value[index] = {
-        ...reservationTypes.value[index],
-        name: formData.name,
-        description: formData.description,
-        category: formData.category,
-        isDefault: formData.isDefault,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
-    }
-  } else {
-    // If setting as default, remove default from others
-    if (formData.isDefault) {
-      reservationTypes.value.forEach(rt => {
-        rt.isDefault = false
-      })
-    }
-    
-    // Add new reservation type
-    const newReservationType = {
-      id: Math.max(...reservationTypes.value.map(rt => rt.id)) + 1,
-      name: formData.name,
-      description: formData.description,
-      category: formData.category,
-      isDefault: formData.isDefault,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
-    }
-    reservationTypes.value.push(newReservationType)
+  formData.value = {
+    name: '',
   }
-  closeModal()
 }
 
-const deleteReservationType = (id: number) => {
-  const reservationType = reservationTypes.value.find(rt => rt.id === id)
-  if (reservationType?.isDefault) {
-    alert('Cannot delete the default reservation type. Please set another type as default first.')
+const saveReservationType = async () => {
+  if (!formData.value.name.trim()) {
+    toast.error(t('configuration.reservation_type.name_required'))
     return
   }
-  
-  if (confirm('Are you sure you want to delete this reservation type?')) {
-    const index = reservationTypes.value.findIndex(rt => rt.id === id)
-    if (index !== -1) {
-      reservationTypes.value.splice(index, 1)
+
+  try {
+    saving.value = true
+    const payload = {
+      ...formData.value,
+      hotelId: serviceStore.serviceId
     }
+
+    if (isEditing.value && editingId.value) {
+      await updateReservationTypeById(editingId.value, payload)
+      toast.success(t('configuration.reservation_type.update_success'))
+    } else {
+      await postReservationType(payload)
+      toast.success(t('configuration.reservation_type.create_success'))
+    }
+    
+    closeModal()
+    await fetchReservationTypes()
+  } catch (error) {
+    console.error('Error saving reservation type:', error)
+    toast.error(t('configuration.reservation_type.save_error'))
+  } finally {
+    saving.value = false
+  }
+}
+
+const confirmDeleteReservationType = (reservationType: any) => {
+  reservationTypeToDelete.value = reservationType
+  showDeleteConfirmation.value = true
+}
+
+const deleteReservationType = async () => {
+  if (!reservationTypeToDelete.value) return
+
+  try {
+    await deleteReservationTypeById(reservationTypeToDelete.value.id)
+    toast.success(t('configuration.reservation_type.delete_success'))
+    showDeleteConfirmation.value = false
+    reservationTypeToDelete.value = null
+    await fetchReservationTypes()
+  } catch (error) {
+    console.error('Error deleting reservation type:', error)
+    toast.error(t('configuration.reservation_type.delete_error'))
   }
 }
 
 const onAction = (action: string, item: any) => {
-  console.log('Action:', action, 'Item:', item)
+  if (action === 'edit') {
+    editReservationType(item)
+  } else if (action === 'delete') {
+    confirmDeleteReservationType(item)
+  }
 }
+
+// Mount hook
+onMounted(() => {
+  fetchReservationTypes()
+})
 </script>

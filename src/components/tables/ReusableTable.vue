@@ -147,7 +147,7 @@
                   <!-- Dropdown Menu -->
                   <div 
                     v-if="openDropdown === index"
-                    class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-600"
+                    class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-99 border border-gray-200 dark:border-gray-600"
                     @click.stop
                   >
                     <div class="py-1">

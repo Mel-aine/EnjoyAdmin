@@ -1,199 +1,154 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Preference Type</h1>
-          <p class="text-gray-600 mt-1">
-            Preference types can be defined using this option to capture and mention different preferences as mentioned by the guests.
-          </p>
-        </div>
-        <BasicButton 
-          variant="primary"
-          icon="Plus"
-          label="Add Preference Type"
-          @click="openAddModal"
-        />
-      </div>
+      <!-- ReusableTable with integrated header -->
+      <ReusableTable :title="$t('configuration.preference_type.title')"
+        :description="$t('configuration.preference_type.description')" :columns="columns" :data="preferenceTypes"
+        :actions="actions" :loading="loading"
+        :searchPlaceholder="$t('configuration.preference_type.search_placeholder')"
+        :emptyStateTitle="$t('configuration.preference_type.empty_state_title')"
+        :emptyStateMessage="$t('configuration.preference_type.empty_state_message')" :selectable="true"
+        @action="onAction">
+        <!-- Header Actions -->
+        <template #header-actions>
+          <BasicButton variant="primary" :icon="PlusIcon"
+            :label="$t('configuration.preference_type.add_preference_type')" @click="openAddModal" />
+        </template>
 
-      <!-- Table -->
-      <div class="bg-white rounded-lg shadow">
-        <ReusableTable
-          :columns="columns"
-          :data="preferenceTypes"
-          :actions="actions"
-          :loading="false"
-          searchPlaceholder="Search preference types..."
-        />
-      </div>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </template>
+
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
+        </template>
+      </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            {{ isEditing ? 'Edit Preference Type' : 'Add Preference Type' }}
+            {{ isEditing ? $t('configuration.preference_type.edit_preference_type') :
+              $t('configuration.preference_type.add_preference_type') }}
           </h3>
-          
+
           <form @submit.prevent="savePreferenceType">
             <!-- Name -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Preference Type Name *
-              </label>
-              <Input 
-                v-model="formData.name"
-                placeholder="Enter preference type name"
-                required
-              />
-            </div>
-
-            <!-- Description -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea 
-                v-model="formData.description"
-                placeholder="Enter description (optional)"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <!-- Status -->
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                {{ $t('configuration.preference_type.name') }} *
               </label>
-              <Select 
-                v-model="formData.status"
-                :options="statusOptions"
-                placeholder="Select status"
-              />
+              <Input v-model="formData.name" :placeholder="$t('configuration.preference_type.name_placeholder')"
+                required />
             </div>
 
-            <div class="flex justify-end space-x-3">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ isEditing ? 'Update Preference Type' : 'Add Preference Type' }}
-              </button>
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton variant="secondary" @click="closeModal" type="button"
+                :label="t('configuration.reservation_type.cancel')">
+              </BasicButton>
+              <BasicButton variant="primary" type="submit"
+                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
+                :icon="isEditing ? Edit : Save" :loading="saving" :disabled="saving">
+              </BasicButton>
             </div>
           </form>
         </div>
       </div>
+
+      <!-- Delete Confirmation Modal -->
+      <ModalConfirmation v-if="showDeleteConfirmation"
+        :title="$t('configuration.preference_type.delete_confirmation_title')"
+        :message="$t('configuration.preference_type.delete_confirmation_message')" @confirm="confirmDelete"
+        @close="cancelDelete" />
     </div>
   </ConfigurationLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
-import Select from '../../../components/forms/FormElements/Select.vue'
+import ModalConfirmation from '../../../components/modal/ModalConfirmation.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import {
+  getPreferenceTypes,
+  postPreferenceType,
+  updatePreferenceTypeById,
+  deletePreferenceTypeById
+} from '../../../services/configrationApi'
+import PlusIcon from '../../../icons/PlusIcon.vue'
+
+// Composables
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref(null)
+const loading = ref(false)
+const saving = ref(false)
+const showDeleteConfirmation = ref(false)
+const preferenceTypeToDelete = ref(null)
+const preferenceTypes = ref([])
 
 // Form data
 const formData = ref({
-  name: '',
-  description: '',
-  status: 'Active'
+  name: ''
 })
 
-// Sample data
-const preferenceTypes = ref([
-  {
-    id: 1,
-    name: 'Room Location',
-    description: 'Guest preferences for room location (high floor, low floor, etc.)',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Bed Type',
-    description: 'Guest preferences for bed configuration',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Amenities',
-    description: 'Special amenity requests and preferences',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Dietary Requirements',
-    description: 'Food and beverage preferences and restrictions',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Inactive'
-  }
+// Table configuration
+const columns = computed(() => [
+  { key: 'name', label: t('configuration.preference_type.name'), type: 'text' },
+  { key: 'createdInfo', label: t('configuration.preference_type.created_by'), type: 'custom' },
+  { key: 'modifiedInfo', label: t('configuration.preference_type.modified_by'), type: 'custom' }
 ])
 
-// Options
-const statusOptions = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' }
-]
-
-// Table configuration
-const columns = [
-  { key: 'name', label: 'Preference Type', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
-
-const actions = [
+const actions = computed(() => [
   {
-    label: 'Edit',
+    label: t('configuration.preference_type.edit'),
     handler: (item) => editPreferenceType(item),
     variant: 'primary'
   },
   {
-    label: 'Delete',
-    handler: (item) => deletePreferenceType(item.id),
+    label: t('configuration.preference_type.delete'),
+    handler: (item) => confirmDeletePreferenceType(item),
     variant: 'danger'
   }
-]
+])
 
 // Functions
+const fetchPreferenceTypes = async () => {
+  try {
+    loading.value = true
+    const response = await getPreferenceTypes()
+    preferenceTypes.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error fetching preference types:', error)
+    toast.error(t('configuration.preference_type.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
+
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
   formData.value = {
-    name: '',
-    description: '',
-    status: 'Active'
+    name: ''
   }
   showModal.value = true
 }
@@ -202,47 +157,60 @@ const editPreferenceType = (item) => {
   isEditing.value = true
   editingId.value = item.id
   formData.value = {
-    name: item.name,
-    description: item.description,
-    status: item.status
+    name: item.name
   }
   showModal.value = true
 }
 
-const savePreferenceType = () => {
-  if (isEditing.value) {
-    // Update existing preference type
-    const index = preferenceTypes.value.findIndex(item => item.id === editingId.value)
-    if (index !== -1) {
-      preferenceTypes.value[index] = {
-        ...preferenceTypes.value[index],
+const savePreferenceType = async () => {
+  try {
+    saving.value = true
+
+    if (isEditing.value) {
+      // Update existing preference type
+      await updatePreferenceTypeById(editingId.value, formData.value)
+      toast.success(t('configuration.preference_type.update_success'))
+    } else {
+      // Create new preference type
+      const payload = {
         ...formData.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
+        hotelId: serviceStore.serviceId
       }
+      await postPreferenceType(payload)
+      toast.success(t('configuration.preference_type.create_success'))
     }
-  } else {
-    // Add new preference type
-    const newPreferenceType = {
-      id: Date.now(),
-      ...formData.value,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0]
-    }
-    preferenceTypes.value.unshift(newPreferenceType)
+
+    closeModal()
+    await fetchPreferenceTypes()
+  } catch (error) {
+    console.error('Error saving preference type:', error)
+    toast.error(t('configuration.preference_type.save_error'))
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deletePreferenceType = (id) => {
-  if (confirm('Are you sure you want to delete this preference type?')) {
-    const index = preferenceTypes.value.findIndex(item => item.id === id)
-    if (index !== -1) {
-      preferenceTypes.value.splice(index, 1)
-    }
+const confirmDeletePreferenceType = (item) => {
+  preferenceTypeToDelete.value = item
+  showDeleteConfirmation.value = true
+}
+
+const confirmDelete = async () => {
+  try {
+    await deletePreferenceTypeById(preferenceTypeToDelete.value.id)
+    toast.success(t('configuration.preference_type.delete_success'))
+    showDeleteConfirmation.value = false
+    preferenceTypeToDelete.value = null
+    await fetchPreferenceTypes()
+  } catch (error) {
+    console.error('Error deleting preference type:', error)
+    toast.error(t('configuration.preference_type.delete_error'))
   }
+}
+
+const cancelDelete = () => {
+  showDeleteConfirmation.value = false
+  preferenceTypeToDelete.value = null
 }
 
 const closeModal = () => {
@@ -250,9 +218,25 @@ const closeModal = () => {
   isEditing.value = false
   editingId.value = null
   formData.value = {
-    name: '',
-    description: '',
-    status: 'Active'
+    name: ''
   }
 }
+
+const onAction = (action, item) => {
+  if (action.handler === 'edit') {
+    editPreferenceType(item)
+  } else if (action.handler === 'delete') {
+    confirmDeletePreferenceType(item)
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString()
+}
+
+// Lifecycle
+onMounted(() => {
+  fetchPreferenceTypes()
+})
 </script>

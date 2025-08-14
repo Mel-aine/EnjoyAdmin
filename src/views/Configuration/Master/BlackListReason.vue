@@ -1,34 +1,51 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          {{ t('configuration.blacklist_reason.title') }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {{ t('configuration.blacklist_reason.description') }}
+        </p>
+      </div>
+
       <ReusableTable
-        title="Blacklist Reason Management"
+        :title="t('configuration.blacklist_reason.table_title')"
         :columns="columns"
         :data="blacklistReasons"
         :actions="actions"
-        search-placeholder="Search blacklist reasons..."
-        :selectable="false"
-        empty-state-title="No blacklist reasons found"
-        empty-state-message="Get started by adding a new blacklist reason."
+        :search-placeholder="t('configuration.blacklist_reason.search_placeholder')"
+        :selectable="true"
+        :empty-state-title="t('configuration.blacklist_reason.empty_state_title')"
+        :empty-state-message="t('configuration.blacklist_reason.empty_state_message')"
+        :loading="loading"
         @action="onAction"
       >
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            icon="Plus"
-            label="Add Blacklist Reason"
+            :icon="Plus"
+            :label="t('configuration.blacklist_reason.add_blacklist_reason')"
             @click="openAddModal"
           />
         </template>
 
-        <template #column-status="{ item }">
-          <span 
-            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.status }}
-          </span>
-        </template>
+         <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
 
         <template #column-severity="{ item }">
           <span 
@@ -45,10 +62,10 @@
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Blacklist Reason' : 'Add New Blacklist Reason' }}
+            {{ isEditing ? t('configuration.blacklist_reason.edit_blacklist_reason') : t('configuration.blacklist_reason.add_new_blacklist_reason') }}
           </h3>
           
           <form @submit.prevent="saveBlacklistReason" class="space-y-4">
@@ -56,50 +73,48 @@
               :lb="'Reason Name'"
               :inputType="'text'"
               :isRequired="true"
-              v-model="formData.name"
-              :placeholder="'Enter blacklist reason (e.g., Disruptive Behavior, Property Damage)'"
+              v-model="formData.reason"
+              :placeholder="'Enter blacklist reason name'"
             />
+            
+            <Select 
+               :lb="'Category'"
+               :isRequired="true"
+               v-model="formData.category"
+               :options="categoryOptions"
+               :defaultValue="'Select category'"
+             />
+             
+             <Select 
+               :lb="'Severity'"
+               :isRequired="true"
+               v-model="formData.severity"
+               :options="severityOptions"
+               :defaultValue="'Select severity level'"
+             />
             
             <Input 
               :lb="'Description'"
               :inputType="'text'"
               v-model="formData.description"
-              :placeholder="'Enter detailed description (optional)'"
+              :placeholder="'Enter description (optional)'"
             />
             
-            <Select 
-              :lb="'Category'"
-              :isRequired="true"
-              v-model="formData.category"
-              :options="categoryOptions"
-              :defaultValue="'Select category'"
-            />
-            
-            <Select 
-              :lb="'Severity Level'"
-              :isRequired="true"
-              v-model="formData.severity"
-              :options="severityOptions"
-              :defaultValue="'Select severity level'"
-            />
-            
-             
            <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 variant="secondary" 
                 @click="closeModal"
                 type="button"
-                :label="$t('cancel')"
-              >
-                Cancel
-              </BasicButton>
+                :label="t('configuration.blacklist_reason.cancel')"
+              />
               <BasicButton 
                 variant="primary" 
                 type="submit"
-                :label="isEditing ? $t('update') : $t('save') "
-                :icon="isEditing ? Edit : Save"
-              >
-              </BasicButton>
+                :icon="Save"
+                :label="isEditing ? t('configuration.blacklist_reason.update_blacklist_reason') : t('configuration.blacklist_reason.save_blacklist_reason')"
+                :loading="saving"
+                :disabled="saving"
+              />
             </div>
           </form>
         </div>
@@ -109,217 +124,219 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
+
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { Edit, Save } from 'lucide-vue-next'
-import type { Action, Column } from '../../../utils/models'
+import { useServiceStore } from '@/composables/serviceStore'
+import { 
+  getBlackListReasons, 
+  postBlackListReason, 
+  updateBlackListReasonById, 
+  deleteBlackListReasonById 
+} from '@/services/configrationApi'
+import { Save } from 'lucide-vue-next'
+import type { Column } from '../../../utils/models'
+import Plus from '../../../icons/Plus.vue'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref<number | null>(null)
+const editingId = ref(null)
+const loading = ref(false)
+const saving = ref(false)
+const blacklistReasons = ref([])
 
-const formData = reactive({
-  name: '',
-  description: '',
+const formData = ref({
+  reason: '',
   category: '',
-  severity: ''
+  severity: '',
+  description: ''
 })
 
-// Sample data
-const blacklistReasons = ref([
+// Options for select fields
+const categoryOptions = ref([
+  { value: 'Behavior', label: 'Behavior' },
+  { value: 'Payment', label: 'Payment' },
+  { value: 'Damage', label: 'Damage' },
+  { value: 'Fraud', label: 'Fraud' },
+  { value: 'Other', label: 'Other' }
+])
+
+const severityOptions = ref([
+  { value: 'Low', label: 'Low' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'High', label: 'High' }
+])
+
+// Computed properties
+const columns = computed<Column[]>(() => [
   {
-    id: 1,
-    name: 'Disruptive Behavior',
-    description: 'Guest exhibited disruptive behavior affecting other guests',
-    category: 'Behavioral',
-    severity: 'High',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
+    key: 'reason',
+    label: 'Reason Name',
+    sortable: true
   },
   {
-    id: 2,
-    name: 'Property Damage',
-    description: 'Intentional damage to hotel property',
-    category: 'Property',
-    severity: 'High',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
+    key: 'category',
+    label: 'Category',
+    sortable: true
   },
   {
-    id: 3,
-    name: 'Non-Payment',
-    description: 'Failed to pay bills or charges',
-    category: 'Financial',
-    severity: 'Medium',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
+    key: 'severity',
+    label: 'Severity',
+    sortable: true
   },
   {
-    id: 4,
-    name: 'Fraudulent Activity',
-    description: 'Involved in fraudulent transactions or activities',
-    category: 'Financial',
-    severity: 'High',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Active'
+    key: 'description',
+    label: 'Description',
+    sortable: true
   },
   {
-    id: 5,
-    name: 'Excessive Complaints',
-    description: 'Unreasonable or excessive complaints without valid basis',
-    category: 'Behavioral',
-    severity: 'Low',
-    createdBy: 'admin',
-    createdDate: '2024-01-11',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-11',
-    status: 'Active'
+    key: 'createdInfo',
+    label: t('configuration.blacklist_reason.created_by'),
+    sortable: false,
+    type:"custom"
   },
   {
-    id: 6,
-    name: 'Policy Violation',
-    description: 'Repeated violation of hotel policies',
-    category: 'Policy',
-    severity: 'Medium',
-    createdBy: 'admin',
-    createdDate: '2024-01-10',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-10',
-    status: 'Inactive'
+    key: 'modifiedInfo',
+    label: t('configuration.blacklist_reason.modified_by'),
+    sortable: false,
+    type:"custom"
+  },
+ 
+])
+
+const actions = computed(() => [
+  {
+    label: t('configuration.blacklist_reason.edit'),
+    variant: 'primary',
+    handler:(item:any)=>editBlacklistReason(item)
+  },
+  {
+    label: t('configuration.blacklist_reason.delete'),
+    variant: 'danger',
+    handler:(item:any)=>deleteBlacklistReason(item)
   }
 ])
 
-// Options
-const categoryOptions = [
-  { label: 'Behavioral', value: 'Behavioral' },
-  { label: 'Financial', value: 'Financial' },
-  { label: 'Property', value: 'Property' },
-  { label: 'Policy', value: 'Policy' },
-  { label: 'Security', value: 'Security' },
-  { label: 'Other', value: 'Other' }
-]
 
-const severityOptions = [
-  { label: 'Low', value: 'Low' },
-  { label: 'Medium', value: 'Medium' },
-  { label: 'High', value: 'High' }
-]
 
-// Table configuration
-const columns:Column[]= [
-  { key: 'name', label: 'Reason Name', type: 'text' },
-  { key: 'category', label: 'Category', type: 'text' },
-  { key: 'severity', label: 'Severity', type: 'custom' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
-
-const actions:Action[] = [
-  {
-    label: 'Edit',
-    handler: (item: any) => editBlacklistReason(item),
-    variant: 'primary'
-  },
-  {
-    label: 'Delete',
-    handler: (item: any) => deleteBlacklistReason(item.id),
-    variant: 'danger'
+// API Functions
+const fetchBlacklistReasons = async () => {
+  try {
+    loading.value = true
+    const response = await getBlackListReasons()
+    blacklistReasons.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error fetching blacklist reasons:', error)
+    toast.error(t('configuration.blacklist_reason.fetch_error'))
+  } finally {
+    loading.value = false
   }
-]
+}
 
-// Functions
 const openAddModal = () => {
+  formData.value = {
+    reason: '',
+    category: '',
+    severity: '',
+    description: ''
+  }
   isEditing.value = false
   editingId.value = null
-  formData.name = ''
-  formData.description = ''
-  formData.category = ''
-  formData.severity = ''
   showModal.value = true
 }
 
 const editBlacklistReason = (reason: any) => {
+  formData.value = {
+    reason: reason.reason || '',
+    category: reason.category || '',
+    severity: reason.severity || '',
+    description: reason.description || ''
+  }
   isEditing.value = true
   editingId.value = reason.id
-  formData.name = reason.name
-  formData.description = reason.description
-  formData.category = reason.category
-  formData.severity = reason.severity
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
+  formData.value = {
+    reason: '',
+    category: '',
+    severity: '',
+    description: ''
+  }
   isEditing.value = false
   editingId.value = null
-  formData.name = ''
-  formData.description = ''
-  formData.category = ''
-  formData.severity = ''
+  saving.value = false
 }
 
-const saveBlacklistReason = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing blacklist reason
-    const index = blacklistReasons.value.findIndex(br => br.id === editingId.value)
-    if (index !== -1) {
-      blacklistReasons.value[index] = {
-        ...blacklistReasons.value[index],
-        name: formData.name,
-        description: formData.description,
-        category: formData.category,
-        severity: formData.severity,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const saveBlacklistReason = async () => {
+  try {
+    saving.value = true
+    
+    const payload = {
+      reason: formData.value.reason,
+      category: formData.value.category,
+      severity: formData.value.severity,
+      description: formData.value.description,
+      hotelId: serviceStore.serviceId
     }
-  } else {
-    // Add new blacklist reason
-    const newBlacklistReason = {
-      id: Math.max(...blacklistReasons.value.map(br => br.id)) + 1,
-      name: formData.name,
-      description: formData.description,
-      category: formData.category,
-      severity: formData.severity,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+
+    if (isEditing.value) {
+      await updateBlackListReasonById(editingId.value!, payload)
+      toast.success(t('configuration.blacklist_reason.update_success'))
+    } else {
+      await postBlackListReason(payload)
+      toast.success(t('configuration.blacklist_reason.save_success'))
     }
-    blacklistReasons.value.push(newBlacklistReason)
+    
+    closeModal()
+    await fetchBlacklistReasons()
+  } catch (error) {
+    console.error('Error saving blacklist reason:', error)
+    const errorMessage = isEditing.value 
+      ? t('configuration.blacklist_reason.update_error')
+      : t('configuration.blacklist_reason.save_error')
+    toast.error(errorMessage)
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteBlacklistReason = (id: number) => {
-  if (confirm('Are you sure you want to delete this blacklist reason?')) {
-    const index = blacklistReasons.value.findIndex(br => br.id === id)
-    if (index !== -1) {
-      blacklistReasons.value.splice(index, 1)
-    }
+const deleteBlacklistReason = async (id: number) => {
+  try {
+    await deleteBlackListReasonById(id)
+    toast.success(t('configuration.blacklist_reason.delete_success'))
+    await fetchBlacklistReasons()
+  } catch (error) {
+    console.error('Error deleting blacklist reason:', error)
+    toast.error(t('configuration.blacklist_reason.delete_error'))
   }
 }
 
 const onAction = (action: string, item: any) => {
-  console.log('Action:', action, 'Item:', item)
+  if (action === 'edit') {
+    editBlacklistReason(item)
+  } else if (action === 'delete') {
+    if (confirm(t('configuration.blacklist_reason.delete_confirmation'))) {
+      deleteBlacklistReason(item.id)
+    }
+  }
 }
+
+// Lifecycle
+onMounted(() => {
+  fetchBlacklistReasons()
+})
 </script>

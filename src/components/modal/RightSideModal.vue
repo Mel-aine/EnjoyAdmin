@@ -63,7 +63,7 @@ const close = () => {
         <!-- Modal content -->
         <div class="flex h-full flex-col bg-white shadow-xl">
           <!-- Header -->
-          <div class="bg-white px-4 py-6 sm:px-6 border-b border-gray-200">
+          <div class="bg-white px-4 py-3 sm:px- border-b border-gray-200">
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-medium text-gray-900" v-if="title">
                 {{ title }}

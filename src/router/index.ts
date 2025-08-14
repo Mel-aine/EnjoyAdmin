@@ -16,6 +16,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/front-office/dashboard',
+      name: 'FrontOfficeDashboard',
+      component: () => import('../views/FrontOffice/FrontOfficeDashboard.vue'),
+      meta: {
+        title: 'Front Office Dashboard',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/welcome',
       name: 'welcome',
       component: () => import('../views/Pages/Welcome.vue'),
@@ -261,6 +270,40 @@ const router = createRouter({
       component: () => import('../views/Reports/Reservation/NoShowReservations.vue'),
       meta: {
         title: 'No Show Reservations',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/reservation/reservation-activity',
+      name: 'reservationActivity',
+      component: () => import('../views/Reports/Reservation/ReservationActivity.vue'),
+      meta: {
+        title: 'Reservation Activity',
+        requiresAuth: true,
+      },
+    },    {
+      path: '/reports/reservation/release-reservation-list',
+      name: 'releaseReservationList',
+      component: () => import('../views/Reports/Reservation/ReleaseReservations.vue'),
+      meta: {
+        title: 'Release Reservation List',
+        requiresAuth: true,
+      },
+    },    {
+      path: '/reports/reservation/country-wise-reservation-statistics',
+      name: 'countryWiseReservationStatistics',
+      component: () => import('../views/Reports/Reservation/CountryWiseReservations.vue'),
+      meta: {
+        title: 'Country Wise Reservation Statistics',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/reservation/void-reservation',
+      name: 'voidReservation',
+      component: () => import('../views/Reports/Reservation/VoidReservations.vue'),
+      meta: {
+        title: 'void Reservations',
         requiresAuth: true,
       },
     },
@@ -737,11 +780,11 @@ const router = createRouter({
       },
     },
     {
-      path: '/configuration/master/communication-mode',
-      name: 'CommunicationMode',
-      component: () => import('../views/Configuration/Master/CommunicationMode.vue'),
+      path: '/configuration/master/transportation-mode',
+      name: 'TransportationMode',
+      component: () => import('../views/Configuration/Master/TransportationMode.vue'),
       meta: {
-        title: 'Communication Mode',
+        title: 'Transportation Mode',
         requiresAuth: true,
       },
     },
@@ -817,15 +860,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/configuration/master/source-book',
-      name: 'SourceBook',
-      component: () => import('../views/Configuration/Master/SourceBook.vue'),
-      meta: {
-        title: 'Source Book',
-        requiresAuth: true,
-      },
-    },
+    
     {
       path: '/configuration/master/business-source',
       name: 'BusinessSource',
@@ -1246,6 +1281,25 @@ const router = createRouter({
       component: () => import('../views/Others/RightSideModalDemo.vue'),
       meta: {
         title: 'Right Side Modal Demo',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/pdf-export-demo',
+      name: 'PDF Export Demo',
+      component: () => import('../views/Others/PdfExportDemo.vue'),
+      meta: {
+        title: 'Démonstration d\'Exportation PDF',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/front-office/reservation/:id',
+      name: 'ReservationDetails',
+      component: () => import('../views/FrontOffice/reservation/ReservationDetails.vue'),
+      props: true,
+      meta: {
+        title: 'Reservation Details',
         requiresAuth: true,
       },
     },
