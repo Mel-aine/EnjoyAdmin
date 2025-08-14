@@ -27,7 +27,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           subItems: [
             {
               name: t('Dashboard'),
-              path: '/dashboard',
+              path: '/front-office/dashboard',
               permission: 'dashboard_view',
             },
             {
@@ -141,12 +141,12 @@ export const getHotelMenu = (t: (key: string) => string) => {
           ],
         },
         //back office
-        {
+        /*{
           name: t('Back Office'),
           path: '/all_booking',
           permission: 'bookings_read',
         },
-        /*
+        
         {
           icon: CalendarCheck2,
           name: t('Bookings'),
@@ -295,21 +295,21 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Setting'),
           path: '/setting',
           permission: 'settings_manage',
-        },*/
+        },
         {
           icon: FileText,
           name: t('Reports'),
           permission: 'dashboard_view',
           path: '/reports',
-        },
- {
+        },*/
+        {
           icon: FileText,
           name: t('Configuration'),
           permission: 'dashboard_view',
           path: '/reports',
         },
-        
-        
+
+
       ],
     },
   ]

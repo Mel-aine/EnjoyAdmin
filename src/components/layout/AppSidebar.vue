@@ -8,7 +8,7 @@
     </svg>
   </div>
 
-  <aside>
+  <aside >
     <div :class="[
       'fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
       {
@@ -25,7 +25,7 @@
         'pt-4 pb-4 flex-shrink-0',
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
-        <router-link to="/dashboard" class="flex items-center gap-2" >
+        <div class="flex items-center gap-2" >
           <img v-if="isExpanded || isHovered || isMobileOpen"
             class="dark:hidden rounded-full w-10"
             :src="currentService?.logo || '/src/assets/images/header/logo2.png'"
@@ -42,7 +42,7 @@
             class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
             {{ serviceName }}
           </span>
-        </router-link>
+        </div>
       </div>
 
       <!-- Zone de navigation scrollable -->
@@ -211,8 +211,9 @@ const openSubSubmenu = ref<string | null>(null);
 
 const serviceName = computed(() => {
   try {
+    console.log('currentService:', serviceStore.currentService)
     const service = JSON.parse(serviceStore.currentService || '{}');
-    return service.name || 'Nom inconnu';
+    return service.hotelName;
   } catch (e) {
     console.error('Erreur lors du parsing de currentService:', e);
     return 'Nom inconnu';

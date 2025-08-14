@@ -11,7 +11,7 @@
       <!-- Main Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
         <!-- Arrival Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800  p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ $t('frontOffice.dashboard.arrival') }}
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Checked Out Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800  p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ $t('frontOffice.dashboard.checkedOut') }}
@@ -125,7 +125,7 @@
         </div>
 
         <!-- Guest In House Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800  p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ $t('frontOffice.dashboard.guestInHouse') }}
@@ -182,7 +182,7 @@
         </div>
 
         <!-- Room Status Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800  p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ $t('frontOffice.dashboard.roomStatus') }}
@@ -262,13 +262,13 @@
           </div>
         </div>
         <div class="lg:col-span-2">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="bg-white dark:bg-gray-800  p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               {{ $t('frontOffice.dashboard.housekeepingStatus') }}
             </h3>
             <div class="flex items-center justify-center h-52">
               <!-- Bar Chart for Housekeeping Status -->
-              <div class="flex items-end space-x-4 h-40">
+              <div class="flex items-end space-x-4 h-50 overflow-auto">
                 <div class="flex flex-col items-center">
                   <div class="bg-green-500 rounded-t" :style="{ height: `${(housekeepingStats.clean / Math.max(...Object.values(housekeepingStats))) * 180}px`, width: '40px' }"></div>
                   <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">{{ $t('frontOffice.dashboard.clean') }}</span>
@@ -280,12 +280,12 @@
                   <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.hkAssign }}</span>
                 </div>
                 <div class="flex flex-col items-center">
-                  <div class="bg-orange-500 rounded-t" :style="{ height: `${(housekeepingStats.dirty / Math.max(...Object.values(housekeepingStats))) * 180}px`, width: '40px' }"></div>
+                  <div class="bg-orange-500 rounded-t max-h-40" :style="{ height: `${(housekeepingStats.dirty / Math.max(...Object.values(housekeepingStats))) * 180}px`, width: '40px' }"></div>
                   <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">{{ $t('frontOffice.dashboard.dirty') }}</span>
                   <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.dirty }}</span>
                 </div>
                 <div class="flex flex-col items-center">
-                  <div class="bg-red-500 rounded-t" :style="{ height: `${(housekeepingStats.block / Math.max(...Object.values(housekeepingStats))) * 180}px`, width: '40px' }"></div>
+                  <div class="bg-red-500 rounded-t max-h-40" :style="{ height: `${(housekeepingStats.block / Math.max(...Object.values(housekeepingStats))) * 180}px`, width: '40px' }"></div>
                   <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">{{ $t('frontOffice.dashboard.block') }}</span>
                   <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.block }}</span>
                 </div>
@@ -295,12 +295,11 @@
         </div>
       </div>
 
-      <!-- Housekeeping Status Chart -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         
 
         <!-- Notifications Panel -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800  p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ $t('frontOffice.dashboard.notifications') }}
           </h3>
@@ -319,7 +318,7 @@
           </div>
         </div>
         <!-- Activity Feeds -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div class="bg-white dark:bg-gray-800  p-6">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
             {{ $t('frontOffice.dashboard.activityFeeds') }}
@@ -397,8 +396,8 @@ const roomStatusStats = ref({
 
 const housekeepingStats = ref({
   clean: 1,
-  hkAssign: 14,
-  dirty: 7,
+  hkAssign: 5,
+  dirty: 2,
   block: 4
 })
 

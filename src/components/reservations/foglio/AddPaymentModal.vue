@@ -12,7 +12,7 @@
 
       <!-- Folio -->
       <div>
-        <Select v-model="formData.folio" :options="foliosOptions" :lb="$t('Folio')" />
+        <Select v-model="formData.folio" :options="folioOptions" :lb="$t('Folio')" />
       </div>
 
       <!-- Rec/Vou # -->

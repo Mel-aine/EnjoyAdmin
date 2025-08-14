@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, PencilIcon, Pin, PlusCircle, User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus } from 'lucide-vue-next';
+import { ArrowLeft, Building2Icon, PencilIcon, Pin, PlusCircle, User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
 import ChevromLeftIcon from '../../../icons/ChevromLeftIcon.vue';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
+import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue';
 import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
 
 // Simple Button component
@@ -15,8 +16,8 @@ const { t } = useI18n();
 const tabs = computed(() => [
     { id: 'folio_operations', label: t('Folio Operations') },
     { id: 'booking_details', label: t('Booking Details') },
-    { id: 'guestç_details', label: t('Guest Details') },
-    { id: 'Room charges', label: t('Room Charges') },
+    { id: 'guest_details', label: t('Guest Details') },
+    { id: 'room_charges', label: t('Room Charges') },
     { id: 'credid_card', label: t('Credit Card') },
     { id: 'audit_trial', label: t('Audit Trail') },
 
@@ -67,7 +68,7 @@ const handleOptionSelected = (option: any) => {
                     <span class="text-sm font-bold">{{ $t('Arrival') }}</span>
                     <span class="text-xs flex gap-2">
                         <span>10/11/2025-19:58</span>
-                        <span @click="alert('change')">
+                        <span>
                             <PencilIcon class="w-3" />
                         </span>
                     </span>
@@ -77,7 +78,7 @@ const handleOptionSelected = (option: any) => {
                     <span class="text-sm font-bold">{{ $t('Depature') }}</span>
                     <span class="text-xs flex gap-2">
                         <span>10/11/2025-19:58</span>
-                        <span @click="alert('change')">
+                        <span @click="">
                             <PencilIcon class="w-3" />
                         </span>
                     </span>
@@ -132,90 +133,21 @@ const handleOptionSelected = (option: any) => {
                 <div class="align-middle self-center items-center">
                     <ButtonDropdown 
                         :options="dropdownOptions"
-                        :button-text="$t('More Options')"
-                        button-class="bg-blue-600 text-white hover:bg-blue-700"
+                        :button-text="$t('Options')"
+                        button-class="bg-primary text-white hover:bg-primary/25"
                         dropdown-class="w-64"
                         @option-selected="handleOptionSelected"
                     />
                 </div>
             </div>
         </div>
-        <div class="flex h-[calc(100vh-160px)]  mx-4">
-            <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
-                <div class="h-full flex flex-col justify-between">
-                    <div class="bg-white h-full">
-                        <div class="flex justify-between pt-2 px-2">
-                            <span>Room/foglo</span>
-                            <button>
-                                <PlusCircle />
-                            </button>
-                        </div>
-                        <div class="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-50"
-                            @click="isOpen = !isOpen">
-                            <span>Room Details</span>
-                            <ChevromLeftIcon class="w-4 h-4 transition-transform duration-200" :class="[
-                                isOpen ? 'rotate-90 text-green-500' : '-rotate-90 text-red-500'
-                            ]" />
-                        </div>
-                        <div v-if="isOpen">
-                            isOpen
-                        </div>
-                    </div>
-                    <div class="px-4">
-                        <div class="flex justify-between">
-                            <span>{{ $t('total') }}</span>
-                            <span>2000xaf</span>
-                        </div>
-                        <div class="flex justify-between  text-yellow-200">
-                            <span>{{ $t('balence') }}</span>
-                            <span>2000xaf</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="w-10/12">
-                <!-- Tab Content -->
-                <div v-if="activeTab === 'folio_operations'">
-                    <FoglioOperation />
-                </div>
-                <div v-else-if="activeTab === 'booking_details'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Booking Details') }}</h3>
-                        <p class="mt-2">{{ $t('Booking details content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'guestç_details'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Guest Details') }}</h3>
-                        <p class="mt-2">{{ $t('Guest details content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'Room charges'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Room Charges') }}</h3>
-                        <p class="mt-2">{{ $t('Room charges content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'credid_card'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Credit Card') }}</h3>
-                        <p class="mt-2">{{ $t('Credit card content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'audit_trial'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Audit Trail') }}</h3>
-                        <p class="mt-2">{{ $t('Audit trail content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Welcome') }}</h3>
-                        <p class="mt-2">{{ $t('Select a tab to view content') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+       <!--tab content-->
+       <div v-if="activeTab === 'room_charges'">
+            <RoomCharge></RoomCharge>
+       </div>
+       <div v-if="activeTab === 'folio_operations'">
+            <FoglioOperation></FoglioOperation>
+    </div>
     </div>
 </template>
 
