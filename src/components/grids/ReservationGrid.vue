@@ -37,18 +37,8 @@
           </button>
         </div>
 
-        <!-- Sort Dropdown -->
-        <select v-model="sortBy"
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-          <option value="date">{{ $t('Sort by Check-in') }}</option>
-          <option value="dateD">{{ $t('Sort by Check-out') }}</option>
-          <option value="userFullName">{{ $t('Sort by Name') }}</option>
-          <option value="totalAmount">{{ $t('Sort by Amount') }}</option>
-          <option value="status">{{ $t('Sort by Status') }}</option>
-        </select>
-
         <!-- Add Booking Button -->
-        <BasicButton :label="$t('AddBooking')" @click="openBookingModal"  variant="primary"
+        <BasicButton :label="$t('AddBooking')" @click="openBookingModal" variant="primary"
           class="transform hover:scale-105">
         </BasicButton>
         <BookingFilter @filter="applyFilter" />
@@ -62,95 +52,8 @@
 
     <!-- Grid View -->
     <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div v-for="reservation in paginatedReservations" :key="reservation.id"
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group">
-        <!-- Card Header -->
-        <div class="p-4 border-b border-gray-100 dark:border-gray-700">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate">
-              {{ reservation.userFullName }}
-            </h3>
-            <div class="flex gap-1">
-              <span :class="[
-                'px-2 py-1 rounded-full text-xs font-medium',
-                reservation.statusColor.bg,
-                reservation.statusColor.text
-              ]">
-                {{ reservation.statusColor.label }}
-              </span>
-            </div>
-          </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-            #{{ reservation.reservationNumber }}
-          </p>
-        </div>
-
-        <!-- Card Body -->
-        <div class="p-4 space-y-3">
-          <!-- Dates -->
-          <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>{{ formatDate(reservation.date) }}</span>
-            <span class="mx-2">→</span>
-            <span>{{ formatDate(reservation.dateD) }}</span>
-          </div>
-
-          <!-- Contact Info -->
-          <div v-if="reservation.email" class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span class="truncate">{{ reservation.email }}</span>
-          </div>
-
-          <div v-if="reservation.phone" class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            <span>{{ reservation.phone }}</span>
-          </div>
-
-          <!-- Amount and Payment Status -->
-          <div class="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
-            <div class="text-lg font-bold text-gray-900 dark:text-white">
-              {{ formatCurrency(reservation.totalAmount) }}
-            </div>
-            <span :class="[
-              'px-2 py-1 rounded-full text-xs font-medium',
-              reservation.paymentStatusColor.bg,
-              reservation.paymentStatusColor.text
-            ]">
-              {{ reservation.paymentStatusColor.label }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Card Actions -->
-        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-2">
-          <button @click="handleBookingAction('view', reservation)"
-            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md transition-colors">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            {{ $t('View') }}
-          </button>
-          <button @click="handleBookingAction('edit', reservation)"
-            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            {{ $t('Edit') }}
-          </button>
-        </div>
+      <div v-for="reservation in paginatedReservations" :key="reservation.id">
+        <ReservationCardItem :reservation="reservation" />
       </div>
     </div>
 
@@ -158,7 +61,8 @@
     <div v-else-if="viewMode === 'list'">
       <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations" :actions="tableActions"
         :searchable="false" :empty-state-title="$t('No reservations')"
-        :empty-state-message="$t('Get started by creating a new reservation.')" @action="onTableAction">
+        :empty-state-description="$t('Get started by creating a new reservation.')" @action="onTableAction"
+        :title="$t('Reservations')">
         <!-- Custom column for reservation number -->
         <template #column-reservationNumber="{ item }">
           <div class="text-sm font-medium text-gray-900 dark:text-white">
@@ -259,7 +163,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { filterReservation, deleteReservation } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { ReservationType } from '@/types/option'
 import { useRouter } from 'vue-router'
@@ -273,6 +176,13 @@ import type { FitlterItem } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import AddBookingModal from '../modal/AddBookingModal.vue'
 import BookingForm from '@/views/Bookings/BookingForm.vue'
+import { filterReservation } from '../../services/hotelApi'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, User2Icon, UserCircle2Icon, UserMinus, X } from 'lucide-vue-next'
+import { formatTime } from '../utilities/UtilitiesFunction'
+import Adult from '../../icons/Adult.vue'
+import Child from '../../icons/Child.vue'
+import ButtomDropdownAction from '../common/ButtomDropdownAction.vue'
+import ReservationCardItem from '../reservations/ReservationCardItem.vue'
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -414,7 +324,7 @@ const applyFilter = async (filter: FitlterItem) => {
     if (res.status === 200 || res.status === 201) {
       console.log(res.data)
       reservations.value = res.data.map((res: any) => {
-        const user = res.user
+        const user = res.guest
         const statusClasses = getStatusColor(res.status).split(' ')
         const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
 
@@ -526,22 +436,24 @@ onMounted(async () => {
   })
 })
 
-const openBookingModal =()=>{
+const openBookingModal = () => {
   // showBookingModal.value = true
   router.push({ name: 'New Booking' })
 }
-const refresh =()=>{
- applyFilter(filter)
+const refresh = () => {
+  applyFilter(filter)
 }
+
+
 </script>
 
 <style scoped>
-.grid {
+.grid_a {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
 @media (max-width: 768px) {
-  .grid {
+  .grid_a {
     grid-template-columns: 1fr;
   }
 }
