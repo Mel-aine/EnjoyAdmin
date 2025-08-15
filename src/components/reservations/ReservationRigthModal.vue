@@ -16,13 +16,23 @@
                                 <HouseIcon class="w-8 h-8 text-primary" />
                             </div>
                             <div>
-                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {{ reservationData.guest.firstName }} {{ reservationData.guest.lastName }}
-
-                                </h2>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ reservationData?.reservationNumber }}
-                                </p>
+                                <div v-if="isLoading" class="animate-pulse">
+                                    <div class="h-6 bg-gray-200 rounded w-32 mb-2"></div>
+                                    <div class="h-4 bg-gray-200 rounded w-24"></div>
+                                </div>
+                                <div v-else-if="reservation">
+                                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ reservation.guest?.firstName }} {{ reservation.guest?.lastName }}
+                                    </h2>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ reservation?.reservationNumber }}
+                                    </p>
+                                </div>
+                                <div v-else>
+                                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ t('noData') }}
+                                    </h2>
+                                </div>
                             </div>
                         </div>
 
@@ -41,26 +51,51 @@
                             <slot>
                                 <!-- Default content -->
                                 <div class="space-y-6 max-w-2xl">
-
-                                    <div class="grid grid-cols-3 gap-4">
-
+                                    <!-- Loading skeleton for buttons -->
+                                    <div v-if="isLoading" class="grid grid-cols-3 gap-4">
+                                        <div class="animate-pulse h-10 bg-gray-200 rounded"></div>
+                                        <div class="animate-pulse h-10 bg-gray-200 rounded"></div>
+                                        <div class="animate-pulse h-10 bg-gray-200 rounded"></div>
+                                    </div>
+                                    
+                                    <!-- Actual buttons -->
+                                    <div v-else class="grid grid-cols-3 gap-4">
                                         <BasicButton :label="$t('edit')" variant="primary" />
                                         <ButtonDropdown :options="dropdownOptions" :button-text="t('options')" @option-selected="handleOptionSelected" />
-
                                         <ButtonDropdown :options="dropdownOptions" :button-text="t('print')" />
-
-
                                     </div>
 
                                     <!-- Reservation Info -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Loading skeleton for left column -->
+                                        <div class="space-y-4">
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-32"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-16 mb-2"></div>
+                                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-28"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-28"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div class="space-y-4">
                                             <div>
                                                 <label
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                     {{ $t('reservationNumber') }}
                                                 </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.reservationNumber || $t('notAvailable') }}</p>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservation?.reservationNumber || $t('notAvailable') }}</p>
                                             </div>
 
                                             <div>
@@ -70,7 +105,7 @@
                                                 </label>
                                                 <span
                                                     class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                    {{ reservationData?.status || $t('confirmed') }}
+                                                    {{ reservation?.status || $t('confirmed') }}
                                                 </span>
                                             </div>
 
@@ -79,8 +114,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                     {{ $t('arrivalDate') }}
                                                 </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{
-                                                    formatDate(reservationData?.checkInDate) }}</p>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(reservation?.checkInDate) }}</p>
                                             </div>
 
                                             <div>
@@ -88,18 +122,37 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                     {{ $t('departureDate') }}
                                                 </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{
-                                                    formatDate(reservationData?.checkOutDate) }}</p>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(reservation?.checkOutDate) }}</p>
                                             </div>
                                         </div>
 
-                                        <div class="space-y-4">
+                                        <div v-if="isLoading" class="space-y-4">
+                                            <!-- Loading skeleton for right column -->
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-24"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-16"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-18 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-28"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                                                <div class="h-5 bg-gray-200 rounded w-20"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div v-else class="space-y-4">
                                             <div>
                                                 <label
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                     {{ $t('roomType') }}
                                                 </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.roomType || $t('notAvailable') }}</p>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservation?.roomType || $t('notAvailable') }}</p>
                                             </div>
 
                                             <div>
@@ -107,7 +160,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                     {{ $t('roomNumber') }}
                                                 </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.roomNumber || $t('notAvailable') }}</p>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservation?.roomNumber || $t('notAvailable') }}</p>
                                             </div>
 
                                             <div>
@@ -115,7 +168,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                     {{ $t('ratePlan') }}
                                                 </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.ratePlan || $t('notAvailable') }}</p>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservation?.ratePlan || $t('notAvailable') }}</p>
                                             </div>
 
                                             <div>
@@ -124,7 +177,60 @@
                                                     {{ $t('avgDailyRate') }}
                                                 </label>
                                                 <p class="text-sm text-gray-900 dark:text-white">{{
-                                                    formatCurrency(reservationData?.avgDailyRate) }}</p>
+                                                    formatCurrency(reservation?.avgDailyRate) }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Financial Information -->
+                                    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                            {{ $t('financialInformation') }}
+                                        </h4>
+                                        
+                                        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <!-- Loading skeleton for financial info -->
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+                                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                            </div>
+                                            <div class="animate-pulse">
+                                                <div class="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    {{ $t('totalAmount') }}
+                                                </label>
+                                                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                    {{ formatCurrency(reservation?.totalAmount) }}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    {{ $t('paidAmount') }}
+                                                </label>
+                                                <p class="text-lg font-semibold text-green-600">
+                                                    {{ formatCurrency(reservation?.paidAmount) }}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    {{ $t('remainingBalance') }}
+                                                </label>
+                                                <p class="text-lg font-semibold text-red-600">
+                                                    {{ formatCurrency(reservation?.remainingBalance) }}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -138,22 +244,35 @@
                         <div class="flex justify-end space-x-3">
                             <slot name="footer">
                                 <!-- Amount and Payment Status -->
-                                <div
+                                <div v-if="isLoading"
+                                    class=" w-full flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
+                                    <div class="flex justify-between animate-pulse">
+                                        <div class="h-4 bg-gray-200 rounded w-12"></div>
+                                        <div class="h-4 bg-gray-200 rounded w-16"></div>
+                                    </div>
+                                    <div class="flex justify-between animate-pulse">
+                                        <div class="h-4 bg-gray-200 rounded w-10"></div>
+                                        <div class="h-4 bg-gray-200 rounded w-16"></div>
+                                    </div>
+                                    <div class="flex justify-between animate-pulse">
+                                        <div class="h-4 bg-gray-200 rounded w-14"></div>
+                                        <div class="h-4 bg-gray-200 rounded w-16"></div>
+                                    </div>
+                                </div>
+                                
+                                <div v-else
                                     class=" w-full flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservationData?.totalAmount ?? 0)
-                                        }}</span>
+                                        <span class="text-sm">{{ formatCurrency(reservation?.totalAmount ?? 0) }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservationData?.paidAmount ?? 0)
-                                        }}</span>
+                                        <span class="text-sm">{{ formatCurrency(reservation?.paidAmount ?? 0) }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservationData?.remainingAmount ?? 0)
-                                            }}</span>
+                                        <span class="text-sm">{{ formatCurrency(reservation?.remainingAmount ?? 0) }}</span>
                                     </div>
                                 </div>
                             </slot>
@@ -166,7 +285,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { ReservationDetails } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
@@ -174,8 +293,41 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
+import { useReservation } from '../../composables/useReservation'
+import { getReservationDetailsById } from '../../services/reservation'
+
 const { t } = useI18n()
 const router = useRouter()
+
+// Loading state
+const isLoading = ref(false)
+const reservation = ref<ReservationDetails | null>(null)
+
+// Initialize the reservation composable
+const {
+    isCheckingIn,
+    isCheckingOut,
+    isAmendingStay,
+    isMovingRoom,
+    isExchangingRoom,
+    isStoppingRoomMove,
+    isUpdatingInclusionList,
+    isCancelingReservation,
+    isMarkingNoShow,
+    isVoidingReservation,
+    isUnassigningRoom,
+    performCheckIn,
+    performCheckOut,
+    performAmendStay,
+    performRoomMove,
+    performExchangeRoom,
+    performStopRoomMove,
+    performUpdateInclusionList,
+    performCancelReservation,
+    performMarkNoShow,
+    performVoidReservation,
+    performUnassignRoom
+} = useReservation();
 interface Props {
     isOpen: boolean
     title?: string
@@ -204,6 +356,62 @@ const handleSave = () => {
     emit('save', props.reservationData)
 }
 
+// Function to load booking details by ID
+const getBookingDetailsById = async (reservationId?: number) => {
+    if (!reservationId) return
+    
+    isLoading.value = true
+    try {
+        const response = await getReservationDetailsById(reservationId)
+        console.log('reservation result', response)
+        if (response.status === 200 || response.data) {
+            reservation.value = response.data || response
+        }
+    } catch (error) {
+        console.error('Error loading reservation details:', error)
+    } finally {
+        isLoading.value = false
+    }
+}
+
+// Watch for changes in props or route params to load data
+watch(() => props.isOpen, (newValue) => {
+    if (newValue) {
+        // If reservationData is provided as prop, use it
+        if (props.reservationData) {
+            reservation.value = props.reservationData
+        } else {
+            // Otherwise, try to get ID from route params
+            const id = router.currentRoute.value.params.id
+            if (id) {
+                getBookingDetailsById(Number(id))
+            }
+        }
+    }
+})
+
+// Watch for changes in reservationData prop
+watch(() => props.reservationData, (newData) => {
+    if (newData) {
+        reservation.value = newData
+        isLoading.value = false
+    }
+})
+
+// Load data on mount if modal is already open
+onMounted(() => {
+    if (props.isOpen) {
+        if (props.reservationData) {
+            reservation.value = props.reservationData
+        } else {
+            const id = router.currentRoute.value.params.id
+            if (id) {
+                getBookingDetailsById(Number(id))
+            }
+        }
+    }
+})
+
 const formatDate = (dateString?: string) => {
     if (!dateString) return t('notAvailable')
     try {
@@ -223,6 +431,7 @@ const formatDate = (dateString?: string) => {
 // Icon mapping for different actions
 const actionIconMap = {
     'check_in': CheckCircle,
+    'check_out': CheckCircle,
     'add_payment': CreditCard,
     'amend_stay': Calendar,
     'room_move': ArrowUpDown,
@@ -238,6 +447,7 @@ const actionIconMap = {
 // Color mapping for different actions
 const actionColorMap = {
     'check_in': 'text-blue-600',
+    'check_out': 'text-green-600',
     'add_payment': 'text-green-600',
     'amend_stay': 'text-purple-600',
     'room_move': 'text-orange-600',
@@ -267,42 +477,56 @@ const dropdownOptions = computed(() => {
         }));
 });
 
-const handleOptionSelected = (option: any) => {
+const handleOptionSelected = async (option: any) => {
     // Handle routing for available actions
     if (option.route) {
         router.push(option.route);
         return;
     }
     
-    // Handle specific actions that might need custom logic
+    if (!props.reservationData?.reservationNumber) {
+        console.error('No reservation data available');
+        return;
+    }
+    
+    // Handle specific actions using the composable
     switch (option.id) {
         case 'add_payment':
-            // Custom logic for add payment if needed
+            // Handle add payment - might need custom routing or modal
             console.log('Add payment action triggered');
             break;
         case 'amend_stay':
-            // Custom logic for amend stay if needed
-            console.log('Amend stay action triggered');
+            await performAmendStay(props.reservationData.reservationNumber);
             break;
         case 'cancel_reservation':
-            // Custom logic for cancel reservation if needed
-            console.log('Cancel reservation action triggered');
+            await performCancelReservation(props.reservationData.reservationNumber);
             break;
         case 'void_reservation':
-            // Custom logic for void reservation if needed
-            console.log('Void reservation action triggered');
+            await performVoidReservation(props.reservationData.reservationNumber);
             break;
         case 'unassign_room':
-            // Custom logic for unassign room if needed
-            console.log('Unassign room action triggered');
+            await performUnassignRoom(props.reservationData.reservationNumber);
             break;
         case 'inclusion_list':
-            // Custom logic for inclusion list if needed
-            console.log('Inclusion list action triggered');
+            await performUpdateInclusionList(props.reservationData.reservationNumber);
             break;
         case 'check_in':
-            // Custom logic for check in if needed
-            console.log('Check in action triggered');
+             await performCheckIn(props.reservationData.reservationNumber);
+             break;
+         case 'check_out':
+             await performCheckOut(props.reservationData.reservationNumber);
+             break;
+         case 'room_move':
+            await performRoomMove(props.reservationData.reservationNumber);
+            break;
+        case 'exchange_room':
+            await performExchangeRoom(props.reservationData.reservationNumber);
+            break;
+        case 'stop_room_move':
+            await performStopRoomMove(props.reservationData.reservationNumber);
+            break;
+        case 'no_show':
+            await performMarkNoShow(props.reservationData.reservationNumber);
             break;
         default:
             console.log(`Action ${option.id} not handled`);

@@ -453,3 +453,13 @@ export interface Action {
   variant?: 'primary' | 'success' | 'warning' | 'danger'
   condition?: (item: any) => boolean // Optional condition to show/hide action
 }
+
+
+export interface CheckInReservationPayload {
+  reservationRooms: number[],
+  actualCheckInTime: string,
+  notes?: string,
+  keyCardsIssued?: number,
+  depositAmount?: number
+
+}

@@ -7,7 +7,34 @@ import { formatCurrency, formatTime } from '../utilities/UtilitiesFunction';
 import router from '../../router';
 import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
+import { useReservation } from '../../composables/useReservation';
 const { t, locale } = useI18n({ useScope: 'global' })
+
+// Initialize the reservation composable
+const {
+    isCheckingIn,
+    isCheckingOut,
+    isAmendingStay,
+    isMovingRoom,
+    isExchangingRoom,
+    isStoppingRoomMove,
+    isUpdatingInclusionList,
+    isCancelingReservation,
+    isMarkingNoShow,
+    isVoidingReservation,
+    isUnassigningRoom,
+    performCheckIn,
+    performCheckOut,
+    performAmendStay,
+    performRoomMove,
+    performExchangeRoom,
+    performStopRoomMove,
+    performUpdateInclusionList,
+    performCancelReservation,
+    performMarkNoShow,
+    performVoidReservation,
+    performUnassignRoom
+} = useReservation();
 const props = defineProps({
   reservation: {
     type: Object,
@@ -18,6 +45,7 @@ const props = defineProps({
 const actionIconMap = {
   'view': Eye,
   'check_in': CheckCircle,
+  'check_out': CheckCircle,
   'add_payment': CreditCard,
   'amend_stay': Calendar,
   'room_move': ArrowUpDown,
@@ -34,6 +62,7 @@ const actionIconMap = {
 const actionColorMap = {
   'view': 'text-blue-600',
   'check_in': 'text-blue-600',
+  'check_out': 'text-green-600',
   'add_payment': 'text-green-600',
   'amend_stay': 'text-purple-600',
   'room_move': 'text-orange-600',
@@ -74,7 +103,7 @@ const dropdownOptions = computed(() => {
   return options;
 });
 
-const handleOptionSelected = (option: any) => {
+const handleOptionSelected = async (option: any) => {
   console.log('Selected option:', option);
   if (option.id === 'view') {
     router.push({
@@ -84,32 +113,49 @@ const handleOptionSelected = (option: any) => {
     return;
   }
   
+  if (!props.reservation?.reservationNumber) {
+    console.error('No reservation number available');
+    return;
+  }
   
-  // Handle specific actions that might need custom logic
+  // Handle specific actions using the composable
   switch (option.id) {
     case 'add_payment':
-      // Custom logic for add payment if needed
+      // Handle add payment - might need custom routing or modal
       console.log('Add payment action triggered');
       break;
+    case 'check_in':
+      await performCheckIn(props.reservation.reservationNumber);
+      break;
+    case 'check_out':
+      await performCheckOut(props.reservation.reservationNumber);
+      break;
     case 'amend_stay':
-      // Custom logic for amend stay if needed
-      console.log('Amend stay action triggered');
+      await performAmendStay(props.reservation.reservationNumber);
+      break;
+    case 'room_move':
+      await performRoomMove(props.reservation.reservationNumber);
+      break;
+    case 'exchange_room':
+      await performExchangeRoom(props.reservation.reservationNumber);
+      break;
+    case 'stop_room_move':
+      await performStopRoomMove(props.reservation.reservationNumber);
       break;
     case 'cancel_reservation':
-      // Custom logic for cancel reservation if needed
-      console.log('Cancel reservation action triggered');
+      await performCancelReservation(props.reservation.reservationNumber);
       break;
     case 'void_reservation':
-      // Custom logic for void reservation if needed
-      console.log('Void reservation action triggered');
+      await performVoidReservation(props.reservation.reservationNumber);
       break;
     case 'unassign_room':
-      // Custom logic for unassign room if needed
-      console.log('Unassign room action triggered');
+      await performUnassignRoom(props.reservation.reservationNumber);
       break;
     case 'inclusion_list':
-      // Custom logic for inclusion list if needed
-      console.log('Inclusion list action triggered');
+      await performUpdateInclusionList(props.reservation.reservationNumber);
+      break;
+    case 'no_show':
+      await performMarkNoShow(props.reservation.reservationNumber);
       break;
     default:
       console.log(`Action ${option.id} not handled`);

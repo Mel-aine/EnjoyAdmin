@@ -48,8 +48,8 @@ const handleApiError = (error: any): never => {
 // Check-in d'une réservation
 export const checkInReservation = async (reservationId: number,datas:any): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-in`,datas,headers
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/checkin`,datas,headers
     )
     console.log(response.data)
     return response.data
@@ -63,8 +63,8 @@ export const checkInReservations = async (
   reservationServiceProductIds: number[]
 ): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-in`,
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/checkin`,
       { reservationServiceProducts: reservationServiceProductIds },headers
     );
     return response.data;
