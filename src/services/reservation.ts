@@ -136,3 +136,19 @@ export const getReservatonCustomers = async (serviceProductId:  number): Promise
   }
 }
 
+/**
+ *
+ * @param hotel_id
+ * @returns
+ */
+export const getCustomer = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${id}/customer`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
+}
