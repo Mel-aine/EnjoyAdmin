@@ -118,6 +118,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/lost_and_found',
+      name: 'LostAndFound',
+      component: () => import('../views/FrontOffice/LostAndFound.vue'),
+      meta: {
+        title: 'Lost and Found',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/all_room',
       name: 'All Room',
       component: () => import('../views/Room/AllRoom.vue'),
