@@ -25,9 +25,9 @@
             <!-- Left Side: Reservation Form -->
             <div class="space-y-6">
               <!-- Check-in/out dates and time -->
-              <div class="md:flex relative items-start gap-2">
+              <div class="md:flex relative items-start gap-2  ">
                 <!-- Check-In -->
-                <div class="flex flex-col">
+                <div class="flex flex-col w-full">
                   <label
                     for="checkin"
                     class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
@@ -45,7 +45,7 @@
                 </div>
 
                 <!-- Nights -->
-                <div class="flex flex-col">
+                <div class="flex flex-col w-full">
                   <Input
                     :lb="$t('nights')"
                     :disabled="true"
@@ -54,7 +54,7 @@
                 </div>
 
                 <!-- Check-Out -->
-                <div class="flex flex-col">
+                <div class="flex flex-col w-full">
                   <label
                     for="checkout"
                     class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
@@ -495,7 +495,13 @@
             </button>
 
             <div class="flex space-x-3">
-              <button
+              <button  v-if="showCheckinButton"
+                type="button"
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+              >
+                {{ $t('Check-In') }}
+              </button>
+              <button v-if="!confirmReservation"
                 type="button"
                 @click.prevent="handleSubmit()"
                 :disabled="isLoading"
@@ -518,6 +524,10 @@
       >
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
+           <span v-if="confirmReservation" class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+
+            {{ $t('ConfirmBooking') }}
+          </span>
         </div>
 
         <div class="flex justify-between text-sm text-gray-600 mb-4 border-b border-gray-300 pb-3">
@@ -641,10 +651,14 @@
               <span>{{ formatCurrency(totalRoomCharges) }}</span>
             </div>
 
-            <div class="flex justify-between text-gray-700">
+            <div v-if="!billing.taxExempt" class="flex justify-between text-gray-700">
               <span>{{ $t('Taxes') }} (15%)</span>
               <span>{{ formatCurrency(billing.taxes) }}</span>
             </div>
+             <div v-else class="flex justify-between text-green-600 text-sm">
+                <span>{{ $t('TaxExempt') }}</span>
+                <span>{{ $t('Applied') }}</span>
+             </div>
 
             <div
               class="flex justify-between font-semibold text-gray-900 border-t border-gray-300 pt-3 text-lg"
@@ -666,32 +680,34 @@
 
         <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-700">{{ $t('PaymentMode') }}</h3>
 
-        <div class="space-y-2 space-x-2">
-          <label class="inline-flex items-center cursor-pointer text-sm space-x-2">
-            <input
-              type="radio"
-              name="paymentMode"
-              value="cash"
-              v-model="billing.paymentMode"
-              class="form-radio"
-            />
-            <span>{{ $t('Cash') }}</span>
-          </label>
+         <div v-for="payment in PaymentMethods" :key="payment.id" class="space-y-2 space-x-2">
+            <label class="inline-flex items-center cursor-pointer text-sm space-x-2">
+              <input
+                type="radio"
+                name="paymentMode"
+                :value="payment.value"
+                v-model="billing.paymentMode"
+                class="form-radio"
+              />
+              <span>{{ payment.label }}</span>
+            </label>
 
-          <label class="inline-flex items-center cursor-pointer text-sm space-x-2">
-            <input
-              type="radio"
-              name="paymentMode"
-              value="credit"
-              v-model="billing.paymentMode"
-              class="form-radio"
-            />
-            <span>{{ $t('Credit') }}</span>
-          </label>
-
-          <div v-if="billing.paymentMode === 'credit'">
-            <Select :options="creditTypes" v-model="billing.creditType" />
+            <div
+              v-if="payment.type === 'BANK' && billing.paymentMode === payment.value"
+              class="ml-6 mt-1"
+            >
+              <Select
+                :options="creditTypes"
+                v-model="billing.creditType"
+                placeholder="Sélectionner le type de carte"
+              />
+            </div>
           </div>
+
+         <div v-if="isPaymentButtonShow" class="mt-4">
+          <button type="button" class="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition">
+            {{ $t('AddPayment') }}
+          </button>
         </div>
       </div>
     </div>
@@ -707,7 +723,6 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
-import router from '@/router'
 import {
   PencilLine,
   CircleChevronDown,
@@ -718,8 +733,8 @@ import {
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
-import PaymentModal from './PaymentModal2.vue'
 import { useBooking } from '@/composables/useBooking2'
+import { includes } from 'lodash'
 
 const { t } = useI18n()
 
@@ -732,21 +747,23 @@ const {
   formData,
   roomConfigurations,
   RoomTypes,
-  paymentData,
+  PaymentMethods,
+
 
   // States
   isLoading,
   isLoadingRoom,
   dateError,
   isLoadingRate,
-  isPaymentLoading,
-  isPaymentModalOpen,
+  isPaymentButtonShow,
+  confirmReservation,
 
   // Computed
   numberOfNights,
   totalRoomCharges,
   totalAmount,
-  guestFullName,
+  showCheckinButton,
+
 
   // Options
   BookingSource,
@@ -761,10 +778,7 @@ const {
   saveReservation,
   formatCurrency,
   goBack,
-  closePaymentModal,
-  processPayment,
-  formatCardNumber,
-  formatExpiryDate,
+
 
   // Room methods
   addRoom,
@@ -777,8 +791,7 @@ const {
 
   // Customer methods
   onCustomerSelected,
-
-  onOccupancyChange, // <-- Nouvelle fonction ajoutée
+  onOccupancyChange,
   getRoomExtraInfo,
 } = useBooking()
 

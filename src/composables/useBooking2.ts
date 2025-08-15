@@ -8,6 +8,7 @@ import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { createReservation, getReservationDetailsById } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
+import {getPaymentMethods} from '@/services/paymentMethodApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -123,7 +124,10 @@ export function useBooking() {
   const roomTypeRooms = ref<Map<string, Option[]>>(new Map())
   const selectBooking = ref<any | null>(null)
   const reservationId = ref<number | null>(null)
-  const isPaymentModalOpen = ref(false)
+  const RoomRateById = ref<number | null>(null)
+  const isPaymentButtonShow = ref(false)
+  const confirmReservation = ref(false)
+  const PaymentMethods = ref<any[]>([])
   const roomTypeBaseInfo = ref<
     Map<
       string,
@@ -155,7 +159,7 @@ export function useBooking() {
     },
   ])
 
-  // Form data (reste identique)
+  // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
     checkinTime: '15:00',
@@ -555,6 +559,8 @@ export function useBooking() {
         state: guest.value.state,
         city: guest.value.city,
         zipcode: guest.value.zipcode,
+        status:'confirmed',
+        reservation_status:'confirmed',
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
@@ -580,6 +586,7 @@ export function useBooking() {
             room_rate: Number(room.rate) || 0,
             adult_count: Number(room.adultCount) || 1,
             child_count: Number(room.childCount) || 0,
+            room_rate_id:RoomRateById.value
           })),
 
         // Financial
@@ -620,16 +627,10 @@ export function useBooking() {
       console.log('reservationId.value', reservationId.value)
 
       if (response.reservationId) {
-        const responseReserva = await getReservationDetailsById(reservationId.value!)
-        selectBooking.value = responseReserva?.data || null
-
-        paymentData.value.amount = billing.value.totalAmount
-        paymentData.value.paymentMethod = billing.value.paymentMode
-        paymentData.value.cardHolderName = guestFullName.value
-
-        isPaymentModalOpen.value = true
+        isPaymentButtonShow.value = true
+        confirmReservation.value = true
       }
-
+      // resetForm()
       toast.success(t('toast.reservationCreated'))
 
       return response
@@ -653,7 +654,7 @@ export function useBooking() {
     }
   }
 
-  // Utility methods (inchangés)
+  // Utility methods
   const formatCurrency = (value: number): string => {
     return `${value.toLocaleString()} XAF`
   }
@@ -728,6 +729,7 @@ export function useBooking() {
           Number(rateInfo.baseRate) || 0,
         )
 
+
         updateBilling()
       }
     } catch (error) {
@@ -746,7 +748,7 @@ export function useBooking() {
     // Reset les sélections dépendantes
     room.rateType = ''
     room.roomNumber = ''
-    room.rate = 0 // Réinitialiser à 0 (nombre)
+    room.rate = 0
 
     if (!newRoomTypeId) return
 
@@ -760,7 +762,7 @@ export function useBooking() {
       if (selectedRoomTypeData) {
         room.adultCount = Number(selectedRoomTypeData.baseAdult) || 1
         room.childCount = Number(selectedRoomTypeData.baseChild) || 0
-        room.rate = Number(selectedRoomTypeData.default_price) || 0 // Conversion explicite
+        room.rate = Number(selectedRoomTypeData.default_price) || 0
 
         // Stocker les informations avec conversion en nombres
         roomTypeBaseInfo.value.set(newRoomTypeId, {
@@ -784,13 +786,22 @@ export function useBooking() {
       return Number(total) + (roomRate * nights)
     }, 0)
 
-    const taxes = Number(roomCharges) * 0.15
+    // Calculer les taxes uniquement si pas d'exemption fiscale
+    const taxes = billing.value.taxExempt ? 0 : Number(roomCharges) * 0.15
 
     // Assigner avec conversion explicite et arrondi
     billing.value.roomCharges = Number(roomCharges.toFixed(2))
     billing.value.taxes = Number(taxes.toFixed(2))
     billing.value.totalAmount = Number((roomCharges + taxes).toFixed(2))
   }
+
+  // Ajouter un watcher pour recalculer quand taxExempt change
+  watch(
+    () => billing.value.taxExempt,
+    () => {
+      updateBilling()
+    }
+  )
 
   // Fonction onOccupancyChange
   const onOccupancyChange = (
@@ -832,6 +843,7 @@ export function useBooking() {
       })
 
       console.log('fetchRateInfo response:', response)
+      RoomRateById.value = response.id
 
       // Validation et conversion explicite des données reçues
       return {
@@ -1004,14 +1016,6 @@ export function useBooking() {
       id: 0,
     })
 
-    Object.assign(paymentData.value, {
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      cardHolderName: '',
-      amount: 0,
-      paymentMethod: 'cash',
-    })
 
     roomTypeRateTypes.value.clear()
     roomTypeRooms.value.clear()
@@ -1022,12 +1026,42 @@ export function useBooking() {
     try {
       console.log('Initializing booking composable...')
       await fetchRoomTypes()
+      await fetchPaymentMethod()
       console.log('Booking composable initialized successfully')
     } catch (error) {
       console.error('Error initializing booking composable:', error)
       toast.error(t('toast.errorInitializing'))
     }
   }
+
+  const fetchPaymentMethod = async() =>{
+    try {
+
+      const response = await getPaymentMethods(serviceStore.serviceId!)
+      console.log('response....',response.data.data)
+      PaymentMethods.value = response.data.data.map((p:any)=>{
+        return {
+          ...p,
+          label : p.methodName,
+          value : p.id
+        }
+      })
+
+    } catch (error) {
+      console.error('error',error)
+
+    }
+  }
+
+  const showCheckinButton = computed(() => {
+
+  if (!confirmReservation.value) {
+    return false
+  }
+
+  const today = new Date().toISOString().split('T')[0]
+  return reservation.value.checkinDate === today
+})
 
   return {
     // Data
@@ -1038,7 +1072,7 @@ export function useBooking() {
     formData,
     roomConfigurations,
     paymentData,
-
+    PaymentMethods,
     roomTypeBaseInfo,
 
     // Room type data
@@ -1051,6 +1085,7 @@ export function useBooking() {
     isLoadingRate,
     isPaymentLoading,
     dateError,
+    confirmReservation,
 
     // Computed
     numberOfNights,
@@ -1058,6 +1093,7 @@ export function useBooking() {
     totalAmount,
     guestFullName,
     roomExtraDetails,
+    showCheckinButton,
 
     // Options
     BookingSource,
@@ -1089,7 +1125,7 @@ export function useBooking() {
     formatCurrency,
     goBack,
     resetForm,
-    isPaymentModalOpen,
+    isPaymentButtonShow,
     selectBooking,
   }
 }
