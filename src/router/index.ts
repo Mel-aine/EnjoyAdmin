@@ -126,6 +126,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/lost_and_found',
+      name: 'LostAndFound',
+      component: () => import('../views/FrontOffice/LostAndFound.vue'),
+      meta: {
+        title: 'Lost and Found',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/all_room',
       name: 'All Room',
       component: () => import('../views/Room/AllRoom.vue'),
@@ -984,6 +993,15 @@ const router = createRouter({
       component: () => import('../components/invoice/HotelInvoice.vue'),
       meta: {
         title: 'Booking Invoice',
+        requiresAuth: true,
+      },
+    },
+       {
+      path: '/booking/invoice',
+      name: 'Invoice',
+      component: () => import('../components/invoice/Invoicehotel.vue'),
+      meta: {
+        title: 'Invoice',
         requiresAuth: true,
       },
     },

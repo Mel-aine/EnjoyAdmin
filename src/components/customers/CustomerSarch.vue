@@ -96,7 +96,7 @@ const fetchCustomers = async () => {
     const serviceId = serviceStore.serviceId;
     const response = await getCustomer(serviceId!);
     console.log('Fetched customers:', response);
-    customers.value= response.map((c:any)=>{
+    customers.value= response.data.map((c:any)=>{
       return {
         ...c,
         firstName : c.firstName,

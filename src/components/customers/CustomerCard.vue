@@ -5,7 +5,7 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { getCustomer } from '@/services/reservation'
+// import { getCustomer } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
@@ -72,7 +72,7 @@ const fetchGuest = async () => {
     const hotelId = serviceStore.serviceId
     const response = await getCustomer(hotelId!)
     console.log("fetchGuest",response)
-    customers.value = response.map((guest: any) => {
+    customers.value = response.data.map((guest: any) => {
       return {
         ...guest,
         userFullName: guest ? `${guest.firstName} ${guest.lastName}` : 'Inconnu',

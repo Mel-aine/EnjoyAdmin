@@ -1,4 +1,4 @@
-<template>
+&<template>
   <div>
   <Modal v-if="isOpen" @close="emit('close')">
     <template #body>
