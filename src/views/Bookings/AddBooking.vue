@@ -1,4 +1,4 @@
- <!-- <template>
+ <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
@@ -214,8 +214,8 @@ onMounted(async () => {
   await fetchRoomType()
   await loadReservationData()
 })
-</script> -->
- <template>
+</script>
+ <!-- <template>
   <div class="min-h-screen bg-gray-50">
 
     <div v-if="currentStep === 'booking'" class="container mx-auto px-4 py-8">
@@ -677,7 +677,6 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Étape 3: Confirmation -->
     <div v-else-if="currentStep === 'confirmation'" class="container mx-auto px-4 py-8">
       <div class="max-w-2xl mx-auto">
         <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -712,7 +711,6 @@ onMounted(async () => {
               </div>
             </div>
 
-            <!-- Détails de la réservation -->
             <div class="border border-gray-200 rounded-lg p-4">
               <h3 class="font-semibold text-lg mb-4">Détails de votre séjour</h3>
               <div class="grid grid-cols-2 gap-4 text-sm">
@@ -743,7 +741,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <!-- Informations importantes -->
+          
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 class="font-semibold text-blue-800 mb-2">Informations importantes</h4>
               <ul class="text-sm text-blue-700 space-y-1">
@@ -754,7 +752,7 @@ onMounted(async () => {
               </ul>
             </div>
 
-            <!-- Actions -->
+           
             <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t">
               <button @click="window.print()"
                       class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center justify-center">
@@ -773,7 +771,6 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Loading overlay -->
     <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 flex items-center">
         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1087,4 +1084,4 @@ const selectRateOption = (option: Option): void => {
 onMounted(() => {
   updateBilling()
 })
-</script>
+</script> -->

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watch } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
-import {  getCustomersList } from '@/services/api'
+import { getCustomer } from '@/services/reservation'
 import { useServiceStore } from '@/composables/serviceStore';
 
 const props = defineProps({
@@ -94,14 +94,14 @@ const clearSearch = () => {
 const fetchCustomers = async () => {
   try {
     const serviceId = serviceStore.serviceId;
-    const response = await getCustomersList(serviceId!);
+    const response = await getCustomer(serviceId!);
     console.log('Fetched customers:', response);
-    customers.value= response.data.map((c:any)=>{
+    customers.value= response.map((c:any)=>{
       return {
         ...c,
         firstName : c.firstName,
         lastName : c.lastName,
-        phoneNumber:c.phoneNumber,
+        phoneNumber:c.phonePrimary,
         email:c.email
 
       }

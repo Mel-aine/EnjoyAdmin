@@ -128,7 +128,13 @@
                       </div>
 
                       <div class="relative">
-                        <Select :lb="$t('configuration.rates.rateType')" :options="getRateTypesForRoom(room.id)" v-model="room.rateType" :disabled="!room.roomType" />
+                        <Select
+                          :lb="$t('configuration.rates.rateType')"
+                          :options="getRateTypesForRoom(room.id)"
+                          v-model="room.rateType"
+                          @update:modelValue="onRateTypeChange(room.id, $event)"
+                          :disabled="!room.roomType"
+                        />
                       </div>
 
                       <div class="relative">
@@ -144,17 +150,36 @@
                       </div>
 
                       <div class="relative inline-block">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('rate') }} (XAF)</label>
-                        <div class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm">
-                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-6">
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                          {{ $t('rate') }} (XAF)
+                        </label>
+                        <div class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
+                            :class="{ 'opacity-50': isLoadingRate }">
+                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3">
                             <PencilLine :size="18" />
                           </span>
-                          <span class="flex-grow font-medium">{{ room.rate }}</span>
-                          <button @click="toggleDropdown(room.id)" type="button" class="text-gray-500 hover:text-gray-700 ml-2">
-                            <CircleChevronDown :class="{
-                              'transform rotate-180 transition-transform': room.isOpen,
-                              'transition-transform': !room.isOpen,
-                            }" :size="20" />
+
+                          <!-- Indicateur de chargement du rate -->
+                          <div v-if="isLoadingRate" class="flex-grow flex items-center">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
+                          </div>
+
+                          <!-- Rate normal -->
+                          <span v-else class="flex-grow font-medium">{{ room.rate }}</span>
+
+                          <button
+                            @click="toggleDropdown(room.id)"
+                            type="button"
+                            class="text-gray-500 hover:text-gray-700 ml-2"
+                            :disabled="isLoadingRate"
+                          >
+                            <CircleChevronDown
+                              :class="{
+                                'transform rotate-180 transition-transform': room.isOpen,
+                                'transition-transform': !room.isOpen,
+                              }"
+                              :size="20"
+                            />
                           </button>
 
                           <div v-if="room.isOpen" class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
@@ -191,7 +216,7 @@
               <section class="border-t border-gray-300 pt-4 space-y-4">
                 <h2 class="text-sm font-semibold text-gray-800 uppercase">{{ $t('guest_info') }}</h2>
                 <div>
-                  <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" :customerType="reservationCustomerType" />
+                  <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
                 </div>
                 <div>
                   <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" forLabel="'address'" v-model="guest.address" />
@@ -275,10 +300,6 @@
             </button>
 
             <div class="flex space-x-3">
-              <!-- <button type="button" :disabled="isLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                {{ $t('Check-In') }}
-              </button> -->
               <button type="button" @click.prevent="handleSubmit()" :disabled="isLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
                 <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 {{ $t('Reserve') }}
@@ -292,10 +313,6 @@
       <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky lg:top-20 self-start">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
-          <button  class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-            <!-- <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div> -->
-            {{ $t('ConfirmBooking') }}
-          </button>
         </div>
 
         <div class="flex justify-between text-sm text-gray-600 mb-4 border-b border-gray-300 pb-3">
@@ -363,14 +380,31 @@
             <Select :options="creditTypes" v-model="billing.creditType" />
           </div>
         </div>
-
-        <!-- <div class="mt-4">
-          <button type="button" class="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition">
-            {{ $t('AddPayment') }}
-          </button>
-        </div> -->
       </div>
     </div>
+
+    <!-- Payment Modal -->
+    <PaymentModal
+      :isOpen="isPaymentModalOpen"
+      :paymentData="paymentData"
+      :guestFullName="guestFullName"
+      :guestEmail="formData.email"
+      :checkinDate="reservation.checkinDate"
+      :checkoutDate="reservation.checkoutDate"
+      :numberOfNights="numberOfNights"
+      :numberOfRooms="roomConfigurations.length"
+      :totalAmount="totalAmount"
+      :roomCharges="totalRoomCharges"
+      :taxes="billing.taxes"
+      :isPaymentLoading="isPaymentLoading"
+      :formatCurrency="formatCurrency"
+      :formatCardNumber="formatCardNumber"
+      :formatExpiryDate="formatExpiryDate"
+      @close="closePaymentModal"
+      @processPayment="processPayment"
+      @update:paymentData="paymentData = $event"
+    />
+
   </AdminLayout>
 </template>
 
@@ -388,6 +422,7 @@ import { PencilLine, CircleChevronDown, CarFront, ClipboardCheck, ClipboardList 
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
+import PaymentModal from './PaymentModal2.vue'
 import { useBooking } from '@/composables/useBooking2'
 
 const { t } = useI18n()
@@ -401,16 +436,21 @@ const {
   formData,
   roomConfigurations,
   RoomTypes,
+  paymentData,
 
   // States
   isLoading,
   isLoadingRoom,
   dateError,
+  isLoadingRate,
+  isPaymentLoading,
+  isPaymentModalOpen,
 
   // Computed
   numberOfNights,
   totalRoomCharges,
   totalAmount,
+  guestFullName,
 
   // Options
   BookingSource,
@@ -419,13 +459,16 @@ const {
   creditTypes,
   billToOptions,
   emailTemplates,
-  reservationCustomerType,
 
   // Methods
   initialize,
   saveReservation,
   formatCurrency,
   goBack,
+  closePaymentModal,
+  processPayment,
+  formatCardNumber,
+  formatExpiryDate,
 
   // Room methods
   addRoom,
@@ -434,6 +477,7 @@ const {
   onRoomTypeChange,
   getRateTypesForRoom,
   getRoomsForRoom,
+  onRateTypeChange,
 
   // Customer methods
   onCustomerSelected,
