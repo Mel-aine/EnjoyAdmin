@@ -68,7 +68,7 @@
                   </span>
                 </div>
                 <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
-                  <span>{{ result.nights }}</span>
+                  <span>{{ result.nights??result.numberOfNights }}</span>
                   <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
                     {{ t('nights') }}
                   </span>

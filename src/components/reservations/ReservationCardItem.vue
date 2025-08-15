@@ -84,7 +84,7 @@ const formatDate = (dateString: string) => {
           </span>
         </div>
         <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
-          <span>{{ reservation.nights }}</span>
+          <span>{{ reservation.nights??reservation.numberOfNights }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ $t('nights') }}
           </span>

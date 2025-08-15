@@ -1,7 +1,7 @@
 <template>
   <div class="country-autocomplete w-full max-w-md mx-auto ">
     <label for="country-input" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-      {{ $t('country') }}
+      {{ $t(lb) }}
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
     <div class="relative">
@@ -51,6 +51,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  lb:{
+    type: String,
+    default: 'country',
+  }
 });
 
 const emits = defineEmits(['update:modelValue', 'select', 'change']);

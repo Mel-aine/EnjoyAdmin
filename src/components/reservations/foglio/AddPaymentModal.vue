@@ -72,9 +72,11 @@ import Input from '../../forms/FormElements/Input.vue'
 import { getCurrencies, getPaymentMethods, getReservationTypes, getDiscounts, getTaxes, getExtraCharges } from '@/services/configrationApi'
 import { getReservation } from '../../../services/api'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { getReservationFolios } from '../../../services/foglioApi'
 
 interface Props {
   isOpen: boolean
+  reservationId:number
 }
 
 interface Emits {
@@ -185,7 +187,7 @@ const fetchPaymentMethods = async () => {
 const fetchFolios = async () => {
   try {
     const serviceId = serviceStore.serviceId
-    const response = await getReservation(serviceId)
+    const response = await getReservationFolios(props.reservationId)
     folioOptions.value = folioOptions.value.concat((response.data || [])?.map((folio: any) => {
       const guestName = folio.guest_name || `${folio.first_name || ''} ${folio.last_name || ''}`.trim() || 'Guest'
       return { ...folio, label: `${folio.id} - ${guestName}`, value: folio.id }

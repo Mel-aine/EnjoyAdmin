@@ -13,6 +13,7 @@ import AdminLayout from '../../../components/layout/AdminLayout.vue';
 import Adult from '../../../icons/Adult.vue';
 import Child from '../../../icons/Child.vue';
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
+import GuestDetails from '../../../components/reservations/GuestDetails.vue';
 
 // Simple Button component
 const Button = {
@@ -167,10 +168,13 @@ onMounted(()=>{
             <RoomCharge :reservation-id="reservation.id"></RoomCharge>
        </div>
        <div v-if="activeTab === 'folio_operations'&&reservation && reservation.id" >
-            <FoglioOperation :reservation-id="reservation.id"></FoglioOperation>
+            <FoglioOperation :reservation-id="reservation.id" :reservation="reservation"></FoglioOperation>
        </div>
        <div v-if="activeTab === 'booking_details'">
-            <BookingDetails :booking="reservation"></BookingDetails>
+            <BookingDetails :booking="reservation" ></BookingDetails>
+       </div>
+       <div v-if="activeTab === 'guest_details'">
+        <GuestDetails :reservation="reservation" :guest="reservation.guest" />
        </div>
     </div>
    </AdminLayout>
