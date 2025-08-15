@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watch } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
-// import { getCustomer } from '@/services/reservation'
+import { getCustomer } from '@/services/reservation'
 import { useServiceStore } from '@/composables/serviceStore';
 
 const props = defineProps({
