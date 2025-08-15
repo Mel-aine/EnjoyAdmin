@@ -186,3 +186,17 @@ export const getCustomer = async (id: number): Promise<any> => {
     return []
   }
 }
+
+
+// recuperer la liste des clients
+export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+      `/reservation/${serviceProductId}/customer`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération clients:', error)
+    return []
+  }
+}
