@@ -12,7 +12,7 @@
 
       <!-- Folio -->
       <div>
-        <Select v-model="formData.folio" :options="folioOptions" :lb="$t('Folio')" />
+        <Select v-model="formData.folio" :options="folioOptions" :lb="$t('Folio')" :loading="isLoadingFolios" />
       </div>
 
       <!-- Rec/Vou # -->
@@ -56,7 +56,7 @@
     <template #footer>
       <div class="flex justify-end space-x-2">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')"></BasicButton>
-        <BasicButton variant="primary" @click="savePayment" :label="'Save Payment'"></BasicButton>
+        <BasicButton variant="primary" @click="savePayment" :label="'Save Payment'" :loading="isSaving" :disabled="isSaving"></BasicButton>
       </div>
     </template>
   </RightSideModal>
@@ -70,9 +70,9 @@ import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import { getCurrencies, getPaymentMethods, getReservationTypes, getDiscounts, getTaxes, getExtraCharges } from '@/services/configrationApi'
-import { getReservation } from '../../../services/api'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { getReservationFolios } from '../../../services/foglioApi'
+import { getReservationFolios, createFolioTransaction } from '../../../services/foglioApi'
+import { useToast } from 'vue-toastification'
 
 interface Props {
   isOpen: boolean
@@ -86,7 +86,10 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const isLoadingFolios = ref(false)
+const isSaving = ref(false)
 const serviceStore = useServiceStore()
+const toast = useToast()
 
 // Options for dropdowns
 const folioOptions = ref([
@@ -94,7 +97,9 @@ const folioOptions = ref([
 ])
 
 const typeOptions = ref([
-  { value: '', label: '-Select-' }
+  { value: 'cash', label: 'cash' },
+  { value: 'credit card', label: 'credit card' },
+  { value: 'bank transfer', label: 'bank transfer' },
 ])
 
 
@@ -142,21 +147,52 @@ const closeModal = () => {
   emit('close')
 }
 
-const savePayment = () => {
+const savePayment = async () => {
   // Validate required fields
   if (!formData.folio || !formData.type || !formData.method || !formData.amount) {
-    alert('Please fill in all required fields')
+    toast.error('Please fill in all required fields')
     return
   }
 
   if (formData.amount <= 0) {
-    alert('Amount must be greater than 0')
+    toast.error('Amount must be greater than 0')
     return
   }
 
-  // Emit the form data
-  emit('save', { ...formData })
-  closeModal()
+  try {
+    isSaving.value = true
+    
+    // Prepare transaction data for API
+    const transactionData = {
+      folioId: parseInt(formData.folio),
+      transactionType: 'payment',
+      transactionCategory: formData.type,
+      description: `Payment - ${formData.type}`,
+      amount: parseFloat(formData.amount.toString()),
+      reference: formData.recVouNumber,
+      notes: formData.comment,
+      paymentMethodId: parseInt(formData.method),
+      currency: formData.currency,
+      transactionDate: formData.date,
+      status:"posted",
+      hotelId: serviceStore.serviceId,
+    }
+
+    // Call the API to create folio transaction
+    const response = await createFolioTransaction(transactionData)
+    
+    // Show success message
+    toast.success('Payment saved successfully')
+    
+    // Emit the form data with API response
+    emit('save', { ...formData, transactionId: response.id })
+    closeModal()
+  } catch (error) {
+    console.error('Error saving payment:', error)
+    toast.error('Failed to save payment. Please try again.')
+  } finally {
+    isSaving.value = false
+  }
 }
 
 // Fetch currencies from API
@@ -176,7 +212,7 @@ const fetchPaymentMethods = async () => {
   try {
     const response = await getPaymentMethods()
     methodOptions.value = methodOptions.value.concat((response.data.data.data || []).map((method: any) => {
-      return { ...method, label: method.name, value: method.id }
+      return { ...method, label: method.methodName, value: method.id }
     }))
   } catch (error) {
     console.error('Error fetching payment methods:', error)
@@ -186,7 +222,7 @@ const fetchPaymentMethods = async () => {
 // Fetch folios from API
 const fetchFolios = async () => {
   try {
-    const serviceId = serviceStore.serviceId
+    isLoadingFolios.value = true
     const response = await getReservationFolios(props.reservationId)
     folioOptions.value = folioOptions.value.concat((response.data || [])?.map((folio: any) => {
       const guestName = folio.guest_name || `${folio.first_name || ''} ${folio.last_name || ''}`.trim() || 'Guest'
@@ -194,20 +230,12 @@ const fetchFolios = async () => {
     }))
   } catch (error) {
     console.error('Error fetching folios:', error)
+  } finally {
+    isLoadingFolios.value = false
   }
 }
 
-// Fetch reservation types from API
-const fetchReservationTypes = async () => {
-  try {
-    const response = await getReservationTypes()
-    typeOptions.value = typeOptions.value.concat((response.data.data.data || [])?.map((type: any) => {
-      return { ...type, label: type.name || type.type_name, value: type.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching reservation types:', error)
-  }
-}
+
 
 // Fetch discounts from API
 const fetchDiscounts = async () => {
@@ -250,7 +278,6 @@ onMounted(() => {
   fetchCurrencies()
   fetchPaymentMethods()
   fetchFolios()
-  fetchReservationTypes()
   fetchDiscounts()
   fetchTaxes()
   fetchExtraCharges()
