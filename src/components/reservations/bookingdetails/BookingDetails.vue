@@ -38,7 +38,7 @@
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Booking Source') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.bookingSource) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.bookingSource??"") }}</span>
           </div>
         </div>
       </div>
@@ -91,15 +91,15 @@
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Type') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.roomType) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.roomType??"") }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Rate Plan') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.ratePlan) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.ratePlan??"") }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Rate') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(bookingData.roomRate) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(bookingData.roomRate??0) }}</span>
           </div>
         </div>
       </div>

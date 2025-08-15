@@ -20,7 +20,7 @@
       <div class="flex gap-5 text-sm item-center self-center align-middle">
           <div v-for="(item,index) in statusElements" :key="index" class="flex gap-2">
             <span>{{ $t(item) }}</span>
-            <span class="rounded-full bg-gray-200 px-2">0</span>
+            <span class="rounded-full bg-gray-200 px-2">{{ getRoomStatusCount(item) }}</span>
           </div>
       </div>
        </div>
@@ -250,7 +250,11 @@
   </div>
   <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
   <template v-if="modalReservation && showDetail">
-    <ReservationDetailsModal :reservation_id="modalReservation.reservation_id" @close="closeReservationModal" />
+    <ReservationRigthModal
+      :is-open="showDetail"
+      @close="closeReservationModal"
+      :reservation="modalReservation"
+    />
   </template>
  </FullScreenLayout>
 </template>
@@ -293,6 +297,7 @@ import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
 import ReservationDetailsModal from '../modal/ReservationDetailsModal.vue'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
+import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 
 function getRoomStatusColor(status: string): string {
   switch (status) {
@@ -572,12 +577,20 @@ function hideReservationTooltip() {
 }
 
 const statusElements = ref([
-  'All',
+  'all',
   "vacant",
   "occupied",
   "reserved",
   "blocked",
-  "due_out",
-  "durty"
+  "dueOut",
+  "dirty"
 ])
+
+// Function to get room status count from API response
+function getRoomStatusCount(status: string): number {
+  if (!serviceResponse.value?.global_room_status_stats) {
+    return 0
+  }
+  return serviceResponse.value.global_room_status_stats[status] || 0
+}
 </script>

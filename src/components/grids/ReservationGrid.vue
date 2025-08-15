@@ -4,8 +4,21 @@
     <div class="bg-gray-50 mt-2 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div class="flex items-center gap-4">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ $t('Reservations') }}</h2>
-        <span class="text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-          {{ filteredReservations.length }} {{ $t('reservations') }}
+        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+          @click="handleFilterClick('totalReservations')">
+          {{ statistics.totalReservations }} {{ $t('reservations') }}
+        </span>
+        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+          @click="handleFilterClick('arrivals')">
+          {{ statistics.arrivals }} {{ $t('arrivals') }}
+        </span>
+        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+          @click="handleFilterClick('departures')">
+          {{ statistics.departures }} {{ $t('departures') }}
+        </span>
+        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+          @click="handleFilterClick('inHouse')">
+          {{ statistics.inHouse }} {{ $t('in house') }}
         </span>
       </div>
 
@@ -256,7 +269,12 @@ const tableColumns = computed(() => [
     type: 'custom' as const
   }
 ])
-
+const statistics = ref({
+  totalReservations: 0,
+  arrivals: 0,
+  departures: 0,
+  inHouse: 0
+})
 const tableActions = [
   {
     label: t('View'),
@@ -323,7 +341,8 @@ const applyFilter = async (filter: FitlterItem) => {
     reservations.value = []
     if (res.status === 200 || res.status === 201) {
       console.log(res.data)
-      reservations.value = res.data.map((res: any) => {
+
+      reservations.value = res.data?.reservations.map((res: any) => {
         const user = res.guest
         const statusClasses = getStatusColor(res.status).split(' ')
         const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
@@ -346,7 +365,9 @@ const applyFilter = async (filter: FitlterItem) => {
             text: paymentClasses[1],
           },
         }
-      })
+      });
+
+      statistics.value = res.data.statistics
     }
   } catch (error) {
     console.error('Error filtering reservations:', error)
@@ -444,6 +465,9 @@ const refresh = () => {
   applyFilter(filter)
 }
 
+const handleFilterClick = (filter: string) => {
+ 
+}
 
 </script>
 

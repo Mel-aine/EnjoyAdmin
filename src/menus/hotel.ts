@@ -12,6 +12,10 @@ import {
   CommandIcon,
   FileText,
   BarChart3,
+  Hotel,
+  CreditCard,
+  Home,
+  Settings,
 } from 'lucide-vue-next'
 
 export const getHotelMenu = (t: (key: string) => string) => {
@@ -21,7 +25,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
       items: [
         //From office
         {
-          icon: LayoutDashboard,
+          icon: Building2,
           name: t('Front Office'),
           permission: 'dashboard_view',
           subItems: [
@@ -79,7 +83,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         },
         //From Cashiering
         {
-          icon: LayoutDashboard,
+          icon: CreditCard,
           name: t('Cashiering'),
           permission: 'dashboard_view',
           subItems: [
@@ -120,7 +124,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         // Housekeeping
 
         {
-          icon: CalendarCheck2,
+          icon: Home,
           name: t('Housekeeping'),
           subItems: [
             {
@@ -303,7 +307,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           path: '/reports',
         },*/
         {
-          icon: FileText,
+          icon: Settings,
           name: t('Configuration'),
           permission: 'dashboard_view',
           path: '/reports',

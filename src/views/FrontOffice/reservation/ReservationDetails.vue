@@ -13,6 +13,7 @@ import AdminLayout from '../../../components/layout/AdminLayout.vue';
 import Adult from '../../../icons/Adult.vue';
 import Child from '../../../icons/Child.vue';
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
+import ReservationRigthModal from '../../../components/reservations/ReservationRigthModal.vue';
 
 // Simple Button component
 const Button = {
