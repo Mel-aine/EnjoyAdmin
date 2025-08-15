@@ -33,23 +33,78 @@ const tabs = computed(() => [
 const activeTab = ref<string>('folio_operations');
 const isOpen = ref(false);
 
-const dropdownOptions = computed(() => [
-    { id: 'check-in', label: t('Check-in'), icon: CheckCircle, color: 'text-blue-600' },
-    { id: 'add-payment', label: t('Add Payment'), icon: CreditCard, color: 'text-green-600' },
-    { id: 'amend-stay', label: t('Amend Stay'), icon: Calendar, color: 'text-purple-600' },
-    { id: 'room-move', label: t('Room Move'), icon: ArrowUpDown, color: 'text-orange-600' },
-    { id: 'exchange-room', label: t('Exchange Room'), icon: ArrowUpDown, color: 'text-indigo-600' },
-    { id: 'stop-room-move', label: t('Stop Room Move'), icon: StopCircle, color: 'text-red-600' },
-    { id: 'inclusion-list', label: t('Inclusion List'), icon: List, color: 'text-gray-600' },
-    { id: 'cancel-reservation', label: t('Cancel Reservation'), icon: X, color: 'text-red-600' },
-    { id: 'no-show', label: t('No Show'), icon: Eye, color: 'text-yellow-600' },
-    { id: 'void-reservation', label: t('Void Reservation'), icon: Trash2, color: 'text-red-700' },
-    { id: 'unassign-room', label: t('Unassign Room'), icon: UserMinus, color: 'text-gray-600' },
-]);
+// Icon mapping for different actions
+const actionIconMap = {
+    'check_in': CheckCircle,
+    'add_payment': CreditCard,
+    'amend_stay': Calendar,
+    'room_move': ArrowUpDown,
+    'exchange_room': ArrowUpDown,
+    'stop_room_move': StopCircle,
+    'inclusion_list': List,
+    'cancel_reservation': X,
+    'no_show': Eye,
+    'void_reservation': Trash2,
+    'unassign_room': UserMinus,
+};
+
+// Color mapping for different actions
+const actionColorMap = {
+    'check_in': 'text-blue-600',
+    'add_payment': 'text-green-600',
+    'amend_stay': 'text-purple-600',
+    'room_move': 'text-orange-600',
+    'exchange_room': 'text-indigo-600',
+    'stop_room_move': 'text-red-600',
+    'inclusion_list': 'text-gray-600',
+    'cancel_reservation': 'text-red-600',
+    'no_show': 'text-yellow-600',
+    'void_reservation': 'text-red-700',
+    'unassign_room': 'text-gray-600',
+};
+
+const dropdownOptions = computed(() => {
+    if (!reservation.value?.availableActions) {
+        return [];
+    }
+    
+    return reservation.value.availableActions
+        .filter((action: any) => action.available)
+        .map((action: any) => ({
+            id: action.action,
+            label: action.label,
+            description: action.description,
+            route: action.route,
+            icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+            color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+        }));
+});
 
 const handleOptionSelected = (option: any) => {
     console.log('Selected option:', option);
-    // Add your logic here for each option
+    
+    // Handle routing if route is provided
+    if (option.route) {
+        // You can implement navigation logic here
+        // For example: router.push(option.route)
+        console.log('Navigate to:', option.route);
+    }
+    
+    // Add specific logic for different actions
+    switch (option.id) {
+        case 'add_payment':
+            // Handle add payment logic
+            break;
+        case 'amend_stay':
+            // Handle amend stay logic
+            break;
+        case 'cancel_reservation':
+            // Handle cancel reservation logic
+            break;
+        // Add more cases as needed
+        default:
+            console.log('Action not implemented:', option.id);
+    }
 };
 const getBookingDetailsById = async () => {
     isLoading.value = true;
@@ -61,6 +116,25 @@ const getBookingDetailsById = async () => {
     }
     isLoading.value = false;
 };
+// Computed property to calculate room/rate type summary
+const roomRateTypeSummary = computed(() => {
+    if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+    
+    const reservationRooms = reservation.value.reservationRooms;
+    const totalRooms = reservationRooms.length;
+    
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map(room => {
+        return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
+    })
+    
+  
+    
+    return roomNumbers;
+});
+
 onMounted(()=>{
     getBookingDetailsById();
 })
@@ -109,14 +183,14 @@ onMounted(()=>{
                 <div class="flex flex-col">
                     <span class="text-sm font-bold capitalize">{{ $t('nights') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>{{ reservation.nights }}</span>
+                        <span>{{ reservation.nights?? reservation.numberOfNights }}</span>
                     </span>
                 </div>
                 <!--room/roomtype-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('Room/Room types') }}</span>
-                    <span class="text-xs flex gap-2">
-                        <span>14/Single</span>
+                    <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
+                    <span class="text-xs flex gap-2 flex-col">
+                        <span v-for="(i,ind) in roomRateTypeSummary" :key="ind">{{ i }}</span>
                     </span>
                 </div>
                 <!--depature-->
@@ -156,7 +230,7 @@ onMounted(()=>{
                     <ButtonDropdown 
                         :options="dropdownOptions"
                         :button-text="$t('Options')"
-                        button-class="bg-primary text-white hover:bg-primary/25"
+                        button-class="bg-white text-primary border-primary hover:bg-primary/25"
                         dropdown-class="w-64"
                         @option-selected="handleOptionSelected"
                     />

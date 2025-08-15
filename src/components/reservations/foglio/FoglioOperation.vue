@@ -4,7 +4,7 @@
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
           <div class="flex justify-between pt-2 px-2 pb-2">
-            <span>Room/Folios</span>
+            <span>{{ $t('roomFolios') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="openCreateFolioModal" />
           </div>
           <!-- Show All Transactions Button -->
@@ -13,7 +13,7 @@
               class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
               :class="!selectedFolio ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'"
               @click="showAllTransactions">
-              {{ $t('Show All Transactions') }}
+              {{ $t('showAllTransactions') }}
             </button>
           </div>
           <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room.roomNumber">
@@ -30,11 +30,11 @@
         <div class="px-4">
           <div class="flex justify-between">
             <span>{{ $t('total') }}</span>
-            <span>2000xaf</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
-          <div class="flex justify-between  text-yellow-200">
-            <span>{{ $t('balence') }}</span>
-            <span>2000xaf</span>
+          <div class="flex justify-between  text-red-200">
+            <span>{{ $t('Balence') }}</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}</span>
           </div>
         </div>
       </div>
@@ -44,21 +44,21 @@
         <div>
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
-            <BasicButton :label="$t('Add Payment')" @click="openAddPaymentModal" />
-            <BasicButton :label="$t('Add Charges')" @click="openAddChargeModal" />
-            <BasicButton :label="$t('Apply Discount')" />
-            <BasicButton :label="$t('Folio Operations')" />
-            <BasicButton :label="$t('Print Invoice')" />
-            <BasicButton :label="$t('More')" />
+            <BasicButton :label="$t('addPayment')" @click="openAddPaymentModal" />
+            <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
+            <BasicButton :label="$t('applyDiscount')" />
+            <BasicButton :label="$t('folioOperations')" />
+            <BasicButton :label="$t('printInvoice')" />
+            <BasicButton :label="$t('more')" />
             <!-- Status indicators -->
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
                 <div class="w-3 h-3 bg-orange-400 rounded"></div>
-                {{ $t('Unposted') }}
+                {{ $t('unposted') }}
               </span>
               <span class="flex items-center gap-1 text-sm">
                 <div class="w-3 h-3 bg-gray-600 rounded"></div>
-                {{ $t('Posted') }}
+                {{ $t('posted') }}
               </span>
               <div class="flex gap-1">
                 <button class="p-1 hover:bg-gray-100 rounded">
@@ -75,15 +75,15 @@
           <div class="px-4 py-2 bg-gray-50 border-b border-gray-200">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-medium text-gray-700">
-                {{ selectedFolio ? `${$t('Transactions for')}: ${selectedFolio.folioName}` : $t('All Transactions') }}
+                {{ selectedFolio ? `${$t('transactionsFor')}: ${selectedFolio.folioName}` : $t('allTransactions') }}
               </h3>
               <span class="text-xs text-gray-500">
-                {{ $t('Total') }}: {{ foglioData.length }} {{ $t('transactions') }}
+                {{ $t('total') }}: {{ foglioData.length }} {{ $t('transactions') }}
               </span>
             </div>
           </div>
           <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false"
-            :selectable="false" :searchable="false" :title="$t('Foglio')">
+            :selectable="false" :searchable="false" :title="$t('folio')">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
               <div class="text-sm text-gray-900">
@@ -118,10 +118,10 @@
         <!-- Footer summary -->
         <div class="p-4 border-t border-gray-200 bg-gray-50">
           <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">{{ $t('End Of Data') }}</span>
+            <span class="text-sm text-gray-600">{{ $t('endOfData') }}</span>
             <div class="text-right">
               <div class="text-sm font-medium text-red-600">
-                {{ $t('Balance') }}: {{ formatAmount(balance) }}
+                {{ $t('balance') }}: {{ formatAmount(balance) }}
               </div>
             </div>
           </div>
@@ -165,6 +165,7 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
 import { getReservationFolios } from '../../../services/foglioApi'
 import Accordion from '../../common/Accordion.vue'
+import { formatCurrency } from '../../utilities/UtilitiesFunction'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state
@@ -211,9 +212,9 @@ const foglioData = computed(() => {
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'day', label: t('Day'), type: 'custom' },
+  { key: 'postingDate', label: t('Day'), type: 'custom' },
   { key: 'refNo', label: t('Ref No.'), type: 'text' },
-  { key: 'particulars', label: t('Particulars'), type: 'text' },
+  { key: 'category', label: t('Particulars'), type: 'text' },
   { key: 'description', label: t('Description'), type: 'text' },
   { key: 'user', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
@@ -308,7 +309,9 @@ const getFolosReservations = async () => {
           folio.transactions.forEach((transaction: any) => {
             allTransactions.value.push({
               ...transaction,
-              folioId: folio.id
+              folioId: folio.id,
+              guest:folio.guest
+
             })
           })
         }

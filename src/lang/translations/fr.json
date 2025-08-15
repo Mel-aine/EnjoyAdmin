@@ -4279,5 +4279,24 @@
   "validation": {
     "departureAfterArrival": "La date de départ doit être après la date d'arrivée.",
     "invalidDateRange": "Plage de dates invalide."
-  }
+  },
+  "roomFolios": "Chambres/Folios",
+  "showAllTransactions": "Afficher toutes les transactions",
+  "addPayment": "Ajouter un paiement",
+  "addCharges": "Ajouter des frais",
+  "applyDiscount": "Appliquer une remise",
+  "folioOperations": "Opérations de folio",
+  "printInvoice": "Imprimer la facture",
+  "more": "Plus",
+  "unposted": "Non comptabilisé",
+  "posted": "Comptabilisé",
+  "transactionsFor": "Transactions pour",
+  "allTransactions": "Toutes les transactions",
+  "endOfData": "Fin des données",
+  "Room/Rate types": "Types de chambre/tarif",
+  "Room/Rate type": "Type de chambre/tarif",
+  "booking_date": "Date de réservation",
+  "N/A": "N/D",
+  "Options": "Options",
+  "check in": "Enregistrement"
 }

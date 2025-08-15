@@ -45,7 +45,7 @@
                                     <div class="grid grid-cols-3 gap-4">
 
                                         <BasicButton :label="$t('edit')" variant="primary" />
-                                        <ButtonDropdown :options="dropdownOptions" :button-text="t('options')" />
+                                        <ButtonDropdown :options="dropdownOptions" :button-text="t('options')" @option-selected="handleOptionSelected" />
 
                                         <ButtonDropdown :options="dropdownOptions" :button-text="t('print')" />
 
@@ -171,9 +171,11 @@ import type { ReservationDetails } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 const { t } = useI18n()
+const router = useRouter()
 interface Props {
     isOpen: boolean
     title?: string
@@ -218,17 +220,92 @@ const formatDate = (dateString?: string) => {
 }
 
 
-const dropdownOptions = computed(() => [
-    { id: 'check-in', label: t('checkIn'), icon: CheckCircle, color: 'text-blue-600' },
-    { id: 'add-payment', label: t('addPayment'), icon: CreditCard, color: 'text-green-600' },
-    { id: 'amend-stay', label: t('amendStay'), icon: Calendar, color: 'text-purple-600' },
-    { id: 'room-move', label: t('roomMove'), icon: ArrowUpDown, color: 'text-orange-600' },
-    { id: 'exchange-room', label: t('exchangeRoom'), icon: ArrowUpDown, color: 'text-indigo-600' },
-    { id: 'stop-room-move', label: t('stopRoomMove'), icon: StopCircle, color: 'text-red-600' },
-    { id: 'inclusion-list', label: t('inclusionList'), icon: List, color: 'text-gray-600' },
-    { id: 'cancel-reservation', label: t('cancelReservation'), icon: X, color: 'text-red-600' },
-    { id: 'no-show', label: t('noShow'), icon: Eye, color: 'text-yellow-600' },
-    { id: 'void-reservation', label: t('voidReservation'), icon: Trash2, color: 'text-red-700' },
-    { id: 'unassign-room', label: t('unassignRoom'), icon: UserMinus, color: 'text-gray-600' },
-]);
+// Icon mapping for different actions
+const actionIconMap = {
+    'check_in': CheckCircle,
+    'add_payment': CreditCard,
+    'amend_stay': Calendar,
+    'room_move': ArrowUpDown,
+    'exchange_room': ArrowUpDown,
+    'stop_room_move': StopCircle,
+    'inclusion_list': List,
+    'cancel_reservation': X,
+    'no_show': Eye,
+    'void_reservation': Trash2,
+    'unassign_room': UserMinus,
+};
+
+// Color mapping for different actions
+const actionColorMap = {
+    'check_in': 'text-blue-600',
+    'add_payment': 'text-green-600',
+    'amend_stay': 'text-purple-600',
+    'room_move': 'text-orange-600',
+    'exchange_room': 'text-indigo-600',
+    'stop_room_move': 'text-red-600',
+    'inclusion_list': 'text-gray-600',
+    'cancel_reservation': 'text-red-600',
+    'no_show': 'text-yellow-600',
+    'void_reservation': 'text-red-700',
+    'unassign_room': 'text-gray-600',
+};
+
+const dropdownOptions = computed(() => {
+    if (!props.reservationData?.availableActions) {
+        return [];
+    }
+    
+    return props.reservationData.availableActions
+        .filter((action: any) => action.available)
+        .map((action: any) => ({
+            id: action.action,
+            label: action.label,
+            description: action.description,
+            route: action.route,
+            icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+            color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+        }));
+});
+
+const handleOptionSelected = (option: any) => {
+    // Handle routing for available actions
+    if (option.route) {
+        router.push(option.route);
+        return;
+    }
+    
+    // Handle specific actions that might need custom logic
+    switch (option.id) {
+        case 'add_payment':
+            // Custom logic for add payment if needed
+            console.log('Add payment action triggered');
+            break;
+        case 'amend_stay':
+            // Custom logic for amend stay if needed
+            console.log('Amend stay action triggered');
+            break;
+        case 'cancel_reservation':
+            // Custom logic for cancel reservation if needed
+            console.log('Cancel reservation action triggered');
+            break;
+        case 'void_reservation':
+            // Custom logic for void reservation if needed
+            console.log('Void reservation action triggered');
+            break;
+        case 'unassign_room':
+            // Custom logic for unassign room if needed
+            console.log('Unassign room action triggered');
+            break;
+        case 'inclusion_list':
+            // Custom logic for inclusion list if needed
+            console.log('Inclusion list action triggered');
+            break;
+        case 'check_in':
+            // Custom logic for check in if needed
+            console.log('Check in action triggered');
+            break;
+        default:
+            console.log(`Action ${option.id} not handled`);
+    }
+};
 </script>

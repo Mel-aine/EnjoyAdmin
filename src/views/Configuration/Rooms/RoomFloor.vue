@@ -33,7 +33,7 @@
         <template #column-roomType="{ item }">
           <div class="flex items-center space-x-2">
             <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: item.roomTypeColor }"></div>
-            <span class="text-sm">{{ item.roomType }}</span>
+            <span class="text-sm">{{ item.roomType.roomTypeName }}</span>
           </div>
         </template>
 
@@ -236,6 +236,7 @@ import { Plus, Trash2, Edit, Trash, Camera } from 'lucide-vue-next'
 import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById } from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
+import { useServiceStore } from '../../../composables/serviceStore'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -247,7 +248,7 @@ const selectedRooms = ref([])
 const editingRoom = ref(null)
 const loading = ref(false)
 const saving = ref(false)
-
+const serviceStore = useServiceStore()
 // Form data
 const formData = ref({
   shortCode: '',
@@ -358,7 +359,7 @@ const editRoom = (room) => {
   formData.value = {
     shortCode: room.shortCode,
     roomName: room.roomName,
-    roomType: room.roomType,
+    roomTypeId: room.roomTypeId,
     bedType: room.bedType,
     phoneExtension: room.phoneExtension,
     keyCardAlias: room.keyCardAlias,
@@ -393,7 +394,7 @@ const handleImageUpload = (event, index) => {
 
 const saveRoom = async () => {
   // Validation
-  if (!formData.value.shortCode || !formData.value.roomName || !formData.value.roomType || !formData.value.bedType) {
+  if (!formData.value.shortCode || !formData.value.roomName || !formData.value.roomTypeId || !formData.value.bedType) {
     toast.error(t('pleaseCompleteAllRequiredFields'))
     return
   }
@@ -404,14 +405,15 @@ const saveRoom = async () => {
     const roomData = {
       shortCode: formData.value.shortCode,
       roomName: formData.value.roomName,
-      roomType: formData.value.roomType,
+      roomTypeId: formData.value.roomTypeId,
       bedType: formData.value.bedType,
       phoneExtension: formData.value.phoneExtension,
       keyCardAlias: formData.value.keyCardAlias,
       sortKey: formData.value.sortKey,
       smokingAllowed: formData.value.smokingAllowed,
       roomImages: formData.value.roomImages.filter(img => img !== null),
-      connectedRooms: formData.value.connectedRooms
+      connectedRooms: formData.value.connectedRooms,
+      serviceId: serviceStore.serviceId,
     }
 
     if (showEditModal.value && editingRoom.value) {
@@ -492,7 +494,7 @@ const closeModal = () => {
   formData.value = {
     shortCode: '',
     roomName: '',
-    roomType: '',
+    roomTypeId: '',
     bedType: '',
     phoneExtension: '',
     keyCardAlias: '',

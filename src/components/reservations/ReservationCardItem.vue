@@ -14,20 +14,65 @@ const props = defineProps({
     required: true,
   },
 })
-const dropdownOptions = computed(() => [
-  { id: 'view', label: t('view'), icon: Eye, color: 'text-blue-600' },
-  { id: 'check-in', label: t('Check-in'), icon: CheckCircle, color: 'text-blue-600' },
-  { id: 'add-payment', label: t('Add Payment'), icon: CreditCard, color: 'text-green-600' },
-  { id: 'amend-stay', label: t('Amend Stay'), icon: Calendar, color: 'text-purple-600' },
-  { id: 'room-move', label: t('Room Move'), icon: ArrowUpDown, color: 'text-orange-600' },
-  { id: 'exchange-room', label: t('Exchange Room'), icon: ArrowUpDown, color: 'text-indigo-600' },
-  { id: 'stop-room-move', label: t('Stop Room Move'), icon: StopCircle, color: 'text-red-600' },
-  { id: 'inclusion-list', label: t('Inclusion List'), icon: List, color: 'text-gray-600' },
-  { id: 'cancel-reservation', label: t('Cancel Reservation'), icon: X, color: 'text-red-600' },
-  { id: 'no-show', label: t('No Show'), icon: Eye, color: 'text-yellow-600' },
-  { id: 'void-reservation', label: t('Void Reservation'), icon: Trash2, color: 'text-red-700' },
-  { id: 'unassign-room', label: t('Unassign Room'), icon: UserMinus, color: 'text-gray-600' },
-]);
+// Icon mapping for different actions
+const actionIconMap = {
+  'view': Eye,
+  'check_in': CheckCircle,
+  'add_payment': CreditCard,
+  'amend_stay': Calendar,
+  'room_move': ArrowUpDown,
+  'exchange_room': ArrowUpDown,
+  'stop_room_move': StopCircle,
+  'inclusion_list': List,
+  'cancel_reservation': X,
+  'no_show': Eye,
+  'void_reservation': Trash2,
+  'unassign_room': UserMinus,
+};
+
+// Color mapping for different actions
+const actionColorMap = {
+  'view': 'text-blue-600',
+  'check_in': 'text-blue-600',
+  'add_payment': 'text-green-600',
+  'amend_stay': 'text-purple-600',
+  'room_move': 'text-orange-600',
+  'exchange_room': 'text-indigo-600',
+  'stop_room_move': 'text-red-600',
+  'inclusion_list': 'text-gray-600',
+  'cancel_reservation': 'text-red-600',
+  'no_show': 'text-yellow-600',
+  'void_reservation': 'text-red-700',
+  'unassign_room': 'text-gray-600',
+};
+
+const dropdownOptions = computed(() => {
+  // Always include the view option as first item
+  const options = [{
+    id: 'view',
+    label: t('view'),
+    icon: Eye,
+    color: 'text-blue-600'
+  }];
+  console.log(props.reservation)
+  // Add available actions from reservation data
+  if (props.reservation?.availableActions) {
+    const availableOptions = props.reservation.availableActions
+      .filter((action: any) => action.available)
+      .map((action: any) => ({
+        id: action.action,
+        label: action.label,
+        description: action.description,
+        route: action.route,
+        icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+        color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+      }));
+    
+    options.push(...availableOptions);
+  }
+  
+  return options;
+});
 
 const handleOptionSelected = (option: any) => {
   console.log('Selected option:', option);
@@ -35,10 +80,40 @@ const handleOptionSelected = (option: any) => {
     router.push({
       name: 'ReservationDetails',
       params: { id: props.reservation.id }
-    })
-
+    });
+    return;
   }
-
+  
+  
+  // Handle specific actions that might need custom logic
+  switch (option.id) {
+    case 'add_payment':
+      // Custom logic for add payment if needed
+      console.log('Add payment action triggered');
+      break;
+    case 'amend_stay':
+      // Custom logic for amend stay if needed
+      console.log('Amend stay action triggered');
+      break;
+    case 'cancel_reservation':
+      // Custom logic for cancel reservation if needed
+      console.log('Cancel reservation action triggered');
+      break;
+    case 'void_reservation':
+      // Custom logic for void reservation if needed
+      console.log('Void reservation action triggered');
+      break;
+    case 'unassign_room':
+      // Custom logic for unassign room if needed
+      console.log('Unassign room action triggered');
+      break;
+    case 'inclusion_list':
+      // Custom logic for inclusion list if needed
+      console.log('Inclusion list action triggered');
+      break;
+    default:
+      console.log(`Action ${option.id} not handled`);
+  }
 };
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -118,8 +193,8 @@ const formatDate = (dateString: string) => {
 
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
-            <span class=" font-semibold">Room/Rate type</span>
-            <span class="text-xs">{{ reservation.roomType ?? 'N/A' }}/{{ reservation.roomType ?? 'N/A' }}</span>
+            <span class=" font-semibold">{{ $t('Room/Rate type') }}</span>
+            <span class="text-xs">{{ reservation.roomType ?? $t('N/A') }}/{{ reservation.roomType ?? $t('N/A') }}</span>
           </div>
           <div class="flex gap-1">
             <span :class="[
@@ -135,7 +210,7 @@ const formatDate = (dateString: string) => {
         <!-- Amount and Payment Status -->
         <div class=" flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
           <div class="flex justify-between">
-            <span class=" font-medium">Total</span>
+            <span class=" font-medium">{{ $t('Total') }}</span>
             <span class="text-sm">{{ formatCurrency(reservation.totalAmount) }}</span>
           </div>
           <div class="flex justify-between">
