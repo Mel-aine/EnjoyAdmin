@@ -153,7 +153,7 @@ onMounted(()=>{
                     </nav>
                 </div>
                 <div class="align-middle self-center items-center">
-                    <ButtonDropdown 
+                    <ButtonDropdown
                         :options="dropdownOptions"
                         :button-text="$t('Options')"
                         button-class="bg-primary text-white hover:bg-primary/25"

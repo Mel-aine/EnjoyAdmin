@@ -13,6 +13,7 @@ const props = defineProps<{
     modelValue: string |undefined; // The full phone number string (e.g., "+237671234567"),
     title: string,
     isRequired: boolean
+    disabled?:string
 }>();
 
 // Define emits for v-model support
@@ -185,7 +186,7 @@ onMounted(() => {
             </div>
 
             <!-- Phone Number Input -->
-            <input type="tel" id="phone-number" name="phone-number" v-model="phoneNumber" :required="isRequired"
+            <input type="tel" id="phone-number" name="phone-number" v-model="phoneNumber" :required="isRequired" :disabled="disabled"
                 class="h-11 w-full flex-1 rounded-r-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 -ml-px"
                 :placeholder="$t('phoneNumberPlaceholder')" aria-describedby="phone-number-error" />
         </div>
@@ -197,6 +198,13 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Add any component-specific styles here if needed. */
-/* The original code had an empty style block, so keeping it minimal. */
+input:disabled {
+    background-color: #f3f4f6;
+    /* Fond grisé */
+    cursor: not-allowed;
+    /* Curseur interdit */
+    border-color: #d1d5db;
+    /* Bord plus clair */
+    cursor: not-allowed;
+}
 </style>

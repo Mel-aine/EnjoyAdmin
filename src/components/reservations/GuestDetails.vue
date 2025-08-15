@@ -1,7 +1,5 @@
 <template>
-
-
-  <div class="flex h-[calc(100vh-250px)]  mx-4">
+  <div class="flex h-[calc(100vh-250px)] mx-4">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
@@ -10,18 +8,15 @@
             <PlusCircle class="text-primary cursor-pointer" @click="createNewGuest" />
           </div>
 
-          <Accordion v-for="(fo, index) in reservation.reservationRooms" :key="index" :title="`${fo.room
-            .roomNumber}`" class="mb-2">
-
-            <div v-for="(fo, index) in guestList" :key="index">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1" 
-                   :class="selectedGuest?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
-                   @click="selectGuest(fo)">
-                <span class="capitalize">{{ fo.displayName }}</span>
+          <Accordion v-for="(fo, index) in reservation.reservationRooms" :key="index" :title="`${fo.room.roomNumber}`" class="mb-2">
+            <div v-for="(guest, guestIndex) in guestList" :key="guestIndex">
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
+                   :class="selectedGuest?.id === guest.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
+                   @click="selectGuest(guest)">
+                <span class="capitalize">{{ guest.displayName || guest.firstName + ' ' + guest.lastName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
             </div>
-        
           </Accordion>
         </div>
         <div class="px-4">
@@ -29,15 +24,16 @@
             <span>{{ $t('total') }}</span>
             <span>2000xaf</span>
           </div>
-          <div class="flex justify-between  text-yellow-200">
-            <span>{{ $t('balence') }}</span>
+          <div class="flex justify-between text-yellow-200">
+            <span>{{ $t('balance') }}</span>
             <span>2000xaf</span>
           </div>
         </div>
       </div>
     </div>
+
     <div class="w-10/12">
-      <div class="h-full flex flex-col justify-between ">
+      <div class="h-full flex flex-col justify-between">
         <div class="bg-white border border-gray-200 p-6 overflow-y-auto">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
@@ -82,23 +78,62 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Name') }} *</label>
-                <div class="flex space-x-2">
-                  <Select v-model="guestData.title" :options="titleOptions" :placeholder="$t('Mr')" class="w-20" :disabled="!isEditing" />
-                  <Input v-model="guestData.name" type="text" :placeholder="$t('Ronald')" class="flex-1" :disabled="!isEditing" />
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Name') }}</label>
+                <div class="flex">
+                  <div class="w-20 -translate-y-1.5">
+                    <Select
+                      v-model="guestData.title"
+                      :options="titleOptions"
+                      customClass="rounded-r-none"
+                      :placeholder="$t('Mr')"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+
+                  <!-- Display mode: Full name as read-only -->
+                  <div v-if="!isEditing" class="flex-1">
+                    <div class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                      {{ fullName }}
+                    </div>
+                  </div>
+
+                  <div v-if="isEditing" class="flex-1 flex gap-0">
+                    <div class="flex-1">
+                      <input
+                        v-model="guestData.firstName"
+                        type="text"
+                        :placeholder="$t('FirstName')"
+                        class="h-11 w-full rounded-lg rounded-l-none rounded-r-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <div class="flex-1">
+                      <input
+                        v-model="guestData.lastName"
+                        type="text"
+                        :placeholder="$t('LastName')"
+                        class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <!-- Phone -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Phone') }}</label>
-                <Input v-model="guestData.phone" type="tel" :placeholder="$t('Phone')" :disabled="!isEditing" />
+                <InputPhone :title="$t('Phone')"  v-model="guestData.phone" :id="'phone'" :is-required="false" :disabled="!isEditing"/>
               </div>
 
               <!-- Mobile -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Mobile') }}</label>
-                <Input v-model="guestData.mobile" type="tel" :placeholder="$t('Mobile')" :disabled="!isEditing" />
+                <Input
+                  :lb="$t('Mobile')"
+                  v-model="guestData.mobile"
+                  type="tel"
+                  :placeholder="$t('Mobile')"
+                  :disabled="!isEditing"
+                />
               </div>
             </div>
 
@@ -121,7 +156,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Address') }}</label>
               <textarea v-model="guestData.address" rows="2"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
                 :placeholder="$t('Address')" :disabled="!isEditing"></textarea>
             </div>
 
@@ -225,20 +260,18 @@
             <span>{{ $t('total') }}</span>
             <span>2000xaf</span>
           </div>
-          <div class="flex justify-between  text-yellow-200">
-            <span>{{ $t('balence') }}</span>
+          <div class="flex justify-between text-yellow-200">
+            <span>{{ $t('balance') }}</span>
             <span>2000xaf</span>
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../buttons/BasicButton.vue'
@@ -249,7 +282,11 @@ import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
 import UserCircleIcon from '@/icons/UserCircleIcon.vue'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
 import Accordion from '../common/Accordion.vue'
+import InputPhone from '../forms/FormElements/InputPhone.vue'
 import { PlusCircle, ChevronRight } from 'lucide-vue-next'
+import { createGuest, updateGuest, type GuestPayload } from '@/services/guestApi'
+import { useServiceStore } from '@/composables/serviceStore'
+import { useAuthStore } from '@/composables/user'
 
 interface Props {
   guest?: any
@@ -261,6 +298,8 @@ interface Props {
 interface GuestData {
   title: string
   name: string
+  firstName: string
+  lastName: string
   phone: string
   mobile: string
   email: string
@@ -280,9 +319,10 @@ interface GuestData {
 }
 
 const props = defineProps<Props>()
-const emits = defineEmits(['save', 'cancel'])
 const { t } = useI18n()
 const toast = useToast()
+const serviceStore = useServiceStore()
+const authStore = useAuthStore()
 
 // State
 const isSaving = ref(false)
@@ -295,6 +335,8 @@ const isCreatingNewGuest = ref(false)
 const initializeGuestData = (guest: any = null) => ({
   title: guest?.title || 'Mr',
   name: guest?.name || '',
+  firstName: guest?.firstName || '',
+  lastName: guest?.lastName || '',
   phone: guest?.phone || '',
   mobile: guest?.mobile || '',
   email: guest?.email || '',
@@ -314,9 +356,21 @@ const initializeGuestData = (guest: any = null) => ({
 })
 
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
+
+// Computed properties
 const guestList = computed(() => {
-  return props.reservation.guests
+  return props.reservation?.guests || []
 })
+
+const fullName = computed(() => {
+  return (guestData.firstName + ' ' + guestData.lastName).trim() || guestData.name || ''
+})
+
+// Watch for changes in selected guest
+watch(selectedGuest, (newGuest) => {
+  Object.assign(guestData, initializeGuestData(newGuest))
+}, { deep: true })
+
 // Options
 const titleOptions = computed(() => [
   { label: t('Mr'), value: 'Mr' },
@@ -326,9 +380,9 @@ const titleOptions = computed(() => [
 ])
 
 const genderOptions = computed(() => [
-  { label: t('Male'), value: 'Male' },
-  { label: t('Female'), value: 'Female' },
-  { label: t('Other'), value: 'Other' }
+  { label: t('Male'), value: 'male' },
+  { label: t('Female'), value: 'female' },
+  { label: t('Other'), value: 'other' }
 ])
 
 const vipStatusOptions = computed(() => [
@@ -350,18 +404,14 @@ const idTypeOptions = computed(() => [
 const selectGuest = (guest: any) => {
   selectedGuest.value = guest
   isCreatingNewGuest.value = false
-  // Update form data with selected guest information
   Object.assign(guestData, initializeGuestData(guest))
-  // Exit edit mode when selecting a different guest
   isEditing.value = false
 }
 
 const createNewGuest = () => {
   selectedGuest.value = null
   isCreatingNewGuest.value = true
-  // Clear form data for new guest
   Object.assign(guestData, initializeGuestData())
-  // Enter edit mode for new guest creation
   isEditing.value = true
 }
 
@@ -374,41 +424,80 @@ const editGuest = () => {
 }
 
 const uploadImage = () => {
-  // Handle image upload
   console.log('Upload image')
+}
+
+
+
+const prepareGuestPayload = (): GuestPayload => {
+  const payload: GuestPayload = {
+    title: guestData.title,
+    firstName: guestData.firstName,
+    lastName: guestData.lastName,
+    phonePrimary: guestData.phone,
+    hotelId:serviceStore.serviceId!,
+    // mobile: guestData.mobile,
+    email: guestData.email,
+    gender: guestData.gender,
+    address: guestData.address,
+    city: guestData.city,
+    // management: guestData.management,
+    country: guestData.country,
+    nationality: guestData.nationality,
+    company: guestData.company,
+    // fax: guestData.fax,
+    // registrationNo: guestData.registrationNo,
+    vipStatus: guestData.vipStatus,
+    idType: guestData.idType,
+    idNumber: guestData.idNumber,
+    dateOfBirth: guestData.dateOfBirth,
+    // reservationId: props.reservationId
+  }
+
+  // Remove empty/undefined values
+  Object.keys(payload).forEach(key => {
+    if (payload[key as keyof GuestPayload] === '' || payload[key as keyof GuestPayload] === undefined) {
+      delete payload[key as keyof GuestPayload]
+    }
+  })
+
+  return payload
 }
 
 const saveGuest = async () => {
   try {
+
     isSaving.value = true
+    const payload = prepareGuestPayload()
 
-    // Validate required fields
-    if (!guestData.name.trim()) {
-      toast.error(t('Name is required'))
-      return
+
+    if (isCreatingNewGuest.value) {
+     const response = await createGuest(payload)
+     console.log('createGuest',response)
+      toast.success(t('Guest created successfully'))
+    } else {
+      const guestId = selectedGuest.value?.id
+      if (!guestId) {
+        throw new Error('Guest ID is required for update')
+      }
+      console.log("payload",payload)
+      console.log("guestId",guestId)
+      const response = await updateGuest(guestId, payload)
+      console.log('updateGuest',response)
+
+      toast.success(t('Guest updated successfully'))
+
     }
 
-    // Emit save event with guest data and creation flag
-    const eventData = {
-      ...guestData,
-      isNew: isCreatingNewGuest.value,
-      guestId: selectedGuest.value?.id || null
-    }
-    emits('save', eventData)
-
-    const message = isCreatingNewGuest.value 
-      ? t('New guest created successfully') 
-      : t('Guest information saved successfully')
-    toast.success(message)
-    
-    // Exit edit mode and creation mode after successful save
+    // Exit edit mode and creation mode
     isEditing.value = false
     isCreatingNewGuest.value = false
-  } catch (error) {
+
+  } catch (error: any) {
     console.error('Error saving guest:', error)
-    const errorMessage = isCreatingNewGuest.value 
-      ? t('Error creating new guest') 
-      : t('Error saving guest information')
+    const errorMessage = isCreatingNewGuest.value
+      ? t('Error creating guest: ') + (error.response?.data?.message || error.message)
+      : t('Error updating guest: ') + (error.response?.data?.message || error.message)
     toast.error(errorMessage)
   } finally {
     isSaving.value = false
@@ -417,20 +506,16 @@ const saveGuest = async () => {
 
 const cancelEdit = () => {
   isEditing.value = false
-  
+
   if (isCreatingNewGuest.value) {
-    // If creating new guest, revert to the originally selected guest or first guest
     isCreatingNewGuest.value = false
     const guestToSelect = props.guest || (guestList.value && guestList.value[0])
     if (guestToSelect) {
       selectGuest(guestToSelect)
     }
   } else {
-    // Reset form data to selected guest values
     Object.assign(guestData, initializeGuestData(selectedGuest.value))
   }
-  
-  emits('cancel')
 }
 </script>
 

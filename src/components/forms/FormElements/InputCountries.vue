@@ -1,5 +1,5 @@
 <template>
-  <div class="country-autocomplete w-full max-w-md mx-auto ">
+  <div class="country-autocomplete w-full max-w-md mx-auto">
     <label for="country-input" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
       {{ $t(lb) }}
       <span v-if="isRequired" class="text-red-500">*</span>
@@ -10,27 +10,39 @@
         type="text"
         v-model="searchQuery"
         @input="handleInput"
-        @focus="isOpen = true"
+        @focus="handleFocus"
         @blur="handleBlur"
-        class="flex justify-between dark:bg-dark-900 h-11 w-full  focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        :disabled="disabled"
+        class="flex justify-between dark:bg-dark-900 h-11 w-full focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        :class="{
+          'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800': disabled,
+          'border-gray-300': !disabled,
+          'border-gray-200': disabled
+        }"
         :placeholder="$t('search_country')"
         autocomplete="off"
       />
+
+      <!-- Dropdown only shows when not disabled -->
       <ul
-        v-if="isOpen && filteredCountries.length"
-        class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+        v-if="isOpen && filteredCountries.length && !disabled"
+        class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm dark:bg-gray-800 dark:ring-gray-600"
       >
         <li
           v-for="country in filteredCountries"
           :key="country.value"
           @mousedown.prevent="selectCountry(country)"
-          class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white transition-colors duration-150 ease-in-out rounded-md"
+          class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 transition-colors duration-150 ease-in-out rounded-md"
         >
           <span class="block truncate">{{ country.label }}</span>
         </li>
       </ul>
-      <div v-else-if="isOpen && !filteredCountries.length && searchQuery"
-           class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-2 px-3 text-sm text-gray-500">
+
+      <!-- No results message -->
+      <div
+        v-else-if="isOpen && !filteredCountries.length && searchQuery && !disabled"
+        class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md py-2 px-3 text-sm text-gray-500 dark:text-gray-400"
+      >
         {{ $t('no_results') }}
       </div>
     </div>
@@ -44,6 +56,10 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
   modelValue: {
     type: String,
   },
@@ -51,7 +67,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  lb:{
+  lb: {
     type: String,
     default: 'country',
   }
@@ -62,9 +78,7 @@ const emits = defineEmits(['update:modelValue', 'select', 'change']);
 const searchQuery = ref<string>('');
 const isOpen = ref<boolean>(false);
 
-// A comprehensive list of all countries.
-// In a real application, you might fetch this from an API or a larger static JSON file.
-// For demonstration, I'm including a common list here.
+// A comprehensive list of all countries
 const allCountries = computed(() => [
   { value: 'AF', label: t('countries_lists.af') || 'Afghanistan' },
   { value: 'AL', label: t('countries_lists.al') || 'Albania' },
@@ -265,7 +279,6 @@ const allCountries = computed(() => [
 // Filters the list of all countries based on the search query
 const filteredCountries = computed(() => {
   if (!searchQuery.value) {
-    // If no search query, show all countries when dropdown is open
     return allCountries.value;
   }
   const query = searchQuery.value.toLowerCase();
@@ -281,41 +294,39 @@ watch(
     const selected = allCountries.value.find((c) => c.value === newVal);
     searchQuery.value = selected ? selected.label : '';
   },
-  { immediate: true } // Run immediately on component mount
+  { immediate: true }
 );
 
-// Handles input events, ensuring the dropdown opens
+// Handles input events, ensuring the dropdown opens only when not disabled
 const handleInput = () => {
-  isOpen.value = true;
-  // Emit change event for potential external listeners
-  emits('change', searchQuery.value);
+  if (!props.disabled) {
+    isOpen.value = true;
+    emits('change', searchQuery.value);
+  }
+};
+
+// Handles focus event, only opens dropdown when not disabled
+const handleFocus = () => {
+  if (!props.disabled) {
+    isOpen.value = true;
+  }
 };
 
 // Handles blur event with a slight delay to allow click on suggestions
 const handleBlur = () => {
   setTimeout(() => {
     isOpen.value = false;
-  }, 200); // Small delay to allow click event on list items to fire
+  }, 200);
 };
 
-// Selects a country from the filtered list
+// Selects a country from the filtered list, only works when not disabled
 const selectCountry = (country: { value: string; label: string }) => {
+  if (props.disabled) return;
+
   searchQuery.value = country.label;
   emits('update:modelValue', country.value);
-  emits('select', country.value); // Emit custom select event
-  emits('change', country.value); // Emit custom change event with the selected value
+  emits('select', country.value);
+  emits('change', country.value);
   isOpen.value = false;
 };
 </script>
-
-<style scoped>
-/* Tailwind CSS is used for styling, so no custom <style> block is strictly needed
-   unless you want to add very specific, non-Tailwind styles.
-   The classes like `w-full`, `px-3`, `py-2`, `border`, `rounded-md`, `shadow-sm`,
-   `focus:outline-none`, `focus:ring-2`, `focus:ring-indigo-500`,
-   `focus:border-indigo-500`, `sm:text-sm`, `absolute`, `z-10`, `mt-1`, `bg-white`,
-   `max-h-60`, `overflow-auto`, `cursor-pointer`, `select-none`, `relative`,
-   `pl-3`, `pr-9`, `hover:bg-indigo-600`, `hover:text-white`, `transition-colors`,
-   `duration-150`, `ease-in-out` are all from Tailwind CSS.
-*/
-</style>

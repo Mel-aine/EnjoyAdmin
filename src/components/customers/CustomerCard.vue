@@ -72,7 +72,7 @@ const fetchGuest = async () => {
     const hotelId = serviceStore.serviceId
     const response = await getCustomer(hotelId!)
     console.log("fetchGuest",response)
-    customers.value = response.map((guest: any) => {
+    customers.value = response.data.map((guest: any) => {
       return {
         ...guest,
         userFullName: guest ? `${guest.firstName} ${guest.lastName}` : 'Inconnu',

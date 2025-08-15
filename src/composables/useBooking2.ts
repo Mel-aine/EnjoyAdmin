@@ -103,6 +103,18 @@ interface RoomData {
   status: string
 }
 
+interface RoomExtraInfo {
+  baseAdult: number
+  baseChild: number
+  extraAdults: number
+  extraChildren: number
+  extraAdultRate: number
+  extraChildRate: number
+  extraAdultCost: number
+  extraChildCost: number
+  totalExtraCost: number
+}
+
 export function useBooking() {
   // Store references
   const router = useRouter()
@@ -861,40 +873,61 @@ export function useBooking() {
   }
 
   // Fonction getRoomExtraInfo
-  const getRoomExtraInfo = (roomId: string) => {
-    const room = roomConfigurations.value.find((r) => r.id === roomId)
-    if (!room || !room.roomType) return null
-
-    const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
-    if (!baseInfo) return null
-
-    // Conversion explicite en nombres
-    const adultCount = Number(room.adultCount) || 0
-    const childCount = Number(room.childCount) || 0
-    const baseAdult = Number(baseInfo.baseAdult) || 0
-    const baseChild = Number(baseInfo.baseChild) || 0
-    const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
-    const extraChildRate = Number(baseInfo.extraChildRate) || 0
-
-    const extraAdults = Math.max(0, adultCount - baseAdult)
-    const extraChildren = Math.max(0, childCount - baseChild)
-
-    const extraAdultCost = extraAdults * extraAdultRate
-    const extraChildCost = extraChildren * extraChildRate
-    const totalExtraCost = extraAdultCost + extraChildCost
-
+  const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
+  const room = roomConfigurations.value.find((r) => r.id === roomId)
+  if (!room || !room.roomType) {
     return {
-      baseAdult,
-      baseChild,
-      extraAdults,
-      extraChildren,
-      extraAdultRate,
-      extraChildRate,
-      extraAdultCost: Number(extraAdultCost.toFixed(2)),
-      extraChildCost: Number(extraChildCost.toFixed(2)),
-      totalExtraCost: Number(totalExtraCost.toFixed(2)),
+      baseAdult: 0,
+      baseChild: 0,
+      extraAdults: 0,
+      extraChildren: 0,
+      extraAdultRate: 0,
+      extraChildRate: 0,
+      extraAdultCost: 0,
+      extraChildCost: 0,
+      totalExtraCost: 0,
     }
   }
+
+  const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
+  if (!baseInfo) {
+    return {
+      baseAdult: 0,
+      baseChild: 0,
+      extraAdults: 0,
+      extraChildren: 0,
+      extraAdultRate: 0,
+      extraChildRate: 0,
+      extraAdultCost: 0,
+      extraChildCost: 0,
+      totalExtraCost: 0,
+    }
+  }
+
+  const adultCount = Number(room.adultCount) || 0
+  const childCount = Number(room.childCount) || 0
+  const baseAdult = Number(baseInfo.baseAdult) || 0
+  const baseChild = Number(baseInfo.baseChild) || 0
+  const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
+  const extraChildRate = Number(baseInfo.extraChildRate) || 0
+  const extraAdults = Math.max(0, adultCount - baseAdult)
+  const extraChildren = Math.max(0, childCount - baseChild)
+  const extraAdultCost = extraAdults * extraAdultRate
+  const extraChildCost = extraChildren * extraChildRate
+  const totalExtraCost = extraAdultCost + extraChildCost
+
+  return {
+    baseAdult,
+    baseChild,
+    extraAdults,
+    extraChildren,
+    extraAdultRate,
+    extraChildRate,
+    extraAdultCost: Number(extraAdultCost.toFixed(2)),
+    extraChildCost: Number(extraChildCost.toFixed(2)),
+    totalExtraCost: Number(totalExtraCost.toFixed(2)),
+  }
+}
 
 
   //  watch recalculer automatiquement quand les comptes changent
