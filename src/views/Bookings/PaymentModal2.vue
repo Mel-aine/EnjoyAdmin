@@ -6,7 +6,7 @@
         @click.self="closeModal"
       >
         <div
-          class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[800px] overflow-y-auto transform transition-all duration-300 ease-out relative  p-6 dark:bg-gray-900  slide-in"
+          class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[700px] overflow-y-auto sidebar-scroll transform transition-all duration-300 ease-out relative  p-6 dark:bg-gray-900  slide-in"
           :class="{ 'scale-100 opacity-100': isOpen, 'scale-95 opacity-0': !isOpen }"
         >
           <!-- Header -->
@@ -368,5 +368,14 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+.sidebar-scroll {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
 }
 </style>
