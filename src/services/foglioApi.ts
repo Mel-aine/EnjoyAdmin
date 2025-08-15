@@ -6,7 +6,103 @@ import type {
   RoomTypeData,
 } from '@/types/option'
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/foglio`
+// Folio-related TypeScript interfaces
+export interface CreateFolioData {
+  hotelId: number
+  guestId: number
+  reservationId?: number
+  folioType: string
+  creditLimit?: number
+  notes?: string
+}
+
+export interface UpdateFolioData {
+  credit_limit?: number
+  notes?: string
+  guest_name?: string
+}
+
+export interface TransactionData {
+  folioId: number
+  transactionType: 'charge' | 'payment' | 'adjustment'
+  category: string
+  description: string
+  amount: number
+  quantity?: number
+  unitPrice?: number
+  taxAmount?: number
+  departmentId?: number
+  reference?: string
+  notes?: string
+}
+
+export interface SettlementData {
+  folioId: number
+  paymentMethodId: number
+  amount: number
+  reference?: string
+  notes?: string
+}
+
+export interface TransferChargesData {
+  fromFolioId: number
+  toFolioId: number
+  amount: number
+  description: string
+  reference?: string
+}
+
+export interface CheckoutData {
+  folioId: number
+  paymentMethodId: number
+  paymentAmount: number
+  paymentReference?: string
+  notes?: string
+}
+
+export interface ReservationCheckoutData {
+  reservationId: number
+  payments: Array<{
+    paymentMethodId: number
+    paymentAmount: number
+    paymentReference?: string
+  }>
+}
+
+export interface ForceCloseData {
+  folioId: number
+  reason: string
+  authorizedBy: number
+}
+
+export interface GroupFolioData {
+  reservationId: number
+  guestIds: number[]
+}
+
+export interface SearchParams {
+  query?: string
+  hotel_id?: number
+  date_from?: string
+  date_to?: string
+  status?: string
+  folio_type?: string
+  has_balance?: boolean
+  guest_name?: string
+  folio_number?: string
+}
+
+export interface TransactionSearchParams {
+  folio_id?: number
+  transaction_type?: string
+  category?: string
+  date_from?: string
+  date_to?: string
+  amount_min?: number
+  amount_max?: number
+}
+
+const API_URL = `${import.meta.env.VITE_API_URL as string}/folios`
 
 
 
@@ -122,6 +218,595 @@ export const deleteFoglio = async (id: number): Promise<any> => {
     return response.data
   } catch (error) {
     console.error('Error deleting foglio:', error)
+    throw error
+  }
+}
+
+// ===== FOLIO OPERATIONS =====
+
+/**
+ * Close Folio
+ */
+export const closeFolio = async (id: number, data: { notes?: string }): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error closing folio:', error)
+    throw error
+  }
+}
+
+/**
+ * Reopen Folio
+ */
+export const reopenFolio = async (id: number, data: { reason?: string }): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error reopening folio:', error)
+    throw error
+  }
+}
+
+/**
+ * Transfer Charges
+ */
+export const transferCharges = async (id: number, data: {
+  to_folio_id: number
+  amount: number
+  description: string
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/transfer`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error transferring charges:', error)
+    throw error
+  }
+}
+
+// ===== SERVICE-BASED OPERATIONS =====
+
+/**
+ * Post Transaction
+ */
+export const postTransaction = async (data: TransactionData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/transactions`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error posting transaction:', error)
+    throw error
+  }
+}
+
+/**
+ * Settle Folio
+ */
+export const settleFolio = async (data: SettlementData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/settle`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error settling folio:', error)
+    throw error
+  }
+}
+
+/**
+ * Transfer Charges Between Folios
+ */
+export const transferChargesBetweenFolios = async (data: TransferChargesData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/transfer-charges`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error transferring charges between folios:', error)
+    throw error
+  }
+}
+
+/**
+ * Close Folio with Service
+ */
+export const closeFolioWithService = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close-service`, {}, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error closing folio with service:', error)
+    throw error
+  }
+}
+
+/**
+ * Reopen Folio with Service
+ */
+export const reopenFolioWithService = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen-service`, {}, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error reopening folio with service:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Statement with Service
+ */
+export const getStatementWithService = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement-service`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting statement with service:', error)
+    throw error
+  }
+}
+
+// ===== FOLIO CREATION FOR DIFFERENT SCENARIOS =====
+
+/**
+ * Create Folio for Reservation
+ */
+export const createFolioForReservation = async (data: {
+  reservationId: number
+  folioType: string
+  creditLimit?: number
+  notes?: string
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/reservation`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error creating folio for reservation:', error)
+    throw error
+  }
+}
+
+/**
+ * Create Folio for Walk-in Guest
+ */
+export const createFolioForWalkIn = async (data: {
+  hotelId: number
+  guestId: number
+  folioType: string
+  creditLimit?: number
+  notes?: string
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/walk-in`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error creating folio for walk-in guest:', error)
+    throw error
+  }
+}
+
+/**
+ * Create Folios for Group
+ */
+export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/group`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error creating folios for group:', error)
+    throw error
+  }
+}
+
+// ===== AUTOMATED POSTING =====
+
+/**
+ * Post Room Charges
+ */
+export const postRoomCharges = async (data: { reservationId: number }): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/post-room-charges`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error posting room charges:', error)
+    throw error
+  }
+}
+
+/**
+ * Post Taxes and Fees
+ */
+export const postTaxesAndFees = async (data: { reservationId: number }): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/post-taxes-fees`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error posting taxes and fees:', error)
+    throw error
+  }
+}
+
+// ===== RESERVATION FOLIO MANAGEMENT =====
+
+/**
+ * Get Reservation Folios
+ */
+export const getReservationFolios = async (reservationId: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/reservation/${reservationId}`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting reservation folios:', error)
+    throw error
+  }
+}
+
+// ===== CHECKOUT AND SETTLEMENT =====
+
+/**
+ * Get Settlement Summary
+ */
+export const getSettlementSummary = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/settlement-summary`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting settlement summary:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Checkout Summary
+ */
+export const getCheckoutSummary = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/checkout-summary`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting checkout summary:', error)
+    throw error
+  }
+}
+
+/**
+ * Process Checkout
+ */
+export const processCheckout = async (data: CheckoutData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/checkout`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error processing checkout:', error)
+    throw error
+  }
+}
+
+/**
+ * Process Reservation Checkout
+ */
+export const processReservationCheckout = async (data: ReservationCheckoutData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/reservation-checkout`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error processing reservation checkout:', error)
+    throw error
+  }
+}
+
+/**
+ * Force Close Folio
+ */
+export const forceCloseFolio = async (data: ForceCloseData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL}/force-close`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error force closing folio:', error)
+    throw error
+  }
+}
+
+/**
+ * Validate Checkout
+ */
+export const validateCheckout = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/validate-checkout`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error validating checkout:', error)
+    throw error
+  }
+}
+
+// ===== FOLIO INQUIRY AND VIEWS =====
+
+/**
+ * Get Guest View
+ */
+export const getGuestView = async (id: number, includeSensitive?: boolean): Promise<any> => {
+  try {
+    const queryParams = includeSensitive ? '?include_sensitive=true' : ''
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/guest-view${queryParams}`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting guest view:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Staff View
+ */
+export const getStaffView = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/staff-view`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting staff view:', error)
+    throw error
+  }
+}
+
+/**
+ * Search Folios
+ */
+export const searchFolios = async (params: SearchParams): Promise<any> => {
+  try {
+    const queryParams = new URLSearchParams()
+    
+    if (params.query) queryParams.append('query', params.query)
+    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
+    if (params.date_from) queryParams.append('date_from', params.date_from)
+    if (params.date_to) queryParams.append('date_to', params.date_to)
+    if (params.status) queryParams.append('status', params.status)
+    if (params.folio_type) queryParams.append('folio_type', params.folio_type)
+    if (params.has_balance !== undefined) queryParams.append('has_balance', params.has_balance.toString())
+    if (params.guest_name) queryParams.append('guest_name', params.guest_name)
+    if (params.folio_number) queryParams.append('folio_number', params.folio_number)
+    
+    const url = `${API_URL}/search?${queryParams.toString()}`
+    const response: AxiosResponse = await axios.get(url, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error searching folios:', error)
+    throw error
+  }
+}
+
+/**
+ * Search Transactions
+ */
+export const searchTransactions = async (params: TransactionSearchParams): Promise<any> => {
+  try {
+    const queryParams = new URLSearchParams()
+    
+    if (params.folio_id) queryParams.append('folio_id', params.folio_id.toString())
+    if (params.transaction_type) queryParams.append('transaction_type', params.transaction_type)
+    if (params.category) queryParams.append('category', params.category)
+    if (params.date_from) queryParams.append('date_from', params.date_from)
+    if (params.date_to) queryParams.append('date_to', params.date_to)
+    if (params.amount_min) queryParams.append('amount_min', params.amount_min.toString())
+    if (params.amount_max) queryParams.append('amount_max', params.amount_max.toString())
+    
+    const url = `${API_URL}/transactions/search?${queryParams.toString()}`
+    const response: AxiosResponse = await axios.get(url, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error searching transactions:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Timeline
+ */
+export const getTimeline = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/timeline`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting timeline:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Advanced Statistics
+ */
+export const getAdvancedStatistics = async (params: {
+  hotel_id?: number
+  date_from?: string
+  date_to?: string
+  group_by?: string
+}): Promise<any> => {
+  try {
+    const queryParams = new URLSearchParams()
+    
+    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
+    if (params.date_from) queryParams.append('date_from', params.date_from)
+    if (params.date_to) queryParams.append('date_to', params.date_to)
+    if (params.group_by) queryParams.append('group_by', params.group_by)
+    
+    const url = `${API_URL}/statistics-advanced?${queryParams.toString()}`
+    const response: AxiosResponse = await axios.get(url, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting advanced statistics:', error)
+    throw error
+  }
+}
+
+// ===== REPORTS =====
+
+/**
+ * Get Folio Balance
+ */
+export const getFolioBalance = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/balance`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting folio balance:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Folio Statement
+ */
+export const getFolioStatement = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting folio statement:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Statistics
+ */
+export const getStatistics = async (params: {
+  hotel_id?: number
+  date_from?: string
+  date_to?: string
+}): Promise<any> => {
+  try {
+    const queryParams = new URLSearchParams()
+    
+    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
+    if (params.date_from) queryParams.append('date_from', params.date_from)
+    if (params.date_to) queryParams.append('date_to', params.date_to)
+    
+    const url = `${API_URL}/statistics?${queryParams.toString()}`
+    const response: AxiosResponse = await axios.get(url, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting statistics:', error)
+    throw error
+  }
+}
+
+// ===== FOLIO TRANSACTION MANAGEMENT =====
+
+/**
+ * Get All Folio Transactions
+ */
+export const getAllFolioTransactions = async (params: {
+  page?: number
+  limit?: number
+  folio_id?: number
+  transaction_type?: string
+  category?: string
+  date_from?: string
+  date_to?: string
+}): Promise<any> => {
+  try {
+    const queryParams = new URLSearchParams()
+    
+    if (params.page) queryParams.append('page', params.page.toString())
+    if (params.limit) queryParams.append('limit', params.limit.toString())
+    if (params.folio_id) queryParams.append('folio_id', params.folio_id.toString())
+    if (params.transaction_type) queryParams.append('transaction_type', params.transaction_type)
+    if (params.category) queryParams.append('category', params.category)
+    if (params.date_from) queryParams.append('date_from', params.date_from)
+    if (params.date_to) queryParams.append('date_to', params.date_to)
+    
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const url = queryParams.toString() ? `${transactionApiUrl}?${queryParams.toString()}` : transactionApiUrl
+    const response: AxiosResponse = await axios.get(url, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting folio transactions:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Folio Transaction by ID
+ */
+export const getFolioTransactionById = async (id: number): Promise<any> => {
+  try {
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const response: AxiosResponse = await axios.get(`${transactionApiUrl}/${id}`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error getting folio transaction:', error)
+    throw error
+  }
+}
+
+/**
+ * Create Folio Transaction
+ */
+export const createFolioTransaction = async (data: any): Promise<any> => {
+  try {
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const response: AxiosResponse = await axios.post(transactionApiUrl, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error creating folio transaction:', error)
+    throw error
+  }
+}
+
+/**
+ * Update Folio Transaction
+ */
+export const updateFolioTransaction = async (id: number, data: any): Promise<any> => {
+  try {
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const response: AxiosResponse = await axios.put(`${transactionApiUrl}/${id}`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error updating folio transaction:', error)
+    throw error
+  }
+}
+
+/**
+ * Delete Folio Transaction
+ */
+export const deleteFolioTransaction = async (id: number): Promise<any> => {
+  try {
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const response: AxiosResponse = await axios.delete(`${transactionApiUrl}/${id}`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error deleting folio transaction:', error)
+    throw error
+  }
+}
+
+/**
+ * Void Folio Transaction
+ */
+export const voidFolioTransaction = async (id: number, data: { reason: string }): Promise<any> => {
+  try {
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/void`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error voiding folio transaction:', error)
+    throw error
+  }
+}
+
+/**
+ * Reverse Folio Transaction
+ */
+export const reverseFolioTransaction = async (id: number, data: { reason: string }): Promise<any> => {
+  try {
+    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
+    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/reverse`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error reversing folio transaction:', error)
     throw error
   }
 }

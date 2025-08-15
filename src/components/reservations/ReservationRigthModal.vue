@@ -17,10 +17,11 @@
                             </div>
                             <div>
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {{ reservationData }}
+                                    {{ reservationData.guest.firstName }} {{ reservationData.guest.lastName }}
+
                                 </h2>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ reservationData }}
+                                    {{ reservationData?.reservationNumber }}
                                 </p>
                             </div>
                         </div>
@@ -171,6 +172,7 @@ import BasicButton from '../buttons/BasicButton.vue'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { formatCurrency } from '../utilities/UtilitiesFunction'
 const { t } = useI18n()
 interface Props {
     isOpen: boolean
@@ -215,10 +217,6 @@ const formatDate = (dateString?: string) => {
     }
 }
 
-const formatCurrency = (amount?: number) => {
-    if (amount === undefined || amount === null) return `${t('currency')} 0.00`
-    return `${t('currency')} ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
 
 const dropdownOptions = computed(() => [
     { id: 'check-in', label: t('checkIn'), icon: CheckCircle, color: 'text-blue-600' },

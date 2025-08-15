@@ -13,7 +13,6 @@ import AdminLayout from '../../../components/layout/AdminLayout.vue';
 import Adult from '../../../icons/Adult.vue';
 import Child from '../../../icons/Child.vue';
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
-import ReservationRigthModal from '../../../components/reservations/ReservationRigthModal.vue';
 
 // Simple Button component
 const Button = {
@@ -74,7 +73,7 @@ onMounted(()=>{
             <div class="flex gap-2 align-middle self-center items-center">
                 <ArrowLeft></ArrowLeft>
                 <Building2Icon class="text-primary"></Building2Icon>
-                <span class="font-bold">{{ reservation.guest?.firstName + ' ' + reservation.guest?.lastName }}</span>
+                <span class="font-bold">{{ reservation.guest?.displayName }}</span>
                 <div class="flex">
                     <Adult class="w-5" />
                     <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults }}</span>
@@ -165,10 +164,10 @@ onMounted(()=>{
         </div>
        <!--tab content-->
        <div v-if="activeTab === 'room_charges'">
-            <RoomCharge></RoomCharge>
+            <RoomCharge :reservation-id="reservation.id"></RoomCharge>
        </div>
-       <div v-if="activeTab === 'folio_operations'">
-            <FoglioOperation></FoglioOperation>
+       <div v-if="activeTab === 'folio_operations'&&reservation && reservation.id" >
+            <FoglioOperation :reservation-id="reservation.id"></FoglioOperation>
        </div>
        <div v-if="activeTab === 'booking_details'">
             <BookingDetails :booking="reservation"></BookingDetails>

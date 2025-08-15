@@ -4,10 +4,11 @@
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
           <div class="flex justify-between pt-2 px-2 pb-2">
-            <span>Room/foglo</span>
+            <span>Room/Folios</span>
             <PlusCircle class="text-primary cursor-pointer" />
           </div>
-          <div class="flex justify-between  items-center p-2 cursor-pointer hover:bg-gray-50" @click="isOpen = !isOpen"
+          <div v-for="(fo, index) in foglioData" :key="index"
+            class="flex justify-between  items-center p-2 cursor-pointer hover:bg-gray-50" @click="isOpen = !isOpen"
             :class="{ 'bg-gray-200': isOpen, 'bg-primary/10': !isOpen }">
             <span>Room Details</span>
             <ChevronUp v-if="isOpen" />
@@ -62,7 +63,7 @@
 
         <!-- Table -->
         <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false" :selectable="false"
-          :searchable="false">
+          :searchable="false" :title="$t('Foglio')">
           <!-- Custom column templates -->
           <template #column-day="{ item }">
             <div class="text-sm text-gray-900">
@@ -126,16 +127,22 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 import AddPaymentModal from './AddPaymentModal.vue'
-import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronDown, ChevronUp, PlusCircle } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
-
+import type { Column } from '../../../utils/models'
+import { getReservationFolios } from '../../../services/foglioApi'
 const { t } = useI18n()
-const isOpen= ref(false)
+const isOpen = ref(false)
 // Modal state
 const isAddChargeModalOpen = ref(false)
 const isAddPaymentModalOpen = ref(false)
-
+const props = defineProps({
+  reservationId: {
+    type: Number,
+    required: true
+  }
+})
 interface FoglioItem {
   id: number
   day: string
@@ -152,50 +159,11 @@ const balance = ref(2000.00)
 
 // Sample data based on the image
 const foglioData = ref<FoglioItem[]>([
-  {
-    id: 1,
-    day: '13/08/2022 Saturday',
-    refNo: '',
-    particulars: 'Room Charges',
-    description: '',
-    user: 'helpdesksupport',
-    amount: 2400.00,
-    status: 'unposted'
-  },
-  {
-    id: 2,
-    day: '14/08/2022 Sunday',
-    refNo: '',
-    particulars: 'Room Charges',
-    description: '',
-    user: 'helpdesksupport',
-    amount: 2400.00,
-    status: 'unposted'
-  },
-  {
-    id: 3,
-    day: '15/08/2022 Monday',
-    refNo: '',
-    particulars: 'Room Charges',
-    description: '',
-    user: 'helpdesksupport',
-    amount: 2400.00,
-    status: 'unposted'
-  },
-  {
-    id: 4,
-    day: '16/08/2022 Tuesday',
-    refNo: '',
-    particulars: 'Room Charges',
-    description: '',
-    user: 'helpdesksupport',
-    amount: 2400.00,
-    status: 'unposted'
-  }
+
 ])
 
 // Table columns configuration
-const columns = computed(() => [
+const columns = computed<Column[]>(() => [
   { key: 'day', label: t('Day'), type: 'custom' },
   { key: 'refNo', label: t('Ref No.'), type: 'text' },
   { key: 'particulars', label: t('Particulars'), type: 'text' },
@@ -264,7 +232,21 @@ const openAddPaymentModal = () => {
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
-
+const getFolosReservations = async () => {
+  loading.value = true
+  try {
+    const resp = await getReservationFolios(props.reservationId)
+    if (resp.status === 200) {
+      foglioData.value = resp.data
+      balance.value = resp.data.reduce((acc, item) => acc + item.amount, 0)
+    }
+  } catch (e) {
+    console.log(e)
+  } finally {
+    loading.value = false
+  }
+}
+getFolosReservations()
 const handleSavePayment = (paymentData: any) => {
   console.log('Saving payment:', paymentData)
   // Here you would typically send the data to your API

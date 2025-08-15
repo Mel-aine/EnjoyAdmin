@@ -61,7 +61,7 @@ const formatDate = (dateString: string) => {
             <HouseIcon class="w-8 h-8 text-primary" />
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize">
-                {{ reservation.userFullName }}
+                {{ reservation.guest.displayName }}
               </h3>
               <p class="text-xs text-gray-600 dark:text-gray-400 font-mono">
                 #{{ reservation.reservationNumber }}
