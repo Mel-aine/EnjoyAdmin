@@ -88,7 +88,7 @@ export function useSidebarProvider() {
   }
 
   const context: SidebarContextType = {
-    isExpanded: computed(() => (isMobile.value ? false : isExpanded.value)),
+    isExpanded: computed(() => isExpanded.value),
     isMobileOpen,
     isHovered,
     activeItem,

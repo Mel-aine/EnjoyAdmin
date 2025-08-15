@@ -1,237 +1,238 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Business Source</h1>
-          <p class="text-gray-600 mt-1">
-            Sales and Marketing department would like to do sales analysis of the source of the business. Such information and analysis would be helpful to design promotion campaign, marketing budget or even helpful to determine what rate to offer to which travel agent. You can define your entire business source here and associate this business source with Check In/Reservation.
-          </p>
-        </div>
-        <BasicButton 
-          variant="primary"
-          icon="Plus"
-          label="Add Business Source"
-          @click="openAddModal"
-        />
-      </div>
-
       <!-- Table -->
       <div class="bg-white rounded-lg shadow">
         <ReusableTable
+          :title="t('configuration.business_source.title')"
           :columns="columns"
           :data="businessSources"
           :actions="actions"
-          :loading="false"
-          searchPlaceholder="Search business sources..."
-        />
+          :loading="loading"
+          :searchPlaceholder="t('configuration.business_source.search_placeholder')"
+          :selectable="true"
+        >
+
+        <template #header-actions> <BasicButton 
+          variant="primary"
+          :icon="Plus"
+          :label="t('configuration.business_source.add_button')"
+          @click="openAddModal"
+        /></template>
+          <template #column-color="{ item }">
+            <div class="flex items-center space-x-2">
+              <div 
+                class="w-6 h-6 rounded border border-gray-300" 
+                :style="{ backgroundColor: item.color }"
+              ></div>
+              <span class="text-sm text-gray-600">{{ item.color }}</span>
+            </div>
+          </template>
+         <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </template>
+
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
+        </template>
+        </ReusableTable>
       </div>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            {{ isEditing ? 'Edit Business Source' : 'Add Business Source' }}
+            {{ isEditing ? t('configuration.business_source.edit_title') : t('configuration.business_source.add_title') }}
           </h3>
           
           <form @submit.prevent="saveBusinessSource">
-            <!-- Name -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Business Source Name *
-              </label>
-              <Input 
-                v-model="formData.name"
-                placeholder="Enter business source name"
-                required
-              />
-            </div>
-
             <!-- Short Code -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Short Code *
+                {{ t('configuration.business_source.short_code') }} *
               </label>
-              <Input 
+              <input 
+                type="text"
                 v-model="formData.shortCode"
-                placeholder="Enter short code"
+                :placeholder="t('configuration.business_source.short_code_placeholder')"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 maxlength="10"
                 required
               />
             </div>
 
-            <!-- Description -->
+            <!-- Business Source Name -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Description
+                {{ t('configuration.business_source.name') }} *
               </label>
-              <textarea 
-                v-model="formData.description"
-                placeholder="Enter description (optional)"
+              <input 
+                type="text"
+                v-model="formData.name"
+                :placeholder="t('configuration.business_source.name_placeholder')"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <!-- Category -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <Select 
-                v-model="formData.category"
-                :options="categoryOptions"
-                placeholder="Select category"
+                required
               />
             </div>
 
-            <!-- Status -->
+            <!-- Color -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                {{ t('configuration.business_source.color') }}
+              </label>
+              <input 
+                type="color"
+                v-model="formData.color"
+                class="w-16 h-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <!-- Registration Number -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                {{ t('configuration.business_source.registration_number') }}
+              </label>
+              <input 
+                type="text"
+                v-model="formData.registrationNumber"
+                :placeholder="t('configuration.business_source.registration_number_placeholder')"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <!-- Market Code -->
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                {{ t('configuration.business_source.market_code') }}
               </label>
-              <Select 
-                v-model="formData.status"
-                :options="statusOptions"
-                placeholder="Select status"
-              />
+              <select 
+                v-model="formData.marketCodeId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">{{ t('configuration.business_source.market_code_placeholder') }}</option>
+                <option v-for="option in marketCodeOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
             </div>
 
-            <div class="flex justify-end space-x-3">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ isEditing ? 'Update Business Source' : 'Add Business Source' }}
-              </button>
+         <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton variant="secondary" @click="closeModal" type="button"
+                :label="t('configuration.reservation_type.cancel')">
+              </BasicButton>
+              <BasicButton variant="primary" type="submit"
+                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
+                :icon="isEditing ? Edit : Save" :loading="saving" :disabled="saving">
+              </BasicButton>
             </div>
           </form>
         </div>
       </div>
+
+      <!-- Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showDeleteModal"
+        :title="t('configuration.business_source.delete_title')"
+        :message="t('configuration.business_source.delete_message')"
+        :confirmText="t('common.delete')"
+        :cancelText="t('common.cancel')"
+        variant="danger"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
     </div>
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
-import Input from '../../../components/forms/FormElements/Input.vue'
-import Select from '../../../components/forms/FormElements/Select.vue'
+import ModalConfirmation from '../../../components/modal/ModalConfirmation.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import * as configrationApi from '../../../services/configrationApi'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import type { Action, Column } from '../../../utils/models'
+import { Edit, Save } from 'lucide-vue-next'
+import Plus from '../../../icons/Plus.vue'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
+const showDeleteModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref(null)
+const loading = ref(false)
+const saving = ref(false)
+const deleteItemId = ref<any>(null)
+
+// Data
+const businessSources = ref([])
 
 // Form data
 const formData = ref({
   name: '',
   shortCode: '',
-  description: '',
-  category: '',
-  status: 'Active'
+  color: '#000000',
+  registrationNumber: '',
+  marketCodeId: ''
 })
 
-// Sample data
-const businessSources = ref([
-  {
-    id: 1,
-    name: 'Travel Agent',
-    shortCode: 'TA',
-    description: 'Bookings through travel agents',
-    category: 'Agent',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Online Booking',
-    shortCode: 'OB',
-    description: 'Direct online bookings from website',
-    category: 'Direct',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Corporate Contract',
-    shortCode: 'CC',
-    description: 'Corporate bookings under contract',
-    category: 'Corporate',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Walk-in',
-    shortCode: 'WI',
-    description: 'Walk-in guests without prior booking',
-    category: 'Direct',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Inactive'
-  }
+// Market code options
+const marketCodeOptions = ref<any>([
 ])
-
-// Options
-const categoryOptions = [
-  { label: 'Direct', value: 'Direct' },
-  { label: 'Agent', value: 'Agent' },
-  { label: 'Corporate', value: 'Corporate' },
-  { label: 'OTA', value: 'OTA' },
-  { label: 'Group', value: 'Group' },
-  { label: 'Other', value: 'Other' }
-]
-
-const statusOptions = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' }
-]
 
 // Table configuration
 const columns: Column[] = [
-  { key: 'shortCode', label: 'Short Code', type: 'text' },
   { key: 'name', label: 'Business Source Name', type: 'text' },
-  { key: 'category', label: 'Category', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
+  { key: 'shortCode', label: 'Short Code', type: 'text' },
+  { key: 'color', label: 'Color', type: 'custom' },
+  { key: 'registrationNumber', label: 'Registration Number', type: 'text' },
+  { key: 'marketCode.name', label: 'Market Code', type: 'text' },
+  { key: 'modifiedInfo', label: 'Modified Info', type: 'custom' },
+  { key: 'createdInfo', label: 'Created Info', type: 'custom' }
 ]
 
 const actions: Action[] = [
   {
-    label: 'Edit',
+    label: t('common.edit'),
     handler: (item) => editBusinessSource(item),
     variant: 'primary'
   },
   {
-    label: 'Delete',
+    label: t('common.delete'),
     handler: (item) => deleteBusinessSource(item.id),
     variant: 'danger'
   }
 ]
+
+// Load business sources data
+const loadBusinessSources = async () => {
+  loading.value = true
+  try {
+    const response = await configrationApi.getBusinessSources()
+    console.log('data',response)
+    businessSources.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Error loading business sources:', error)
+    toast.error(t('configuration.business_source.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
 
 // Functions
 const openAddModal = () => {
@@ -240,60 +241,73 @@ const openAddModal = () => {
   formData.value = {
     name: '',
     shortCode: '',
-    description: '',
-    category: '',
-    status: 'Active'
+    color: '#000000',
+    registrationNumber: '',
+    marketCodeId: ''
   }
   showModal.value = true
 }
 
-const editBusinessSource = (item) => {
+const editBusinessSource = (item:any) => {
   isEditing.value = true
   editingId.value = item.id
   formData.value = {
-    name: item.name,
-    shortCode: item.shortCode,
-    description: item.description,
-    category: item.category,
-    status: item.status
+    name: item.name || '',
+    shortCode: item.shortCode || '',
+    color: item.color || '#000000',
+    registrationNumber: item.registrationNumber || '',
+    marketCodeId: item.marketCodeId || ''
   }
   showModal.value = true
 }
 
-const saveBusinessSource = () => {
-  if (isEditing.value) {
-    // Update existing business source
-    const index = businessSources.value.findIndex(item => item.id === editingId.value)
-    if (index !== -1) {
-      businessSources.value[index] = {
-        ...businessSources.value[index],
-        ...formData.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
-    }
-  } else {
-    // Add new business source
-    const newBusinessSource = {
-      id: Date.now(),
+const saveBusinessSource = async () => {
+  saving.value = true
+  try {
+    const payload = {
       ...formData.value,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0]
+      hotelId: serviceStore.serviceId
     }
-    businessSources.value.unshift(newBusinessSource)
+
+    if (isEditing.value) {
+      await configrationApi.updateBusinessSourceById(editingId.value!, payload)
+      toast.success(t('configuration.business_source.update_success'))
+    } else {
+      await configrationApi.postBusinessSource(payload)
+      toast.success(t('configuration.business_source.create_success'))
+    }
+    
+    closeModal()
+    await loadBusinessSources()
+  } catch (error) {
+    console.error('Error saving business source:', error)
+    toast.error(t('configuration.business_source.save_error'))
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteBusinessSource = (id) => {
-  if (confirm('Are you sure you want to delete this business source?')) {
-    const index = businessSources.value.findIndex(item => item.id === id)
-    if (index !== -1) {
-      businessSources.value.splice(index, 1)
-    }
+const deleteBusinessSource = (id:string) => {
+  deleteItemId.value = id
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  try {
+    await configrationApi.deleteBusinessSourceById(deleteItemId.value)
+    toast.success(t('configuration.business_source.delete_success'))
+    showDeleteModal.value = false
+    deleteItemId.value = null
+    await loadBusinessSources()
+  } catch (error) {
+    console.error('Error deleting business source:', error)
+    toast.error(t('configuration.business_source.delete_error'))
   }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  deleteItemId.value = null
 }
 
 const closeModal = () => {
@@ -303,9 +317,31 @@ const closeModal = () => {
   formData.value = {
     name: '',
     shortCode: '',
-    description: '',
-    category: '',
-    status: 'Active'
+    color: '#000000',
+    registrationNumber: '',
+    marketCodeId: ''
   }
 }
+const fetchMarketCode = async () => {
+  try {
+    loading.value = true
+    const response = await configrationApi.getMarketCodes();
+    marketCodeOptions.value = (response.data.data.data || []).map((e:any)=>{
+      return {
+        label: e.name,
+        value: e.id
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching market codes:', error)
+    toast.error(t('configuration.market_code.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
+// Load data on component mount
+onMounted(() => {
+  loadBusinessSources();
+  fetchMarketCode();
+})
 </script>

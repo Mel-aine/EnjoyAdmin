@@ -3,12 +3,18 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Hotel Information</h1>
+          <h1 class="text-2xl font-bold text-gray-900">{{ t('hotelInformation.title') }}</h1>
           <p class="text-gray-600 mt-1">
-            Enter all the details related to your hotel here. These details will be used to print on various folios and invoices.
+            {{ t('hotelInformation.subtitle') }}
           </p>
         </div>
-        <BasicButton variant="primary" icon="Save" label="Save Changes" @click="saveHotelInfo" />
+        <BasicButton 
+          variant="primary" 
+          :icon="Save" 
+          :label="isLoading ? t('Processing') + '...' : t('hotelInformation.saveChanges')" 
+          @click="saveHotelInfo" 
+          :disabled="isLoading"
+        />
       </div>
       
       <div class="bg-white rounded-lg shadow">
@@ -16,128 +22,100 @@
           <form @submit.prevent="saveHotelInfo" class="space-y-8">
             <!-- General Information -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">General Information</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('hotelInformation.generalInformation') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Hotel Name *
-                  </label>
                   <Input
-                    v-model="hotelInfo.name"
-                    placeholder="Enter hotel name"
-                    required
+                    v-model="hotelInfo.hotelName"
+                    :lb="t('hotelInformation.fields.hotelName')"
+                    :placeholder="t('hotelInformation.placeholders.hotelName')"
+                    :is-required="true"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Email *
-                  </label>
-                  <Input
+                  <InputEmail
                     v-model="hotelInfo.email"
-                    type="email"
-                    placeholder="Enter hotel email"
-                    required
+                    :title="t('hotelInformation.fields.email')"
+                    :placeholder="t('hotelInformation.placeholders.email')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Phone *
-                  </label>
-                  <Input
-                    v-model="hotelInfo.phone"
-                    type="phone"
-                    placeholder="Enter hotel phone"
-                    required
+                  <InputPhone
+                    v-model="hotelInfo.phoneNumber"
+                    :placeholder="t('hotelInformation.placeholders.phone')"
+                    :title="t('hotelInformation.fields.phone')"
+                    :is-required="true"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Fax
-                  </label>
                   <Input
                     v-model="hotelInfo.fax"
-                    placeholder="Enter fax number"
+                    :lb="t('hotelInformation.fields.fax')"
+                    :placeholder="t('hotelInformation.placeholders.fax')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Website
-                  </label>
                   <Input
                     v-model="hotelInfo.website"
-                    placeholder="Enter hotel website"
+                    :lb="t('hotelInformation.fields.website')"
+                    :placeholder="t('hotelInformation.placeholders.website')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Country *
-                  </label>
-                  <Select
+                  <InputCountries
                     v-model="hotelInfo.country"
-                    :options="countryOptions"
-                    placeholder="Select country"
-                    required
+                    :is-required="true"
                   />
                 </div>
               </div>
               
               <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Address 1 *
-                </label>
                 <Input
-                  v-model="hotelInfo.address1"
-                  placeholder="Enter primary address"
-                  required
+                  v-model="hotelInfo.address"
+                  :lb="t('hotelInformation.fields.address1')"
+                  :placeholder="t('hotelInformation.placeholders.address1')"
+                  :is-required="true"
                 />
               </div>
               
               <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Address 2
-                </label>
                 <Input
                   v-model="hotelInfo.address2"
-                  placeholder="Enter secondary address (optional)"
+                  :lb="t('hotelInformation.fields.address2')"
+                  :placeholder="t('hotelInformation.placeholders.address2')"
                 />
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    City *
-                  </label>
                   <Input
                     v-model="hotelInfo.city"
-                    placeholder="Enter city"
-                    required
+                    :lb="t('hotelInformation.fields.city')"
+                    :placeholder="t('hotelInformation.placeholders.city')"
+                    :is-required="true"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    State/Province *
-                  </label>
                   <Input
-                    v-model="hotelInfo.state"
-                    placeholder="Enter state/province"
-                    required
+                    v-model="hotelInfo.stateProvince"
+                    :lb="t('hotelInformation.fields.stateProvince')"
+                    :placeholder="t('hotelInformation.placeholders.stateProvince')"
+                    :is-required="true"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    ZIP/Postal Code *
-                  </label>
                   <Input
-                    v-model="hotelInfo.zipCode"
-                    placeholder="Enter ZIP/postal code"
-                    required
+                    v-model="hotelInfo.postalCode"
+                    :lb="t('hotelInformation.fields.zipPostalCode')"
+                    :placeholder="t('hotelInformation.placeholders.zipPostalCode')"
+                    :is-required="true"
                   />
                 </div>
               </div>
@@ -145,35 +123,31 @@
             
             <!-- Property Information -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Property Information</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('hotelInformation.propertyInformation') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Property Type *
-                  </label>
                   <Select
                     v-model="hotelInfo.propertyType"
                     :options="propertyTypeOptions"
-                    placeholder="Select property type"
-                    required
+                    :lb="t('hotelInformation.fields.propertyType')"
+                    :placeholder="t('hotelInformation.placeholders.propertyType')"
+                    :is-required="true"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Grade/Rating
-                  </label>
                   <Select
                     v-model="hotelInfo.grade"
                     :options="gradeOptions"
-                    placeholder="Select grade/rating"
+                    :lb="t('hotelInformation.fields.gradeRating')"
+                    :placeholder="t('hotelInformation.placeholders.gradeRating')"
                   />
                 </div>
               </div>
               
               <div class="mt-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Hotel Logo
+                  {{ t('hotelInformation.fields.hotelLogo') }}
                 </label>
                 <div class="flex items-center space-x-4">
                   <button
@@ -181,10 +155,10 @@
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                     @click="selectLogo"
                   >
-                    Choose File
+                    {{ t('hotelInformation.buttons.chooseFile') }}
                   </button>
                   <span class="text-sm text-gray-500">
-                    {{ hotelInfo.logoFileName || 'No file selected' }}
+                    {{ hotelInfo.logoFileName || t('hotelInformation.messages.noFileSelected') }}
                   </span>
                   <button
                     v-if="hotelInfo.logoFileName"
@@ -192,44 +166,69 @@
                     class="text-red-600 hover:text-red-800 text-sm"
                     @click="removeLogo"
                   >
-                    Remove
+                    {{ t('hotelInformation.buttons.remove') }}
                   </button>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">
-                  Upload your hotel logo (PNG, JPG, SVG - Max 2MB)
+                  {{ t('hotelInformation.messages.logoUploadInfo') }}
                 </p>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Registration No. 1
-                  </label>
                   <Input
-                    v-model="hotelInfo.regNo1"
-                    placeholder="Enter registration number 1"
+                    v-model="hotelInfo.registrationNo1"
+                    :lb="t('hotelInformation.fields.registrationNo1')"
+                    :placeholder="t('hotelInformation.placeholders.registrationNo1')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Registration No. 2
-                  </label>
                   <Input
-                    v-model="hotelInfo.regNo2"
-                    placeholder="Enter registration number 2"
+                    v-model="hotelInfo.registrationNo2"
+                    :lb="t('hotelInformation.fields.registrationNo2')"
+                    :placeholder="t('hotelInformation.placeholders.registrationNo2')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Registration No. 3
-                  </label>
                   <Input
-                    v-model="hotelInfo.regNo3"
-                    placeholder="Enter registration number 3"
+                    v-model="hotelInfo.registrationNo3"
+                    :lb="t('hotelInformation.fields.registrationNo3')"
+                    :placeholder="t('hotelInformation.placeholders.registrationNo3')"
                   />
                 </div>
+              </div>
+              
+              <!-- Description Section -->
+              <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-6">{{ t('hotelInformation.descriptionPolicies') }}</h3>
+                
+                <!-- Cancellation Policy -->
+                 <div class="mb-6">
+                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                     {{ t('hotelInformation.fields.cancellationPolicy') }}
+                   </label>
+                   <textarea
+                     v-model="hotelInfo.cancellationPolicy"
+                     rows="4"
+                     :placeholder="t('hotelInformation.placeholders.cancellationPolicy')"
+                     class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                   ></textarea>
+                 </div>
+                 
+                 <!-- Hotel Policy -->
+                 <div class="mb-6">
+                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                     {{ t('hotelInformation.fields.hotelPolicy') }}
+                   </label>
+                   <textarea
+                     v-model="hotelInfo.hotelPolicy"
+                     rows="4"
+                     :placeholder="t('hotelInformation.placeholders.hotelPolicy')"
+                     class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                   ></textarea>
+                 </div>
               </div>
             </div>
           </form>
@@ -240,65 +239,72 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import InputEmail from '../../../components/forms/FormElements/InputEmail.vue'
+import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
+import InputCountries from '../../../components/forms/FormElements/InputCountries.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelInformation } from '../../../services/hotelApi'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+import { uploadToCloudinary } from '../../../utils'
+
+// Import Save icon (you may need to adjust the path based on your icon structure)
+const Save = null // Replace with actual Save icon import
+
+const serviceStore = useServiceStore()
+const toast = useToast()
+const { t } = useI18n({ useScope: 'global' })
+const isLoading = ref(false)
 
 const hotelInfo = ref({
-  name: 'Royal Hotel',
-  email: 'amar@ezeetechnosys.com',
-  phone: '91-866-606-6295',
-  fax: '91-866-606-6295',
-  website: 'http://live.ipms247.com/royalhotel',
-  country: 'India',
-  address1: 'D 113, International trade centre,',
-  address2: 'Surat',
-  city: 'Surat',
-  state: 'Gujarat',
-  zipCode: '395003',
-  propertyType: 'Hotel and Resort',
-  grade: '5 stars & above',
-  logoFileName: '',
-  regNo1: '',
-  regNo2: '',
-  regNo3: ''
+  "hotelName": "",
+  "email": "",
+  "phoneNumber": "",
+  "fax": "",
+  "website": "",
+  "country": "",
+  "address": "",
+  "address2": "",
+  "city": "",
+  "stateProvince": "",
+  "postalCode": " ",
+  "propertyType": " ",
+  "grade": 0,
+  "logoUrl": "",
+  "registrationNo1": "",
+  "registrationNo2": "",
+  "registrationNo3": "",
+  "cancellationPolicy": "",
+  "hotelPolicy": "",
+  logoFile: null
 })
 
-const countryOptions = [
-  { label: 'India', value: 'India' },
-  { label: 'United States', value: 'United States' },
-  { label: 'United Kingdom', value: 'United Kingdom' },
-  { label: 'Canada', value: 'Canada' },
-  { label: 'Australia', value: 'Australia' },
-  { label: 'Germany', value: 'Germany' },
-  { label: 'France', value: 'France' },
-  { label: 'Japan', value: 'Japan' },
-  { label: 'China', value: 'China' },
-  { label: 'Other', value: 'Other' }
-]
 
 const propertyTypeOptions = [
-  { label: 'Hotel and Resort', value: 'Hotel and Resort' },
-  { label: 'Hotel', value: 'Hotel' },
-  { label: 'Resort', value: 'Resort' },
-  { label: 'Motel', value: 'Motel' },
-  { label: 'Inn', value: 'Inn' },
-  { label: 'Lodge', value: 'Lodge' },
-  { label: 'Boutique Hotel', value: 'Boutique Hotel' },
-  { label: 'Business Hotel', value: 'Business Hotel' },
-  { label: 'Extended Stay', value: 'Extended Stay' },
-  { label: 'Bed & Breakfast', value: 'Bed & Breakfast' }
+  { label: t('hotelInformation.propertyTypes.hotelAndResort'), value: 'Hotel and Resort' },
+  { label: t('hotelInformation.propertyTypes.hotel'), value: 'Hotel' },
+  { label: t('hotelInformation.propertyTypes.resort'), value: 'Resort' },
+  { label: t('hotelInformation.propertyTypes.motel'), value: 'Motel' },
+  { label: t('hotelInformation.propertyTypes.inn'), value: 'Inn' },
+  { label: t('hotelInformation.propertyTypes.lodge'), value: 'Lodge' },
+  { label: t('hotelInformation.propertyTypes.boutiqueHotel'), value: 'Boutique Hotel' },
+  { label: t('hotelInformation.propertyTypes.businessHotel'), value: 'Business Hotel' },
+  { label: t('hotelInformation.propertyTypes.extendedStay'), value: 'Extended Stay' },
+  { label: t('hotelInformation.propertyTypes.bedAndBreakfast'), value: 'Bed & Breakfast' }
 ]
 
 const gradeOptions = [
-  { label: '5 stars & above', value: '5 stars & above' },
-  { label: '4 stars', value: '4 stars' },
-  { label: '3 stars', value: '3 stars' },
-  { label: '2 stars', value: '2 stars' },
-  { label: '1 star', value: '1 star' },
-  { label: 'Unrated', value: 'Unrated' }
+  { label: t('hotelInformation.grades.fiveStarsAndAbove'), value: 5 },
+  { label: t('hotelInformation.grades.fourStars'), value: 4 },
+  { label: t('hotelInformation.grades.threeStars'), value: 3 },
+  { label: t('hotelInformation.grades.twoStars'), value: 2 },
+  { label: t('hotelInformation.grades.oneStar'), value: 1 },
+  { label: t('hotelInformation.grades.unrated'), value: 0 }
 ]
 
 const selectLogo = () => {
@@ -309,19 +315,90 @@ const selectLogo = () => {
   input.onchange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      hotelInfo.value.logoFileName = file.name
+      hotelInfo.value.logoFile = file
     }
   }
   input.click()
 }
 
 const removeLogo = () => {
-  hotelInfo.value.logoFileName = ''
+  hotelInfo.value.logoFile = null
 }
 
-const saveHotelInfo = () => {
-  // TODO: Implement save functionality
-  console.log('Save hotel information:', hotelInfo.value)
-  alert('Hotel information saved successfully!')
+// Load hotel information from current service on component mount
+const loadHotelInfo = async () => {
+  const currentService = JSON.parse(serviceStore.currentService)
+
+  if (currentService) {
+    // Map service data to hotel info structure
+    hotelInfo.value = {
+      hotelName: currentService.hotelName,
+      email: currentService.email,
+      phoneNumber: currentService.phoneNumber,
+      fax: currentService.fax,
+      website: currentService.website,
+      country: currentService.country,
+      address: currentService.address,
+      address2: currentService.address2,
+      city: currentService.city,
+      stateProvince:   currentService.stateProvince,
+      postalCode: currentService.postalCode,
+      propertyType: currentService.propertyType,
+      grade: currentService.grade,
+      logoUrl:   currentService.logoUrl || '',
+      registrationNo1:   currentService.registrationNo1 || '',
+      registrationNo2:  currentService.registrationNo2 || '',
+      registrationNo3:  currentService.registrationNo3 || '',
+      cancellationPolicy: currentService.cancellationPolicy || '',
+      hotelPolicy: currentService.hotelPolicy || ''
+    }
+  }
+}
+
+onMounted(() => {
+  loadHotelInfo()
+})
+
+const saveHotelInfo = async () => {
+  if (!serviceStore.serviceId) {
+    toast.error(t('toast.error'))
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    try{
+      if(hotelInfo.value.logoFile){
+        const logoUrl = await uploadToCloudinary(hotelInfo.value.logoFile)
+        hotelInfo.value.logoUrl = logoUrl
+      }
+    }catch(error){
+      console.error('Error uploading logo to Cloudinary:', error)
+      toast.error(t('toast.logoUploadError'))
+    }
+    const response = await updateHotelInformation(serviceStore.serviceId, hotelInfo.value)
+    
+    if (response.status === 200) {
+      // Update the current service in the store with the new hotel information
+      const currentService = serviceStore.getCurrentService
+      if (currentService) {
+        const updatedService = {
+          ...currentService,
+          ...hotelInfo.value
+        }
+        serviceStore.setCurrentService(updatedService)
+      }
+      
+      toast.success(t('toast.hotelInfoUpdated'))
+    } else {
+      toast.error(t('toast.hotelInfoUpdateError'))
+    }
+  } catch (error) {
+    console.error('Error updating hotel information:', error)
+    toast.error(t('toast.hotelInfoUpdateError'))
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>

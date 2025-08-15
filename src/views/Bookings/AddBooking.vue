@@ -1,4 +1,4 @@
-<template>
+ <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
@@ -11,7 +11,7 @@
           </button>
         </template>
         <form class="space-y-6">
-          <!-- Personal information section -->
+
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-3">
             <div>
               <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -66,7 +66,7 @@
               :customerType="reservationCustomerType" />
           </div>
 
-          <!-- Room Selection Component -->
+
           <template
             v-if="(numberOfNights > 0 && serviceStore.serviceId) && ((isEditMode && fetchData && fetchData.length > 0) || !isEditMode)">
             <RoomSector :ActiveRoomTypes="ActiveRoomTypes" :availableRooms="availableRooms" @room-change="roomChange"
@@ -86,7 +86,7 @@
               </p>
             </div>
 
-            <!-- Price Summary -->
+
             <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="space-y-2">
                 <div class="flex justify-between items-center">
@@ -124,7 +124,7 @@
             </div>
           </div>
 
-          <!-- Notes -->
+
           <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
               {{ $t('special_request') }}

@@ -1,71 +1,63 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <ReusableTable
-        title="Transportation Mode Management"
-        :columns="columns"
-        :data="transportationModes"
-        :actions="actions"
-        search-placeholder="Search transportation modes..."
-        :selectable="false"
-        empty-state-title="No transportation modes found"
-        empty-state-message="Get started by adding a new transportation mode."
-        @action="onAction"
-      >
+      <ReusableTable :title="t('configuration.transportation_mode.table_title')" :columns="columns"
+        :data="transportationModes" :actions="actions"
+        :search-placeholder="t('configuration.transportation_mode.search_placeholder')" :selectable="false"
+        :empty-state-title="t('configuration.transportation_mode.empty_state_title')"
+        :empty-state-message="t('configuration.transportation_mode.empty_state_message')" :loading="loading"
+        @action="onAction">
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
-            icon="Plus"
-            label="Add Transportation Mode"
-            @click="openAddModal"
-          />
+          <BasicButton variant="primary" :icon="Plus"
+            :label="t('configuration.transportation_mode.add_transportation_mode')" :disabled="loading"
+            @click="openAddModal" />
+        </template>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
         </template>
 
-        <template #column-status="{ item }">
-          <span 
-            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.status }}
-          </span>
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
         </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Transportation Mode' : 'Add New Transportation Mode' }}
+            {{ isEditing ? t('configuration.transportation_mode.edit_transportation_mode') :
+              t('configuration.transportation_mode.add_new_transportation_mode') }}
           </h3>
-          
+
           <form @submit.prevent="saveTransportationMode" class="space-y-4">
-            <Input 
-              :lb="'Transportation Mode Name'"
-              :inputType="'text'"
-              :isRequired="true"
-              v-model="formData.name"
-              :placeholder="'Enter transportation mode (e.g., Local Taxi, Bus Service)'"
-            />
-            
-            <Input 
-              :lb="'Description'"
-              :inputType="'text'"
+            <Input :lb="t('configuration.transportation_mode.transportation_mode_name')" :inputType="'text'"
+              :isRequired="true" v-model="formData.name"
+              :placeholder="t('configuration.transportation_mode.transportation_mode_placeholder')" />
+
+            <Input :lb="t('configuration.transportation_mode.description')" :inputType="'text'"
               v-model="formData.description"
-              :placeholder="'Enter description (optional)'"
-            />
-            
+              :placeholder="t('configuration.transportation_mode.description_placeholder')" />
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('configuration.transportation_mode.status') }}
+              </label> 
+            </div>
+
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                variant="secondary" 
-                label="Cancel"
-                @click="closeModal"
-                type="button"
-              />
-              <BasicButton 
-                variant="primary" 
-                :label="isEditing ? 'Update' : 'Save'"
-                type="submit"
-              />
+              <BasicButton variant="secondary" :label="t('configuration.transportation_mode.cancel')"
+                @click="closeModal" type="button" :disabled="saving" />
+              <BasicButton variant="primary"
+                :label="saving ? t('configuration.transportation_mode.saving') : (isEditing ? t('configuration.transportation_mode.update_transportation_mode') : t('configuration.transportation_mode.save_transportation_mode'))"
+                type="submit" :disabled="saving" />
             </div>
           </form>
         </div>
@@ -75,103 +67,98 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '@/composables/serviceStore'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
+import Plus from '../../../icons/Plus.vue'
+import {
+  getTransportationModes,
+  postTransportationMode,
+  updateTransportationModeById,
+  deleteTransportationModeById
+} from '@/services/configrationApi'
+
+// Composables
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
+const transportationModes = ref([])
 
-const formData = reactive({
+const formData = ref({
+  id: null,
   name: '',
-  description: ''
+  description: '',
 })
 
-// Sample data
-const transportationModes = ref([
-  {
-    id: 1,
-    name: 'Local Taxi',
-    description: 'Local taxi service for guest transportation',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Bus Service',
-    description: 'Public bus transportation',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Airport Shuttle',
-    description: 'Hotel airport shuttle service',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Private Car',
-    description: 'Private car rental service',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Inactive'
-  }
+
+const columns = computed((): Column[] => [
+  { key: 'name', label: t('configuration.transportation_mode.transportation_mode_name'), type: 'text' },
+  { key: 'description', label: t('configuration.transportation_mode.description'), type: 'text' },
+  { key: 'createdInfo', label: t('configuration.transportation_mode.created_by'), type: 'custom', },
+  { key: 'modifiedInfo', label: t('configuration.transportation_mode.modified_by'), type: 'custom' },
 ])
 
-// Table configuration
-const columns: Column[] = [
-  { key: 'name', label: 'Transportation Mode', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
-
-const actions: Action[] = [
+const actions = computed((): Action[] => [
   {
-    label: 'Edit',
+    label: t('configuration.transportation_mode.edit'),
     handler: (item: any) => editTransportationMode(item),
     variant: 'primary'
   },
   {
-    label: 'Delete',
+    label: t('configuration.transportation_mode.delete'),
     handler: (item: any) => deleteTransportationMode(item.id),
     variant: 'danger'
   }
-]
+])
+
+// API Functions
+const fetchTransportationModes = async () => {
+  try {
+    loading.value = true
+    const response = await getTransportationModes()
+    transportationModes.value = response.data.data.data
+    console.log('data',transportationModes)
+  } catch (error) {
+    console.error('Error fetching transportation modes:', error)
+    toast.error(t('configuration.transportation_mode.fetch_error'))
+  } finally {
+    loading.value = false
+  }
+}
 
 // Functions
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
-  formData.name = ''
-  formData.description = ''
+  formData.value = {
+    id: null,
+    name: '',
+    description: '',
+   }
   showModal.value = true
 }
 
 const editTransportationMode = (mode: any) => {
   isEditing.value = true
   editingId.value = mode.id
-  formData.name = mode.name
-  formData.description = mode.description
+  formData.value = {
+    id: mode.id,
+    name: mode.name,
+    description: mode.description,
+   }
   showModal.value = true
 }
 
@@ -179,45 +166,49 @@ const closeModal = () => {
   showModal.value = false
   isEditing.value = false
   editingId.value = null
-  formData.name = ''
-  formData.description = ''
+  formData.value = {
+    id: null,
+    name: '',
+    description: '',
+   }
 }
 
-const saveTransportationMode = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing transportation mode
-    const index = transportationModes.value.findIndex(m => m.id === editingId.value)
-    if (index !== -1) {
-      transportationModes.value[index] = {
-        ...transportationModes.value[index],
-        name: formData.name,
-        description: formData.description,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const saveTransportationMode = async () => {
+  try {
+    saving.value = true
+    const transportationModeData = {
+      name: formData.value.name,
+      description: formData.value.description,
+       hotelId: serviceStore.serviceId
     }
-  } else {
-    // Add new transportation mode
-    const newMode = {
-      id: Math.max(...transportationModes.value.map(m => m.id)) + 1,
-      name: formData.name,
-      description: formData.description,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+
+    if (isEditing.value && editingId.value) {
+      await updateTransportationModeById(editingId.value, transportationModeData)
+      toast.success(t('configuration.transportation_mode.update_success'))
+    } else {
+      await postTransportationMode(transportationModeData)
+      toast.success(t('configuration.transportation_mode.create_success'))
     }
-    transportationModes.value.push(newMode)
+
+    await fetchTransportationModes()
+    closeModal()
+  } catch (error) {
+    console.error('Error saving transportation mode:', error)
+    toast.error(t('configuration.transportation_mode.save_error'))
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteTransportationMode = (id: number) => {
-  if (confirm('Are you sure you want to delete this transportation mode?')) {
-    const index = transportationModes.value.findIndex(m => m.id === id)
-    if (index !== -1) {
-      transportationModes.value.splice(index, 1)
+const deleteTransportationMode = async (id: number) => {
+  if (confirm(t('configuration.transportation_mode.delete_confirm'))) {
+    try {
+      await deleteTransportationModeById(id)
+      toast.success(t('configuration.transportation_mode.delete_success'))
+      await fetchTransportationModes()
+    } catch (error) {
+      console.error('Error deleting transportation mode:', error)
+      toast.error(t('configuration.transportation_mode.delete_error'))
     }
   }
 }
@@ -225,4 +216,9 @@ const deleteTransportationMode = (id: number) => {
 const onAction = (action: string, item: any) => {
   console.log('Action:', action, 'Item:', item)
 }
+
+// Lifecycle
+onMounted(() => {
+  fetchTransportationModes()
+})
 </script>

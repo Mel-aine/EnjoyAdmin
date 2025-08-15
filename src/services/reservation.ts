@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios'
+import axios from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
@@ -122,6 +123,7 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
   }
 }
 
+<<<<<<< HEAD
 // recuperer la liste des clients
 export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
   try {
@@ -135,3 +137,68 @@ export const getReservatonCustomers = async (serviceProductId:  number): Promise
   }
 }
 
+=======
+
+
+
+
+/**
+ * create Reservation
+ */
+
+export const createReservation = async (data: any) => {
+  try {
+    console.log('Sending reservation data to backend:', data)
+
+    const response = await apiClient.post('/reservation/create', data,headers)
+
+    console.log('Backend response:', response.data)
+
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+
+    throw error
+  }
+}
+/**
+ * get Reservation details by Id
+ */
+export const getReservationDetailsById = async (reservationId: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${reservationId}/details`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
+
+
+
+}
+
+/**
+ *
+ * @param hotel_id
+ * @returns
+ */
+export const getCustomer = async (id: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${id}/customer`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
+}
+>>>>>>> 2eece9926b99dab7a16c15cd207e0492d5516669

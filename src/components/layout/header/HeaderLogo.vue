@@ -22,7 +22,7 @@ const serviceStore = useServiceStore();
 const serviceName = computed(() => {
   try {
     const service = JSON.parse(serviceStore.currentService || '{}');
-    return service.name || 'Nom inconnu';
+    return service.hotelName || 'Nom inconnu';
   } catch (e) {
     console.error('Erreur lors du parsing de currentService:', e);
     return 'Nom inconnu';

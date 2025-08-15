@@ -16,6 +16,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/front-office/dashboard',
+      name: 'FrontOfficeDashboard',
+      component: () => import('../views/FrontOffice/FrontOfficeDashboard.vue'),
+      meta: {
+        title: 'Front Office Dashboard',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/welcome',
       name: 'welcome',
       component: () => import('../views/Pages/Welcome.vue'),
@@ -35,6 +44,15 @@ const router = createRouter({
       component: () => import('../views/Bookings/AddBooking.vue'),
       meta: {
         title: 'Add Booking',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/new_booking',
+      name: 'New Booking',
+      component: () => import('../views/Bookings/BookingForm.vue'),
+      meta: {
+        title: 'New Booking',
         requiresAuth: true,
       },
     },
@@ -62,16 +80,6 @@ const router = createRouter({
       path: '/booking_detail/:id',
       name: 'BookingDetails',
       component: () => import('../views/Bookings/BookingDetails.vue'),
-      props: true,
-      meta: {
-        title: 'Booking Details',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/reservation_details/:id',
-      name: 'reservationDetails',
-      component: () => import('../views/Bookings/ReservationDetails.vue'),
       props: true,
       meta: {
         title: 'Booking Details',
@@ -771,11 +779,11 @@ const router = createRouter({
       },
     },
     {
-      path: '/configuration/master/communication-mode',
-      name: 'CommunicationMode',
-      component: () => import('../views/Configuration/Master/CommunicationMode.vue'),
+      path: '/configuration/master/transportation-mode',
+      name: 'TransportationMode',
+      component: () => import('../views/Configuration/Master/TransportationMode.vue'),
       meta: {
-        title: 'Communication Mode',
+        title: 'Transportation Mode',
         requiresAuth: true,
       },
     },
@@ -851,15 +859,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/configuration/master/source-book',
-      name: 'SourceBook',
-      component: () => import('../views/Configuration/Master/SourceBook.vue'),
-      meta: {
-        title: 'Source Book',
-        requiresAuth: true,
-      },
-    },
+    
     {
       path: '/configuration/master/business-source',
       name: 'BusinessSource',
@@ -1048,15 +1048,6 @@ const router = createRouter({
       component: () => import('../views/Services/ServiceView.vue'),
       meta: {
         title: 'Service',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/calendar',
-      name: 'Calendar',
-      component: () => import('../views/Others/Calendar.vue'),
-      meta: {
-        title: 'Calendar',
         requiresAuth: true,
       },
     },
@@ -1289,6 +1280,25 @@ const router = createRouter({
       component: () => import('../views/Others/RightSideModalDemo.vue'),
       meta: {
         title: 'Right Side Modal Demo',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/pdf-export-demo',
+      name: 'PDF Export Demo',
+      component: () => import('../views/Others/PdfExportDemo.vue'),
+      meta: {
+        title: 'Démonstration d\'Exportation PDF',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/front-office/reservation/:id',
+      name: 'ReservationDetails',
+      component: () => import('../views/FrontOffice/reservation/ReservationDetails.vue'),
+      props: true,
+      meta: {
+        title: 'Reservation Details',
         requiresAuth: true,
       },
     },
