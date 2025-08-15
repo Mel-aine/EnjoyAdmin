@@ -14,7 +14,7 @@
               />
       </div>
       <div class="text-left flex-1 truncate">
-        <div class="font-medium text-gray-900 truncate">{{ currentService?.name || 'Aucun service' }}</div>
+        <div class="font-medium text-gray-900 truncate">{{ currentService?.hotelName || 'Aucun service' }}</div>
         <div class="text-xs text-gray-500 capitalize truncate">{{ currentService?.type || '' }}</div>
       </div>
       <ChevronRight class="w-4 h-4 ml-auto text-gray-400 transition-transform" :class="{ 'rotate-180': showDropdown }" />
@@ -45,7 +45,7 @@
               />
         </div>
         <div class="flex-1 text-left truncate">
-          <div class="font-normal text-gray-700 truncate ">{{ service.name }}</div>
+          <div class="font-normal text-gray-700 truncate ">{{ service.hotelName }}</div>
           <div class="text-sm text-gray-500 capitalize truncate">{{ service.type }}</div>
         </div>
         <CheckIcon v-if="currentService?.id === service.id" class="w-4 h-4 text-blue-600" />
