@@ -22,7 +22,6 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import {
   deleteReservation,
-  filterReservation,
 } from '@/services/api'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { ReservationType } from '@/types/option'
@@ -34,6 +33,7 @@ import TableComponent from '@/components/tables/TableComponent.vue'
 import { useBookingStore } from '@/composables/booking'
 import BookingFilter from '@/views/Bookings/BookingFilter.vue'
 import type { FitlterItem } from '@/utils/models'
+import { filterReservation } from '../../../services/hotelApi'
 
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: 'global' })

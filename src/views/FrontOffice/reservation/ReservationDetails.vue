@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, PencilIcon, Pin, PlusCircle, User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus } from 'lucide-vue-next';
-import ChevromLeftIcon from '../../../icons/ChevromLeftIcon.vue';
-import { computed, ref } from 'vue';
+import { ArrowLeft, Building2Icon, PencilIcon,  User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
+import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue';
 import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
+import BookingDetails from '../../../components/reservations/bookingdetails/BookingDetails.vue';
+import { isLoading } from '../../../composables/spinner';
+import router from '../../../router';
+import { getReservationDetailsById } from '../../../services/api';
+import AdminLayout from '../../../components/layout/AdminLayout.vue';
+import Adult from '../../../icons/Adult.vue';
+import Child from '../../../icons/Child.vue';
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
 
 // Simple Button component
 const Button = {
     template: '<button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background"><slot /></button>'
 };
 const { t } = useI18n();
-
+const reservation =ref<any>({})
 const tabs = computed(() => [
     { id: 'folio_operations', label: t('Folio Operations') },
     { id: 'booking_details', label: t('Booking Details') },
-    { id: 'guestç_details', label: t('Guest Details') },
-    { id: 'Room charges', label: t('Room Charges') },
-    { id: 'credid_card', label: t('Credit Card') },
+    { id: 'guest_details', label: t('Guest Details') },
+    { id: 'room_charges', label: t('Room Charges') },
+   // { id: 'credid_card', label: t('Credit Card') },
     { id: 'audit_trial', label: t('Audit Trail') },
 
 ]);
@@ -42,51 +50,65 @@ const handleOptionSelected = (option: any) => {
     console.log('Selected option:', option);
     // Add your logic here for each option
 };
+const getBookingDetailsById = async () => {
+    isLoading.value = true;
+    const id = router.currentRoute.value.params.id;
+    const response = await getReservationDetailsById(Number(id));
+    console.log('reservation resuolt',reservation)
+    if (response.status === 200) {
+        reservation.value = response.data;
+    }
+    isLoading.value = false;
+};
+onMounted(()=>{
+    getBookingDetailsById();
+})
 </script>
 
 <template>
-    <div class="h-full">
+   <AdminLayout>
+     <div class="h-full" v-if="reservation && reservation.id">
         <!--Header-->
-        <div class="shadow-sm px-4 py-2 mx-4 bg-white mt-5 flex justify-between">
+        <div class="shadow-sm px-4 py-2 mx-4 bg-white  flex justify-between">
             <div class="flex gap-2 align-middle self-center items-center">
                 <ArrowLeft></ArrowLeft>
-                <Building2Icon></Building2Icon>
-                <span class="font-bold">Mr.Tchio</span>
+                <Building2Icon class="text-primary"></Building2Icon>
+                <span class="font-bold">{{ reservation.guest?.displayName }}</span>
                 <div class="flex">
-                    <User2Icon class="w-4" />
-                    <span class="text-sm items-end align-center self-center">1</span>
+                    <Adult class="w-5" />
+                    <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults }}</span>
                 </div>
                 <div class="flex">
-                    <User2Icon class="w-4" />
-                    <span class="text-sm items-end align-bottom self-center">1</span>
+                    <Child class="w-4" />
+                    <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child }}</span>
                 </div>
             </div>
             <div class="flex gap-8">
                 <!--arrival Days-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('Arrival') }}</span>
+                    <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>10/11/2025-19:58</span>
-                        <span @click="alert('change')">
+                        <span>{{ formatDateT(reservation.arrivedDate) }}</span>
+                        <span>
                             <PencilIcon class="w-3" />
                         </span>
                     </span>
                 </div>
                 <!--depature-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('Depature') }}</span>
+                    <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>10/11/2025-19:58</span>
-                        <span @click="alert('change')">
+                        <span>{{formatDateT(reservation.departDate)}}</span>
+                        <span @click="">
                             <PencilIcon class="w-3" />
                         </span>
                     </span>
                 </div>
                 <!--Nigth-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('night') }}</span>
+                    <span class="text-sm font-bold capitalize">{{ $t('nights') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>4</span>
+                        <span>{{ reservation.nights }}</span>
                     </span>
                 </div>
                 <!--room/roomtype-->
@@ -98,15 +120,15 @@ const handleOptionSelected = (option: any) => {
                 </div>
                 <!--depature-->
                 <div class="flex flex-col">
-                    <span class="text-sm font-bold">{{ $t('res.no') }}</span>
+                    <span class="text-sm font-bold capitalize">{{ $t('res.no') }}</span>
                     <span class="text-xs flex gap-2">
-                        <span>16</span>
+                        <span>{{reservation.reservationNumber}}</span>
                     </span>
                 </div>
             </div>
             <div class="flex gap-x-2">
                 <span
-                    class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">Reserved</span>
+                    class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">{{ $t(reservation.status) }}</span>
                 <button class="bg-primary px-4 py-1 align-middle p-1 text-sm items-center self-center">{{ $t('check in')
                 }}</button>
             </div>
@@ -132,91 +154,26 @@ const handleOptionSelected = (option: any) => {
                 <div class="align-middle self-center items-center">
                     <ButtonDropdown 
                         :options="dropdownOptions"
-                        :button-text="$t('More Options')"
-                        button-class="bg-blue-600 text-white hover:bg-blue-700"
+                        :button-text="$t('Options')"
+                        button-class="bg-primary text-white hover:bg-primary/25"
                         dropdown-class="w-64"
                         @option-selected="handleOptionSelected"
                     />
                 </div>
             </div>
         </div>
-        <div class="flex h-[calc(100vh-160px)]  mx-4">
-            <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
-                <div class="h-full flex flex-col justify-between">
-                    <div class="bg-white h-full">
-                        <div class="flex justify-between pt-2 px-2">
-                            <span>Room/foglo</span>
-                            <button>
-                                <PlusCircle />
-                            </button>
-                        </div>
-                        <div class="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-50"
-                            @click="isOpen = !isOpen">
-                            <span>Room Details</span>
-                            <ChevromLeftIcon class="w-4 h-4 transition-transform duration-200" :class="[
-                                isOpen ? 'rotate-90 text-green-500' : '-rotate-90 text-red-500'
-                            ]" />
-                        </div>
-                        <div v-if="isOpen">
-                            isOpen
-                        </div>
-                    </div>
-                    <div class="px-4">
-                        <div class="flex justify-between">
-                            <span>{{ $t('total') }}</span>
-                            <span>2000xaf</span>
-                        </div>
-                        <div class="flex justify-between  text-yellow-200">
-                            <span>{{ $t('balence') }}</span>
-                            <span>2000xaf</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="w-10/12">
-                <!-- Tab Content -->
-                <div v-if="activeTab === 'folio_operations'">
-                    <FoglioOperation />
-                </div>
-                <div v-else-if="activeTab === 'booking_details'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Booking Details') }}</h3>
-                        <p class="mt-2">{{ $t('Booking details content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'guestç_details'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Guest Details') }}</h3>
-                        <p class="mt-2">{{ $t('Guest details content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'Room charges'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Room Charges') }}</h3>
-                        <p class="mt-2">{{ $t('Room charges content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'credid_card'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Credit Card') }}</h3>
-                        <p class="mt-2">{{ $t('Credit card content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else-if="activeTab === 'audit_trial'">
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Audit Trail') }}</h3>
-                        <p class="mt-2">{{ $t('Audit trail content will be displayed here') }}</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <div class="text-center py-8 text-gray-500">
-                        <h3 class="text-lg font-medium">{{ $t('Welcome') }}</h3>
-                        <p class="mt-2">{{ $t('Select a tab to view content') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+       <!--tab content-->
+       <div v-if="activeTab === 'room_charges'">
+            <RoomCharge :reservation-id="reservation.id"></RoomCharge>
+       </div>
+       <div v-if="activeTab === 'folio_operations'&&reservation && reservation.id" >
+            <FoglioOperation :reservation-id="reservation.id"></FoglioOperation>
+       </div>
+       <div v-if="activeTab === 'booking_details'">
+            <BookingDetails :booking="reservation"></BookingDetails>
+       </div>
     </div>
+   </AdminLayout>
 </template>
 
 <style></style>

@@ -12,7 +12,7 @@
 
       <!-- Folio -->
       <div>
-        <Select v-model="formData.folio" :options="foliosOptions" :lb="$t('Folio')" />
+        <Select v-model="formData.folio" :options="folioOptions" :lb="$t('Folio')" />
       </div>
 
       <!-- Rec/Vou # -->
@@ -186,7 +186,7 @@ const fetchFolios = async () => {
   try {
     const serviceId = serviceStore.serviceId
     const response = await getReservation(serviceId)
-    folioOptions.value = folioOptions.value.concat((response.data || []).map((folio: any) => {
+    folioOptions.value = folioOptions.value.concat((response.data || [])?.map((folio: any) => {
       const guestName = folio.guest_name || `${folio.first_name || ''} ${folio.last_name || ''}`.trim() || 'Guest'
       return { ...folio, label: `${folio.id} - ${guestName}`, value: folio.id }
     }))
@@ -199,7 +199,7 @@ const fetchFolios = async () => {
 const fetchReservationTypes = async () => {
   try {
     const response = await getReservationTypes()
-    typeOptions.value = typeOptions.value.concat((response.data || []).map((type: any) => {
+    typeOptions.value = typeOptions.value.concat((response.data.data.data || [])?.map((type: any) => {
       return { ...type, label: type.name || type.type_name, value: type.id }
     }))
   } catch (error) {
@@ -211,7 +211,7 @@ const fetchReservationTypes = async () => {
 const fetchDiscounts = async () => {
   try {
     const response = await getDiscounts()
-    discountOptions.value = discountOptions.value.concat((response.data || []).map((discount: any) => {
+    discountOptions.value = discountOptions.value.concat((response.data.data.data || [])?.map((discount: any) => {
       return { ...discount, label: discount.name || discount.discount_name, value: discount.id }
     }))
   } catch (error) {
@@ -223,7 +223,7 @@ const fetchDiscounts = async () => {
 const fetchTaxes = async () => {
   try {
     const response = await getTaxes()
-    taxOptions.value = taxOptions.value.concat((response.data || []).map((tax: any) => {
+    taxOptions.value = taxOptions.value.concat((response.data.data.data || [])?.map((tax: any) => {
       return { ...tax, label: tax.name || tax.tax_name, value: tax.id }
     }))
   } catch (error) {
@@ -235,7 +235,7 @@ const fetchTaxes = async () => {
 const fetchExtraCharges = async () => {
   try {
     const response = await getExtraCharges()
-    extraChargeOptions.value = extraChargeOptions.value.concat((response.data || []).map((charge: any) => {
+    extraChargeOptions.value = extraChargeOptions.value.concat((response.data.data.data || []).map((charge: any) => {
       return { ...charge, label: charge.name || charge.charge_name, value: charge.id }
     }))
   } catch (error) {

@@ -12,6 +12,10 @@ import {
   CommandIcon,
   FileText,
   BarChart3,
+  Hotel,
+  CreditCard,
+  Home,
+  Settings,
 } from 'lucide-vue-next'
 
 export const getHotelMenu = (t: (key: string) => string) => {
@@ -21,13 +25,13 @@ export const getHotelMenu = (t: (key: string) => string) => {
       items: [
         //From office
         {
-          icon: LayoutDashboard,
+          icon: Building2,
           name: t('Front Office'),
           permission: 'dashboard_view',
           subItems: [
             {
               name: t('Dashboard'),
-              path: '/dashboard',
+              path: '/front-office/dashboard',
               permission: 'dashboard_view',
             },
             {
@@ -79,7 +83,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         },
         //From Cashiering
         {
-          icon: LayoutDashboard,
+          icon: CreditCard,
           name: t('Cashiering'),
           permission: 'dashboard_view',
           subItems: [
@@ -120,7 +124,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         // Housekeeping
 
         {
-          icon: CalendarCheck2,
+          icon: Home,
           name: t('Housekeeping'),
           subItems: [
             {
@@ -141,12 +145,12 @@ export const getHotelMenu = (t: (key: string) => string) => {
           ],
         },
         //back office
-        {
+        /*{
           name: t('Back Office'),
           path: '/all_booking',
           permission: 'bookings_read',
         },
-        /*
+        
         {
           icon: CalendarCheck2,
           name: t('Bookings'),
@@ -295,21 +299,21 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Setting'),
           path: '/setting',
           permission: 'settings_manage',
-        },*/
+        },
         {
           icon: FileText,
           name: t('Reports'),
           permission: 'dashboard_view',
           path: '/reports',
-        },
- {
-          icon: FileText,
+        },*/
+        {
+          icon: Settings,
           name: t('Configuration'),
           permission: 'dashboard_view',
           path: '/reports',
         },
-        
-        
+
+
       ],
     },
   ]

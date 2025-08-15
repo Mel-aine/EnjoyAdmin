@@ -87,16 +87,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/reservation_details/:id',
-      name: 'reservationDetails',
-      component: () => import('../views/Bookings/ReservationDetails.vue'),
-      props: true,
-      meta: {
-        title: 'Booking Details',
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/customer_detail/:id',
       name: 'CustomerDetails',
       component: () => import('../views/Customers/CustomerDetails.vue'),
@@ -1040,15 +1030,6 @@ const router = createRouter({
       component: () => import('../views/Services/ServiceView.vue'),
       meta: {
         title: 'Service',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/calendar',
-      name: 'Calendar',
-      component: () => import('../views/Others/Calendar.vue'),
-      meta: {
-        title: 'Calendar',
         requiresAuth: true,
       },
     },

@@ -2,7 +2,8 @@
   <AppHeader></AppHeader>
   <div class="reservation-calendar font-sans h-screen flex flex-col">
     <!-- Header Section -->
-    <div class="sticky top-0 z-30 mb-4 bg-gradient-to-r from-primary to-blue-700 shadow-lg px-6 py-4 flex items-center justify-between rounded-b-lg">
+    <div
+      class="sticky top-0 z-30 mb-4 bg-gradient-to-r from-primary to-blue-700 shadow-lg px-6 py-4 flex items-center justify-between rounded-b-lg">
       <div class="flex items-center gap-4">
         <button @click="router.back()"
           class="bg-white text-primary rounded-lg flex items-center px-3 py-1 shadow hover:bg-gray-100 transition">
@@ -11,7 +12,8 @@
         </button>
         <div>
           <h1 class="text-3xl font-extrabold text-white drop-shadow">{{ $t('Reservations Calendar') }}</h1>
-          <div class="text-sm text-blue-100 font-medium mt-1">{{ $t('Manage and view all reservations by date and room') }}</div>
+          <div class="text-sm text-blue-100 font-medium mt-1">{{ $t('Manage and view all reservations by date and room')
+            }}</div>
         </div>
       </div>
       <div class="flex gap-2 flex-wrap items-center">
@@ -23,7 +25,8 @@
           {{ $t('Add reservation') }}
         </button>
         <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="selectedDate" />
-        <div class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-300 focus:ring focus:ring-primary/30">
+        <div
+          class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-300 focus:ring focus:ring-primary/30">
           <label>{{ $t('show') }}</label>
           <select v-model="daysToShow" @change="setDays(Number(daysToShow))" class="outline-0">
             <option :value="7">7 {{ $t('days') }}</option>
@@ -60,7 +63,7 @@
                 </td>
               </tr>
             </template>
-            
+
             <!-- Room Groups and Reservations -->
             <template v-else>
               <template v-for="group in apiRoomGroups" :key="group.room_type">
@@ -72,11 +75,11 @@
                     <span class="text-xs text-gray-500 font-normal">({{ group.room_details.length }})</span>
                   </td>
                 </tr>
-                
+
                 <!-- Individual Rooms -->
                 <tr v-for="room in group.room_details" :key="room.room_number || room.room_status + Math.random()">
                   <td class="font-semibold px-2 py-1 border border-gray-300">{{ room.room_number || '-' }}</td>
-                  
+
                   <!-- Room Cells with Reservations -->
                   <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
                     <!-- Reservation Cell -->
@@ -85,26 +88,27 @@
                       <div :class="[
                         'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%]',
                         getReservationColor(cell.reservation.reservation_status),
-                      ]" 
-                      :style="getReservationStyle(cell)"
-                      @click="showReservationModal(cell.reservation)"
-                      @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                      @mouseleave="hideReservationTooltip">
+                      ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
+                        @mouseenter="showReservationTooltip(cell.reservation, $event)"
+                        @mouseleave="hideReservationTooltip">
                         <span>
                           {{ cell.reservation.guest_name }}
                           <br>
                         </span>
                       </div>
                     </td>
-                    
+
                     <!-- Room Status Cell -->
-                    <td v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
+                    <td
+                      v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
                       class="px-0 py-0 h-12 border border-gray-300">
-                      <div :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
-                        <component :is="getRoomStatusIcon(room.room_status)" :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
+                      <div
+                        :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
+                        <component :is="getRoomStatusIcon(room.room_status)"
+                          :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
                       </div>
                     </td>
-                    
+
                     <!-- Empty Cell -->
                     <td v-else class="px-0 py-0 h-12 border border-gray-300"></td>
                   </template>
@@ -131,7 +135,7 @@
                 </span>
               </td>
             </tr>
-            
+
             <!-- Statistics Rows -->
             <tr>
               <td class="bg-gray-100 border border-gray-300">{{ $t('Unassigned reservations') }}</td>
@@ -171,7 +175,8 @@
       <div class="font-bold">{{ $t('guests') }}: {{ tooltipReservation.guests }} {{ $t('guests') }}</div>
       <div>{{ $t('Guest name') }}: <span class="font-bold">{{ tooltipReservation.guest_name }}</span></div>
       <div>{{ $t('reservation_id') }}: <span class="font-bold">{{ tooltipReservation.reservation_id }}</span></div>
-      <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span></div>
+      <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span>
+      </div>
       <div class="flex gap-3 mt-2">
         <span class="flex items-center gap-1">
           <component :is="getReservationTypeIcon(tooltipReservation.reservation_type)" class="w-4 h-4" />
@@ -399,7 +404,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   const reservations = (group.reservations || []).filter(
     (r: any) => r.assigned_room_number === room.room_number || room.room_number === null
   )
-  
+
   while (i < visibleDates.value.length) {
     const date = visibleDates.value[i]
     const dStr = date.toISOString().split('T')[0]
@@ -429,10 +434,10 @@ function getRoomRowCellsApi(group: any, room: any) {
       const reservationDates = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible)
       const lastVisibleDateOfReservation = reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null
       const checkOutDate = new Date(reservation.check_out_date)
-      const is_check_out = lastVisibleDateOfReservation && 
-        (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() && 
-         lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() && 
-         lastVisibleDateOfReservation.getDate() === checkOutDate.getDate())
+      const is_check_out = lastVisibleDateOfReservation &&
+        (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() &&
+          lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() &&
+          lastVisibleDateOfReservation.getDate() === checkOutDate.getDate())
 
       cells.push({
         type: 'reservation',
@@ -459,7 +464,7 @@ function getRoomRowCellsApi(group: any, room: any) {
 // Reservation styling
 function getReservationStyle(cell: any) {
   const { is_check_in, is_check_out, colspan } = cell
-  
+
   let width = 'calc(100% - 4px)'
   let left = '2px'
 
