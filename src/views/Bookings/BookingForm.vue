@@ -734,7 +734,7 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'
-import { includes } from 'lodash'
+
 
 const { t } = useI18n()
 
