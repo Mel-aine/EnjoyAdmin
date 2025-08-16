@@ -2,12 +2,13 @@
 import { useI18n } from 'vue-i18n';
 import ButtomDropdownAction from '../common/ButtomDropdownAction.vue';
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatCurrency, formatTime } from '../utilities/UtilitiesFunction';
 import router from '../../router';
 import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
 import { useReservation } from '../../composables/useReservation';
+import CancelReservation from './foglio/CancelReseravtion.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -41,6 +42,16 @@ const props = defineProps({
     required: true,
   },
 })
+
+// Cancel modal state
+const showCancelModal = ref(false)
+
+const handleCancelConfirmed = async (cancelData: any) => {
+  showCancelModal.value = false
+  if (props.reservation?.reservationNumber) {
+    await performCancelReservation(props.reservation.reservationNumber, cancelData)
+  }
+}
 // Icon mapping for different actions
 const actionIconMap = {
   'view': Eye,
@@ -143,7 +154,7 @@ const handleOptionSelected = async (option: any) => {
       await performStopRoomMove(props.reservation.reservationNumber);
       break;
     case 'cancel_reservation':
-      await performCancelReservation(props.reservation.reservationNumber);
+      showCancelModal.value = true;
       break;
     case 'void_reservation':
       await performVoidReservation(props.reservation.reservationNumber);
@@ -271,6 +282,14 @@ const formatDate = (dateString: string) => {
       </div>
     </div>
   </div>
+  
+  <!-- Cancel Reservation Modal -->
+  <CancelReservation 
+    :is-open="showCancelModal" 
+    :reservation-data="reservation"
+    @close="showCancelModal = false"
+    @cancel-confirmed="handleCancelConfirmed"
+  />
 </template>
 
 <style></style>

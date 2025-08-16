@@ -18,12 +18,14 @@ import GuestDetails from '../../../components/reservations/GuestDetails.vue';
 import Spinner from '../../../components/spinner/Spinner.vue';
 import { useReservation, type CheckInReservationPayload } from '../../../composables/useReservation';
 import AddPaymentModal from '../../../components/reservations/foglio/AddPaymentModal.vue';
+import CancelReservation from '../../../components/reservations/foglio/CancelReseravtion.vue';
 
 // Simple Button component
 const Button = {
     template: '<button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background"><slot /></button>'
 };
 const isAddPaymentModalOpen = ref(false);
+const showCancelModal = ref(false);
 const { t } = useI18n();
 const reservation = ref<any>({});
 
@@ -290,17 +292,19 @@ const handleUpdateInclusionList = async () => {
 };
 
 const handleCancelReservation = async () => {
-    // Show confirmation dialog first
-    if (confirm(t('toast.cancelReservationConfirm') || 'Are you sure you want to cancel this reservation?')) {
-        const payload = {
-            cancellationReason: "Guest requested cancellation",
-            cancellationDate: (new Date()).toISOString(),
-            refundAmount: 0,
-            notes: ""
-        };
-        
-        await cancelReservation(reservation.value.id, payload, getBookingDetailsById);
-    }
+    showCancelModal.value = true;
+};
+
+const handleCancelConfirmed = async (cancelData: any) => {
+    showCancelModal.value = false;
+    const payload = {
+        cancellationReason: cancelData.reason || "Guest requested cancellation",
+        cancellationDate: (new Date()).toISOString(),
+        refundAmount: cancelData.cancellationFee || 0,
+        notes: cancelData.notes || ""
+    };
+    
+    await cancelReservation(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleMarkNoShow = async () => {
@@ -461,6 +465,14 @@ onMounted(() => {
           <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen"
             @close="closeAddPaymentModal" @save="handleSavePayment" />
         </template>
+        
+    <!-- Cancel Reservation Modal -->
+    <CancelReservation 
+        :is-open="showCancelModal" 
+        :reservation-data="reservation"
+        @close="showCancelModal = false"
+        @cancel-confirmed="handleCancelConfirmed"
+    />
 </template>
 
 <style></style>

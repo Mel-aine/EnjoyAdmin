@@ -253,7 +253,7 @@
     <ReservationRigthModal
       :is-open="showDetail"
       @close="closeReservationModal"
-      :reservation="modalReservation"
+      :reservation-data="modalReservation"
     />
   </template>
  </FullScreenLayout>
@@ -294,7 +294,6 @@ function getCustomerTypeIcon(type: string) {
 }
 // --- ROOM STATUS COLOR & ICON ---
 import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
-import ReservationDetailsModal from '../modal/ReservationDetailsModal.vue'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'

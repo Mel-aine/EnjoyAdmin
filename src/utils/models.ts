@@ -60,6 +60,7 @@ export interface ReservationDetails {
   user: UserDetails
   payments: PaymentRecord[] // This array is empty in your example, but included for completeness
   reservationServiceProducts: ReservationServiceProduct[]
+  reservation_id?: number
 }
 
 /**
