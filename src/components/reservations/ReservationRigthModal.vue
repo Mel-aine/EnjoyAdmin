@@ -133,8 +133,9 @@
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             :options="dropdownOptions" :button-text="t('options')"
                                             @option-selected="handleOptionSelected" />
-                                        <ButtonDropdown :options="dropdownOptions" :button-text="t('print')"
-                                            :button-class="'bg-white text-sm border border-primary text-primary'" />
+                                        <ButtonDropdown :options="printOptions" :button-text="t('print')"
+                                            :button-class="'bg-white text-sm border border-primary text-primary'"
+                                            @option-selected="handlePrintOptionSelected" />
                                     </div>
 
                                     <!-- Reservation Info -->
@@ -277,6 +278,15 @@
     <!-- Cancel Reservation Modal -->
     <CancelReservation :is-open="showCancelModal" :reservation-data="reservationData" @close="showCancelModal = false"
         @cancel-confirmed="handleCancelConfirmed" />
+
+    <!-- Print Modal -->
+    <PrintModal 
+        :is-open="showPrintModal" 
+        :document-data="printDocumentData"
+        @close="showPrintModal = false" 
+        @print-success="handlePrintSuccess" 
+        :templates="templates"
+        @print-error="handlePrintError" />
 </template>
 
 <script setup lang="ts">
@@ -290,9 +300,11 @@ import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, S
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import { useReservation } from '../../composables/useReservation'
 import CancelReservation from './foglio/CancelReseravtion.vue'
+import PrintModal from '../common/PrintModal.vue'
 import { getReservationDetailsById } from '../../services/reservation'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
+import BookingConfirmationTemplate from '../common/templates/BookingConfirmationTemplate.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -337,11 +349,52 @@ const emit = defineEmits<Emits>()
 
 // Cancel modal state
 const showCancelModal = ref(false)
+const showPrintModal = ref(false)
 
 const closeModal = () => {
     emit('close')
 }
 const handleCancelConfirmed =()=>{}
+
+// Print options
+const printOptions = computed(() => [
+    { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
+    { id: 'confirmation', label: t('printConfirmation'), icon: CheckCircle },
+    { id: 'receipt', label: t('printReceipt'), icon: List }
+])
+
+// Print handlers
+const handlePrintOptionSelected = (option: any) => {
+    console.log('Print option selected:', option)
+    showPrintModal.value = true
+}
+
+const handlePrintSuccess = (data: any) => {
+    console.log('Print successful:', data)
+    showPrintModal.value = false
+}
+
+const handlePrintError = (error: any) => {
+    console.error('Print error:', error)
+}
+const templates = ref([
+    {
+        id: '1',
+        name: 'Reservation',
+        description: 'Reservation template',
+        component: BookingConfirmationTemplate
+    }
+])
+// Document data for printing
+const printDocumentData = computed(() => ({
+    reservation: reservation.value,
+    customer: reservation.value?.guest,
+    rooms: reservation.value?.reservationRooms,
+    totalAmount: reservation.value?.totalAmount,
+    paidAmount: reservation.value?.paidAmount,
+    remainingAmount: reservation.value?.remainingAmount,
+    company:{}
+}))
 const handleSave = () => {
     emit('save', props.reservationData)
 }

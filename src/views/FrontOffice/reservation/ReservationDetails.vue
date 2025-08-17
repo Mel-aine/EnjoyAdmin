@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, PencilIcon, User2Icon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { ArrowLeft, Building2Icon, PencilIcon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useToast } from 'vue-toastification';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue';
 import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
@@ -19,6 +18,9 @@ import Spinner from '../../../components/spinner/Spinner.vue';
 import { useReservation, type CheckInReservationPayload } from '../../../composables/useReservation';
 import AddPaymentModal from '../../../components/reservations/foglio/AddPaymentModal.vue';
 import CancelReservation from '../../../components/reservations/foglio/CancelReseravtion.vue';
+import PrintModal from '../../../components/common/PrintModal.vue';
+import BookingConfirmationTemplate from '../../../components/common/templates/BookingConfirmationTemplate.vue';
+import { useServiceStore } from '../../../composables/serviceStore';
 
 // Simple Button component
 const Button = {
@@ -26,6 +28,7 @@ const Button = {
 };
 const isAddPaymentModalOpen = ref(false);
 const showCancelModal = ref(false);
+const showPrintModal = ref(false);
 const { t } = useI18n();
 const reservation = ref<any>({});
 
@@ -126,7 +129,7 @@ const checkInRerservation = async () => {
         keyCardsIssued: 0,
         depositAmount: 0
     }
-    
+
     await performCheckIn(reservation.value.id, payload, getBookingDetailsById);
 }
 const handleOptionSelected = (option: any) => {
@@ -177,6 +180,9 @@ const handleOptionSelected = (option: any) => {
         case 'unassign_room':
             handleUnassignRoom();
             break;
+        case 'print':
+            showPrintModal.value = true;
+            break;
         default:
             console.log('Action not implemented:', option.id);
     }
@@ -201,7 +207,7 @@ const roomRateTypeSummary = computed(() => {
     const totalRooms = reservationRooms.length;
 
     // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map((room:any) => {
+    const roomNumbers = reservationRooms.map((room: any) => {
         return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
     })
 
@@ -226,8 +232,8 @@ const handleCheckOut = async () => {
         finalBillAmount: 0,
         outstandingBalance: 0
     };
-    
-   // await performCheckOut(reservation.value.id, payload, getBookingDetailsById);
+
+    // await performCheckOut(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleAmendStay = async () => {
@@ -237,7 +243,7 @@ const handleAmendStay = async () => {
         reason: "Guest requested amendment",
         notes: ""
     };
-    
+
 };
 
 const handleRoomMove = async () => {
@@ -248,12 +254,12 @@ const handleRoomMove = async () => {
         reason: "Guest requested room change",
         notes: ""
     };
-    
+
     // TODO: Implement room selection modal
     console.log('Room move requires room selection modal');
     // await moveRoom(reservation.value.id, payload, getBookingDetailsById);
 };
-
+console.log('reservation value', useServiceStore().currentService)
 const handleExchangeRoom = async () => {
     const payload = {
         roomId1: reservation.value.reservationRooms[0]?.room?.id,
@@ -262,7 +268,7 @@ const handleExchangeRoom = async () => {
         reason: "Room exchange requested",
         notes: ""
     };
-    
+
     // TODO: Implement room selection modal
     console.log('Room exchange requires room selection modal');
     // await exchangeRoom(reservation.value.id, payload, getBookingDetailsById);
@@ -274,7 +280,7 @@ const handleStopRoomMove = async () => {
         reason: "Move cancelled",
         notes: ""
     };
-    
+
 };
 
 const handleUpdateInclusionList = async () => {
@@ -283,7 +289,7 @@ const handleUpdateInclusionList = async () => {
         effectiveDate: (new Date()).toISOString(),
         notes: ""
     };
-    
+
     // TODO: Implement inclusion selection modal
     console.log('Inclusion list update requires selection modal');
     // await updateInclusionList(reservation.value.id, payload, getBookingDetailsById);
@@ -301,7 +307,7 @@ const handleCancelConfirmed = async (cancelData: any) => {
         refundAmount: cancelData.cancellationFee || 0,
         notes: cancelData.notes || ""
     };
-    
+
 };
 
 const handleMarkNoShow = async () => {
@@ -311,7 +317,7 @@ const handleMarkNoShow = async () => {
         chargeNoShowFee: false,
         notes: ""
     };
-    
+
     //await markNoShow(reservation.value.id, payload, getBookingDetailsById);
 };
 
@@ -323,7 +329,7 @@ const handleVoidReservation = async () => {
             voidDate: (new Date()).toISOString(),
             notes: ""
         };
-        
+
         await voidReservation(reservation.value.id, payload, getBookingDetailsById);
     }
 };
@@ -335,9 +341,76 @@ const handleUnassignRoom = async () => {
         reason: "Room unassignment requested",
         notes: ""
     };
-    
+
     //await unassignRoom(reservation.value.id, payload, getBookingDetailsById);
 };
+
+// Print modal handlers
+const handlePrintClose = () => {
+    showPrintModal.value = false;
+};
+
+const handlePrintSuccess = (data: any) => {
+    console.log('Print successful:', data);
+    showPrintModal.value = false;
+};
+
+const canCheckIn = computed(() => {
+    const date = new Date();
+    const dStr = date.toISOString().split('T')[0]
+    return reservation.value.checkInDate.startsWith(dStr) && reservation.value.status ==='confirmed';
+})
+
+const canCheckout =  computed(()=>{
+    const date = new Date();
+    const dStr = date.toISOString().split('T')[0]
+    return reservation.value.departDate.startsWith(dStr) && reservation.value.status ==='checked-in';
+})
+const handlePrintError = (error: any) => {
+    console.error('Print error:', error);
+};
+const templates = ref([
+    {
+        id: '1',
+        name: 'Reservation',
+        description: 'Reservation template',
+        component: BookingConfirmationTemplate
+    }
+])
+// Computed property for print document data
+const printDocumentData = computed(() => {
+    if (!reservation.value) return null;
+
+    return {
+        type: 'reservation',
+        reservation: {
+            id: reservation.value.id,
+            reservationNumber: reservation.value.reservationNumber,
+            status: reservation.value.status,
+            arrivalDate: reservation.value.arrivalDate,
+            departureDate: reservation.value.departureDate,
+            nights: reservation.value.nights,
+            adults: reservation.value.adults,
+            children: reservation.value.children
+        },
+        guest: {
+            firstName: reservation.value.guest?.firstName,
+            lastName: reservation.value.guest?.lastName,
+            email: reservation.value.guest?.email,
+            phone: reservation.value.guest?.phone
+        },
+        rooms: reservation.value.reservationRooms?.map((room: any) => ({
+            roomNumber: room.room?.roomNumber,
+            roomType: room.room?.roomType?.name,
+            rate: room.rate
+        })) || [],
+        financial: {
+            totalAmount: reservation.value.totalAmount,
+            paidAmount: reservation.value.paidAmount,
+            balance: reservation.value.balance
+        }
+    };
+});
 
 onMounted(() => {
     getBookingDetailsById();
@@ -355,11 +428,11 @@ onMounted(() => {
                     <span class="font-bold">{{ reservation.guest?.displayName }}</span>
                     <div class="flex">
                         <Adult class="w-5" />
-                        <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults }}</span>
+                        <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults??0 }}</span>
                     </div>
                     <div class="flex">
                         <Child class="w-4" />
-                        <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child }}</span>
+                        <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child??0 }}</span>
                     </div>
                 </div>
                 <div class="flex gap-8">
@@ -409,12 +482,15 @@ onMounted(() => {
                     <span
                         class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">{{
                             $t(reservation.status) }}</span>
-                    <button 
-                        @click="checkInRerservation"
-                        :disabled="isCheckingIn"
-                        class="bg-primary px-4 py-1 align-middle p-1 text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
+                    <button @click="checkInRerservation" :disabled="isCheckingIn" v-if="canCheckIn"
+                        class="bg-green-600 rounded-lg text-white  px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
                         <Spinner v-if="isCheckingIn" class="w-4 h-4" />
                         <span>{{ isCheckingIn ? $t('processing') || 'Processing...' : $t('check in') }}</span>
+                    </button>
+                    <button @click="handleCheckOut" :disabled="isCheckingOut" v-if="canCheckout"
+                        class="bg-red-600 rounded-lg text-white px-4 py-2 align-middle  text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
+                        <Spinner v-if="isCheckingIn" class="w-4 h-4" />
+                        <span>{{ isCheckingOut ? $t('processing') || 'Processing...' : $t('check out') }}</span>
                     </button>
                 </div>
             </div>
@@ -459,17 +535,17 @@ onMounted(() => {
         </div>
     </AdminLayout>
     <template v-if="isAddPaymentModalOpen">
-          <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen"
-            @close="closeAddPaymentModal" @save="handleSavePayment" />
-        </template>
-        
+        <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
+            @save="handleSavePayment" />
+    </template>
+
     <!-- Cancel Reservation Modal -->
-    <CancelReservation 
-        :is-open="showCancelModal" 
-        :reservation-data="reservation"
-        @close="showCancelModal = false"
-        @cancel-confirmed="handleCancelConfirmed"
-    />
+    <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+        @cancel-confirmed="handleCancelConfirmed" />
+
+    <!-- Print Modal -->
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
+        @print-success="handlePrintSuccess" @print-error="handlePrintError" :templates="templates" />
 </template>
 
 <style></style>

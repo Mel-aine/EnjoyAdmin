@@ -272,8 +272,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getDailyOccupancyAndReservations } from "@/services/api"
-import router from '@/router'
-
 
 const isLoading = ref(false);
 function getReservationTypeIcon(type: string) {

@@ -48,7 +48,7 @@
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
             <BasicButton :label="$t('applyDiscount')" />
             <BasicButton :label="$t('folioOperations')" />
-            <BasicButton :label="$t('printInvoice')" />
+            <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <BasicButton :label="$t('more')" />
             <!-- Status indicators -->
             <div class="ml-auto flex items-center gap-2">
@@ -141,7 +141,16 @@
         <template v-if="isCreateFolioModalOpen">
           <CreateFolioModal :reservation-id="reservationId" :is-open="isCreateFolioModalOpen"
             @close="closeCreateFolioModal" @save="handleSaveFolio" :reservation="reservation" />
+        </template>
 
+        <!-- Print Modal -->
+        <template v-if="isPrintModalOpen">
+          <PrintModal 
+            :is-open="isPrintModalOpen" 
+            :document-data="printDocumentData"
+            @close="closePrintModal" 
+            @print-success="handlePrintSuccess" 
+            @print-error="handlePrintError" />
         </template>
       </div>
     </div>
@@ -159,6 +168,7 @@ import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 import AddPaymentModal from './AddPaymentModal.vue'
 import CreateFolioModal from './CreateFolioModal.vue'
+import PrintModal from '../../common/PrintModal.vue'
 import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
@@ -172,6 +182,7 @@ const isOpen = ref(false)
 const isAddChargeModalOpen = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCreateFolioModalOpen = ref(false)
+const isPrintModalOpen = ref(false)
 const props = defineProps({
   reservationId: {
     type: Number,
@@ -367,4 +378,32 @@ const handleSaveFolio = (folioData: any) => {
   getFolosReservations() // Refresh the folio list
   closeCreateFolioModal()
 }
+
+// Print modal handlers
+const openPrintModal = () => {
+  isPrintModalOpen.value = true
+}
+
+const closePrintModal = () => {
+  isPrintModalOpen.value = false
+}
+
+const handlePrintSuccess = (data: any) => {
+  console.log('Print successful:', data)
+  closePrintModal()
+}
+
+const handlePrintError = (error: any) => {
+  console.error('Print error:', error)
+}
+
+// Document data for printing
+const printDocumentData = computed(() => ({
+  reservation: props.reservation,
+  folios: folioList.value,
+  transactions: foglioData.value,
+  selectedFolio: selectedFolio.value,
+  balance: balance.value,
+  reservationId: props.reservationId
+}))
 </script>

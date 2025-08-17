@@ -1265,24 +1265,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/right-side-modal-demo',
-      name: 'Right Side Modal Demo',
-      component: () => import('../views/Others/RightSideModalDemo.vue'),
-      meta: {
-        title: 'Right Side Modal Demo',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/pdf-export-demo',
-      name: 'PDF Export Demo',
-      component: () => import('../views/Others/PdfExportDemo.vue'),
-      meta: {
-        title: 'Démonstration d\'Exportation PDF',
-        requiresAuth: false,
-      },
-    },
-    {
       path: '/front-office/reservation/:id',
       name: 'ReservationDetails',
       component: () => import('../views/FrontOffice/reservation/ReservationDetails.vue'),

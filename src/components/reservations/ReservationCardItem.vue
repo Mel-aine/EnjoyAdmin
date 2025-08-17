@@ -9,6 +9,7 @@ import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
 import { useReservation } from '../../composables/useReservation';
 import CancelReservation from './foglio/CancelReseravtion.vue';
+import PrintModal from '../common/PrintModal.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -35,10 +36,31 @@ const props = defineProps({
 
 // Cancel modal state
 const showCancelModal = ref(false)
+const showPrintModal = ref(false)
 
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
 }
+
+// Print modal handlers
+const handlePrintSuccess = (data: any) => {
+  console.log('Print successful:', data)
+  showPrintModal.value = false
+}
+
+const handlePrintError = (error: any) => {
+  console.error('Print error:', error)
+}
+
+// Document data for printing
+const printDocumentData = computed(() => ({
+  reservation: props.reservation,
+  guest: props.reservation.guest,
+  rooms: props.reservation.reservationRooms,
+  totalAmount: props.reservation.totalAmount,
+  paidAmount: props.reservation.paidAmount,
+  remainingAmount: props.reservation.remainingAmount
+}))
 // Icon mapping for different actions
 const actionIconMap = {
   'view': Eye,
@@ -144,6 +166,9 @@ const handleOptionSelected = async (option: any) => {
     case 'inclusion_list':
       break;
     case 'no_show':
+      break;
+    case 'print':
+      showPrintModal.value = true;
       break;
     default:
       console.log(`Action ${option.id} not handled`);
@@ -267,6 +292,14 @@ const formatDate = (dateString: string) => {
     @close="showCancelModal = false"
     @cancel-confirmed="handleCancelConfirmed"
   />
+
+  <!-- Print Modal -->
+   <PrintModal 
+     :is-open="showPrintModal" 
+     :document-data="printDocumentData"
+     @close="showPrintModal = false" 
+     @print-success="handlePrintSuccess" 
+     @print-error="handlePrintError" />
 </template>
 
 <style></style>

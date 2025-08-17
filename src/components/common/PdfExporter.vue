@@ -204,7 +204,11 @@ const defaultPdfViewerConfig = {
   loadingBar: {
     show: true,
     color: '#3b82f6'
-  }
+  },
+  // Custom print configuration
+  printResolution: 150,
+  printAutoRotate: true,
+  printAnnotations: true
 }
 
 // Default PDF Viewer Theme
@@ -511,6 +515,61 @@ onMounted(() => {
   --main-color: var(--pdf-main-color, #3b82f6);
   --body-bg-color: var(--pdf-body-bg-color, #f8fafc);
   --progressBar-color: var(--pdf-progressbar-color, #3b82f6);
+}
+
+/* Print Styles for VuePdfApp */
+@media print {
+  :deep(.vue-pdf-app) {
+    width: 100% !important;
+    height: auto !important;
+    background: white !important;
+  }
+  
+  :deep(.vue-pdf-app .toolbar) {
+    display: none !important;
+  }
+  
+  :deep(.vue-pdf-app .sidebar) {
+    display: none !important;
+  }
+  
+  :deep(.vue-pdf-app .viewer) {
+    width: 100% !important;
+    height: auto !important;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  :deep(.vue-pdf-app .page) {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always;
+  }
+  
+  :deep(.vue-pdf-app .page:last-child) {
+    page-break-after: avoid;
+  }
+  
+  :deep(.vue-pdf-app canvas) {
+    width: 100% !important;
+    height: auto !important;
+    max-width: none !important;
+  }
+  
+  /* Hide all UI elements during print */
+  .pdf-controls {
+    display: none !important;
+  }
+  
+  .pdf-viewer-container {
+    background: white !important;
+    padding: 0 !important;
+  }
 }
 
 /* Responsive adjustments */
