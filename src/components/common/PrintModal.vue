@@ -100,7 +100,7 @@
         </form>
 
         <!-- PDF Exporter Component -->
-        <div v-if="showPdfExporter">
+        <div v-if="showPdfExporter && currentTemplate">
           <PdfExporter
             :template="currentTemplate"
             :document-data="documentData"
@@ -123,6 +123,7 @@ import { useToast } from 'vue-toastification'
 import { X } from 'lucide-vue-next'
 import BasicButton from '../buttons/BasicButton.vue'
 import PdfExporter from './PdfExporter.vue'
+import type { Template } from '../../utils/models'
 
 interface PrintTemplate {
   id: string
@@ -150,7 +151,7 @@ interface PrintOptions {
 interface Props {
   isOpen: boolean
   title?: string
-  templates?: PrintTemplate[]
+  templates?: Template[]
   documentData: any
   defaultFilename?: string
   pdfTheme?: Record<string, any>
@@ -158,8 +159,8 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'print-started', data: { template: PrintTemplate; filename: string; options: PrintOptions }): void
-  (e: 'print-completed', data: { template: PrintTemplate; filename: string; blob?: Blob }): void
+  (e: 'print-started', data: { template: Template; filename: string; options: PrintOptions }): void
+  (e: 'print-completed', data: { template: Template; filename: string; blob?: Blob }): void
   (e: 'print-error', error: any): void
 }
 
@@ -175,7 +176,7 @@ const toast = useToast()
 
 const loading = ref(false)
 const showPdfExporter = ref(false)
-const selectedTemplate = ref<PrintTemplate | null>(null)
+const selectedTemplate = ref<Template | null>(null)
 const filename = ref('')
 
 const printOptions = ref<PrintOptions>({

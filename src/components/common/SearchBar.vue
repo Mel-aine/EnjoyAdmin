@@ -158,7 +158,7 @@ const showDropdown = ref(false)
 const isModalOpen = ref(false)
 const selectedReservation = ref<ReservationDetails | null>(null)
 const selectedIndex = ref(-1)
-const searchTimeout = ref<NodeJS.Timeout | null>(null)
+const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // Watch for external modelValue changes
 watch(() => props.modelValue, (newValue) => {

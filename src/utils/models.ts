@@ -468,3 +468,11 @@ export interface CheckInReservationPayload {
   depositAmount?: number
 
 }
+
+export interface Template {
+  id: string
+  name: string
+  description: string
+  component: any
+  options?: any
+}

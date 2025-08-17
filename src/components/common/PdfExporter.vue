@@ -82,14 +82,9 @@ import PdfModalPreview from '../modal/PdfModalPreview.vue'
 import VuePdfApp from "vue3-pdf-app"
 import "vue3-pdf-app/dist/icons/main.css"
 import fallbackPdfFile from '@/assets/livre-algebre-1.pdf'
+import type { Template } from '../../utils/models'
 // Types
-interface Template {
-  id: string
-  name: string
-  description: string
-  component: any
-  options?: any
-}
+
 
 interface PdfViewerConfig {
   sidebar?: {
@@ -346,7 +341,7 @@ const generatePreview = async () => {
       .outputPdf('blob')
 
     // Vérifier si le blob est valide
-    if (!pdfBlob || pdfBlob.size === 0) {
+    if (!pdfBlob || (pdfBlob instanceof Blob && pdfBlob.size === 0)) {
       throw new Error('PDF blob is empty or invalid')
     }
 
@@ -355,7 +350,7 @@ const generatePreview = async () => {
       URL.revokeObjectURL(pdfUrl.value)
     }
 
-    pdfUrl.value = URL.createObjectURL(pdfBlob)
+    pdfUrl.value = URL.createObjectURL(pdfBlob as Blob)
 
 
 

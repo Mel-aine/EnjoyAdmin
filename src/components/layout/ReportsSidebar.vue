@@ -350,7 +350,7 @@ const { isExpanded, isMobileOpen } = useSidebar()
 const isHovered = ref(false)
 const searchQuery = ref('')
 
-const openSections = ref({
+const openSections = ref<any>({
   reservation: false,
   frontOffice: true, // Default open as shown in the image
   backOffice: false,

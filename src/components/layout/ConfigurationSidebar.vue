@@ -301,7 +301,7 @@ const { isExpanded, isMobileOpen } = useSidebar()
 const isHovered = ref(false)
 const searchQuery = ref('')
 
-const openSections = ref({
+const openSections = ref<any>({
   rooms: false,
   rates: false,
   housekeeping: false,
