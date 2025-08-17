@@ -65,7 +65,7 @@
       </div>
     </div>
   </header>
-  <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
+  <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
 </template>
 
 <script setup lang="ts">

@@ -70,7 +70,7 @@
          <table class="min-w-full text-sm table-fixed">
            <colgroup>
              <col class="w-24 min-w-[6rem]">
-             <col v-for="date in visibleDates" :key="date" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+             <col v-for="(date,ind) in visibleDates" :key="ind" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
            </colgroup>
           <tbody>
             <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
@@ -152,7 +152,7 @@
         <table class="min-w-full border-t border border-gray-300 text-xs table-fixed">
           <colgroup>
             <col class="w-24 min-w-[6rem]">
-            <col v-for="date in visibleDates" :key="date" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+            <col v-for="(date,ind) in visibleDates" :key="ind" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
           </colgroup>
           <tfoot>
             <tr class="text-md">

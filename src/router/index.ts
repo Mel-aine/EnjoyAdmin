@@ -565,16 +565,6 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    // Custom Reports
-    {
-      path: '/reports/custom/custom-report-builder',
-      name: 'CustomReportBuilder',
-      component: () => import('../views/Reports/Custom/CustomReportBuilder.vue'),
-      meta: {
-        title: 'Custom Report Builder',
-        requiresAuth: true,
-      },
-    },
     // Configuration Routes
     {
       path: '/configuration',
@@ -1289,7 +1279,7 @@ const router = createRouter({
       component: () => import('../views/Others/PdfExportDemo.vue'),
       meta: {
         title: 'Démonstration d\'Exportation PDF',
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {

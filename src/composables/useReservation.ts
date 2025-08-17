@@ -320,7 +320,7 @@ export function useReservation() {
   }
 
   // Void reservation
-  const voidReservation = async (reservationId: number, reason: string, refreshCallback?: () => Promise<void>) => {
+  const voidReservation = async (reservationId: number, reason: any, refreshCallback?: () => Promise<void>) => {
     isVoidingReservation.value = true
     
     try {

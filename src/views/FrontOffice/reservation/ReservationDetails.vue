@@ -201,7 +201,7 @@ const roomRateTypeSummary = computed(() => {
     const totalRooms = reservationRooms.length;
 
     // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map(room => {
+    const roomNumbers = reservationRooms.map((room:any) => {
         return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
     })
 
@@ -227,7 +227,7 @@ const handleCheckOut = async () => {
         outstandingBalance: 0
     };
     
-    await performCheckOut(reservation.value.id, payload, getBookingDetailsById);
+   // await performCheckOut(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleAmendStay = async () => {
@@ -238,7 +238,6 @@ const handleAmendStay = async () => {
         notes: ""
     };
     
-    await amendStay(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleRoomMove = async () => {
@@ -276,7 +275,6 @@ const handleStopRoomMove = async () => {
         notes: ""
     };
     
-    await stopRoomMove(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleUpdateInclusionList = async () => {
@@ -304,7 +302,6 @@ const handleCancelConfirmed = async (cancelData: any) => {
         notes: cancelData.notes || ""
     };
     
-    await cancelReservation(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleMarkNoShow = async () => {
@@ -315,7 +312,7 @@ const handleMarkNoShow = async () => {
         notes: ""
     };
     
-    await markNoShow(reservation.value.id, payload, getBookingDetailsById);
+    //await markNoShow(reservation.value.id, payload, getBookingDetailsById);
 };
 
 const handleVoidReservation = async () => {
@@ -339,7 +336,7 @@ const handleUnassignRoom = async () => {
         notes: ""
     };
     
-    await unassignRoom(reservation.value.id, payload, getBookingDetailsById);
+    //await unassignRoom(reservation.value.id, payload, getBookingDetailsById);
 };
 
 onMounted(() => {

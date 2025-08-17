@@ -1,21 +1,7 @@
 <template>
-  <div class="pdf-export-demo">
-    <div class="demo-header">
-      <h1 class="demo-title">Démonstration d'Exportation PDF</h1>
-      <p class="demo-description">
-        Cette page démontre l'utilisation du composant PdfExporter avec différents modèles de documents.
-        Vous pouvez prévisualiser, modifier le modèle et exporter vos documents en PDF.
-      </p>
-    </div>
-
-    <div class="demo-content">
-
-      <!-- Section d'exportation -->
-      <div class="export-section">
-        <div class="export-controls">
-
-          <div class="export-actions">
-            <PdfExporter :template="{
+ <PdfExporter
+ 
+ :template="{
               id: 'booking-confirmation',
               name: 'Confirmation de Réservation',
               description: 'Confirmation de réservation d\'hôtel',
@@ -27,11 +13,6 @@
               }
             }" :document-data="finalInvoiceData" :filename="`facture-${invoiceData.invoiceNumber}`"
               button-text="Exporter la facture" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">

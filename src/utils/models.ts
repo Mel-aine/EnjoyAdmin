@@ -61,6 +61,10 @@ export interface ReservationDetails {
   payments: PaymentRecord[] // This array is empty in your example, but included for completeness
   reservationServiceProducts: ReservationServiceProduct[]
   reservation_id?: number
+  guest:Record<string,any>
+  nights:Number
+  child:Number
+  adults:Number
 }
 
 /**
@@ -441,7 +445,7 @@ export  interface Column {
   label: string
   type?: 'text' | 'email' | 'badge' | 'image' | 'custom' | 'date'
   imageKey?: string // For image type, the key for the image URL
-  badgeColors?: Record<string, string> // For badge type, color mapping
+  badgeColors?: Record<string, any> // For badge type, color mapping
   searchable?: boolean
   translatable?: boolean // Whether the column content should be translated
   dateFormat?: string // Format for date columns

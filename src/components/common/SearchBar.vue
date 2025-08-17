@@ -116,9 +116,9 @@
   </div>
 
   <!-- Reservation Modal -->
-  <ReservationRigthModal v-if="isModalOpen" :is-open="isModalOpen"
+  <ReservationRigthModal v-if="isModalOpen && selectedReservation" :is-open="isModalOpen"
     :title="selectedReservation?.reservationNumber || t('reservationDetails')"
-    :subtitle="selectedReservation?.guestName || ''" :reservation-data="selectedReservation" @close="closeModal"
+    :subtitle="''" :reservation-data="selectedReservation" @close="closeModal"
     @save="handleModalSave" />
 </template>
 

@@ -10,6 +10,7 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
 import { useI18n } from 'vue-i18n'
+import { getCustomer } from '../../services/reservation'
 
 
 const props = defineProps({

@@ -120,7 +120,7 @@
                     </div>
                   </template>
 
-                  <!-- Custom column for rate inputs -->
+                  <!-- Custom column for rate inputs 
                   <template #column-rateInputs="{ item }">
                     <div class="grid grid-cols-3 gap-2">
                       <div>
@@ -140,12 +140,12 @@
                       <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('extraChild') }}</label>
                         <input type="number" step="0.01" min="0" :value="getRoomRate(item.value, 'extraChild')"
-                          @input="updateRoomRate(item.value, 'extraChild', $event.target.value)"
+                          @input="updateRoomRate(item.value, 'extraChild', $event.target?.value)"
                           class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                           :placeholder="t('enterRate')" />
                       </div>
                     </div>
-                  </template>
+                  </template> -->
                 </ReusableTable>
               </div>
             </div>
@@ -310,7 +310,7 @@ const confirmDeleteRateType = async () => {
 
   isDeletingLoading.value = true
   try {
-    const index = rateTypes.value.findIndex(rt => rt.id === rateTypeToDelete.value.id)
+    const index = rateTypes.value.findIndex((rt:any) => rt.id === rateTypeToDelete.value.id)
     if (index > -1) {
       rateTypes.value.splice(index, 1)
       toast.success(t('rateTypeDeletedSuccessfully'))
@@ -362,7 +362,7 @@ const confirmDeleteSelected = async () => {
   isDeletingLoading.value = true
   try {
     selectedRateTypes.value.forEach((rateType: any) => {
-      const index = rateTypes.value.findIndex(rt => rt.id === rateType?.id)
+      const index = rateTypes.value.findIndex((rt:any) => rt.id === rateType?.id)
       if (index > -1) {
         rateTypes.value.splice(index, 1)
       }

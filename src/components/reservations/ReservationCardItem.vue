@@ -20,21 +20,11 @@ const {
     isExchangingRoom,
     isStoppingRoomMove,
     isUpdatingInclusionList,
-    isCancelingReservation,
     isMarkingNoShow,
     isVoidingReservation,
     isUnassigningRoom,
     performCheckIn,
     performCheckOut,
-    performAmendStay,
-    performRoomMove,
-    performExchangeRoom,
-    performStopRoomMove,
-    performUpdateInclusionList,
-    performCancelReservation,
-    performMarkNoShow,
-    performVoidReservation,
-    performUnassignRoom
 } = useReservation();
 const props = defineProps({
   reservation: {
@@ -48,9 +38,6 @@ const showCancelModal = ref(false)
 
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
-  if (props.reservation?.reservationNumber) {
-    await performCancelReservation(props.reservation.reservationNumber, cancelData)
-  }
 }
 // Icon mapping for different actions
 const actionIconMap = {
@@ -136,37 +123,27 @@ const handleOptionSelected = async (option: any) => {
       console.log('Add payment action triggered');
       break;
     case 'check_in':
-      await performCheckIn(props.reservation.reservationNumber);
       break;
     case 'check_out':
-      await performCheckOut(props.reservation.reservationNumber);
       break;
     case 'amend_stay':
-      await performAmendStay(props.reservation.reservationNumber);
       break;
     case 'room_move':
-      await performRoomMove(props.reservation.reservationNumber);
       break;
     case 'exchange_room':
-      await performExchangeRoom(props.reservation.reservationNumber);
       break;
     case 'stop_room_move':
-      await performStopRoomMove(props.reservation.reservationNumber);
       break;
     case 'cancel_reservation':
       showCancelModal.value = true;
       break;
     case 'void_reservation':
-      await performVoidReservation(props.reservation.reservationNumber);
       break;
     case 'unassign_room':
-      await performUnassignRoom(props.reservation.reservationNumber);
       break;
     case 'inclusion_list':
-      await performUpdateInclusionList(props.reservation.reservationNumber);
       break;
     case 'no_show':
-      await performMarkNoShow(props.reservation.reservationNumber);
       break;
     default:
       console.log(`Action ${option.id} not handled`);

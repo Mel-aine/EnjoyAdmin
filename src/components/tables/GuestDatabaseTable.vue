@@ -10,7 +10,6 @@
     empty-state-title="No guests found"
     empty-state-message="Get started by adding a new guest to the database."
     @selection-change="onSelectionChange"
-    @action="onAction"
   >
     <template #name="{ item }">
       <div>
@@ -24,6 +23,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import ReusableTable from './ReusableTable.vue'
+import type { Action, Column } from '../../utils/models'
 
 interface Guest {
   id: number
@@ -142,44 +142,37 @@ const guests = ref<Guest[]>([
 ])
 
 // Column configuration for ReusableTable
-const columns = ref([
+const columns = ref<Column[]>([
   {
     key: 'name',
     label: 'Guest Name',
     type: 'custom',
-    sortable: true
   },
   {
     key: 'country',
     label: 'Country',
     type: 'image',
-    sortable: true,
     imageKey: 'countryFlag',
-    textKey: 'country'
   },
   {
     key: 'email',
     label: 'Email',
     type: 'email',
-    sortable: true
   },
   {
     key: 'phone',
     label: 'Phone',
     type: 'text',
-    sortable: true
   },
   {
     key: 'mobile',
     label: 'Mobile',
     type: 'text',
-    sortable: true
   },
   {
     key: 'vipStatus',
     label: 'VIP Status',
     type: 'badge',
-    sortable: true,
     badgeColors: {
       'Gold': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
       'Platinum': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
@@ -190,20 +183,20 @@ const columns = ref([
 ])
 
 // Row actions configuration
-const actions = ref([
+const actions = ref<Action[]>([
   {
     label: 'View',
-    action: 'view',
+    handler: (item)=>onAction('view',item),
     icon: 'view'
   },
   {
     label: 'Edit',
-    action: 'edit',
+    handler: (item)=>onAction('edit',item),
     icon: 'edit'
   },
   {
     label: 'Delete',
-    action: 'delete',
+   handler: (item)=>onAction('delete',item),
     icon: 'delete',
     variant: 'danger'
   }
@@ -242,10 +235,8 @@ const onSelectionChange = (selectedItems: Guest[]) => {
   console.log('Selection changed:', selectedItems)
 }
 
-const onAction = (payload: { action: string; item?: Guest; type: string }) => {
-  const { action, item, type } = payload
+const onAction = (action:any, item:any) => {
   
-  if (type === 'row') {
     switch (action) {
       case 'view':
         console.log('Viewing guest:', item)
@@ -257,22 +248,7 @@ const onAction = (payload: { action: string; item?: Guest; type: string }) => {
         console.log('Deleting guest:', item)
         break
     }
-  } else if (type === 'header') {
-    switch (action) {
-      case 'add':
-        console.log('Adding new guest')
-        break
-      case 'export':
-        console.log('Exporting data')
-        break
-      case 'audit':
-        console.log('Opening audit trail')
-        break
-      case 'search':
-        console.log('Advanced search')
-        break
-    }
-  }
+  
 }
 </script>
 
