@@ -147,7 +147,7 @@
 
     <!-- Section prix et actions -->
     <div class="pt-4 border-t border-gray-100/70">
-      <div class="flex items-center justify-between mb-4">
+      <!-- <div class="flex items-center justify-between mb-4">
         <div>
           <p class="text-sm text-gray-500">{{ $t('from') }}</p>
         </div>
@@ -157,7 +157,7 @@
             {{ formatPrice(room.originalPrice) }} FCFA
           </p>
         </div>
-      </div>
+      </div> -->
 
       <!-- Actions principales -->
       <div class="space-y-2">

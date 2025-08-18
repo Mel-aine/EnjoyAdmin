@@ -37,12 +37,12 @@
         <!-- Header avec logo - position fixe -->
       <div >
         <div class="flex items-center gap-2" >
-          
-          <img 
+
+          <img
             class="rounded-full w-10"
            :src=" '/src/assets/images/header/logo2.png'"
             alt="Logo" />
-          <span 
+          <span
             class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
             Enjoy
           </span>
@@ -56,9 +56,18 @@
       <div :class="[isApplicationMenuOpen ? 'flex' : 'hidden']"
         class="items-center justify-between w-full gap-4 px-5 py-4 bg-gradient-to-r from-white/80 via-gray-50/80 to-white/80 backdrop-blur-sm shadow-xl border-t border-gray-100 dark:border-gray-700 dark:from-gray-800/80 dark:via-gray-700/80 dark:to-gray-800/80 lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:bg-transparent lg:border-t-0 lg:backdrop-blur-none">
         <div class="flex items-center gap-3 2xsm:gap-4">
-          <button class="flex flex-nowrap px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600" @click="gotoCalendar">
-            <Calendar class="w-5 h-5 me-2 cursor-pointer text-gray-600 dark:text-gray-300" @click="openModal" />
+
+          <button class="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600" @click="gotoReservation">
+              <List  class="w-5 h-5 me-2 cursor-pointer text-gray-600 dark:text-gray-300" />
           </button>
+
+          <button class="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600" @click="gotoAddReservation">
+              <PlusCircle class="w-5 h-5 me-2 cursor-pointer text-gray-600 dark:text-gray-300" />
+          </button>
+          <button class="flex flex-nowrap px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600" @click="gotoCalendar">
+            <Calendar class="w-5 h-5 me-2 cursor-pointer text-gray-600 dark:text-gray-300"  />
+          </button>
+
           <NotificationMenu />
         </div>
         <UserMenu />
@@ -75,7 +84,7 @@ import SearchBar from './header/SearchBar.vue'
 import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
-import { Calendar, X } from 'lucide-vue-next'
+import { Calendar, X ,PlusCircle,List } from 'lucide-vue-next'
 import AddBookingModal from "@/components/modal/AddBookingModal.vue"
 import router from '@/router'
 const showModalAddingModal = ref(false);
@@ -99,5 +108,11 @@ const toggleApplicationMenu = () => {
 }
 const gotoCalendar = () => {
   router.push({ name: "ReservationCalendar" })
+}
+const gotoReservation = () => {
+  router.push({ name: "ReservationGridView" })
+}
+const gotoAddReservation = () => {
+  router.push({ name: "New Booking" })
 }
 </script>
