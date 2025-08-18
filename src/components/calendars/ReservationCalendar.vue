@@ -464,10 +464,10 @@ function getAvailableRoomsApi(date: Date) {
 
 // --- UTILS ---
 function formatDate(date: Date) {
-  return date.toLocaleDateString(locale.value, { day: '2-digit', month: 'short' })
+  return date.toLocaleDateString('en', { day: '2-digit', month: 'short' })
 }
 function formatDay(date: Date) {
-  return date.toLocaleDateString(locale.value, { weekday: 'short' })
+  return date.toLocaleDateString('en', { weekday: 'short' })
 }
 function formatTime(dt: string) {
   return new Date(dt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

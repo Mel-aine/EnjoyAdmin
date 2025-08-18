@@ -989,7 +989,7 @@ const router = createRouter({
     {
       path: '/booking/bookinginvoice',
       name: 'BookingInvoices',
-      component: () => import('../components/invoice/BookingInvoice.vue'),
+      component: () => import('../components/common/templates/BookingInvoice.vue'),
       meta: {
         title: 'Booking Invoices',
         requiresAuth: true,

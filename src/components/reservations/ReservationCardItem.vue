@@ -180,7 +180,7 @@ const formatDate = (dateString: string) => {
     month: 'short',
     day: 'numeric'
   }
-  return new Date(dateString).toLocaleDateString(locale.value, options)
+  return new Date(dateString).toLocaleDateString('en', options)
 }
 </script>
 

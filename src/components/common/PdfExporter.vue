@@ -313,9 +313,9 @@ const generatePreview = async () => {
   try {
     // Configuration optimisée pour éviter le PDF noir
     const options = {
-      margin: 0.5,
+      margin: 0,
       filename: `${props.filename}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: 'jpeg', quality:  1},
       html2canvas: { 
         scale: 2, 
         useCORS: true, 

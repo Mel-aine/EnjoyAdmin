@@ -303,6 +303,7 @@ import { getReservationDetailsById } from '../../services/reservation'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
 import BookingConfirmationTemplate from '../common/templates/BookingConfirmationTemplate.vue'
+import BookingInvoice from '../common/templates/BookingInvoice.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -381,6 +382,12 @@ const templates = ref([
         name: 'Reservation',
         description: 'Reservation template',
         component: BookingConfirmationTemplate
+    },
+    {
+        id: '2',
+        name: 'Confirm Reservation',
+        description: 'Invoice template',
+        component: BookingInvoice
     }
 ])
 // Document data for printing
@@ -412,6 +419,7 @@ const getBookingDetailsById = async () => {
         reservation.value = response
   
     isLoading.value = false;
+    console.log('Reservation data fetched:', reservation.value)
 };
 const formatDate = (dateString?: string) => {
     if (!dateString) return t('notAvailable')
