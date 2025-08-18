@@ -167,6 +167,24 @@ export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>
   return axios.get(`${API_URL}/rooms/${hotelId}/details`, headers)
 }
 
+/**
+ * update status
+ */
+export const updateRoomStatus = (
+  roomId: number,
+  status: string,
+  force = false,
+  maintenanceData?: { reason: string; startDate: string; endDate: string; notes: string },
+): Promise<AxiosResponse<any>> => {
+  const payload: any = { status, force }
+
+  if (status === 'maintenance' && maintenanceData) {
+    Object.assign(payload, maintenanceData)
+  }
+
+  return axios.patch(`${API_URL}/rooms/${roomId}/status`, payload, headers)
+}
+
 ////// this is the Room Owner sections
 /**
  * Get all room owners

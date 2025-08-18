@@ -7,7 +7,7 @@
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
               <h1 class="text-2xl font-semibold text-gray-900">{{ $t('OccupancyofRooms') }}</h1>
-              <div class="ml-4 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">
+              <div class="ml-4 px-3 py-1 bg-purple-50 text-purple-700 text-sm rounded-full">
                 {{ roomStats.total }} {{ $t('Rooms') }}
               </div>
             </div>
@@ -93,7 +93,7 @@
               <button
                 @click="refreshRooms"
                 :disabled="isLoading"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -108,7 +108,7 @@
 
               <button
                 @click="exportData"
-                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -123,7 +123,7 @@
 
               <button
                 @click="openAuditTrail"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -496,18 +496,17 @@
                       v-model="searchQuery"
                       type="text"
                       :placeholder="$t('search...')"
-                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                     />
                   </div>
 
                   <!-- Status Filter -->
                   <select
                     v-model="statusFilter"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="">{{ $t('All_statuses') }}</option>
                     <option value="available">{{ $t('Available') }}</option>
-                    <!-- <option value="booked">{{ $t('Booked') }}</option> -->
                     <option value="occupied">{{ $t('Occupied') }}</option>
                     <option value="out_of_order">{{ $t('statut.outOfOrder') }}</option>
                     <option value="cleaning">{{ $t('Cleaning') }}</option>
@@ -517,7 +516,7 @@
                   <!-- Room Type Filter -->
                   <select
                     v-model="roomTypeFilter"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="">{{ $t('All_room_types') }}</option>
                     <option v-for="type in roomTypeData" :key="type.value" :value="type.value">
@@ -530,7 +529,7 @@
                   <!-- Items per page -->
                   <select
                     v-model="itemsPerPage"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="12">12 {{ $t('per_page') }}</option>
                     <option value="24">24 {{ $t('per_page') }}</option>
@@ -574,7 +573,7 @@
           <div v-if="viewMode === 'list'" class="mt-10 bg-white rounded-lg shadow">
             <ReusableTable
               title="Room Occupancy"
-              :data="paginatedRooms"
+              :data="processedTableData"
               :columns="tableColumns"
               :actions="tableActions"
               :loading="isLoading"
@@ -646,7 +645,7 @@
                     :class="[
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       page === currentPage
-                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                        ? 'z-10 bg-purple-50 border-purple-500 text-purple-600'
                         : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
                     ]"
                   >
@@ -802,13 +801,7 @@ import RoomCard from './RoomCard.vue'
 import StatusChangeModal from './StatusChangeModal.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import {
-  getServiceProductWithOptions,
-  getTypeProductByServiceId,
-  updateRoomStatus,
-  getServiceProductsWithDetails,
-} from '@/services/api'
-import { getRoomsWithDetails } from '@/services/configrationApi'
+import { getRoomsWithDetails,updateRoomStatus } from '@/services/configrationApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { useI18n } from 'vue-i18n'
 import Spinner from '@/components/spinner/Spinner.vue'
@@ -965,7 +958,7 @@ const filteredRooms = computed(() => {
 
   // Filter by room type
   if (roomTypeFilter.value) {
-    filtered = filtered.filter((room: any) => room.productTypeId === roomTypeFilter.value)
+    filtered = filtered.filter((room: any) => room.roomTypeId === roomTypeFilter.value)
   }
 
   // Filter by search query
@@ -1007,41 +1000,8 @@ const getRoomTypeName = (id: number): string => {
   return roomTypeData.value.find((t: any) => t.value === id)?.label || ''
 }
 
-// Room type statistics for status table
-// const roomTypeStats = computed(() => {
-//   const typeStats: any[] = [];
 
-//   roomTypeData.value.forEach(roomType => {
-//     const roomsOfType = flattenServiceProducts.value.filter((room: any) => room.roomTypeName === roomType.value);
 
-//     const stats = {
-//       id: roomType.value,
-//       name: roomType.label,
-//       noStatus: roomsOfType.filter((room: any) => !room.status || room.status === 'available').length,
-//       clean: roomsOfType.filter((room: any) => room.status === 'cleaning').length,
-//       dirty: roomsOfType.filter((room: any) => room.status === 'occupied').length,
-//       outOfOrder: roomsOfType.filter((room: any) => room.status === 'maintenance' || room.status === 'out_of_order').length,
-//       dirtyRooms: roomsOfType.filter((room: any) => room.status === 'occupied')
-//     };
-
-//     typeStats.push(stats);
-//   });
-
-//   return typeStats;
-// });
-
-// // Total statistics
-// const totalStats = computed(() => {
-//   return roomTypeStats.value.reduce((total, roomType) => {
-//     total.noStatus += roomType.noStatus;
-//     total.clean += roomType.clean;
-//     total.dirty += roomType.dirty;
-//     total.outOfOrder += roomType.outOfOrder;
-//     return total;
-//   }, { noStatus: 0, clean: 0, dirty: 0, outOfOrder: 0 });
-// });
-
-// Table configuration for ReusableTable
 const tableColumns = computed(() => [
   {
     key: 'roomNumber',
@@ -1060,29 +1020,43 @@ const tableColumns = computed(() => [
     badgeColors: {
       available: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
       occupied: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      cleaning: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      cleaning: 'bg-purple-100 text-purple-808 dark:bg-purple-900 dark:text-purple-200',
       maintenance: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
       out_of_order: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
     },
     translatable: true,
   },
   {
-    key: 'guestName',
+    key: 'displayGuestName',
     label: t('Guest'),
     type: 'text' as const,
   },
   {
-    key: 'checkInTime',
+    key: 'displayCheckInTime',
     label: t('Check-in'),
-    type: 'date' as const,
+    type: 'text' as const,
   },
   {
-    key: 'checkOutTime',
+    key: 'displayCheckOutTime',
     label: t('Check-out'),
-    type: 'date' as const,
+    type: 'text' as const,
   },
 ])
 
+// Données de table avec affichage conditionnel du contenu
+const processedTableData = computed(() => {
+  return paginatedRooms.value.map(room => ({
+    ...room,
+    // Afficher le nom du guest seulement si la chambre est occupée ET a un guest
+    displayGuestName: (room.status === 'occupied' && room.guestName) ? room.guestName : '',
+    // Afficher check-in seulement si la chambre est occupée ET a une date de check-in
+    displayCheckInTime: (room.status === 'occupied' && room.checkInTime) ?
+      new Date(room.checkInTime).toLocaleDateString() : '',
+    // Afficher check-out seulement si la chambre est occupée ET a une date de check-out
+    displayCheckOutTime: (room.status === 'occupied' && room.checkOutTime) ?
+      new Date(room.checkOutTime).toLocaleDateString() : '',
+  }))
+})
 const tableActions = computed(() => [
   {
     label: t('Change Status'),
@@ -1099,9 +1073,9 @@ const tableActions = computed(() => [
   },
 ])
 
-const refreshRooms = async () => {
-  await fetchRoomWithDetails()
-}
+const refreshRooms = () => {
+  window.location.reload();
+};
 
 // Handle table actions
 const onTableAction = (action: string, room: any) => {
@@ -1121,8 +1095,8 @@ const openAuditTrail = () => {
 
 const exportData = () => {
   const data = filteredRooms.value.map((room) => ({
-    room: room.productName,
-    type: room.productTypeName,
+    room: room.roomNumber,
+    type: room.roomType.roomTypeName,
     status: room.status,
   }))
 
@@ -1354,7 +1328,7 @@ const getRoomsByStatus = (rooms, targetStatus) => {
       case 'available':
         return room.status === 'available' && room.housekeepingStatus === 'clean'
       case 'dirty':
-        return room.housekeepingStatus === 'dirty'
+        return room.housekeepingStatus === 'dirty' || room.status === 'dirty'
       case 'maintenance':
         return (
           room.status === 'maintenance' ||

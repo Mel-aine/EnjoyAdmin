@@ -15,7 +15,7 @@
         </div>
         <div
           class="bg-white rounded-xl border border-gray-200 overflow-hidden"
-          v-if="customer && customer.customerDetails"
+          v-if="customer "
         >
           <!-- Header -->
           <div class="text-white p-6">
@@ -28,7 +28,7 @@
                 </div>
                 <div>
                   <h1 class="text-2xl font-bold text-gray-800">
-                    {{ customer.customerDetails.firstName }} {{ customer.customerDetails.lastName }}
+                    {{ customer.firstName }} {{ customer.lastName }}
                   </h1>
                   <p class="text-black font-medium">{{ customer.roomType }}</p>
                   <div class="flex items-center space-x-4 mt-2">
@@ -36,9 +36,9 @@
                       class="inline-flex items-center px-3 py-1 bg-blue-50 text-gray-950 bg-opacity-20 rounded-full text-sm font-medium"
                     >
                       <DollarSignIcon class="w-4 h-4 mr-1" />
-                      {{ formatCurrency(customer.outstandingBalances.totalRemainingAmount) }}
+                      <!-- {{ formatCurrency(customer.outstandingBalances.totalRemainingAmount) }} -->
                     </span>
-                    <span
+                    <!-- <span
                       v-if="customer.hotelStatus.isPresent"
                       :class="[
                         'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
@@ -53,7 +53,7 @@
                           end: formatDate(customer.hotelStatus.reservationDetails.checkOutDate),
                         })
                       }}
-                    </span>
+                    </span> -->
                   </div>
                   <div class="flex items-center space-x-4 mt-4">
                     <button
@@ -112,23 +112,23 @@
                 <div class="space-y-1">
                   <DetailRow
                     :label="$t('customerDetails.basicInfo.firstName')"
-                    :value="customer.customerDetails.firstName || 'N/A'"
+                    :value="customer.firstName || 'N/A'"
                   />
                   <DetailRow
                     :label="$t('customerDetails.basicInfo.lastName')"
-                    :value="customer.customerDetails.lastName || 'N/A'"
+                    :value="customer.lastName || 'N/A'"
                   />
                   <DetailRow
                     :label="$t('customerDetails.basicInfo.gender')"
-                    :value="customer.customerDetails.gender || 'N/A'"
+                    :value="customer.gender || 'N/A'"
                   />
                   <DetailRow
                     :label="$t('customerDetails.basicInfo.dateOfBirth')"
-                    :value="customer.customerDetails.dateOfBirth || 'N/A'"
+                    :value="customer.dateOfBirth || 'N/A'"
                   />
                   <DetailRow
                     :label="$t('customerDetails.basicInfo.nationality')"
-                    :value="customer.customerDetails.country || 'N/A'"
+                    :value="customer.country || 'N/A'"
                     type="badge"
                   />
                 </div>
@@ -142,15 +142,15 @@
                 <div class="space-y-1">
                   <DetailRow
                     :label="$t('customerDetails.contactInfo.email')"
-                    :value="customer.customerDetails.email"
+                    :value="customer.email"
                   />
                   <DetailRow
                     :label="$t('customerDetails.contactInfo.phone')"
-                    :value="customer.customerDetails.phoneNumber"
+                    :value="customer.phoneNumber"
                   />
                   <DetailRow
                     :label="$t('customerDetails.contactInfo.address')"
-                    :value="customer.customerDetails.address"
+                    :value="customer.address"
                   />
                 </div>
               </div>
@@ -160,18 +160,18 @@
                 </h2>
 
                 <div class="flex items-baseline justify-center mb-6">
-                  <span class="text-5xl font-extrabold text-red-500">{{
+                  <!-- <span class="text-5xl font-extrabold text-red-500">{{
                     formatCurrency(customer.outstandingBalances.totalRemainingAmount)
-                  }}</span>
+                  }}</span> -->
                 </div>
 
                 <p class="text-gray-600 text-sm text-center mb-4 leading-relaxed">
-                  {{ customer.outstandingBalances.description }}
+                  <!-- {{ customer.outstandingBalances.description }} -->
                 </p>
 
                 <p class="text-gray-500 text-xs text-center mb-6">
                   {{ $t('dueDatePrefix') }}
-                  <span class="font-medium">{{ customer.outstandingBalances.dueDate }}</span>
+                  <!-- <span class="font-medium">{{ customer.outstandingBalances.dueDate }}</span> -->
                 </p>
 
                 <button
@@ -283,7 +283,7 @@ import InfoIcon from '@/icons/InfoIcon.vue'
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import { isLoading } from '@/composables/spinner'
 import DetailRow from '../Room/DetailRow.vue'
-import { getCustomerProfile, updateCustomer ,deleteUser } from '@/services/api'
+import { getCustomerProfile} from '@/services/guestApi'
 import router from '@/router'
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue'
 import PaymentModal from '../Bookings/PaymentModal.vue'
@@ -364,15 +364,17 @@ onMounted(() => {
 })
 const getCustomerProfileDetails = async () => {
   isLoading.value = true
+  console.log('this is the customer_id', customer_id)
   const response = await getCustomerProfile(parseInt(customer_id))
-  console.log('this is the customer_id', response)
+  console.log('this is the customer_id', response.data.data.guest)
   if (response.status === 200) {
-    customer.value = response.data
-    if (customer.value.outstandingBalances.hasOutstanding) {
-      selectBooking.value = customer.value.reservations.find(
-        (res: any) => res.id === customer.value.outstandingBalances.details[0].reservationId,
-      )
-    }
+    customer.value = response.data.data.guest
+
+    // if (!customer.value.outstandingBalances.hasOutstanding) {
+    //   selectBooking.value = customer.value.reservations.find(
+    //     (res: any) => res.id === customer.value.outstandingBalances.details[0].reservationId,
+    //   )
+    // }
     customer.value.reservations = customer.value.reservations.map((res: any) => {
       return { ...res, user: customer.value.customerDetails }
     })
