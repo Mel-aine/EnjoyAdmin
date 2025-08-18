@@ -252,11 +252,12 @@
   <template v-if="modalReservation && showDetail">
     <ReservationRigthModal
       :is-open="showDetail"
-      @close="closeReservationModal"
+      :title="$t('reservationDetails')"
       :reservation-data="modalReservation"
+      @close="closeReservationModal"
+      @save="handleReservationSave"
     />
-  </template>
- </FullScreenLayout>
+  </template></FullScreenLayout>
 </template>
 
 <script setup lang="ts">
@@ -326,11 +327,11 @@ const showDetail = ref<boolean>(false)
 const legends = [
   { type: 'confirmed', label: t('Confirmed reservation') },
   { type: 'request', label: t('Reservation Request') },
-  { type: 'complimentary', label: 'Complimentary' },
-  { type: 'blocked', label: 'Blocked Room' },
-  { type: 'checkout', label: 'Check Out' },
-  { type: 'departure', label: 'Departures today' },
-  { type: 'inhouse', label: 'In House' }
+  { type: 'complimentary', label: t('Complimentary') },
+  { type: 'blocked', label: t('Blocked Room') },
+  { type: 'checkout', label: t('Check Out') },
+  { type: 'departure', label: t('Departures today') },
+  { type: 'inhouse', label: t('In House') }
 ]
 const modalReservation = ref<any | null>(null)
 function showReservationModal(reservation: any) {
@@ -340,6 +341,12 @@ function showReservationModal(reservation: any) {
 function closeReservationModal() {
   modalReservation.value = null;
   showDetail.value = false
+}
+
+function handleReservationSave(data?: any) {
+  console.log('Reservation saved:', data)
+  // Refresh the calendar data when reservation is saved/updated
+  refresh()
 }
 const selectedDate = ref((new Date()).toISOString().split('T')[0])
 const daysToShow = ref(15)

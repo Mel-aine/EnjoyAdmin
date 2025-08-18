@@ -7,7 +7,7 @@
                 <!-- Modal Header -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-medium text-gray-900">
-                        {{ $t('cancel_reservation') }}
+                        {{ $t('void_reservation') }}
                     </h3>
                     <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
                         <X class="w-5 h-5" />
@@ -16,13 +16,6 @@
 
                 <!-- Modal Form -->
                 <form @submit.prevent="handleSubmit">
-                    <!-- Cancellation Fee -->
-                    <div class="mb-4">
-                        <InputCurrency v-model="formData.cancellationFee" :lb="$t('cancellation_fee')"
-                            :placeholder="$t('enter_cancellation_fee')" />
-
-                    </div>
-
                     <!-- Reason Selection -->
                     <div class="mb-4">
                         <Select :lb="$t('reason')" :is-loading="isloadingReason" v-model="formData.reason" :options="reasonOptions"
@@ -33,7 +26,7 @@
                     <div class="flex justify-end space-x-3">
                         <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                             :disabled="loading" />
-                        <BasicButton type="submit" variant="danger" :label="$t('cancel_reservation')"
+                        <BasicButton type="submit" variant="danger" :label="$t('void_reservation')"
                             :loading="loading" />
                     </div>
                 </form>
@@ -48,10 +41,9 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
-import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import { getReasons } from '../../../services/configrationApi'
-import { cancelReservation } from '../../../services/reservation'
+import { cancelReservation, voidReservation } from '../../../services/reservation'
 
 interface Props {
     isOpen: boolean
@@ -65,9 +57,7 @@ interface Emits {
 }
 
 interface CancelReservationData {
-    cancellationFee: number
     reason: string
-    notes?: string
     reservationId?: string | number
     reservationNumber?: string
 }
@@ -83,7 +73,6 @@ const toast = useToast()
 const loading = ref(false)
 
 const formData = ref({
-    cancellationFee: 0,
     reason: '',
     notes: ''
 })
@@ -97,7 +86,6 @@ watch(() => props.isOpen, (newValue) => {
 
 const resetForm = () => {
     formData.value = {
-        cancellationFee: 0,
         reason: '',
         notes: ''
     }
@@ -136,33 +124,28 @@ const handleSubmit = async () => {
             return
         }
 
-        if (formData.value.cancellationFee < 0) {
-            toast.error(t('cancellation_fee_must_be_positive'))
-            return
-        }
 
         // Prepare data for emission
-        const cancelData: CancelReservationData = {
-            cancellationFee: formData.value.cancellationFee,
+        const voidData: any = {
             reason: formData.value.reason,
-            notes: formData.value.notes || undefined,
             reservationId: props.reservationId,
             reservationNumber: props.reservationNumber
         }
-        console.log('cancelData', cancelData)
+        console.log('void', voidData)
 
-        const resp = await cancelReservation(cancelData);
+        const resp = await voidReservation(voidData);
+        console.log('response')
         // Emit the cancel confirmation event
-        emit('cancel-confirmed', cancelData)
+        emit('cancel-confirmed', voidData)
 
         // Show success message
-        toast.success(t('reservation_cancellation_initiated'))
+        toast.success(t('reservation_void_successfully'))
 
         // Close modal
         closeModal()
     } catch (error) {
         console.error('Error cancelling reservation:', error)
-        toast.error(t('error_cancelling_reservation'))
+        toast.error(t('error_voiding_reservation'))
     } finally {
         loading.value = false
     }

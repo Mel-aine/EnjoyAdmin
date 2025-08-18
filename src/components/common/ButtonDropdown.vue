@@ -1,5 +1,5 @@
 <template>
-  <div class="relative dropdown-container">
+  <div ref="dropdownContainer" class="relative dropdown-container">
     <button 
       @click="toggleDropdown"
       :class="[
@@ -22,22 +22,14 @@
         dropdownClass
       ]"
     >
-      <div class="py-2">
-        <button 
-          v-for="option in options" 
-          :key="option.id"
-          @click="handleOptionClick(option)"
-          class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150"
-        >
-          <component 
-            v-if="option.icon" 
-            :is="option.icon" 
-            class="w-5 h-5" 
-            :class="option.color"
-          />
-          <span class="text-gray-700 font-medium">{{ option.label }}</span>
-        </button>
-      </div>
+    
+     <div class="py-2">
+                <button v-for="option in options" :key="option.id" @click="handleOptionClick(option)"
+                    class="w-full flex items-center gap-3 px-4 py-1 text-left hover:bg-gray-50 transition-colors duration-150">
+                    <component v-if="option.icon" :is="option.icon" class="w-4 h-5"  />
+                    <span class="text-gray-700 font-medium text-sm">{{ option.label }}</span>
+                </button>
+            </div>
     </div>
   </div>
 </template>
@@ -83,11 +75,13 @@ const handleOptionClick = (option: DropdownOption) => {
   isOpen.value = false
 }
 
+// Template ref for the dropdown container
+const dropdownContainer = ref<HTMLElement | null>(null)
+
 // Close dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
-  const dropdown = document.querySelector('.dropdown-container')
-  if (dropdown && !dropdown.contains(target)) {
+  if (dropdownContainer.value && !dropdownContainer.value.contains(target)) {
     isOpen.value = false
   }
 }
