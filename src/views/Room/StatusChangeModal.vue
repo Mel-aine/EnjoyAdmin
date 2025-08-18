@@ -17,7 +17,7 @@
         </div>
         <div class="mb-4">
           <p class="text-sm text-gray-600 mb-2">
-            {{ $t('Room') }}: <span class="font-medium">{{ room?.productName }}</span>
+            {{ $t('Room') }}: <span class="font-medium">{{ room?.roomNumber }}</span>
           </p>
           <p class="text-sm text-gray-600 mb-4">
             {{ $t('status_now') }}: <span class="font-medium">{{ statusLabels[currentStatus] || currentStatus }}</span>
@@ -147,7 +147,7 @@ import { ref, watch, defineProps, defineEmits } from 'vue';
 
 interface Room {
   id: number | string;
-  productName: string;
+  roomNumber: string;
 }
 
 const props = defineProps<{

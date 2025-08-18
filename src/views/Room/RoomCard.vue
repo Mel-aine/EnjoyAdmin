@@ -22,7 +22,7 @@
           </button>
         </div>
         <p class="text-sm text-gray-700 mt-1">
-          {{ room.productTypeName }}
+          {{ room.roomType.roomTypeName }}
         </p>
       </div>
 
@@ -147,7 +147,7 @@
 
     <!-- Section prix et actions -->
     <div class="pt-4 border-t border-gray-100/70">
-      <div class="flex items-center justify-between mb-4">
+      <!-- <div class="flex items-center justify-between mb-4">
         <div>
           <p class="text-sm text-gray-500">{{ $t('from') }}</p>
         </div>
@@ -157,43 +157,11 @@
             {{ formatPrice(room.originalPrice) }} FCFA
           </p>
         </div>
-      </div>
+      </div> -->
 
       <!-- Actions principales -->
       <div class="space-y-2">
-        <!-- Réserver -->
-        <!-- <button
-          v-if="statusConfig.actions.includes('book')"
-          @click="goToBooking"
-          class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
-        >
-          <Calendar class="w-4 h-4" />
-          <span>{{ $t('book') }}</span>
-        </button> -->
 
-        <!-- Check-in -->
-        <!-- <button
-          v-if="statusConfig.actions.includes('checkin')"
-          @click="handleCheckIn"
-          :disabled="isCheckingIn"
-          class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
-        >
-          <Loader2 v-if="isCheckingIn" class="w-4 h-4 animate-spin" />
-          <LogIn v-else class="w-4 h-4" />
-          <span>{{ isCheckingIn ? $t('loading') : $t('checkin') }}</span>
-        </button> -->
-
-        <!-- Check-out -->
-        <!-- <button
-          v-if="statusConfig.actions.includes('checkout')"
-          @click="handleCheckOut"
-          :disabled="isCheckingOut"
-          class="w-full px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2"
-        >
-          <Loader2 v-if="isCheckingOut" class="w-4 h-4 animate-spin" />
-          <LogOut v-else class="w-4 h-4" />
-          <span>{{ isCheckingOut ? $t('loading') : $t('checkout') }}</span>
-        </button> -->
 
         <!-- Actions de nettoyage -->
         <div v-if="statusConfig.actions.includes('cleaning')" class="flex gap-2">
@@ -485,10 +453,7 @@ const availabilityInfo = computed(() => {
       message: `${t('availableAfter')} ${formatDate(nextAvailable)}`,
       classes: 'bg-blue-50 border-blue-200 text-blue-700'
     },
-    // occupied: {
-    //   message: `${t('checkoutScheduled')} ${formatDate(checkOutTime)}`,
-    //   classes: 'bg-indigo-50 border-indigo-200 text-indigo-700'
-    // },
+
   }
 
   return configs[status] || null

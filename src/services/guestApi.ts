@@ -68,3 +68,12 @@ export const getGuestById = (id: number): Promise<AxiosResponse<any>> => {
 export const deleteGuest = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/${id}`, headers)
 }
+
+/**
+ * guest detail
+ */
+export const getCustomerProfile = (
+  id: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${id}/profile`, headers)
+}

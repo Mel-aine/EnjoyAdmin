@@ -178,7 +178,7 @@ export const getReservationDetailsById = async (reservationId: number): Promise<
 export const getCustomer = async (id: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-      `/reservation/${id}/customer`,headers
+      `/guests/${id}/customer`,headers
     )
     return response.data || []
   } catch (error) {
@@ -192,7 +192,7 @@ export const getCustomer = async (id: number): Promise<any> => {
 export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/reservation/${serviceProductId}/customer`,headers
+      `/guests/${serviceProductId}/customer`,headers
     )
     return response.data || []
   } catch (error) {
