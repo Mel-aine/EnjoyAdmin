@@ -217,8 +217,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('adult/child') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white">
-                                            <div class="flex gap-2">
+                                            <div class="flex gap-2 text-sm text-gray-900 dark:text-white">
                                                 <div class="flex items-center">
                                                     <Adult class="w-6 h-10" /><span class="pt-2 text-sm">{{
                                                         reservation.adults }}</span>
@@ -228,7 +227,6 @@
                                                         reservation.child??0 }}</span>
                                                 </div>
                                             </div>
-                                            </p>
                                         </div>
                                         <div>
                                             <label

@@ -25,7 +25,7 @@
 
         <template #column-roomInfo="{ item }">
           <div class="flex items-center space-x-3">
-            <div class="text-sm font-medium text-gray-900">{{ item.roomName }}</div>
+            <div class="text-sm font-medium text-gray-900">{{ item.roomNumber }}</div>
             <div class="text-xs text-gray-500">({{ item.shortCode }})</div>
           </div>
         </template>
@@ -55,20 +55,21 @@
             {{ item.status }}
           </span>
         </template>
-
+        <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdDate }}</div>
+            <div class="text-sm text-gray-900">{{ item.creator?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </template>
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.modifier?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>
 
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.modifiedBy }}</div>
-            <div class="text-xs text-gray-400">{{ item.modifiedDate }}</div>
-          </div>
-        </template>
       </ReusableTable>
 
       <!-- Add/Edit Room Modal -->
@@ -141,8 +142,8 @@
                   <div class="relative mr-3 mt-0.5">
                     <input type="checkbox" v-model="formData.smokingAllowed" class="sr-only" />
                     <div :class="formData.smokingAllowed
-                        ? 'border-brand-500 bg-brand-500'
-                        : 'bg-transparent border-gray-300 dark:border-gray-700'
+                      ? 'border-brand-500 bg-brand-500'
+                      : 'bg-transparent border-gray-300 dark:border-gray-700'
                       "
                       class="flex h-5 w-5 items-center justify-center rounded-md border-[1.25px] hover:border-brand-500 dark:hover:border-brand-500">
                       <span :class="formData.smokingAllowed ? '' : 'opacity-0'">
@@ -211,9 +212,12 @@
               </button>
               <button type="submit" :disabled="saving"
                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
-                <svg v-if="saving" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg v-if="saving" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                  fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
                 <span>{{ saving ? t('saving') : (showEditModal ? t('updateRoom') : t('addRoom')) }}</span>
               </button>
@@ -279,13 +283,15 @@ const columns = ref([
     key: 'roomInfo',
     label: 'Room Name',
     sortable: true,
-    searchable: true
+    searchable: true,
+    type: 'custom'
   },
   {
     key: 'roomType',
     label: 'Room Type',
     sortable: true,
-    searchable: true
+    searchable: true,
+    type: 'custom'
   },
   {
     key: 'bedType',
@@ -301,23 +307,27 @@ const columns = ref([
   {
     key: 'smokingAllowed',
     label: 'Smoking',
-    sortable: true
+    sortable: true,
+    type: 'custom'
   },
   {
     key: 'status',
     label: 'Status',
     sortable: true,
-    component: 'badge'
+    component: 'badge',
+    type: 'custom'
   },
   {
     key: 'createdInfo',
     label: 'Created By',
-    sortable: false
+    sortable: false,
+    type: 'custom'
   },
   {
     key: 'modifiedInfo',
     label: 'Modified By',
-    sortable: false
+    sortable: false,
+    type: 'custom'
   }
 ])
 
@@ -400,20 +410,20 @@ const saveRoom = async () => {
   }
 
   saving.value = true
-  
+
   try {
     const roomData = {
       shortCode: formData.value.shortCode,
       roomName: formData.value.roomName,
       roomTypeId: formData.value.roomTypeId,
-      bedType: formData.value.bedType,
+      bedTypeId: formData.value.bedType,
       phoneExtension: formData.value.phoneExtension,
       keyCardAlias: formData.value.keyCardAlias,
       sortKey: formData.value.sortKey,
       smokingAllowed: formData.value.smokingAllowed,
       roomImages: formData.value.roomImages.filter(img => img !== null),
       connectedRooms: formData.value.connectedRooms,
-      serviceId: serviceStore.serviceId,
+      hotelId: serviceStore.serviceId,
     }
 
     if (showEditModal.value && editingRoom.value) {
