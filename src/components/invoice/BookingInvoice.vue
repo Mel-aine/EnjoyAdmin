@@ -1,7 +1,5 @@
 <template>
-
     <div class="print-page p-4">
-
       <!-- Main Header Box -->
       <div class="border-classic p-4 mb-4">
         <div class="flex justify-between">
@@ -40,11 +38,9 @@
       <div class="mb-4">
         <h3 class="font-bold mb-2">Booking Details</h3>
         <div class="text-sm grid grid-cols-2 gap-2">
-          <div>Booking Date : {{ booking.bookingDate }}</div>
-          <div>Check In Date : {{ booking.checkInDate }}</div>
-          <div>Check Out Date : {{ booking.checkOutDate }}</div>
-          <div>Nights : {{ booking.nights }}</div>
-          <div>Arrival Time : {{ booking.arrivalTime }}</div>
+          <template v-for="(value, key) in booking" :key="key">
+            <div>{{ formatLabel(key) }} : {{ value }}</div>
+          </template>
           <div>Special Request :</div>
         </div>
       </div>
@@ -61,26 +57,25 @@
       <!-- Rooms Details -->
       <div class="mb-4">
         <h3 class="font-bold mb-2">Rooms Details</h3>
-        <table class="w-full  text-sm">
+        <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-200">
-              <th class="border-gray-400 px-2 py-1 text-left">Room Type</th>
-              <th class="border-gray-400 px-2 py-1 text-left">Guest(s)</th>
-              <th class="border-gray-400 px-2 py-1 text-left">No of rooms</th>
-              <th class="border-gray-400 px-2 py-1 text-left">Package if any</th>
-              <th class="border-gray-400 px-2 py-1 text-left">Promotion if any</th>
+              <th v-for="header in roomHeaders" :key="header.key" class="border-gray-400 px-2 py-1 text-left">
+                {{ header.label }}
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="px-2 py-1">
-                {{ roomDetails.type }}<br>
-                <span class="text-xs">Description : {{ roomDetails.description }}</span>
+              <td v-for="header in roomHeaders" :key="header.key" class="px-2 py-1">
+                <template v-if="header.key === 'type'">
+                  {{ roomDetails[header.key] }}<br>
+                  <span class="text-xs">Description : {{ roomDetails.description }}</span>
+                </template>
+                <template v-else>
+                  {{ roomDetails[header.key] || 'None' }}
+                </template>
               </td>
-              <td class=" px-2 py-1">{{ roomDetails.guests }}</td>
-              <td class="px-2 py-1">{{ roomDetails.numberOfRooms }}</td>
-              <td class="px-2 py-1">{{ roomDetails.package }}</td>
-              <td class="px-2 py-1">{{ roomDetails.promotion }}</td>
             </tr>
           </tbody>
         </table>
@@ -97,37 +92,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td class="px-2 py-1">Total Room Charges</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.totalRoomCharges) }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 py-1">Room Charges Tax</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.roomChargesTax) }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 py-1">Inclusions Including Tax</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.inclusionsIncludingTax) }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 py-1">Extra Charges Including Discount and Tax</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.extraCharges) }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 py-1">Round Off</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.roundOff) }}</td>
-            </tr>
-            <tr class="font-bold">
-              <td class="px-2 py-1">Grand Total</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.grandTotal) }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 py-1">Total Paid</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.totalPaid) }}</td>
-            </tr>
-            <tr class="font-bold">
-              <td class="px-2 py-1">Amount due at time of check in</td>
-              <td class="px-2 py-1 text-right">{{ formatAmount(rates.amountDue) }}</td>
+            <tr v-for="(value, key) in rates" :key="key" :class="{ 'font-bold': isTotalRow(key) }">
+              <td class="px-2 py-1">{{ formatRateLabel(key) }}</td>
+              <td class="px-2 py-1 text-right">{{ formatAmount(value) }}</td>
             </tr>
           </tbody>
         </table>
@@ -150,7 +117,7 @@
 
       <!-- Conditions & Policies -->
       <div class="mb-4">
-        <h3 class="font-bold mb-2 bg-gray-200 px-2 py-1 ">Conditions & Policies</h3>
+        <h3 class="font-bold mb-2 bg-gray-200 px-2 py-1">Conditions & Policies</h3>
         
         <!-- Page 2 Content -->
         <div class="text-xs leading-tight mt-4">
@@ -179,12 +146,10 @@
             Phone NO : {{ hotelPhone }}<br>
             {{ hotelAddress }}
           </div>
-          <div class=" border-t  border-black"> </div>
+          <div class="border-t border-black"></div>
         </div>
       </div>
-
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -211,6 +176,7 @@ interface RoomDetails {
   numberOfRooms: string
   package: string
   promotion: string
+  [key: string]: string // Ajoutez cette ligne
 }
 
 interface RatesDetails {
@@ -265,9 +231,47 @@ const rates = ref<RatesDetails>({
   amountDue: 1050000
 })
 
+// Configuration des en-têtes du tableau des chambres
+const roomHeaders = ref([
+  { key: 'type', label: 'Room Type' },
+  { key: 'guests', label: 'Guest(s)' },
+  { key: 'numberOfRooms', label: 'No of rooms' },
+  { key: 'package', label: 'Package if any' },
+  { key: 'promotion', label: 'Promotion if any' }
+])
+
 // Méthodes
 const formatAmount = (amount: number): string => {
   return amount.toLocaleString('fr-FR')
+}
+
+const formatLabel = (key: string): string => {
+  const labels: Record<string, string> = {
+    bookingDate: 'Booking Date',
+    checkInDate: 'Check In Date',
+    checkOutDate: 'Check Out Date',
+    nights: 'Nights',
+    arrivalTime: 'Arrival Time'
+  }
+  return labels[key] || key
+}
+
+const formatRateLabel = (key: string): string => {
+  const labels: Record<string, string> = {
+    totalRoomCharges: 'Total Room Charges',
+    roomChargesTax: 'Room Charges Tax',
+    inclusionsIncludingTax: 'Inclusions Including Tax',
+    extraCharges: 'Extra Charges Including Discount and Tax',
+    roundOff: 'Round Off',
+    grandTotal: 'Grand Total',
+    totalPaid: 'Total Paid',
+    amountDue: 'Amount due at time of check in'
+  }
+  return labels[key] || key
+}
+
+const isTotalRow = (key: string): boolean => {
+  return ['grandTotal', 'amountDue'].includes(key)
 }
 </script>
 
