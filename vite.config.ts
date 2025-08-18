@@ -37,6 +37,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  // Electron support
+  base: process.env.ELECTRON === 'true' ? './' : '/',
+  server: {
+    port: 5173,
+    strictPort: true,
+  },
 /*  server: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT || '5173'),
@@ -58,5 +64,10 @@ export default defineConfig({
         },
       },
     },
+    // Electron build optimizations
+    outDir: 'dist',
+    emptyOutDir: true,
+    // Ensure assets are properly referenced for Electron
+    assetsDir: 'assets'
   }
 })
