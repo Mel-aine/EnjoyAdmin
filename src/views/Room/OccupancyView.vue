@@ -250,7 +250,7 @@
                       <div class="flex flex-col space-y-1">
                         <span>{{ roomType.dirty }}</span>
                         <div v-if="roomType.dirtyRooms.length > 0" class="space-y-1">
-                          <div v-for="room in roomType.dirtyRooms" :key="room.id" 
+                          <div v-for="room in roomType.dirtyRooms" :key="room.id"
                                class="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                               <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clip-rule="evenodd" />
@@ -567,27 +567,27 @@
     </div>
 
     <PopupModal
-  v-if="showMessage"
-  :title="$t('warning')"
-  :message="popupMessage"
-  :isOpen="showMessage"
-  @close="closeModal"
->
-  <template #footer>
-    <button
-      class="text-sm bg-gray-300 px-3 py-2 rounded-md font-normal mr-2"
-      @click="closeModal"
+      v-if="showMessage"
+      :title="$t('warning')"
+      :message="popupMessage"
+      :isOpen="showMessage"
+      @close="closeModal"
     >
-      {{ $t('no') }}
-    </button>
-    <button
-      class="text-sm bg-brand-300 px-3 py-2 rounded-md font-normal"
-      @click="confirmForceChange"
-    >
-      {{ $t('yes') }}
-    </button>
-  </template>
-</PopupModal>
+      <template #footer>
+        <button
+          class="text-sm bg-gray-300 px-3 py-2 rounded-md font-normal mr-2"
+          @click="closeModal"
+        >
+          {{ $t('no') }}
+        </button>
+        <button
+          class="text-sm bg-brand-300 px-3 py-2 rounded-md font-normal"
+          @click="confirmForceChange"
+        >
+          {{ $t('yes') }}
+        </button>
+      </template>
+    </PopupModal>
 
   </AdminLayout>
 </template>
@@ -600,7 +600,7 @@ import StatusChangeModal from './StatusChangeModal.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useServiceStore } from '@/composables/serviceStore';
 import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus,getServiceProductsWithDetails } from "@/services/api";
-import { checkInReservations, checkOutReservations, getRoomReservations } from "@/services/reservation";
+import { getRoomsWithDetails } from "@/services/configrationApi";
 import { useI18n } from "vue-i18n";
 import Spinner from "@/components/spinner/Spinner.vue";
 import PopupModal from "@/components/modal/PopupModal.vue";
@@ -609,7 +609,7 @@ import router from "@/router";
 
 
 // State variables
-const serviceProducts = ref<any[]>([]);
+const Rooms = ref<any[]>([]);
 const serviceStore = useServiceStore();
 const statusFilter = ref('');
 const roomTypeFilter = ref('');
@@ -682,74 +682,17 @@ watch([statusFilter, roomTypeFilter, searchQuery, itemsPerPage], () => {
   currentPage.value = 1;
 });
 
-const fetchServiceProduct = async () => {
+const fetchRoomWithDetails = async () => {
   loading.value = true;
   error.value = '';
 
   try {
-    const serviceId = serviceStore.serviceId;
-    const response = await getServiceProductsWithDetails(serviceId)
-    // const response = await getServiceProductWithOptions(serviceId);
-    // const serviceProductsData = response.data;
-    // console.log("serviceProductsData ",serviceProductsData )
-
-    // if (Array.isArray(serviceProductsData)) {
-    //   const serviceProductWithOptions = await Promise.all(
-    //     serviceProductsData.map(async (product: any) => {
-    //       const associatedOptions = product.options?.filter((option: any) =>
-    //         option.serviceProductId === product.id
-    //       ) || [];
-
-    //       let reservations: any[] = [];
-
-    //       try {
-    //         const response = await getRoomReservations(product.id);
-    //         reservations = response;
-    //       } catch (error) {
-    //         console.warn(`Erreur lors de la récupération des réservations pour ${product.id}:`, error);
-    //       }
-
-    //       let nextAvailable: string | null = null;
-    //       let checkOutTime: string | null = null;
-
-    //       const reservationsWithDepartDate = reservations.filter(r => r.reservation?.departDate);
-
-    //       if (reservationsWithDepartDate.length > 0) {
-    //         const sortedByDepartDateDesc = reservationsWithDepartDate.sort(
-    //           (a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime()
-    //         );
-
-    //         const latestReservation = sortedByDepartDateDesc[0];
-    //         nextAvailable = latestReservation?.reservation?.departDate || null;
-    //         checkOutTime = latestReservation?.reservation?.departDate || null;
-    //       }
-
-
-    //       const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in' );
-
-    //       const guestName = checkedInGuest
-    //         ? `${checkedInGuest.creator?.firstName ?? ''} ${checkedInGuest.creator?.lastName ?? ''}`.trim()
-    //         : null;
-    //       console.log("checkedInGuest",guestName)
-    //       return {
-    //         ...product,
-    //         maintenanceInfo:product.maintenance,
-    //         options: associatedOptions,
-    //         reservations: reservations,
-    //         guestName: guestName,
-    //         nextAvailable,
-    //         checkOutTime,
-    //         status: product.status || 'available'
-    //       };
-    //     })
-    //   );
-
-    //   serviceProducts.value = serviceProductWithOptions;
-    // }
-    serviceProducts.value = response.data
-    console.log("serviceProducts",serviceProducts.value)
+    const hotelId = serviceStore.serviceId;
+    const response = await getRoomsWithDetails(hotelId!)
+    Rooms.value = response.data
+    console.log("Rooms",Rooms.value)
   } catch (error: any) {
-    console.error('Erreur lors de la récupération des produits:', error);
+    console.error('Erreur lors de la récupération des chambres:', error);
     error.value = 'Erreur lors du chargement des chambres';
   } finally {
     loading.value = false;
@@ -776,8 +719,8 @@ const fetchRoomType = async () => {
 onMounted(async () => {
   isLoading.value = true;
   try {
-    await Promise.all([fetchServiceProduct(), fetchRoomType()]);
-    console.log("serviceProducts",serviceProducts.value)
+    await Promise.all([fetchRoomWithDetails(), fetchRoomType()]);
+    console.log("serviceProducts",Rooms.value)
   } catch (e) {
     console.error("Erreur lors du fetch des données:", e);
   } finally {
@@ -787,7 +730,7 @@ onMounted(async () => {
 
 // Flatten service products for display
 const flattenServiceProducts = computed(() => {
-  const products = serviceProducts.value.length > 0 ? serviceProducts.value : [];
+  const products = Rooms.value.length > 0 ? Rooms.value : [];
 
   return products.map((product: any) => {
     const flatProduct: any = {
@@ -859,10 +802,10 @@ const getRoomTypeName = (id: number): string => {
 // Room type statistics for status table
 const roomTypeStats = computed(() => {
   const typeStats: any[] = [];
-  
+
   roomTypeData.value.forEach(roomType => {
     const roomsOfType = flattenServiceProducts.value.filter((room: any) => room.productType === roomType.value);
-    
+
     const stats = {
       id: roomType.value,
       name: roomType.label,
@@ -872,10 +815,10 @@ const roomTypeStats = computed(() => {
       outOfOrder: roomsOfType.filter((room: any) => room.status === 'maintenance' || room.status === 'out_of_order').length,
       dirtyRooms: roomsOfType.filter((room: any) => room.status === 'occupied')
     };
-    
+
     typeStats.push(stats);
   });
-  
+
   return typeStats;
 });
 
@@ -950,7 +893,7 @@ const tableActions = computed(() => [
 
 
 const refreshRooms = async () => {
-  await fetchServiceProduct();
+  await fetchRoomWithDetails();
 };
 
 // Handle table actions
@@ -1008,155 +951,6 @@ const confirmStatusChange = (payload: { roomId: number | string; newStatus: stri
   showStatusModal.value = false;
   selectedRoom.value = null;
 };
-
-/*const notifySuccess = (message: string) => alert(message);
-const notifyError = (message: string) => alert(message);
-
-// mise à jour locale
-const updateLocalReservationState = (room: any, wrapperId: number, guestName: string) => {
-  const now = new Date().toISOString();
-
-  const reservationIndex = room.reservations.findIndex((res: any) => res.id === wrapperId);
-  if (reservationIndex !== -1) {
-    room.reservations[reservationIndex].reservation.status = 'checked-in';
-    room.reservations[reservationIndex].reservation.check_in_date = now;
-  }
-
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === room.id);
-  if (roomToUpdate) {
-    roomToUpdate.status = 'occupied';
-    roomToUpdate.guestName = guestName;
-    roomToUpdate.checkInTime = now;
-  }
-};
-
- de check-in et check out
-const handleCheckIn = async (room: any) => {
-  isCheckingIn.value = true;
-
-  try {
-    console.log(`[handleCheckIn] Début du check-in pour la chambre:`, room.name || room.productName);
-
-   const confirmedWrapper = room.reservations?.find(
-      (res: any) => res.reservation?.status?.toLowerCase() === 'confirmed'
-    );
-
-    console.log("confirmedWrapper", room.reservations)
-
-    if (!confirmedWrapper) {
-      console.warn('[handleCheckIn] Aucun wrapper avec status "confirmed" trouvé');
-      room.reservations?.forEach((res: any, i: number) => {
-        console.log(`→ Réservation ${i}: wrapper.status = ${res.status}`);
-      });
-      notifyError('Aucune réservation confirmée trouvée pour cette chambre.');
-      return;
-    }
-
-
-    const reservationId = confirmedWrapper.reservation.id;
-    const reservationServiceProductId = confirmedWrapper.id;
-    const guestName = confirmedWrapper.creator?.firstName || 'Client inconnu';
-
-    console.log(`[handleCheckIn] Client: ${guestName}, Reservation ID: ${reservationId}`);
-
-    const result = await checkInReservations(reservationId, [reservationServiceProductId]);
-
-    const updatedReservation = result.reservation;
-    const updatedProducts = result.reservationProducts;
-
-    console.log(`[handleCheckIn] API Check-in réussi`, updatedReservation, updatedProducts);
-
-    updateLocalReservationState(room, reservationServiceProductId, guestName);
-
-    await fetchServiceProduct();
-
-    console.log(`[handleCheckIn] Check-in terminé pour ${reservationId}`);
-    notifySuccess(`Check-in réussi pour ${guestName}`);
-
-  } catch (apiError: any) {
-    console.error('[handleCheckIn] Erreur lors du check-in:', apiError);
-
-    if (apiError.response) {
-      const status = apiError.response.status;
-      const data = apiError.response.data;
-
-      switch (status) {
-        case 404:
-          notifyError('Réservation ou produit non trouvé. Veuillez actualiser la page.');
-          break;
-        case 400:
-          notifyError('Données invalides pour le check-in. Veuillez vérifier.');
-          break;
-        case 500:
-          notifyError('Erreur serveur. Veuillez réessayer.');
-          break;
-        default:
-          notifyError(`Erreur: ${data?.message || 'Erreur inconnue.'}`);
-      }
-    } else if (apiError.request) {
-      notifyError('Le serveur ne répond pas. Vérifiez votre connexion.');
-    } else {
-      notifyError('Erreur technique lors du check-in.');
-    }
-  } finally {
-    isCheckingIn.value = false;
-  }
-};
-
-
-// const handleCheckOut = async (room: any) => {
-//   isCheckingOut.value = true;
-//   try {
-//     console.log(`Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
-
-//     if (!room.reservations?.length) {
-//       console.log("Aucune réservation trouvée pour cette chambre.");
-//       alert("Aucune réservation trouvée.");
-//       return;
-//     }
-
-//     const checkedInWrapper = room.reservations.find(
-//       (res: any) => res.reservation.status === 'checked-in'
-//     );
-//     console.log("checkedInWrapper",room.reservation)
-
-//     if (!checkedInWrapper) {
-//       console.log("Aucune réservation avec status 'checked-in' trouvée.");
-//       alert("Aucune réservation en cours trouvée pour cette chambre.");
-//       return;
-//     }
-
-//     const reservationId = checkedInWrapper.reservation.id;
-//     const reservationServiceProductId = checkedInWrapper.id;
-//     const guestName = checkedInWrapper.creator?.firstName || 'Client inconnu';
-
-//     console.log(`[handleCheckOut] Reservation ID: ${reservationId}`);
-//     console.log(`[handleCheckOut] ReservationServiceProduct ID: ${reservationServiceProductId}`);
-
-//     const result = await checkOutReservations(reservationId, [reservationServiceProductId])
-//     console.log("[handleCheckOut] Réponse API:", result?.data);
-
-//     checkedInWrapper.status = 'checked-out';
-//     checkedInWrapper.check_out_date = new Date().toISOString();
-
-//     const roomToUpdate = serviceProducts.value.find((r) => r.id === room.id);
-//     if (roomToUpdate) {
-//       roomToUpdate.status = 'checked-out';
-//       roomToUpdate.checkOutTime = new Date().toISOString();
-//       console.log(`→ Chambre mise à jour localement : status = 'checked-out', checkOutTime = ${roomToUpdate.checkOutTime}`);
-//     }
-
-//     await fetchServiceProduct();
-//     alert(`Check-out réussi pour ${guestName}`);
-//   } catch (error: any) {
-//     console.error("Erreur lors du check-out :", error);
-//     alert("Erreur lors du check-out. Veuillez réessayer.");
-//   } finally {
-//     isCheckingOut.value = false;
-//   }
-// };
-*/
-
 
 
 const maintenanceForm = ref({
@@ -1235,85 +1029,7 @@ const resetMaintenanceForm = () => {
   }
 }
 
-// const handleStatusChange = async (payload: any) => {
-//   let roomId: number, newStatus: string;
-//   let force = false;
 
-//   if (payload.roomId && payload.newStatus) {
-//     roomId = payload.roomId;
-//     newStatus = payload.newStatus;
-//   } else if (payload.room && payload.status) {
-//     roomId = payload.room.id;
-//     newStatus = payload.status;
-//   } else {
-//     console.error("handleStatusChange called with invalid payload:", payload);
-//     return;
-//   }
-
-//   const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
-//   if (!roomToUpdate) {
-//     console.warn(`Room with ID ${roomId} not found.`);
-//     return;
-//   }
-
-//   // Immediate UI update
-//   const oldStatus = roomToUpdate.status;
-//   roomToUpdate.status = newStatus;
-
-//   const maintenanceData = newStatus === 'maintenance'
-//     ? {
-//         reason: payload.reason || '',
-//         startDate: payload.startDate || '',
-//         endDate: payload.endDate || '',
-//         notes: payload.notes || '',
-//       }
-//     : undefined;
-
-//   const tryUpdate = async (forced = false) => {
-//     try {
-//       await updateRoomStatus(roomId, newStatus, forced, maintenanceData);
-//       console.log(`Room ${roomId} status updated on server.`);
-//     } catch (error: any) {
-//       if (error?.response?.data?.message?.includes("forcer")) {
-//         const confirmed = window.confirm("Room is occupied. Do you want to force the status change?");
-//         if (confirmed) {
-//           await tryUpdate(true);
-//         } else {
-//           roomToUpdate.status = oldStatus;
-//           console.info("Change cancelled.");
-//         }
-//       } else {
-//         roomToUpdate.status = oldStatus;
-//         console.error("API Error:", error);
-//       }
-//     }
-//   }
-
-//   await tryUpdate(force);
-
-//   // Auto-transition from cleaning to available after 30 minutes
-//   if (newStatus === 'cleaning') {
-//     setTimeout(() => {
-//       if (roomToUpdate.status === 'cleaning') {
-//         roomToUpdate.status = 'available';
-//         updateRoomStatus(roomId, 'available').catch((e) =>
-//           console.error("Error auto-updating cleaning → available:", e)
-//         );
-//       }
-//     }, 1800000); // 30 minutes
-//   }
-
-//   // Clean up guest data when room goes to maintenance
-//   if (newStatus === 'maintenance') {
-//     delete roomToUpdate.guestName;
-//     delete roomToUpdate.checkInTime;
-//     delete roomToUpdate.checkOutTime;
-//     delete roomToUpdate.nextAvailable;
-//     console.log(`Guest data removed for room ${roomToUpdate.id} (maintenance).`);
-//   }
-
-//   console.log(`✅ Room ${roomToUpdate.productName} → ${newStatus}`);
-// }
 
 const handleStatusChange = async (payload: any) => {
   let roomId: number, newStatus: string;
@@ -1330,7 +1046,7 @@ const handleStatusChange = async (payload: any) => {
     return;
   }
 
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
+  const roomToUpdate = Rooms.value.find((r: any) => r.id === roomId);
   if (!roomToUpdate) {
     console.warn(`Room with ID ${roomId} not found.`);
     return;
@@ -1401,7 +1117,7 @@ const confirmForceChange = async () => {
     await pendingForceRetry.value();
     pendingForceRetry.value = null;
   }
- fetchServiceProduct()
+ fetchRoomWithDetails()
 
 };
 

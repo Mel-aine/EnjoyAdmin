@@ -29,7 +29,7 @@ export const getAmenities = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new amenity
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 
@@ -38,7 +38,7 @@ export const postAmenity = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get an amenity
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getAmenity = (id: number): Promise<AxiosResponse<any>> => {
@@ -46,8 +46,8 @@ export const getAmenity = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update an amenity
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 
@@ -56,7 +56,7 @@ export const updateAmenity = (id: number, data: any): Promise<AxiosResponse<any>
 }
 /**
  * Delete an amenity
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteAmenity = (id: number): Promise<AxiosResponse<any>> => {
@@ -73,9 +73,9 @@ export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/room_types`, headers)
 }
 
-/** 
+/**
  * update sortOrder roomtype
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> => {
@@ -84,7 +84,7 @@ export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> 
 
 /**
  * Post a new room type
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRoomType = (data: RoomTypeData): Promise<AxiosResponse<any>> => {
@@ -92,7 +92,7 @@ export const postRoomType = (data: RoomTypeData): Promise<AxiosResponse<any>> =>
 }
 /**
  * Get a room type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -100,8 +100,8 @@ export const getRoomTypeById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a room type
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomTypeById = (id: number, data: RoomTypeData): Promise<AxiosResponse<any>> => {
@@ -110,7 +110,7 @@ export const updateRoomTypeById = (id: number, data: RoomTypeData): Promise<Axio
 }
 /**
  * Delete a room type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRoomType = (id: number): Promise<AxiosResponse<any>> => {
@@ -128,7 +128,7 @@ export const getRooms = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new room
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRoom = (data: any): Promise<AxiosResponse<any>> => {
@@ -136,7 +136,7 @@ export const postRoom = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a room
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomById = (id: number): Promise<AxiosResponse<any>> => {
@@ -144,8 +144,8 @@ export const getRoomById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a room
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -153,13 +153,19 @@ export const updateRoomById = (id: number, data: any): Promise<AxiosResponse<any
 }
 /**
  * Delete a room
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRoomById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/rooms/${id}`, headers)
 }
 
+/**
+ * get Room Detail
+ */
+export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rooms/${hotelId}/details`, headers)
+}
 
 ////// this is the Room Owner sections
 /**
@@ -171,7 +177,7 @@ export const getRoomOwners = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new room owner
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRoomOwner = (data: any): Promise<AxiosResponse<any>> => {
@@ -179,7 +185,7 @@ export const postRoomOwner = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a room owner
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => {
@@ -187,8 +193,8 @@ export const getRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a room owner
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomOwnerById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -196,7 +202,7 @@ export const updateRoomOwnerById = (id: number, data: any): Promise<AxiosRespons
 }
 /**
  * Delete a room owner
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => {
@@ -216,7 +222,7 @@ export const getBedTypes = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new bed type
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postBedType = (data: any): Promise<AxiosResponse<any>> => {
@@ -224,7 +230,7 @@ export const postBedType = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a bed type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getBedTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -232,8 +238,8 @@ export const getBedTypeById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a bed type
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateBedTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -241,7 +247,7 @@ export const updateBedTypeById = (id: number, data: any): Promise<AxiosResponse<
 }
 /**
  * Delete a bed type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteBedTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -259,7 +265,7 @@ export const getRateTypes = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new rate type
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRateType = (data: any): Promise<AxiosResponse<any>> => {
@@ -267,7 +273,7 @@ export const postRateType = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a rate type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -275,8 +281,8 @@ export const getRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a rate type
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRateTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -284,7 +290,7 @@ export const updateRateTypeById = (id: number, data: any): Promise<AxiosResponse
 }
 /**
  * Delete a rate type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -301,7 +307,7 @@ export const getSeasons = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new season
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postSeason = (data: any): Promise<AxiosResponse<any>> => {
@@ -309,7 +315,7 @@ export const postSeason = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a season
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getSeasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -317,8 +323,8 @@ export const getSeasonById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a season
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateSeasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -326,7 +332,7 @@ export const updateSeasonById = (id: number, data: any): Promise<AxiosResponse<a
 }
 /**
  * Delete a season
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteSeasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -345,7 +351,7 @@ export const getRoomRates = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new room rate
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRoomRate = (data: any): Promise<AxiosResponse<any>> => {
@@ -353,7 +359,7 @@ export const postRoomRate = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a room rate
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomRateById = (id: number): Promise<AxiosResponse<any>> => {
@@ -361,8 +367,8 @@ export const getRoomRateById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a room rate
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomRateById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -370,7 +376,7 @@ export const updateRoomRateById = (id: number, data: any): Promise<AxiosResponse
 }
 /**
  * Delete a room rate
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRoomRateById = (id: number): Promise<AxiosResponse<any>> => {
@@ -390,7 +396,7 @@ export const getCurrencies = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new currency
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postCurrency = (data: any): Promise<AxiosResponse<any>> => {
@@ -398,7 +404,7 @@ export const postCurrency = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a currency
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getCurrencyById = (id: number): Promise<AxiosResponse<any>> => {
@@ -407,8 +413,8 @@ export const getCurrencyById = (id: number): Promise<AxiosResponse<any>> => {
 /**
  * Update a currency
 
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateCurrencyById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -416,7 +422,7 @@ export const updateCurrencyById = (id: number, data: any): Promise<AxiosResponse
 }
 /**
  * Delete a currency
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteCurrencyById = (id: number): Promise<AxiosResponse<any>> => {
@@ -436,7 +442,7 @@ export const getPaymentMethods = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new payment method
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postPaymentMethod = (data: any): Promise<AxiosResponse<any>> => {
@@ -444,7 +450,7 @@ export const postPaymentMethod = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a payment method
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getPaymentMethodById = (id: number): Promise<AxiosResponse<any>> => {
@@ -452,8 +458,8 @@ export const getPaymentMethodById = (id: number): Promise<AxiosResponse<any>> =>
 }
 /**
  * Update a payment method
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updatePaymentMethodById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -461,7 +467,7 @@ export const updatePaymentMethodById = (id: number, data: any): Promise<AxiosRes
 }
 /**
  * Delete a payment method
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deletePaymentMethodById = (id: number): Promise<AxiosResponse<any>> => {
@@ -480,7 +486,7 @@ export const getIdentityTypes = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new identity type
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postIdentityType = (data: any): Promise<AxiosResponse<any>> => {
@@ -488,7 +494,7 @@ export const postIdentityType = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get an identity type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getIdentityTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -496,8 +502,8 @@ export const getIdentityTypeById = (id: number): Promise<AxiosResponse<any>> => 
 }
 /**
  * Update an identity type
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateIdentityTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -505,7 +511,7 @@ export const updateIdentityTypeById = (id: number, data: any): Promise<AxiosResp
 }
 /**
  * Delete an identity type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteIdentityTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -524,7 +530,7 @@ export const getReasons = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new reason
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postReason = (data: any): Promise<AxiosResponse<any>> => {
@@ -532,7 +538,7 @@ export const postReason = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a reason
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getReasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -540,8 +546,8 @@ export const getReasonById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a reason
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateReasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -549,7 +555,7 @@ export const updateReasonById = (id: number, data: any): Promise<AxiosResponse<a
 }
 /**
  * Delete a reason
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteReasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -567,7 +573,7 @@ export const getDiscounts = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new discount
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postDiscount = (data: any): Promise<AxiosResponse<any>> => {
@@ -575,7 +581,7 @@ export const postDiscount = (data: any): Promise<AxiosResponse<any>> => {
 }
 /**
  * Get a discount
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getDiscountById = (id: number): Promise<AxiosResponse<any>> => {
@@ -583,8 +589,8 @@ export const getDiscountById = (id: number): Promise<AxiosResponse<any>> => {
 }
 /**
  * Update a discount
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateDiscountById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -592,7 +598,7 @@ export const updateDiscountById = (id: number, data: any): Promise<AxiosResponse
 }
 /**
  * Delete a discount
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteDiscountById = (id: number): Promise<AxiosResponse<any>> => {
@@ -609,7 +615,7 @@ export const getTransportationModes = (): Promise<AxiosResponse<any>> => {
 }
 /**
  * Post a new transportation mode
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postTransportationMode = (data: any): Promise<AxiosResponse<any>> => {
@@ -617,7 +623,7 @@ export const postTransportationMode = (data: any): Promise<AxiosResponse<any>> =
 }
 /**
  * Get a transportation mode
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getTransportationModeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -625,8 +631,8 @@ export const getTransportationModeById = (id: number): Promise<AxiosResponse<any
 }
 /**
  * Update a transportation mode
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateTransportationModeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -634,7 +640,7 @@ export const updateTransportationModeById = (id: number, data: any): Promise<Axi
 }
 /**
  * Delete a transportation mode
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteTransportationModeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -654,7 +660,7 @@ export const getPayoutReasons = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new payout reason
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postPayoutReason = (data: any): Promise<AxiosResponse<any>> => {
@@ -663,7 +669,7 @@ export const postPayoutReason = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a payout reason by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getPayoutReasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -672,8 +678,8 @@ export const getPayoutReasonById = (id: number): Promise<AxiosResponse<any>> => 
 
 /**
  * Update a payout reason
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updatePayoutReasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -682,7 +688,7 @@ export const updatePayoutReasonById = (id: number, data: any): Promise<AxiosResp
 
 /**
  * Delete a payout reason
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deletePayoutReasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -702,7 +708,7 @@ export const getTemplateCategories = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new template category
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postTemplateCategory = (data: any): Promise<AxiosResponse<any>> => {
@@ -711,7 +717,7 @@ export const postTemplateCategory = (data: any): Promise<AxiosResponse<any>> => 
 
 /**
  * Get a template category by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getTemplateCategoryById = (id: number): Promise<AxiosResponse<any>> => {
@@ -720,8 +726,8 @@ export const getTemplateCategoryById = (id: number): Promise<AxiosResponse<any>>
 
 /**
  * Update a template category
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateTemplateCategoryById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -730,7 +736,7 @@ export const updateTemplateCategoryById = (id: number, data: any): Promise<Axios
 
 /**
  * Delete a template category
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteTemplateCategoryById = (id: number): Promise<AxiosResponse<any>> => {
@@ -750,7 +756,7 @@ export const getBlackListReasons = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new black list reason
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postBlackListReason = (data: any): Promise<AxiosResponse<any>> => {
@@ -759,7 +765,7 @@ export const postBlackListReason = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a black list reason by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getBlackListReasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -768,8 +774,8 @@ export const getBlackListReasonById = (id: number): Promise<AxiosResponse<any>> 
 
 /**
  * Update a black list reason
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateBlackListReasonById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -778,7 +784,7 @@ export const updateBlackListReasonById = (id: number, data: any): Promise<AxiosR
 
 /**
  * Delete a black list reason
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteBlackListReasonById = (id: number): Promise<AxiosResponse<any>> => {
@@ -798,7 +804,7 @@ export const getMarketCodes = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new market code
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postMarketCode = (data: any): Promise<AxiosResponse<any>> => {
@@ -807,7 +813,7 @@ export const postMarketCode = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a market code by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getMarketCodeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -816,8 +822,8 @@ export const getMarketCodeById = (id: number): Promise<AxiosResponse<any>> => {
 
 /**
  * Update a market code
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateMarketCodeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -826,7 +832,7 @@ export const updateMarketCodeById = (id: number, data: any): Promise<AxiosRespon
 
 /**
  * Delete a market code
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteMarketCodeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -846,7 +852,7 @@ export const getReservationTypes = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new reservation type
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postReservationType = (data: any): Promise<AxiosResponse<any>> => {
@@ -855,7 +861,7 @@ export const postReservationType = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a reservation type by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getReservationTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -864,8 +870,8 @@ export const getReservationTypeById = (id: number): Promise<AxiosResponse<any>> 
 
 /**
  * Update a reservation type
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateReservationTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -874,7 +880,7 @@ export const updateReservationTypeById = (id: number, data: any): Promise<AxiosR
 
 /**
  * Delete a reservation type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteReservationTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -894,7 +900,7 @@ export const getPreferenceTypes = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new preference type
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postPreferenceType = (data: any): Promise<AxiosResponse<any>> => {
@@ -903,7 +909,7 @@ export const postPreferenceType = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a preference type by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getPreferenceTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -912,8 +918,8 @@ export const getPreferenceTypeById = (id: number): Promise<AxiosResponse<any>> =
 
 /**
  * Update a preference type
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updatePreferenceTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -922,7 +928,7 @@ export const updatePreferenceTypeById = (id: number, data: any): Promise<AxiosRe
 
 /**
  * Delete a preference type
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deletePreferenceTypeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -942,7 +948,7 @@ export const getPreferences = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new preference
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postPreference = (data: any): Promise<AxiosResponse<any>> => {
@@ -951,7 +957,7 @@ export const postPreference = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a preference by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getPreferenceById = (id: number): Promise<AxiosResponse<any>> => {
@@ -960,8 +966,8 @@ export const getPreferenceById = (id: number): Promise<AxiosResponse<any>> => {
 
 /**
  * Update a preference
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updatePreferenceById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -970,7 +976,7 @@ export const updatePreferenceById = (id: number, data: any): Promise<AxiosRespon
 
 /**
  * Delete a preference
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deletePreferenceById = (id: number): Promise<AxiosResponse<any>> => {
@@ -990,7 +996,7 @@ export const getBusinessSources = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new business source
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postBusinessSource = (data: any): Promise<AxiosResponse<any>> => {
@@ -999,7 +1005,7 @@ export const postBusinessSource = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a business source by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getBusinessSourceById = (id: number): Promise<AxiosResponse<any>> => {
@@ -1008,8 +1014,8 @@ export const getBusinessSourceById = (id: number): Promise<AxiosResponse<any>> =
 
 /**
  * Update a business source
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateBusinessSourceById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -1018,13 +1024,13 @@ export const updateBusinessSourceById = (id: number, data: any): Promise<AxiosRe
 
 /**
  * Delete a business source
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/business_sources/${id}`, headers)
 }
- 
+
 // this section is for Extra Charge
 
 /**
@@ -1037,7 +1043,7 @@ export const getExtraCharges = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new extra charge
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postExtraCharge = (data: any): Promise<AxiosResponse<any>> => {
@@ -1046,7 +1052,7 @@ export const postExtraCharge = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get an extra charge by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getExtraChargeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -1055,8 +1061,8 @@ export const getExtraChargeById = (id: number): Promise<AxiosResponse<any>> => {
 
 /**
  * Update an extra charge
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateExtraChargeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -1065,7 +1071,7 @@ export const updateExtraChargeById = (id: number, data: any): Promise<AxiosRespo
 
 /**
  * Delete an extra charge
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteExtraChargeById = (id: number): Promise<AxiosResponse<any>> => {
@@ -1085,7 +1091,7 @@ export const getTaxes = (): Promise<AxiosResponse<any>> => {
 
 /**
  * Post a new tax
- * @param data 
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postTax = (data: any): Promise<AxiosResponse<any>> => {
@@ -1094,7 +1100,7 @@ export const postTax = (data: any): Promise<AxiosResponse<any>> => {
 
 /**
  * Get a tax by ID
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getTaxById = (id: number): Promise<AxiosResponse<any>> => {
@@ -1103,8 +1109,8 @@ export const getTaxById = (id: number): Promise<AxiosResponse<any>> => {
 
 /**
  * Update a tax
- * @param id 
- * @param data 
+ * @param id
+ * @param data
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateTaxById = (id: number, data: any): Promise<AxiosResponse<any>> => {
@@ -1113,7 +1119,7 @@ export const updateTaxById = (id: number, data: any): Promise<AxiosResponse<any>
 
 /**
  * Delete a tax
- * @param id 
+ * @param id
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
