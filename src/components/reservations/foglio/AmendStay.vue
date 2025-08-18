@@ -90,14 +90,6 @@ const formData = ref<AmendReservationData>({
     nights: 0,
 })
 
-const resetForm = () => {
-    formData.value = {
-        newArrivalDate: '',
-        newDepartureDate: '',
-        nights: 0
-
-    }
-}
 
 const closeModal = () => {
     emit('close')
@@ -146,6 +138,31 @@ const handleSubmit = async () => {
         loading.value = false
     }
 }
+// Watch for changes in arrival and departure dates to calculate nights
+watch([() => formData.value.newArrivalDate, () => formData.value.newDepartureDate], ([newArrival, newDeparture]) => {
+    if (newArrival && newDeparture) {
+        const arrivalDate = new Date(newArrival)
+        const departureDate = new Date(newDeparture)
+        const timeDiff = departureDate.getTime() - arrivalDate.getTime()
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
+        
+        if (daysDiff > 0) {
+            formData.value.nights = daysDiff
+        }
+    }
+})
+
+// Watch for changes in arrival date and nights to calculate departure date
+watch([() => formData.value.newArrivalDate, () => formData.value.nights], ([newArrival, nights]) => {
+    if (newArrival && nights && nights > 0) {
+        const arrivalDate = new Date(newArrival)
+        const departureDate = new Date(arrivalDate)
+        departureDate.setDate(arrivalDate.getDate() + nights)
+        
+        formData.value.newDepartureDate = departureDate.toISOString().split('T')[0]
+    }
+})
+
 watch(()=>props.reservation, (newValue) => {
     if (newValue) {
         formData.value.newArrivalDate = newValue.arrivedDate
@@ -153,6 +170,8 @@ watch(()=>props.reservation, (newValue) => {
         formData.value.nights = newValue.nights ?? newValue.numberOfNights
     }
 })
+
+
 
 onMounted(() => { 
     if (props.reservation) {

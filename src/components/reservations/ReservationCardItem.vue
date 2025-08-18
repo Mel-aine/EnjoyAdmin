@@ -10,22 +10,25 @@ import Adult from '../../icons/Adult.vue';
 import { useReservation } from '../../composables/useReservation';
 import CancelReservation from './foglio/CancelReseravtion.vue';
 import PrintModal from '../common/PrintModal.vue';
+import VoidReservation from './foglio/VoidReservation.vue';
+import AmendStay from './foglio/AmendStay.vue';
+import AddPaymentModal from './foglio/AddPaymentModal.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
 const {
-    isCheckingIn,
-    isCheckingOut,
-    isAmendingStay,
-    isMovingRoom,
-    isExchangingRoom,
-    isStoppingRoomMove,
-    isUpdatingInclusionList,
-    isMarkingNoShow,
-    isVoidingReservation,
-    isUnassigningRoom,
-    performCheckIn,
-    performCheckOut,
+  isCheckingIn,
+  isCheckingOut,
+  isAmendingStay,
+  isMovingRoom,
+  isExchangingRoom,
+  isStoppingRoomMove,
+  isUpdatingInclusionList,
+  isMarkingNoShow,
+  isVoidingReservation,
+  isUnassigningRoom,
+  performCheckIn,
+  performCheckOut,
 } = useReservation();
 const props = defineProps({
   reservation: {
@@ -34,10 +37,21 @@ const props = defineProps({
   },
 })
 
+interface Emits {
+  (e: 'close'): void
+  (e: 'save', data?: any): void
+}
+
+
+
+const emit = defineEmits<Emits>()
+
 // Cancel modal state
 const showCancelModal = ref(false)
 const showPrintModal = ref(false)
-
+const showVoidModal = ref(false)
+const showAmendModal = ref(false)
+const isAddPaymentModalOpen = ref(false)
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
 }
@@ -51,7 +65,30 @@ const handlePrintSuccess = (data: any) => {
 const handlePrintError = (error: any) => {
   console.error('Print error:', error)
 }
+const handleVoidConfirmed = () => {
+  showVoidModal.value = false
+  // Emit save event to notify parent components
+  emit('save', { action: 'void', reservationId: props.reservation.value?.id })
+}
+const handleAmendConfirmed = () => {
+  showAmendModal.value = false
+  // Emit save event to notify parent components
+  emit('save', { action: 'amend', reservationId: props.reservation.value?.id })
+}
 
+const openAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = true
+}
+
+const closeAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = false
+}
+const handleSavePayment = (data: any) => {
+  console.log('Add payment data:', data)
+  // Emit save event to notify parent components
+  emit('save', { action: 'addPayment', reservationId: props.reservation.value?.id, data })
+
+}
 // Document data for printing
 const printDocumentData = computed(() => ({
   reservation: props.reservation,
@@ -116,10 +153,10 @@ const dropdownOptions = computed(() => {
         icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
         color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
       }));
-    
+
     options.push(...availableOptions);
   }
-  
+
   return options;
 });
 
@@ -132,24 +169,30 @@ const handleOptionSelected = async (option: any) => {
     });
     return;
   }
-  
+
   if (!props.reservation?.reservationNumber) {
     console.error('No reservation number available');
     return;
   }
-  
+
   // Handle specific actions using the composable
   switch (option.id) {
     case 'add_payment':
-      // Handle add payment - might need custom routing or modal
-      console.log('Add payment action triggered');
+      openAddPaymentModal()
+      break;
+    case 'amend_stay':
+      showAmendModal.value = true;
+      break;
+    case 'cancel_reservation':
+      showCancelModal.value = true;
+      break;
+    case 'void_reservation':
+      showVoidModal.value = true;
       break;
     case 'check_in':
       break;
     case 'check_out':
-      break;
-    case 'amend_stay':
-      break;
+      break
     case 'room_move':
       break;
     case 'exchange_room':
@@ -218,7 +261,7 @@ const formatDate = (dateString: string) => {
           </span>
         </div>
         <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
-          <span>{{ reservation.nights??reservation.numberOfNights }}</span>
+          <span>{{ reservation.nights ?? reservation.numberOfNights }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ $t('nights') }}
           </span>
@@ -244,7 +287,7 @@ const formatDate = (dateString: string) => {
               <Adult class="w-6 h-10" /><span class="pt-2 text-sm">{{ reservation.adults }}</span>
             </div>
             <div class="flex items-center">
-              <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{ reservation.child??0 }}</span>
+              <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{ reservation.child ?? 0 }}</span>
             </div>
           </div>
 
@@ -284,22 +327,27 @@ const formatDate = (dateString: string) => {
       </div>
     </div>
   </div>
-  
+
   <!-- Cancel Reservation Modal -->
-  <CancelReservation 
-    :is-open="showCancelModal" 
-    :reservation-data="reservation"
-    @close="showCancelModal = false"
-    @cancel-confirmed="handleCancelConfirmed"
-  />
+  <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+    @cancel-confirmed="handleCancelConfirmed" />
+
+  <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
+    :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+    @void-confirmed="handleVoidConfirmed" />
+  <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+    :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+    @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+
+  <!-- Add Payment Modal -->
+  <template v-if="isAddPaymentModalOpen">
+    <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
+      @save="handleSavePayment" />
+  </template>
 
   <!-- Print Modal -->
-   <PrintModal 
-     :is-open="showPrintModal" 
-     :document-data="printDocumentData"
-     @close="showPrintModal = false" 
-     @print-success="handlePrintSuccess" 
-     @print-error="handlePrintError" />
+  <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+    @print-success="handlePrintSuccess" @print-error="handlePrintError" />
 </template>
 
 <style></style>
