@@ -1,18 +1,5 @@
 import {
-  CalendarCheck2,
   Building2,
-  LayoutDashboard,
-  UserCircleIcon,
-  SettingsIcon,
-  BedDouble,
-  CalendarDays,
-  ClipboardPlus,
-  UsersRound,
-  Banknote,
-  CommandIcon,
-  FileText,
-  BarChart3,
-  Hotel,
   CreditCard,
   Home,
   Settings,
@@ -26,7 +13,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         //From office
         {
           icon: Building2,
-          name: t('Front Office'),
+          name: t('front_office'),
           permission: 'dashboard_view',
           subItems: [
             {
@@ -35,47 +22,47 @@ export const getHotelMenu = (t: (key: string) => string) => {
               permission: 'dashboard_view',
             },
             {
-              name: t('Reservations'),
+              name: t('reservations'),
               path: '/reservations_grid',
               permission: 'dashboard_view',
             },
             {
-              name: t('Stay View'),
+              name: t('stay_view'),
               path: '/stay_view',
               permission: 'dashboard_view',
             },
             {
-              name: t('Room View'),
+              name: t('room_view'),
               path: '/room_view',
               permission: 'dashboard_view',
             },
             {
-              name: t('Guest Database'),
+              name: t('guest_database'),
               path: '/guest_database',
               permission: 'dashboard_view',
             },
             {
-              name: t('Insert Transaction'),
+              name: t('insert_transaction'),
               path: '/insert_transaction',
               permission: 'dashboard_view',
             },
             {
-              name: t('Lost and Found'),
+              name: t('lost_and_found'),
               path: '/lost_and_found',
               permission: 'dashboard_view',
             },
             {
-              name: t('Night Audit'),
+              name: t('night_audit'),
               path: '/night_audit',
               permission: 'dashboard_view',
             },
             {
-              name: t('Guest Reviews'),
+              name: t('guest_reviews'),
               path: '/guest_reviews',
               permission: 'dashboard_view',
             },
             {
-              name: t('Unsettled Folios'),
+              name: t('unsettled_folios'),
               path: '/unsettled_folios',
               permission: 'dashboard_view',
             },
@@ -84,36 +71,36 @@ export const getHotelMenu = (t: (key: string) => string) => {
         //From Cashiering
         {
           icon: CreditCard,
-          name: t('Cashiering'),
+          name: t('cashiering'),
           permission: 'dashboard_view',
           subItems: [
             {
-              name: t('Cashiering Center'),
+              name: t('cashiering_center'),
               path: '/dashboard',
               permission: 'dashboard_view',
             },
             {
-              name: t('Travel Agent Database'),
+              name: t('travel_agent_database'),
               path: '/reservations',
               permission: 'dashboard_view',
             },
             {
-              name: t('Sales Person Database'),
+              name: t('sales_person_database'),
               path: '/stay_view',
               permission: 'dashboard_view',
             },
             {
-              name: t('Expense Voucher'),
+              name: t('expense_voucher'),
               path: '/room_view',
               permission: 'dashboard_view',
             },
             {
-              name: t('POS'),
+              name: t('pos'),
               path: '/guest_database',
               permission: 'dashboard_view',
             },
             {
-              name: t('Exchange Rate'),
+              name: t('exchange_rate'),
               path: '/insert_transaction',
               permission: 'dashboard_view',
             }
@@ -128,17 +115,17 @@ export const getHotelMenu = (t: (key: string) => string) => {
           name: t('Housekeeping'),
           subItems: [
             {
-              name: t('House status'),
+              name: t('house_status'),
               path: '/all_booking',
               permission: 'bookings_read',
             },
             {
-              name: t('maintenance block'),
+              name: t('maintenance_block'),
               path: '/add_booking',
               permission: 'bookings_create',
             },
             {
-              name: t('Work Order'),
+              name: t('work_order'),
               path: '/add_booking',
               permission: 'bookings_create',
             },
@@ -308,7 +295,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         },*/
         {
           icon: Settings,
-          name: t('Configuration'),
+          name: t('configuration'),
           permission: 'dashboard_view',
           path: '/reports',
         },

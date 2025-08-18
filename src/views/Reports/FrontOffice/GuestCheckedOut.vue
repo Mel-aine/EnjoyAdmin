@@ -531,7 +531,8 @@ const resetForm = (): void => {
     taxInclusive: true,
     checkin: false,
     selectedColumns: [],
-    reportTemplate: 'default'
+    reportTemplate: 'default',
+    filterBy:''
   }
   showResults.value = false
 }

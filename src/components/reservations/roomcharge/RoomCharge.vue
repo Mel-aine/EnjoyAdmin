@@ -65,6 +65,7 @@
       :show-header="false"
       :selectable="true"
       :searchable="false"
+      title=""
     >
       <!-- Custom column templates -->
       <template #column-date="{ item }">
@@ -119,6 +120,7 @@ import { useI18n } from 'vue-i18n'
 import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronUp, ChevronDown } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const isOpen = ref(false)
@@ -186,7 +188,7 @@ const roomChargeData = ref<RoomChargeItem[]>([
 ])
 
 // Table columns configuration
-const columns = computed(() => [
+const columns = computed<Column[]>(() => [
   { key: 'date', label: t('Date'), type: 'custom' },
   { key: 'roomNumber', label: t('Room'), type: 'text' },
   { key: 'rateType', label: t('Rate Type'), type: 'text' },

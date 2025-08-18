@@ -165,7 +165,7 @@ const fetchReservationsCustomers = async () => {
     loading.value = true
     const serviceId = serviceStore.serviceId;
     const response = await getReservatonCustomers(serviceId!);
-    customers.value = response.map((c:any) => {
+    customers.value = response.data.map((c:any) => {
       return {
         ...c,
         phoneNumber: c.phonePrimary, // Utiliser mobilePhone si phoneNumber est vide

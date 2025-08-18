@@ -2,43 +2,177 @@
 import { useI18n } from 'vue-i18n';
 import ButtomDropdownAction from '../common/ButtomDropdownAction.vue';
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatCurrency, formatTime } from '../utilities/UtilitiesFunction';
 import router from '../../router';
 import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
+import { useReservation } from '../../composables/useReservation';
+import CancelReservation from './foglio/CancelReseravtion.vue';
+import PrintModal from '../common/PrintModal.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
+
+// Initialize the reservation composable
+const {
+    isCheckingIn,
+    isCheckingOut,
+    isAmendingStay,
+    isMovingRoom,
+    isExchangingRoom,
+    isStoppingRoomMove,
+    isUpdatingInclusionList,
+    isMarkingNoShow,
+    isVoidingReservation,
+    isUnassigningRoom,
+    performCheckIn,
+    performCheckOut,
+} = useReservation();
 const props = defineProps({
   reservation: {
     type: Object,
     required: true,
   },
 })
-const dropdownOptions = computed(() => [
-  { id: 'view', label: t('view'), icon: Eye, color: 'text-blue-600' },
-  { id: 'check-in', label: t('Check-in'), icon: CheckCircle, color: 'text-blue-600' },
-  { id: 'add-payment', label: t('Add Payment'), icon: CreditCard, color: 'text-green-600' },
-  { id: 'amend-stay', label: t('Amend Stay'), icon: Calendar, color: 'text-purple-600' },
-  { id: 'room-move', label: t('Room Move'), icon: ArrowUpDown, color: 'text-orange-600' },
-  { id: 'exchange-room', label: t('Exchange Room'), icon: ArrowUpDown, color: 'text-indigo-600' },
-  { id: 'stop-room-move', label: t('Stop Room Move'), icon: StopCircle, color: 'text-red-600' },
-  { id: 'inclusion-list', label: t('Inclusion List'), icon: List, color: 'text-gray-600' },
-  { id: 'cancel-reservation', label: t('Cancel Reservation'), icon: X, color: 'text-red-600' },
-  { id: 'no-show', label: t('No Show'), icon: Eye, color: 'text-yellow-600' },
-  { id: 'void-reservation', label: t('Void Reservation'), icon: Trash2, color: 'text-red-700' },
-  { id: 'unassign-room', label: t('Unassign Room'), icon: UserMinus, color: 'text-gray-600' },
-]);
 
-const handleOptionSelected = (option: any) => {
+// Cancel modal state
+const showCancelModal = ref(false)
+const showPrintModal = ref(false)
+
+const handleCancelConfirmed = async (cancelData: any) => {
+  showCancelModal.value = false
+}
+
+// Print modal handlers
+const handlePrintSuccess = (data: any) => {
+  console.log('Print successful:', data)
+  showPrintModal.value = false
+}
+
+const handlePrintError = (error: any) => {
+  console.error('Print error:', error)
+}
+
+// Document data for printing
+const printDocumentData = computed(() => ({
+  reservation: props.reservation,
+  guest: props.reservation.guest,
+  rooms: props.reservation.reservationRooms,
+  totalAmount: props.reservation.totalAmount,
+  paidAmount: props.reservation.paidAmount,
+  remainingAmount: props.reservation.remainingAmount
+}))
+// Icon mapping for different actions
+const actionIconMap = {
+  'view': Eye,
+  'check_in': CheckCircle,
+  'check_out': CheckCircle,
+  'add_payment': CreditCard,
+  'amend_stay': Calendar,
+  'room_move': ArrowUpDown,
+  'exchange_room': ArrowUpDown,
+  'stop_room_move': StopCircle,
+  'inclusion_list': List,
+  'cancel_reservation': X,
+  'no_show': Eye,
+  'void_reservation': Trash2,
+  'unassign_room': UserMinus,
+};
+
+// Color mapping for different actions
+const actionColorMap = {
+  'view': 'text-blue-600',
+  'check_in': 'text-blue-600',
+  'check_out': 'text-green-600',
+  'add_payment': 'text-green-600',
+  'amend_stay': 'text-purple-600',
+  'room_move': 'text-orange-600',
+  'exchange_room': 'text-indigo-600',
+  'stop_room_move': 'text-red-600',
+  'inclusion_list': 'text-gray-600',
+  'cancel_reservation': 'text-red-600',
+  'no_show': 'text-yellow-600',
+  'void_reservation': 'text-red-700',
+  'unassign_room': 'text-gray-600',
+};
+
+const dropdownOptions = computed(() => {
+  // Always include the view option as first item
+  const options = [{
+    id: 'view',
+    label: t('view'),
+    icon: Eye,
+    color: 'text-blue-600'
+  }];
+  console.log(props.reservation)
+  // Add available actions from reservation data
+  if (props.reservation?.availableActions) {
+    const availableOptions = props.reservation.availableActions
+      .filter((action: any) => action.available)
+      .map((action: any) => ({
+        id: action.action,
+        label: action.label,
+        description: action.description,
+        route: action.route,
+        icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+        color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+      }));
+    
+    options.push(...availableOptions);
+  }
+  
+  return options;
+});
+
+const handleOptionSelected = async (option: any) => {
   console.log('Selected option:', option);
   if (option.id === 'view') {
     router.push({
       name: 'ReservationDetails',
       params: { id: props.reservation.id }
-    })
-
+    });
+    return;
   }
-
+  
+  if (!props.reservation?.reservationNumber) {
+    console.error('No reservation number available');
+    return;
+  }
+  
+  // Handle specific actions using the composable
+  switch (option.id) {
+    case 'add_payment':
+      // Handle add payment - might need custom routing or modal
+      console.log('Add payment action triggered');
+      break;
+    case 'check_in':
+      break;
+    case 'check_out':
+      break;
+    case 'amend_stay':
+      break;
+    case 'room_move':
+      break;
+    case 'exchange_room':
+      break;
+    case 'stop_room_move':
+      break;
+    case 'cancel_reservation':
+      showCancelModal.value = true;
+      break;
+    case 'void_reservation':
+      break;
+    case 'unassign_room':
+      break;
+    case 'inclusion_list':
+      break;
+    case 'no_show':
+      break;
+    case 'print':
+      showPrintModal.value = true;
+      break;
+    default:
+      console.log(`Action ${option.id} not handled`);
+  }
 };
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -118,8 +252,8 @@ const formatDate = (dateString: string) => {
 
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
-            <span class=" font-semibold">Room/Rate type</span>
-            <span class="text-xs">{{ reservation.roomType ?? 'N/A' }}/{{ reservation.roomType ?? 'N/A' }}</span>
+            <span class=" font-semibold">{{ $t('Room/Rate type') }}</span>
+            <span class="text-xs">{{ reservation.roomType ?? $t('N/A') }}/{{ reservation.roomType ?? $t('N/A') }}</span>
           </div>
           <div class="flex gap-1">
             <span :class="[
@@ -135,7 +269,7 @@ const formatDate = (dateString: string) => {
         <!-- Amount and Payment Status -->
         <div class=" flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
           <div class="flex justify-between">
-            <span class=" font-medium">Total</span>
+            <span class=" font-medium">{{ $t('Total') }}</span>
             <span class="text-sm">{{ formatCurrency(reservation.totalAmount) }}</span>
           </div>
           <div class="flex justify-between">
@@ -150,6 +284,22 @@ const formatDate = (dateString: string) => {
       </div>
     </div>
   </div>
+  
+  <!-- Cancel Reservation Modal -->
+  <CancelReservation 
+    :is-open="showCancelModal" 
+    :reservation-data="reservation"
+    @close="showCancelModal = false"
+    @cancel-confirmed="handleCancelConfirmed"
+  />
+
+  <!-- Print Modal -->
+   <PrintModal 
+     :is-open="showPrintModal" 
+     :document-data="printDocumentData"
+     @close="showPrintModal = false" 
+     @print-success="handlePrintSuccess" 
+     @print-error="handlePrintError" />
 </template>
 
 <style></style>

@@ -249,6 +249,7 @@ interface RevenueSource {
   amount: number
   percentage: number
   color: string
+  type?:string
 }
 
 const filters = ref({

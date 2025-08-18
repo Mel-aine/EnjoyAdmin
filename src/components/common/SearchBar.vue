@@ -116,9 +116,9 @@
   </div>
 
   <!-- Reservation Modal -->
-  <ReservationRigthModal v-if="isModalOpen" :is-open="isModalOpen"
+  <ReservationRigthModal v-if="isModalOpen && selectedReservation" :is-open="isModalOpen"
     :title="selectedReservation?.reservationNumber || t('reservationDetails')"
-    :subtitle="selectedReservation?.guestName || ''" :reservation-data="selectedReservation" @close="closeModal"
+    :subtitle="''" :reservation-data="selectedReservation" @close="closeModal"
     @save="handleModalSave" />
 </template>
 
@@ -158,7 +158,7 @@ const showDropdown = ref(false)
 const isModalOpen = ref(false)
 const selectedReservation = ref<ReservationDetails | null>(null)
 const selectedIndex = ref(-1)
-const searchTimeout = ref<NodeJS.Timeout | null>(null)
+const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // Watch for external modelValue changes
 watch(() => props.modelValue, (newValue) => {

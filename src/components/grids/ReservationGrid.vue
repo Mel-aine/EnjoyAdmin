@@ -214,6 +214,7 @@ const viewMode = ref<'grid' | 'list'>('grid')
 const sortBy = ref('date')
 const currentPage = ref(1)
 const pageSize = ref(12)
+const filter =ref<FitlterItem>()
 
 // Utility functions
 const safeTranslate = (key: string) => {
@@ -430,7 +431,7 @@ const confirmDelete = async () => {
   if (selectedReservationId.value !== null) {
     loadingDelete.value = true
     try {
-      await deleteReservation(selectedReservationId.value)
+      //await deleteReservation(selectedReservationId.value)
       toast.success(t('toast.reservationDelete'))
       reservations.value = reservations.value.filter(
         (r: any) => r.id !== selectedReservationId.value,
@@ -448,6 +449,13 @@ const confirmDelete = async () => {
 
 // Lifecycle
 onMounted(async () => {
+   filter.value = {
+    checkInDate: '',
+    checkOutDate: '',
+    roomType: '',
+    searchText: '',
+    status: '',
+  };
   await applyFilter({
     checkInDate: '',
     checkOutDate: '',
@@ -462,7 +470,8 @@ const openBookingModal = () => {
   router.push({ name: 'New Booking' })
 }
 const refresh = () => {
-  applyFilter(filter)
+  if(filter.value)
+  applyFilter(filter.value)
 }
 
 const handleFilterClick = (filter: string) => {

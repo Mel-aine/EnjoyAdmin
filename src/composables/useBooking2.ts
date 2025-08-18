@@ -354,6 +354,7 @@ export function useBooking() {
       }
 
       const response = await fetchRateTypes(roomTypeIdNumber)
+      console.log('fetchRateTypes response:', response)
 
       if (response?.data?.roomType?.rateTypes) {
         const rateTypeOptions: Option[] = response.data.roomType.rateTypes.map((rateType: any) => ({

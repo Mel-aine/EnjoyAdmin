@@ -105,7 +105,7 @@
                 <span v-else class="text-gray-400 dark:text-gray-500">-</span>
               </div>
               
-              <div v-else-if="column.type === 'image'" class="flex items-center gap-2">
+              <div v-else-if="column.type === 'image' && column.imageKey" class="flex items-center gap-2">
                 <img 
                   v-if="getNestedValue(item, column.imageKey)"
                   :src="getNestedValue(item, column.imageKey)" 
@@ -264,7 +264,7 @@ const getItemKey = (item: any, index: number) => {
 }
 
 const getItemActions = (item: any) => {
-  return props.actions.filter(action => 
+  return props.actions.filter((action:any) => 
     !action.condition || action.condition(item)
   )
 }

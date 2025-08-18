@@ -252,6 +252,7 @@ const showModal = ref(false)
 const isEditing = ref(false)
 
 const formData = ref({
+  id:'',
   country: '',
   name: '',
   sign: '',
@@ -291,6 +292,7 @@ const onCountryChange = (countryCode: string) => {
 const openAddModal = () => {
   isEditing.value = false
   formData.value = {
+    id:"",
     country: '',
     name: '',
     sign: '',
@@ -325,7 +327,7 @@ const saveCurrency = async () => {
     
     if (isEditing.value && formData.value.id) {
       // Update existing currency
-      await updateCurrencyById(formData.value.id, currencyData)
+      await updateCurrencyById(parseInt(formData.value.id), currencyData)
       toast.success(t('Currency updated successfully'))
     } else {
       // Add new currency

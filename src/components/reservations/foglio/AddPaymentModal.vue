@@ -167,6 +167,7 @@ const savePayment = async () => {
       folioId: parseInt(formData.folio),
       transactionType: 'payment',
       transactionCategory: formData.type,
+      category: 'room',
       description: `Payment - ${formData.type}`,
       amount: parseFloat(formData.amount.toString()),
       reference: formData.recVouNumber,
@@ -176,6 +177,7 @@ const savePayment = async () => {
       transactionDate: formData.date,
       status:"posted",
       hotelId: serviceStore.serviceId,
+      reservationId: props.reservationId
     }
 
     // Call the API to create folio transaction

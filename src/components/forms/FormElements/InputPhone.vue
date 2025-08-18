@@ -13,7 +13,7 @@ const props = defineProps<{
     modelValue: string |undefined; // The full phone number string (e.g., "+237671234567"),
     title: string,
     isRequired: boolean
-    disabled?:string
+    disabled?:boolean
 }>();
 
 // Define emits for v-model support

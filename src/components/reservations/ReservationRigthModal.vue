@@ -7,7 +7,90 @@
         <div class="fixed inset-y-0 top-0 h-screen right-0 flex max-w-full pl-10">
             <div class="relative  max-w-7xl transform transition-transform duration-300 ease-in-out" @click.stop>
                 <!-- Modal Content -->
-                <div class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">
+                <!-- Loading Skeleton -->
+                <div v-if="isLoading" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">
+                    <!-- Header Skeleton -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                            </div>
+                            <div>
+                                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-2 animate-pulse"></div>
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                            </div>
+                        </div>
+                        <button @click="closeModal" class="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Content Skeleton -->
+                    <div class="flex-1 overflow-y-auto">
+                        <div class="px-6 py-6">
+                            <div class="space-y-6">
+                                <!-- Buttons Skeleton -->
+                                <div class="flex gap-2">
+                                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                </div>
+                                
+                                <!-- Guest Info Skeleton -->
+                                <div class="space-y-4">
+                                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+                                    <div class="space-y-2">
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Reservation Details Skeleton -->
+                                <div class="space-y-4">
+                                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse"></div>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between">
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Financial Info Skeleton -->
+                                <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between">
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-18 animate-pulse"></div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actual Content -->
+                <div v-else-if="reservation" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">
                     <!-- Header -->
                     <div
                         class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -16,13 +99,14 @@
                                 <HouseIcon class="w-8 h-8 text-primary" />
                             </div>
                             <div>
-                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {{ reservationData.guest.firstName }} {{ reservationData.guest.lastName }}
-
-                                </h2>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ reservationData?.reservationNumber }}
-                                </p>
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ reservation.guest?.displayName }}
+                                    </h2>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ reservation.reservationNumber }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -40,92 +124,117 @@
                         <div class="px-6 py-6">
                             <slot>
                                 <!-- Default content -->
-                                <div class="space-y-6 max-w-2xl">
-
-                                    <div class="grid grid-cols-3 gap-4">
-
-                                        <BasicButton :label="$t('edit')" variant="primary" />
-                                        <ButtonDropdown :options="dropdownOptions" :button-text="t('options')" />
-
-                                        <ButtonDropdown :options="dropdownOptions" :button-text="t('print')" />
-
-
+                                <div class="space-y-6 ">
+                                    <!-- Buttons -->
+                                    <div class="flex gap-2">
+                                        <button class="rounded-lg bg-primary text-sm text-white px-4" @click="gotoResevationDetails">
+                                            {{ $t('editreservation') }}</button>
+                                        <ButtonDropdown
+                                            :button-class="'bg-white text-sm border border-primary text-primary'"
+                                            :options="dropdownOptions" :button-text="t('options')"
+                                            @option-selected="handleOptionSelected" />
+                                        <ButtonDropdown :options="printOptions" :button-text="t('print')"
+                                            :button-class="'bg-white text-sm border border-primary text-primary'"
+                                            @option-selected="handlePrintOptionSelected" />
                                     </div>
 
                                     <!-- Reservation Info -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('reservationNumber') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.reservationNumber || $t('notAvailable') }}</p>
-                                            </div>
-
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('status') }}
-                                                </label>
-                                                <span
-                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                    {{ reservationData?.status || $t('confirmed') }}
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('arrivalDate') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{
-                                                    formatDate(reservationData?.checkInDate) }}</p>
-                                            </div>
-
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('departureDate') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{
-                                                    formatDate(reservationData?.checkOutDate) }}</p>
-                                            </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('reservationNumber') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                reservation.reservationNumber }}</p>
                                         </div>
 
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('roomType') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.roomType || $t('notAvailable') }}</p>
-                                            </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('status') }}
+                                            </label>
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                {{ reservation.status }}
+                                            </span>
+                                        </div>
 
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('roomNumber') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.roomNumber || $t('notAvailable') }}</p>
-                                            </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('arrivalDate') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                formatDate(reservation.checkInDate) }}</p>
+                                        </div>
 
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('ratePlan') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{ reservationData?.ratePlan || $t('notAvailable') }}</p>
-                                            </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('departureDate') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                formatDate(reservation.checkOutDate) }}</p>
+                                        </div>
 
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {{ $t('avgDailyRate') }}
-                                                </label>
-                                                <p class="text-sm text-gray-900 dark:text-white">{{
-                                                    formatCurrency(reservationData?.avgDailyRate) }}</p>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('booking_date') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                reservation.roomType }}</p>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('roomType') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                reservation.roomType }}</p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('roomNumber') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                reservation.roomNumber || $t('notAvailable') }}</p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('ratePlan') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                reservation.ratePlan || $t('notAvailable') }}</p>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('adult/child') }}
+                                            </label>
+                                            <div class="flex gap-2 text-sm text-gray-900 dark:text-white">
+                                                <div class="flex items-center">
+                                                    <Adult class="w-6 h-10" /><span class="pt-2 text-sm">{{
+                                                        reservation.adults }}</span>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{
+                                                        reservation.child??0 }}</span>
+                                                </div>
                                             </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {{ $t('avgDailyRate') }}
+                                            </label>
+                                            <p class="text-sm text-gray-900 dark:text-white">{{
+                                                formatCurrency(reservation.avgDailyRate) }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -142,17 +251,17 @@
                                     class=" w-full flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservationData?.totalAmount ?? 0)
+                                        <span class="text-sm">{{ formatCurrency(reservation.totalAmount ?? 0)
                                         }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservationData?.paidAmount ?? 0)
+                                        <span class="text-sm">{{ formatCurrency(reservation.paidAmount ?? 0)
                                         }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservationData?.remainingAmount ?? 0)
+                                        <span class="text-sm">{{ formatCurrency(reservation.remainingAmount ?? 0)
                                             }}</span>
                                     </div>
                                 </div>
@@ -163,22 +272,64 @@
             </div>
         </div>
     </div>
+
+    <!-- Cancel Reservation Modal -->
+    <CancelReservation :is-open="showCancelModal" :reservation-data="reservationData" @close="showCancelModal = false"
+        @cancel-confirmed="handleCancelConfirmed" />
+
+    <!-- Print Modal -->
+    <PrintModal 
+        :is-open="showPrintModal" 
+        :document-data="printDocumentData"
+        @close="showPrintModal = false" 
+        @print-success="handlePrintSuccess" 
+        :templates="templates"
+        @print-error="handlePrintError" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import type { ReservationDetails } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
+import { useReservation } from '../../composables/useReservation'
+import CancelReservation from './foglio/CancelReseravtion.vue'
+import PrintModal from '../common/PrintModal.vue'
+import { getReservationDetailsById } from '../../services/reservation'
+import Adult from '../../icons/Adult.vue'
+import Child from '../../icons/Child.vue'
+import BookingConfirmationTemplate from '../common/templates/BookingConfirmationTemplate.vue'
+
 const { t } = useI18n()
+const router = useRouter()
+const isLoading = ref(false);
+const reservation =ref<any>(null)
+
+
+// Initialize the reservation composable
+const {
+    isCheckingIn,
+    isCheckingOut,
+    isAmendingStay,
+    isMovingRoom,
+    isExchangingRoom,
+    isStoppingRoomMove,
+    isUpdatingInclusionList,
+    isMarkingNoShow,
+    isVoidingReservation,
+    isUnassigningRoom,
+    performCheckIn,
+    performCheckOut,
+} = useReservation();
 interface Props {
     isOpen: boolean
     title?: string
     subtitle?: string
-    reservationData?: ReservationDetails
+    reservationData: ReservationDetails
 }
 
 interface Emits {
@@ -194,14 +345,74 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
+// Cancel modal state
+const showCancelModal = ref(false)
+const showPrintModal = ref(false)
+
 const closeModal = () => {
     emit('close')
 }
+const handleCancelConfirmed =()=>{}
 
+// Print options
+const printOptions = computed(() => [
+    { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
+    { id: 'confirmation', label: t('printConfirmation'), icon: CheckCircle },
+    { id: 'receipt', label: t('printReceipt'), icon: List }
+])
+
+// Print handlers
+const handlePrintOptionSelected = (option: any) => {
+    console.log('Print option selected:', option)
+    showPrintModal.value = true
+}
+
+const handlePrintSuccess = (data: any) => {
+    console.log('Print successful:', data)
+    showPrintModal.value = false
+}
+
+const handlePrintError = (error: any) => {
+    console.error('Print error:', error)
+}
+const templates = ref([
+    {
+        id: '1',
+        name: 'Reservation',
+        description: 'Reservation template',
+        component: BookingConfirmationTemplate
+    }
+])
+// Document data for printing
+const printDocumentData = computed(() => ({
+    reservation: reservation.value,
+    customer: reservation.value?.guest,
+    rooms: reservation.value?.reservationRooms,
+    totalAmount: reservation.value?.totalAmount,
+    paidAmount: reservation.value?.paidAmount,
+    remainingAmount: reservation.value?.remainingAmount,
+    company:{}
+}))
 const handleSave = () => {
     emit('save', props.reservationData)
 }
 
+
+const gotoResevationDetails =()=>{
+    router.push({
+      name: 'ReservationDetails',
+      params: { id: reservation.value.id }
+    });
+}
+const getBookingDetailsById = async () => {
+    isLoading.value = true;
+    const id = props.reservationData.reservation_id;
+    const response = await getReservationDetailsById(Number(id));
+        console.log(response)
+        reservation.value = response
+  
+    isLoading.value = false;
+};
 const formatDate = (dateString?: string) => {
     if (!dateString) return t('notAvailable')
     try {
@@ -218,17 +429,102 @@ const formatDate = (dateString?: string) => {
 }
 
 
-const dropdownOptions = computed(() => [
-    { id: 'check-in', label: t('checkIn'), icon: CheckCircle, color: 'text-blue-600' },
-    { id: 'add-payment', label: t('addPayment'), icon: CreditCard, color: 'text-green-600' },
-    { id: 'amend-stay', label: t('amendStay'), icon: Calendar, color: 'text-purple-600' },
-    { id: 'room-move', label: t('roomMove'), icon: ArrowUpDown, color: 'text-orange-600' },
-    { id: 'exchange-room', label: t('exchangeRoom'), icon: ArrowUpDown, color: 'text-indigo-600' },
-    { id: 'stop-room-move', label: t('stopRoomMove'), icon: StopCircle, color: 'text-red-600' },
-    { id: 'inclusion-list', label: t('inclusionList'), icon: List, color: 'text-gray-600' },
-    { id: 'cancel-reservation', label: t('cancelReservation'), icon: X, color: 'text-red-600' },
-    { id: 'no-show', label: t('noShow'), icon: Eye, color: 'text-yellow-600' },
-    { id: 'void-reservation', label: t('voidReservation'), icon: Trash2, color: 'text-red-700' },
-    { id: 'unassign-room', label: t('unassignRoom'), icon: UserMinus, color: 'text-gray-600' },
-]);
+// Icon mapping for different actions
+const actionIconMap = {
+    'check_in': CheckCircle,
+    'check_out': CheckCircle,
+    'add_payment': CreditCard,
+    'amend_stay': Calendar,
+    'room_move': ArrowUpDown,
+    'exchange_room': ArrowUpDown,
+    'stop_room_move': StopCircle,
+    'inclusion_list': List,
+    'cancel_reservation': X,
+    'no_show': Eye,
+    'void_reservation': Trash2,
+    'unassign_room': UserMinus,
+};
+
+// Color mapping for different actions
+const actionColorMap = {
+    'check_in': 'text-blue-600',
+    'check_out': 'text-green-600',
+    'add_payment': 'text-green-600',
+    'amend_stay': 'text-purple-600',
+    'room_move': 'text-orange-600',
+    'exchange_room': 'text-indigo-600',
+    'stop_room_move': 'text-red-600',
+    'inclusion_list': 'text-gray-600',
+    'cancel_reservation': 'text-red-600',
+    'no_show': 'text-yellow-600',
+    'void_reservation': 'text-red-700',
+    'unassign_room': 'text-gray-600',
+};
+
+const dropdownOptions = computed(() => {
+    if (!reservation.value.availableActions) {
+        return [];
+    }
+
+    return reservation.value.availableActions
+        .filter((action: any) => action.available)
+        .map((action: any) => ({
+            id: action.action,
+            label: action.label,
+            description: action.description,
+            route: action.route,
+            icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+            color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+        }));
+});
+
+const handleOptionSelected = async (option: any) => {
+     
+
+    // Handle specific actions using the composable
+    switch (option.id) {
+        case 'add_payment':
+            // Handle add payment - might need custom routing or modal
+            console.log('Add payment action triggered');
+            break;
+        case 'amend_stay':
+            break;
+        case 'cancel_reservation':
+            showCancelModal.value = true;
+            break;
+        case 'void_reservation':
+            break;
+        case 'unassign_room':
+            break;
+        case 'inclusion_list':
+            break;
+        case 'check_in':
+            break;
+        case 'check_out':
+            break;
+        case 'room_move':
+            break;
+        case 'exchange_room':
+            break;
+        case 'stop_room_move':
+            break;
+        case 'no_show':
+            break;
+        default:
+            console.log(`Action ${option.id} not handled`);
+    }
+};
+// Watch for modal open state to fetch data
+watch(() => props.isOpen, (newValue) => {
+    if (newValue && props.reservationData?.reservation_id) {
+        getBookingDetailsById();
+    }
+});
+
+// Fetch data on mount if modal is already open
+onMounted(() => {
+    if (props.isOpen && props.reservationData?.reservation_id) {
+        getBookingDetailsById();
+    }
+});
 </script>

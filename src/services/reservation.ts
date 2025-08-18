@@ -48,8 +48,8 @@ const handleApiError = (error: any): never => {
 // Check-in d'une réservation
 export const checkInReservation = async (reservationId: number,datas:any): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-in`,datas,headers
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/checkin`,datas,headers
     )
     console.log(response.data)
     return response.data
@@ -63,8 +63,8 @@ export const checkInReservations = async (
   reservationServiceProductIds: number[]
 ): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-in`,
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/checkin`,
       { reservationServiceProducts: reservationServiceProductIds },headers
     );
     return response.data;
@@ -110,6 +110,7 @@ export const setAvailable = async (id: number): Promise<any| undefined> => {
   }
 }
 
+
 // Récupérer les réservations pour une chambre
 export const getRoomReservations = async (serviceProductId: number): Promise<any> => {
   try {
@@ -123,17 +124,50 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
   }
 }
 
-// recuperer la liste des clients
-export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
+
+
+
+/**
+ * create Reservation
+ */
+
+export const createReservation = async (data: any) => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/reservation/${serviceProductId}/customer`,headers
+    console.log('Sending reservation data to backend:', data)
+
+    const response = await apiClient.post('/reservation/create', data,headers)
+
+    console.log('Backend response:', response.data)
+
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+
+    throw error
+  }
+}
+/**
+ * get Reservation details by Id
+ */
+export const getReservationDetailsById = async (reservationId: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${reservationId}/details`,headers
     )
     return response.data || []
   } catch (error) {
-    console.error('Erreur récupération clients:', error)
+    console.error('Erreur récupération réservations pour chambre:', error)
     return []
   }
+
+
+
 }
 
 /**
@@ -149,6 +183,20 @@ export const getCustomer = async (id: number): Promise<any> => {
     return response.data || []
   } catch (error) {
     console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
+}
+
+
+// recuperer la liste des clients
+export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+      `/reservation/${serviceProductId}/customer`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération clients:', error)
     return []
   }
 }

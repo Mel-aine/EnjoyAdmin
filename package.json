@@ -3,6 +3,8 @@
   "version": "2.0.1",
   "private": true,
   "type": "module",
+  "main": "electron/main.js",
+  "homepage": "./",
   "scripts": {
     "start": "vite preview --host --port $PORT",
     "dev": "vite",
@@ -11,7 +13,11 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron electron/main.js\"",
+    "electron:build": "cross-env ELECTRON=true npm run build && electron-builder",
+    "electron:pack": "cross-env ELECTRON=true npm run build && electron-builder --dir",
+    "electron:dist": "cross-env ELECTRON=true npm run build && electron-builder --publish=never"
   },
   "dependencies": {
     "@cloudinary/url-gen": "^1.21.0",
@@ -36,7 +42,7 @@
     "lucide-vue-next": "^0.474.0",
     "luxon": "^3.6.1",
     "papaparse": "^5.5.3",
-    "pdfjs-dist": "^5.4.54",
+    "pdfjs-dist": "^2.4.456",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "swiper": "^11.2.1",
@@ -47,6 +53,7 @@
     "vue-router": "^4.5.0",
     "vue-to-print": "^1.4.0",
     "vue-toastification": "^2.0.0-rc.5",
+    "vue3-pdf-app": "^1.0.3",
     "vuedraggable": "^4.1.0",
     "vuevectormap": "^2.0.1"
   },
@@ -62,6 +69,10 @@
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.3.0",
     "@vue/tsconfig": "^0.7.0",
+    "concurrently": "^9.2.0",
+    "cross-env": "^10.0.0",
+    "electron": "^37.3.0",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.18.0",
     "eslint-plugin-vue": "^9.32.0",
     "jiti": "^2.4.2",
@@ -74,6 +85,66 @@
     "typescript": "~5.7.3",
     "vite": "^6.0.11",
     "vite-plugin-vue-devtools": "^7.7.0",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "wait-on": "^8.0.4"
+  },
+  "build": {
+      "appId": "com.enjoyadmin.app",
+      "productName": "Enjoy Admin",
+      "directories": {
+        "output": "dist-electron",
+        "buildResources": "E:\\temp\\electron-build"
+      },
+      "files": [
+        "dist/**/*",
+        "node_modules/**/*",
+        "public/**/*",
+        "electron/**/*",
+        "package.json"
+      ],
+      "extraMetadata": {
+        "main": "electron/main.js"
+      },
+      "icon": "src/assets/images/header/logo2.png",
+      "asar": false,
+      "win": {
+         "target": [
+           {
+             "target": "nsis",
+             "arch": [
+               "x64"
+             ]
+           }
+         ]
+       },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/favicon.ico"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }

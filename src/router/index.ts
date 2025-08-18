@@ -565,16 +565,6 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    // Custom Reports
-    {
-      path: '/reports/custom/custom-report-builder',
-      name: 'CustomReportBuilder',
-      component: () => import('../views/Reports/Custom/CustomReportBuilder.vue'),
-      meta: {
-        title: 'Custom Report Builder',
-        requiresAuth: true,
-      },
-    },
     // Configuration Routes
     {
       path: '/configuration',
@@ -1280,24 +1270,6 @@ const router = createRouter({
       component: () => import('../views/Tables/ReusableTableExample.vue'),
       meta: {
         title: 'Reusable Table Example',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/right-side-modal-demo',
-      name: 'Right Side Modal Demo',
-      component: () => import('../views/Others/RightSideModalDemo.vue'),
-      meta: {
-        title: 'Right Side Modal Demo',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/pdf-export-demo',
-      name: 'PDF Export Demo',
-      component: () => import('../views/Others/PdfExportDemo.vue'),
-      meta: {
-        title: 'Démonstration d\'Exportation PDF',
         requiresAuth: true,
       },
     },

@@ -70,7 +70,7 @@
          <table class="min-w-full text-sm table-fixed">
            <colgroup>
              <col class="w-24 min-w-[6rem]">
-             <col v-for="date in visibleDates" :key="date" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+             <col v-for="(date,ind) in visibleDates" :key="ind" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
            </colgroup>
           <tbody>
             <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
@@ -152,7 +152,7 @@
         <table class="min-w-full border-t border border-gray-300 text-xs table-fixed">
           <colgroup>
             <col class="w-24 min-w-[6rem]">
-            <col v-for="date in visibleDates" :key="date" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+            <col v-for="(date,ind) in visibleDates" :key="ind" :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
           </colgroup>
           <tfoot>
             <tr class="text-md">
@@ -253,7 +253,7 @@
     <ReservationRigthModal
       :is-open="showDetail"
       @close="closeReservationModal"
-      :reservation="modalReservation"
+      :reservation-data="modalReservation"
     />
   </template>
  </FullScreenLayout>
@@ -272,8 +272,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getDailyOccupancyAndReservations } from "@/services/api"
-import router from '@/router'
-
 
 const isLoading = ref(false);
 function getReservationTypeIcon(type: string) {
@@ -294,7 +292,6 @@ function getCustomerTypeIcon(type: string) {
 }
 // --- ROOM STATUS COLOR & ICON ---
 import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
-import ReservationDetailsModal from '../modal/ReservationDetailsModal.vue'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'

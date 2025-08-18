@@ -282,6 +282,7 @@ const saveStatusColors = async () => {
   isLoading.value = true
   try {
     const resp = await updateStatusColors(serviceStore.serviceId, {statusColors:roomStatuses.value})
+    console.log('reservation color',resp)
     if (resp.status === 200) {
       // Update original colors to reflect saved state
       originalRoomStatuses.value = JSON.parse(JSON.stringify(roomStatuses.value))
