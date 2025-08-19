@@ -4383,5 +4383,53 @@
   "EnteredOn": "Entré le",
   "Updated": "Mis à jour",
   "Deadline": "Date limite",
-  "AddWorkOrder": "Ajouter un ordre de travail"
+  "AddWorkOrder": "Ajouter un ordre de travail",
+   "companyDatabase": {
+    "title": "Base de Données des Entreprises",
+    "addCompany": "Ajouter une Entreprise",
+    "export": "Exporter",
+    "audit": "Audit",
+    "search": "Rechercher",
+    "noCompaniesFound": "Aucune Entreprise Trouvée",
+    "noCompaniesMessage": "Aucune entreprise ne correspond à vos filtres actuels",
+    "columns": {
+      "name": "Nom",
+      "contactPerson": "Personne de Contact",
+      "country": "Pays",
+      "email": "Email",
+      "contact": "Contact",
+      "status": "Statut",
+      "balances": "Soldes"
+    },
+    "actions": {
+      "view": "Voir",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "pending": "En Attente",
+      "suspended": "Suspendu"
+    },
+    "viewModal": {
+      "title": "Détails de l'Entreprise",
+      "close": "Fermer"
+    }
+  },
+  "companyFilter": {
+    "title": "Filtrer les Entreprises",
+    "searchText": "Rechercher par nom ou personne de contact",
+    "status": "Statut",
+    "selectStatus": "Sélectionner le Statut",
+    "country": "Pays",
+    "selectCountry": "Sélectionner le Pays",
+    "balanceRange": "Plage de Solde",
+    "minBalance": "Solde Minimum",
+    "maxBalance": "Solde Maximum",
+    "email": "Email",
+    "emailPlaceholder": "Entrez l'adresse email",
+    "applyFilters": "Appliquer les Filtres",
+    "clearFilters": "Effacer les Filtres"
+  }
 }
