@@ -116,7 +116,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           subItems: [
             {
               name: t('house_status'),
-              path: '/all_booking',
+              path: '/house_status',
               permission: 'bookings_read',
             },
             {
@@ -126,7 +126,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
             {
               name: t('work_order'),
-              path: '/add_booking',
+              path: '/work_order',
               permission: 'bookings_create',
             },
           ],
@@ -137,7 +137,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           path: '/all_booking',
           permission: 'bookings_read',
         },
-        
+
         {
           icon: CalendarCheck2,
           name: t('Bookings'),

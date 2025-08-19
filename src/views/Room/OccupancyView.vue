@@ -966,8 +966,8 @@ const filteredRooms = computed(() => {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(
       (room: any) =>
-        room.productName?.toLowerCase().includes(query) ||
-        room.productTypeName?.toLowerCase().includes(query) ||
+        room.roomNumber?.toLowerCase().includes(query) ||
+        room.roomType.roomTypeName?.toLowerCase().includes(query) ||
         room.guestName?.toLowerCase().includes(query),
     )
   }
