@@ -28,7 +28,7 @@
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Booking Date') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.bookingDate) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.createdAt) }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Status') }}:</span>
@@ -52,20 +52,20 @@
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Check-in Date') }}:</span>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.checkinDate) }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.arrivedDate) }}</span>
               <PencilIcon v-if="editMode" class="w-3 h-3 text-gray-400 cursor-pointer hover:text-blue-500" />
             </div>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Check-out Date') }}:</span>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.checkoutDate) }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.departDate) }}</span>
               <PencilIcon v-if="editMode" class="w-3 h-3 text-gray-400 cursor-pointer hover:text-blue-500" />
             </div>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Number of Nights') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ bookingData.nights }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ bookingData.nights?? bookingData.numberOfNights }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Total Guests') }}:</span>
@@ -85,17 +85,23 @@
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Number') }}:</span>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ bookingData.roomNumber || 'Not Assigned' }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">
+                <span v-for="value in roomRateTypeSummary" :key="value">{{ value }}</span>
+              </span>
               <PencilIcon v-if="editMode" class="w-3 h-3 text-gray-400 cursor-pointer hover:text-blue-500" />
             </div>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Type') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.roomType??"") }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">
+              <span v-for="value in roomTypeSumarry" :key="value">{{ value }} </span>
+            </span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Rate Plan') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.ratePlan??"") }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">
+              <span v-for="value in ratePlan" :key="value">{{ value }} </span>
+            </span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Rate') }}:</span>
@@ -120,11 +126,11 @@
           <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Paid Amount') }}</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-orange-600">{{ formatCurrency(bookingData.balanceAmount) }}</div>
+          <div class="text-2xl font-bold text-orange-600">{{ formatCurrency(bookingData.balanceAmount??0) }}</div>
           <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Balance Amount') }}</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600">{{ formatCurrency(bookingData.depositAmount) }}</div>
+          <div class="text-2xl font-bold text-purple-600">{{ formatCurrency(bookingData.depositAmount??0) }}</div>
           <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Deposit Amount') }}</div>
         </div>
       </div>
@@ -181,6 +187,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { PencilIcon } from 'lucide-vue-next'
+import { formatCurrency } from '../../utilities/UtilitiesFunction'
 
 interface BookingData {
   reservationNumber: string
@@ -205,36 +212,16 @@ interface BookingData {
 }
 
 interface Props {
-  booking?: BookingData
+  booking?: any
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  booking: () => ({
-    reservationNumber: 'RES-2024-001',
-    bookingDate: '2024-01-15',
-    status: 'confirmed',
-    bookingSource: 'online',
-    checkinDate: '2024-02-01',
-    checkoutDate: '2024-02-05',
-    nights: 4,
-    adults: 2,
-    children: 1,
-    roomNumber: '101',
-    roomType: 'deluxe',
-    ratePlan: 'standard',
-    roomRate: 150.00,
-    totalAmount: 600.00,
-    paidAmount: 200.00,
-    balanceAmount: 400.00,
-    depositAmount: 200.00,
-    specialRequests: 'Late check-in requested',
-    notes: 'VIP guest - provide welcome amenities'
-  })
+  booking: () => ({})
 })
 
 const { t, locale } = useI18n()
 const editMode = ref(false)
-
+console.log('booking', props.booking)
 const bookingData = computed(() => props.booking)
 
 const formatDate = (dateString: string) => {
@@ -246,12 +233,6 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString(locale.value, options)
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat(locale.value, {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
 
 const getStatusClass = (status: string) => {
   const statusClasses = {
@@ -269,6 +250,52 @@ const saveChanges = () => {
   console.log('Saving booking changes...')
   editMode.value = false
 }
+
+const roomRateTypeSummary = computed(() => {
+    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+
+    const reservationRooms = props.booking.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
+    })
+
+
+
+    return roomNumbers;
+});
+
+const ratePlan = computed(() => {
+    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+
+    const reservationRooms = props.booking.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.roomRates?.rateType?.rateTypeName}`
+    })
+    return roomNumbers;
+})
+
+
+const roomTypeSumarry = computed(() => {
+    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+
+    const reservationRooms = props.booking.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.roomType?.roomTypeName}`
+    })
+    return roomNumbers;
+})
 </script>
 
 <style scoped>

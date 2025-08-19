@@ -263,3 +263,22 @@ export const amendReservation = async (data: any) => {
     throw error
   }
 }
+/***
+ * 
+ * get Room charges
+ */
+export const getRoomCharges = async (reservationId: any) => {
+  try {
+    const response = await apiClient.get(`/reservation/${reservationId}/room-charges`,headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}

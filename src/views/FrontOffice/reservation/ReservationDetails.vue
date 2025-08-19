@@ -6,7 +6,6 @@ import FoglioOperation from '../../../components/reservations/foglio/FoglioOpera
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue';
 import ButtonDropdown from '../../../components/common/ButtonDropdown.vue';
 import BookingDetails from '../../../components/reservations/bookingdetails/BookingDetails.vue';
-import { isLoading } from '../../../composables/spinner';
 import router from '../../../router';
 import { getReservationDetailsById } from '../../../services/api';
 import AdminLayout from '../../../components/layout/AdminLayout.vue';
@@ -32,7 +31,7 @@ const showCancelModal = ref(false);
 const showPrintModal = ref(false);
 const { t } = useI18n();
 const reservation = ref<any>({});
-
+const isLoading = ref(false)
 // Use the reservation composable
 const {
     isCheckingIn,
@@ -66,7 +65,7 @@ const tabs = computed(() => [
     { id: 'guest_details', label: t('Guest Details') },
     { id: 'room_charges', label: t('Room Charges') },
     // { id: 'credid_card', label: t('Credit Card') },
-    { id: 'audit_trial', label: t('Audit Trail') },
+    //{ id: 'audit_trial', label: t('Audit Trail') },
 
 ]);
 const activeTab = ref<string>('folio_operations');
@@ -532,7 +531,7 @@ onMounted(() => {
                 <FoglioOperation :reservation-id="reservation.id" :reservation="reservation"></FoglioOperation>
             </div>
             <div v-if="activeTab === 'booking_details'">
-                <BookingDetails :booking="reservation"></BookingDetails>
+                <BookingDetails :booking="reservation" ></BookingDetails>
             </div>
             <div v-if="activeTab === 'guest_details'">
                 <GuestDetails :reservation="reservation" :guest="reservation.guest" />

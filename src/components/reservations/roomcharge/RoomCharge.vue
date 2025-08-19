@@ -1,114 +1,61 @@
 <template>
 
-    <div class="flex h-[calc(100vh-160px)]  mx-4">
-    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
-      <div class="h-full flex flex-col justify-between">
-        <div class="bg-white h-full">
-          <div class="flex justify-between pt-2 px-2 pb-2">
-            <span>Room/foglo</span>
-            <PlusCircle class="text-primary cursor-pointer" />
-          </div>
-          <div class="flex justify-between  items-center p-2 cursor-pointer hover:bg-gray-50" @click="isOpen = !isOpen"
-            :class="{ 'bg-gray-200': isOpen, 'bg-primary/10': !isOpen }">
-            <span>Room Details</span>
-            <ChevronUp v-if="isOpen" />
-            <ChevronDown v-else="isOpen" />
-          </div>
-          <div v-if="isOpen">
-            isOpen
-          </div>
-        </div>
-        <div class="px-4">
-          <div class="flex justify-between">
-            <span>{{ $t('total') }}</span>
-            <span>2000xaf</span>
-          </div>
-          <div class="flex justify-between  text-yellow-200">
-            <span>{{ $t('balence') }}</span>
-            <span>2000xaf</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="w-10/12">
-       <!-- Header with action buttons -->
-    <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
-      <BasicButton :label="$t('Update details')" />
-      <BasicButton :label="$t('apply discount')"/>
-      
-      <!-- Status indicators -->
-      <div class="ml-auto flex items-center gap-2">
-        <span class="flex items-center gap-1 text-sm">
-          <div class="w-3 h-3 bg-blue-400 rounded"></div>
-          {{ $t('Active') }}
-        </span>
-        <span class="flex items-center gap-1 text-sm">
-          <div class="w-3 h-3 bg-gray-400 rounded"></div>
-          {{ $t('Inactive') }}
-        </span>
-        <div class="flex gap-1">
-          <button class="p-1 hover:bg-gray-100 rounded">
-            <RefreshIcon class="w-4 h-4" />
-          </button>
-          <button class="p-1 hover:bg-gray-100 rounded">
-            <SettingsIcon class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
+  <div class="bg-white rounded-lg shadow-md  mx-4 mt-4">
+    <div class="w-full">
 
-    <!-- Table -->
-    <ReusableTable
-      :columns="columns"
-      :data="roomChargeData"
-      :loading="loading"
-      :show-header="false"
-      :selectable="true"
-      :searchable="false"
-      title=""
-    >
-      <!-- Custom column templates -->
-      <template #column-date="{ item }">
-        <div class="text-sm text-gray-900">
-          {{ formatDate(item.date) }}
-        </div>
-      </template>
-      
-      <template #column-amount="{ item }">
-        <div class="text-sm font-medium" :class="getAmountColor(item.amount)">
-          {{ formatAmount(item.amount) }}
-        </div>
-      </template>
-      
-      <template #column-status="{ item }">
-        <div class="text-xs px-2 py-1 rounded-full" :class="getStatusColor(item.status)">
-          {{ $t(item.status) }}
-        </div>
-      </template>
-      
-      <template #column-actions="{ item }">
-        <div class="flex items-center gap-1">
-          <button class="p-1 hover:bg-gray-100 rounded" @click="editItem(item)">
-            <PencilIcon class="w-4 h-4 text-gray-500" />
-          </button>
-          <button class="p-1 hover:bg-gray-100 rounded" @click="deleteItem(item)">
-            <TrashIcon class="w-4 h-4 text-red-500" />
-          </button>
-        </div>
-      </template>
-    </ReusableTable>
-    
-    <!-- Footer summary -->
-    <div class="p-4 border-t border-gray-200 bg-gray-50">
-      <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-600">{{ $t('Total Room Charges') }}</span>
-        <div class="text-right">
-          <div class="text-sm font-medium text-blue-600">
-            {{ $t('Total Amount') }}: {{ formatAmount(totalAmount) }}
+
+      <!-- Table -->
+      <ReusableTable :columns="columns" :data="roomChargeData" :loading="loading" :show-header="true" :selectable="true"
+        :searchable="false" :title="$t('Room Charges')">
+        <!-- Custom column templates -->
+        <template #column-date="{ item }">
+          <div class="text-sm text-gray-900">
+            {{ formatDate(item.date) }}
+          </div>
+        </template>
+        <template #header-actions>
+          <!-- Header with action buttons -->
+          <div class="flex flex-wrap justify-end gap-2 pb-2  border-b border-gray-200">
+            <BasicButton :label="$t('Update details')" />
+            <BasicButton :label="$t('applyDiscount')" />
+          </div>
+        </template>
+
+        <template #column-amount="{ item }">
+          <div class="text-sm font-medium" :class="getAmountColor(item.amount)">
+            {{ formatAmount(item.amount) }}
+          </div>
+        </template>
+
+        <template #column-status="{ item }">
+          <div class="text-xs px-2 py-1 rounded-full" :class="getStatusColor(item.status)">
+            {{ $t(item.status??'') }}
+          </div>
+        </template>
+
+        <template #column-actions="{ item }">
+          <div class="flex items-center gap-1">
+            <button class="p-1 hover:bg-gray-100 rounded" @click="editItem(item)">
+              <PencilIcon class="w-4 h-4 text-gray-500" />
+            </button>
+            <button class="p-1 hover:bg-gray-100 rounded" @click="deleteItem(item)">
+              <TrashIcon class="w-4 h-4 text-red-500" />
+            </button>
+          </div>
+        </template>
+      </ReusableTable>
+
+      <!-- Footer summary -->
+      <div class="p-4 border-t border-gray-200 bg-gray-50">
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-600">{{ $t('Total Room Charges') }}</span>
+          <div class="text-right">
+            <div class="text-sm font-medium text-blue-600">
+              {{ $t('Total Amount') }}: {{ formatAmount(totalAmount) }}
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -121,10 +68,16 @@ import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronUp, ChevronD
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
+import { getRoomCharges } from '../../../services/reservation'
 
 const { t } = useI18n()
 const isOpen = ref(false)
-
+const props = defineProps({
+  reservationId: {
+    type: Number,
+    required: true
+  }
+})
 // Modal state
 const isAddRoomChargeModalOpen = ref(false)
 const isApplyRateModalOpen = ref(false)
@@ -145,58 +98,20 @@ const totalAmount = ref(9600.00)
 
 // Sample room charge data
 const roomChargeData = ref<RoomChargeItem[]>([
-  {
-    id: 1,
-    date: '13/08/2022',
-    roomNumber: 'STE-201',
-    rateType: 'Continental Plan (CP)',
-    description: 'Room Charge - Standard Rate',
-    amount: 2400.00,
-    status: 'active',
-    nights: 1
-  },
-  {
-    id: 2,
-    date: '14/08/2022',
-    roomNumber: 'STE-201',
-    rateType: 'Continental Plan (CP)',
-    description: 'Room Charge - Standard Rate',
-    amount: 2400.00,
-    status: 'active',
-    nights: 1
-  },
-  {
-    id: 3,
-    date: '15/08/2022',
-    roomNumber: 'STE-201',
-    rateType: 'Continental Plan (CP)',
-    description: 'Room Charge - Standard Rate',
-    amount: 2400.00,
-    status: 'active',
-    nights: 1
-  },
-  {
-    id: 4,
-    date: '16/08/2022',
-    roomNumber: 'STE-201',
-    rateType: 'Continental Plan (CP)',
-    description: 'Room Charge - Standard Rate',
-    amount: 2400.00,
-    status: 'active',
-    nights: 1
-  }
+  
 ])
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'date', label: t('Date'), type: 'custom' },
-  { key: 'roomNumber', label: t('Room'), type: 'text' },
-  { key: 'rateType', label: t('Rate Type'), type: 'text' },
-  { key: 'description', label: t('Description'), type: 'text' },
-  { key: 'nights', label: t('Nights'), type: 'text' },
-  { key: 'amount', label: t('Amount'), type: 'custom' },
-  { key: 'status', label: t('Status'), type: 'custom' },
-  { key: 'actions', label: t('Actions'), type: 'custom' }
+  { key: 'stay.checkInDate', label: t('stay'), type: 'custom' },
+  { key: 'room.roomNumber', label: t('Room'), type: 'text' },
+  { key: 'rateType.ratePlanName', label: t('Rate Type'), type: 'text' },
+  { key: 'pax', label: t('Pax(A/C)'), type: 'text' },
+  { key: 'rateType.rateAmount', label: t('Charge'), type: 'text' },
+  { key: 'discount', label: t('discount'), type: 'custom' },
+  { key: 'tax', label: t('tax'), type: 'custom' },
+  { key: 'adjustment', label: t('Adjustement'), type: 'custom' },
+  { key: 'netAmount', label: t('net_amount'), type: 'text' }
 ])
 
 // Utility functions
@@ -259,7 +174,7 @@ const handleSaveRoomCharge = (chargeData: any) => {
     status: 'active' as const,
     nights: parseInt(chargeData.nights) || 1
   }
-  
+
   roomChargeData.value.push(newCharge)
   closeAddRoomChargeModal()
 }
@@ -278,4 +193,14 @@ const handleApplyRate = (rateData: any) => {
   // Here you would typically update room charges with new rates
   closeApplyRateModal()
 }
+const getTransactionFolio =async()=>{
+  loading.value = true;
+  const response  = await getRoomCharges(props.reservationId);
+  console.log(response.data);
+  if(response.data){
+    roomChargeData.value = response.data.roomChargesTable
+  }
+  loading.value = false;
+}
+getTransactionFolio();
 </script>
