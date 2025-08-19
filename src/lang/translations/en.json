@@ -4825,5 +4825,14 @@
   "navigation": {
     "frontOffice": "Front Office"
   },
-  "new_activities" : "New activities will appear here"
+  "new_activities" : "New activities will appear here",
+  "Order#": "Order#",
+  "Unit/Room": "Unit/Room",
+  "Category": "Category",
+  "Priority": "Priority",
+  "AssignTo": "Assign To",
+  "EnteredOn": "Entered On",
+  "Updated": "Updated",
+  "Deadline": "Deadline",
+  "AddWorkOrder" : "Add Work Order"
 }

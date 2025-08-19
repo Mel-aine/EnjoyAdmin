@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label for="consentDate" class="block text-gray-700 text-sm font-bold mb-2" v-if="title">{{
+        <label for="consentDate" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400" v-if="title">{{
             title }} <span class="text-red-500" v-if="isRequired">*</span></label>
         <div class="relative">
             <flat-pickr v-model="localValue" :config="flatpickrConfig" @on-change="updateValue"

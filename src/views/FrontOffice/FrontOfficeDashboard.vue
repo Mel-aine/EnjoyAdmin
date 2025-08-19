@@ -367,12 +367,12 @@
                   </div>
                 </div>
                 <div>
-                  <p class="text-sm text-gray-900 dark:text-white">{{ activity.message }}</p>
-                  <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.time }}</p>
+                  <p class="text-sm text-gray-900 dark:text-white">{{ activity.description }}</p>
+                  <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.timestamp }}</p>
                 </div>
               </div>
               <span class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
-                {{ $t(activity.status) }}
+                {{ $t(activity.type) }}
               </span>
             </div>
             <!-- Empty state -->

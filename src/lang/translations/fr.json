@@ -4374,5 +4374,14 @@
   "navigation": {
     "frontOffice": "Réception"
   },
-  "new_activities" : "Les nouvelles activités apparaîtront ici"
+  "new_activities" : "Les nouvelles activités apparaîtront ici",
+  "Order#": "N° de commande",
+  "Unit/Room": "Unité/Chambre",
+  "Category": "Catégorie",
+  "Priority": "Priorité",
+  "AssignTo": "Attribué à",
+  "EnteredOn": "Entré le",
+  "Updated": "Mis à jour",
+  "Deadline": "Date limite",
+  "AddWorkOrder": "Ajouter un ordre de travail"
 }
