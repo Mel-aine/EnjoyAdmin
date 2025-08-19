@@ -8,7 +8,7 @@
         :data="roomRates"
         :actions="actions"
         :search-placeholder="t('searchRoomRates')"
-        :selectable="true"
+        :selectable="false"
         :empty-state-title="t('noRoomRatesFound')"
         :empty-state-message="t('clickAddRoomRate')"
         :loading="isLoading"
@@ -35,7 +35,7 @@
         <!-- Custom column for rate info -->
         <template #column-rateInfo="{ item }">
           <div>
-            <div class="text-sm font-medium text-gray-900">${{ formatCurrency(item.baseRate) }}</div>
+            <div class="text-sm font-medium text-gray-900">{{ formatCurrency(item.baseRate) }}</div>
             <div class="text-xs text-gray-500">{{ t('baseRate') }}</div>
           </div>
         </template>
@@ -43,15 +43,15 @@
         <!-- Custom column for extra rates -->
         <template #column-extraRates="{ item }">
           <div>
-            <div class="text-xs text-gray-600">{{ t('extraAdult') }}: ${{ formatCurrency(item.extraAdultRate) }}</div>
-            <div class="text-xs text-gray-600">{{ t('extraChild') }}: ${{ formatCurrency(item.extraChildRate) }}</div>
+            <div class="text-xs text-gray-600">{{ t('extraAdult') }}: {{ formatCurrency(item.extraAdultRate) }}</div>
+            <div class="text-xs text-gray-600">{{ t('extraChild') }}: {{ formatCurrency(item.extraChildRate) }}</div>
           </div>
         </template>
 <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
               <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
 
@@ -59,7 +59,7 @@
           <template #column-modifiedInfo="{ item }">
             <div>
               <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
       </ReusableTable>
@@ -226,6 +226,8 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
 import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById, getRoomRates } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { format } from 'date-fns'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -300,7 +302,9 @@ const columns = ref([
   {
     key: 'status',
     label: t('status'),
-    sortable: true
+    sortable: true,
+    type: 'badge',
+    translatable:true
   },
   {
     key: 'createdInfo',
@@ -464,7 +468,7 @@ const saveRoomRate = async () => {
         extraChildRate: parseFloat(formData.value.extraChildRate) || 0,
         effectiveFrom: formData.value.effectiveFrom,
         effectiveTo: formData.value.effectiveTo,
-        status: formData.value.status || 'Active'
+        status: formData.value.status || 'active'
       }
       
       const response = await updateRoomRateById(editingRoomRate.value.id, roomRateData)
@@ -498,7 +502,7 @@ const closeModal = () => {
     extraChildRate: '',
     effectiveFrom: '',
     effectiveTo: '',
-    status: 'Active'
+    status: 'active'
   }
 }
 

@@ -25,6 +25,16 @@ const router = createRouter({
       },
     },
     {
+       path: '/front-office/unsettled_folios',
+      name: 'UnsettledFolios',
+      component: () => import('../views/FrontOffice/UnsettledFolios.vue'),
+      meta: {
+        title: 'Unsettled Folios',
+        requiresAuth: true,
+      },
+    },
+      
+    {
       path: '/welcome',
       name: 'welcome',
       component: () => import('../views/Pages/Welcome.vue'),

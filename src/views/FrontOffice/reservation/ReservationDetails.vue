@@ -15,6 +15,7 @@ import Child from '../../../icons/Child.vue';
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
 import GuestDetails from '../../../components/reservations/GuestDetails.vue';
 import Spinner from '../../../components/spinner/Spinner.vue';
+import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue';
 import { useReservation, type CheckInReservationPayload } from '../../../composables/useReservation';
 import AddPaymentModal from '../../../components/reservations/foglio/AddPaymentModal.vue';
 import CancelReservation from '../../../components/reservations/foglio/CancelReseravtion.vue';
@@ -420,7 +421,11 @@ onMounted(() => {
 
 <template>
     <AdminLayout>
-        <div class="h-full" v-if="reservation && reservation.id">
+        <!-- Show skeleton loading when data is being fetched -->
+        <ReservationDetailsSkeleton v-if="isLoading" />
+        
+        <!-- Show actual content when data is loaded -->
+        <div class="h-full" v-else-if="reservation && reservation.id">
             <!--Header-->
             <div class="shadow-sm px-4 py-2 mx-4 bg-white  flex justify-between">
                 <div class="flex gap-2 align-middle self-center items-center">
@@ -532,6 +537,13 @@ onMounted(() => {
             </div>
             <div v-if="activeTab === 'guest_details'">
                 <GuestDetails :reservation="reservation" :guest="reservation.guest" />
+            </div>
+        </div>
+        
+        <!-- Show message when no reservation data is found -->
+        <div v-else class="h-full flex items-center justify-center">
+            <div class="text-center">
+                <p class="text-gray-500 text-lg">{{ $t('No reservation found') }}</p>
             </div>
         </div>
     </AdminLayout>

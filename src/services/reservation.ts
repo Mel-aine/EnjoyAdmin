@@ -178,7 +178,7 @@ export const getReservationDetailsById = async (reservationId: number): Promise<
 export const getCustomer = async (id: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-      `/reservation/${id}/customer`,headers
+      `/guests/${id}/customer`,headers
     )
     return response.data || []
   } catch (error) {
@@ -192,11 +192,74 @@ export const getCustomer = async (id: number): Promise<any> => {
 export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/reservation/${serviceProductId}/customer`,headers
+      `/guests/${serviceProductId}/customer`,headers
     )
     return response.data || []
   } catch (error) {
     console.error('Erreur récupération clients:', error)
     return []
+  }
+}
+
+/**
+ * cancel reservation
+ * @param data 
+ * @returns 
+ */
+export const cancelReservation = async (data: any) => {
+  try {
+    const response = await apiClient.post(`/reservation/${data.reservationId}/cancel`, data,headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}
+
+/**
+ * void reservation
+ * @param data 
+ * @returns 
+ */
+export const voidReservation = async (data: any) => {
+  try {
+    const response = await apiClient.post(`/reservation/${data.reservationId}/void`, data,headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}
+
+/**
+ * amend reservation
+ * @param data 
+ * @returns 
+ */
+export const amendReservation = async (data: any) => {
+  try {
+    const response = await apiClient.put(`/reservation/${data.reservationId}/amend-stay`, data,headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
   }
 }

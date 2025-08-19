@@ -39,7 +39,9 @@ interface SidebarContextType {
 const SidebarSymbol = Symbol()
 
 export function useSidebarProvider() {
-  const isExpanded = ref(true)
+  // Load initial state from localStorage, default to true if not found
+  const savedExpandedState = localStorage.getItem('sidebar-expanded')
+  const isExpanded = ref(savedExpandedState !== null ? JSON.parse(savedExpandedState) : true)
   const isMobileOpen = ref(false)
   const isMobile = ref(false)
   const isHovered = ref(false)
@@ -68,6 +70,8 @@ export function useSidebarProvider() {
       isMobileOpen.value = !isMobileOpen.value
     } else {
       isExpanded.value = !isExpanded.value
+      // Save the new state to localStorage
+      localStorage.setItem('sidebar-expanded', JSON.stringify(isExpanded.value))
     }
   }
 

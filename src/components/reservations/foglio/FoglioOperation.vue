@@ -145,11 +145,12 @@
 
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
-          <PrintModal 
+          <PrintInvoice 
             :is-open="isPrintModalOpen" 
             :document-data="printDocumentData"
             @close="closePrintModal" 
-            @print-success="handlePrintSuccess" 
+            @print-success="handlePrintSuccess"
+            :reservation-id="reservationId"
             @print-error="handlePrintError" />
         </template>
       </div>
@@ -176,6 +177,7 @@ import type { Column } from '../../../utils/models'
 import { getReservationFolios } from '../../../services/foglioApi'
 import Accordion from '../../common/Accordion.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
+import PrintInvoice from '../../invoice/PrintInvoice.vue'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state

@@ -1,15 +1,13 @@
-
 <template>
   <AdminLayout>
     <div class="min-h-screen bg-gray-50">
       <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header Section -->
-      <div class=" px-2 sm:px-4 lg:px-6">
-
+        <!-- Header Section -->
+        <div class="px-2 sm:px-4 lg:px-6">
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
               <h1 class="text-2xl font-semibold text-gray-900">{{ $t('OccupancyofRooms') }}</h1>
-              <div class="ml-4 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">
+              <div class="ml-4 px-3 py-1 bg-purple-50 text-purple-700 text-sm rounded-full">
                 {{ roomStats.total }} {{ $t('Rooms') }}
               </div>
             </div>
@@ -24,11 +22,21 @@
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     viewMode === 'grid'
                       ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700',
                   ]"
                 >
-                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  <svg
+                    class="w-4 h-4 mr-1 inline"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                    />
                   </svg>
                   {{ $t('Grid') }}
                 </button>
@@ -38,11 +46,21 @@
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     viewMode === 'list'
                       ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700',
                   ]"
                 >
-                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  <svg
+                    class="w-4 h-4 mr-1 inline"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                    />
                   </svg>
                   {{ $t('List') }}
                 </button>
@@ -52,11 +70,21 @@
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     viewMode === 'status'
                       ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700',
                   ]"
                 >
-                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0V17m0-10a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2" />
+                  <svg
+                    class="w-4 h-4 mr-1 inline"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0V17m0-10a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2"
+                    />
                   </svg>
                   {{ $t('Status') }}
                 </button>
@@ -65,310 +93,468 @@
               <button
                 @click="refreshRooms"
                 :disabled="isLoading"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
                 {{ $t('refresh') }}
               </button>
 
               <button
                 @click="exportData"
-                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 {{ $t('export') }}
               </button>
 
               <button
                 @click="openAuditTrail"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 {{ $t('audit_trial') }}
               </button>
             </div>
           </div>
-
-      </div>
-
-      <!-- Status View -->
-      <div v-if="viewMode === 'status'" class="px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Stats Dashboard -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-4">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.available }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('Available') }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-4">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                  </div>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.occupied }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('Occupied') }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-4">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  </div>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.booked }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('Booked') }}</p>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-4">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  </div>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.cleaning }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('Cleaning') }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-4">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  </div>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.maintenance }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('Maintenance') }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-4">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
-                  </div>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-900">{{ roomStats.out_of_order }}</p>
-                  <p class="text-xs text-gray-500">{{ $t('statut.outOfOrder') }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Status View Table -->
-        <div class="bg-white shadow rounded-lg mb-6">
-          <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">{{ $t('House Status View') }}</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {{ $t('Room Types') }}
-                    </th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div class="flex items-center justify-center">
-                        <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
-                        {{ $t('No Status') }}
-                      </div>
-                    </th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div class="flex items-center justify-center">
-                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                        {{ $t('Clean') }}
-                      </div>
-                    </th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div class="flex items-center justify-center">
-                        <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                        {{ $t('Dirty') }}
-                      </div>
-                    </th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div class="flex items-center justify-center">
-                        <div class="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
-                        {{ $t('Out Of Order') }}
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="roomType in roomTypeStats" :key="roomType.id" class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {{ roomType.name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {{ roomType.noStatus }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {{ roomType.clean }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      <div class="flex flex-col space-y-1">
-                        <span>{{ roomType.dirty }}</span>
-                        <div v-if="roomType.dirtyRooms.length > 0" class="space-y-1">
-                          <div v-for="room in roomType.dirtyRooms" :key="room.id" 
-                               class="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
-                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clip-rule="evenodd" />
-                            </svg>
-                            {{ room.productName }}
-                          </div>
+        <!-- Status View -->
+        <div v-if="viewMode === 'status'" class="px-4 sm:px-6 lg:px-8 py-6">
+          <!-- Stats Dashboard -->
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">{{ roomStats.available }}</p>
+                    <p class="text-xs text-gray-500">{{ $t('Available') }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                      <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">{{ roomStats.occupied }}</p>
+                    <p class="text-xs text-gray-500">{{ $t('Occupied') }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div
+                      class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"
+                    >
+                      <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">{{ roomStats.cleaning }}</p>
+                    <p class="text-xs text-gray-500">{{ $t('Cleaning') }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div
+                      class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center"
+                    >
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">{{ roomStats.maintenance }}</p>
+                    <p class="text-xs text-gray-500">{{ $t('Maintenance') }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">{{ roomStats.out_of_order }}</p>
+                    <p class="text-xs text-gray-500">{{ $t('statut.outOfOrder') }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status View Table -->
+          <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                {{ $t('House Status View') }}
+              </h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        {{ $t('Room Types') }}
+                      </th>
+                      <th
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        <div class="flex items-center justify-center">
+                          <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                          {{ $t('No Status') }}
                         </div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {{ roomType.outOfOrder }}
-                    </td>
-                  </tr>
-                  <!-- Total Row -->
-                  <tr class="bg-gray-50 font-semibold">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                      {{ $t('Total') }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
-                      {{ totalStats.noStatus }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
-                      {{ totalStats.clean }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
-                      {{ totalStats.dirty }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
-                      {{ totalStats.outOfOrder }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      </th>
+                      <th
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        <div class="flex items-center justify-center">
+                          <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                          {{ $t('Available') }}
+                        </div>
+                      </th>
+                      <th
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        <div class="flex items-center justify-center">
+                          <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                          {{ $t('Occupied') }}
+                        </div>
+                      </th>
+                       <th
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        <div class="flex items-center justify-center">
+                          <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                          {{ $t('Cleaning') }}
+                        </div>
+                      </th>
+                       <th
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        <div class="flex items-center justify-center">
+                          <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+                          {{ $t('Dirty') }}
+                        </div>
+                      </th>
+                      <th
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        <div class="flex items-center justify-center">
+                          <div class="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
+                          {{ $t('Out Of Order') }}
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <template v-for="roomType in roomTypeStats" :key="roomType.id">
+                      <!-- Room Type Row -->
+                      <tr
+                        class="hover:bg-gray-50 cursor-pointer"
+                        @click="toggleRoomType(roomType.id)"
+                      >
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <div class="flex items-center">
+                            <svg
+                              class="w-4 h-4 mr-2 text-gray-500 transition-transform duration-200"
+                              :class="{ 'rotate-90': expandedRoomTypes.has(roomType.id) }"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                            {{ roomType.name }}
+                            <span class="ml-2 text-xs text-gray-500">
+                              ({{ roomType.totalRooms }} {{ $t('rooms') }})
+                            </span>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ roomType.noStatus }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ roomType.available }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ roomType.occupied }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ roomType.cleaning }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ roomType.dirty }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ roomType.outOfOrder }}
+                        </td>
+                      </tr>
+
+                      <!-- Expanded Room Details Row -->
+                      <tr v-if="expandedRoomTypes.has(roomType.id)" class="bg-gray-50">
+                        <td></td>
+                        <!-- No Status Rooms -->
+                        <td class="px-2 py-2 space-y-1">
+
+                          <div
+                            v-for="room in getRoomsByStatus(roomType.rooms, 'nostatus')"
+                            :key="room.id"
+                            class="p-2 border border-gray-300 bg-gray-100 rounded-lg text-xs text-gray-800 text-center"
+                          >
+                            {{ room.roomNumber }}
+                          </div>
+                        </td>
+                        <!-- Available Rooms -->
+                        <td class="px-2 py-2 space-y-1">
+                          <div
+                            v-for="room in getRoomsByStatus(roomType.rooms, 'available')"
+                            :key="room.id"
+                            class="p-2 border flex items-center justify-between border-green-200 bg-green-50 rounded-lg text-xs text-green-800 text-center hover:bg-green-100 transition-colors"
+                          >
+                            <span class="font-medium text-sm text-green-800">{{ room.roomNumber }}</span>
+                            <div class="text-right">
+                            <div v-if="room.floorNumber" class="text-xs text-green-500">
+                              {{ $t('Floor') }} {{ room.floorNumber }}
+                            </div>
+                            </div>
+                          </div>
+                        </td>
+                        <!-- Occupied Rooms -->
+                        <td class="px-2 py-2 space-y-1">
+                          <div
+                            v-for="room in getRoomsByStatus(roomType.rooms, 'occupied')"
+                            :key="room.id"
+                            class="p-2 border flex items-center justify-between border-red-200 bg-red-50 rounded-lg text-xs text-red-800 text-center hover:bg-red-100 transition-colors"
+                          >
+                            <span class="font-medium text-sm text-red-800">{{ room.roomNumber }}</span>
+                            <div class="text-right">
+                            <div v-if="room.floorNumber" class="text-xs text-red-500">
+                              {{ $t('Floor') }} {{ room.floorNumber }}
+                            </div>
+                            </div>
+                          </div>
+                        </td>
+                        <!-- Cleaning Rooms -->
+                        <td class="px-2 py-2 space-y-1">
+                          <div
+                            v-for="room in getRoomsByStatus(roomType.rooms, 'cleaning')"
+                            :key="room.id"
+                            class="p-2 border flex items-center justify-between border-purple-200 bg-purple-50 rounded-lg text-xs text-purple-800 text-center hover:bg-purple-100 transition-colors"
+                          >
+                            <span class="font-medium text-sm text-purple-800">{{ room.roomNumber }}</span>
+                            <div class="text-right">
+                            <div v-if="room.floorNumber" class="text-xs text-purple-500">
+                              {{ $t('Floor') }} {{ room.floorNumber }}
+                            </div>
+                            </div>
+                          </div>
+                        </td>
+                        <!-- Dirty Rooms -->
+                        <td class="px-2 py-2 space-y-1">
+                          <div
+                            v-for="room in getRoomsByStatus(roomType.rooms, 'dirty')"
+                            :key="room.id"
+                            class="p-2 border border-orange-200 bg-orange-50 rounded-lg text-xs text-orange-800 text-center flex items-center justify-between hover:bg-orange-100 transition-colors"
+                          >
+                            <span class="font-medium text-sm text-orange-800">{{ room.roomNumber }}</span>
+                            <div class="text-right">
+                            <div v-if="room.floorNumber" class="text-xs text-orange-500">
+                              {{ $t('Floor') }} {{ room.floorNumber }}
+                            </div>
+                            </div>
+                          </div>
+                        </td>
+                        <!-- Out of Order Rooms -->
+                        <td class="px-2 py-2 space-y-1">
+                          <div
+                            v-for="room in getRoomsByStatus(roomType.rooms, 'maintenance')"
+                            :key="room.id"
+                            class="p-2 border border-gray-300 bg-gray-100 rounded-lg text-xs text-gray-800 text-center flex items-center justify-between hover:bg-gray-100 transition-colors"
+                          >
+                            <span class="font-medium text-sm text-gray-800">{{ room.roomNumber }}</span>
+                            <div v-if="room.maintenanceNotes" class="text-xs text-gray-500 truncate max-w-20" :title="room.maintenanceNotes">
+                              {{ room.maintenanceNotes }}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </template>
+
+                    <!-- Total Row -->
+                    <tr class="bg-gray-100 font-semibold border-t-2 border-gray-300">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                        {{ $t('Total') }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                        {{ totalStats.noStatus }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                        {{ totalStats.available }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                        {{ totalStats.occupied }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                        {{ totalStats.cleaning }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                        {{ totalStats.dirty }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                        {{ totalStats.outOfOrder }}
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Filters and Search (for Grid and List views) -->
-      <div v-if="viewMode !== 'status'" class="px-4 sm:px-6 lg:px-8">
-        <div class="bg-white shadow rounded-lg mb-6">
-          <div class="p-4 border-b border-gray-200">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-              <div class="flex items-center space-x-3">
-                <!-- Search -->
-                <div class="relative w-[500px]">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+        <!-- Filters and Search (for Grid and List views) -->
+        <div v-if="viewMode !== 'status'" class="px-4 sm:px-6 lg:px-8">
+          <div class="bg-white shadow rounded-lg mb-6">
+            <div class="p-4 border-b border-gray-200">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0"
+              >
+                <div class="flex items-center space-x-3">
+                  <!-- Search -->
+                  <div class="relative w-[500px]">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                      <svg
+                        class="h-5 w-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      v-model="searchQuery"
+                      type="text"
+                      :placeholder="$t('search...')"
+                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    />
                   </div>
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    :placeholder="$t('search...')"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
+
+                  <!-- Status Filter -->
+                  <select
+                    v-model="statusFilter"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                  >
+                    <option value="">{{ $t('All_statuses') }}</option>
+                    <option value="available">{{ $t('Available') }}</option>
+                    <option value="occupied">{{ $t('Occupied') }}</option>
+                    <option value="out_of_order">{{ $t('statut.outOfOrder') }}</option>
+                    <option value="cleaning">{{ $t('Cleaning') }}</option>
+                    <option value="maintenance">{{ $t('Maintenance') }}</option>
+                  </select>
+
+                  <!-- Room Type Filter -->
+                  <select
+                    v-model="roomTypeFilter"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                  >
+                    <option value="">{{ $t('All_room_types') }}</option>
+                    <option v-for="type in roomTypeData" :key="type.value" :value="type.value">
+                      {{ type.label }}
+                    </option>
+                  </select>
                 </div>
 
-                <!-- Status Filter -->
-                <select
-                  v-model="statusFilter"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">{{ $t('All_statuses') }}</option>
-                  <option value="available">{{ $t('Available') }}</option>
-                  <!-- <option value="booked">{{ $t('Booked') }}</option> -->
-                  <option value="occupied">{{ $t('Occupied') }}</option>
-                  <option value="out_of_order">{{ $t('statut.outOfOrder') }}</option>
-                  <option value="cleaning">{{ $t('Cleaning') }}</option>
-                  <option value="maintenance">{{ $t('Maintenance') }}</option>
-                </select>
-
-                <!-- Room Type Filter -->
-                <select
-                  v-model="roomTypeFilter"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">{{ $t('All_room_types') }}</option>
-                  <option v-for="type in roomTypeData" :key="type.value" :value="type.value">
-                    {{ type.label }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="flex items-center space-x-3">
-                <!-- Items per page -->
-                <select
-                  v-model="itemsPerPage"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="12">12 {{ $t('per_page') }}</option>
-                  <option value="24">24 {{ $t('per_page') }}</option>
-                  <option value="48">48 {{ $t('per_page') }}</option>
-                  <option value="96">96 {{ $t('per_page') }}</option>
-                </select>
-
-
+                <div class="flex items-center space-x-3">
+                  <!-- Items per page -->
+                  <select
+                    v-model="itemsPerPage"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                  >
+                    <option value="12">12 {{ $t('per_page') }}</option>
+                    <option value="24">24 {{ $t('per_page') }}</option>
+                    <option value="48">48 {{ $t('per_page') }}</option>
+                    <option value="96">96 {{ $t('per_page') }}</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Loading State -->
-        <div v-if="isLoading" class="bg-white shadow rounded-lg">
-          <div class="p-6">
-            <div class="animate-pulse">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="n in 6" :key="n" class="bg-gray-200 h-48 rounded-lg"></div>
+          <!-- Loading State -->
+          <div v-if="isLoading" class="bg-white shadow rounded-lg">
+            <div class="p-6">
+              <div class="animate-pulse">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div v-for="n in 6" :key="n" class="bg-gray-200 h-48 rounded-lg"></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
 
           <!-- Room Grid View -->
           <div v-if="viewMode === 'grid'" class="mt-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
                 :key="room.id"
@@ -377,7 +563,7 @@
                 :isCheckingOut="isCheckingOut"
                 @request-status-change="handleQuickStatusChange(room, $event)"
                 @change="handleStatusChange"
-                @maintenance-set = "handleMaintenance(room, $event)"
+                @maintenance-set="handleMaintenance(room, $event)"
                 @status-change="handleQuickStatusChange"
               />
             </div>
@@ -387,7 +573,7 @@
           <div v-if="viewMode === 'list'" class="mt-10 bg-white rounded-lg shadow">
             <ReusableTable
               title="Room Occupancy"
-              :data="paginatedRooms"
+              :data="processedTableData"
               :columns="tableColumns"
               :actions="tableActions"
               :loading="isLoading"
@@ -398,80 +584,95 @@
             />
           </div>
 
-
-        <!-- Pagination -->
-        <div v-if="filteredRooms.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow">
-          <div class="flex-1 flex justify-between sm:hidden">
-            <button
-              @click="currentPage > 1 && currentPage--"
-              :disabled="currentPage === 1"
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ $t('Previous') }}
-            </button>
-            <button
-              @click="currentPage < totalPages && currentPage++"
-              :disabled="currentPage === totalPages"
-              class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ $t('Next') }}
-            </button>
-          </div>
-          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm text-gray-700">
-                {{ $t('showing') }}
-                <span class="font-medium">{{ startIndex + 1 }}</span>
-                {{ $t('to') }}
-                <span class="font-medium">{{ Math.min(endIndex, filteredRooms.length) }}</span>
-                {{ $t('of') }}
-                <span class="font-medium">{{ filteredRooms.length }}</span>
-                {{ $t('results') }}
-              </p>
+          <!-- Pagination -->
+          <div
+            v-if="filteredRooms.length > 0"
+            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow"
+          >
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button
+                @click="currentPage > 1 && currentPage--"
+                :disabled="currentPage === 1"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ $t('Previous') }}
+              </button>
+              <button
+                @click="currentPage < totalPages && currentPage++"
+                :disabled="currentPage === totalPages"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ $t('Next') }}
+              </button>
             </div>
-            <div>
-              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button
-                  @click="currentPage > 1 && currentPage--"
-                  :disabled="currentPage === 1"
-                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700">
+                  {{ $t('showing') }}
+                  <span class="font-medium">{{ startIndex + 1 }}</span>
+                  {{ $t('to') }}
+                  <span class="font-medium">{{ Math.min(endIndex, filteredRooms.length) }}</span>
+                  {{ $t('of') }}
+                  <span class="font-medium">{{ filteredRooms.length }}</span>
+                  {{ $t('results') }}
+                </p>
+              </div>
+              <div>
+                <nav
+                  class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
                 >
-                  <span class="sr-only">Previous</span>
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
+                  <button
+                    @click="currentPage > 1 && currentPage--"
+                    :disabled="currentPage === 1"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span class="sr-only">Previous</span>
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
 
-                <button
-                  v-for="page in visiblePages"
-                  :key="page"
-                  @click="currentPage = page"
-                  :class="[
-                    'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-                    page === currentPage
-                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                  ]"
-                >
-                  {{ page }}
-                </button>
+                  <button
+                    v-for="page in visiblePages"
+                    :key="page"
+                    @click="currentPage = page"
+                    :class="[
+                      'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
+                      page === currentPage
+                        ? 'z-10 bg-purple-50 border-purple-500 text-purple-600'
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
+                    ]"
+                  >
+                    {{ page }}
+                  </button>
 
-                <button
-                  @click="currentPage < totalPages && currentPage++"
-                  :disabled="currentPage === totalPages"
-                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span class="sr-only">Next</span>
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </nav>
+                  <button
+                    @click="currentPage < totalPages && currentPage++"
+                    :disabled="currentPage === totalPages"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span class="sr-only">Next</span>
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
 
     <!-- Status Change Modal -->
@@ -479,68 +680,71 @@
       v-if="showStatusModal"
       :room="selectedRoom"
       :currentStatus="selectedRoom?.status"
-      @updateStatus = "confirmStatusChange"
+      @updateStatus="confirmStatusChange"
       @close="showStatusModal = false"
     />
     <!-- Modal de maintenance -->
-    <div v-if="showMaintenanceModal" class="fixed inset-0 bg-opacity-50 overflow-y-auto h-full w-full bg-black/25 bg-opacity-50 flex items-center justify-center modal z-99999 ">
+    <div
+      v-if="showMaintenanceModal"
+      class="fixed inset-0 bg-opacity-50 overflow-y-auto h-full w-full bg-black/25 bg-opacity-50 flex items-center justify-center modal z-99999"
+    >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">{{ $t('maintenanceSetup') }}</h3>
         <div class="space-y-4">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-            {{ $t('reason') }} <span class="text-red-500">*</span>
-          </label>
-          <select
-            v-model="maintenanceForm.reason"
-            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-            required
-          >
-            <option value="">{{ $t('selectReason') }}</option>
-            <option value="plumbing">{{ $t('reasons.plumbing') }}</option>
-            <option value="electrical">{{ $t('reasons.electrical') }}</option>
-            <option value="deepCleaning">{{ $t('reasons.deepCleaning') }}</option>
-            <option value="renovation">{{ $t('reasons.renovation') }}</option>
-            <option value="other">{{ $t('reasons.other') }}</option>
-          </select>
-        </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              {{ $t('reason') }} <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="maintenanceForm.reason"
+              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+              required
+            >
+              <option value="">{{ $t('selectReason') }}</option>
+              <option value="plumbing">{{ $t('reasons.plumbing') }}</option>
+              <option value="electrical">{{ $t('reasons.electrical') }}</option>
+              <option value="deepCleaning">{{ $t('reasons.deepCleaning') }}</option>
+              <option value="renovation">{{ $t('reasons.renovation') }}</option>
+              <option value="other">{{ $t('reasons.other') }}</option>
+            </select>
+          </div>
 
-        <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-            {{ $t('startDate') }}
-          </label>
-          <input
-            v-model="maintenanceForm.startDate"
-            type="date"
-            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-          >
-        </div>
-        <div>
-        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-          {{ $t('endDate') }}
-        </label>
-        <input
-          v-model="maintenanceForm.endDate"
-          type="date"
-          :min="maintenanceForm.startDate"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-        >
-        </div>
-        <p  class="text-red-500 text-sm font-normal whitespace-nowrap">{{ error }}</p>
-    </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                {{ $t('startDate') }}
+              </label>
+              <input
+                v-model="maintenanceForm.startDate"
+                type="date"
+                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+              />
+            </div>
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                {{ $t('endDate') }}
+              </label>
+              <input
+                v-model="maintenanceForm.endDate"
+                type="date"
+                :min="maintenanceForm.startDate"
+                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+              />
+            </div>
+            <p class="text-red-500 text-sm font-normal whitespace-nowrap">{{ error }}</p>
+          </div>
 
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-            {{ $t('notes') }}
-          </label>
-          <textarea
-            v-model="maintenanceForm.notes"
-            class="p-2 dark:bg-dark-900 min-h-[88px] w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-            rows="3"
-            :placeholder="$t('additionalNotes')"
-          ></textarea>
-        </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              {{ $t('notes') }}
+            </label>
+            <textarea
+              v-model="maintenanceForm.notes"
+              class="p-2 dark:bg-dark-900 min-h-[88px] w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+              rows="3"
+              :placeholder="$t('additionalNotes')"
+            ></textarea>
+          </div>
         </div>
 
         <div class="flex gap-2 mt-6">
@@ -556,280 +760,220 @@
             :disabled="!maintenanceForm.reason.trim()"
           >
             <span v-if="!isLoading">{{ $t('confirm') }}</span>
-              <span v-else class="flex items-center gap-2">
-                <Spinner class="w-4 h-4" />
-                {{ $t('Processing') }}...
-              </span>
-
+            <span v-else class="flex items-center gap-2">
+              <Spinner class="w-4 h-4" />
+              {{ $t('Processing') }}...
+            </span>
           </button>
         </div>
       </div>
     </div>
 
     <PopupModal
-  v-if="showMessage"
-  :title="$t('warning')"
-  :message="popupMessage"
-  :isOpen="showMessage"
-  @close="closeModal"
->
-  <template #footer>
-    <button
-      class="text-sm bg-gray-300 px-3 py-2 rounded-md font-normal mr-2"
-      @click="closeModal"
+      v-if="showMessage"
+      :title="$t('warning')"
+      :message="popupMessage"
+      :isOpen="showMessage"
+      @close="closeModal"
     >
-      {{ $t('no') }}
-    </button>
-    <button
-      class="text-sm bg-brand-300 px-3 py-2 rounded-md font-normal"
-      @click="confirmForceChange"
-    >
-      {{ $t('yes') }}
-    </button>
-  </template>
-</PopupModal>
-
+      <template #footer>
+        <button
+          class="text-sm bg-gray-300 px-3 py-2 rounded-md font-normal mr-2"
+          @click="closeModal"
+        >
+          {{ $t('no') }}
+        </button>
+        <button
+          class="text-sm bg-brand-300 px-3 py-2 rounded-md font-normal"
+          @click="confirmForceChange"
+        >
+          {{ $t('yes') }}
+        </button>
+      </template>
+    </PopupModal>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import RoomCard from './RoomCard.vue'
 import StatusChangeModal from './StatusChangeModal.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import { useServiceStore } from '@/composables/serviceStore';
-import { getServiceProductWithOptions, getTypeProductByServiceId,updateRoomStatus,getServiceProductsWithDetails } from "@/services/api";
-import { checkInReservations, checkOutReservations, getRoomReservations } from "@/services/reservation";
-import { useI18n } from "vue-i18n";
-import Spinner from "@/components/spinner/Spinner.vue";
-import PopupModal from "@/components/modal/PopupModal.vue";
+import { useServiceStore } from '@/composables/serviceStore'
+import { getRoomsWithDetails,updateRoomStatus } from '@/services/configrationApi'
+import { getRoomTypes } from '@/services/roomTypeApi'
+import { useI18n } from 'vue-i18n'
+import Spinner from '@/components/spinner/Spinner.vue'
+import PopupModal from '@/components/modal/PopupModal.vue'
 import { useToast } from 'vue-toastification'
-import router from "@/router";
-
+import router from '@/router'
 
 // State variables
-const serviceProducts = ref<any[]>([]);
-const serviceStore = useServiceStore();
-const statusFilter = ref('');
-const roomTypeFilter = ref('');
-const searchQuery = ref('');
-const loading = ref(false);
-const error = ref('');
-const isCheckingIn = ref(false);
-const isCheckingOut = ref(false);
-const isLoading = ref(false);
-const roomTypeData = ref<any[]>([]);
-const itemsPerPage = ref(12);
-const currentPage = ref<any>(1);
-const showStatusModal = ref(false);
-const selectedRoom = ref<any>(null);
+const Rooms = ref<any[]>([])
+const serviceStore = useServiceStore()
+const statusFilter = ref('')
+const roomTypeFilter = ref('')
+const searchQuery = ref('')
+const loading = ref(false)
+const error = ref('')
+const isCheckingIn = ref(false)
+const isCheckingOut = ref(false)
+const isLoading = ref(false)
+const roomTypeData = ref<any[]>([])
+const itemsPerPage = ref(12)
+const currentPage = ref<any>(1)
+const showStatusModal = ref(false)
+const selectedRoom = ref<any>(null)
 const showMaintenanceModal = ref(false)
 const viewMode = ref<'grid' | 'list' | 'status'>('grid')
 const { t, locale } = useI18n()
 const showMessage = ref(false)
 const popupMessage = ref('')
-const pendingForceRetry = ref<null | (() => void)>(null);
+const pendingForceRetry = ref<null | (() => void)>(null)
 const toast = useToast()
 
 // Pagination computed properties
-const totalPages = computed(() => Math.ceil(filteredRooms.value.length / itemsPerPage.value));
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
-const endIndex = computed(() => startIndex.value + itemsPerPage.value);
+const totalPages = computed(() => Math.ceil(filteredRooms.value.length / itemsPerPage.value))
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
+const endIndex = computed(() => startIndex.value + itemsPerPage.value)
 
 const visiblePages = computed(() => {
-  const pages = [];
-  const total = totalPages.value;
-  const current = currentPage.value;
+  const pages = []
+  const total = totalPages.value
+  const current = currentPage.value
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) {
-      pages.push(i);
+      pages.push(i)
     }
   } else {
     if (current <= 4) {
       for (let i = 1; i <= 5; i++) {
-        pages.push(i);
+        pages.push(i)
       }
-      pages.push('...');
-      pages.push(total);
+      pages.push('...')
+      pages.push(total)
     } else if (current >= total - 3) {
-      pages.push(1);
-      pages.push('...');
+      pages.push(1)
+      pages.push('...')
       for (let i = total - 4; i <= total; i++) {
-        pages.push(i);
+        pages.push(i)
       }
     } else {
-      pages.push(1);
-      pages.push('...');
+      pages.push(1)
+      pages.push('...')
       for (let i = current - 1; i <= current + 1; i++) {
-        pages.push(i);
+        pages.push(i)
       }
-      pages.push('...');
-      pages.push(total);
+      pages.push('...')
+      pages.push(total)
     }
   }
 
-  return pages;
-});
+  return pages
+})
 
 const paginatedRooms = computed(() => {
-  return filteredRooms.value.slice(startIndex.value, endIndex.value);
-});
+  return filteredRooms.value.slice(startIndex.value, endIndex.value)
+})
 
 // Watch for filter changes to reset pagination
 watch([statusFilter, roomTypeFilter, searchQuery, itemsPerPage], () => {
-  currentPage.value = 1;
-});
+  currentPage.value = 1
+})
 
-const fetchServiceProduct = async () => {
-  loading.value = true;
-  error.value = '';
+const fetchRoomWithDetails = async () => {
+  loading.value = true
+  error.value = ''
 
   try {
-    const serviceId = serviceStore.serviceId;
-    const response = await getServiceProductsWithDetails(serviceId)
-    // const response = await getServiceProductWithOptions(serviceId);
-    // const serviceProductsData = response.data;
-    // console.log("serviceProductsData ",serviceProductsData )
-
-    // if (Array.isArray(serviceProductsData)) {
-    //   const serviceProductWithOptions = await Promise.all(
-    //     serviceProductsData.map(async (product: any) => {
-    //       const associatedOptions = product.options?.filter((option: any) =>
-    //         option.serviceProductId === product.id
-    //       ) || [];
-
-    //       let reservations: any[] = [];
-
-    //       try {
-    //         const response = await getRoomReservations(product.id);
-    //         reservations = response;
-    //       } catch (error) {
-    //         console.warn(`Erreur lors de la récupération des réservations pour ${product.id}:`, error);
-    //       }
-
-    //       let nextAvailable: string | null = null;
-    //       let checkOutTime: string | null = null;
-
-    //       const reservationsWithDepartDate = reservations.filter(r => r.reservation?.departDate);
-
-    //       if (reservationsWithDepartDate.length > 0) {
-    //         const sortedByDepartDateDesc = reservationsWithDepartDate.sort(
-    //           (a, b) => new Date(b.reservation.departDate).getTime() - new Date(a.reservation.departDate).getTime()
-    //         );
-
-    //         const latestReservation = sortedByDepartDateDesc[0];
-    //         nextAvailable = latestReservation?.reservation?.departDate || null;
-    //         checkOutTime = latestReservation?.reservation?.departDate || null;
-    //       }
-
-
-    //       const checkedInGuest = reservations.find((r: any) => r.reservation.status === 'checked-in' );
-
-    //       const guestName = checkedInGuest
-    //         ? `${checkedInGuest.creator?.firstName ?? ''} ${checkedInGuest.creator?.lastName ?? ''}`.trim()
-    //         : null;
-    //       console.log("checkedInGuest",guestName)
-    //       return {
-    //         ...product,
-    //         maintenanceInfo:product.maintenance,
-    //         options: associatedOptions,
-    //         reservations: reservations,
-    //         guestName: guestName,
-    //         nextAvailable,
-    //         checkOutTime,
-    //         status: product.status || 'available'
-    //       };
-    //     })
-    //   );
-
-    //   serviceProducts.value = serviceProductWithOptions;
-    // }
-    serviceProducts.value = response.data
-    console.log("serviceProducts",serviceProducts.value)
+    const hotelId = serviceStore.serviceId
+    const response = await getRoomsWithDetails(hotelId!)
+    Rooms.value = response.data
+    console.log('Rooms', Rooms.value)
   } catch (error: any) {
-    console.error('Erreur lors de la récupération des produits:', error);
-    error.value = 'Erreur lors du chargement des chambres';
+    console.error('Erreur lors de la récupération des chambres:', error)
+    error.value = 'Erreur lors du chargement des chambres'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const fetchRoomType = async () => {
   try {
-    const serviceId = serviceStore.serviceId;
-    const response = await getTypeProductByServiceId(serviceId);
+    const serviceId = serviceStore.serviceId
+    const response = await getRoomTypes(serviceId!)
+    console.log('response', response.data.data.data)
 
-    roomTypeData.value = response.data
-      .filter((type: any) => type.status === 'active')
-      .map((item: any) => ({
-        ...item,
-        value: item.id,
-        label: item.name,
-      }));
+    roomTypeData.value = response.data.data.data.map((item: any) => ({
+      ...item,
+      value: item.id,
+      label: item.roomTypeName,
+    }))
   } catch (error) {
-    console.error('Erreur lors de la récupération des roomtypes:', error);
+    console.error('Erreur lors de la récupération des roomtypes:', error)
   }
-};
+}
 
 onMounted(async () => {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    await Promise.all([fetchServiceProduct(), fetchRoomType()]);
-    console.log("serviceProducts",serviceProducts.value)
+    await Promise.all([fetchRoomWithDetails(), fetchRoomType()])
+    console.log('serviceProducts', Rooms.value)
   } catch (e) {
-    console.error("Erreur lors du fetch des données:", e);
+    console.error('Erreur lors du fetch des données:', e)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 // Flatten service products for display
 const flattenServiceProducts = computed(() => {
-  const products = serviceProducts.value.length > 0 ? serviceProducts.value : [];
+  const products = Rooms.value.length > 0 ? Rooms.value : []
 
   return products.map((product: any) => {
     const flatProduct: any = {
       ...product,
-      productTypeName: getRoomTypeName(product.productTypeId)
-    };
+      productTypeName: getRoomTypeName(product.productTypeId),
+    }
 
     product.options?.forEach((option: any) => {
-      const key = `option_${option.optionId}`;
-      flatProduct[key] = option.value;
-    });
+      const key = `option_${option.optionId}`
+      flatProduct[key] = option.value
+    })
 
-    return flatProduct;
-  });
-});
+    return flatProduct
+  })
+})
 
 // Filtered rooms based on status, type, and search
 const filteredRooms = computed(() => {
-  let filtered = flattenServiceProducts.value;
+  let filtered = flattenServiceProducts.value
 
   // Filter by status
   if (statusFilter.value) {
-    filtered = filtered.filter((room: any) => room.status === statusFilter.value);
+    filtered = filtered.filter((room: any) => room.status === statusFilter.value)
   }
 
   // Filter by room type
   if (roomTypeFilter.value) {
-    filtered = filtered.filter((room: any) => room.productTypeId === roomTypeFilter.value);
+    filtered = filtered.filter((room: any) => room.roomTypeId === roomTypeFilter.value)
   }
 
   // Filter by search query
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter((room: any) =>
-      room.productName?.toLowerCase().includes(query) ||
-      room.productTypeName?.toLowerCase().includes(query) ||
-      room.guestName?.toLowerCase().includes(query)
-    );
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(
+      (room: any) =>
+        room.productName?.toLowerCase().includes(query) ||
+        room.productTypeName?.toLowerCase().includes(query) ||
+        room.guestName?.toLowerCase().includes(query),
+    )
   }
 
-  return filtered;
-});
+  return filtered
+})
 
 // Room statistics
 const roomStats = computed(() => {
@@ -840,123 +984,103 @@ const roomStats = computed(() => {
     maintenance: 0,
     cleaning: 0,
     out_of_order: 0,
-    total: flattenServiceProducts.value.length
-  };
+    total: flattenServiceProducts.value.length,
+  }
 
   flattenServiceProducts.value.forEach((room: any) => {
     if (stats.hasOwnProperty(room.status)) {
-      stats[room.status as keyof typeof stats]++;
+      stats[room.status as keyof typeof stats]++
     }
-  });
+  })
 
-  return stats;
-});
+  return stats
+})
 
 const getRoomTypeName = (id: number): string => {
-  return roomTypeData.value.find((t: any) => t.value === id)?.label || '';
-};
+  return roomTypeData.value.find((t: any) => t.value === id)?.label || ''
+}
 
-// Room type statistics for status table
-const roomTypeStats = computed(() => {
-  const typeStats: any[] = [];
-  
-  roomTypeData.value.forEach(roomType => {
-    const roomsOfType = flattenServiceProducts.value.filter((room: any) => room.productType === roomType.value);
-    
-    const stats = {
-      id: roomType.value,
-      name: roomType.label,
-      noStatus: roomsOfType.filter((room: any) => !room.status || room.status === 'available').length,
-      clean: roomsOfType.filter((room: any) => room.status === 'cleaning').length,
-      dirty: roomsOfType.filter((room: any) => room.status === 'occupied').length,
-      outOfOrder: roomsOfType.filter((room: any) => room.status === 'maintenance' || room.status === 'out_of_order').length,
-      dirtyRooms: roomsOfType.filter((room: any) => room.status === 'occupied')
-    };
-    
-    typeStats.push(stats);
-  });
-  
-  return typeStats;
-});
 
-// Total statistics
-const totalStats = computed(() => {
-  return roomTypeStats.value.reduce((total, roomType) => {
-    total.noStatus += roomType.noStatus;
-    total.clean += roomType.clean;
-    total.dirty += roomType.dirty;
-    total.outOfOrder += roomType.outOfOrder;
-    return total;
-  }, { noStatus: 0, clean: 0, dirty: 0, outOfOrder: 0 });
-});
 
-// Table configuration for ReusableTable
 const tableColumns = computed(() => [
   {
-    key: 'productName',
+    key: 'roomNumber',
     label: t('Room'),
-    type: 'text' as const
+    type: 'text' as const,
   },
   {
-    key: 'productTypeName',
+    key: 'roomType.roomTypeName',
     label: t('Type'),
-    type: 'text' as const
+    type: 'text' as const,
   },
   {
     key: 'status',
     label: t('Status'),
     type: 'badge' as const,
     badgeColors: {
-      'available': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      'occupied': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      'cleaning': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      'maintenance': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      'out_of_order': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+      available: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      occupied: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      cleaning: 'bg-purple-100 text-purple-808 dark:bg-purple-900 dark:text-purple-200',
+      maintenance: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      out_of_order: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
     },
-    translatable: true
+    translatable: true,
   },
   {
-    key: 'guestName',
+    key: 'displayGuestName',
     label: t('Guest'),
-    type: 'text' as const
+    type: 'text' as const,
   },
   {
-    key: 'checkInTime',
+    key: 'displayCheckInTime',
     label: t('Check-in'),
-    type: 'date' as const
+    type: 'text' as const,
   },
   {
-    key: 'checkOutTime',
+    key: 'displayCheckOutTime',
     label: t('Check-out'),
-    type: 'date' as const
-  }
-]);
+    type: 'text' as const,
+  },
+])
 
+// Données de table avec affichage conditionnel du contenu
+const processedTableData = computed(() => {
+  return paginatedRooms.value.map(room => ({
+    ...room,
+    // Afficher le nom du guest seulement si la chambre est occupée ET a un guest
+    displayGuestName: (room.status === 'occupied' && room.guestName) ? room.guestName : '',
+    // Afficher check-in seulement si la chambre est occupée ET a une date de check-in
+    displayCheckInTime: (room.status === 'occupied' && room.checkInTime) ?
+      new Date(room.checkInTime).toLocaleDateString() : '',
+    // Afficher check-out seulement si la chambre est occupée ET a une date de check-out
+    displayCheckOutTime: (room.status === 'occupied' && room.checkOutTime) ?
+      new Date(room.checkOutTime).toLocaleDateString() : '',
+  }))
+})
 const tableActions = computed(() => [
   {
     label: t('Change Status'),
     handler: (room: any) => handleQuickStatusChange(room, room.status),
     icon: 'edit',
-    variant: 'primary' as const
+    variant: 'primary' as const,
   },
   {
     label: t('Maintenance'),
     handler: (room: any) => handleMaintenance(room, 'maintenance'),
     icon: 'settings',
     variant: 'warning' as const,
-    condition: (room: any) => room.status !== 'maintenance'
-  }
-]);
+    condition: (room: any) => room.status !== 'maintenance',
+  },
+])
 
-
-const refreshRooms = async () => {
-  await fetchServiceProduct();
+const refreshRooms = () => {
+  window.location.reload();
 };
 
 // Handle table actions
 const onTableAction = (action: string, room: any) => {
-  console.log('Table action:', action, 'on room:', room);
-};
+  console.log('Table action:', action, 'on room:', room)
+}
 
 // Open audit trail
 const openAuditTrail = () => {
@@ -965,239 +1089,84 @@ const openAuditTrail = () => {
     severity: 'info',
     summary: t('Info'),
     detail: t('Audit trail functionality will be implemented'),
-    life: 3000
-  });
-};
-
-const exportData = () => {
-  const data = filteredRooms.value.map(room => ({
-    room: room.productName,
-    type: room.productTypeName,
-    status: room.status,
-  }));
-
-  const csv = [
-    ['Room', 'Type', 'Status'],
-    ...data.map((row:any) => Object.values(row))
-  ].map(row => row.join(',')).join('\n');
-
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'rooms-export.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-
-
-const handleQuickStatusChange = (room: any, newStatus: string) => {
-  selectedRoom.value = room;
-  showStatusModal.value = true;
-};
-
-const handleMaintenance = (room:any,newStatus: string)=>{
-  selectedRoom.value = room;
-  showMaintenanceModal.value = true;
+    life: 3000,
+  })
 }
 
+const exportData = () => {
+  const data = filteredRooms.value.map((room) => ({
+    room: room.roomNumber,
+    type: room.roomType.roomTypeName,
+    status: room.status,
+  }))
+
+  const csv = [['Room', 'Type', 'Status'], ...data.map((row: any) => Object.values(row))]
+    .map((row) => row.join(','))
+    .join('\n')
+
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'rooms-export.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const handleQuickStatusChange = (room: any, newStatus: string) => {
+  selectedRoom.value = room
+  showStatusModal.value = true
+}
+
+const handleMaintenance = (room: any, newStatus: string) => {
+  selectedRoom.value = room
+  showMaintenanceModal.value = true
+}
 
 const confirmStatusChange = (payload: { roomId: number | string; newStatus: string }) => {
-  handleStatusChange(payload);
-  showStatusModal.value = false;
-  selectedRoom.value = null;
-};
-
-/*const notifySuccess = (message: string) => alert(message);
-const notifyError = (message: string) => alert(message);
-
-// mise à jour locale
-const updateLocalReservationState = (room: any, wrapperId: number, guestName: string) => {
-  const now = new Date().toISOString();
-
-  const reservationIndex = room.reservations.findIndex((res: any) => res.id === wrapperId);
-  if (reservationIndex !== -1) {
-    room.reservations[reservationIndex].reservation.status = 'checked-in';
-    room.reservations[reservationIndex].reservation.check_in_date = now;
-  }
-
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === room.id);
-  if (roomToUpdate) {
-    roomToUpdate.status = 'occupied';
-    roomToUpdate.guestName = guestName;
-    roomToUpdate.checkInTime = now;
-  }
-};
-
- de check-in et check out
-const handleCheckIn = async (room: any) => {
-  isCheckingIn.value = true;
-
-  try {
-    console.log(`[handleCheckIn] Début du check-in pour la chambre:`, room.name || room.productName);
-
-   const confirmedWrapper = room.reservations?.find(
-      (res: any) => res.reservation?.status?.toLowerCase() === 'confirmed'
-    );
-
-    console.log("confirmedWrapper", room.reservations)
-
-    if (!confirmedWrapper) {
-      console.warn('[handleCheckIn] Aucun wrapper avec status "confirmed" trouvé');
-      room.reservations?.forEach((res: any, i: number) => {
-        console.log(`→ Réservation ${i}: wrapper.status = ${res.status}`);
-      });
-      notifyError('Aucune réservation confirmée trouvée pour cette chambre.');
-      return;
-    }
-
-
-    const reservationId = confirmedWrapper.reservation.id;
-    const reservationServiceProductId = confirmedWrapper.id;
-    const guestName = confirmedWrapper.creator?.firstName || 'Client inconnu';
-
-    console.log(`[handleCheckIn] Client: ${guestName}, Reservation ID: ${reservationId}`);
-
-    const result = await checkInReservations(reservationId, [reservationServiceProductId]);
-
-    const updatedReservation = result.reservation;
-    const updatedProducts = result.reservationProducts;
-
-    console.log(`[handleCheckIn] API Check-in réussi`, updatedReservation, updatedProducts);
-
-    updateLocalReservationState(room, reservationServiceProductId, guestName);
-
-    await fetchServiceProduct();
-
-    console.log(`[handleCheckIn] Check-in terminé pour ${reservationId}`);
-    notifySuccess(`Check-in réussi pour ${guestName}`);
-
-  } catch (apiError: any) {
-    console.error('[handleCheckIn] Erreur lors du check-in:', apiError);
-
-    if (apiError.response) {
-      const status = apiError.response.status;
-      const data = apiError.response.data;
-
-      switch (status) {
-        case 404:
-          notifyError('Réservation ou produit non trouvé. Veuillez actualiser la page.');
-          break;
-        case 400:
-          notifyError('Données invalides pour le check-in. Veuillez vérifier.');
-          break;
-        case 500:
-          notifyError('Erreur serveur. Veuillez réessayer.');
-          break;
-        default:
-          notifyError(`Erreur: ${data?.message || 'Erreur inconnue.'}`);
-      }
-    } else if (apiError.request) {
-      notifyError('Le serveur ne répond pas. Vérifiez votre connexion.');
-    } else {
-      notifyError('Erreur technique lors du check-in.');
-    }
-  } finally {
-    isCheckingIn.value = false;
-  }
-};
-
-
-// const handleCheckOut = async (room: any) => {
-//   isCheckingOut.value = true;
-//   try {
-//     console.log(`Début du check-out pour la chambre : ${room.name || room.productName} (ID: ${room.id})`);
-
-//     if (!room.reservations?.length) {
-//       console.log("Aucune réservation trouvée pour cette chambre.");
-//       alert("Aucune réservation trouvée.");
-//       return;
-//     }
-
-//     const checkedInWrapper = room.reservations.find(
-//       (res: any) => res.reservation.status === 'checked-in'
-//     );
-//     console.log("checkedInWrapper",room.reservation)
-
-//     if (!checkedInWrapper) {
-//       console.log("Aucune réservation avec status 'checked-in' trouvée.");
-//       alert("Aucune réservation en cours trouvée pour cette chambre.");
-//       return;
-//     }
-
-//     const reservationId = checkedInWrapper.reservation.id;
-//     const reservationServiceProductId = checkedInWrapper.id;
-//     const guestName = checkedInWrapper.creator?.firstName || 'Client inconnu';
-
-//     console.log(`[handleCheckOut] Reservation ID: ${reservationId}`);
-//     console.log(`[handleCheckOut] ReservationServiceProduct ID: ${reservationServiceProductId}`);
-
-//     const result = await checkOutReservations(reservationId, [reservationServiceProductId])
-//     console.log("[handleCheckOut] Réponse API:", result?.data);
-
-//     checkedInWrapper.status = 'checked-out';
-//     checkedInWrapper.check_out_date = new Date().toISOString();
-
-//     const roomToUpdate = serviceProducts.value.find((r) => r.id === room.id);
-//     if (roomToUpdate) {
-//       roomToUpdate.status = 'checked-out';
-//       roomToUpdate.checkOutTime = new Date().toISOString();
-//       console.log(`→ Chambre mise à jour localement : status = 'checked-out', checkOutTime = ${roomToUpdate.checkOutTime}`);
-//     }
-
-//     await fetchServiceProduct();
-//     alert(`Check-out réussi pour ${guestName}`);
-//   } catch (error: any) {
-//     console.error("Erreur lors du check-out :", error);
-//     alert("Erreur lors du check-out. Veuillez réessayer.");
-//   } finally {
-//     isCheckingOut.value = false;
-//   }
-// };
-*/
-
-
+  handleStatusChange(payload)
+  showStatusModal.value = false
+  selectedRoom.value = null
+}
 
 const maintenanceForm = ref({
   reason: '',
   startDate: '',
   endDate: '',
-  notes: ''
+  notes: '',
 })
 
 // Add form validation
 const validateMaintenanceForm = () => {
-  const errors = [];
+  const errors = []
 
   if (!maintenanceForm.value.reason.trim()) {
-    errors.push('Reason is required');
+    errors.push('Reason is required')
   }
 
   if (maintenanceForm.value.startDate && maintenanceForm.value.endDate) {
-    const start = new Date(maintenanceForm.value.startDate);
-    const end = new Date(maintenanceForm.value.endDate);
+    const start = new Date(maintenanceForm.value.startDate)
+    const end = new Date(maintenanceForm.value.endDate)
 
     if (end <= start) {
-      errors.push('End date must be after start date');
+      errors.push('End date must be after start date')
       error.value = t('date_must')
     }
   }
 
-  return errors;
+  return errors
 }
 
-
 const confirmMaintenance = async () => {
-  const errors = validateMaintenanceForm();
+  const errors = validateMaintenanceForm()
   if (errors.length > 0) {
-    console.error('Validation errors:', errors);
-    return;
+    console.error('Validation errors:', errors)
+    return
   }
 
   if (!selectedRoom.value) {
-    console.error('No room selected for maintenance');
-    return;
+    console.error('No room selected for maintenance')
+    return
   }
 
   const maintenanceData = {
@@ -1207,7 +1176,7 @@ const confirmMaintenance = async () => {
     notes: maintenanceForm.value.notes.trim(),
   }
 
-  isLoading.value = true;
+  isLoading.value = true
 
   try {
     await handleStatusChange({
@@ -1216,15 +1185,14 @@ const confirmMaintenance = async () => {
       ...maintenanceData,
     })
 
-    showMaintenanceModal.value = false;
-    resetMaintenanceForm();
+    showMaintenanceModal.value = false
+    resetMaintenanceForm()
   } catch (err) {
-    console.error('Erreur lors de la mise en maintenance :', err);
+    console.error('Erreur lors de la mise en maintenance :', err)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
-
 
 const resetMaintenanceForm = () => {
   maintenanceForm.value = {
@@ -1235,201 +1203,240 @@ const resetMaintenanceForm = () => {
   }
 }
 
-// const handleStatusChange = async (payload: any) => {
-//   let roomId: number, newStatus: string;
-//   let force = false;
-
-//   if (payload.roomId && payload.newStatus) {
-//     roomId = payload.roomId;
-//     newStatus = payload.newStatus;
-//   } else if (payload.room && payload.status) {
-//     roomId = payload.room.id;
-//     newStatus = payload.status;
-//   } else {
-//     console.error("handleStatusChange called with invalid payload:", payload);
-//     return;
-//   }
-
-//   const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
-//   if (!roomToUpdate) {
-//     console.warn(`Room with ID ${roomId} not found.`);
-//     return;
-//   }
-
-//   // Immediate UI update
-//   const oldStatus = roomToUpdate.status;
-//   roomToUpdate.status = newStatus;
-
-//   const maintenanceData = newStatus === 'maintenance'
-//     ? {
-//         reason: payload.reason || '',
-//         startDate: payload.startDate || '',
-//         endDate: payload.endDate || '',
-//         notes: payload.notes || '',
-//       }
-//     : undefined;
-
-//   const tryUpdate = async (forced = false) => {
-//     try {
-//       await updateRoomStatus(roomId, newStatus, forced, maintenanceData);
-//       console.log(`Room ${roomId} status updated on server.`);
-//     } catch (error: any) {
-//       if (error?.response?.data?.message?.includes("forcer")) {
-//         const confirmed = window.confirm("Room is occupied. Do you want to force the status change?");
-//         if (confirmed) {
-//           await tryUpdate(true);
-//         } else {
-//           roomToUpdate.status = oldStatus;
-//           console.info("Change cancelled.");
-//         }
-//       } else {
-//         roomToUpdate.status = oldStatus;
-//         console.error("API Error:", error);
-//       }
-//     }
-//   }
-
-//   await tryUpdate(force);
-
-//   // Auto-transition from cleaning to available after 30 minutes
-//   if (newStatus === 'cleaning') {
-//     setTimeout(() => {
-//       if (roomToUpdate.status === 'cleaning') {
-//         roomToUpdate.status = 'available';
-//         updateRoomStatus(roomId, 'available').catch((e) =>
-//           console.error("Error auto-updating cleaning → available:", e)
-//         );
-//       }
-//     }, 1800000); // 30 minutes
-//   }
-
-//   // Clean up guest data when room goes to maintenance
-//   if (newStatus === 'maintenance') {
-//     delete roomToUpdate.guestName;
-//     delete roomToUpdate.checkInTime;
-//     delete roomToUpdate.checkOutTime;
-//     delete roomToUpdate.nextAvailable;
-//     console.log(`Guest data removed for room ${roomToUpdate.id} (maintenance).`);
-//   }
-
-//   console.log(`✅ Room ${roomToUpdate.productName} → ${newStatus}`);
-// }
-
 const handleStatusChange = async (payload: any) => {
-  let roomId: number, newStatus: string;
-  let force = false;
+  let roomId: number, newStatus: string
+  let force = false
 
   if (payload.roomId && payload.newStatus) {
-    roomId = payload.roomId;
-    newStatus = payload.newStatus;
+    roomId = payload.roomId
+    newStatus = payload.newStatus
   } else if (payload.room && payload.status) {
-    roomId = payload.room.id;
-    newStatus = payload.status;
+    roomId = payload.room.id
+    newStatus = payload.status
   } else {
-    console.error("handleStatusChange called with invalid payload:", payload);
-    return;
+    console.error('handleStatusChange called with invalid payload:', payload)
+    return
   }
 
-  const roomToUpdate = serviceProducts.value.find((r: any) => r.id === roomId);
+  const roomToUpdate = Rooms.value.find((r: any) => r.id === roomId)
   if (!roomToUpdate) {
-    console.warn(`Room with ID ${roomId} not found.`);
-    return;
+    console.warn(`Room with ID ${roomId} not found.`)
+    return
   }
 
-  const oldStatus = roomToUpdate.status;
+  const oldStatus = roomToUpdate.status
 
- roomToUpdate.status = newStatus;
+  roomToUpdate.status = newStatus
 
-  const maintenanceData = newStatus === 'maintenance'
-    ? {
-        reason: payload.reason || '',
-        startDate: payload.startDate || '',
-        endDate: payload.endDate || '',
-        notes: payload.notes || '',
-      }
-    : undefined;
+  const maintenanceData =
+    newStatus === 'maintenance'
+      ? {
+          reason: payload.reason || '',
+          startDate: payload.startDate || '',
+          endDate: payload.endDate || '',
+          notes: payload.notes || '',
+        }
+      : undefined
 
   const tryUpdate = async (forced = false) => {
     try {
-      await updateRoomStatus(roomId, newStatus, forced, maintenanceData);
+      await updateRoomStatus(roomId, newStatus, forced, maintenanceData)
 
-      console.log(`Room ${roomId} status updated on server.`);
+      console.log(`Room ${roomId} status updated on server.`)
     } catch (error: any) {
-      if (error?.response?.data?.message?.includes("forcer")) {
-        popupMessage.value = t('room_force');
-        showMessage.value = true;
+      if (error?.response?.data?.message?.includes('forcer')) {
+        popupMessage.value = t('room_force')
+        showMessage.value = true
 
         pendingForceRetry.value = async () => {
-          showMessage.value = false;
-          await tryUpdate(true);
-        };
+          showMessage.value = false
+          await tryUpdate(true)
+        }
 
-        return;
+        return
       } else {
-        roomToUpdate.status = oldStatus;
-        console.error("API Error:", error);
+        roomToUpdate.status = oldStatus
+        console.error('API Error:', error)
       }
     }
   }
 
-  await tryUpdate(force);
+  await tryUpdate(force)
 
   if (newStatus === 'cleaning') {
     setTimeout(() => {
       if (roomToUpdate.status === 'cleaning') {
-        roomToUpdate.status = 'available';
+        roomToUpdate.status = 'available'
         updateRoomStatus(roomId, 'available').catch((e) =>
-          console.error("Error auto-updating cleaning → available:", e)
-        );
+          console.error('Error auto-updating cleaning → available:', e),
+        )
       }
-    }, 1800000);
+    }, 1800000)
   }
 
   if (newStatus === 'maintenance') {
-    delete roomToUpdate.guestName;
-    delete roomToUpdate.checkInTime;
-    delete roomToUpdate.checkOutTime;
-    delete roomToUpdate.nextAvailable;
-    console.log(`Guest data removed for room ${roomToUpdate.id} (maintenance).`);
+    delete roomToUpdate.guestName
+    delete roomToUpdate.checkInTime
+    delete roomToUpdate.checkOutTime
+    delete roomToUpdate.nextAvailable
+    console.log(`Guest data removed for room ${roomToUpdate.id} (maintenance).`)
   }
 
-  console.log(`✅ Room ${roomToUpdate.productName} → ${newStatus}`);
-};
+  console.log(`✅ Room ${roomToUpdate.productName} → ${newStatus}`)
+}
 
 const confirmForceChange = async () => {
   if (pendingForceRetry.value) {
-    await pendingForceRetry.value();
-    pendingForceRetry.value = null;
+    await pendingForceRetry.value()
+    pendingForceRetry.value = null
   }
- fetchServiceProduct()
-
-};
+  fetchRoomWithDetails()
+}
 
 const closeModal = () => {
-  showMessage.value = false;
+  showMessage.value = false
 
   if (pendingForceRetry.value) {
-    pendingForceRetry.value = null;
+    pendingForceRetry.value = null
   }
   window.location.reload()
   // toast.info(t('status_change_cancelled'));
-};
+}
 
+// État pour gérer les types de chambres étendus
+const expandedRoomTypes = ref(new Set())
 
+// Fonction pour basculer l'expansion d'un type de chambre
+const toggleRoomType = (roomTypeId) => {
+  if (expandedRoomTypes.value.has(roomTypeId)) {
+    expandedRoomTypes.value.delete(roomTypeId)
+  } else {
+    expandedRoomTypes.value.add(roomTypeId)
+  }
+}
+
+// Fonction pour obtenir les chambres par statut
+const getRoomsByStatus = (rooms, targetStatus) => {
+  return rooms.filter((room) => {
+    switch (targetStatus) {
+      case 'occupied':
+        return room.status === 'occupied' || room.housekeepingStatus === 'dirty'
+      case 'cleaning':
+        return (
+          room.status === 'cleaning'
+        )
+      case 'available':
+        return room.status === 'available' && room.housekeepingStatus === 'clean'
+      case 'dirty':
+        return room.housekeepingStatus === 'dirty' || room.status === 'dirty'
+      case 'maintenance':
+        return (
+          room.status === 'maintenance' ||
+          room.status === 'out_of_order' ||
+          room.housekeepingStatus === 'maintenance'
+        )
+      case 'nostatus':
+        return !room.status && !room.housekeepingStatus
+      default:
+        return false
+    }
+  })
+}
+
+// Interface pour les statistiques par type de chambre
+interface RoomTypeStat {
+  id: number | string
+  name: string
+  noStatus: number
+  available: number
+  cleaning: number
+  occupied: number
+  dirty: number
+  outOfOrder: number
+  totalRooms: number
+  rooms: typeof flattenServiceProducts.value
+  dirtyRooms: typeof flattenServiceProducts.value
+}
+
+// Statistiques par type de chambre
+const roomTypeStats = computed(() => {
+  const typeStats: RoomTypeStat[] = []
+
+  roomTypeData.value.forEach((roomType) => {
+    const roomsOfType = flattenServiceProducts.value.filter((room) => {
+      return (
+        room.roomTypeId === roomType.id ||
+        room.roomTypeName === roomType.label ||
+        room.roomType?.id === roomType.id
+      )
+    })
+
+    const availableRooms = getRoomsByStatus(roomsOfType, 'available')
+    const cleanRooms = getRoomsByStatus(roomsOfType, 'cleaning')
+    const occupiedRooms = getRoomsByStatus(roomsOfType, 'occupied')
+    const dirtyRooms = getRoomsByStatus(roomsOfType, 'dirty')
+    const outOfOrderRooms = getRoomsByStatus(roomsOfType, 'maintenance')
+    const noStatusRooms = getRoomsByStatus(roomsOfType, 'nostatus')
+
+    const stats: RoomTypeStat = {
+      id: roomType.id,
+      name: roomType.label,
+      noStatus: noStatusRooms.length,
+      available: availableRooms.length,
+      cleaning: cleanRooms.length,
+      occupied: occupiedRooms.length,
+      dirty: dirtyRooms.length,
+      outOfOrder: outOfOrderRooms.length,
+      totalRooms: roomsOfType.length,
+      rooms: roomsOfType.sort((a, b) =>
+        a.roomNumber.localeCompare(b.roomNumber, undefined, { numeric: true })
+      ),
+      dirtyRooms: dirtyRooms,
+    }
+
+    typeStats.push(stats)
+  })
+
+  return typeStats.sort((a, b) => a.name.localeCompare(b.name))
+})
+
+// Statistiques totales
+const totalStats = computed(() => {
+  return roomTypeStats.value.reduce(
+    (total, roomType) => ({
+      noStatus: total.noStatus + roomType.noStatus,
+      available: total.available + roomType.available,
+      occupied: total.occupied + roomType.occupied,
+      cleaning: total.cleaning + roomType.cleaning,
+      dirty: total.dirty + roomType.dirty,
+      outOfOrder: total.outOfOrder + roomType.outOfOrder,
+    }),
+    { noStatus: 0, available: 0, occupied: 0, cleaning: 0, dirty: 0, outOfOrder: 0 }
+  )
+})
 
 </script>
 
 <style scoped>
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.rotate-90 {
+  transform: rotate(90deg);
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.bg-gray-25 {
+  background-color: #fafafa;
+}
+
+.bg-green-25 {
+  background-color: #f0fdf4;
+}
+
+.bg-red-25 {
+  background-color: #fef2f2;
 }
 </style>

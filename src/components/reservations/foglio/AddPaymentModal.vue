@@ -21,7 +21,8 @@
           placeholder="Enter receipt/voucher number" />
       </div>
 
-      <!-- Type -->
+     <div class="grid grid-cols-2 gap-4">
+       <!-- Type -->
       <div>
         <Select v-model="formData.type" :options="typeOptions" :lb="$t('Type')" />
       </div>
@@ -30,16 +31,14 @@
       <div>
         <Select v-model="formData.method" :options="methodOptions" :lb="$t('Method')" />
       </div>
+     </div>
 
       <!-- Amount -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
         <div class="flex space-x-2">
-          <div class="flex-1">
-            <Select v-model="formData.currency" :options="currencyOptions" />
-          </div>
           <div class="flex-2">
-            <Input v-model="formData.amount" input-type="number" min="0" step="0.01" />
+            <InputCurrency v-model="formData.amount" :currency="formData.currency" />
           </div>
         </div>
       </div>
@@ -73,6 +72,7 @@ import { getCurrencies, getPaymentMethods, getReservationTypes, getDiscounts, ge
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getReservationFolios, createFolioTransaction } from '../../../services/foglioApi'
 import { useToast } from 'vue-toastification'
+import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 
 interface Props {
   isOpen: boolean

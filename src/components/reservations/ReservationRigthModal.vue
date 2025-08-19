@@ -10,7 +10,8 @@
                 <!-- Loading Skeleton -->
                 <div v-if="isLoading" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">
                     <!-- Header Skeleton -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div
+                        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                         <div class="flex items-center space-x-3">
                             <div class="flex-shrink-0">
                                 <div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -20,13 +21,15 @@
                                 <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
                             </div>
                         </div>
-                        <button @click="closeModal" class="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <button @click="closeModal"
+                            class="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
-                    
+
                     <!-- Content Skeleton -->
                     <div class="flex-1 overflow-y-auto">
                         <div class="px-6 py-6">
@@ -37,50 +40,63 @@
                                     <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
                                     <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
                                 </div>
-                                
+
                                 <!-- Guest Info Skeleton -->
                                 <div class="space-y-4">
                                     <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
                                     <div class="space-y-2">
-                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse">
+                                        </div>
                                         <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
                                         <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Reservation Details Skeleton -->
                                 <div class="space-y-4">
                                     <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse"></div>
                                     <div class="space-y-2">
                                         <div class="flex justify-between">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse">
+                                            </div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse">
+                                            </div>
                                         </div>
                                         <div class="flex justify-between">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28 animate-pulse"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28 animate-pulse">
+                                            </div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse">
+                                            </div>
                                         </div>
                                         <div class="flex justify-between">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse">
+                                            </div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Financial Info Skeleton -->
                                 <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
                                     <div class="space-y-2">
                                         <div class="flex justify-between">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse">
+                                            </div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse">
+                                            </div>
                                         </div>
                                         <div class="flex justify-between">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 animate-pulse"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-18 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 animate-pulse">
+                                            </div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-18 animate-pulse">
+                                            </div>
                                         </div>
                                         <div class="flex justify-between">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse">
+                                            </div>
+                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -88,7 +104,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Actual Content -->
                 <div v-else-if="reservation" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">
                     <!-- Header -->
@@ -127,11 +143,12 @@
                                 <div class="space-y-6 ">
                                     <!-- Buttons -->
                                     <div class="flex gap-2">
-                                        <button class="rounded-lg bg-primary text-sm text-white px-4" @click="gotoResevationDetails">
+                                        <button class="rounded-lg bg-primary text-sm text-white px-4"
+                                            @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>
                                         <ButtonDropdown
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
-                                            :options="dropdownOptions" :button-text="t('options')"
+                                            :options="dropdownOptions" :button-text="t('Options')"
                                             @option-selected="handleOptionSelected" />
                                         <ButtonDropdown :options="printOptions" :button-text="t('print')"
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
@@ -156,7 +173,7 @@
                                             </label>
                                             <span
                                                 class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                {{ reservation.status }}
+                                                {{ $t(reservation.status) }}
                                             </span>
                                         </div>
 
@@ -166,7 +183,7 @@
                                                 {{ $t('arrivalDate') }}
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">{{
-                                                formatDate(reservation.checkInDate) }}</p>
+                                                formatDate(reservation.arrivedDate) }}</p>
                                         </div>
 
                                         <div>
@@ -175,7 +192,7 @@
                                                 {{ $t('departureDate') }}
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">{{
-                                                formatDate(reservation.checkOutDate) }}</p>
+                                                formatDate(reservation.departDate) }}</p>
                                         </div>
 
                                         <div>
@@ -184,24 +201,32 @@
                                                 {{ $t('booking_date') }}
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">{{
-                                                reservation.roomType }}</p>
+                                                formatDate(reservation.createdAt) }}</p>
                                         </div>
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('roomType') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white">{{
-                                                reservation.roomType }}</p>
+                                            <p class="text-sm text-gray-900 dark:text-white">
+                                                <span v-for="(rm, ind) in roomTypeSumarry" :key="ind">{{ rm
+                                                }}</span>
+                                            </p>
                                         </div>
 
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                {{ $t('roomNumber') }}
+                                                {{ t('roomNumber') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white">{{
-                                                reservation.roomNumber || $t('notAvailable') }}</p>
+                                            <p class="text-sm text-gray-900 dark:text-white"
+                                                v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0">
+                                                <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
+                                                }}</span>
+                                            </p>
+                                            <div v-else>
+                                                <button>assign room</button>
+                                            </div>
                                         </div>
 
                                         <div>
@@ -209,8 +234,11 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('ratePlan') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white">{{
-                                                reservation.ratePlan || $t('notAvailable') }}</p>
+                                            <p class="text-sm text-gray-900 dark:text-white"
+                                                v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0">
+                                                <span v-for="(res, ind) in ratePlan" :key="ind">{{ res
+                                                }}</span>
+                                            </p>
                                         </div>
                                         <div>
                                             <label
@@ -224,7 +252,7 @@
                                                 </div>
                                                 <div class="flex items-center">
                                                     <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{
-                                                        reservation.child??0 }}</span>
+                                                        reservation.child ?? 0 }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -252,7 +280,7 @@
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{ formatCurrency(reservation.totalAmount ?? 0)
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
@@ -274,17 +302,29 @@
     </div>
 
     <!-- Cancel Reservation Modal -->
-    <CancelReservation :is-open="showCancelModal" :reservation-data="reservationData" @close="showCancelModal = false"
-        @cancel-confirmed="handleCancelConfirmed" />
+    <template v-if="reservation">
+        <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @cancel-confirmed="handleCancelConfirmed" />
+        <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @void-confirmed="handleVoidConfirmed" />
+        <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+
+        <!-- Add Payment Modal -->
+        <template v-if="isAddPaymentModalOpen">
+            <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen"
+                @close="closeAddPaymentModal" @save="handleSavePayment" />
+        </template>
+    </template>
+
 
     <!-- Print Modal -->
-    <PrintModal 
-        :is-open="showPrintModal" 
-        :document-data="printDocumentData"
-        @close="showPrintModal = false" 
-        @print-success="handlePrintSuccess" 
-        :templates="templates"
-        @print-error="handlePrintError" />
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+        @print-success="handlePrintSuccess" :templates="templates" @print-error="handlePrintError" />
+
 </template>
 
 <script setup lang="ts">
@@ -303,12 +343,15 @@ import { getReservationDetailsById } from '../../services/reservation'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
 import BookingConfirmationTemplate from '../common/templates/BookingConfirmationTemplate.vue'
+import VoidReservation from './foglio/VoidReservation.vue'
+import AmendStay from './foglio/AmendStay.vue'
+import AddPaymentModal from './foglio/AddPaymentModal.vue'
 import BookingInvoice from '../common/templates/BookingInvoice.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const isLoading = ref(false);
-const reservation =ref<any>(null)
+const reservation = ref<any>(null)
 
 
 // Initialize the reservation composable
@@ -349,11 +392,46 @@ const emit = defineEmits<Emits>()
 // Cancel modal state
 const showCancelModal = ref(false)
 const showPrintModal = ref(false)
+const showVoidModal = ref(false)
+const showAmendModal = ref(false)
+const isAddPaymentModalOpen = ref(false)
+
+
 
 const closeModal = () => {
     emit('close')
 }
-const handleCancelConfirmed =()=>{}
+const handleCancelConfirmed = () => {
+    showCancelModal.value = false
+    getBookingDetailsById();
+    // Emit save event to notify parent components
+    emit('save', { action: 'cancel', reservationId: reservation.value?.id })
+}
+const handleVoidConfirmed = () => {
+    showVoidModal.value = false
+    getBookingDetailsById();
+    // Emit save event to notify parent components
+    emit('save', { action: 'void', reservationId: reservation.value?.id })
+}
+const handleAmendConfirmed = () => {
+    showAmendModal.value = false
+    getBookingDetailsById();
+    // Emit save event to notify parent components
+    emit('save', { action: 'amend', reservationId: reservation.value?.id })
+}
+
+const openAddPaymentModal = () => {
+    isAddPaymentModalOpen.value = true
+}
+
+const closeAddPaymentModal = () => {
+    isAddPaymentModalOpen.value = false
+}
+const handleSavePayment = (data: any) => {
+    console.log('Add payment data:', data)
+    // Emit save event to notify parent components
+    emit('save', { action: 'addPayment', reservationId: reservation.value?.id, data })
+}
 
 // Print options
 const printOptions = computed(() => [
@@ -367,7 +445,51 @@ const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
     showPrintModal.value = true
 }
+const roomRateTypeSummary = computed(() => {
+    if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
+        return 'N/A';
+    }
 
+    const reservationRooms = reservation.value.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
+    })
+
+
+
+    return roomNumbers;
+});
+
+const ratePlan = computed(() => {
+    if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+
+    const reservationRooms = reservation.value.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.roomRates?.rateType?.rateTypeName}`
+    })
+    return roomNumbers;
+})
+
+
+const roomTypeSumarry = computed(() => {
+    if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+
+    const reservationRooms = reservation.value.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.roomType?.roomTypeName}`
+    })
+    return roomNumbers;
+})
 const handlePrintSuccess = (data: any) => {
     console.log('Print successful:', data)
     showPrintModal.value = false
@@ -398,26 +520,26 @@ const printDocumentData = computed(() => ({
     totalAmount: reservation.value?.totalAmount,
     paidAmount: reservation.value?.paidAmount,
     remainingAmount: reservation.value?.remainingAmount,
-    company:{}
+    company: {}
 }))
 const handleSave = () => {
     emit('save', props.reservationData)
 }
 
 
-const gotoResevationDetails =()=>{
+const gotoResevationDetails = () => {
     router.push({
-      name: 'ReservationDetails',
-      params: { id: reservation.value.id }
+        name: 'ReservationDetails',
+        params: { id: reservation.value.id }
     });
 }
 const getBookingDetailsById = async () => {
     isLoading.value = true;
     const id = props.reservationData.reservation_id;
     const response = await getReservationDetailsById(Number(id));
-        console.log(response)
-        reservation.value = response
-  
+    console.log(response)
+    reservation.value = response
+
     isLoading.value = false;
     console.log('Reservation data fetched:', reservation.value)
 };
@@ -487,20 +609,21 @@ const dropdownOptions = computed(() => {
 });
 
 const handleOptionSelected = async (option: any) => {
-     
+
 
     // Handle specific actions using the composable
     switch (option.id) {
         case 'add_payment':
-            // Handle add payment - might need custom routing or modal
-            console.log('Add payment action triggered');
+            openAddPaymentModal()
             break;
         case 'amend_stay':
+            showAmendModal.value = true;
             break;
         case 'cancel_reservation':
             showCancelModal.value = true;
             break;
         case 'void_reservation':
+            showVoidModal.value = true;
             break;
         case 'unassign_room':
             break;
