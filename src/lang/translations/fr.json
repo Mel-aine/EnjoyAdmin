@@ -1579,7 +1579,8 @@
     "greater": "Supérieur à",
     "less": "Inférieur à",
     "ascending": "Croissant",
-    "descending": "Décroissant"
+    "descending": "Décroissant",
+    "sendEmail": "Envoyer un Email"
   },
   "schedule": {
     "title": "Planning du personnel",
@@ -4347,5 +4348,30 @@
   "error_initiating_print": "Erreur lors de l'initiation de l'impression",
   "pdf_generated_successfully": "PDF généré avec succès",
   "error_generating_pdf": "Erreur lors de la génération du PDF",
-  "reservations": "Réservations"
+  "reservations": "Réservations",
+  "unsettledFolios": {
+    "title": "Folios Non Réglés",
+    "tableTitle": "Folios Non Réglés",
+    "noFoliosFound": "Aucun Folio Trouvé",
+    "noFoliosMessage": "Aucun folio non réglé ne correspond à vos filtres actuels",
+    "columns": {
+      "folioNumber": "Numéro de Folio",
+      "guestName": "Nom du Client",
+      "roomNumber": "Numéro de Chambre",
+      "roomType": "Type de Chambre",
+      "checkOutDate": "Date de Départ",
+      "totalCharges": "Charges Totales",
+      "balance": "Solde",
+      "status": "Statut"
+    }
+  },
+  "folioStatus": {
+    "Open": "Ouvert",
+    "Closed": "Fermé",
+    "Pending": "En Attente",
+    "Disputed": "Contesté"
+  },
+  "navigation": {
+    "frontOffice": "Réception"
+  }
 }

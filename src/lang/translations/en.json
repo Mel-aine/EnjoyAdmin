@@ -1637,7 +1637,8 @@
     "greater": "Greater Than",
     "less": "Less Than",
     "ascending": "Ascending",
-    "descending": "Descending"
+    "descending": "Descending",
+    "sendEmail": "Send Email"
   },
   "schedule": {
     "title": "Staff Schedule",
@@ -4796,5 +4797,30 @@
   "amen_stay":"Amend Stay",
   "reservation_amended_successfully":"reservation amended successfully",
   "error_amended_reservation":"Error amended reservation",
-  "overwirte_room_rate":"Overwrite room rate"
+  "overwirte_room_rate":"Overwrite room rate",
+  "unsettledFolios": {
+    "title": "Unsettled Folios",
+    "tableTitle": "Unsettled Folios",
+    "noFoliosFound": "No Folios Found",
+    "noFoliosMessage": "No unsettled folios match your current filters",
+    "columns": {
+      "folioNumber": "Folio Number",
+      "guestName": "Guest Name",
+      "roomNumber": "Room Number",
+      "roomType": "Room Type",
+      "checkOutDate": "Check-out Date",
+      "totalCharges": "Total Charges",
+      "balance": "Balance",
+      "status": "Status"
+    }
+  },
+  "folioStatus": {
+    "Open": "Open",
+    "Closed": "Closed",
+    "Pending": "Pending",
+    "Disputed": "Disputed"
+  },
+  "navigation": {
+    "frontOffice": "Front Office"
+  }
 }

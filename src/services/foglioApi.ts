@@ -107,7 +107,7 @@ const API_URL = `${import.meta.env.VITE_API_URL as string}/folios`
 
 
 const authStore = useAuthStore()
-const headers = {
+const headers:any = {
   headers: {
     Authorization: `Bearer ${authStore.token}`,
   },
@@ -810,5 +810,47 @@ export const reverseFolioTransaction = async (id: number, data: { reason: string
     throw error
   }
 }
+
+/**
+ * folio printer
+ * @param data 
+ * @returns 
+ */
+export const printFolio = async (data: {
+  folioId: number
+  reservationId?: number
+  currencyId?: number
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-transactions/print`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error printing folio:', error)
+    throw error
+  }
+}
+
+
+/**
+ * folio printer
+ * @param data 
+ * @returns 
+ */
+export const printFolioPdf = async (data: {
+  folioId: number
+  reservationId?: number
+  currencyId?: number
+}): Promise<any> => {
+
+  headers.responseType='blob'
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print-pdf`, data, headers,)
+    return response.data
+  } catch (error) {
+    console.error('Error printing folio:', error)
+    throw error
+  }
+}
+
 
 

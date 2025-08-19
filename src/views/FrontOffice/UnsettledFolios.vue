@@ -3,59 +3,7 @@
     <PageBreadcrumb :pageTitle="$t('unsettledFolios.title')" :breadcrumb="breadcrumb" />
     
     <div class="space-y-6">
-      <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <div class="flex items-center">
-            <div class="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-              <FileTextIcon class="w-6 h-6 text-red-600 dark:text-red-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('unsettledFolios.totalFolios') }}</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ summary.totalFolios }}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <div class="flex items-center">
-            <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-              <DollarSignIcon class="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('unsettledFolios.totalBalance') }}</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">${{ summary.totalBalance.toFixed(2) }}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <div class="flex items-center">
-            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <TrendingUpIcon class="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('unsettledFolios.avgBalance') }}</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">${{ summary.avgBalance.toFixed(2) }}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <div class="flex items-center">
-            <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <ClockIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('unsettledFolios.oldestFolio') }}</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ summary.oldestFolioDays }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Filter Component -->
-      <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
       
       <!-- Unsettled Folios Table -->
       <ReusableTable
@@ -71,6 +19,9 @@
         @selection-change="onSelectionChange"
         @action="onAction"
       >
+      <template #header-actions>
+              <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
+      </template>
         <!-- Custom column templates -->
         <template #column-guestName="{ item }">
           <div>

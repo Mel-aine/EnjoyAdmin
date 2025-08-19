@@ -63,7 +63,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
             {
               name: t('unsettled_folios'),
-              path: '/unsettled_folios',
+              path: '/front-office/unsettled_folios',
               permission: 'dashboard_view',
             },
           ]
