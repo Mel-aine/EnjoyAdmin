@@ -94,7 +94,7 @@ interface RoomChargeItem {
 }
 
 const loading = ref(false)
-const totalAmount = ref(9600.00)
+const totalAmount = ref(0)
 
 // Sample room charge data
 const roomChargeData = ref<RoomChargeItem[]>([
@@ -103,7 +103,7 @@ const roomChargeData = ref<RoomChargeItem[]>([
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'stay.checkInDate', label: t('stay'), type: 'custom' },
+  { key: 'transactionDate', label: t('stay'), type: 'custom' },
   { key: 'room.roomNumber', label: t('Room'), type: 'text' },
   { key: 'rateType.ratePlanName', label: t('Rate Type'), type: 'text' },
   { key: 'pax', label: t('Pax(A/C)'), type: 'text' },
@@ -198,7 +198,8 @@ const getTransactionFolio =async()=>{
   const response  = await getRoomCharges(props.reservationId);
   console.log(response.data);
   if(response.data){
-    roomChargeData.value = response.data.roomChargesTable
+    roomChargeData.value = response.data.roomChargesTable;
+    totalAmount.value = response.data.summary?.totalNetAmount;
   }
   loading.value = false;
 }

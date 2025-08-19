@@ -1284,6 +1284,25 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Cashiering routes
+    {
+      path: '/cashiering/company_database',
+      name: 'CompanyDatabase',
+      component: () => import('../views/Cashiering/CompanyDatabase.vue'),
+      meta: {
+        title: 'Company Database',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/Cashiering/new_company',
+      name: 'AddCompany',
+      component: () => import('../views/Cashiering/AddCompany.vue'),
+      meta: {
+        title: 'Add Company',
+        requiresAuth: true,
+      },
+    },
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',

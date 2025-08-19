@@ -8,7 +8,8 @@ import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { createReservation, getReservationDetailsById } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
-import {getPaymentMethods} from '@/services/paymentMethodApi'
+import { getPaymentMethods } from '@/services/paymentMethodApi'
+import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
 
 // Types existants...
 interface RoomConfiguration {
@@ -20,6 +21,7 @@ interface RoomConfiguration {
   childCount: number
   rate: number
   isOpen: boolean
+  taxes: []
 }
 
 interface Reservation {
@@ -168,6 +170,7 @@ export function useBooking() {
       childCount: 0,
       rate: 0,
       isOpen: false,
+      taxes: []
     },
   ])
 
@@ -203,7 +206,7 @@ export function useBooking() {
     title: '',
     id: 0,
   })
-
+  const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
     emailBookingVouchers: false,
     voucherEmail: '',
@@ -279,7 +282,9 @@ export function useBooking() {
     } else {
       dateError.value = null
     }
-
+    roomConfigurations.value.forEach((room) => {
+      onRoomNumberChange(room)
+    })
     updateBilling()
   })
 
@@ -435,6 +440,7 @@ export function useBooking() {
       childCount: 0,
       rate: 0,
       isOpen: false,
+      taxes: []
     }
     roomConfigurations.value.push(newRoom)
     reservation.value.rooms = roomConfigurations.value.length
@@ -572,8 +578,8 @@ export function useBooking() {
         state: guest.value.state,
         city: guest.value.city,
         zipcode: guest.value.zipcode,
-        status:'confirmed',
-        reservation_status:'confirmed',
+        status: 'confirmed',
+        reservation_status: 'confirmed',
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
@@ -593,21 +599,24 @@ export function useBooking() {
         rooms: roomConfigurations.value
           .filter((room) => room.roomType && room.roomNumber)
           .map((room) => ({
-            room_type_id: Number(room.roomType),
-            rate_type_id: room.rateType ? Number(room.rateType) : undefined,
-            room_id: Number(room.roomNumber),
-            room_rate: Number(room.rate) || 0,
-            adult_count: Number(room.adultCount) || 1,
-            child_count: Number(room.childCount) || 0,
-            room_rate_id:RoomRateById.value
+            room_type_id: safeParseInt(room.roomType, 0),
+            rate_type_id: room.rateType ? safeParseInt(room.rateType, 0) : undefined,
+            room_id: safeParseInt(room.roomNumber, 0),
+            room_rate: prepareFolioAmount(room.rate),
+            adult_count: safeParseInt(room.adultCount, 1),
+            child_count: safeParseInt(room.childCount, 0),
+            room_rate_id: RoomRateById.value,
+            taxes:( (!billing.value.taxExempt && room.taxes?.length) ? room.taxes.reduce((total, tax: any) => {
+              return Number(total) + Number(tax.taxAmount)
+            }, 0) : 0)/Number(numberOfNights.value)
           })),
 
         // Financial
-        total_amount: Number(billing.value.roomCharges) || 0,
-        tax_amount: Number(billing.value.taxes) || 0,
-        final_amount: Number(billing.value.totalAmount) || 0,
+        total_amount: prepareFolioAmount(billing.value.roomCharges),
+        tax_amount: prepareFolioAmount(billing.value.taxes),
+        final_amount: prepareFolioAmount(billing.value.totalAmount),
         paid_amount: 0,
-        remaining_amount: Number(billing.value.totalAmount) || 0,
+        remaining_amount: prepareFolioAmount(billing.value.totalAmount),
 
         // Additional info
         is_complementary: Boolean(reservation.value.isComplementary),
@@ -793,14 +802,21 @@ export function useBooking() {
 
   // Fonction updateBilling
   const updateBilling = () => {
+
     const roomCharges = roomConfigurations.value.reduce((total, room) => {
-      const roomRate = Number(room.rate) || 0
+      const roomRate = prepareFolioAmount(room.rate)
       const nights = Number(numberOfNights.value) || 0
       return Number(total) + (roomRate * nights)
     }, 0)
+    const defaultaxes = roomConfigurations.value.reduce((total, room) => {
+      const taxs = room.taxes?.length ? room.taxes?.reduce((total, tax: any) => {
+        return Number(total) + Number(tax.taxAmount)
+      }, 0) : 0
+      return Number(total) + taxs
+    }, 0)
 
     // Calculer les taxes uniquement si pas d'exemption fiscale
-    const taxes = billing.value.taxExempt ? 0 : Number(roomCharges) * 0.15
+    const taxes = billing.value.taxExempt ? 0 : defaultaxes
 
     // Assigner avec conversion explicite et arrondi
     billing.value.roomCharges = Number(roomCharges.toFixed(2))
@@ -875,60 +891,60 @@ export function useBooking() {
 
   // Fonction getRoomExtraInfo
   const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
-  const room = roomConfigurations.value.find((r) => r.id === roomId)
-  if (!room || !room.roomType) {
+    const room = roomConfigurations.value.find((r) => r.id === roomId)
+    if (!room || !room.roomType) {
+      return {
+        baseAdult: 0,
+        baseChild: 0,
+        extraAdults: 0,
+        extraChildren: 0,
+        extraAdultRate: 0,
+        extraChildRate: 0,
+        extraAdultCost: 0,
+        extraChildCost: 0,
+        totalExtraCost: 0,
+      }
+    }
+
+    const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
+    if (!baseInfo) {
+      return {
+        baseAdult: 0,
+        baseChild: 0,
+        extraAdults: 0,
+        extraChildren: 0,
+        extraAdultRate: 0,
+        extraChildRate: 0,
+        extraAdultCost: 0,
+        extraChildCost: 0,
+        totalExtraCost: 0,
+      }
+    }
+
+    const adultCount = Number(room.adultCount) || 0
+    const childCount = Number(room.childCount) || 0
+    const baseAdult = Number(baseInfo.baseAdult) || 0
+    const baseChild = Number(baseInfo.baseChild) || 0
+    const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
+    const extraChildRate = Number(baseInfo.extraChildRate) || 0
+    const extraAdults = Math.max(0, adultCount - baseAdult)
+    const extraChildren = Math.max(0, childCount - baseChild)
+    const extraAdultCost = extraAdults * extraAdultRate
+    const extraChildCost = extraChildren * extraChildRate
+    const totalExtraCost = extraAdultCost + extraChildCost
+
     return {
-      baseAdult: 0,
-      baseChild: 0,
-      extraAdults: 0,
-      extraChildren: 0,
-      extraAdultRate: 0,
-      extraChildRate: 0,
-      extraAdultCost: 0,
-      extraChildCost: 0,
-      totalExtraCost: 0,
+      baseAdult,
+      baseChild,
+      extraAdults,
+      extraChildren,
+      extraAdultRate,
+      extraChildRate,
+      extraAdultCost: Number(extraAdultCost.toFixed(2)),
+      extraChildCost: Number(extraChildCost.toFixed(2)),
+      totalExtraCost: Number(totalExtraCost.toFixed(2)),
     }
   }
-
-  const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
-  if (!baseInfo) {
-    return {
-      baseAdult: 0,
-      baseChild: 0,
-      extraAdults: 0,
-      extraChildren: 0,
-      extraAdultRate: 0,
-      extraChildRate: 0,
-      extraAdultCost: 0,
-      extraChildCost: 0,
-      totalExtraCost: 0,
-    }
-  }
-
-  const adultCount = Number(room.adultCount) || 0
-  const childCount = Number(room.childCount) || 0
-  const baseAdult = Number(baseInfo.baseAdult) || 0
-  const baseChild = Number(baseInfo.baseChild) || 0
-  const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
-  const extraChildRate = Number(baseInfo.extraChildRate) || 0
-  const extraAdults = Math.max(0, adultCount - baseAdult)
-  const extraChildren = Math.max(0, childCount - baseChild)
-  const extraAdultCost = extraAdults * extraAdultRate
-  const extraChildCost = extraChildren * extraChildRate
-  const totalExtraCost = extraAdultCost + extraChildCost
-
-  return {
-    baseAdult,
-    baseChild,
-    extraAdults,
-    extraChildren,
-    extraAdultRate,
-    extraChildRate,
-    extraAdultCost: Number(extraAdultCost.toFixed(2)),
-    extraChildCost: Number(extraChildCost.toFixed(2)),
-    totalExtraCost: Number(totalExtraCost.toFixed(2)),
-  }
-}
 
 
   //  watch recalculer automatiquement quand les comptes changent
@@ -1027,6 +1043,7 @@ export function useBooking() {
         childCount: 0,
         rate: 0,
         isOpen: false,
+        taxes: []
       },
     ]
 
@@ -1067,35 +1084,71 @@ export function useBooking() {
       toast.error(t('toast.errorInitializing'))
     }
   }
+  const onRoomNumberChange = (roomC: any) => {
+    console.log('roomTypeRooms.value', RoomTypesData.value);
+    console.log("roomC", roomC)
+    if(!roomC.roomType){
+      return
+    }
 
-  const fetchPaymentMethod = async() =>{
+    const rooms = RoomTypesData.value.filter((e: any) => {
+      return e.id === roomC.roomType
+    })[0].rooms;
+
+
+    console.log('rooms', rooms)
+    //  const room = rooms.find((r:any) => r.id === roomId)
+    // console.log('room', room)
+    roomC.taxes = rooms.find((r: any) => r.id === roomC.roomNumber)?.taxRates || [];
+    console.log("roomC", roomC);
+    roomC.taxes.forEach((tax: any) => {
+      if (tax.postingType === "flat_amount") {
+        tax.taxAmount = parseFloat(tax.amount) * numberOfNights.value;
+      } else if (tax.postingType === "flat_percentage") {
+        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * numberOfNights.value
+      } else {
+        tax = 0
+      }
+    })
+
+    roomConfigurations.value.forEach((room: any) => {
+      if (room.id === roomC.id) {
+        room.taxes = roomC.taxes
+      }
+    });
+    roomConfigurations.value = [...roomConfigurations.value]
+    console.log('roomConfigurations.value', roomConfigurations.value)
+
+
+  }
+  const fetchPaymentMethod = async () => {
     try {
 
       const response = await getPaymentMethods(serviceStore.serviceId!)
-      console.log('response....',response.data.data)
-      PaymentMethods.value = response.data.data.map((p:any)=>{
+      console.log('response....', response.data.data)
+      PaymentMethods.value = response.data.data.map((p: any) => {
         return {
           ...p,
-          label : p.methodName,
-          value : p.id
+          label: p.methodName,
+          value: p.id
         }
       })
 
     } catch (error) {
-      console.error('error',error)
+      console.error('error', error)
 
     }
   }
 
   const showCheckinButton = computed(() => {
 
-  if (!confirmReservation.value) {
-    return false
-  }
+    if (!confirmReservation.value) {
+      return false
+    }
 
-  const today = new Date().toISOString().split('T')[0]
-  return reservation.value.checkinDate === today
-})
+    const today = new Date().toISOString().split('T')[0]
+    return reservation.value.checkinDate === today
+  })
 
   return {
     // Data
@@ -1151,7 +1204,7 @@ export function useBooking() {
     calculateRoomRate,
     onOccupancyChange,
     onCustomerSelected,
-
+    onRoomNumberChange,
     // Core methods
     initialize,
     saveReservation,
@@ -1161,5 +1214,6 @@ export function useBooking() {
     resetForm,
     isPaymentButtonShow,
     selectBooking,
+    reservationId
   }
 }

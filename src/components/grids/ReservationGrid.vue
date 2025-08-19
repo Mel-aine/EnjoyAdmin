@@ -475,7 +475,45 @@ const refresh = () => {
 }
 
 const handleFilterClick = (filter: string) => {
- 
+  // Create filter object based on the clicked statistic
+  const filterObj: FitlterItem = {
+    checkInDate: '',
+    checkOutDate: '',
+    roomType: '',
+    searchText: '',
+    status: '',
+  }
+
+  // Set specific filter based on the clicked statistic
+  switch (filter) {
+    case 'arrivals':
+      // Filter for today's arrivals
+      const today = new Date().toISOString().split('T')[0]
+      filterObj.checkInDate = today
+      break
+    case 'departures':
+      // Filter for today's departures
+      const todayDeparture = new Date().toISOString().split('T')[0]
+      filterObj.checkOutDate = todayDeparture
+      break
+    case 'inHouse':
+      // Filter for checked-in guests
+      filterObj.status = 'checked_in'
+      break
+    case 'totalReservations':
+    default:
+      // Show all reservations (no specific filter)
+      break
+  }
+
+  // Store the current filter for refresh functionality
+  filter.value = filterObj
+  
+  // Reset to first page when applying new filter
+  currentPage.value = 1
+  
+  // Apply the filter
+  applyFilter(filterObj)
 }
 
 </script>

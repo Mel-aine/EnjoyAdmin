@@ -105,7 +105,7 @@
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Rate') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(bookingData.roomRate??0) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(roomRates??0) }}</span>
           </div>
         </div>
       </div>
@@ -116,21 +116,25 @@
       <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
         {{ $t('Financial Summary') }}
       </h3>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div class="text-center">
-          <div class="text-2xl font-bold text-blue-600">{{ formatCurrency(bookingData.totalAmount) }}</div>
+          <div class="text-2xl font-bold text-blue-600">{{ formatCurrency(bookingData.balanceSummary?.totalChargesWithTaxes??0) }}</div>
           <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Total Amount') }}</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-green-600">{{ formatCurrency(bookingData.paidAmount) }}</div>
+          <div class="text-2xl font-bold text-green-600">{{ formatCurrency(bookingData.balanceSummary?.totalPayments) }}</div>
           <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Paid Amount') }}</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-orange-600">{{ formatCurrency(bookingData.balanceAmount??0) }}</div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Balance Amount') }}</div>
+          <div class="text-2xl font-bold text-orange-600">{{ formatCurrency(bookingData.balanceSummary?.outstandingBalance??0) }}</div>
+          <div class="text-sm text-orange-600 dark:text-gray-400">{{ $t('Balance Amount') }}</div>
+        </div>
+         <div class="text-center">
+          <div class="text-2xl font-bold text-purple-600">{{ formatCurrency(bookingData.balanceSummary?.totalTaxes??0) }}</div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taxAmount') }}</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600">{{ formatCurrency(bookingData.depositAmount??0) }}</div>
+          <div class="text-2xl font-bold text-blue-600">{{ formatCurrency(bookingData.depositAmount??0) }}</div>
           <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Deposit Amount') }}</div>
         </div>
       </div>
@@ -188,28 +192,6 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { PencilIcon } from 'lucide-vue-next'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
-
-interface BookingData {
-  reservationNumber: string
-  bookingDate: string
-  status: string
-  bookingSource: string
-  checkinDate: string
-  checkoutDate: string
-  nights: number
-  adults: number
-  children: number
-  roomNumber?: string
-  roomType: string
-  ratePlan: string
-  roomRate: number
-  totalAmount: number
-  paidAmount: number
-  balanceAmount: number
-  depositAmount: number
-  specialRequests?: string
-  notes?: string
-}
 
 interface Props {
   booking?: any
@@ -296,6 +278,20 @@ const roomTypeSumarry = computed(() => {
     })
     return roomNumbers;
 })
+
+const roomRates = computed(() => {
+    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
+        return '0';
+    }
+
+    const reservationRooms = props.booking.reservationRooms;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms[0].roomRate
+    return roomNumbers;
+})
+
+console.log('booking',props.booking);
 </script>
 
 <style scoped>

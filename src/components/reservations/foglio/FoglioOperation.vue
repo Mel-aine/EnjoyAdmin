@@ -9,8 +9,7 @@
           </div>
           <!-- Show All Transactions Button -->
           <div class="px-2 pb-2">
-            <button 
-              class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
+            <button class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
               :class="!selectedFolio ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'"
               @click="showAllTransactions">
               {{ $t('showAllTransactions') }}
@@ -18,9 +17,9 @@
           </div>
           <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room.roomNumber">
             <div v-for="(fo, index) in folioList" :key="index">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1" 
-                   :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
-                   @click="selectFolio(fo)">
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
+                :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
+                @click="selectFolio(fo)">
                 <span class="capitalize">{{ fo.folioName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -49,7 +48,11 @@
             <BasicButton :label="$t('applyDiscount')" />
             <BasicButton :label="$t('folioOperations')" />
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
-            <BasicButton :label="$t('more')" />
+            <!-- More Actions Dropdown -->
+            <div class="relative">
+              <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
+                @update:modeValue="handleMoreAction" />
+            </div>
             <!-- Status indicators -->
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
@@ -103,16 +106,7 @@
               </div>
             </template>
 
-            <template #column-actions="{ item }">
-              <div class="flex items-center gap-1">
-                <button class="p-1 hover:bg-gray-100 rounded" @click="editItem(item)">
-                  <PencilIcon class="w-4 h-4 text-gray-500" />
-                </button>
-                <button class="p-1 hover:bg-gray-100 rounded" @click="deleteItem(item)">
-                  <TrashIcon class="w-4 h-4 text-red-500" />
-                </button>
-              </div>
-            </template>
+
           </ReusableTable>
         </div>
         <!-- Footer summary -->
@@ -121,7 +115,7 @@
             <span class="text-sm text-gray-600">{{ $t('endOfData') }}</span>
             <div class="text-right">
               <div class="text-sm font-medium text-red-600">
-                {{ $t('balance') }}: {{ formatAmount(balance) }}
+                {{ $t('balance') }}: {{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}
               </div>
             </div>
           </div>
@@ -145,13 +139,8 @@
 
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
-          <PrintInvoice 
-            :is-open="isPrintModalOpen" 
-            :document-data="printDocumentData"
-            @close="closePrintModal" 
-            @print-success="handlePrintSuccess"
-            :reservation-id="reservationId"
-            @print-error="handlePrintError" />
+          <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
+            @print-success="handlePrintSuccess" :reservation-id="reservationId" @print-error="handlePrintError" />
         </template>
       </div>
     </div>
@@ -169,8 +158,7 @@ import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 import AddPaymentModal from './AddPaymentModal.vue'
 import CreateFolioModal from './CreateFolioModal.vue'
-import PrintModal from '../../common/PrintModal.vue'
-import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
+import {  SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
@@ -178,6 +166,8 @@ import { getReservationFolios } from '../../../services/foglioApi'
 import Accordion from '../../common/Accordion.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
+import { safeParseFloat, prepareFolioAmount } from '../../../utils/numericUtils'
+import ButtonDropdown from '../../common/ButtonDropdown.vue'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state
@@ -185,6 +175,19 @@ const isAddChargeModalOpen = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCreateFolioModalOpen = ref(false)
 const isPrintModalOpen = ref(false)
+const selectedMoreAction = ref<any>(null)
+
+// More actions dropdown options
+const moreActionOptions = ref([
+  { label: t('transferFolio'), id: 'transfer-folio' },
+  { label: t('splitFolio'), id: 'split-folio' },
+  { label: t('mergeFolio'), id: 'merge-folio' },
+  { label: t('postCharges'), id: 'post-charges' },
+  { label: t('voidTransaction'), id: 'void-transaction' },
+  { label: t('adjustTransaction'), id: 'adjust-transaction' },
+  { label: t('exportFolio'), id: 'export-folio' },
+  { label: t('emailFolio'), id: 'email-folio' }
+])
 const props = defineProps({
   reservationId: {
     type: Number,
@@ -218,18 +221,18 @@ const foglioData = computed(() => {
   if (!selectedFolio.value) {
     return allTransactions.value // Show all transactions when no folio is selected
   }
-  return allTransactions.value.filter(transaction => 
+  return allTransactions.value.filter(transaction =>
     transaction.folioId === selectedFolio.value.id
   )
 })
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'postingDate', label: t('Day'), type: 'custom' },
+  { key: 'postingDate', label: t('Day'), type: 'date' },
   { key: 'refNo', label: t('Ref No.'), type: 'text' },
-  { key: 'category', label: t('Particulars'), type: 'text' },
+  { key: 'category', label: t('Particulars'), type: 'text',translatable:true },
   { key: 'description', label: t('Description'), type: 'text' },
-  { key: 'user', label: t('User'), type: 'custom' },
+  { key: 'guest.displayName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
 ])
@@ -277,7 +280,7 @@ const handleSaveCharge = (chargeData: any) => {
     particulars: chargeData.charge,
     description: chargeData.comment || chargeData.charge,
     user: 'current_user',
-    amount: parseFloat(chargeData.amount) || 0,
+    amount: prepareFolioAmount(chargeData.amount),
     status: 'unposted' as const,
     folioId: selectedFolio.value?.id || folioList.value[0]?.id // Assign to selected folio or first folio
   }
@@ -309,11 +312,11 @@ const getFolosReservations = async () => {
   try {
     const resp = await getReservationFolios(props.reservationId)
     console.log(resp)
-    
+
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
       folioList.value = resp.data
-      
+
       // Extract all transactions from all folios
       allTransactions.value = []
       resp.data.forEach((folio: any) => {
@@ -322,8 +325,11 @@ const getFolosReservations = async () => {
           folio.transactions.forEach((transaction: any) => {
             allTransactions.value.push({
               ...transaction,
+              amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                grossAmount,
+                category:transaction.category==='room'?'Room Charges':transaction.category,
               folioId: folio.id,
-              guest:folio.guest
+              guest: folio.guest
 
             })
           })
@@ -346,22 +352,6 @@ const getFolosReservations = async () => {
 }
 getFolosReservations()
 const handleSavePayment = (paymentData: any) => {
-  console.log('Saving payment:', paymentData)
-  // Here you would typically send the data to your API
-  // For now, we'll just add it to our local data
-  const newPayment = {
-    id: allTransactions.value.length + 1,
-    day: paymentData.date,
-    refNo: paymentData.recVouNumber || `PAY${Date.now()}`,
-    particulars: `${paymentData.type} Payment - ${paymentData.method}`,
-    description: paymentData.comment || `Payment via ${paymentData.method}`,
-    user: 'current_user',
-    amount: -parseFloat(paymentData.amount) || 0, // Negative for payments
-    status: 'unposted' as const,
-    folioId: selectedFolio.value?.id || folioList.value[0]?.id // Assign to selected folio or first folio
-  }
-
-  allTransactions.value.push(newPayment)
   closeAddPaymentModal()
 }
 
@@ -397,6 +387,83 @@ const handlePrintSuccess = (data: any) => {
 
 const handlePrintError = (error: any) => {
   console.error('Print error:', error)
+}
+
+// Handle more actions dropdown selection
+const handleMoreAction = (action: any) => {
+  if (!action) return
+
+  console.log('More action selected:', action)
+
+  switch (action.api) {
+    case 'transfer-folio':
+      handleTransferFolio()
+      break
+    case 'split-folio':
+      handleSplitFolio()
+      break
+    case 'merge-folio':
+      handleMergeFolio()
+      break
+    case 'post-charges':
+      handlePostCharges()
+      break
+    case 'void-transaction':
+      handleVoidTransaction()
+      break
+    case 'adjust-transaction':
+      handleAdjustTransaction()
+      break
+    case 'export-folio':
+      handleExportFolio()
+      break
+    case 'email-folio':
+      handleEmailFolio()
+      break
+    default:
+      console.log('Unknown action:', action.api)
+  }
+}
+
+// More action handlers (placeholder implementations)
+const handleTransferFolio = () => {
+  console.log('Transfer folio action')
+  // TODO: Implement transfer folio functionality
+}
+
+const handleSplitFolio = () => {
+  console.log('Split folio action')
+  // TODO: Implement split folio functionality
+}
+
+const handleMergeFolio = () => {
+  console.log('Merge folio action')
+  // TODO: Implement merge folio functionality
+}
+
+const handlePostCharges = () => {
+  console.log('Post charges action')
+  // TODO: Implement post charges functionality
+}
+
+const handleVoidTransaction = () => {
+  console.log('Void transaction action')
+  // TODO: Implement void transaction functionality
+}
+
+const handleAdjustTransaction = () => {
+  console.log('Adjust transaction action')
+  // TODO: Implement adjust transaction functionality
+}
+
+const handleExportFolio = () => {
+  console.log('Export folio action')
+  // TODO: Implement export folio functionality
+}
+
+const handleEmailFolio = () => {
+  console.log('Email folio action')
+  // TODO: Implement email folio functionality
 }
 
 // Document data for printing

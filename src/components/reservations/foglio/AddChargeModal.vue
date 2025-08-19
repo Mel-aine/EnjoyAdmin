@@ -85,6 +85,7 @@ import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import { getDiscounts, getExtraCharges } from '../../../services/configrationApi'
+import { safeParseFloat, prepareFolioAmount, isValidMonetaryAmount } from '../../../utils/numericUtils'
 
 interface Props {
   isOpen: boolean
@@ -126,8 +127,21 @@ const saveCharge = () => {
     return
   }
 
-  // Emit the form data
-  emit('save', { ...formData })
+  // Validate amount is a valid monetary value
+  if (!isValidMonetaryAmount(formData.amount)) {
+    alert('Please enter a valid amount')
+    return
+  }
+
+  // Prepare charge data with safe numeric conversion
+  const chargeData = {
+    ...formData,
+    amount: prepareFolioAmount(formData.amount),
+    quantity: safeParseFloat(formData.quantity, 1)
+  }
+
+  // Emit the prepared form data
+  emit('save', chargeData)
   closeModal()
 }
 

@@ -73,6 +73,7 @@ import { useServiceStore } from '../../../composables/serviceStore'
 import { getReservationFolios, createFolioTransaction } from '../../../services/foglioApi'
 import { useToast } from 'vue-toastification'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
+import { safeParseFloat, safeParseInt, prepareFolioAmount } from '../../../utils/numericUtils'
 
 interface Props {
   isOpen: boolean
@@ -162,20 +163,20 @@ const savePayment = async () => {
   try {
     isSaving.value = true
     
-    // Prepare transaction data for API
+    // Prepare transaction data for API with safe numeric conversion
     const transactionData = {
-      folioId: parseInt(formData.folio),
+      folioId: safeParseInt(formData.folio),
       transactionType: 'payment',
       transactionCategory: formData.type,
       category: 'room',
       description: `Payment - ${formData.type}`,
-      amount: parseFloat(formData.amount.toString()),
+      amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
       notes: formData.comment,
-      paymentMethodId: parseInt(formData.method),
+      paymentMethodId: safeParseInt(formData.method),
       currency: formData.currency,
       transactionDate: formData.date,
-      status:"posted",
+      status: "posted",
       hotelId: serviceStore.serviceId,
       reservationId: props.reservationId
     }

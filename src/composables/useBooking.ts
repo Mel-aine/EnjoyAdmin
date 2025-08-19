@@ -24,6 +24,7 @@ import type {
   ReservationType,
 } from '@/types/option'
 import type { ReservationDetails, RoomSelection } from '@/utils/models'
+import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
 
 export function useBooking() {
   const ServiceProduct = ref<ProductType[]>([])
@@ -191,10 +192,10 @@ export function useBooking() {
         phone_number: selectedCustomer.value?.phoneNumber || '',
         service_id: serviceStore.serviceId,
         reservation_type: 'Direct Booking',
-        tax_amount: extraGuestPrice.value,
-        final_amount: finalTotalPrice.value,
-        total_amount: calculateTotalPrice.value,
-        discount_amount: form.value.default_deposit,
+        tax_amount: prepareFolioAmount(extraGuestPrice.value),
+        final_amount: prepareFolioAmount(finalTotalPrice.value),
+        total_amount: prepareFolioAmount(calculateTotalPrice.value),
+        discount_amount: prepareFolioAmount(form.value.default_deposit),
         guest_count: totalGuests.value,
         arrived_date: form.value.arrivalDate,
         depart_date: form.value.departureDate,
@@ -205,19 +206,19 @@ export function useBooking() {
         company_name: formData.value.companyName || '',
         group_name: formData.value.groupName || '',
         booking_source: 'Hotel',
-        number_of_nights: form.value.numberOfNights,
-        remaining_amount: finalTotalPrice.value,
+        number_of_nights: safeParseInt(form.value.numberOfNights, 0),
+        remaining_amount: prepareFolioAmount(finalTotalPrice.value),
         invoice_available: true,
         check_in_date: '',
         check_out_date: '',
         products: selectedProducts.value.map((product: RoomSelection) => ({
-          service_product_id: product.roomType,
+          service_product_id: safeParseInt(product.roomType, 0),
           start_date: form.value.arrivalDate,
           end_date: form.value.departureDate,
-          extra_guest: product.extra_guest || 0,
-          total_adult: product.total_guests,
-          total_children: product.children,
-          rate_per_night: product.roomPrice,
+          extra_guest: safeParseInt(product.extra_guest, 0),
+          total_adult: safeParseInt(product.total_guests, 0),
+          total_children: safeParseInt(product.children, 0),
+          rate_per_night: prepareFolioAmount(product.roomPrice),
           taxes: 0,
           discounts: 0,
         })),
@@ -228,7 +229,7 @@ export function useBooking() {
         clientName: `${selectedCustomer.value?.firstName} ${selectedCustomer.value?.lastName}`,
         room: form.value.roomType ?? '',
         type: form.value.package ?? 'Hotels & Stays',
-        total: Number(finalTotalPrice.value ?? 0),
+        total: prepareFolioAmount(finalTotalPrice.value),
       }
       reservationId.value = response.data.reservation.id
       userId.value = response.data.reservation.userId
@@ -416,23 +417,29 @@ export function useBooking() {
   const calculateTotalPrice = computed(() => {
     if (fetchData.value.length > 0) {
       return fetchData.value.reduce((total: number, room: RoomSelection) => {
-        const nights = room.numberOfNights ?? 1
-        return total + (room.roomPrice || 0) * nights
+        const nights = safeParseFloat(room.numberOfNights, 1)
+        const roomPrice = safeParseFloat(room.roomPrice, 0)
+        return total + (roomPrice * nights)
       }, 0)
     } else if (selectedProducts.value.length > 0) {
       return selectedProducts.value.reduce((total: number, product: RoomSelection) => {
-        return total + (product.roomPrice || 0) * numberOfNights.value
+        const roomPrice = safeParseFloat(product.roomPrice, 0)
+        return total + (roomPrice * numberOfNights.value)
       }, 0)
     }
 
-    const nights = numberOfNights.value ?? 0
-    return (totalPrice.value || 0) * nights
+    const nights = safeParseFloat(numberOfNights.value, 0)
+    const price = safeParseFloat(totalPrice.value, 0)
+    return price * nights
   })
 
   const extraGuestPrice = computed(() => {
     if (selectedProducts.value.length > 0) {
       return selectedProducts.value.reduce((total: number, product: RoomSelection) => {
-        return total + product.extra_guest * product.extraGuestPrice * numberOfNights.value
+        const extraGuest = safeParseFloat(product.extra_guest, 0)
+        const extraGuestPrice = safeParseFloat(product.extraGuestPrice, 0)
+        const nights = safeParseFloat(numberOfNights.value, 1)
+        return total + (extraGuest * extraGuestPrice * nights)
       }, 0)
     }
     return 0
@@ -441,7 +448,7 @@ export function useBooking() {
   const totalExtraGuests = computed(() => {
     if (selectedProducts.value.length > 0) {
       return selectedProducts.value.reduce((total: number, product: RoomSelection) => {
-        return total + parseInt(product.extra_guest.toString() || '0')
+        return total + safeParseInt(product.extra_guest, 0)
       }, 0)
     }
     return 0
@@ -450,7 +457,9 @@ export function useBooking() {
   const totalMinimalAmount = computed(() => {
     if (selectedProducts.value.length > 0) {
       return selectedProducts.value.reduce((total: number, product: RoomSelection) => {
-        return total + (product.default_deposit || 0) * numberOfNights.value
+        const deposit = safeParseFloat(product.default_deposit, 0)
+        const nights = safeParseFloat(numberOfNights.value, 1)
+        return total + (deposit * nights)
       }, 0)
     }
     return 0
@@ -622,15 +631,16 @@ export function useBooking() {
   })
 
   const totalGuests = computed(() => {
-    return Number(form.value.default_guest) + Number(form.value.extra_guest)
+    return safeParseInt(form.value.default_guest, 0) + safeParseInt(form.value.extra_guest, 0)
   })
 
   const finalTotalPrice = computed(() => {
-    return Number(calculateTotalPrice.value) + Number(extraGuestPrice.value)
+    return safeSum(calculateTotalPrice.value, extraGuestPrice.value)
   })
 
   const remainingAmount = computed(() => {
-    return Math.max(0, finalTotalPrice.value - (form.value.default_deposit || 0))
+    const deposit = safeParseFloat(form.value.default_deposit, 0)
+    return Math.max(0, finalTotalPrice.value - deposit)
   })
   const roomChange = (room_id: string) => {
     if (availableTakens.value.includes(room_id)) {

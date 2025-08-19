@@ -41,17 +41,17 @@ export const getHotelMenu = (t: (key: string) => string) => {
               path: '/guest_database',
               permission: 'dashboard_view',
             },
-            {
+           /* {
               name: t('insert_transaction'),
               path: '/insert_transaction',
               permission: 'dashboard_view',
-            },
+            },*/
             {
               name: t('lost_and_found'),
               path: '/lost_and_found',
               permission: 'dashboard_view',
             },
-            {
+           /* {
               name: t('night_audit'),
               path: '/night_audit',
               permission: 'dashboard_view',
@@ -60,7 +60,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
               name: t('guest_reviews'),
               path: '/guest_reviews',
               permission: 'dashboard_view',
-            },
+            },*/
             {
               name: t('unsettled_folios'),
               path: '/front-office/unsettled_folios',
@@ -87,6 +87,11 @@ export const getHotelMenu = (t: (key: string) => string) => {
             {
               name: t('sales_person_database'),
               path: '/stay_view',
+              permission: 'dashboard_view',
+            },
+            {
+              name: t('company_database'),
+              path: '/cashiering/company_database',
               permission: 'dashboard_view',
             },
             {

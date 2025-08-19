@@ -20,14 +20,6 @@
           </Accordion>
         </div>
         <div class="px-4">
-          <div class="flex justify-between">
-            <span>{{ $t('total') }}</span>
-            <span>2000xaf</span>
-          </div>
-          <div class="flex justify-between text-yellow-200">
-            <span>{{ $t('balance') }}</span>
-            <span>2000xaf</span>
-          </div>
         </div>
       </div>
     </div>
@@ -256,14 +248,7 @@
           </div>
         </div>
         <div class="px-4">
-          <div class="flex justify-between">
-            <span>{{ $t('total') }}</span>
-            <span>2000xaf</span>
-          </div>
-          <div class="flex justify-between text-yellow-200">
-            <span>{{ $t('balance') }}</span>
-            <span>2000xaf</span>
-          </div>
+          
         </div>
       </div>
     </div>
