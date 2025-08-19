@@ -33,7 +33,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-      
+
     {
       path: '/welcome',
       name: 'welcome',
@@ -103,6 +103,26 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Customers Details',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/house_status',
+      name: 'HouseStatus',
+      component: () => import('../views/Housekeeping/HouseStatus/HouseStatusView.vue'),
+      props: true,
+      meta: {
+        title: 'House Status',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/work_order',
+      name: 'WorkOrder',
+      component: () => import('../views/Housekeeping/WorkOrder/WorkOrderView.vue'),
+      props: true,
+      meta: {
+        title: 'Work Order',
         requiresAuth: true,
       },
     },
@@ -859,7 +879,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    
+
     {
       path: '/configuration/master/business-source',
       name: 'BusinessSource',

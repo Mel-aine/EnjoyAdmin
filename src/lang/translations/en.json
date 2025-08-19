@@ -4827,64 +4827,14 @@
   },
   "net_amount":"Net Amount",
   "new_activities" : "New activities will appear here",
-  "reservationCreated":"Reservation Created",
-  "errorSavingReservation":"Error Saving Reservation",
-  "transferFolio":"Transfer Folio",
-  "splitFolio":"Split Folio",
-  "mergeFolio":"Merge Folio",
-  "postCharges":"Post Charges",
-  "voidTransaction":"Void Transaction",
-  "adjustTransaction":"Adjust Transaction",
-  "exportFolio":"Export Folio",
-  "emailFolio":"Email Folio",
-  "taxAmount":"Tax Amount",
-  "company_database":"Company database",
-  "companyDatabase": {
-    "title": "Company Database",
-    "addCompany": "Add Company",
-    "export": "Export",
-    "audit": "Audit",
-    "search": "Search",
-    "noCompaniesFound": "No Companies Found",
-    "noCompaniesMessage": "No companies match your current filters",
-    "columns": {
-      "name": "Name",
-      "contactPerson": "Contact Person",
-      "country": "Country",
-      "email": "Email",
-      "contact": "Contact",
-      "status": "Status",
-      "balances": "Balances"
-    },
-    "actions": {
-      "view": "View",
-      "edit": "Edit",
-      "delete": "Delete"
-    },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive",
-      "pending": "Pending",
-      "suspended": "Suspended"
-    },
-    "viewModal": {
-      "title": "Company Details",
-      "close": "Close"
-    }
-  },
-  "companyFilter": {
-    "title": "Filter Companies",
-    "searchText": "Search by name or contact person",
-    "status": "Status",
-    "selectStatus": "Select Status",
-    "country": "Country",
-    "selectCountry": "Select Country",
-    "balanceRange": "Balance Range",
-    "minBalance": "Minimum Balance",
-    "maxBalance": "Maximum Balance",
-    "email": "Email",
-    "emailPlaceholder": "Enter email address",
-    "applyFilters": "Apply Filters",
-    "clearFilters": "Clear Filters"
-  }
+  "Order#": "Order#",
+  "Unit/Room": "Unit/Room",
+  "Category": "Category",
+  "Priority": "Priority",
+  "AssignTo": "Assign To",
+  "EnteredOn": "Entered On",
+  "Updated": "Updated",
+  "Deadline": "Deadline",
+  "AddWorkOrder" : "Add Work Order"
+  
 }
