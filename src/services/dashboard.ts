@@ -208,3 +208,18 @@ export const getReservationType = async (serviceId: number | null): Promise<any>
     return []
   }
 }
+/**
+ * dashboard front office routes
+ */
+
+export const getFrontOfficeDashboard = async (serviceId: number | null): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
+      `/dashboard/front-office/${serviceId}`,headers
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération de getFrontOfficeDashboard:', error)
+    return []
+  }
+}
