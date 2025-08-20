@@ -263,6 +263,26 @@ export const amendReservation = async (data: any) => {
     throw error
   }
 }
+
+/***
+ * mark no show
+ */
+
+export const markNoShow =async(data:any)=>{
+    try {
+    const response = await apiClient.post(`/reservation/${data.reservationId}/no-show`, data,headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}
 /***
  * 
  * get Room charges

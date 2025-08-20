@@ -210,7 +210,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">
                                                 <span v-for="(rm, ind) in roomTypeSumarry" :key="ind">{{ rm
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                         </div>
 
@@ -222,7 +222,7 @@
                                             <p class="text-sm text-gray-900 dark:text-white"
                                                 v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                             <div v-else>
                                                 <button>assign room</button>
@@ -237,7 +237,7 @@
                                             <p class="text-sm text-gray-900 dark:text-white"
                                                 v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0">
                                                 <span v-for="(res, ind) in ratePlan" :key="ind">{{ res
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                         </div>
                                         <div>
@@ -280,17 +280,17 @@
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{ formatCurrency(reservation.totalAmount ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
                                         <span class="text-sm">{{ formatCurrency(reservation.paidAmount ?? 0)
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
                                         <span class="text-sm">{{ formatCurrency(reservation.remainingAmount ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </slot>
@@ -312,6 +312,9 @@
         <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
             :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
             @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+        <!-- NoShow Reservation Modal -->
+        <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
+            @noshow-confirmed="handleNoShowConfirmed" />
 
         <!-- Add Payment Modal -->
         <template v-if="isAddPaymentModalOpen">
@@ -330,7 +333,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import type { ReservationDetails } from '@/utils/models'
-import BasicButton from '../buttons/BasicButton.vue'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -346,6 +348,7 @@ import BookingConfirmationTemplate from '../common/templates/BookingConfirmation
 import VoidReservation from './foglio/VoidReservation.vue'
 import AmendStay from './foglio/AmendStay.vue'
 import AddPaymentModal from './foglio/AddPaymentModal.vue'
+import NoShowReservation from './foglio/NoShowReservation.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -367,6 +370,7 @@ const {
     isUnassigningRoom,
     performCheckIn,
     performCheckOut,
+    showNoShowModal,
 } = useReservation();
 interface Props {
     isOpen: boolean
@@ -418,7 +422,12 @@ const handleAmendConfirmed = () => {
     // Emit save event to notify parent components
     emit('save', { action: 'amend', reservationId: reservation.value?.id })
 }
-
+const handleNoShowConfirmed = () => {
+    showNoShowModal.value = false
+    getBookingDetailsById();
+    // Emit save event to notify parent components
+    emit('save', { action: 'noshow', reservationId: reservation.value?.id })
+}
 const openAddPaymentModal = () => {
     isAddPaymentModalOpen.value = true
 }
@@ -632,6 +641,7 @@ const handleOptionSelected = async (option: any) => {
         case 'stop_room_move':
             break;
         case 'no_show':
+            showNoShowModal.value = true
             break;
         default:
             console.log(`Action ${option.id} not handled`);

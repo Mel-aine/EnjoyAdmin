@@ -21,6 +21,7 @@ import CancelReservation from '../../../components/reservations/foglio/CancelRes
 import PrintModal from '../../../components/common/PrintModal.vue';
 import BookingConfirmationTemplate from '../../../components/common/templates/BookingConfirmationTemplate.vue';
 import { useServiceStore } from '../../../composables/serviceStore';
+import NoShowReservation from '../../../components/reservations/foglio/NoShowReservation.vue';
 
 // Simple Button component
 const Button = {
@@ -28,6 +29,7 @@ const Button = {
 };
 const isAddPaymentModalOpen = ref(false);
 const showCancelModal = ref(false);
+const showNoShowModal = ref(false);
 const showPrintModal = ref(false);
 const { t } = useI18n();
 const reservation = ref<any>({});
@@ -172,7 +174,7 @@ const handleOptionSelected = (option: any) => {
             handleCancelReservation();
             break;
         case 'no_show':
-            handleMarkNoShow();
+            showNoShowModal.value = true;
             break;
         case 'void_reservation':
             handleVoidReservation();
@@ -310,15 +312,8 @@ const handleCancelConfirmed = async (cancelData: any) => {
 
 };
 
-const handleMarkNoShow = async () => {
-    const payload = {
-        noShowDate: (new Date()).toISOString(),
-        reason: "Guest did not arrive",
-        chargeNoShowFee: false,
-        notes: ""
-    };
-
-    //await markNoShow(reservation.value.id, payload, getBookingDetailsById);
+const handleNoShowConfirmed = async (noshowData: any) => {
+    showNoShowModal.value = false;
 };
 
 const handleVoidReservation = async () => {
@@ -358,13 +353,13 @@ const handlePrintSuccess = (data: any) => {
 const canCheckIn = computed(() => {
     const date = new Date();
     const dStr = date.toISOString().split('T')[0]
-    return reservation.value.checkInDate.startsWith(dStr) && reservation.value.status ==='confirmed';
+    return reservation.value.checkInDate.startsWith(dStr) && reservation.value.status === 'confirmed';
 })
 
-const canCheckout =  computed(()=>{
+const canCheckout = computed(() => {
     const date = new Date();
     const dStr = date.toISOString().split('T')[0]
-    return reservation.value.departDate.startsWith(dStr) && reservation.value.status ==='checked-in';
+    return reservation.value.departDate.startsWith(dStr) && reservation.value.status === 'checked-in';
 })
 const handlePrintError = (error: any) => {
     console.error('Print error:', error);
@@ -421,7 +416,7 @@ onMounted(() => {
     <AdminLayout>
         <!-- Show skeleton loading when data is being fetched -->
         <ReservationDetailsSkeleton v-if="isLoading" />
-        
+
         <!-- Show actual content when data is loaded -->
         <div class="h-full" v-else-if="reservation && reservation.id">
             <!--Header-->
@@ -432,11 +427,11 @@ onMounted(() => {
                     <span class="font-bold">{{ reservation.guest?.displayName }}</span>
                     <div class="flex">
                         <Adult class="w-5" />
-                        <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults??0 }}</span>
+                        <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults ?? 0 }}</span>
                     </div>
                     <div class="flex">
                         <Child class="w-4" />
-                        <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child??0 }}</span>
+                        <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child ?? 0 }}</span>
                     </div>
                 </div>
                 <div class="flex gap-8">
@@ -531,13 +526,13 @@ onMounted(() => {
                 <FoglioOperation :reservation-id="reservation.id" :reservation="reservation"></FoglioOperation>
             </div>
             <div v-if="activeTab === 'booking_details'">
-                <BookingDetails :booking="reservation" ></BookingDetails>
+                <BookingDetails :booking="reservation"></BookingDetails>
             </div>
             <div v-if="activeTab === 'guest_details'">
                 <GuestDetails :reservation="reservation" :guest="reservation.guest" />
             </div>
         </div>
-        
+
         <!-- Show message when no reservation data is found -->
         <div v-else class="h-full flex items-center justify-center">
             <div class="text-center">
@@ -553,7 +548,9 @@ onMounted(() => {
     <!-- Cancel Reservation Modal -->
     <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
         @cancel-confirmed="handleCancelConfirmed" />
-
+    <!-- NoShow Reservation Modal -->
+    <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
+        @noshow-confirmed="handleNoShowConfirmed" />
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
         @print-success="handlePrintSuccess" @print-error="handlePrintError" :templates="templates" />

@@ -4895,6 +4895,14 @@
     "emailPlaceholder": "Enter email address",
     "applyFilters": "Apply Filters",
     "clearFilters": "Clear Filters"
-  }
+  },
+  "noshow_reservation":"No show",
+  "noshow_fee":"No whow fees",
+  "enter_noshowFee_fee":"Enter fees",
+  "reservation_noshow_initiated":"Reservation no show",
+  "error_noshow_reservation":"Error no show reservation",
+  "noshow_fee_must_be_positive":""
+
+
   
 }

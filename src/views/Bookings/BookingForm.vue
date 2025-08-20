@@ -172,9 +172,9 @@
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                           {{ $t('rate') }} (XAF)
                         </label>
-                        <div class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
+                        <div v-if="!isCustomPrize" class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': isLoadingRate }">
-                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3">
+                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3" @click="isCustomPrize =true">
                             <PencilLine :size="18" />
                           </span>
 
@@ -214,6 +214,10 @@
                               </li>
                             </ul>
                           </div>
+                        </div>
+                        <div v-else>
+                          <input type="number" v-model.number="room.rate"
+                            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                         </div>
                       </div>
                     </div>
@@ -596,6 +600,7 @@ const {
   isLoadingRate,
   isPaymentButtonShow,
   confirmReservation,
+  isCustomPrize,
 
   // Computed
   numberOfNights,

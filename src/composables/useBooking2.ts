@@ -142,6 +142,7 @@ export function useBooking() {
   const isPaymentButtonShow = ref(false)
   const confirmReservation = ref(false)
   const PaymentMethods = ref<any[]>([])
+  const isCustomPrize = ref(false);
   const roomTypeBaseInfo = ref<
     Map<
       string,
@@ -1173,6 +1174,7 @@ export function useBooking() {
     isPaymentLoading,
     dateError,
     confirmReservation,
+    isCustomPrize,
 
     // Computed
     numberOfNights,

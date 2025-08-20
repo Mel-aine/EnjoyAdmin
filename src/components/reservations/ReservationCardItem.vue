@@ -13,6 +13,7 @@ import PrintModal from '../common/PrintModal.vue';
 import VoidReservation from './foglio/VoidReservation.vue';
 import AmendStay from './foglio/AmendStay.vue';
 import AddPaymentModal from './foglio/AddPaymentModal.vue';
+import NoShowReservation from './foglio/NoShowReservation.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -29,6 +30,8 @@ const {
   isUnassigningRoom,
   performCheckIn,
   performCheckOut,
+  showNoShowModal,
+  handleNoShowConfirmed
 } = useReservation();
 const props = defineProps({
   reservation: {
@@ -202,13 +205,13 @@ const handleOptionSelected = async (option: any) => {
     case 'cancel_reservation':
       showCancelModal.value = true;
       break;
-    case 'void_reservation':
-      break;
+
     case 'unassign_room':
       break;
     case 'inclusion_list':
       break;
     case 'no_show':
+      showNoShowModal.value = true
       break;
     case 'print':
       showPrintModal.value = true;
@@ -338,7 +341,9 @@ const formatDate = (dateString: string) => {
   <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
     :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
     @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
-
+  <!-- NoShow Reservation Modal -->
+  <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
+    @noshow-confirmed="handleNoShowConfirmed" />
   <!-- Add Payment Modal -->
   <template v-if="isAddPaymentModalOpen">
     <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
