@@ -100,17 +100,10 @@
         </form>
 
         <!-- PDF Exporter Component -->
-        <div v-if="showPdfExporter && currentTemplate">
-          <PdfExporter
-            :template="currentTemplate"
-            :document-data="documentData"
-            :filename="filename"
-            :button-text="$t('download_pdf')"
-            :pdf-theme="pdfTheme"
-            @pdf-generated="handlePdfGenerated"
-            @error="handlePdfError"
-          />
-        </div>
+            <div v-if="showPdfExporter">
+                    <PdfExporterNode @close="showPdfExporter=false" :is-modal-open="showPdfExporter" :is-generating="loading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated"
+                        @error="handlePdfError" />
+                </div>
       </div>
     </div>
   </div>
@@ -124,6 +117,13 @@ import { X } from 'lucide-vue-next'
 import BasicButton from '../buttons/BasicButton.vue'
 import PdfExporter from './PdfExporter.vue'
 import type { Template } from '../../utils/models'
+import { printConfirmBookingPdf } from '../../services/foglioApi'
+import PdfExporterNode from '../common/PdfExporterNode.vue'
+
+
+
+const pdfurl=ref<string>('')
+const currency = ref('xaf')
 
 interface PrintTemplate {
   id: string
@@ -154,7 +154,8 @@ interface Props {
   templates?: Template[]
   documentData: any
   defaultFilename?: string
-  pdfTheme?: Record<string, any>
+  pdfTheme?: Record<string, any>,
+  reservationId: number
 }
 
 interface Emits {
@@ -254,7 +255,14 @@ const handlePrint = async () => {
     })
 
     // Show PDF exporter
-    showPdfExporter.value = true
+      showPdfExporter.value = true
+      console.log('reservationId', props.reservationId)
+      console.log('currency', currency.value)
+      const res =await printConfirmBookingPdf({reservationId: props.reservationId})
+      console.log(res)
+      pdfurl.value = window.URL.createObjectURL(res)
+      console.log(pdfurl.value)
+
 
     toast.success(t('print_initiated'))
   } catch (error) {

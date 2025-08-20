@@ -323,7 +323,7 @@
 
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-        @print-success="handlePrintSuccess" :templates="templates" @print-error="handlePrintError" />
+        @print-success="handlePrintSuccess" :templates="templates" @print-error="handlePrintError" :reservation-id="reservationId"/>
 
 </template>
 
@@ -395,7 +395,7 @@ const showPrintModal = ref(false)
 const showVoidModal = ref(false)
 const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
-
+const reservationId = ref(props.reservationData?.reservation_id || 0)
 
 
 const closeModal = () => {
@@ -509,7 +509,6 @@ const templates = ref([
         id: '2',
         name: 'Confirm Reservation',
         description: 'Invoice template',
-        component: BookingInvoice
     }
 ])
 // Document data for printing
