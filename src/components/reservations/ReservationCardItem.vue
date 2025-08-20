@@ -202,10 +202,6 @@ const handleOptionSelected = async (option: any) => {
       break;
     case 'stop_room_move':
       break;
-    case 'cancel_reservation':
-      showCancelModal.value = true;
-      break;
-
     case 'unassign_room':
       break;
     case 'inclusion_list':

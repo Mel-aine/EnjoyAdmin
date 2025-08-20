@@ -10,8 +10,8 @@
         </svg>
       </button>
 
-      <input v-model="searchQuery" type="text" :placeholder="t('searchOrTypeCommand')"
-        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
+      <input v-model="searchQuery" type="text" :placeholder="t('Searchortypecommand')"
+        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900  dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
         @input="handleInput" @focus="showDropdown = true" @blur="handleBlur" @keydown="handleKeydown" />
 
       <!-- Loading Spinner -->
@@ -39,7 +39,7 @@
         <div v-for="(result, index) in searchResults" :key="result.id" :class="[
           'px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0',
           { 'bg-gray-50 dark:bg-gray-700': index === selectedIndex }
-        ]" @click="selectResult(result)" @mouseenter="selectedIndex = index">
+        ]" @click="selectResult(result)">
           <div class="flex justify-between items-center">
             <!-- Left side: Guest info and details -->
             <div class="flex-3 flex">
@@ -51,7 +51,7 @@
                 </div>
                 <div>
                   <div class="font-medium text-gray-900 dark:text-white text-sm">
-                    {{ result.guest?.firstName }} {{ result.guest?.lastName || t('guest') }}
+                    {{ result.guest?.displayName }} {{ result.guest?.lastName || t('guest') }}
                   </div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ result.reservationNumber || `#${result.id}` }}
@@ -68,7 +68,7 @@
                   </span>
                 </div>
                 <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
-                  <span>{{ result.nights??result.numberOfNights }}</span>
+                  <span>{{ result.nights ?? result.numberOfNights }}</span>
                   <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
                     {{ t('nights') }}
                   </span>
@@ -86,7 +86,7 @@
                   <Adult class="w-6 h-10" /><span class="pt-2 text-sm">{{ result.adults }}</span>
                 </div>
                 <div class="flex items-center">
-                  <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{ result.child??0 }}</span>
+                  <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{ result.child ?? 0 }}</span>
                 </div>
               </div>
             </div>
@@ -116,10 +116,10 @@
   </div>
 
   <!-- Reservation Modal -->
-  <ReservationRigthModal v-if="isModalOpen && selectedReservation" :is-open="isModalOpen"
-    :title="selectedReservation?.reservationNumber || t('reservationDetails')"
-    :subtitle="''" :reservation-data="selectedReservation" @close="closeModal"
-    @save="handleModalSave" />
+  <template v-if="isModalOpen && selectedReservation">
+    <ReservationRigthModal :is-open="isModalOpen" :title="selectedReservation.reservationNumber!"
+      :reservation-data="selectedReservation" @close="closeModal" />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -218,11 +218,13 @@ const performSearch = async () => {
 }
 
 const selectResult = (result: ReservationDetails) => {
-  searchQuery.value = result.reservationNumber || `#${result.id}`
+  //searchQuery.value = result.reservationNumber || `#${result.id}`
   showDropdown.value = false
   selectedIndex.value = -1
-  selectedReservation.value = result
-  isModalOpen.value = true
+  selectedReservation.value = {...result, reservation_id:result.id}
+  isModalOpen.value = true,
+
+    console.log('open reservation', result)
   emit('select', result)
 }
 

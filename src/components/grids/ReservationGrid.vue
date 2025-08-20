@@ -506,14 +506,6 @@ const handleFilterClick = (filter: string) => {
       break
   }
 
-  // Store the current filter for refresh functionality
-  filter.value = filterObj
-  
-  // Reset to first page when applying new filter
-  currentPage.value = 1
-  
-  // Apply the filter
-  applyFilter(filterObj)
 }
 
 </script>

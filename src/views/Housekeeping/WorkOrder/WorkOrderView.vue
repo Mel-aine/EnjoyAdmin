@@ -211,6 +211,11 @@ const actions = computed(() => [
   }
 ])
 
+const handleCustomerAction =(action:any, item:any)=>{
+  console.log('action', action)
+  console.log('item', item)
+}
+
 </script>
 
 <style scoped></style>

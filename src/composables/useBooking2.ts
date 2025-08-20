@@ -21,7 +21,7 @@ interface RoomConfiguration {
   childCount: number
   rate: number
   isOpen: boolean
-  taxes: []
+  taxes: any[]
 }
 
 interface Reservation {
@@ -103,6 +103,7 @@ interface RoomData {
   roomNumber: string
   roomTypeId: number
   status: string
+  taxRates: any[]
 }
 
 interface RoomExtraInfo {

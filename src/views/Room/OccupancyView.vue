@@ -1307,7 +1307,7 @@ const closeModal = () => {
 const expandedRoomTypes = ref(new Set())
 
 // Fonction pour basculer l'expansion d'un type de chambre
-const toggleRoomType = (roomTypeId) => {
+const toggleRoomType = (roomTypeId:any) => {
   if (expandedRoomTypes.value.has(roomTypeId)) {
     expandedRoomTypes.value.delete(roomTypeId)
   } else {
@@ -1316,8 +1316,8 @@ const toggleRoomType = (roomTypeId) => {
 }
 
 // Fonction pour obtenir les chambres par statut
-const getRoomsByStatus = (rooms, targetStatus) => {
-  return rooms.filter((room) => {
+const getRoomsByStatus = (rooms:any, targetStatus:any) => {
+  return rooms.filter((room:any) => {
     switch (targetStatus) {
       case 'occupied':
         return room.status === 'occupied' || room.housekeepingStatus === 'dirty'

@@ -199,7 +199,7 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('view'), handler: (item: any) => viewCompany(item), variant: 'secondary', icon: Eye },
+  { label: t('view'), handler: (item: any) => viewCompany(item), variant: 'primary', icon: Eye },
   { label: t('edit'), handler: (item: any) => editCompany(item), variant: 'primary', icon: Edit },
   { label: t('delete'), handler: (item: any) => deleteCompany(item), variant: 'danger', icon: Trash2 }
 ])

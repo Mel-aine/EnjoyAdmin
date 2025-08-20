@@ -479,7 +479,7 @@ const handleEditCustomer = async (payload: any) => {
 
     const { data } = payload
     console.log('Édition de client:', data)
-    await updateCustomer(Number(customer_id), data)
+   // await updateCustomer(Number(customer_id), data)
     toast.success(t('toast.SucessUpdate'))
     // Rafraîchir les détails du client
     await getCustomerProfileDetails()
@@ -496,7 +496,7 @@ const handleEditCustomer = async (payload: any) => {
 const handleDeleteCustomer = async () => {
   try {
     loading.value = true
-    await deleteUser(Number(customer_id))
+    //await deleteUser(Number(customer_id))
     toast.success(t('toast.DeletedSuccess'))
     router.push({ name: 'Customers' })
   } catch (error) {
