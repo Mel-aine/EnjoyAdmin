@@ -1379,7 +1379,7 @@ router.beforeEach(async (to, from, next) => {
     // Redirection dashboard seulement si COMPLÈTEMENT authentifié
     if (to.path === '/' && isAuthenticated) {
       console.log(' Redirection vers dashboard - utilisateur complètement connecté')
-      return next('/dashboard')
+      return next('/front-office/dashboard')
     }
 
     if (to.path === '/') {
