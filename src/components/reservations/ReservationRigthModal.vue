@@ -326,7 +326,7 @@
 
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-        @print-success="handlePrintSuccess" :templates="templates" @print-error="handlePrintError" />
+        @print-success="handlePrintSuccess" :templates="templates" @print-error="handlePrintError" :reservation-id="reservationId"/>
 
 </template>
 
@@ -348,6 +348,7 @@ import BookingConfirmationTemplate from '../common/templates/BookingConfirmation
 import VoidReservation from './foglio/VoidReservation.vue'
 import AmendStay from './foglio/AmendStay.vue'
 import AddPaymentModal from './foglio/AddPaymentModal.vue'
+import BookingInvoice from '../common/templates/BookingInvoice.vue'
 import NoShowReservation from './foglio/NoShowReservation.vue'
 
 const { t } = useI18n()
@@ -398,7 +399,7 @@ const showPrintModal = ref(false)
 const showVoidModal = ref(false)
 const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
-
+const reservationId = ref(props.reservationData?.reservation_id || 0)
 
 
 const closeModal = () => {
@@ -523,6 +524,11 @@ const templates = ref([
         name: 'Reservation',
         description: 'Reservation template',
         component: BookingConfirmationTemplate
+    },
+    {
+        id: '2',
+        name: 'Confirm Reservation',
+        description: 'Invoice template',
     }
 ])
 // Document data for printing
@@ -554,6 +560,7 @@ const getBookingDetailsById = async () => {
     reservation.value = response
 
     isLoading.value = false;
+    console.log('Reservation data fetched:', reservation.value)
 };
 const formatDate = (dateString?: string) => {
     if (!dateString) return t('notAvailable')

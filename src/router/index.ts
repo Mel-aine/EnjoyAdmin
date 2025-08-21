@@ -1016,7 +1016,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-       {
+    {
+      path: '/booking/bookinginvoice',
+      name: 'BookingInvoices',
+      component: () => import('../components/common/templates/BookingInvoice.vue'),
+      meta: {
+        title: 'Booking Invoices',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/booking/invoice',
       name: 'Invoice',
       component: () => import('../components/invoice/Invoicehotel.vue'),

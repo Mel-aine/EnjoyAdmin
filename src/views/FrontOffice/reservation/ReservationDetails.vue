@@ -207,11 +207,12 @@ const roomRateTypeSummary = computed(() => {
     }
 
     const reservationRooms = reservation.value.reservationRooms;
+    console.log('reservationRooms', reservationRooms)
     const totalRooms = reservationRooms.length;
 
     // Get room numbers and create summary
     const roomNumbers = reservationRooms.map((room: any) => {
-        return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
+        return `${room.room?.roomNumber} / ${room.oomTypeId}`
     })
 
 
