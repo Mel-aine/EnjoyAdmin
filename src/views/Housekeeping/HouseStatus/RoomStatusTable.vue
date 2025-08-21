@@ -15,7 +15,7 @@
               />
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center w-50">
-              <Select :options="RoomTypes" :placeholder="$t('RoomTypes')"/>
+              <Select :options="roomTypesOptions" :placeholder="$t('RoomTypes')" v-model="selectedRoomTypeFilter"/>
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center">
               <div class="flex items-center justify-center">
@@ -62,12 +62,12 @@
 
                     <!-- Select pour le statut si "Set Status" est sélectionné -->
                     <div v-if="selectedOperation === 'set_status'" class="w-48">
-                      <Select :placeholder="'Select status'" :options="StatusOptions" v-model="selectedStatus"/>
+                      <Select :placeholder="'Select status'" :options="housekeepingStatusOptions" v-model="selectedStatus"/>
                     </div>
 
                     <!-- Select pour le housekeeper si "Assign Housekeeper" est sélectionné -->
                     <div v-if="selectedOperation === 'assign_housekeeper'" class="w-48">
-                      <Select :placeholder="'Select housekeeper'" :options="HousekeeperOptions" v-model="selectedHousekeeper"/>
+                      <Select :placeholder="'Select housekeeper'" :options="housekeeperOptions" v-model="selectedHousekeeper"/>
                     </div>
 
                     <button
@@ -92,7 +92,7 @@
           </tr>
         </thead>
 
-        <tbody>
+        <tbody v-if="!isLoading">
           <template v-for="section in Object.keys(filteredGroupedRooms)" :key="section">
             <!-- En-tête de section avec checkbox pour sélectionner toute la section -->
             <tr class="bg-gray-100">
@@ -148,7 +148,7 @@
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
                 <div class="flex items-center justify-center">
                   <span>{{ room.name }}</span>
-                  <BedIcon v-if="room.beds > 0" :size="16" class="ml-2" />
+                  <BedIcon  :size="16" class="ml-2" />
                 </div>
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
@@ -236,17 +236,41 @@
             </td>
           </tr>
         </tbody>
+
+        <!-- Loading state -->
+        <tbody v-if="isLoading">
+          <tr>
+            <td colspan="7" class="py-8 text-center">
+              <div class="flex items-center justify-center space-x-2">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+                <span>{{ $t('loadingInProgress') }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Empty state -->
+        <tbody v-if="!isLoading && rooms.length === 0">
+          <tr>
+            <td colspan="7" class="py-8 text-center text-gray-500">
+              Aucune chambre trouvée
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, toRefs } from 'vue'
 import { Bed as BedIcon } from 'lucide-vue-next'
 import StatusBadge from './StatusBadge.vue'
 import { PersonStanding } from 'lucide-vue-next';
 import Select from '@/components/forms/FormElements/Select.vue';
+import {getHouseStatus, bulkUpdateRooms} from '@/services/configrationApi'
+import { useServiceStore } from '@/composables/serviceStore'
+import { useAuthStore } from '@/composables/user';
 
 // Define room data type
 interface Room {
@@ -262,9 +286,22 @@ interface Room {
   statusType: 'red' | 'green' | 'gray' | 'yellow'
 }
 
+// Props pour recevoir la recherche du parent
+interface Props {
+  searchQuery?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  searchQuery: ''
+})
+
+const { searchQuery } = toRefs(props)
+
 // Define emits
 const emit = defineEmits<{
   'selection-change': [count: number]
+  'bulk-update-success': []
+  'bulk-update-error': [error: string]
 }>()
 
 // Reactive variables
@@ -274,160 +311,28 @@ const selectedRoomsCount = ref<number>(0)
 const selectedOperation = ref<string>('')
 const selectedStatus = ref<string>('')
 const selectedHousekeeper = ref<string>('')
+const serviceStore = useServiceStore()
+const isLoading = ref<boolean>(true)
+const error = ref<string | null>(null)
+const isBulkUpdating = ref<boolean>(false)
+const authStore = useAuthStore()
 
-const RoomTypes = ref([
-  { value: 'suite', label: 'Suite' },
-  { value: 'classic', label: 'Classic' }
-])
+// Initialize empty arrays for API data
+const rooms = ref<Room[]>([])
+const roomTypesOptions = ref<Array<{value: number, label: string}>>([])
+const housekeepingStatusOptions = ref<Array<{value: string, label: string}>>([])
+const housekeeperOptions = ref<Array<{value: string, label: string}>>([])
 
 const Operations = ref([
   { value: 'set_status', label: 'Set Status' },
   { value: 'assign_housekeeper', label: 'Assign Housekeeper' },
   { value: 'clear_status', label: 'Clear Status' },
-  { value: 'unassign_housekeeper', label: 'Unassign Housekeeper' }
-])
-
-const StatusOptions = ref([
-  { value: 'Clean', label: 'Clean' },
-  { value: 'Dirty', label: 'Dirty' },
-  { value: 'Out Of Order', label: 'Out Of Order' },
-  { value: 'No Status', label: 'No Status' }
-])
-
-const HousekeeperOptions = ref([
-  { value: 'hk1', label: 'Marie Dubois' },
-  { value: 'hk2', label: 'Jean Martin' },
-  { value: 'hk3', label: 'Sophie Laurent' },
-  { value: 'hk4', label: 'Pierre Moreau' }
-])
-
-// Initialize rooms data (j'ai corrigé les doublons dans les données)
-const rooms = ref<Room[]>([
-  {
-    id: '1',
-    name: 'S 601',
-    beds: 1,
-    isChecked: false,
-    section: 'S Room',
-    roomType: 'suite',
-    status: 'Arrival',
-    housekeepingStatus: 'Dirty',
-    tag: 'MO',
-    statusType: 'red',
-  },
-  {
-    id: '2',
-    name: 'S 602',
-    beds: 1,
-    isChecked: false,
-    section: 'S Room',
-    roomType: 'suite',
-    status: 'Stayover',
-    housekeepingStatus: 'Dirty',
-    tag: 'MO',
-    statusType: 'red',
-  },
-  {
-    id: '3',
-    name: 'S 603',
-    beds: 1,
-    isChecked: false,
-    section: 'S Room',
-    roomType: 'suite',
-    status: 'Available',
-    housekeepingStatus: 'Clean',
-    tag: '',
-    statusType: 'green',
-  },
-  {
-    id: '4',
-    name: 'S 604',
-    beds: 0,
-    isChecked: false,
-    section: 'S Room',
-    roomType: 'suite',
-    status: '',
-    housekeepingStatus: 'Out Of Order',
-    tag: 'JI',
-    statusType: 'gray',
-  },
-  {
-    id: '5',
-    name: '501',
-    beds: 0,
-    isChecked: false,
-    section: 'Classic',
-    roomType: 'Classic',
-    status: 'Occupied',
-    housekeepingStatus: 'Dirty',
-    tag: 'JI',
-    statusType: 'red',
-  },
-  {
-    id: '6',
-    name: '502',
-    beds: 0,
-    isChecked: false,
-    section: 'Classic',
-    roomType: 'Classic',
-    status: 'Stayover',
-    housekeepingStatus: 'Dirty',
-    tag: 'JI',
-    statusType: 'red',
-  },
-  {
-    id: '7',
-    name: '503',
-    beds: 1,
-    isChecked: false,
-    section: 'Classic',
-    roomType: 'Classic',
-    status: 'Stayover',
-    housekeepingStatus: 'Dirty',
-    tag: 'MO',
-    statusType: 'red',
-  },
-  {
-    id: '8',
-    name: '504',
-    beds: 1,
-    isChecked: false,
-    section: 'Classic',
-    roomType: 'Classic',
-    status: 'Stayover',
-    housekeepingStatus: 'Dirty',
-    tag: 'JI',
-    statusType: 'red',
-  },
-  {
-    id: '9',
-    name: '505',
-    beds: 1,
-    isChecked: false,
-    section: 'Classic',
-    roomType: 'Classic',
-    status: 'Available',
-    housekeepingStatus: 'Clean',
-    tag: '',
-    statusType: 'green',
-  },
-  {
-    id: '10',
-    name: '506',
-    beds: 2,
-    isChecked: false,
-    section: 'Classic',
-    roomType: 'Classic',
-    status: 'Available',
-    housekeepingStatus: 'Clean',
-    tag: '',
-    statusType: 'green',
-  }
+  // { value: 'unassign_housekeeper', label: 'Unassign Housekeeper' }
 ])
 
 // Computed property pour déterminer si on peut appliquer l'opération
 const canApplyOperation = computed(() => {
-  if (!selectedOperation.value) return false
+  if (!selectedOperation.value || isBulkUpdating.value) return false
 
   switch (selectedOperation.value) {
     case 'set_status':
@@ -444,15 +349,32 @@ const canApplyOperation = computed(() => {
 
 // Fonction appelée quand l'opération change
 const onOperationChange = () => {
-  // Reset les autres sélections quand on change d'opération
   selectedStatus.value = ''
   selectedHousekeeper.value = ''
 }
+
+// Computed property pour filtrer les chambres avec recherche et type de chambre
 const filteredRooms = computed(() => {
-  if (!selectedRoomTypeFilter.value) {
-    return rooms.value
+  let filtered = rooms.value
+
+  // Filtrer par type de chambre
+  if (selectedRoomTypeFilter.value) {
+    filtered = filtered.filter(room => room.roomType === selectedRoomTypeFilter.value)
   }
-  return rooms.value.filter(room => room.roomType === selectedRoomTypeFilter.value)
+
+  // Filtrer par recherche
+  if (searchQuery.value && searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    filtered = filtered.filter(room =>
+      room.name.toLowerCase().includes(query) ||
+      room.section.toLowerCase().includes(query) ||
+      room.roomType.toLowerCase().includes(query) ||
+      room.housekeepingStatus.toLowerCase().includes(query) ||
+      room.tag.toLowerCase().includes(query)
+    )
+  }
+
+  return filtered
 })
 
 const filteredGroupedRooms = computed(() => {
@@ -474,6 +396,32 @@ const allFilteredRoomsSelected = computed(() => {
   const filtered = filteredRooms.value
   return filtered.length > 0 && filtered.every(room => room.isChecked)
 })
+
+// Helper function to determine status type based on housekeeping status
+const getStatusType = (housekeepingStatus: string): 'red' | 'green' | 'gray' | 'yellow' => {
+  if (!housekeepingStatus) return 'gray'
+
+  const status = housekeepingStatus.toLowerCase()
+  switch (status) {
+    case 'clean':
+      return 'green'
+    case 'dirty':
+      return 'red'
+    case 'out of order':
+    case 'outoforder':
+      return 'gray'
+    default:
+      return 'gray'
+  }
+}
+
+// Helper function to transform API options to select format
+const transformSelectOptions = (apiOptions: any[], valueKey: string = 'value', labelKey: string = 'label') => {
+  return apiOptions.map(option => ({
+    value: option[valueKey] || option.id?.toString() || option.value,
+    label: option[labelKey] || option.name || option.label
+  }))
+}
 
 // Methods
 const handleCheckboxChange = (roomId: string, roomName: string) => {
@@ -557,62 +505,130 @@ watch(
 )
 
 // Handle bulk action apply
-const applyBulkAction = () => {
+const applyBulkAction = async () => {
   if (!canApplyOperation.value || selectedRoomsCount.value === 0) return
 
-  const selectedRooms = rooms.value.filter(room => room.isChecked)
+  isBulkUpdating.value = true
 
-  switch (selectedOperation.value) {
-    case 'set_status':
+  try {
+    const selectedRooms = rooms.value.filter(room => room.isChecked)
+    const roomIds = selectedRooms.map(room => room.id)
+
+    // Préparer les données pour l'API
+    const bulkUpdateData: any = {
+      room_ids: roomIds,
+      operation: selectedOperation.value,
+      user_id: authStore?.UserId
+    }
+
+    // Ajouter les paramètres spécifiques selon l'opération
+    switch (selectedOperation.value) {
+      case 'set_status':
+        bulkUpdateData.housekeeping_status = selectedStatus.value
+        break
+      case 'assign_housekeeper':
+        bulkUpdateData.housekeeper_id = selectedHousekeeper.value
+        break
+    }
+
+    //  bulk update
+    const response = await bulkUpdateRooms(bulkUpdateData)
+
+    if (response.data) {
+      // Mettre à jour l'interface utilisateur localement
       selectedRooms.forEach(room => {
-        room.housekeepingStatus = selectedStatus.value as Room['housekeepingStatus']
-        // Mettre à jour le statusType selon le statut
-        switch (selectedStatus.value) {
-          case 'Clean':
-            room.statusType = 'green'
-            break
-          case 'Dirty':
-            room.statusType = 'red'
-            break
-          case 'Out Of Order':
-            room.statusType = 'gray'
-            break
-          default:
-            room.statusType = 'gray'
+        const roomIndex = rooms.value.findIndex(r => r.id === room.id)
+        if (roomIndex !== -1) {
+          switch (selectedOperation.value) {
+            case 'set_status':
+              rooms.value[roomIndex].housekeepingStatus = selectedStatus.value as Room['housekeepingStatus']
+              rooms.value[roomIndex].statusType = getStatusType(selectedStatus.value)
+              break
+            case 'assign_housekeeper':
+              rooms.value[roomIndex].tag = selectedHousekeeper.value
+              break
+            case 'clear_status':
+              rooms.value[roomIndex].housekeepingStatus = 'No Status'
+              rooms.value[roomIndex].statusType = 'gray'
+              break
+            case 'unassign_housekeeper':
+              rooms.value[roomIndex].tag = ''
+              break
+          }
         }
       })
-      console.log(`Status "${selectedStatus.value}" applied to ${selectedRoomsCount.value} rooms`)
-      break
 
-    case 'assign_housekeeper':
-      // Ici vous pouvez ajouter une propriété housekeeper à vos rooms si nécessaire
-      selectedRooms.forEach(room => {
-        // room.housekeeper = selectedHousekeeper.value
-        room.tag = selectedHousekeeper.value // Utiliser le tag pour simuler l'assignation
-      })
-      console.log(`Housekeeper "${selectedHousekeeper.value}" assigned to ${selectedRoomsCount.value} rooms`)
-      break
+      console.log(`Bulk update successful: ${selectedOperation.value} applied to ${selectedRoomsCount.value} rooms`)
+      emit('bulk-update-success')
+      unselectAll()
+      fetchHousekeepingStatus()
+    }
 
-    case 'clear_status':
-      selectedRooms.forEach(room => {
-        room.housekeepingStatus = 'No Status'
-        room.statusType = 'gray'
-      })
-      console.log(`Status cleared for ${selectedRoomsCount.value} rooms`)
-      break
-
-    case 'unassign_housekeeper':
-      selectedRooms.forEach(room => {
-        // room.housekeeper = ''
-        room.tag = '' // Vider le tag pour simuler la désassignation
-      })
-      console.log(`Housekeeper unassigned from ${selectedRoomsCount.value} rooms`)
-      break
+  } catch (error: any) {
+    console.error('Bulk update error:', error)
+    const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de la mise à jour en lot'
+    emit('bulk-update-error', errorMessage)
+  } finally {
+    isBulkUpdating.value = false
   }
-
-  // Reset after applying
-  unselectAll()
 }
+
+// Fetch housekeeping status
+const fetchHousekeepingStatus = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+
+    const hotelId = serviceStore.serviceId;
+    const response = await getHouseStatus(hotelId!);
+
+    console.log("fetchHousekeepingStatus", response.data)
+
+    const apiData = response.data
+
+
+    if (apiData.rooms && Array.isArray(apiData.rooms)) {
+      // Ajouter seulement les propriétés manquantes (isChecked et statusType)
+      rooms.value = apiData.rooms.map((room: any) => ({
+        ...room,
+        isChecked: false,
+        statusType: getStatusType(room.housekeepingStatus)
+      }))
+    }
+
+    // Transform room types options
+    if (apiData.roomTypes && Array.isArray(apiData.roomTypes)) {
+      roomTypesOptions.value = transformSelectOptions(apiData.roomTypes, 'label', 'label')
+    }
+
+    // Transform housekeeping status options
+    if (apiData.housekeepingStatusOptions && Array.isArray(apiData.housekeepingStatusOptions)) {
+      housekeepingStatusOptions.value = transformSelectOptions(apiData.housekeepingStatusOptions, 'value', 'label')
+    }
+
+    // Transform housekeepers options
+    if (apiData.housekeepers && Array.isArray(apiData.housekeepers)) {
+      housekeeperOptions.value = transformSelectOptions(apiData.housekeepers, 'id', 'name')
+    }
+
+    console.log('Transformed data:', {
+      rooms: rooms.value,
+      roomTypes: roomTypesOptions.value,
+      housekeepingStatus: housekeepingStatusOptions.value,
+      housekeepers: housekeeperOptions.value
+    })
+
+  } catch (err) {
+    console.error("Error fetching housekeeping status:", err);
+    error.value = "Erreur lors du chargement des données"
+  } finally {
+    isLoading.value = false
+  }
+};
+
+onMounted(() => {
+  fetchHousekeepingStatus()
+})
 </script>
 
 <style scoped>

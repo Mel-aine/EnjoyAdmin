@@ -12,7 +12,7 @@
               <input
                 type="text"
                 :placeholder="$t('search...')"
-                class="border border-gray-300 rounded px-3 py-1.5 pr-8 w-64 text-sm  block leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                class="border border-gray-300 rounded px-3 py-1.5 pr-8 w-64 text-sm block leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                 v-model="searchQuery"
               />
               <SearchIcon
@@ -22,7 +22,7 @@
             </div>
 
             <!-- Action buttons -->
-            <button class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:border-purple-500 hover:text-purple-500 ">
+            <button class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:border-purple-500 hover:text-purple-500">
               <ListIcon :size="16" />
               <span class="text-sm">Views</span>
             </button>
@@ -33,65 +33,65 @@
           </div>
         </div>
 
-        <!-- Room type filters -->
-        <!-- <div class="flex items-center mb-4 space-x-5">
+        <!-- Notifications pour les actions bulk -->
+        <div v-if="successMessage" class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+          {{ successMessage }}
+        </div>
 
+        <div v-if="errorMessage" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {{ errorMessage }}
+        </div>
 
-          <div v-if="selectedRoomsCount" >
-            <span class="text-sm">{{ selectedRoomsCount }} Records Selected</span>
-          </div>
-
-          <div v-if="selectedRoomsCount > 0" class="flex items-center space-x-2">
-            <div class="w-50">
-              <Select :placeholder="'select operation'" :options="Operations"/>
-
-            </div>
-
-            <div class="relative">
-              <button
-                class="bg-purple-500 text-white rounded px-4 py-2.5 text-sm w-24"
-                @click="applyBulkAction"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        </div> -->
-
-       <!-- Room Status Table -->
-        <RoomStatusTable @selection-change="handleSelectionChange" />
+        <!-- Room Status Table -->
+        <RoomStatusTable
+          :search-query="searchQuery"
+          @selection-change="handleSelectionChange"
+          @bulk-update-success="handleBulkUpdateSuccess"
+          @bulk-update-error="handleBulkUpdateError"
+        />
       </div>
-  </FullScreenLayout>
+    </FullScreenLayout>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Search as SearchIcon, List as ListIcon, FileText as FileTextIcon, ChevronDown as ChevronDownIcon } from 'lucide-vue-next'
+import { Search as SearchIcon, List as ListIcon, FileText as FileTextIcon } from 'lucide-vue-next'
 import RoomStatusTable from './RoomStatusTable.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import Select from '@/components/forms/FormElements/Select.vue';
 
 // Reactive data
 const selectedRoomsCount = ref<number>(0)
 const searchQuery = ref<string>('')
-const selectedStatus = ref<string>('')
-const Operations = ref([])
+const successMessage = ref<string>('')
+const errorMessage = ref<string>('')
 
 // Handle selection changes from the table
 const handleSelectionChange = (count: number) => {
   selectedRoomsCount.value = count
 }
 
-// Handle bulk action apply
-const applyBulkAction = () => {
-  if (selectedStatus.value && selectedRoomsCount.value > 0) {
-    // Emit event or call API to apply bulk status change
-    console.log(`Applying ${selectedStatus.value} to ${selectedRoomsCount.value} rooms`)
-    // Reset after applying
-    selectedStatus.value = ''
-  }
+// Handle bulk update success
+const handleBulkUpdateSuccess = () => {
+  successMessage.value = 'Update completed successfully!'
+  errorMessage.value = ''
+
+  // Clear success message after 5 seconds
+  setTimeout(() => {
+    successMessage.value = ''
+  }, 5000)
+}
+
+// Handle bulk update error
+const handleBulkUpdateError = (error: string) => {
+  errorMessage.value = 'Error while updating!'
+  successMessage.value = ''
+
+  // Clear error message after 8 seconds
+  setTimeout(() => {
+    errorMessage.value = ''
+  }, 8000)
 }
 </script>

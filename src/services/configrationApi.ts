@@ -185,6 +185,22 @@ export const updateRoomStatus = (
   return axios.patch(`${API_URL}/rooms/${roomId}/status`, payload, headers)
 }
 
+/**
+ * get housekeeping status
+ *
+ */
+export const getHouseStatus = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rooms/houseview/${hotelId}`, headers)
+}
+
+/**
+ * bulkUpdate
+ */
+export const bulkUpdateRooms = (data:any): Promise<AxiosResponse<any>> => {
+    return axios.post(`${API_URL}/rooms/bulk-update`, data , headers)
+}
+
+
 ////// this is the Room Owner sections
 /**
  * Get all room owners
