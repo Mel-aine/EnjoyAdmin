@@ -126,7 +126,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
             {
               name: t('maintenance_block'),
-              path: '/add_booking',
+              path: '/maintenance_block',
               permission: 'bookings_create',
             },
             {

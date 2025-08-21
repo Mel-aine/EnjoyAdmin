@@ -4431,5 +4431,61 @@
     "emailPlaceholder": "Entrez l'adresse email",
     "applyFilters": "Appliquer les Filtres",
     "clearFilters": "Effacer les Filtres"
+    
+  },
+  "maintenance_block": "Blocs de Maintenance",
+  "BlockRoom": "Bloquer une Chambre",
+  "deleteBlockConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce bloc de maintenance ? Cette action ne peut pas être annulée.",
+  "maintenanceBlocks": {
+    "noBlocksFound": "Aucun bloc de maintenance trouvé",
+    "noBlocksMessage": "Il n'y a actuellement aucun bloc de maintenance. Créez un nouveau bloc pour commencer.",
+    "columns": {
+      "roomNumber": "Numéro de Chambre",
+      "roomType": "Type de Chambre",
+      "blockDates": "Période de Blocage",
+      "blockedBy": "Bloqué par",
+      "createdAt": "Créé le",
+      "reason": "Motif"
+    }
+  },
+  "commons": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "view": "Voir",
+    "print": "Imprimer",
+    "sendEmail": "Envoyer un Email",
+    "save": "Enregistrer",
+    "close": "Fermer",
+    "actions": "Actions",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée disponible",
+    "selectAll": "Tout sélectionner",
+    "selected": "Sélectionné",
+    "filters": "Filtres",
+    "reset": "Réinitialiser",
+    "apply": "Appliquer"
+  },
+  "statuses": {
+    "active": "Actif",
+    "inactive": "Inactif",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "confirmed": "Confirmé"
+  },
+  "message": {
+    "success": {
+      "blockDeleted": "Bloc de maintenance supprimé avec succès",
+      "blockUpdated": "Bloc de maintenance mis à jour avec succès",
+      "blockCreated": "Bloc de maintenance créé avec succès"
+    },
+    "error": {
+      "deleteBlock": "Erreur lors de la suppression du bloc de maintenance",
+      "updateBlock": "Erreur lors de la mise à jour du bloc de maintenance",
+      "createBlock": "Erreur lors de la création du bloc de maintenance",
+      "loadBlocks": "Erreur lors du chargement des blocs de maintenance"
+    }
   }
+
 }

@@ -4777,7 +4777,7 @@
   "expense_voucher": "Expense Voucher",
   "pos": "POS",
   "house_status": "House status",
-  "maintenance_block": "maintenance block",
+  "maintenance_block": "Maintenance Block",
   "work_order": "Work Order",
   "exchange_rate": "Exchange Rate",
   "reservations": "Reservations",
@@ -4823,7 +4823,8 @@
     "Disputed": "Disputed"
   },
   "navigation": {
-    "frontOffice": "Front Office"
+    "frontOffice": "Front Office",
+    "housekeeping": "Housekeeping"
   },
   "net_amount": "Net Amount",
   "new_activities": "New activities will appear here",
@@ -4903,5 +4904,69 @@
   "error_noshow_reservation": "Error no show reservation",
   "noshow_fee_must_be_positive": "",
   "noReservationsFound": "No reservations found.",
-  "resNo": "Res. No"
+  "resNo": "Res. No",
+  "noWorkFound": "No Work Order Found",
+  "noWorkMessage": "No Work Order match your current filters",
+  "BlockRoom": "Block Room",
+  "deleteBlockConfirmMessage": "Are you sure you want to delete this maintenance block? This action cannot be undone.",
+  "maintenanceBlocks": {
+    "noBlocksFound": "No maintenance blocks found",
+    "noBlocksMessage": "There are currently no maintenance blocks. Create a new block to get started.",
+    "columns": {
+      "roomNumber": "Room Number",
+      "roomType": "Room Type",
+      "blockDates": "Block Period",
+      "blockedBy": "Blocked By",
+      "createdAt": "Created On",
+      "reason": "Reason"
+    }
+  },
+  "commons": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "print": "Print",
+    "sendEmail": "Send Email",
+    "save": "Save",
+    "close": "Close",
+    "actions": "Actions",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "selectAll": "Select All",
+    "selected": "Selected",
+    "filters": "Filters",
+    "reset": "Reset",
+    "apply": "Apply"
+  },
+  "statuses": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "confirmed": "Confirmed"
+  },
+  "message": {
+    "success": {
+      "blockDeleted": "Maintenance block deleted successfully",
+      "blockUpdated": "Maintenance block updated successfully",
+      "blockCreated": "Maintenance block created successfully"
+    },
+    "error": {
+      "deleteBlock": "Error deleting maintenance block",
+      "updateBlock": "Error updating maintenance block",
+      "createBlock": "Error creating maintenance block",
+      "loadBlocks": "Error loading maintenance blocks"
+    }
+  },
+  "UpdateBlock" : "Edit Block",
+  "CreateBlock" : "Create Block",
+  "PleaseCorrectFormErrors": "Please correct the form errors",
+  "BlockUpdatedSuccessfully": "Block updated successfully",
+  "ErrorUpdatingBlock": "Error updating block",
+  "BlockCreatedSuccessfully": "Block created successfully",
+  "ErrorCreatingBlock": "Error creating block",
+  "BlocksSavedSuccessfully": "Blocks saved successfully",
+  "ErrorSavingBlock": "Error saving block"
 }

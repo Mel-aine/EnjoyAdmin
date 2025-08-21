@@ -10,6 +10,8 @@
               :selectable="false"
               :actions="actions"
               :loading="loading"
+              :empty-state-title="$t('noWorkFound')"
+              :empty-state-message="$t('noWorkMessage')"
               v-model="searchQuery"
               @search-change="onSearchChange"
               class="modern-table"

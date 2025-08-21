@@ -107,26 +107,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/house_status',
-      name: 'HouseStatus',
-      component: () => import('../views/Housekeeping/HouseStatus/HouseStatusView.vue'),
-      props: true,
-      meta: {
-        title: 'House Status',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/work_order',
-      name: 'WorkOrder',
-      component: () => import('../views/Housekeeping/WorkOrder/WorkOrderView.vue'),
-      props: true,
-      meta: {
-        title: 'Work Order',
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/room_detail/:id',
       name: 'RoomDetailsModal',
       component: () => import('../views/Room/RoomDetailsModal.vue'),
@@ -1146,37 +1126,6 @@ const router = createRouter({
       },
     },
 
-    //travel
-    {
-      path: '/dashboardTravel',
-      name: 'dashboard travel',
-      component: () => import('../views/Travel/DashboardTravel.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/all_routes',
-      name: 'all routes',
-      component: () => import('../views/Travel/ItineraryView.vue'),
-    },
-    {
-      path: '/vehicle_fleet',
-      name: 'vehicle fleet',
-      component: () => import('../views/Travel/Equipement/VehicleView.vue'),
-    },
-    {
-      path: '/scheduled_trips',
-      name: 'scheduled trips',
-      component: () => import('../views/Travel/TravelManagement.vue/TravelList.vue'),
-    },
-    {
-      path: '/schedules',
-      name: 'schedules',
-      component: () => import('../views/Travel/Planning/ScheduleView.vue'),
-      meta: {
-        title: 'Schedules',
-        requiresAuth: true,
-      },
-    },
     {
       path: '/amenities',
       name: 'amenities',
@@ -1204,11 +1153,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/driver',
-      name: 'driver',
-      component: () => import('../views/Travel/DriverView.vue'),
-    },
+
 
     /// Staff Management
 
@@ -1268,15 +1213,6 @@ const router = createRouter({
     },
 
     {
-      path: '/vehicle_assignment',
-      name: 'vehicle assigment',
-      component: () => import('../views/Travel/Planning/VehicleAssignement.vue'),
-      meta: {
-        title: 'Vehicle assigment',
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/custom-guest-table',
       name: 'Custom Guest Table',
       component: () => import('../views/Tables/CustomGuestTable.vue'),
@@ -1332,32 +1268,40 @@ const router = createRouter({
         title: '404 - Page Not Found',
       },
     },
+    //Housekeeping routes
+    {
+      path: '/house_status',
+      name: 'HouseStatus',
+      component: () => import('../views/Housekeeping/HouseStatus/HouseStatusView.vue'),
+      props: true,
+      meta: {
+        title: 'House Status',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/work_order',
+      name: 'WorkOrder',
+      component: () => import('../views/Housekeeping/WorkOrder/WorkOrderView.vue'),
+      props: true,
+      meta: {
+        title: 'Work Order',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/maintenance_block',
+      name: 'MaintenanceBlock',
+      component: () => import('../views/Housekeeping/MaintenanceBlock/MaintenanceBlockView.vue'),
+      props: true,
+      meta: {
+        title: 'Maintenance Block',
+        requiresAuth: true,
+      },
+    },
   ],
 })
-// router.beforeEach(async (to, from, next) => {
-//   isLoading.value = true
 
-//   const authStore = useAuthStore()
-//   // const serviceStore = useServiceStore();
-
-//   try {
-//     console.log('user', authStore.user)
-//     console.log('token', authStore.token)
-//     console.log('UserId', authStore.UserId)
-//     // Si la route nécessite une auth mais qu’on n’est pas connecté
-//     if (to.meta.requiresAuth && (!authStore.token || !authStore.user)) {
-//       return next('/')
-//     }
-//     if (to.path === '/' && authStore.token && authStore.user && authStore.UserId) {
-//       next('/dashboard')
-//     }
-
-//     return next()
-//   } catch (error) {
-//     console.error('Error in navigation guard:', error)
-//     return next('/')
-//   }
-// })
 router.beforeEach(async (to, from, next) => {
   isLoading.value = true
 
