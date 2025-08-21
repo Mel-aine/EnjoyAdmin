@@ -15,13 +15,14 @@ import { formatDateT } from '../../../components/utilities/UtilitiesFunction';
 import GuestDetails from '../../../components/reservations/GuestDetails.vue';
 import Spinner from '../../../components/spinner/Spinner.vue';
 import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue';
-import { useReservation, type CheckInReservationPayload } from '../../../composables/useReservation';
+import { useReservation, type CheckInReservationPayload, type CheckOutReservationPayload } from '../../../composables/useReservation';
 import AddPaymentModal from '../../../components/reservations/foglio/AddPaymentModal.vue';
 import CancelReservation from '../../../components/reservations/foglio/CancelReseravtion.vue';
 import PrintModal from '../../../components/common/PrintModal.vue';
 import BookingConfirmationTemplate from '../../../components/common/templates/BookingConfirmationTemplate.vue';
 import { useServiceStore } from '../../../composables/serviceStore';
 import NoShowReservation from '../../../components/reservations/foglio/NoShowReservation.vue';
+import { checkOutReservation } from '../../../services/reservation';
 
 // Simple Button component
 const Button = {
@@ -227,15 +228,13 @@ const handleSavePayment = async () => {
 
 // Handler functions for different reservation operations
 const handleCheckOut = async () => {
-    const payload = {
-        reservationRooms: reservation.value?.reservationRooms.map((e: any) => e.id),
-        actualCheckOutTime: (new Date()).toISOString(),
-        notes: "",
-        finalBillAmount: 0,
-        outstandingBalance: 0
-    };
-
-    // await performCheckOut(reservation.value.id, payload, getBookingDetailsById);
+    const play: CheckOutReservationPayload = {
+        reservationRooms: reservation.value?.reservationRooms.map((e: any) => {
+            return e.id
+        }),
+        actualCheckOutTime: new Date().toISOString()
+    }
+    performCheckOut(reservation.value.id, play, getBookingDetailsById)
 };
 
 const handleAmendStay = async () => {
@@ -359,7 +358,7 @@ const canCheckIn = computed(() => {
 const canCheckout = computed(() => {
     const date = new Date();
     const dStr = date.toISOString().split('T')[0]
-    return reservation.value.departDate.startsWith(dStr) && reservation.value.status === 'checked-in';
+    return reservation.value.departDate <= dStr && (reservation.value.status === 'checked-in' || reservation.value.status === 'checked_in');
 })
 const handlePrintError = (error: any) => {
     console.error('Print error:', error);
@@ -427,11 +426,13 @@ onMounted(() => {
                     <span class="font-bold">{{ reservation.guest?.displayName }}</span>
                     <div class="flex">
                         <Adult class="w-5" />
-                        <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults ?? 0 }}</span>
+                        <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults ?? 0
+                            }}</span>
                     </div>
                     <div class="flex">
                         <Child class="w-4" />
-                        <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child ?? 0 }}</span>
+                        <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child ?? 0
+                            }}</span>
                     </div>
                 </div>
                 <div class="flex gap-8">
@@ -488,7 +489,7 @@ onMounted(() => {
                     </button>
                     <button @click="handleCheckOut" :disabled="isCheckingOut" v-if="canCheckout"
                         class="bg-red-600 rounded-lg text-white px-4 py-2 align-middle  text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
-                        <Spinner v-if="isCheckingIn" class="w-4 h-4" />
+                        <Spinner v-if="isCheckingOut" class="w-4 h-4" />
                         <span>{{ isCheckingOut ? $t('processing') || 'Processing...' : $t('check out') }}</span>
                     </button>
                 </div>

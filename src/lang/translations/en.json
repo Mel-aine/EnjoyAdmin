@@ -4903,5 +4903,13 @@
   "error_noshow_reservation": "Error no show reservation",
   "noshow_fee_must_be_positive": "",
   "noReservationsFound": "No reservations found.",
-  "resNo": "Res. No"
+  "resNo": "Res. No",
+  "printConfirmation": "Print Confirmation",
+  "printReceipt": "Print Receipt",
+  "arrivals": "Arrivals",
+  "departures": "Departures",
+  "in house": "In house",
+  "cash": "Cash",
+  "credit_card": "Credit Card",
+  "bank_transfer": "Bank Transfer"
 }

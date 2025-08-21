@@ -101,6 +101,20 @@ const printDocumentData = computed(() => ({
   paidAmount: props.reservation.paidAmount,
   remainingAmount: props.reservation.remainingAmount
 }))
+
+const roomRateTypeSummary = computed(() => {
+    if (!props.reservation?.reservationRooms || props.reservation.reservationRooms.length === 0) {
+        return 'N/A';
+    }
+    const reservationRooms = props.reservation.reservationRooms;
+    const totalRooms = reservationRooms.length;
+
+    // Get room numbers and create summary
+    const roomNumbers = reservationRooms.map((room: any) => {
+        return `${room.room?.roomNumber}`
+    })
+    return roomNumbers;
+});
 // Icon mapping for different actions
 const actionIconMap = {
   'view': Eye,
@@ -294,8 +308,10 @@ const formatDate = (dateString: string) => {
 
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
-            <span class=" font-semibold">{{ $t('Room/Rate type') }}</span>
-            <span class="text-xs">{{ reservation.roomType ?? $t('N/A') }}/{{ reservation.roomType ?? $t('N/A') }}</span>
+            <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
+            <span v-for="(value,ind) in roomRateTypeSummary" :key="ind">
+              {{ value }}
+            </span>
           </div>
           <div class="flex gap-1">
             <span :class="[
@@ -312,15 +328,15 @@ const formatDate = (dateString: string) => {
         <div class=" flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
           <div class="flex justify-between">
             <span class=" font-medium">{{ $t('Total') }}</span>
-            <span class="text-sm">{{ formatCurrency(reservation.totalAmount) }}</span>
+            <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.totalChargesWithTaxes) }}</span>
           </div>
           <div class="flex justify-between">
             <span class=" font-medium">{{ $t('paid') }}</span>
-            <span class="text-sm">{{ formatCurrency(reservation.paidAmount) }}</span>
+            <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.totalPayments) }}</span>
           </div>
           <div class="flex justify-between text-primary">
             <span class=" font-medium">{{ $t('balance') }}</span>
-            <span class="text-sm">{{ formatCurrency(reservation.remainingAmount) }}</span>
+            <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.outstandingBalance) }}</span>
           </div>
         </div>
       </div>

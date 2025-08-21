@@ -18,9 +18,9 @@ export interface CheckInReservationPayload {
 export interface CheckOutReservationPayload {
   reservationRooms: number[]
   actualCheckOutTime: string
-  notes: string
-  finalBill: number
-  depositRefund: number
+ // notes: string
+ // finalBill: number
+  //depositRefund: number
 }
 
 export interface PaymentPayload {

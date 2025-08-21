@@ -172,7 +172,7 @@
                                                 {{ $t('status') }}
                                             </label>
                                             <span
-                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-10">
                                                 {{ $t(reservation.status) }}
                                             </span>
                                         </div>
@@ -262,7 +262,7 @@
                                                 {{ $t('avgDailyRate') }}
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">{{
-                                                formatCurrency(reservation.avgDailyRate) }}</p>
+                                                formatCurrency(avgDailyRate) }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -279,17 +279,17 @@
                                     class=" w-full flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservation.totalAmount ?? 0)
+                                        <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.totalChargesWithTaxes ?? 0)
                                         }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservation.paidAmount ?? 0)
+                                        <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.totalPayments ?? 0)
                                             }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservation.remainingAmount ?? 0)
+                                        <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.outstandingBalance ?? 0)
                                         }}</span>
                                     </div>
                                 </div>
@@ -502,7 +502,18 @@ const handlePrintSuccess = (data: any) => {
     console.log('Print successful:', data)
     showPrintModal.value = false
 }
+const avgDailyRate =computed(()=>{
+    if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
+        return 0;
+    }
+    const reservationRooms = reservation.value.reservationRooms;
+    let total = 0;
+    reservationRooms.forEach((room: any) => {
+        total += parseFloat(room.roomRate??0);
+    })
+    return total;
 
+})
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }

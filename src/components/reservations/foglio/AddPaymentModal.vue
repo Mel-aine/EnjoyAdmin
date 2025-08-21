@@ -74,6 +74,7 @@ import { getReservationFolios, createFolioTransaction } from '../../../services/
 import { useToast } from 'vue-toastification'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { safeParseFloat, safeParseInt, prepareFolioAmount } from '../../../utils/numericUtils'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   isOpen: boolean
@@ -91,6 +92,7 @@ const isLoadingFolios = ref(false)
 const isSaving = ref(false)
 const serviceStore = useServiceStore()
 const toast = useToast()
+const {t} = useI18n()
 
 // Options for dropdowns
 const folioOptions = ref([
@@ -98,9 +100,9 @@ const folioOptions = ref([
 ])
 
 const typeOptions = ref([
-  { value: 'cash', label: 'cash' },
-  { value: 'credit card', label: 'credit card' },
-  { value: 'bank transfer', label: 'bank transfer' },
+  { value: 'cash', label: t('cash') },
+  { value: 'creditCard', label: t('credit_card') },
+  { value: 'bankTransfer', label: t('bank_transfer') },
 ])
 
 
@@ -203,7 +205,7 @@ const fetchCurrencies = async () => {
   try {
     const response = await getCurrencies()
     currencyOptions.value = currencyOptions.value.concat((response.data.data.data || []).map((currency: any) => {
-      return { ...currency, label: `${currency.name} (${currency.symbol})`, value: currency.code }
+      return { ...currency, label: `${currency.name} (${currency.code})`, value: currency.code }
     }))
   } catch (error) {
     console.error('Error fetching currencies:', error)
@@ -228,7 +230,7 @@ const fetchFolios = async () => {
     isLoadingFolios.value = true
     const response = await getReservationFolios(props.reservationId)
     folioOptions.value = folioOptions.value.concat((response.data || [])?.map((folio: any) => {
-      const guestName = folio.guest_name || `${folio.first_name || ''} ${folio.last_name || ''}`.trim() || 'Guest'
+      const guestName = folio.guest.displayName || `${folio.first_name || ''} ${folio.last_name || ''}`.trim() || 'Guest'
       return { ...folio, label: `${folio.id} - ${guestName}`, value: folio.id }
     }))
   } catch (error) {
