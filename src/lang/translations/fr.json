@@ -4467,24 +4467,21 @@
     "apply": "Appliquer"
   },
   "statuses": {
-    "active": "Actif",
-    "inactive": "Inactif",
-    "pending": "En attente",
-    "completed": "Terminé",
-    "cancelled": "Annulé",
-    "confirmed": "Confirmé"
+    "blocked": "Bloquée",
+    "maintenance": "Maintenance",
+    "outOfOrder": "Hors service",
+    "available": "Disponible",
+    "occupied": "Occupée",
+    "dirty": "Sale"
   },
   "message": {
     "success": {
       "blockDeleted": "Bloc de maintenance supprimé avec succès",
-      "blockUpdated": "Bloc de maintenance mis à jour avec succès",
-      "blockCreated": "Bloc de maintenance créé avec succès"
+      "blocksExportedSuccessfully": "Blocs exportés avec succès"
     },
     "error": {
       "deleteBlock": "Erreur lors de la suppression du bloc de maintenance",
-      "updateBlock": "Erreur lors de la mise à jour du bloc de maintenance",
-      "createBlock": "Erreur lors de la création du bloc de maintenance",
-      "loadBlocks": "Erreur lors du chargement des blocs de maintenance"
+      "errorExportingBlocks": "Erreur lors de l'export des blocs"
     }
   }
 

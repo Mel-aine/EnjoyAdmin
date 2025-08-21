@@ -4918,7 +4918,8 @@
       "blockDates": "Block Period",
       "blockedBy": "Blocked By",
       "createdAt": "Created On",
-      "reason": "Reason"
+      "reason": "Reason",
+      "status" : "Status"
     }
   },
   "commons": {
@@ -4940,24 +4941,21 @@
     "apply": "Apply"
   },
   "statuses": {
-    "active": "Active",
-    "inactive": "Inactive",
-    "pending": "Pending",
-    "completed": "Completed",
-    "cancelled": "Cancelled",
-    "confirmed": "Confirmed"
+    "blocked": "Blocked",
+    "maintenance": "Maintenance",
+    "outOfOrder": "Out of order",
+    "available": "Available",
+    "occupied": "Occupied",
+    "dirty": "Dirty"
   },
   "message": {
     "success": {
       "blockDeleted": "Maintenance block deleted successfully",
-      "blockUpdated": "Maintenance block updated successfully",
-      "blockCreated": "Maintenance block created successfully"
+      "blocksExportedSuccessfully": "Blocks exported successfully"
     },
     "error": {
       "deleteBlock": "Error deleting maintenance block",
-      "updateBlock": "Error updating maintenance block",
-      "createBlock": "Error creating maintenance block",
-      "loadBlocks": "Error loading maintenance blocks"
+      "errorExportingBlocks": "Error exporting blocks"
     }
   },
   "UpdateBlock" : "Edit Block",
@@ -4968,5 +4966,16 @@
   "BlockCreatedSuccessfully": "Block created successfully",
   "ErrorCreatingBlock": "Error creating block",
   "BlocksSavedSuccessfully": "Blocks saved successfully",
-  "ErrorSavingBlock": "Error saving block"
+  "ErrorSavingBlock": "Error saving block",
+  "BlocksCreatedSuccessfully": "blocks created successfully",
+  "ErrorCreatingBlocks": "Error while creating the blocks",
+  "ErrorsOccurred": "errors occurred",
+  "ConflictError": "Conflict detected",
+  "RoomAlreadyBlocked": "The room is already blocked for the selected dates",
+  "RoomHasReservation": "Cannot block a room with an active reservation for these dates",
+  "DateRange" : "Date Range",
+  "addRange" : "Add Range",
+  "RemoveRange" : "Remove Range",
+  "selected_period" : "Select a period",
+  "SelectReason" : "Select a Reason"
 }

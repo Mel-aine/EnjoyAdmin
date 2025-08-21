@@ -25,7 +25,6 @@
               variant="primary"
               :icon="KeyRound"
               @click="openCreateBlockModal"
-              :disabled="loading"
             />
             <BasicButton
               :label="$t('export')"
@@ -33,38 +32,39 @@
               :icon="FileDown"
               @click="exportBlocks"
               :disabled="loading || blocks.length === 0"
+              :loading="exportLoading"
             />
           </template>
 
           <!-- Custom column templates -->
           <template #column-room_number="{ item }">
             <div class="font-medium text-gray-900">
-              {{ item.room.room_number }}
+              {{ item.room.roomNumber }}
             </div>
           </template>
 
           <template #column-room_type="{ item }">
             <div class="text-sm text-gray-600">
-              {{ item.room.id }}
+              {{ item.roomType.roomTypeName }}
             </div>
           </template>
 
           <template #column-block_dates="{ item }">
             <div class="text-sm">
-              <div class="font-medium">{{ formatDate(item.block_from_date) }}</div>
-              <div class="text-gray-500">{{ $t('to') }} {{ formatDate(item.block_to_date) }}</div>
+              <div class="font-medium">{{ formatDate(item.blockFromDate) }}</div>
+              <div class="text-gray-500">{{ $t('to') }} {{ formatDate(item.blockToDate) }}</div>
             </div>
           </template>
 
-          <!-- <template #column-blocked_by="{ item }">
+          <template #column-blocked_by="{ item }">
             <div class="text-sm text-gray-600">
-              {{ item.blocked_by_user.username }}
+              {{ item.blockedBy.firstName }} {{ item.blockedBy.lastName }}
             </div>
-          </template> -->
+          </template>
 
           <template #column-created_at="{ item }">
             <div class="text-sm text-gray-500">
-              {{ formatDate(item.created_at) }}
+              {{ formatDate(item.createdAt) }}
             </div>
           </template>
 
@@ -75,20 +75,13 @@
               </p>
             </div>
           </template>
+
+          <template #column-status="{ item }">
+            <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+              {{ $t(`statuses.${item.status}`) }}
+            </span>
+          </template>
         </ReusableTable>
-      </div>
-
-      <!-- Success/Error Messages -->
-      <div v-if="successMessage" class="fixed top-4 right-4 z-50">
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-          {{ successMessage }}
-        </div>
-      </div>
-
-      <div v-if="errorMessage" class="fixed top-4 right-4 z-50">
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {{ errorMessage }}
-        </div>
       </div>
 
       <!-- Modal de confirmation de suppression -->
@@ -99,6 +92,7 @@
         :confirm-text="$t('delete')"
         :cancel-text="$t('cancel')"
         variant="danger"
+        :loading="deleteLoading"
         @confirm="confirmDelete"
         @cancel="cancelDelete"
       />
@@ -126,40 +120,46 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import CreateBlockModal from '@/components/Housekeeping/CreateBlockModal.vue'
 import { KeyRound, FileDown, Edit, Trash2 } from 'lucide-vue-next'
-import { createRoomBlock, getRoomBlocks, deleteBlock } from '@/services/roomBlockApi'
-import { useServiceStore } from '../../../composables/serviceStore';
+import { createRoomBlock, getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { useToast } from 'vue-toastification';
 
 const { t } = useI18n()
 
 // Define interfaces
 interface RoomType {
   id: string
-  name: string
+  roomTypeName: string
 }
 
 interface Room {
   id: string
-  room_number: string
-  room_type: RoomType
+  roomNumber: string
+  roomType?: RoomType
 }
 
 interface BlockedByUser {
   id: string
-  username: string
+  firstName: string
+  lastName: string
 }
 
 interface MaintenanceBlock {
   id: string
   room: Room
-  block_from_date: string
-  block_to_date: string
-  blocked_by_user: BlockedByUser
-  created_at: string
+  roomType: RoomType
+  blockFromDate: string
+  blockToDate: string
+  blockedBy: BlockedByUser
+  createdAt: string
   reason: string
+  status: string
 }
 
 // Reactive data
 const loading = ref(false)
+const deleteLoading = ref(false)
+const exportLoading = ref(false)
 const searchQuery = ref('')
 const selectedBlocks = ref<MaintenanceBlock[]>([])
 const showDeleteConfirmation = ref(false)
@@ -168,9 +168,8 @@ const blockToDelete = ref<MaintenanceBlock | null>(null)
 const isEditing = ref(false)
 const isBlockModalOpen = ref(false)
 const blocks = ref<MaintenanceBlock[]>([])
-const successMessage = ref('')
-const errorMessage = ref('')
 const serviceStore = useServiceStore()
+const toast = useToast()
 
 // Breadcrumb
 const breadcrumb = [
@@ -183,33 +182,45 @@ const columns = computed(() => [
   {
     key: 'room_number',
     label: t('maintenanceBlocks.columns.roomNumber'),
-    type: 'custom' as const
+    type: 'custom' as const,
+    sortable: true
   },
   {
     key: 'room_type',
     label: t('maintenanceBlocks.columns.roomType'),
-    type: 'custom' as const
+    type: 'custom' as const,
+    sortable: true
   },
   {
     key: 'block_dates',
     label: t('maintenanceBlocks.columns.blockDates'),
-    type: 'custom' as const
+    type: 'custom' as const,
+    sortable: true
   },
   {
     key: 'blocked_by',
     label: t('maintenanceBlocks.columns.blockedBy'),
-    type: 'custom' as const
+    type: 'custom' as const,
+    sortable: true
   },
   {
     key: 'created_at',
     label: t('maintenanceBlocks.columns.createdAt'),
-    type: 'custom' as const
+    type: 'custom' as const,
+    sortable: true
   },
   {
     key: 'reason',
     label: t('maintenanceBlocks.columns.reason'),
-    type: 'custom' as const
-  }
+    type: 'custom' as const,
+    sortable: true
+  },
+  { 
+    key: 'status', 
+    label: t('maintenanceBlocks.columns.status'), 
+    type: 'custom' as const,
+    sortable: true
+  },
 ])
 
 // Computed properties
@@ -218,17 +229,63 @@ const filteredBlocks = computed(() => {
 
   // Apply search filter
   if (searchQuery.value) {
-    const searchTerm = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(block =>
-      block.room.room_number.toLowerCase().includes(searchTerm) ||
-      block.room.room_type.name.toLowerCase().includes(searchTerm) ||
-      block.blocked_by_user.username.toLowerCase().includes(searchTerm) ||
-      block.reason.toLowerCase().includes(searchTerm)
-    )
+    const searchTerm = searchQuery.value.toLowerCase().trim()
+    
+    if (searchTerm) {
+      filtered = filtered.filter(block => {
+        // Recherche dans le numéro de chambre
+        const roomNumber = block.room?.roomNumber?.toLowerCase() || ''
+        
+        // Recherche dans le type de chambre
+        const roomType = block.roomType?.roomTypeName?.toLowerCase() || 
+                         block.room?.roomType?.roomTypeName?.toLowerCase() || ''
+        
+        // Recherche dans le nom de l'utilisateur qui a bloqué
+        const blockedByName = `${block.blockedBy?.firstName || ''} ${block.blockedBy?.lastName || ''}`.toLowerCase()
+        
+        // Recherche dans la raison
+        const reason = block.reason?.toLowerCase() || ''
+        
+        // Recherche dans le statut
+        const status = block.status?.toLowerCase() || ''
+        
+        // Recherche dans les dates (format lisible)
+        const fromDate = formatDate(block.blockFromDate).toLowerCase()
+        const toDate = formatDate(block.blockToDate).toLowerCase()
+        
+        return roomNumber.includes(searchTerm) ||
+               roomType.includes(searchTerm) ||
+               blockedByName.includes(searchTerm) ||
+               reason.includes(searchTerm) ||
+               status.includes(searchTerm) ||
+               fromDate.includes(searchTerm) ||
+               toDate.includes(searchTerm)
+      })
+    }
   }
 
   return filtered
 })
+
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case 'blocked':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    case 'maintenance':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+    case 'out_of_order':
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+    case 'available':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'occupied':
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+    case 'dirty':
+      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  }
+}
+
 
 // Actions configuration
 const actions = computed(() => [
@@ -244,35 +301,29 @@ const actions = computed(() => [
     action: 'delete',
     icon: Trash2,
     variant: 'danger',
-    handler: (item: MaintenanceBlock) => deleteBlock(item)
+    handler: (item: MaintenanceBlock) => deleteBlockAction(item)
   }
 ])
 
 // Utility functions
 const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  })
-}
-
-const showMessage = (message: string, type: 'success' | 'error') => {
-  if (type === 'success') {
-    successMessage.value = message
-    errorMessage.value = ''
-  } else {
-    errorMessage.value = message
-    successMessage.value = ''
+  if (!dateString) return ''
+  
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString
+    
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  } catch (error) {
+    console.error('Error formatting date:', error)
+    return dateString
   }
-
-  // Clear message after 5 seconds
-  setTimeout(() => {
-    successMessage.value = ''
-    errorMessage.value = ''
-  }, 5000)
 }
+
 
 // Event handlers
 const onSelectionChange = (selected: MaintenanceBlock[]) => {
@@ -280,7 +331,7 @@ const onSelectionChange = (selected: MaintenanceBlock[]) => {
 }
 
 const onSearchChange = (query: string) => {
-  // Search is handled reactively through searchQuery
+  searchQuery.value = query
 }
 
 // Modal handlers
@@ -291,12 +342,13 @@ const openCreateBlockModal = () => {
 }
 
 const editBlock = (block: MaintenanceBlock) => {
-  selectedBlock.value = block
+  console.log('Editing block:', block)
+  selectedBlock.value = { ...block }
   isEditing.value = true
   isBlockModalOpen.value = true
 }
 
-const deleteBlock = (block: MaintenanceBlock) => {
+const deleteBlockAction = (block: MaintenanceBlock) => {
   blockToDelete.value = block
   showDeleteConfirmation.value = true
 }
@@ -304,22 +356,21 @@ const deleteBlock = (block: MaintenanceBlock) => {
 const confirmDelete = async () => {
   if (!blockToDelete.value) return
 
-  loading.value = true
+  deleteLoading.value = true
+  
   try {
     await deleteBlock(blockToDelete.value.id)
+    fetchBlocks()
+    toast.success(t('message.sucess.blockDeleted'))
 
-    // Remove from local data
-    const index = blocks.value.findIndex(b => b.id === blockToDelete.value!.id)
-    if (index !== -1) {
-      blocks.value.splice(index, 1)
-    }
-
-    showMessage(t('blockDeletedSuccessfully'), 'success')
   } catch (error: any) {
     console.error('Error deleting block:', error)
-    showMessage(error.message || t('errorDeletingBlock'), 'error')
+    const errorMsg = error.response?.data?.message || error.message || t('errorDeletingBlock')
+    console.log('errorMsg',errorMsg)
+    toast.error(t('message.error.deleteBlock'))
+    // showMessage(errorMsg, 'error')
   } finally {
-    loading.value = false
+    deleteLoading.value = false
     showDeleteConfirmation.value = false
     blockToDelete.value = null
   }
@@ -330,80 +381,57 @@ const cancelDelete = () => {
   blockToDelete.value = null
 }
 
-const handleBlockSave = async (blockData: any) => {
-  try {
-    loading.value = true
 
-    if (blockData.isEditing && selectedBlock.value) {
-      // Update existing block
-      // const updatedBlock = await updateBlock(selectedBlock.value.id, {
-      //   room_id: selectedBlock.value.room.id,
-      //   block_from_date: blockData.startDate,
-      //   block_to_date: blockData.endDate,
-      //   reason: blockData.reason
-      // })
+const handleBlockSave = async (eventData: any) => {
 
-      // Update local data
-      // const index = blocks.value.findIndex(b => b.id === selectedBlock.value!.id)
-      // if (index !== -1) {
-      //   blocks.value[index] = updatedBlock
-      // }
-
-      showMessage(t('blockUpdatedSuccessfully'), 'success')
-    } else {
-
-      for (const roomId of blockData.selectedRooms) {
-        try {
-          const newBlock = await createRoomBlock({
-            hotel_id:serviceStore.serviceId,
-            room_id: roomId,
-            block_from_date: blockData.startDate,
-            block_to_date: blockData.endDate,
-            reason: blockData.reason
-          })
-          console.log(`Block created for room ${roomId}:`, newBlock)
-        } catch (error: any) {
-          console.error(`Error creating block for room ${roomId}:`, error)
-          showMessage(error.message || `Failed to create block for room ${roomId}`, 'error')
-        }
-      }
-
-    }
-
-    // Close modal
-    handleBlockClose()
-  } catch (error: any) {
-    console.error('Error saving block:', error)
-    showMessage(error.message || t('errorSavingBlock'), 'error')
-  } finally {
-    loading.value = false
+  if (eventData.isEditing && eventData.updated) {
+    await fetchBlocks()
+  } else if (!eventData.isEditing && eventData.successCount > 0) {
+    await fetchBlocks()
   }
+  handleBlockClose()
 }
-
 const handleBlockClose = () => {
   isBlockModalOpen.value = false
   selectedBlock.value = null
   isEditing.value = false
 }
 
-const exportBlocks = () => {
+const exportBlocks = async () => {
+  if (blocks.value.length === 0) {
+    toast.error(t('noDataToExport'))
+    return
+  }
+
+  exportLoading.value = true
+  
   try {
     // Create CSV data
     const csvData = blocks.value.map(block => ({
-      'Room Number': block.room.room_number,
-      'Room Type': block.room.room_type.name,
-      'Start Date': block.block_from_date,
-      'End Date': block.block_to_date,
-      'Blocked By': block.blocked_by_user.username,
-      'Reason': block.reason,
-      'Created At': block.created_at
+      'Room Number': block.room?.roomNumber || '',
+      'Room Type': block.roomType?.roomTypeName || block.room?.roomType?.roomTypeName || '',
+      'Start Date': formatDate(block.blockFromDate),
+      'End Date': formatDate(block.blockToDate),
+      'Blocked By': `${block.blockedBy?.firstName || ''} ${block.blockedBy?.lastName || ''}`.trim(),
+      'Reason': block.reason || '',
+      'Status': block.status || '',
+      'Created At': formatDate(block.createdAt)
     }))
 
     // Convert to CSV string
     const headers = Object.keys(csvData[0] || {})
     const csvContent = [
       headers.join(','),
-      ...csvData.map(row => headers.map(header => `"${row[header as keyof typeof row]}"`).join(','))
+      ...csvData.map(row => 
+        headers.map(header => {
+          const value = row[header as keyof typeof row] || ''
+          // Escape quotes and wrap in quotes if contains comma or quote
+          const escapedValue = value.toString().replace(/"/g, '""')
+          return escapedValue.includes(',') || escapedValue.includes('"') 
+            ? `"${escapedValue}"` 
+            : escapedValue
+        }).join(',')
+      )
     ].join('\n')
 
     // Create and download file
@@ -416,39 +444,75 @@ const exportBlocks = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+    URL.revokeObjectURL(url)
 
-    showMessage(t('blocksExportedSuccessfully'), 'success')
-  } catch (error) {
+    toast.success(t('message.sucess.blocksExportedSuccessfully'))
+  } catch (error: any) {
     console.error('Error exporting blocks:', error)
-    showMessage(t('errorExportingBlocks'), 'error')
+    toast.error(t('message.error.errorExportingBlocks'))
+  } finally {
+    exportLoading.value = false
   }
 }
 
 // Data fetching
 const fetchBlocks = async () => {
+  if (!serviceStore.serviceId) {
+    toast.error(t('serviceIdRequired'))
+    return
+  }
+
   loading.value = true
+  
   try {
     const response = await getRoomBlocks(serviceStore.serviceId)
-    blocks.value = response.data
-    console.log('Fetched blocks:', JSON.stringify(blocks.value))
+    console.log('API Response:', response.data)
+    
+    // Handle different response structures
+    if (response.data?.data) {
+      blocks.value = response.data.data
+    } else if (Array.isArray(response.data)) {
+      blocks.value = response.data
+    } else {
+      blocks.value = []
+    }
+    
     console.log('Fetched blocks:', blocks.value)
   } catch (error: any) {
     console.error('Error loading blocks:', error)
-    showMessage(error.message || t('errorLoadingBlocks'), 'error')
+    const errorMsg = error.response?.data?.message || error.message || t('errorLoadingBlocks')
+    console.log('errorMsg',errorMsg)
+    // toast.error( t('errorLoadingBlocks'))
+    blocks.value = []
   } finally {
     loading.value = false
   }
 }
 
-// Lifecycle
-onMounted(() => {
-  fetchBlocks()
+
+onMounted(async () => {
+  await fetchBlocks()
 })
 
-// Watch for route changes or other triggers to refetch data
-watch(() => [/* dependencies */], () => {
-  // Refetch if needed
-}, { deep: true })
+// Watch for service changes
+watch(() => serviceStore.serviceId, async (newServiceId) => {
+  if (newServiceId) {
+    await fetchBlocks()
+  }
+}, { immediate: false })
+
+// Debounce search to improve performance
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+watch(searchQuery, () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+  
+  searchTimeout = setTimeout(() => {
+    // The search is reactive through filteredBlocks computed
+    console.log('Search query changed to:', searchQuery.value)
+  }, 300)
+})
 </script>
 
 <style scoped>
@@ -472,5 +536,19 @@ watch(() => [/* dependencies */], () => {
 
 .fixed > div {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* Loading spinner styles */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
