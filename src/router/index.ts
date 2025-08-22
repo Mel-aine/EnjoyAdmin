@@ -1332,6 +1332,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/Cashiering/company_details/:id',
+      name: 'CompanyDetails',
+      component: () => import('../views/Cashiering/CompanyDetails.vue'),
+      meta: {
+        title: 'Company Details',
+        requiresAuth: true,
+      },
+    },
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',
