@@ -3,9 +3,9 @@ import {
   CreditCard,
   Home,
   Settings,
-  Lock,
-  Clipboard, 
-  BarChart2
+  BarChart3,
+  ClipboardList,
+  Lock
 } from 'lucide-vue-next'
 
 export const getHotelMenu = (t: (key: string) => string) => {
@@ -54,11 +54,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
               path: '/lost_and_found',
               permission: 'dashboard_view',
             },
-           /* {
-              name: t('night_audit'),
-              path: '/night_audit',
-              permission: 'dashboard_view',
-            },
+           /*
             {
               name: t('guest_reviews'),
               path: '/guest_reviews',
@@ -129,7 +125,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
             {
               name: t('maintenance_block'),
-              path: '/add_booking',
+              path: '/maintenance_block',
               permission: 'bookings_create',
             },
             {
@@ -139,6 +135,35 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
           ],
         },
+
+        //Night Audit
+        {
+              icon: ClipboardList,
+              name: t('night_audit'),
+              path: '/night_audit',
+              permission: 'dashboard_view',
+        },
+        //Reports
+        {
+              icon: BarChart3,
+              name: t('Reports'),
+              path: '/reports',
+              permission: 'dashboard_view',
+        },
+        //Net Locks
+        {
+              icon: Lock,
+              name: t('net_locks'),
+              path: '/net_locks',
+              permission: 'dashboard_view',
+        },
+        //Configuration
+        // {
+        //   icon: Settings,
+        //   name: t('configuration'),
+        //   permission: 'dashboard_view',
+        //   path: '/reports',
+        // },
         //back office
         /*{
           name: t('Back Office'),
@@ -301,30 +326,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           permission: 'dashboard_view',
           path: '/reports',
         },*/
-        {
-          icon: BarChart2,
-          name: t('Reports'),
-          permission: 'reports_view',
-          path: '/reports',
-        },
-        {
-          icon: Lock,
-          name: t('netLocks'),
-          permission: 'dashboard_view',
-          path: '/netlocks',
-        },
-        {
-          icon: Clipboard,
-          name: t('nightAuditLog'),
-          permission: 'dashboard_view',
-          path: '/night_audit_log',
-        },
-        {
-          icon: Settings,
-          name: t('configuration'),
-          permission: 'dashboard_view',
-          path: '/reports',
-        },
+
 
 
       ],

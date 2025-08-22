@@ -12,7 +12,7 @@
           <Input v-model="formData.recVouNumber" type="text" :lb="$t('Order#')" :disabled="true"/>
         </div>
         <div>
-          <InputDoubleDatePicker v-model="formData.blockDates" :title="$t('Block')" />
+          <InputDoubleDatePicker  :title="$t('Block')" />
         </div>
       </div>
 

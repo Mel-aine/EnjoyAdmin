@@ -1159,3 +1159,11 @@ export const updateTaxById = (id: number, data: any): Promise<AxiosResponse<any>
 export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/taxes/${id}`, headers)
 }
+
+/**
+ * get Reasons by category
+ * @param category - The category to filter reasons by
+ */
+export const getByCategory = (hotelId: number | string,  category: string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, headers)
+}

@@ -15,7 +15,7 @@
       <input
         :disabled="disabled"
         type="text"
-        class="flex justify-between dark:bg-dark-900 h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        class="flex justify-between dark:bg-dark-900  dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
         :class="isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300'"
         :placeholder="defaultValue"
         v-model="search"
