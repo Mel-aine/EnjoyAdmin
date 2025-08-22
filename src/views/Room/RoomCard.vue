@@ -44,7 +44,7 @@
           </div>
           <div>
             <p class="font-semibold text-gray-900">{{ room.guestName }}</p>
-            <p class="text-xs text-gray-600">Client actuel</p>
+            <p class="text-xs text-gray-600">{{ $t('currentGuest') }}</p>
           </div>
         </div>
 
@@ -52,14 +52,14 @@
           <div v-if="room.checkInTime" class="flex items-center gap-2 text-sm text-gray-700">
             <LogIn class="w-4 h-4 text-green-600" />
             <div>
-              <p class="text-xs text-gray-500">Arrivée</p>
+              <p class="text-xs text-gray-500 whitespace-nowrap">{{ $t('CheckIn') }}</p>
               <p class="font-medium">{{ formatDate(room.checkInTime) }}</p>
             </div>
           </div>
           <div v-if="room.checkOutTime" class="flex items-center gap-2 text-sm text-gray-700">
             <LogOut class="w-4 h-4 text-orange-600" />
             <div>
-              <p class="text-xs text-gray-500">Départ prévu</p>
+              <p class="text-xs text-gray-500 whitespace-nowrap">{{ $t('planned') }}</p>
               <p class="font-medium">{{ formatDate(room.checkOutTime) }}</p>
             </div>
           </div>
@@ -82,7 +82,7 @@
       </div>
 
       <!-- Maintenance -->
-      <div v-if="room.maintenanceInfo && (room.status === 'maintenance' || room.status === 'out-of-order')"
+      <div v-if="room.maintenanceInfo && (room.status === 'maintenance' || room.status === 'out_of_order')"
            class="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
@@ -206,7 +206,7 @@ import {
 import { useI18n } from 'vue-i18n'
 
 
-const { t } = useI18n()
+const { t,locale } = useI18n()
 
 
 const props = defineProps({
@@ -425,10 +425,10 @@ const availabilityInfo = computed(() => {
   return configs[status] || null
 })
 
-// Méthodes
-const formatDate = (dateStr) => {
+
+const formatDate = (dateStr, currentLocale = locale.value) => {
   if (!dateStr) return ''
-  return new Date(dateStr).toLocaleDateString('fr-FR', {
+  return new Date(dateStr).toLocaleDateString(currentLocale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'

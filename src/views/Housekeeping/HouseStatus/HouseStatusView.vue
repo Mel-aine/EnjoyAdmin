@@ -22,10 +22,10 @@
             </div>
 
             <!-- Action buttons -->
-            <button class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:border-purple-500 hover:text-purple-500">
+            <!-- <button class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:border-purple-500 hover:text-purple-500">
               <ListIcon :size="16" />
               <span class="text-sm">Views</span>
-            </button>
+            </button> -->
             <button class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:bg-orange-500 hover:text-white">
               <FileTextIcon :size="16" />
               <span class="text-sm">Audit Trail</span>
