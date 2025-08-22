@@ -322,6 +322,17 @@ export const getRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
 export const updateRateTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/rate_types/${id}`, data, headers)
 }
+
+
+/***
+ * get rate type by hotel id
+ * @param hotelId
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRateTypeByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rate_types/hotel/${hotelId}`, headers)
+}
+
 /**
  * Delete a rate type
  * @param id
