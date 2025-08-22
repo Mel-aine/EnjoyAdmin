@@ -210,7 +210,7 @@ const handlePrint = async () => {
             filename: filename.value,
             options: printOptions.value
         })
- // Show PDF exporter
+        // Show PDF exporter
         showPdfExporter.value = true
         const res =await printFolioPdf({folioId: Number(folio.value),reservationId: props.reservationId,currencyId: Number(currency.value)})
         console.log(res)

@@ -1,8 +1,8 @@
 <template>
     <!-- Cancel Reservation Modal -->
-    <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-visible h-full w-full z-50">
         <div
-            class="relative top-10 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+            class="relative top-10  mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-visible">
             <div class="mt-3">
                 <!-- Modal Header -->
                 <div class="flex justify-between items-center mb-4">
@@ -24,7 +24,7 @@
                     </div>
 
                     <!-- Reason Selection -->
-                    <div class="mb-4">
+                    <div class="mb-4 relative">
                         <Select :lb="$t('reason')" :is-loading="isloadingReason" v-model="formData.reason" :options="reasonOptions"
                             :is-required="true" />
                     </div>

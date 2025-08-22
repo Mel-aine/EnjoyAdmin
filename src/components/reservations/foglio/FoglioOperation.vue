@@ -50,7 +50,7 @@
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <!-- More Actions Dropdown -->
             <div class="relative">
-              <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
+              <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')" :button-class="'bg-white border border-gray-200'"
                 @update:modeValue="handleMoreAction" />
             </div>
             <!-- Status indicators -->

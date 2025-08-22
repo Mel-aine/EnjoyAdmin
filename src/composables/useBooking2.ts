@@ -655,13 +655,13 @@ export function useBooking() {
         confirmReservation.value = true
       }
       // resetForm()
-      toast.success(t('toast.reservationCreated'))
+      toast.success(t('reservationCreated'))
 
       return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
-      let message = t('toast.errorSavingReservation')
+      let message = t('errorSavingReservation')
 
       if (error?.response?.data?.error) {
         message = error.response.data.error
