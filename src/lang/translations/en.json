@@ -4948,16 +4948,11 @@
     "occupied": "Occupied",
     "dirty": "Dirty"
   },
-  "message": {
-    "success": {
-      "blockDeleted": "Maintenance block deleted successfully",
-      "blocksExportedSuccessfully": "Blocks exported successfully"
-    },
-    "error": {
-      "deleteBlock": "Error deleting maintenance block",
-      "errorExportingBlocks": "Error exporting blocks"
-    }
-  },
+  "successBlockDeleted": "Maintenance block deleted successfully",
+  "blocksExportedSuccessfully": "Blocks exported successfully",
+  "errorDeleteBlock": "Error deleting maintenance block",
+  "noDataToExport": "No data to export",
+  "errorExportingBlocks": "Error exporting blocks",
   "UpdateBlock" : "Edit Block",
   "CreateBlock" : "Create Block",
   "PleaseCorrectFormErrors": "Please correct the form errors",
@@ -4977,5 +4972,18 @@
   "addRange" : "Add Range",
   "RemoveRange" : "Remove Range",
   "selected_period" : "Select a period",
-  "SelectReason" : "Select a Reason"
+  "SelectReason" : "Select a Reason",
+  "net_locks": "Net Locks",
+  "ServiceIdRequired": "Service ID is required",
+  "PleaseSelectRoomType": "Please select a room type",
+  "PleaseSelectAtLeastOneRoom": "Please select at least one room",
+  "PleaseSelectAtLeastOneDateRange": "Please select at least one date range",
+  "StartDateCannotBeInPast": "Start date cannot be in the past",
+  "EndDateCannotBeInPast": "End date cannot be in the past",
+  "EndDateMustBeAfterStartDate": "End date must be after start date",
+  "ReasonIsRequired": "Reason is required",
+  "RoomTypeIsRequired": "Room type is required",
+  "HotelIdNotSet": "Hotel ID is not set",
+  "ErrorLoadingData": "Error loading data",
+  "Configuration" : "Configuration"
 }

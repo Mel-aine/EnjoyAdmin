@@ -4473,16 +4473,7 @@
     "available": "Disponible",
     "occupied": "Occupée",
     "dirty": "Sale"
-  },
-  "message": {
-    "success": {
-      "blockDeleted": "Bloc de maintenance supprimé avec succès",
-      "blocksExportedSuccessfully": "Blocs exportés avec succès"
-    },
-    "error": {
-      "deleteBlock": "Erreur lors de la suppression du bloc de maintenance",
-      "errorExportingBlocks": "Erreur lors de l'export des blocs"
-    }
   }
+
 
 }

@@ -215,9 +215,9 @@ const columns = computed(() => [
     type: 'custom' as const,
     sortable: true
   },
-  { 
-    key: 'status', 
-    label: t('maintenanceBlocks.columns.status'), 
+  {
+    key: 'status',
+    label: t('maintenanceBlocks.columns.status'),
     type: 'custom' as const,
     sortable: true
   },
@@ -230,29 +230,29 @@ const filteredBlocks = computed(() => {
   // Apply search filter
   if (searchQuery.value) {
     const searchTerm = searchQuery.value.toLowerCase().trim()
-    
+
     if (searchTerm) {
       filtered = filtered.filter(block => {
         // Recherche dans le numéro de chambre
         const roomNumber = block.room?.roomNumber?.toLowerCase() || ''
-        
+
         // Recherche dans le type de chambre
-        const roomType = block.roomType?.roomTypeName?.toLowerCase() || 
+        const roomType = block.roomType?.roomTypeName?.toLowerCase() ||
                          block.room?.roomType?.roomTypeName?.toLowerCase() || ''
-        
+
         // Recherche dans le nom de l'utilisateur qui a bloqué
         const blockedByName = `${block.blockedBy?.firstName || ''} ${block.blockedBy?.lastName || ''}`.toLowerCase()
-        
+
         // Recherche dans la raison
         const reason = block.reason?.toLowerCase() || ''
-        
+
         // Recherche dans le statut
         const status = block.status?.toLowerCase() || ''
-        
+
         // Recherche dans les dates (format lisible)
         const fromDate = formatDate(block.blockFromDate).toLowerCase()
         const toDate = formatDate(block.blockToDate).toLowerCase()
-        
+
         return roomNumber.includes(searchTerm) ||
                roomType.includes(searchTerm) ||
                blockedByName.includes(searchTerm) ||
@@ -308,11 +308,11 @@ const actions = computed(() => [
 // Utility functions
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
-  
+
   try {
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString
-    
+
     return date.toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: '2-digit',
@@ -357,17 +357,17 @@ const confirmDelete = async () => {
   if (!blockToDelete.value) return
 
   deleteLoading.value = true
-  
+
   try {
     await deleteBlock(blockToDelete.value.id)
     fetchBlocks()
-    toast.success(t('message.sucess.blockDeleted'))
+    toast.success(t('successBlockDeleted'))
 
   } catch (error: any) {
     console.error('Error deleting block:', error)
     const errorMsg = error.response?.data?.message || error.message || t('errorDeletingBlock')
     console.log('errorMsg',errorMsg)
-    toast.error(t('message.error.deleteBlock'))
+    toast.error(t('errorDeleteBlock'))
     // showMessage(errorMsg, 'error')
   } finally {
     deleteLoading.value = false
@@ -404,7 +404,7 @@ const exportBlocks = async () => {
   }
 
   exportLoading.value = true
-  
+
   try {
     // Create CSV data
     const csvData = blocks.value.map(block => ({
@@ -422,13 +422,13 @@ const exportBlocks = async () => {
     const headers = Object.keys(csvData[0] || {})
     const csvContent = [
       headers.join(','),
-      ...csvData.map(row => 
+      ...csvData.map(row =>
         headers.map(header => {
           const value = row[header as keyof typeof row] || ''
           // Escape quotes and wrap in quotes if contains comma or quote
           const escapedValue = value.toString().replace(/"/g, '""')
-          return escapedValue.includes(',') || escapedValue.includes('"') 
-            ? `"${escapedValue}"` 
+          return escapedValue.includes(',') || escapedValue.includes('"')
+            ? `"${escapedValue}"`
             : escapedValue
         }).join(',')
       )
@@ -446,10 +446,10 @@ const exportBlocks = async () => {
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success(t('message.sucess.blocksExportedSuccessfully'))
+    toast.success(t('blocksExportedSuccessfully'))
   } catch (error: any) {
     console.error('Error exporting blocks:', error)
-    toast.error(t('message.error.errorExportingBlocks'))
+    toast.error(t('errorExportingBlocks'))
   } finally {
     exportLoading.value = false
   }
@@ -463,11 +463,11 @@ const fetchBlocks = async () => {
   }
 
   loading.value = true
-  
+
   try {
     const response = await getRoomBlocks(serviceStore.serviceId)
     console.log('API Response:', response.data)
-    
+
     // Handle different response structures
     if (response.data?.data) {
       blocks.value = response.data.data
@@ -476,7 +476,7 @@ const fetchBlocks = async () => {
     } else {
       blocks.value = []
     }
-    
+
     console.log('Fetched blocks:', blocks.value)
   } catch (error: any) {
     console.error('Error loading blocks:', error)
@@ -507,7 +507,7 @@ watch(searchQuery, () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout)
   }
-  
+
   searchTimeout = setTimeout(() => {
     // The search is reactive through filteredBlocks computed
     console.log('Search query changed to:', searchQuery.value)

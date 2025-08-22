@@ -5,10 +5,10 @@
     </template>
 
     <!-- Loading indicator -->
-    <div v-if="isLoading" class="flex items-center justify-center py-8">
+    <!-- <div v-if="isLoading" class="flex items-center justify-center py-8">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
       <span class="ml-2 text-sm text-gray-600">{{ $t('Processing') }}...</span>
-    </div>
+    </div> -->
 
     <!-- Error message -->
     <div v-if="errorMessage" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
@@ -16,7 +16,7 @@
     </div>
 
     <!-- Form -->
-    <div v-if="!isLoading" class="space-y-6">
+    <div  class="space-y-6">
       <!-- Room Type -->
       <div>
         <Select
@@ -37,7 +37,7 @@
           v-model="formData.selectedRooms"
           :options="filteredRooms"
           :placeholder="$t('SelectRooms')"
-          
+
         />
         <p v-if="validationErrors.selectedRooms" class="mt-1 text-xs text-red-500">
           {{ validationErrors.selectedRooms }}
@@ -45,8 +45,7 @@
       </div>
 
       <!-- Date Range Blocks -->
-      <div>
-       
+     <div>
         <div
           v-for="(range, index) in formData.dateRanges"
           :key="`date-range-${index}`"
@@ -57,13 +56,16 @@
               :modelValue="range"
               @update:modelValue="updateDateRange(index, $event)"
               :title="$t('DateRange')"
+              :allowPastDates="false"
+              :is-required="true"
+              @clear-error="clearDateRangeError(index)"
             />
           </div>
           <!-- Afficher Remove seulement si ce n'est pas le premier input -->
           <button
             v-if="formData.dateRanges.length > 1"
             type="button"
-            class="text-red-500 hover:text-red-700 p-1"
+            class="text-red-500 hover:text-red-700 p-1 mt-6"
             @click="removeDateRange(index)"
             :title="$t('RemoveRange')"
           >
@@ -79,7 +81,7 @@
             size="sm"
           />
         </div>
-        
+
         <p v-if="validationErrors.dateRanges" class="mt-1 text-xs text-red-500">
           {{ validationErrors.dateRanges }}
         </p>
@@ -215,7 +217,7 @@ const serviceStore = useServiceStore()
 const isLoading = ref(false)
 const isSaving = ref(false)
 const useDropdownReason = ref(true)
-const selectedRoomTypeId = ref<string | number | undefined>(undefined) 
+const selectedRoomTypeId = ref<string | number | undefined>(undefined)
 
 // Options
 const roomTypeOptions = ref<{ value: number; label: string; [key: string]: any }[]>([])
@@ -254,9 +256,9 @@ const modalTitle = computed(() => {
 const filteredRooms = computed(() => {
   if (!selectedRoomTypeId.value) return []
   const roomType = roomTypeOptions.value.find(rt => rt.id === selectedRoomTypeId.value)
-  return roomType?.rooms ? roomType.rooms.map((room: any) => ({ 
-    value: room.id, 
-    label: room.roomNumber 
+  return roomType?.rooms ? roomType.rooms.map((room: any) => ({
+    value: room.id,
+    label: room.roomNumber
   })) : []
 })
 
@@ -280,20 +282,20 @@ const isFormValid = computed(() => {
 const populateFormData = () => {
   if (props.blockData && props.isEditing) {
     console.log('Populating form data for editing:', props.blockData)
-    
+
     // Sélectionner le type de chambre - Correction
     const roomTypeId = props.blockData.roomType?.id || props.blockData.room?.roomType?.id
     if (roomTypeId) {
       selectedRoomTypeId.value = Number(roomTypeId)
-      
+
       // Attendre que les options soient chargées et que Vue mette à jour le computed
       nextTick(() => {
         // Une fois que filteredRooms est mis à jour, sélectionner la chambre
         if (filteredRooms.value.length > 0) {
-          const roomToSelect = filteredRooms.value.find(room => 
+          const roomToSelect = filteredRooms.value.find(room =>
             room.value === props.blockData!.room.id
           )
-          
+
           if (roomToSelect) {
             formData.selectedRooms = [roomToSelect]
             console.log('Room selected:', roomToSelect)
@@ -320,7 +322,7 @@ const resetForm = () => {
   formData.reason = ''
   formData.status = 'blocked'
   formData.dateRanges = [{ start: null, end: null }]
-  selectedRoomTypeId.value = undefined 
+  selectedRoomTypeId.value = undefined
 
   // Reset validation
   Object.keys(validationErrors).forEach(key => {
@@ -365,11 +367,47 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  // Validate date ranges
-  const validDateRanges = formData.dateRanges.filter(range => range.start && range.end)
-  if (validDateRanges.length === 0) {
-    console.error(' Aucune plage de dates valide')
-    validationErrors.dateRanges = t('PleaseSelectAtLeastOneDateRange')
+  // Fonction de validation des dates (déclarée à l'intérieur)
+  const validateDateRanges = (): boolean => {
+    const validDateRanges = formData.dateRanges.filter(range => range.start && range.end)
+
+    if (validDateRanges.length === 0) {
+      validationErrors.dateRanges = t('PleaseSelectAtLeastOneDateRange')
+      return false
+    }
+
+    // Vérifier la logique des dates
+    for (let i = 0; i < validDateRanges.length; i++) {
+      const range = validDateRanges[i]
+      const startDate = new Date(range.start!)
+      const endDate = new Date(range.end!)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      // Vérifier que les dates ne sont pas dans le passé
+      if (startDate < today) {
+        validationErrors.dateRanges = t('StartDateCannotBeInPast')
+        return false
+      }
+
+      if (endDate < today) {
+        validationErrors.dateRanges = t('EndDateCannotBeInPast')
+        return false
+      }
+
+      // Vérifier que la date de fin est après la date de début
+      if (startDate >= endDate) {
+        validationErrors.dateRanges = t('EndDateMustBeAfterStartDate')
+        return false
+      }
+    }
+
+    return true
+  }
+
+  // Appeler la validation des dates
+  if (!validateDateRanges()) {
+    console.error(' Validation des dates échouée')
     isValid = false
   }
 
@@ -380,24 +418,13 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  // Validate date logic
-  for (let i = 0; i < validDateRanges.length; i++) {
-    const range = validDateRanges[i]
-    if (new Date(range.start!) >= new Date(range.end!)) {
-      console.error(' Date de fin antérieure à la date de début')
-      validationErrors.dateRanges = t('EndDateMustBeAfterStartDate')
-      isValid = false
-      break
-    }
-  }
-
   console.log(' Résultat de la validation:', isValid)
   return isValid
 }
 
 const saveBlock = async () => {
   console.log(' Début de saveBlock')
-  
+
   if (!validateForm()) {
     console.error(' Validation échouée')
     toast.error(t('PleaseCorrectFormErrors'))
@@ -409,11 +436,11 @@ const saveBlock = async () => {
 
   try {
     const validDateRanges = formData.dateRanges.filter(range => range.start && range.end)
-    
+
     if (props.isEditing && props.blockData) {
-      
+
       console.log(' Mode édition')
-      
+
       const updateData = {
         room_id: formData.selectedRooms[0]?.value,
         block_from_date: validDateRanges[0]?.start,
@@ -425,17 +452,17 @@ const saveBlock = async () => {
       try {
         const response = await updateRoomBlock(props.blockData.id, updateData)
         console.log(' Block mis à jour:', response.data)
-        
+
         toast.success(t('BlockUpdatedSuccessfully'))
-        emit('save', { 
-          isEditing: true, 
-          updated: true, 
-          data: response.data 
+        emit('save', {
+          isEditing: true,
+          updated: true,
+          data: response.data
         })
         closeModal()
       } catch (err: any) {
         console.error(' Erreur update:', err)
-        
+
         // Gestion spécifique de l'erreur 409
         if (err.response?.status === 409) {
           const conflictMsg = err.response?.data?.message || t('ConflictError') || 'Conflit détecté'
@@ -446,9 +473,9 @@ const saveBlock = async () => {
         }
       }
     } else {
-      
+
       console.log(' Mode création')
-      
+
       let successCount = 0
       let errorCount = 0
       const errors: string[] = []
@@ -471,7 +498,7 @@ const saveBlock = async () => {
           try {
             console.log(` Création bloc pour la chambre ${roomId}`, payload)
             const response = await createRoomBlock(payload)
-            
+
             console.log(` Bloc créé pour la chambre ${roomId}:`, response.data)
             successCount++
           } catch (err: any) {
@@ -483,17 +510,17 @@ const saveBlock = async () => {
               let translatedMsg = ''
               switch (errorCode) {
                 case 'ROOM_ALREADY_BLOCKED':
-                  translatedMsg = t('RoomAlreadyBlocked') 
+                  translatedMsg = t('RoomAlreadyBlocked')
                   break
                 case 'ROOM_HAS_RESERVATION':
-                  translatedMsg = t('RoomHasReservation') 
+                  translatedMsg = t('RoomHasReservation')
                   break
                 default:
-                  translatedMsg = t('ConflictError') 
+                  translatedMsg = t('ConflictError')
               }
 
               toast.error(translatedMsg)
-            
+
             } else {
               const errorMsg = err.response?.data?.message || err.message || 'Erreur inconnue'
               errors.push(`Chambre ${room.label}: ${errorMsg}`)
@@ -506,10 +533,10 @@ const saveBlock = async () => {
       // Afficher les résultats
       if (successCount > 0) {
         toast.success(`${successCount} ${t('BlocksCreatedSuccessfully')}`)
-        emit('save', { 
-          isEditing: false, 
-          successCount, 
-          errorCount 
+        emit('save', {
+          isEditing: false,
+          successCount,
+          errorCount
         })
         closeModal()
       }
@@ -519,11 +546,11 @@ const saveBlock = async () => {
         if (conflictErrors.length > 0) {
           conflictErrors.forEach(conflictError => {
             toast.error(conflictError, {
-              timeout: 8000 
+              timeout: 8000
             })
           })
         }
-        
+
         // Puis les autres erreurs
         if (errors.length > 0) {
           if (successCount === 0 && conflictErrors.length === 0) {
@@ -532,17 +559,17 @@ const saveBlock = async () => {
             toast.warning(`${errorCount - conflictErrors.length} ${t('ErrorsOccurred')}`)
           }
         }
-        
+
         // Log toutes les erreurs pour debug
         [...conflictErrors, ...errors].forEach(error => {
-          console.error('📝 Erreur détaillée:', error)
+          console.error(' Erreur détaillée:', error)
         })
       }
     }
 
   } catch (err: any) {
     console.error(' Erreur globale saveBlock:', err)
-    
+
     // Gestion globale de l'erreur 409
     if (err.response?.status === 409) {
       const conflictMsg = err.response?.data?.message || 'Conflit détecté'
@@ -556,18 +583,6 @@ const saveBlock = async () => {
   }
 }
 
-const updateDateRange = (index: number, newRange: { start: string | null, end: string | null }) => {
-  console.log(` Updating date range ${index}:`, newRange)
-  
-  if (index >= 0 && index < formData.dateRanges.length) {
-    formData.dateRanges[index] = { ...newRange }
-    
-    // Clear validation error if range is now valid
-    if (newRange.start && newRange.end) {
-      validationErrors.dateRanges = ''
-    }
-  }
-}
 
 const closeModal = () => {
   resetForm()
@@ -626,7 +641,7 @@ watch(() => formData.reason, (newValue) => {
 // Load data on mount
 onMounted(async () => {
   isLoading.value = true
-  
+
   try {
     const hotel_id = serviceStore.serviceId
     if (!hotel_id) {
@@ -668,6 +683,34 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const clearDateRangeError = (index: number) => {
+  // Clear l'erreur de validation pour les dates
+  validationErrors.dateRanges = ''
+
+  errorMessage.value = ''
+}
+
+// Améliorer la méthode updateDateRange :
+const updateDateRange = (index: number, newRange: { start: string | null, end: string | null }) => {
+  console.log(`📅 Updating date range ${index}:`, newRange)
+
+  if (index >= 0 && index < formData.dateRanges.length) {
+    formData.dateRanges[index] = { ...newRange }
+
+    // Clear validation error if range is now valid
+    if (newRange.start && newRange.end) {
+      validationErrors.dateRanges = ''
+
+      // Vérifier que la date de fin est après la date de début
+      if (new Date(newRange.start) >= new Date(newRange.end)) {
+        validationErrors.dateRanges = t('EndDateMustBeAfterStartDate')
+      }
+    }
+  }
+}
+
+
 </script>
 
 <style scoped>
@@ -709,4 +752,4 @@ onMounted(async () => {
 .error-text {
   color: #ef4444;
 }
-</style>  
+</style>

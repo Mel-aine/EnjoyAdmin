@@ -94,8 +94,7 @@ const dropdownRef = ref(null)
 const { t } = useI18n();
 const menuItems = [
   { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
-  { href: '/setting', icon: SettingsIcon, text: t('Accountsettings') },
-  // { href: '/profile', icon: InfoCircleIcon, text: 'Support' },
+  { href: '/configuration', icon: SettingsIcon, text: t('Configuration') },
 ]
 
 

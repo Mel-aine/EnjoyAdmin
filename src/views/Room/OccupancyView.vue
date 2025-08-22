@@ -575,7 +575,6 @@
               title="Room Occupancy"
               :data="processedTableData"
               :columns="tableColumns"
-              :actions="tableActions"
               :loading="isLoading"
               :searchable="false"
               :selectable="false"
@@ -1057,21 +1056,7 @@ const processedTableData = computed(() => {
       new Date(room.checkOutTime).toLocaleDateString() : '',
   }))
 })
-const tableActions = computed(() => [
-  {
-    label: t('Change Status'),
-    handler: (room: any) => handleQuickStatusChange(room, room.status),
-    icon: 'edit',
-    variant: 'primary' as const,
-  },
-  {
-    label: t('Maintenance'),
-    handler: (room: any) => handleMaintenance(room, 'maintenance'),
-    icon: 'settings',
-    variant: 'warning' as const,
-    condition: (room: any) => room.status !== 'maintenance',
-  },
-])
+
 
 const refreshRooms = () => {
   window.location.reload();
