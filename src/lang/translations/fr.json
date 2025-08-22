@@ -213,6 +213,8 @@
   "PaymentMethods": "Méthodes de paiement",
   "InvoiceList": "Liste des factures",
   "InvoiceDetails": "Détails de la facture",
+  "netLocks": "Serrures Net",
+  "nightAuditLog": "Journal d'audit de nuit",
   "tooltip": {
     "email": "Email",
     "room": "Chambre",
