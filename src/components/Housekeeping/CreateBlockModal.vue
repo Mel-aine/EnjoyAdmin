@@ -4,11 +4,6 @@
       <h3 class="text-lg font-semibold text-gray-900">{{ modalTitle }}</h3>
     </template>
 
-    <!-- Loading indicator -->
-    <!-- <div v-if="isLoading" class="flex items-center justify-center py-8">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-      <span class="ml-2 text-sm text-gray-600">{{ $t('Processing') }}...</span>
-    </div> -->
 
     <!-- Error message -->
     <div v-if="errorMessage" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
@@ -292,7 +287,7 @@ const populateFormData = () => {
       nextTick(() => {
         // Une fois que filteredRooms est mis à jour, sélectionner la chambre
         if (filteredRooms.value.length > 0) {
-          const roomToSelect = filteredRooms.value.find(room =>
+          const roomToSelect = filteredRooms.value.find((room:any) =>
             room.value === props.blockData!.room.id
           )
 

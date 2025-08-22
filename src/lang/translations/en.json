@@ -1503,11 +1503,9 @@
     "perPage": "per page",
     "total": "Total",
     "available": "Available",
-    "occupied": "Occupied",
     "booked": "Booked",
     "cleaning": "Cleaning",
     "maintenance": "Maintenance",
-    "outOfOrder": "Out of Order",
     "clean": "Clean",
     "dirty": "Dirty",
     "processing": "Processing",
@@ -4943,6 +4941,7 @@
     "loading": "Loading...",
     "noData": "No data available",
     "selectAll": "Select All",
+    "unselectAll": "Unselect All",
     "selected": "Selected",
     "filters": "Filters",
     "reset": "Reset",
@@ -4993,5 +4992,13 @@
   "RoomTypeIsRequired": "Room type is required",
   "HotelIdNotSet": "Hotel ID is not set",
   "ErrorLoadingData": "Error loading data",
-  "Configuration" : "Configuration"
+  "Configuration" : "Configuration",
+  "house_status_view": "House Status View",
+  "bulk_update": "Bulk update successfully",
+  "bulk_update_error": "Error updating bulk data",
+  "Applying..." : "Applying...",
+  "set_to_clean" : "Set to Clean",
+  "select_housekeeper" : "Select Housekeeper",
+  "noRoomFound" : "No room found"
+
 }

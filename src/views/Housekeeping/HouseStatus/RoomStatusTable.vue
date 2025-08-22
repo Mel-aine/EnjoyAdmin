@@ -26,25 +26,25 @@
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-red-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-red-500 mr-1"></div>
-                <span class="text-sm">Occupied</span>
+                <span class="text-sm">{{ $t('occupied') }}</span>
               </div>
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-yellow-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4  bg-orange-500 mr-1"></div>
-                <span class="text-sm">Dirty</span>
+                <span class="text-sm">{{ $t('dirty') }}</span>
               </div>
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-green-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-green-500 mr-1"></div>
-                <span class="text-sm">Clean</span>
+                <span class="text-sm">{{ $t('clean') }}</span>
               </div>
             </th>
             <th class="py-2 px-3 border-b border-gray-200 text-center bg-gray-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-gray-700 mr-1"></div>
-                <span class="text-sm">Out Of Order</span>
+                <span class="text-sm">{{ $t('statut.outOfOrder') }}</span>
               </div>
             </th>
           </tr>
@@ -63,12 +63,12 @@
 
                     <!-- Select pour le statut si "Set Status" est sélectionné -->
                     <div v-if="selectedOperation === 'set_clean_status'" class="w-48">
-                      <Select :placeholder="'Set to Clean'" :options="[{value: 'clean', label: 'Clean'}]" v-model="selectedStatus"/>
+                      <Select :placeholder="$t('set_to_clean')" :options="[{value: 'clean', label: t('clean')}]" v-model="selectedStatus"/>
                     </div>
 
                     <!-- Select pour le housekeeper si "Assign Housekeeper" est sélectionné -->
                     <div v-if="selectedOperation === 'assign_housekeeper'" class="w-48">
-                      <Select :placeholder="'Select housekeeper'" :options="housekeeperOptions" v-model="selectedHousekeeper"/>
+                      <Select :placeholder="$t('select_housekeeper')" :options="housekeeperOptions" v-model="selectedHousekeeper"/>
                     </div>
 
                     <button
@@ -77,8 +77,8 @@
                       :disabled="!canApplyOperation || isBulkUpdating"
                       :class="{ 'opacity-50 cursor-not-allowed': !canApplyOperation || isBulkUpdating }"
                     >
-                      <span v-if="isBulkUpdating">Applying...</span>
-                      <span v-else>Apply</span>
+                      <span v-if="isBulkUpdating">{{ $t('Applying...') }}</span>
+                      <span v-else>{{ $t('commons.apply') }}</span>
                     </button>
                   </div>
                 </div>
@@ -87,7 +87,7 @@
                   @click="unselectAll"
                   class="text-sm text-gray-600 hover:text-gray-800 underline"
                 >
-                  Unselect All
+                  {{ $t('commons.unselectAll') }}
                 </button>
               </div>
             </th>
@@ -169,7 +169,7 @@
                 <StatusBadge
                   v-if="getStatusColumn(room) === 3"
                   :room="room.name"
-                  status="occupied"
+                  :status="$t('occupied')"
                   :tag="room.tag"
                   type="red"
                 />
@@ -183,7 +183,7 @@
                 <StatusBadge
                   v-if="getStatusColumn(room) === 4"
                   :room="room.name"
-                  status="dirty"
+                  :status="$t('dirty')"
                   :tag="room.tag"
                   type="yellow"
                 />
@@ -197,7 +197,7 @@
                 <StatusBadge
                   v-if="getStatusColumn(room) === 5"
                   :room="room.name"
-                  status="available"
+                  :status="$t('available')"
                   :tag="room.tag"
                   type="green"
                 />
@@ -211,7 +211,7 @@
                 <StatusBadge
                   v-if="getStatusColumn(room) === 6"
                   :room="room.name"
-                  status="Out of Order"
+                  :status="$t('statut.outOfOrder')"
                   :tag="room.tag"
                   type="gray"
                 />
@@ -223,7 +223,7 @@
           <tr class="bg-orange-50 sticky bottom-0">
             <td class="py-2 px-3 border-b border-r border-gray-200"></td>
             <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
-              Total ({{ selectedCount }} selected)
+              {{ $t('total') }} ({{ selectedCount }} {{ $t('selected') }})
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
               {{ filteredRooms.length }}
@@ -259,7 +259,7 @@
         <tbody v-if="!isLoading && rooms.length === 0">
           <tr>
             <td colspan="7" class="py-8 text-center text-gray-500">
-              Aucune chambre trouvée
+              {{ $t('noRoomFound') }}
             </td>
           </tr>
         </tbody>
@@ -277,6 +277,8 @@ import Select from '@/components/forms/FormElements/Select.vue';
 import {getHouseStatus, bulkUpdateRooms} from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user';
+import { useToast } from 'vue-toastification';
+import { useI18n } from 'vue-i18n'
 
 // Define room data type
 interface Room {
@@ -307,8 +309,6 @@ const { searchQuery } = toRefs(props)
 // Define emits
 const emit = defineEmits<{
   'selection-change': [count: number]
-  'bulk-update-success': []
-  'bulk-update-error': [error: string]
 }>()
 
 // Reactive variables
@@ -323,6 +323,8 @@ const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const isBulkUpdating = ref<boolean>(false)
 const authStore = useAuthStore()
+const toast = useToast()
+const { t } = useI18n()
 
 // Initialize empty arrays for API data
 const rooms = ref<Room[]>([])
@@ -559,7 +561,7 @@ const getStatusColumn = (room: Room): number => {
   if (isDirtyRoom(room)) return 4 // Dirty
   if (isCleanRoom(room)) return 5 // Clean
   if (room.status === 'out_of_order') return 6 // Out of Order
-  return -1 // Default to no column
+  return -1
 }
 
 // Watch for changes and emit to parent
@@ -621,7 +623,7 @@ const applyBulkAction = async () => {
       })
 
       console.log(`Bulk update successful: ${selectedOperation.value} applied to ${selectedRoomsCount.value} rooms`)
-      emit('bulk-update-success')
+      toast.success(t('bulk_update'))
       unselectAll()
       // Recharger les données pour être sûr
       setTimeout(() => fetchHousekeepingStatus(), 1000)
@@ -630,7 +632,7 @@ const applyBulkAction = async () => {
   } catch (error: any) {
     console.error('Bulk update error:', error)
     const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de la mise à jour en lot'
-    emit('bulk-update-error', errorMessage)
+    toast.error(`${t('bulk_update_error')}: ${errorMessage}`)
   } finally {
     isBulkUpdating.value = false
   }
@@ -656,21 +658,21 @@ const fetchHousekeepingStatus = async () => {
 console.log("Housekeeping status fetched:", rooms.value);
     // Transform other options
     if (apiData.roomTypes && Array.isArray(apiData.roomTypes)) {
-      roomTypesOptions.value = apiData.roomTypes.map(rt => ({
+      roomTypesOptions.value = apiData.roomTypes.map((rt:any )=> ({
         value: rt.label,
         label: rt.label
       }))
     }
 
     if (apiData.housekeepingStatusOptions && Array.isArray(apiData.housekeepingStatusOptions)) {
-      housekeepingStatusOptions.value = apiData.housekeepingStatusOptions.map(hs => ({
+      housekeepingStatusOptions.value = apiData.housekeepingStatusOptions.map((hs:any )=> ({
         value: hs.value,
         label: hs.label
       }))
     }
 
     if (apiData.housekeepers && Array.isArray(apiData.housekeepers)) {
-      housekeeperOptions.value = apiData.housekeepers.map(hk => ({
+      housekeeperOptions.value = apiData.housekeepers.map((hk:any )=> ({
         value: hk.value,
         label: hk.label
       }))
