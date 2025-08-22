@@ -1,15 +1,10 @@
-&<template>
+<template>
   <div>
-  <Modal v-if="isOpen" @close="emit('close')">
-    <template #body>
-      <div
-        class="no-scrollbar h-11/12 relative w-full max-w-7xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-      >
-        <button
-          @click="emit('close')"
-          class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
-        >
-          <svg
+    <Modal v-if="isOpen" @close="emit('close')">
+      <template #body>
+        <div class="no-scrollbar relative w-full max-w-7xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+          <button @click="emit('close')" class="transition-color absolute right-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 ...">
+             <svg
             class="fill-current"
             width="24"
             height="24"
@@ -24,249 +19,154 @@
               fill=""
             />
           </svg>
-        </button>
+          </button>
 
-        <div class="px-2 pr-14">
-          <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-           {{ isEditMode ? $t('EditCustomer') : $t('add_new_customer') }}
-          </h4>
+          <div class="px-2 pr-14">
+            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              {{ isEditMode ? $t('EditCustomer') : $t('add_new_customer') }}
+            </h4>
+          </div>
+
+          <!-- Contenu du formulaire -->
+          <form @submit.prevent="handleSubmit" class="space-y-8 border-t pt-4 p-6 overflow-y-auto sidebar-scroll h-[560px]">
+            <!-- Section Informations Générales -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              <div class="col-span-12 md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Photo de profil</label>
+                <!-- CORRIGÉ: v-model lié à customerForm.profilePhoto -->
+                <ImageUploader v-model="customerForm.profilePhoto" />
+              </div>
+
+              <div class="col-span-12 md:col-span-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700">{{ $t('Name') }}</label>
+                  <div class="flex items-center">
+                    <div class="w-20">
+                      <!-- CORRIGÉ: v-model lié à customerForm -->
+                      <Select v-model="customerForm.title" :options="titleOptions" customClass="rounded-r-none" />
+                    </div>
+                    <div class="flex-1">
+                      <Input v-model="customerForm.firstName" :placeholder="$t('FirstName')" custom-class="rounded-none" />
+                    </div>
+                    <div class="flex-1">
+                      <Input v-model="customerForm.lastName" :placeholder="$t('LastName')" custom-class="rounded-l-none" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <InputPhone :title="$t('Phone')" v-model="customerForm.phone" :is-required="false" placeholder="Téléphone" />
+                </div>
+                <div>
+                  <InputPhone :title="$t('mobile')" v-model="customerForm.mobile" :is-required="false" placeholder="Mobile" />
+                </div>
+                <div>
+                  <InputEmail :title="'Email'" v-model="customerForm.email" placeholder="Email" />
+                </div>
+                <div>
+                  <Select :lb="'Genre'" v-model="customerForm.gender" :options="genderOptions" />
+                </div>
+                <div>
+                  <Select :lb="'Type de client'" v-model="customerForm.guestType" :options="guestTypeOptions" />
+                </div>
+                <div>
+                  <Select :lb="'Statut VIP'" v-model="customerForm.vipStatus" :options="vipStatusOptions" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Adresse -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 border-t pt-8">
+              <div class="col-span-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Address') }}</label>
+
+                 <textarea v-model="customerForm.address" rows="2"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                  :placeholder="$t('Address')" ></textarea>
+
+              </div>
+              <div>
+
+                <InputCountries v-model="customerForm.country" />
+              </div>
+              <div>
+                <Input :lb="'State'" v-model="customerForm.state" placeholder="State" />
+              </div>
+              <div>
+                <Input :lb="'Ville'" v-model="customerForm.city" placeholder="Ville" />
+              </div>
+              <div>
+                <Input :lb="'Code Postal'" v-model="customerForm.zipCode" placeholder="Code Postal" />
+              </div>
+              <div>
+                <InputCountries v-model="customerForm.nationality" :lb="$t('Nationality')" />
+              </div>
+              <div>
+                <Input :lb="'Société'" v-model="customerForm.company" placeholder="Société" />
+              </div>
+              <div>
+                 <!-- CORRIGÉ: Ajout du v-model -->
+                <Input v-model="customerForm.fax" :lb="$t('Fax')" :placeholder="$t('Fax')" />
+              </div>
+              <div>
+                 <!-- CORRIGÉ: Ajout du v-model -->
+                <Input v-model="customerForm.registrationNo" :lb="$t('Registration No')" :placeholder="$t('Registration No')" />
+              </div>
+            </div>
+
+            <!-- Section Informations d'identité -->
+            <div class="border-t pt-8">
+              <h3 @click="toggleSection('identity')" class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer">
+               <svg class="w-5 h-5 mr-2 text-gray-600 transition-transform" :class="{'rotate-180': !sections.identity}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                Informations d'identité
+              </h3>
+              <div v-if="sections.identity" class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4">
+                <div class="col-span-12 md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Photo de la pièce</label>
+                  <!-- CORRIGÉ: v-model lié à customerForm.idPhoto -->
+                  <ImageUploader v-model="customerForm.idPhoto" />
+                </div>
+                <div class="col-span-12 md:col-span-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div class="md:col-span-2">
+                    <Input :lb="'Numéro de la pièce'" v-model="customerForm.idNumber" placeholder="Numéro de la pièce d'identité" />
+                  </div>
+                  <div>
+                    <Select :lb="'Type de pièce'" v-model="customerForm.idType" :options="idTypeOptions" />
+                  </div>
+                  <div>
+
+                    <InputDatePicker :title="'Date d\'expiration'" v-model="customerForm.idExpiryDate" />
+                  </div>
+                  <div class="md:col-span-2">
+                    <InputCountries :lb="'Pays d\'émission'" v-model="customerForm.issuingCountry" />
+                  </div>
+                  <div class="md:col-span-2">
+                    <Input :lb="'Ville d\'émission'" v-model="customerForm.issuingCity" placeholder="Ville d'émission" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="flex justify-end space-x-3 border-t pt-6">
+              <button @click="emit('close')" type="button" class="bg-white py-2 px-4 border ...">Annuler</button>
+              <button type="submit" class="inline-flex justify-center py-2 px-4 border ..." :disabled="isLoading">
+                {{ isLoading ? 'Sauvegarde...' : 'Sauvegarder' }}
+              </button>
+            </div>
+          </form>
         </div>
-
-        <form class="flex flex-col" @submit.prevent="handleSubmit">
-          <div class="custom-scrollbar h-[600px] overflow-y-auto p-2">
-            <!-- Informations personnelles -->
-            <div class="mb-8">
-              <h5
-                class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
-              >
-                {{ $t('personalInformation') }}
-              </h5>
-              <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-3">
-
-                 <div>
-                  <Input
-                    :lb="$t('FirstName')"
-                    :id="'name'"
-                    :forLabel="'name'"
-                    v-model="customerForm.first_name"
-                    :is-required="true"
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    :lb="$t('LastName')"
-                    :id="'last'"
-                    :forLabel="'last'"
-                    v-model="customerForm.last_name"
-                    :is-required="true"
-                  />
-                </div>
-                <div>
-                  <Select
-                    :is-required="true"
-                    :lb="$t('gender')"
-                    v-model="customerForm.gender"
-                    :options="genders"
-                  />
-                </div>
-
-               
-
-                <div>
-                  <InputDatePicker
-                    v-model="customerForm.date_of_birth"
-                    :is-required="true"
-                    :title="$t('dateOfBirth')"
-                    :placeholder="$t('dateOfBirth')"
-                  />
-                </div>
-
-                <div>
-                 <InputCountries v-model="customerForm.country">
-                </InputCountries>
-                </div>
-
-                <div>
-                  <Input :lb="$t('nationalIdNumber')" :id="'nationalIdNumber'"
-                    :forLabel="'nationalIdNumber'" :inputType="'text'" :is-required="true"
-                    v-model="customerForm.national_id_number"
-                  />
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Contact -->
-            <div class="mb-8">
-              <h5
-                class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
-              >
-                {{ $t('contact_info') }}
-              </h5>
-              <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <InputEmail
-                    :is-required="true"
-                    v-model="customerForm.email"
-                    placeholder="info@gmail.com"
-                    :title="$t('Email')"
-                  />
-                </div>
-
-                <div>
-                  <InputPhone
-                    :is-required="true"
-                    v-model="customerForm.phone_number"
-                    :id="'phone'"
-                    :title="$t('Phone')"
-                  />
-                </div>
-
-                <div class="lg:col-span-2">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                   {{ $t('Address') }}
-                  </label>
-                  <textarea
-                    v-model="customerForm.address"
-                    rows="1"
-                    :placeholder="$t('Address')"
-                    class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-400"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- Informations de séjour
-            <div class="mb-8">
-              <h5
-                class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
-              >
-                {{ $t('stayInformation') }}
-              </h5>
-              <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <InputDatePicker
-                    v-model="customerForm.checkInDate"
-                    :is-required="true"
-                    :title="$t('ArrivedDate')"
-                    :placeholder="$t('ArrivedDate')"
-                  />
-                </div>
-
-                <div>
-                   <InputDatePicker
-                    v-model="customerForm.checkOutDate"
-                    :is-required="true"
-                    :title="$t('DepartDate')"
-                    :placeholder="$t('DepartDate')"
-                  />
-                </div>
-
-                <div>
-                  <Input :lb="$t('room_number')" :inputType="'Number'" :placeholder="$t('room_number')"
-                        :id="'room_number'" :forLabel="'room_number'"
-                        v-model="customerForm.room_number" :min="1" :required="true" />
-                </div>
-
-
-
-                <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('RoomTypes') }}
-                  </label>
-                  <select
-                    v-model="customerForm.roomType"
-                    class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-purple-400"
-                  >
-                    <option value="">Sélectionner</option>
-                    <option value="single">Chambre simple</option>
-                    <option value="double">Chambre double</option>
-                    <option value="twin">Chambre twin</option>
-                    <option value="suite">Suite</option>
-                    <option value="deluxe">Chambre deluxe</option>
-                  </select>
-                </div>
-              </div>
-            </div> -->
-
-            <!-- Préférences et demandes spéciales -->
-            <div class="mb-4">
-              <h5
-                class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
-              >
-                {{ $t('Preferences') }}
-              </h5>
-              <div class="grid grid-cols-1 gap-x-6 gap-y-5">
-
-                <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{$t('specialPreferences')}}
-                  </label>
-                  <textarea
-                    v-model="customerForm.special_preferences"
-                    rows="3"
-                    :placeholder="$t('specialPreferences')"
-                    class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-400"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Boutons d'action -->
-          <div class="flex items-center gap-3 px-2 mt-4 lg:justify-end">
-            <button
-              @click="emit('close')"
-              type="button"
-              class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-            >
-              {{ $t('Cancel') }}
-            </button>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="flex w-full justify-center rounded-lg bg-purple-600 px-6 py-3 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto min-w-[140px]"
-            >
-              <span v-if="loading" class="flex items-center">
-                <svg
-                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                {{ $t('Processing...') }}
-              </span>
-              <span v-else>{{ isEditMode ? $t('EditCustomer') : $t('Save') }}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </template>
-  </Modal>
+      </template>
+    </Modal>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, reactive, defineAsyncComponent,watch } from 'vue'
+import { ref, reactive, defineAsyncComponent, watch } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import ImageUploader from './ImageUploader.vue'
 import { useI18n } from 'vue-i18n'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
@@ -274,61 +174,113 @@ const Input = defineAsyncComponent(() => import('@/components/forms/FormElements
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const { t } = useI18n()
 
+// --- INTERFACE UNIFIÉE ---
+// On fusionne CustomerForm et FormData en une seule interface complète
 interface CustomerForm {
-  gender: string
-  first_name: string
-  last_name: string
-  date_of_birth: string
-  country: string
-  national_id_number: string
+  // Informations générales
+  title: string
+  firstName: string
+  lastName: string
+  profilePhoto: string | null
+  phone: string
+  mobile: string
   email: string
-  phone_number: string
+  gender: string
+  guestType: string
+  vipStatus: string
+
+  // Adresse
   address: string
-  special_preferences: string
+  country: string
+  state: string
+  city: string
+  zipCode: string
+  nationality: string
+  company: string
+  fax: string
+  registrationNo: string
+
+  // Identité
+  idPhoto: string | null
+  idNumber: string
+  idType: string
+  idExpiryDate: string
+  issuingCountry: string
+  issuingCity: string
+
+  // Ajout des champs manquants de l'ancien CustomerForm pour la compatibilité
+  dateOfBirth: string
+  specialPreferences: string
 }
+
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
     required: true,
   },
-   isEditMode: {
-        type: Boolean,
-        default: false,
-    },
-   customerData: {
+  isEditMode: {
+    type: Boolean,
+    default: false,
+  },
+  customerData: {
     type: Object as () => Partial<CustomerForm>,
     default: () => ({}),
   },
 })
 
-
 const emit = defineEmits(['close', 'submit'])
-const genders = ref([
-  { label: t('male'), value: 'male' },
-  { label: t('emale'), value: 'female' },
-])
 
-
-const loading = ref(false)
-
-
+// --- ÉTAT DU FORMULAIRE UNIFIÉ ---
 const getEmptyCustomerForm = (): CustomerForm => ({
-  gender: '',
-  first_name: '',
-  last_name: '',
-  date_of_birth: '',
-  country: 'CM',
-  national_id_number: '',
+  // Informations générales
+  title: 'M.',
+  firstName: '',
+  lastName: '',
+  profilePhoto: null,
+  phone: '',
+  mobile: '',
   email: '',
-  phone_number: '',
+  gender: '',
+  guestType: '',
+  vipStatus: '',
+
+  // Adresse
   address: '',
-  special_preferences: '',
+  country: 'CM', // Valeur par défaut
+  state: '',
+  city: '',
+  zipCode: '',
+  nationality: '',
+  company: '',
+  fax: '',
+  registrationNo: '',
+
+  // Identité
+  idPhoto: null,
+  idNumber: '',
+  idType: '',
+  idExpiryDate: '',
+  issuingCountry: '',
+  issuingCity: '',
+
+  // Autres
+  dateOfBirth: '',
+  specialPreferences: '',
 })
 
+// On utilise maintenant `customerForm` partout
 const customerForm = reactive<CustomerForm>(getEmptyCustomerForm())
+const isLoading = ref(false) // On unifie isLoading et loading
 
-// Fonction pour remplir le formulaire avec les données existantes
+interface Sections {
+  identity: boolean
+}
+const sections = reactive<Sections>({
+  identity: false,
+})
+
+// --- LOGIQUE DE GESTION (INCHANGÉE MAIS MAINTENANT CORRECTE) ---
 const populateForm = (data: Partial<CustomerForm>) => {
   Object.keys(customerForm).forEach(key => {
     if (data[key as keyof CustomerForm] !== undefined) {
@@ -337,12 +289,10 @@ const populateForm = (data: Partial<CustomerForm>) => {
   })
 }
 
-// Fonction pour réinitialiser le formulaire
 const resetForm = () => {
   Object.assign(customerForm, getEmptyCustomerForm())
 }
 
-// Watcher pour gérer l'ouverture de la modal
 watch(
   () => props.isOpen,
   (isOpen) => {
@@ -358,27 +308,45 @@ watch(
 )
 
 const handleSubmit = async () => {
-  loading.value = true
+  isLoading.value = true // On utilise la bonne variable
   try {
     await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Émettre les données avec un flag pour indiquer le mode
     emit('submit', {
       data: { ...customerForm },
       isEdit: props.isEditMode
     })
-
-    // Ne réinitialiser le formulaire qu'en mode ajout
     if (!props.isEditMode) {
       resetForm()
     }
   } catch (error) {
     console.error("Erreur lors de l'enregistrement du client:", error)
   } finally {
-    loading.value = false
+    isLoading.value = false
     emit('close')
   }
 }
 
+const toggleSection = (section: keyof Sections): void => {
+  sections[section] = !sections[section]
+}
+
+
+// --- OPTIONS POUR LES SELECTS (INCHANGÉES) ---
+interface SelectOption { value: string; label: string; }
+const titleOptions: SelectOption[] = [ { value: 'M.', label: 'M.' }, { value: 'Mme', label: 'Mme' } ]
+const genderOptions: SelectOption[] = [ { value: 'male', label: 'Homme' }, { value: 'female', label: 'Femme' } ]
+const guestTypeOptions: SelectOption[] = [ { value: 'standard', label: 'Standard' }, { value: 'corporate', label: 'Corporate' } ]
+const vipStatusOptions: SelectOption[] = [ { value: 'regular', label: 'Standard' }, { value: 'vip', label: 'VIP' } ]
+const idTypeOptions: SelectOption[] = [ { value: 'passport', label: 'Passeport' }, { value: 'national_id', label: 'Carte d\'identité' } ]
 
 </script>
+<style scoped>
+.sidebar-scroll {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+</style>

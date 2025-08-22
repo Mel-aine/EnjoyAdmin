@@ -473,6 +473,7 @@ export interface Template {
   id: string
   name: string
   description: string
-  component: any
+  type?: string
+  component?: any
   options?: any
 }

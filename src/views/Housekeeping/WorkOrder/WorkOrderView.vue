@@ -1,7 +1,7 @@
 <template>
     <AdminLayout>
        <FullScreenLayout>
-        <PageBreadcrumb :pageTitle="$t('work_order')"/>
+        <PageBreadcrumb :pageTitle="$t('work_order')" :breadcrumb="breadcrumb"/>
           <div class="mt-10">
             <ReusableTable
               :title="$t('work_order')"
@@ -10,6 +10,8 @@
               :selectable="false"
               :actions="actions"
               :loading="loading"
+              :empty-state-title="$t('noWorkFound')"
+              :empty-state-message="$t('noWorkMessage')"
               v-model="searchQuery"
               @search-change="onSearchChange"
               class="modern-table"
@@ -57,7 +59,10 @@ const { t } = useI18n()
 const loading = ref(false)
 const isAddWorkModalOpen = ref(false)
 
-
+const breadcrumb = [
+  { label: t('navigation.housekeeping'), href: '#' },
+  { label: t('work_order'), href: '#' }
+]
 
 const columns = computed(() => [
   {

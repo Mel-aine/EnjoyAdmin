@@ -99,11 +99,43 @@
           </div>
         </form>
 
-        <!-- PDF Exporter Component -->
-            <div v-if="showPdfExporter">
-                    <PdfExporterNode @close="showPdfExporter=false" :is-modal-open="showPdfExporter" :is-generating="loading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated"
-                        @error="handlePdfError" />
-                </div>
+        <div v-if="showPdfExporter">
+          <!-- Confirmation Template -->
+          <PdfExporterNode 
+            v-if="currentTemplate?.type === 'confirmation' && confirmationPdfUrl"
+            @close="showPdfExporter=false" 
+            :is-modal-open="showPdfExporter" 
+            :is-generating="loading" 
+            :pdf-url="confirmationPdfUrl" 
+            :pdf-theme="pdfTheme" 
+            @pdf-generated="handlePdfGenerated"
+            @error="handlePdfError" 
+          />
+          
+          <!-- Invoice Template -->
+          <PdfExporterNode 
+            v-else-if="currentTemplate?.type === 'invoice' && invoicePdfUrl"
+            @close="showPdfExporter=false" 
+            :is-modal-open="showPdfExporter" 
+            :is-generating="loading" 
+            :pdf-url="invoicePdfUrl" 
+            :pdf-theme="pdfTheme" 
+            @pdf-generated="handlePdfGenerated"
+            @error="handlePdfError" 
+          />
+          
+          <!-- Receipt Template -->
+          <PdfExporterNode 
+            v-else-if="currentTemplate?.type === 'receipt' && receiptPdfUrl"
+            @close="showPdfExporter=false" 
+            :is-modal-open="showPdfExporter" 
+            :is-generating="loading" 
+            :pdf-url="receiptPdfUrl" 
+            :pdf-theme="pdfTheme" 
+            @pdf-generated="handlePdfGenerated"
+            @error="handlePdfError" 
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -117,7 +149,7 @@ import { X } from 'lucide-vue-next'
 import BasicButton from '../buttons/BasicButton.vue'
 import PdfExporter from './PdfExporter.vue'
 import type { Template } from '../../utils/models'
-import { printConfirmBookingPdf } from '../../services/foglioApi'
+import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 
 
@@ -179,6 +211,10 @@ const loading = ref(false)
 const showPdfExporter = ref(false)
 const selectedTemplate = ref<Template | null>(null)
 const filename = ref('')
+const confirmationPdfUrl = ref<string | null>(null)
+const invoicePdfUrl = ref<string | null>(null)
+const receiptPdfUrl = ref<string | null>(null)
+const pdfTheme = ref<Record<string, any>>(props.pdfTheme || {})
 
 const printOptions = ref<PrintOptions>({
   showHeader: true,
@@ -255,24 +291,71 @@ const handlePrint = async () => {
     })
 
     // Show PDF exporter
-      showPdfExporter.value = true
-      console.log('reservationId', props.reservationId)
-      console.log('currency', currency.value)
-      const res =await printConfirmBookingPdf({reservationId: props.reservationId})
-      console.log(res)
-      pdfurl.value = window.URL.createObjectURL(res)
-      console.log(pdfurl.value)
+    showPdfExporter.value = true
+    
+    // Generate PDF based on template type
+    const templateType = currentTemplate.value.type
+    let pdfBlob: Blob
+    
+    if (templateType === 'confirmation') {
+      pdfBlob = await printConfirmBookingPdf({
+        reservationId: props.reservationId
+      })
+      // Libérer l'ancienne URL si elle existe
+      if (confirmationPdfUrl.value) {
+        window.URL.revokeObjectURL(confirmationPdfUrl.value)
+      }
+      confirmationPdfUrl.value = window.URL.createObjectURL(pdfBlob)
+    } 
+    else if (templateType === 'invoice') {
+      pdfBlob = await printHotelPdf({
+        reservationId: props.reservationId
+      })
+      if (invoicePdfUrl.value) {
+        window.URL.revokeObjectURL(invoicePdfUrl.value)
+      }
+      invoicePdfUrl.value = window.URL.createObjectURL(pdfBlob)
+    } 
+/*     else if (templateType === 'receipt') {
+      pdfBlob = await printReceiptPdf({
+        reservationId: props.reservationId
+      })
+      if (receiptPdfUrl.value) {
+        window.URL.revokeObjectURL(receiptPdfUrl.value)
+      }
+      receiptPdfUrl.value = window.URL.createObjectURL(pdfBlob)
+    }  */
+    else {
+      throw new Error(`Type de template non supporté: ${templateType}`)
+    }
 
-
+    console.log('PDF généré avec succès pour le template:', templateType)
     toast.success(t('print_initiated'))
   } catch (error) {
     console.error('Error initiating print:', error)
     toast.error(t('error_initiating_print'))
     emit('print-error', error)
+    showPdfExporter.value = false
   } finally {
     loading.value = false
   }
 }
+
+// Nettoyer les URLs quand le modal se ferme
+watch(() => props.isOpen, (newValue) => {
+  if (!newValue) {
+    // Libérer toutes les URLs
+    [confirmationPdfUrl.value, invoicePdfUrl.value, receiptPdfUrl.value].forEach(url => {
+      if (url) {
+        window.URL.revokeObjectURL(url)
+      }
+    })
+    confirmationPdfUrl.value = ''
+    invoicePdfUrl.value = ''
+    receiptPdfUrl.value = ''
+    showPdfExporter.value = false
+  }
+})
 
 const handlePdfGenerated = (blob: Blob) => {
   emit('print-completed', {
