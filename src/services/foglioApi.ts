@@ -864,6 +864,19 @@ export const printConfirmBookingPdf = async (data: {
     throw error
   }
 }
+export const printHotelPdf = async (data: {
+  reservationId?: number
+}): Promise<any> => {
+
+  headers.responseType='blob'
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_hotel-pdf`, data, headers,)
+    return response.data
+  } catch (error) {
+    console.error('Error printing confirmBooking:', error)
+    throw error
+  }
+}
 
 
 

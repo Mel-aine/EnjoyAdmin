@@ -139,7 +139,8 @@ const templates =ref<Template[]>([
         component: Invoicehotel,
         id: '1',
         name: 'Invoice',
-        description: 'Default invoice template'
+        description: 'Default invoice template',
+        type: 'invoice',
     }
 ])
 

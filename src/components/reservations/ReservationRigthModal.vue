@@ -387,6 +387,14 @@ const props = withDefaults(defineProps<Props>(), {
     subtitle: ''
 })
 
+interface PrintTemplate {
+  id: string
+  name: string
+  description?: string
+  type: 'confirmation' | 'invoice' | 'receipt' // Le type suffit
+  // Plus besoin de la propriété component
+}
+
 const emit = defineEmits<Emits>()
 
 // Cancel modal state
@@ -498,17 +506,24 @@ const handlePrintSuccess = (data: any) => {
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }
-const templates = ref([
+const templates = ref<PrintTemplate[]>([
     {
         id: '1',
-        name: 'Reservation',
-        description: 'Reservation template',
-        component: BookingConfirmationTemplate
+        name: 'Booking Confirmation',
+        description: 'Document de confirmation de booking',
+        type: 'confirmation'
     },
     {
         id: '2',
-        name: 'Confirm Reservation',
-        description: 'Invoice template',
+        name: 'Invoice Reception',
+        description: 'Facture de réservation',
+        type: 'invoice'
+    },
+    {
+        id: '3', 
+        name: 'Reçu',
+        description: 'Reçu de paiement',
+        type: 'receipt'
     }
 ])
 // Document data for printing

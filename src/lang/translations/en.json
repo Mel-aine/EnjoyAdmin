@@ -217,6 +217,8 @@
   "PaymentMethods": "Payment Methods",
   "InvoiceList": "Invoice List",
   "InvoiceDetails": "Invoice Details",
+  "netLocks": "Net Locks",
+  "nightAuditLog": "Night Audit Log",
   "tooltip": {
     "email": "Email",
     "room": "Room",

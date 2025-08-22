@@ -3,6 +3,9 @@ import {
   CreditCard,
   Home,
   Settings,
+  Lock,
+  Clipboard, 
+  BarChart2
 } from 'lucide-vue-next'
 
 export const getHotelMenu = (t: (key: string) => string) => {
@@ -293,6 +296,24 @@ export const getHotelMenu = (t: (key: string) => string) => {
           permission: 'dashboard_view',
           path: '/reports',
         },*/
+        {
+          icon: BarChart2,
+          name: t('Reports'),
+          permission: 'reports_view',
+          path: '/reports',
+        },
+        {
+          icon: Lock,
+          name: t('netLocks'),
+          permission: 'dashboard_view',
+          path: '/netlocks',
+        },
+        {
+          icon: Clipboard,
+          name: t('nightAuditLog'),
+          permission: 'dashboard_view',
+          path: '/night_audit_log',
+        },
         {
           icon: Settings,
           name: t('configuration'),
