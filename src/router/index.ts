@@ -1251,6 +1251,24 @@ const router = createRouter({
     },
     // Cashiering routes
     {
+      path: '/cashiering/center',
+      name: 'CashieringCenter',
+      component: () => import('../views/Cashiering/CashieringCenter.vue'),
+      meta: {
+        title: 'Cashiering Center',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/new-payment',
+      name: 'NewPaymentCityLedger',
+      component: () => import('../views/Cashiering/NewPaymentCityLedger.vue'),
+      meta: {
+        title: 'New Payment',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/cashiering/company_database',
       name: 'CompanyDatabase',
       component: () => import('../views/Cashiering/CompanyDatabase.vue'),
@@ -1265,6 +1283,15 @@ const router = createRouter({
       component: () => import('../views/Cashiering/AddCompany.vue'),
       meta: {
         title: 'Add Company',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/Cashiering/edit_company/:id',
+      name: 'EditCompany',
+      component: () => import('../views/Cashiering/AddCompany.vue'),
+      meta: {
+        title: 'Edit Company',
         requiresAuth: true,
       },
     },

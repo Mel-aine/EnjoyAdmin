@@ -75,7 +75,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           subItems: [
             {
               name: t('cashiering_center'),
-              path: '/dashboard',
+              path: '/cashiering/center',
               permission: 'dashboard_view',
             },
             {

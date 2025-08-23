@@ -27,8 +27,8 @@
                 <InputPhone v-model="formData.phone" :title="$t('Phone')" inputType="tel" :isRequired="true"
                   :placeholder="$t('Enter phone number')" id="phone" />
               </div>
-              <Input v-model="formData.shortCode" :lb="$t('shortCode')" inputType="text" :isRequired="false"
-                :placeholder="$t('Enter short code')" id="shortCode" />
+              <Input v-model="formData.companyCode" :lb="$t('shortCode')" inputType="text" :isRequired="false"
+                :placeholder="$t('Enter short code')" id="companyCode" />
             </div>
             <div>
               <h2 class="text-lg font-bold text-gray-900 mb-0">Account Details</h2>
@@ -44,20 +44,6 @@
               <div>
                 <Input v-model="formData.taxId" :lb="$t('Tax ID')" inputType="text"
                   :placeholder="$t('Enter tax identification number')" id="taxId" />
-              </div>
-
-              <!-- Status (always shown) -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ $t('Status') }}
-                </label>
-                <select v-model="formData.status"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="Active">{{ $t('companyDatabase.status_active') }}</option>
-                  <option value="Inactive">{{ $t('companyDatabase.status_inactive') }}</option>
-                  <option value="Suspended">{{ $t('companyDatabase.status_suspended') }}</option>
-                  <option value="Pending">{{ $t('companyDatabase.status_pending') }}</option>
-                </select>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -116,6 +102,7 @@
         </form>
       </div>
     </div>
+    <OverLoading v-if="isLoading" />
   </AdminLayout>
 </template>
 
@@ -136,6 +123,8 @@ import InputCountries from '../../components/forms/FormElements/InputCountries.v
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import { createCompany, updateCompany, getCompanyById } from '@/services/companyApi'
 import { useServiceStore } from '../../composables/serviceStore'
+import { isLoading } from '../../composables/spinner'
+import OverLoading from '../../components/spinner/OverLoading.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -165,7 +154,7 @@ const formData = reactive({
   taxId: '',
   address: '',
   notes: '',
-  shortCode: '',
+  companyCode: '',
   openingBalance: 0,
   creditLimit: "",
   country: "",
@@ -205,7 +194,7 @@ const handleSubmit = async () => {
       billing_state_province: formData.state,
       billing_city: formData.city,
       billing_postal_code: formData.postalCode,
-      company_code: formData.shortCode,
+      company_code: formData.companyCode,
       notes: formData.notes,
       status: formData.status,
       add_to_business_source: formData.addToBusinessSource,
@@ -255,40 +244,40 @@ const loadCompanyData = async () => {
   if (!isEditMode.value || !companyId.value) return
 
   try {
-    loading.value = true
-    const company = await getCompanyById(companyId.value)
+    isLoading.value = true
+    const company: any = await getCompanyById(companyId.value)
+    console.log('Loaded company:', company)
 
     if (company) {
       // Map API data to form fields
-      formData.companyName = company.name
+      formData.companyName = company.companyName
 
       // Parse contact person name into components
-      const contactParts = (company.contactPerson || '').split(' ')
-      if (contactParts.length >= 2) {
-        formData.contactPerson.title = company.contactTitle || ''
-        formData.contactPerson.firstName = contactParts[0] || ''
-        formData.contactPerson.lastName = contactParts.slice(1).join(' ') || ''
+      const contactParts = (company.contactPersonName || '').split(' ')
+      if (contactParts.length >= 3) {
+        formData.contactPerson.firstName = contactParts[1] || ''
+        formData.contactPerson.lastName = contactParts.slice(2).join(' ') || ''
       } else {
-        formData.contactPerson.firstName = company.contactPerson || ''
+        formData.contactPerson.firstName = company.contactPersonName || ''
       }
-
-      formData.email = company.email || ''
-      formData.phone = company.contact || ''
+      formData.contactPerson.title = company.contactPersonTitle || ''
+      formData.email = company.primaryEmail || ''
+      formData.phone = company.primaryPhone || ''
       formData.registrationNumber = company.registrationNumber || ''
       formData.taxId = company.taxId || ''
-      formData.openingBalance = company.balance || 0
+      formData.openingBalance = company.currentBalance || 0
       formData.creditLimit = company.creditLimit?.toString() || ''
       formData.currency = company.currency || 'XAF'
-      formData.selectedCurrency = company.currency || 'XAF'
-      selectedCurrency.value = company.currency || 'XAF'
-      formData.address = company.address || ''
-      formData.country = company.country || ''
-      formData.state = company.state || ''
-      formData.city = company.city || ''
-      formData.postalCode = company.postalCode || ''
-      formData.shortCode = company.shortCode || ''
+      formData.selectedCurrency = company.preferredCurrency || 'XAF'
+      selectedCurrency.value = company.preferredCurrency || 'XAF'
+      formData.address = company.billingAddressLine || ''
+      formData.country = company.billingCountry || ''
+      formData.state = company.billingStateProvince || ''
+      formData.city = company.billingCity || ''
+      formData.postalCode = company.billingPostalCode || ''
+      formData.companyCode = company.companyCode || ''
       formData.notes = company.notes || ''
-      formData.status = company.status || 'Active'
+      formData.status = 'Active'
       formData.addToBusinessSource = company.addToBusinessSource || false
       formData.doNotCountAsCityLedger = company.doNotCountAsCityLedger || false
 
@@ -298,20 +287,19 @@ const loadCompanyData = async () => {
       }
     } else {
       toast.error(t('Company not found'))
-      router.push({ name: 'Companies' })
     }
   } catch (error) {
     console.error('Error loading company:', error)
     toast.error(t('Error loading company data'))
-    router.push({ name: 'Companies' })
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 
 // Initialize currency store and fetch currencies if needed
 onMounted(async () => {
   try {
+    isLoading.value = true
     currencyStore.init()
     await currencyStore.fetchCurrencies()
     selectedCurrency.value = currencyStore.getSelectedCurrency
@@ -324,6 +312,8 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error initializing:', error)
     toast.error(t('Error loading data'))
+  } finally {
+    isLoading.value = false
   }
 })
 </script>

@@ -32,18 +32,18 @@
         </template>
 
         <!-- Custom column for status -->
-        <template #column-status="{ item }">
-          <span v-if="item.status" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-            :class="getStatusClass(item.status)">
-            {{ $t('companyDatabase.status_' + item.status?.toLowerCase()) }}
+        <template #column-accountStatus="{ item }">
+          <span v-if="item.accountStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+            :class="getStatusClass(item.accountStatus)">
+            {{ $t(item.accountStatus?.toLowerCase() ?? '') }}
           </span>
         </template>
 
         <!-- Custom column for balances -->
         <template #column-balances="{ item }">
           <div class="text-right">
-            <div class="text-sm font-medium" :class="getBalanceClass(item.balance)">
-              {{ formatCurrency(item.balance) }}
+            <div class="text-sm font-medium" :class="getBalanceClass(item.currentBalance)">
+              {{ formatCurrency(item.currentBalance) }}
             </div>
             <div class="text-xs text-gray-400">
               {{ item.currency || 'XAF' }}
@@ -101,7 +101,7 @@ const columns = computed<Column[]>(() => [
   { key: 'billingCountry', label: t('companyDatabase.columns.country'), type: 'text' },
   { key: 'primaryEmail', label: t('companyDatabase.columns.email'), type: 'text' },
   { key: 'primaryPhone', label: t('companyDatabase.columns.contact'), type: 'text' },
-  { key: 'status', label: t('companyDatabase.columns.status'), type: 'custom' },
+  { key: 'accountStatus', label: t('companyDatabase.columns.status'), type: 'custom' },
   { key: 'balances', label: t('companyDatabase.columns.balances'), type: 'custom' }
 ])
 
@@ -195,7 +195,7 @@ const viewCompany = (company: any) => {
 }
 
 const editCompany = (company: any) => {
-  router.push(`/Cashiering/new_company/${company.id}`)
+  router.push(`/Cashiering/edit_company/${company.id}`)
 }
 
 const deleteCompanyData = (company: Company) => {
