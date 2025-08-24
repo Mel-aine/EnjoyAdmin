@@ -21,17 +21,25 @@ export interface GuestPayload {
   lastName?: string
   name?: string
   phonePrimary?: string
-  mobile?: string
+  mobileNumber?: string
+  guestType?: string
   email?: string
   gender?: string
-  address?: string
+  addressLine?: string
+  stateProvince?:string
+  postalCode?:string
   city?: string
   management?: string
   country?: string
   nationality?: string
-  company?: string
+  companyName?: string
   fax?: string
-  registrationNo?: string
+  registrationNumber?: string
+  profilePhoto?: string
+  idPhoto?: string
+  idExpiryDate?: string
+  issuingCountry?: string
+  issuingCity?: string
   vipStatus?: string
   idType?: string
   idNumber?: string
