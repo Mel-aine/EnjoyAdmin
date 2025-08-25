@@ -23,9 +23,9 @@
                 :icon="Plus"
                 @click="goToCreatePage"
               />
-              <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" />
+              <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" @click="exportToCSV"/>
               <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" />
-              <UserFilters />
+              <GuestFilter  />
             </template>
             <!-- Custom column templates -->
             <template #column-country="{ item }">
@@ -94,7 +94,7 @@ import { useBookingStore } from '@/composables/booking'
 import ModalCustomer from './ModalCustomer.vue'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../../components/buttons/BasicButton.vue'
-import UserFilters from '../../components/filters/UserFilters.vue'
+import GuestFilter from '@/components/filters/GuestFilter.vue'
 import { createGuest, updateGuest, deleteGuest } from '@/services/guestApi'
 import { Eye, Edit, Trash2, List, Ban } from 'lucide-vue-next'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
@@ -467,6 +467,64 @@ const getRowClass = (item: any): string => {
     return 'bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-300';
   }
   return '';
+};
+
+const exportToCSV = () => {
+
+  if (!customers.value || customers.value.length === 0) {
+    toast.info(t('toast.noDataToExport'));
+    return;
+  }
+
+
+  const headers = columns.value.map(col => col.label);
+
+
+  const rows = customers.value.map(customer => {
+    return columns.value.map(column => {
+
+      const getNestedValue = (obj: any, path: string) => {
+        return path.split('.').reduce((current, key) => current?.[key], obj);
+      };
+
+      let value = getNestedValue(customer, column.key);
+
+      // Gérer les valeurs nulles ou indéfinies
+      if (value === null || value === undefined) {
+        value = '';
+      }
+
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+
+      return stringValue;
+    }).join(',');
+  });
+
+
+  const csvContent = [
+    headers.join(','),
+    ...rows
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  const filename = `guests-export-${new Date().toISOString().split('T')[0]}.csv`;
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  toast.success(t('toast.exportSuccessful'));
 };
 </script>
 

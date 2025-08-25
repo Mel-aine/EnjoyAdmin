@@ -369,7 +369,9 @@
     "fetchError" : "Error fetching data ❌",
     "guestBlacklistedSuccess": "{name} has been blacklisted successfully",
     "blacklistError": "Error while blacklisting guest",
-    "guestUnblacklistedSuccess": "{name} has been removed from the blacklist successfully"
+    "guestUnblacklistedSuccess": "{name} has been removed from the blacklist successfully",
+    "exportSuccessful": "Export completed successfully!",
+    "noDataToExport": "No data available for export."
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
