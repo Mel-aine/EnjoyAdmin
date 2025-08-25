@@ -11,6 +11,7 @@
             :actions="actions"
             :selectable="false"
             :loading="loading"
+            :rowClass="getRowClass"
             v-model="searchQuery"
             @search-change="onSearchChange"
             class="modern-table"
@@ -20,7 +21,7 @@
                 :label="$t('AddGuest')"
                 variant="primary"
                 :icon="Plus"
-                @click="showModal = true"
+                @click="goToCreatePage"
               />
               <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" />
               <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" />
@@ -53,12 +54,22 @@
       @submit="handleSubmitCustomer"
     />
 
-     <!-- Delete Confirmation Modal -->
-     <ModalConfirmation
+    <BlackListGuestModal
+      :isOpen="showBlacklistModal"
+      :isLoading="blacklisting"
+      :guestData="customerToBlacklist"
+      @close="closeBlacklistModal"
+      @confirm="confirmBlacklistCustomer"
+    />
+
+    <!-- Delete Confirmation Modal -->
+    <ModalConfirmation
       v-if="showDeleteModal"
       :is-loading="deleting"
       :title="$t('guestDatabase.delete_title')"
-      :message="$t('guestDatabase.delete_confirm_message', { name: customerToDelete?.userFullName })"
+      :message="
+        $t('guestDatabase.delete_confirm_message', { name: customerToDelete?.userFullName })
+      "
       action="DANGER"
       @close="closeDeleteModal"
       @confirm="confirmDeleteCustomer"
@@ -71,9 +82,9 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted, computed, reactive } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
-import type {  ReservationType } from '@/types/option'
+import type { ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
-import { Plus, FileDown, FileTextIcon } from 'lucide-vue-next'
+import { Plus, FileDown, FileTextIcon, CheckCircle } from 'lucide-vue-next'
 import { getCustomer } from '@/services/reservation'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
@@ -81,12 +92,14 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from '@/composables/booking'
 import ModalCustomer from './ModalCustomer.vue'
-import { useToast } from 'vue-toastification';
+import { useToast } from 'vue-toastification'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import UserFilters from '../../components/filters/UserFilters.vue'
-import { createGuest,updateGuest,deleteGuest } from '@/services/guestApi'
+import { createGuest, updateGuest, deleteGuest } from '@/services/guestApi'
 import { Eye, Edit, Trash2, List, Ban } from 'lucide-vue-next'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
+import { toggleGuestBlacklist } from '@/services/guestApi'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -102,11 +115,13 @@ const showDeleteModal = ref(false)
 const isEditMode = ref(false)
 const deleting = ref(false)
 const customers = ref<ReservationType[]>([])
+const showBlacklistModal = ref(false)
+const blacklisting = ref(false)
+const customerToBlacklist = ref<any>(null)
 const breadcrumb = [
   { label: t('navigation.frontOffice'), href: '#' },
-  { label: t('guest_database'), href: '#' }
+  { label: t('guest_database'), href: '#' },
 ]
-
 
 const columns = computed(() => [
   {
@@ -114,35 +129,35 @@ const columns = computed(() => [
     label: t('GuestName'),
     type: 'text' as const,
     sortable: true,
-    translatable: false
+    translatable: false,
   },
   {
     key: 'country',
     label: t('country'),
     type: 'custom' as const,
     sortable: true,
-    translatable: false
+    translatable: false,
   },
   {
     key: 'email',
     label: t('Email'),
     type: 'email' as const,
     sortable: true,
-    translatable: false
+    translatable: false,
   },
   {
     key: 'phonePrimary',
     label: t('Phone'),
     type: 'text' as const,
     sortable: true,
-    translatable: false
+    translatable: false,
   },
   {
     key: 'addressLine',
     label: t('address'),
     type: 'text' as const,
     sortable: true,
-    translatable: true
+    translatable: true,
   },
   {
     key: 'vipStatus',
@@ -150,41 +165,51 @@ const columns = computed(() => [
     type: 'custom' as const,
     sortable: true,
     dateFormat: 'short',
-    translatable: false
-  }
+    translatable: false,
+  },
 ])
 
 const actions = computed(() => [
   {
     label: t('commons.view'),
     icon: Eye,
-    handler: (item: any) => handleCustomerAction('view', item)
+    handler: (item: any) => handleCustomerAction('view', item),
   },
   {
     label: t('commons.editGuest'),
     icon: Edit,
-    handler: (item: any) => handleCustomerAction('edit', item)
+    handler: (item: any) => handleCustomerAction('edit', item),
   },
   {
     label: t('commons.deleteGuest'),
     icon: Trash2,
     variant: 'danger',
-    handler: (item: any) => handleCustomerAction('delete', item)
+    handler: (item: any) => handleCustomerAction('delete', item),
   },
   {
     label: t('commons.detailLog'),
     icon: List,
-    handler: (item: any) => handleCustomerAction('log', item)
+    handler: (item: any) => handleCustomerAction('log', item),
   },
   {
     label: t('commons.blacklistGuest'),
     icon: Ban,
-    handler: (item: any) => handleCustomerAction('blacklist', item)
-  }
+    variant: 'warning',
+    // Condition : Ne s'affiche QUE si le client N'EST PAS blacklisté
+    condition: (item: any) => !item.blacklisted,
+    handler: (item: any) => handleCustomerAction('blacklist', item),
+  },
+
+  // Action pour "RETIRER de la liste noire"
+  {
+    label: t('commons.unblacklistGuest'),
+    icon: CheckCircle,
+    variant: 'secondary',
+    // Condition : Ne s'affiche QUE si le client EST DÉJÀ blacklisté
+    condition: (item: any) => item.blacklisted,
+    handler: (item: any) => handleCustomerAction('blacklist', item),
+  },
 ])
-
-
-// Header actions are now handled through slots
 
 // Search functionality
 const searchQuery = ref('')
@@ -194,86 +219,67 @@ const onSearchChange = (query: string) => {
   // Add any additional search logic here if needed
 }
 
-
- const mapApiCustomerToFormData = (customer: any) => {
-  const formData = { ...customer };
-  formData.idNumber = '';
-  formData.idExpiryDate = '';
-  if (customer.passportNumber) {
-    formData.idNumber = customer.passportNumber;
-    formData.idExpiryDate = customer.passportExpiry;
-  } else if (customer.visaNumber) {
-    formData.idNumber = customer.visaNumber;
-    formData.idExpiryDate = customer.visaExpiry;
-  } else {
-    formData.idNumber = customer.idNumber;
-    formData.idExpiryDate = customer.idExpiryDate;
-  }
-
-  if (formData.idExpiryDate && typeof formData.idExpiryDate === 'string') {
-      formData.idExpiryDate = formData.idExpiryDate.substring(0, 10);
-  }
-
-  return formData;
-};
-
-
 //fonctions pour récupérer les clients
 
 const fetchCustomers = async () => {
   try {
     loading.value = true
-    const serviceId = serviceStore.serviceId;
-    const response = await getCustomer(serviceId!);
-    console.log("@@@@@@22",response)
+    const serviceId = serviceStore.serviceId
+    const response = await getCustomer(serviceId!)
+    console.log('@@@@@@22', response)
     customers.value = response.data.map((c: any) => {
       return {
         ...c,
         userFullName: `${c.firstName} ${c.lastName}`,
       }
     })
-    console.log("customers", customers.value)
-
+    console.log('customers', customers.value)
   } catch (error) {
-    console.error('Failed to fetch fetchCustomers:', error);
+    console.error('Failed to fetch fetchCustomers:', error)
   } finally {
     loading.value = false
   }
-};
+}
 
 // Actions are now handled directly through handler functions in the actions configuration
 
 const handleCustomerAction = async (action: string, c: any) => {
   console.log('Customer action:', action, c)
-  
+
   const customerFromApi = customers.value.find((cu: any) => cu.id === parseInt(c.id))
 
   if (action === 'view') {
     if (customerFromApi) {
       await router.push({
         name: 'CustomerDetails',
-        params: { id: c.id.toString() }
+        params: { id: c.id.toString() },
       })
     } else {
       console.error('Client introuvable pour ID:', c.id)
     }
-  } else if (action === 'edit') { 
+  } else if (action === 'edit') {
     if (customerFromApi) {
-      selectedCustomer.value = mapApiCustomerToFormData(customerFromApi)
+      // selectedCustomer.value = mapApiCustomerToFormData(customerFromApi)
+      router.push({ name: 'CustomerEdit', params: { id: c.id.toString() } })
       console.log('Données formatées pour le formulaire:', selectedCustomer.value)
       isEditMode.value = true
       showModal.value = true
     } else {
       console.error('Client introuvable pour ID:', c.id)
     }
-  } else if (action === 'delete') { 
-    customerToDelete.value = c;
-    showDeleteModal.value = true;
+  } else if (action === 'delete') {
+    customerToDelete.value = c
+    showDeleteModal.value = true
+  } else if (action === 'log') {
+    await router.push({
+      name: 'CustomerAuditLog',
+      params: { id: c.id.toString() },
+    })
+  } else if (action === 'blacklist') {
+    customerToBlacklist.value = customers.value.find((cust) => cust.id === c.id)
+    showBlacklistModal.value = true
   }
-  // Vous pouvez ajouter d'autres 'else if' ici pour 'blacklist', 'log', etc.
 }
-
-
 
 const handleCloseModal = () => {
   showModal.value = false
@@ -281,13 +287,13 @@ const handleCloseModal = () => {
   selectedCustomer.value = null
 }
 
-
-
 onMounted(async () => {
   await fetchCustomers()
 })
 
-
+const goToCreatePage = () => {
+  router.push({ name: 'CustomerCreate' })
+}
 
 // Fonction pour gérer l'ajout d'un client (mise à jour)
 const handleAddCustomer = async (payload: any) => {
@@ -298,12 +304,12 @@ const handleAddCustomer = async (payload: any) => {
     console.log('Données client à sauvegarder:', {
       ...data,
       profilePhoto: data.profilePhoto,
-      idPhoto: data.idPhoto
+      idPhoto: data.idPhoto,
     })
 
     const response = await createGuest({
       ...data,
-      hotelId: serviceStore.serviceId!
+      hotelId: serviceStore.serviceId!,
     })
 
     toast.success(t('toast.SuccessCreated'))
@@ -312,7 +318,6 @@ const handleAddCustomer = async (payload: any) => {
     // Rafraîchir la liste
     await fetchCustomers()
     showModal.value = false
-
   } catch (error: any) {
     console.error('Erreur lors de la création du client:', error)
 
@@ -346,7 +351,7 @@ const handleEditCustomer = async (payload: any) => {
 
     const response = await updateGuest(customerId, {
       ...data,
-      hotelId: serviceStore.serviceId!
+      hotelId: serviceStore.serviceId!,
     })
 
     toast.success(t('toast.SucessUpdate'))
@@ -354,7 +359,6 @@ const handleEditCustomer = async (payload: any) => {
 
     await fetchCustomers()
     handleCloseModal()
-
   } catch (error: any) {
     console.error('Erreur lors de la mise à jour du client:', error)
     toast.error(t('toast.Error'))
@@ -393,32 +397,76 @@ const getVipStatusClass = (status: string) => {
 
 // Fonction pour fermer le modal de suppression et réinitialiser l'état
 const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  customerToDelete.value = null;
-};
+  showDeleteModal.value = false
+  customerToDelete.value = null
+}
 
 // Fonction appelée lorsque l'utilisateur clique sur "Confirmer" dans le modal
 
 const confirmDeleteCustomer = async () => {
-  if (!customerToDelete.value) return;
+  if (!customerToDelete.value) return
 
   try {
-    deleting.value = true;
-    await deleteGuest(customerToDelete.value.id);
-    toast.success(t('toast.DeleteSuccess'));
-    await fetchCustomers();
-  } catch (error: any) { 
-    console.error('Erreur lors de la suppression du client:', error);
+    deleting.value = true
+    await deleteGuest(customerToDelete.value.id)
+    toast.success(t('toast.DeletedSuccess'))
+    await fetchCustomers()
+  } catch (error: any) {
+    console.error('Erreur lors de la suppression du client:', error)
     if (error.response && error.response.status === 409) {
-      
-      toast.error(t('errors.deleteGuestConflict'));
+      toast.error(t('errors.deleteGuestConflict'))
     } else {
-      toast.error(t('toast.deleteError'));
+      toast.error(t('toast.deleteError'))
     }
   } finally {
-    deleting.value = false;
-    closeDeleteModal();
+    deleting.value = false
+    closeDeleteModal()
   }
+}
+
+const closeBlacklistModal = () => {
+  showBlacklistModal.value = false
+  customerToBlacklist.value = null
+}
+
+// fonction pour confirmer le blacklist
+const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: boolean }) => {
+  if (!customerToBlacklist.value) return
+  try {
+    blacklisting.value = true
+    const payload =
+      data.reason || (data.blacklisted ? 'Raison non spécifiée' : 'Retiré de la liste noire')
+
+    await toggleGuestBlacklist(customerToBlacklist.value.id, payload)
+
+    console.log('Blacklisting guest:', customerToBlacklist.value.id, data)
+    const successMessage = data.blacklisted
+      ? t('toast.guestBlacklistedSuccess', { name: customerToBlacklist.value.userFullName })
+      : t('toast.guestUnblacklistedSuccess', { name: customerToBlacklist.value.userFullName })
+
+    toast.success(successMessage)
+
+    // Rafraîchir la liste des clients
+    await fetchCustomers()
+  } catch (error: any) {
+    console.error('Erreur lors de la mise en liste noire du client:', error)
+
+    if (error.response && error.response.status === 409) {
+      toast.error(t('errors.guestAlreadyBlacklisted'))
+    } else {
+      toast.error(t('toast.blacklistError'))
+    }
+  } finally {
+    blacklisting.value = false
+    closeBlacklistModal()
+  }
+}
+
+const getRowClass = (item: any): string => {
+  if (item.blacklisted) {
+    return 'bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-300';
+  }
+  return '';
 };
 </script>
 

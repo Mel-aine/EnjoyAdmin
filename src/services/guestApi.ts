@@ -85,3 +85,10 @@ export const getCustomerProfile = (
 ): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/${id}/profile`, headers)
 }
+
+/**
+ * Blacklist a guest
+ */
+export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/${id}/toggle-blacklist`, { reason }, headers)
+}

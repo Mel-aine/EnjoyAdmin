@@ -74,6 +74,7 @@ const router = createRouter({
         title: 'Edit Booking',
         requiresAuth: true,
       },
+
     },
 
     {
@@ -1230,6 +1231,18 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+        path: '/new',
+        name: 'CustomerCreate',
+        component: () => import('@/views/customers/CustomerEditPage.vue'),
+      },
+
+      {
+        path: '/edit/:id',
+        name: 'CustomerEdit',
+        component: () => import('@/views/customers/CustomerEditPage.vue'),
+        props: true
+      },
     {
       path: '/reusable-table-example',
       name: 'Reusable Table Example',

@@ -1,8 +1,5 @@
 <template>
-  <form
-    @submit.prevent="handleSubmit"
-    class="space-y-8 border-t pt-4 p-6 overflow-y-auto sidebar-scroll max-h-[580px]"
-  >
+  <form @submit.prevent="handleSubmit" class="space-y-8 pt-8 p-8">
     <!-- Section Informations Générales -->
     <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
       <div class="col-span-12 md:col-span-2">
@@ -65,11 +62,11 @@
           />
         </div>
         <div>
-          <InputEmail :title="'Email'" v-model="form.email" placeholder="Email" />
+          <InputEmail :title="$t('Email')" v-model="form.email" :placeholder="'info@gmail.com'" />
         </div>
         <div>
           <Select
-            :lb="'Genre'"
+            :lb="$t('gender')"
             :placeholder="$t('selected_item')"
             v-model="form.gender"
             :options="genderOptions"
@@ -77,7 +74,7 @@
         </div>
         <div>
           <Select
-            :lb="'Type de client'"
+            :lb="$t('guestType')"
             :placeholder="$t('selected_item')"
             v-model="form.guestType"
             :options="guestTypeOptions"
@@ -85,7 +82,7 @@
         </div>
         <div>
           <Select
-            :lb="'Statut VIP'"
+            :lb="$t('StatutVIP')"
             :placeholder="$t('selected_item')"
             v-model="form.vipStatus"
             :options="vipStatusOptions"
@@ -109,19 +106,19 @@
         <InputCountries v-model="form.country" />
       </div>
       <div>
-        <Input :lb="'State/Province'" v-model="form.stateProvince" placeholder="State" />
+        <Input :lb="$t('State/Province')" v-model="form.stateProvince" placeholder="State" />
       </div>
       <div>
-        <Input :lb="'Ville'" v-model="form.city" placeholder="Ville" />
+        <Input :lb="$t('city')" v-model="form.city" placeholder="Ville" />
       </div>
       <div>
-        <Input :lb="'Code Postal'" v-model="form.postalCode" placeholder="Code Postal" />
+        <Input :lb="$t('postalCode')" v-model="form.postalCode" placeholder="Code Postal" />
       </div>
       <div>
-        <InputCountries v-model="form.nationality" :lb="$t('Nationality')" />
+        <InputCountries v-model="form.nationality" :lb="$t('nationality')" />
       </div>
       <div>
-        <Input :lb="'Société'" v-model="form.companyName" placeholder="Société" />
+        <Input :lb="$t('Company Name')" v-model="form.companyName" placeholder="Société" />
       </div>
       <div>
         <Input v-model="form.fax" :lb="$t('Fax')" :placeholder="$t('Fax')" />
@@ -130,7 +127,7 @@
         <Input
           v-model="form.registrationNumber"
           :lb="$t('Registration No')"
-          :placeholder="$t('Registration No')"
+          :placeholder="$t('RegistrationNo')"
         />
       </div>
     </div>
@@ -156,7 +153,7 @@
             d="M19 9l-7 7-7-7"
           ></path>
         </svg>
-        Informations d'identité
+        {{ $t('IdentityInformation') }}
       </h3>
       <div
         v-if="sections.identity"
@@ -178,37 +175,100 @@
         <div class="col-span-12 md:col-span-10 grid grid-cols-1 md:grid-cols-4 gap-6">
           <div class="">
             <Select
-              :lb="'Type de pièce'"
+              :lb="$t('IDType')"
               :placeholder="$t('selected_items')"
               v-model="form.idType"
               :options="idTypeOptions"
             />
-            
           </div>
           <div class="md:col-span-2">
-                <Input
-                    :lb="idNumberLabel"
-                    v-model="form.idNumber"
-                    :placeholder="idNumberLabel"
-                />
+            <Input :lb="idNumberLabel" v-model="form.idNumber" :placeholder="idNumberLabel" />
           </div>
           <div>
             <InputDatePicker
-              :title="'Date d\'expiration'"
+              :title="$t('ExpiryDate')"
               :placeholder="$t('Selectdate')"
               v-model="form.idExpiryDate"
             />
           </div>
-          <div class="md:col-span-2">
-            <InputCountries :lb="'Pays d\'émission'" v-model="form.issuingCountry" />
+
+          <div class="md:col-span-">
+            <InputCountries :lb="$t('Countryofissue')" v-model="form.issuingCountry" />
           </div>
           <div class="md:col-span-2">
             <Input
-              :lb="'Ville d\'émission'"
+              :lb="$t('Cityofissue')"
               v-model="form.issuingCity"
-              placeholder="Ville d'émission"
+              :placeholder="$t('Countryofissue')"
             />
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t pt-8">
+      <h3
+        @click="toggleSection('otherInformation')"
+        class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+      >
+        <!-- Le chevron utilise la nouvelle clé 'otherInformation' -->
+        <svg
+          class="w-5 h-5 mr-2 text-gray-600 transition-transform"
+          :class="{ 'rotate-180': !sections.otherInformation }"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+        {{ $t('OtherInformation') }}
+      </h3>
+      <div v-if="sections.otherInformation" class="mt-6 pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <Input
+              v-model="form.preferences.floor"
+              :lb="$t('preferences.floor.label')"
+              :placeholder="$t('preferences.floor.placeholder')"
+            />
+          </div>
+
+          <!-- Préférence de vue -->
+          <div>
+            <Input
+              v-model="form.preferences.view"
+              :lb="$t('preferences.view.label')"
+              :placeholder="$t('preferences.view.placeholder')"
+            />
+          </div>
+
+          <!-- Type de lit -->
+          <div>
+            <Input
+              v-model="form.preferences.bed_type"
+              :lb="$t('preferences.bed_type.label')"
+              :placeholder="$t('preferences.bed_type.placeholder')"
+            />
+          </div>
+        </div>
+
+        <!-- Notes (prend toute la largeur) -->
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            {{ $t('preferences.notes.label') }}
+          </label>
+          <textarea
+            v-model="form.preferences.notes"
+            rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 resize-vertical"
+            :placeholder="$t('preferences.notes.placeholder')"
+          ></textarea>
         </div>
       </div>
     </div>
@@ -220,6 +280,7 @@
         variant="light"
         @click="$emit('cancel')"
         :disabled="isUploading"
+        type="button"
       />
       <BasicButton
         :label="saveButtonLabel"
@@ -278,16 +339,22 @@ interface CustomerForm {
   issuingCountry: string
   issuingCity: string
   dateOfBirth: string
-  specialPreferences: string
+  preferences: {
+    floor: string
+    view: string
+    bed_type: string
+    notes: string
+  }
 }
 
 interface SelectOption {
   value: string
   label: string
-  label_fr?:string
+  label_fr?: string
 }
 interface Sections {
   identity: boolean
+  otherInformation: boolean
 }
 
 const props = defineProps({
@@ -307,12 +374,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 
-
 type ImageUploaderInstance = InstanceType<typeof ImageUploader>
 
 const profilePhotoUploader = ref<ImageUploaderInstance | null>(null)
 const idPhotoUploader = ref<ImageUploaderInstance | null>(null)
-
 
 // Configuration Cloudinary
 const cloudinaryConfig = {
@@ -332,21 +397,21 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   firstName: '',
   lastName: '',
   profilePhoto: null,
-  phonePrimary: '', // <-- CORRIGÉ
-  mobileNumber: '', // <-- CORRIGÉ
+  phonePrimary: '',
+  mobileNumber: '',
   email: '',
   gender: '',
   guestType: '',
   vipStatus: '',
-  addressLine: '', // <-- CORRIGÉ
+  addressLine: '',
   country: 'CM',
-  stateProvince: '', 
+  stateProvince: '',
   city: '',
-  postalCode: '', 
+  postalCode: '',
   nationality: '',
-  companyName: '', 
+  companyName: '',
   fax: '',
-  registrationNumber: '', 
+  registrationNumber: '',
   idPhoto: null,
   idNumber: '',
   idType: '',
@@ -354,11 +419,17 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   issuingCountry: '',
   issuingCity: '',
   dateOfBirth: '',
-  specialPreferences: '',
+  preferences: {
+    floor: '',
+    view: '',
+    bed_type: '',
+    notes: '',
+  },
 })
 
 const sections = reactive<Sections>({
   identity: false,
+  otherInformation: false,
 })
 
 const form = reactive<CustomerForm>(getEmptyCustomerForm())
@@ -388,9 +459,9 @@ const vipStatusOptions = computed(() => [
 ])
 
 const guestTypeOptions: SelectOption[] = [
-  { value: 'travel_agent', label: 'travel agent' },
-  { value: 'corporate', label: 'Corporate' },
-  { value: 'individual', label: 'Individual' }
+  { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
+  { value: 'corporate', label: t('GuestTypes.corporate') },
+  { value: 'individual', label: t('GuestTypes.individual') },
 ]
 
 // Gestionnaires d'événements pour la sélection de fichiers
@@ -455,7 +526,6 @@ const onUploadError = (error: any) => {
   pendingImages.value = []
 }
 
-
 // Fonction principale de soumission
 
 const handleSubmit = async () => {
@@ -463,9 +533,9 @@ const handleSubmit = async () => {
     globalError.value = ''
     isUploading.value = true
 
-    // ... (toute la logique d'upload reste identique) ...
-    let profilePhotoPromise = Promise.resolve(form.profilePhoto) 
-    let idPhotoPromise = Promise.resolve(form.idPhoto)       
+    //
+    let profilePhotoPromise = Promise.resolve(form.profilePhoto)
+    let idPhotoPromise = Promise.resolve(form.idPhoto)
 
     if (profilePhotoUploader.value && profilePhotoUploader.value.hasSelectedFile()) {
       profilePhotoPromise = profilePhotoUploader.value.uploadToCloudinary().catch()
@@ -474,33 +544,29 @@ const handleSubmit = async () => {
       idPhotoPromise = idPhotoUploader.value.uploadToCloudinary().catch()
     }
 
-    const [profilePhotoUrl, idPhotoUrl] = await Promise.all([
-      profilePhotoPromise,
-      idPhotoPromise,
-    ])
-    
-   
+    const [profilePhotoUrl, idPhotoUrl] = await Promise.all([profilePhotoPromise, idPhotoPromise])
+
     //  On sépare les champs génériques du reste du formulaire
-    const { idType, idNumber, idExpiryDate, ...baseFormData } = form
-    
+    const { idType, idNumber, idExpiryDate, preferences, ...baseFormData } = form
+
     //  On prépare l'objet qui contiendra les champs d'identité spécifiques
     let identityData = {}
 
     // On utilise l'info qu'on a déjà dans notre computed property
     if (selectedIdTypeInfo.value && idNumber) {
-        const { numberField, dateField } = selectedIdTypeInfo.value
-        identityData = {
-            [numberField]: idNumber,       
-            [dateField]: idExpiryDate,
-            idType: idType, 
-        }
+      const { numberField, dateField } = selectedIdTypeInfo.value
+      identityData = {
+        [numberField]: idNumber,
+        [dateField]: idExpiryDate,
+        idType: idType,
+      }
     } else {
-        // Fallback si rien n'est sélectionné ou pour le cas "autre"
-        identityData = {
-            idNumber: idNumber,
-            idExpiryDate: idExpiryDate,
-            idType: idType,
-        }
+      // Fallback si rien n'est sélectionné ou pour le cas "autre"
+      identityData = {
+        idNumber: idNumber,
+        idExpiryDate: idExpiryDate,
+        idType: idType,
+      }
     }
 
     const finalFormData = {
@@ -508,12 +574,11 @@ const handleSubmit = async () => {
       ...identityData,
       profilePhoto: profilePhotoUrl,
       idPhoto: idPhotoUrl,
+      preferences: JSON.stringify(preferences),
     }
-
 
     console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
     emit('submit', finalFormData)
-
   } catch (error: any) {
     console.error('Erreur lors de la soumission:', error)
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'
@@ -524,11 +589,24 @@ const handleSubmit = async () => {
 
 //  méthodes
 const populateForm = (data: Partial<CustomerForm>) => {
-  Object.keys(form).forEach((key) => {
-    if (data[key as keyof CustomerForm] !== undefined) {
-      ;(form as any)[key] = data[key as keyof CustomerForm]
+  Object.assign(form, data)
+
+  if (data.preferences) {
+    try {
+      const prefs =
+        typeof data.preferences === 'string' ? JSON.parse(data.preferences) : data.preferences
+
+      form.preferences = {
+        floor: prefs.floor || '',
+        view: prefs.view || '',
+        bed_type: prefs.bed_type || '',
+        notes: prefs.notes || '',
+      }
+    } catch (e) {
+      console.error('Erreur de parsing des préférences JSON dans populateForm:', e)
+      Object.assign(form.preferences, getEmptyCustomerForm().preferences)
     }
-  })
+  }
 }
 
 const resetForm = () => {
@@ -548,18 +626,15 @@ interface RichSelectOption extends SelectOption {
   label_fr: string // Label pour l'input (ex: 'Numéro de Passeport')
 }
 
-
-
 const fetchIdentityTypes = async () => {
   try {
     const hotelId = serviceStore.serviceId
     if (!hotelId) return
 
     const res = await getIdentityTypesByHotelId(hotelId)
-    
-    // On mappe la réponse de l'API vers notre nouvelle structure
+
     idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
-      // On normalise le nom pour le comparer (ex: "National ID Card" -> "nationalidcard")
+
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {
@@ -570,7 +645,7 @@ const fetchIdentityTypes = async () => {
             value: type.name,
             numberField: 'passportNumber',
             dateField: 'passportExpiry',
-            label_fr: 'Numéro de Passeport',
+            label_fr: t('identity.passport_number'),
           }
         case 'visa':
           return {
@@ -578,15 +653,15 @@ const fetchIdentityTypes = async () => {
             value: type.id,
             numberField: 'visaNumber',
             dateField: 'visaExpiry',
-            label_fr: 'Numéro de Visa',
+            label_fr: t('identity.visa_number'),
           }
         default:
           return {
             label: type.name,
             value: type.id,
-            numberField: 'idNumber', 
+            numberField: 'idNumber',
             dateField: 'idExpiryDate',
-            label_fr: 'Numéro de la pièce',
+            label_fr: t('identity.id_number'),
           }
       }
     })
@@ -597,12 +672,12 @@ const fetchIdentityTypes = async () => {
 
 const selectedIdTypeInfo = computed(() => {
   // Trouve l'objet complet de l'option sélectionnée
-  return idTypeOptions.value.find(opt => opt.value === form.idType)
+  return idTypeOptions.value.find((opt) => opt.value === form.idType)
 })
 
 const idNumberLabel = computed(() => {
   // Retourne le label personnalisé, ou un label par défaut
-  return selectedIdTypeInfo.value?.label_fr || "Numéro de la pièce"
+  return selectedIdTypeInfo.value?.label_fr || t('identity.id_number')
 })
 
 // Watchers
@@ -636,8 +711,8 @@ defineExpose({
 })
 
 const saveButtonLabel = computed(() => {
-  return props.isEditMode ? t('SaveChanges') : t('Save');
-});
+  return props.isEditMode ? t('SaveChanges') : t('Save')
+})
 </script>
 
 <style scoped>

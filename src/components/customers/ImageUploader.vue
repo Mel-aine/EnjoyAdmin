@@ -2,22 +2,22 @@
   <div>
     <label v-if="label" class="block text-sm font-medium text-gray-700 mb-1.5">{{ label }}</label>
     <div class="mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md h-40 relative">
-      
+
       <!-- État de chargement (seulement pendant l'upload) -->
       <div v-if="isUploading" class="space-y-2 text-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p class="text-sm text-gray-600">Upload en cours...</p>
+        <p class="text-sm text-gray-600">{{ $t('uploadInProgress') }}</p>
         <div class="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+          <div
+            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
             :style="{ width: uploadProgress + '%' }"
           ></div>
         </div>
       </div>
 
       <!-- Zone de drop/upload -->
-      <div 
-        v-else-if="!previewUrl && !modelValue" 
+      <div
+        v-else-if="!previewUrl && !modelValue"
         class="space-y-1 text-center w-full"
         @dragover.prevent="dragOver = true"
         @dragleave.prevent="dragOver = false"
@@ -29,27 +29,27 @@
         </svg>
         <div class="flex text-sm text-gray-600">
           <label :for="`file-upload-${uniqueId}`" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-            <span class="font-normal text-xs">{{ dragOver ? 'Déposez le fichier' : 'Sélectionner un fichier' }}</span>
-            <input 
-              :id="`file-upload-${uniqueId}`" 
-              name="file-upload" 
-              type="file" 
-              class="sr-only" 
-              accept="image/*" 
+            <span class="font-normal text-xs">{{ dragOver ? $t('upload.drop_file') : $t('upload.select_file') }}</span>
+            <input
+              :id="`file-upload-${uniqueId}`"
+              name="file-upload"
+              type="file"
+              class="sr-only"
+              accept="image/*"
               @change="handleImageSelect"
             >
           </label>
           <!-- <p class="pl-1">ou glissez-déposez</p> -->
         </div>
-        <p class="text-xs text-gray-500">PNG, JPG, GIF, WEBP up to {{ maxSizeMB }}MB</p>
+        <p class="text-xs text-gray-500">PNG, JPG, GIF, WEBP {{ $t('upto') }} {{ maxSizeMB }}MB</p>
       </div>
 
       <!-- Aperçu de l'image -->
       <div v-else class="relative h-full w-full">
-        <img 
-          :src="previewUrl || modelValue || ''" 
-          alt="Preview" 
-          class="h-full w-full object-contain rounded-md" 
+        <img
+          :src="previewUrl || modelValue || ''"
+          alt="Preview"
+          class="h-full w-full object-contain rounded-md"
         />
         <button
           type="button"
@@ -61,7 +61,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        
+
         <!-- Indicateur d'état -->
         <div class="absolute bottom-1 right-1">
           <!-- Image uploadée (URL Cloudinary) -->
@@ -81,10 +81,10 @@
         <!-- Badge informatif -->
         <div class="absolute top-1 left-1">
           <span v-if="modelValue && !selectedFile" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            Uploadé
+            {{ $t('uploaded') }}
           </span>
           <span v-else-if="selectedFile" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-            En attente
+            {{ $t('pending') }}
           </span>
         </div>
       </div>
@@ -129,9 +129,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits([
-  'update:modelValue', 
-  'file-selected', 
-  'upload-success', 
+  'update:modelValue',
+  'file-selected',
+  'upload-success',
   'upload-error',
   'file-removed'
 ])
@@ -150,20 +150,20 @@ const uniqueId = computed(() => Math.random().toString(36).substr(2, 9))
 // Validation du fichier
 const validateFile = (file: File): boolean => {
   error.value = ''
-  
+
   // Vérifier le type de fichier
   if (!file.type.startsWith('image/')) {
     error.value = 'Veuillez sélectionner un fichier image valide'
     return false
   }
-  
+
   // Vérifier la taille
   const maxSizeBytes = props.maxSizeMB * 1024 * 1024
   if (file.size > maxSizeBytes) {
     error.value = `Le fichier est trop volumineux. Taille maximum: ${props.maxSizeMB}MB`
     return false
   }
-  
+
   return true
 }
 
@@ -175,16 +175,16 @@ const createPreviewUrl = (file: File): string => {
 // Sélection de fichier (sans upload)
 const selectFile = (file: File) => {
   if (!validateFile(file)) return
-  
+
   // Nettoyer l'ancienne URL de prévisualisation
   if (previewUrl.value) {
     URL.revokeObjectURL(previewUrl.value)
   }
-  
+
   selectedFile.value = file
   previewUrl.value = createPreviewUrl(file)
   error.value = ''
-  
+
   // Informer le parent qu'un fichier a été sélectionné
   emit('file-selected', { file, preview: previewUrl.value })
 }
@@ -194,11 +194,11 @@ const uploadToCloudinary = async (): Promise<string> => {
   if (!selectedFile.value) {
     throw new Error('Aucun fichier sélectionné')
   }
-  
+
   isUploading.value = true
   uploadProgress.value = 0
   error.value = ''
-  
+
   try {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
@@ -206,14 +206,14 @@ const uploadToCloudinary = async (): Promise<string> => {
     formData.append('folder', 'customers')
     formData.append('quality', 'auto:good')
     formData.append('fetch_format', 'auto')
-    
+
     // Simulation du progrès
     const progressInterval = setInterval(() => {
       if (uploadProgress.value < 90) {
         uploadProgress.value += Math.random() * 20
       }
     }, 200)
-    
+
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${props.cloudinaryConfig.cloudName}/image/upload`,
       {
@@ -221,35 +221,35 @@ const uploadToCloudinary = async (): Promise<string> => {
         body: formData,
       }
     )
-    
+
     clearInterval(progressInterval)
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.error?.message || 'Erreur lors de l\'upload')
     }
-    
+
     const data = await response.json()
     uploadProgress.value = 100
-    
+
     // Nettoyer après succès
     setTimeout(() => {
       isUploading.value = false
       uploadProgress.value = 0
-      
+
       // Nettoyer l'URL de prévisualisation locale
       if (previewUrl.value) {
         URL.revokeObjectURL(previewUrl.value)
         previewUrl.value = null
       }
-      
+
       selectedFile.value = null
       emit('update:modelValue', data.secure_url)
       emit('upload-success', { url: data.secure_url, file: selectedFile.value })
     }, 500)
-    
+
     return data.secure_url
-    
+
   } catch (err: any) {
     isUploading.value = false
     uploadProgress.value = 0
@@ -285,7 +285,7 @@ const removeImage = () => {
       URL.revokeObjectURL(previewUrl.value)
       previewUrl.value = null
     }
-    
+
     selectedFile.value = null
     emit('update:modelValue', null)
     emit('file-removed')
