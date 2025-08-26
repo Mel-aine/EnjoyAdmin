@@ -180,6 +180,7 @@
               </div>
             </td>
           </tr>
+          </template>
         </tbody>
       </table>
     </div>
