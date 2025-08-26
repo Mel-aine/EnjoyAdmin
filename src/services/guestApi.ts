@@ -92,3 +92,10 @@ export const getCustomerProfile = (
 export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosResponse<any>> => {
   return axios.patch(`${API_URL}/${id}/toggle-blacklist`, { reason }, headers)
 }
+
+/**
+ * Fetch guests with optional filters
+ */
+export const getGuests = (params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}`, { params, ...headers })
+}

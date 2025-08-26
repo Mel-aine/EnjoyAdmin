@@ -1,10 +1,8 @@
 <template>
   <AdminLayout>
     <FullScreenLayout>
-      <div v-if="isLoading" class="flex justify-center items-center h-screen">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-      </div>
-      <div class="container mx-auto px-4 py-8" v-else-if="customer">
+
+      <div class="container mx-auto px-4 py-8" v-if="customer">
         <!-- Header -->
         <div class="mb-8 slide-in">
           <div class="flex items-center gap-4 mb-4">
@@ -105,127 +103,32 @@
                       <span>{{ customer.phonePrimary || 'N/A' }}</span>
                     </div>
                     <div
-                      v-if="
-                        customer.preferences && Object.values(customer.preferences).some((v) => v)
-                      "
+                      v-if="customer.preferences && Array.isArray(customer.preferences) && customer.preferences.length > 0"
                       class="flex items-start space-x-3 pt-2"
                     >
+
                       <Heart class="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
 
                       <div class="flex-grow">
-                        <h4 class="font-semibold text-gray-800 mb-2">Préférences du client</h4>
 
-                        <!-- Conteneur pour les étiquettes -->
+                        <h4 class="font-semibold text-gray-800 mb-2">{{ $t('GuestPreferences') }}</h4>
                         <div class="flex flex-wrap gap-2">
                           <span
-                            v-if="customer.preferences.floor"
+                            v-for="preference in customer.preferences"
+                            :key="preference.value"
                             class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full"
                           >
-                            {{ $t('floor') }} : {{ customer.preferences.floor }}
-                          </span>
-                          <span
-                            v-if="customer.preferences.view"
-                            class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full"
-                          >
-                            {{ $t('view') }} : {{ customer.preferences.view }}
-                          </span>
-                          <span
-                            v-if="customer.preferences.bed_type"
-                            class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-1 rounded-full"
-                          >
-                            {{ $t('BedType') }} : {{ customer.preferences.bed_type }}
+
+                            {{ preference.label }}
                           </span>
                         </div>
-
-                        <!-- Affichage des notes plus longues en dessous -->
-                        <p
-                          v-if="customer.preferences.notes"
-                          class="mt-3 text-sm text-gray-600 border-l-2 border-gray-200 pl-3"
-                        >
-                          {{ customer.preferences.notes }}
-                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Section 2: Statut du Séjour (Actuel & À Venir) -->
-              <div class="lg:col-span-1 space-y-4">
-                <!-- Bloc 1: Séjour Actif (Checked-in) -->
-                <div
-                  v-if="customer.activeStay"
-                  class="bg-white border-l-4 border-green-500 rounded-r-lg p-4 shadow-sm"
-                >
-                  <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-semibold text-gray-800">{{ $t('CurrentlyInHouse') }}</h3>
-                    <span
-                      :class="getReservationStatusInfo(customer.activeStay.status).class"
-                      class="text-xs font-bold px-2 py-0.5 rounded-full"
-                    >
-                      {{ getReservationStatusInfo(customer.activeStay.status).text }}
-                    </span>
-                  </div>
-                  <div class="text-sm space-y-1">
-                    <p>
-                      <strong>{{ $t('Room') }}:</strong>
-                      {{ customer.activeStay.room?.roomNumber || 'N/A' }}
-                    </p>
-                    <p>
-                      <strong>{{ $t('departure') }}:</strong>
-                      {{ formatDate(customer.activeStay.checkOutDate) }}
-                    </p>
-                  </div>
-                  <button
-                    @click="handleCheckOut"
-                    class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition"
-                  >
-                    {{ $t('CheckOut') }}
-                  </button>
-                </div>
-
-                <!--  Prochain Séjour (Réservé) -->
-                <div
-                  v-else-if="customer.upcomingStay"
-                  class="bg-white border-l-4 border-blue-500 rounded-r-lg p-4 shadow-sm"
-                >
-                  <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-semibold text-gray-800">{{ $t('UpcomingStay') }}</h3>
-                    <span
-                      :class="getReservationStatusInfo(customer.upcomingStay.status).class"
-                      class="text-xs font-bold px-2 py-0.5 rounded-full"
-                    >
-                      {{ getReservationStatusInfo(customer.upcomingStay.status).text }}
-                    </span>
-                  </div>
-                  <div class="text-sm space-y-1">
-                    <p>
-                      <strong>{{ $t('Room Type') }}:</strong>
-                      {{ customer.upcomingStay.roomType?.roomTypeName || 'N/A' }}
-                    </p>
-                    <p>
-                      <strong>{{ $t('Check-in') }}:</strong>
-                      {{ formatDate(customer.upcomingStay.checkInDate) }}
-                    </p>
-                  </div>
-                  <button
-                    @click="handleCheckIn"
-                    class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition"
-                  >
-                    {{ $t('CheckIn') }}
-                  </button>
-                </div>
-
-                <!-- Bloc 3: Pas de séjour actif -->
-                <div
-                  v-else
-                  class="bg-white rounded-lg p-4 h-full flex items-center justify-center text-gray-500"
-                >
-                  <p>{{ $t('Noactiveorupcomingstay') }}</p>
-                </div>
-              </div>
-
-              <!-- Section 3: Finances & Actions Rapides -->
+              <!-- Section 2: Finances & Actions Rapides -->
               <div class="lg:col-span-1">
                 <div class="bg-indigo-600 text-white rounded-lg p-4 shadow-lg text-center">
                   <h3 class="font-semibold text-sm opacity-80 mb-1">
@@ -243,11 +146,132 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Section 3: Statut du Séjour (Actuel & À Venir) -->
+              <div class="lg:col-span-1">
+                <!-- Timeline container -->
+                <div
+                  class="relative border-l border-gray-300 pl-6 space-y-4 max-h-[200px] overflow-y-auto sidebar-scroll pr-2"
+                >
+                  <!-- Séjours Actifs -->
+                  <div v-for="stay in customer.activeStays" :key="stay.id" class="relative">
+
+                    <span
+                      class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-500 rounded-full ring-4 ring-white"
+                    >
+                      🏨
+                    </span>
+
+                    <!-- Card -->
+                    <div
+                      class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-green-500"
+                    >
+                      <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-semibold text-gray-800">{{ $t('CurrentlyInHouse') }}</h3>
+                        <span
+                          :class="getReservationStatusInfo(stay.status).class"
+                          class="text-xs font-bold px-2 py-0.5 rounded-full"
+                        >
+                          {{ getReservationStatusInfo(stay.status).text }}
+                        </span>
+                      </div>
+                      <div class="text-sm space-y-1">
+                        <p>
+                          <strong>{{ $t('Room') }}:</strong> {{ stay.room?.roomNumber || 'N/A' }}
+                        </p>
+                        <p>
+                          <strong>{{ $t('departure') }}:</strong>
+                          {{ formatDate(stay.checkOutDate) }}
+                        </p>
+                      </div>
+                      <button
+                        v-if="!customer.blacklisted"
+                        @click="handleCheckOut(stay)"
+                         class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="isCheckingOut === stay.id"
+                      >
+                        <Spinner  v-if="isCheckingOut === stay.id" class="w-4 h-4" />
+                        <span>{{ isCheckingOut ?  $t('CheckOut...') : $t('CheckOut') }}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Séjour à venir -->
+                  <div v-if="customer.upcomingStay" class="relative">
+
+                    <span
+                      class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full ring-4 ring-white"
+                    >
+                      📅
+                    </span>
+
+                    <!-- Card -->
+                    <div
+                      class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-blue-500"
+                    >
+                      <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-semibold text-gray-800">{{ $t('UpcomingStay') }}</h3>
+                        <span
+                          :class="getReservationStatusInfo(customer.upcomingStay.status).class"
+                          class="text-xs font-bold px-2 py-0.5 rounded-full"
+                        >
+                          {{ getReservationStatusInfo(customer.upcomingStay.status).text }}
+                        </span>
+                      </div>
+                      <div class="text-sm space-y-1">
+                        <p>
+                          <strong>{{ $t('Room Type') }}:</strong>
+                          {{ customer.upcomingStay.roomType?.roomTypeName || 'N/A' }}
+                        </p>
+                        <p>
+                          <strong>{{ $t('Check-in') }}:</strong>
+                          {{ formatDate(customer.upcomingStay.checkInDate) }}
+                        </p>
+                      </div>
+                      <button
+                        v-if="!customer.blacklisted && canCheckInToday(customer.upcomingStay)"
+                        @click="handleCheckIn(customer.upcomingStay)"
+                        class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="isCheckingIn === customer.upcomingStay.id"
+                      >
+                        <Spinner   v-if="isCheckingIn === customer.upcomingStay.id" class="w-4 h-4" />
+                        <span>{{ isCheckingIn ?  $t('CheckingIn....') : $t('CheckIn') }}</span>
+                        <!-- <div
+                           v-if="isCheckingIn === customer.upcomingStay.id"
+                          class="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"
+                        ></div>
+                         <span v-if="isCheckingIn !== customer.upcomingStay.id">{{ $t('CheckIn') }}</span>
+                         <span v-else>{{ $t('CheckingIn...') }}</span> -->
+                      </button>
+                      <div
+                        v-else-if="!customer.blacklisted"
+                        class="mt-3 text-center text-sm text-gray-500 p-2 bg-gray-100 rounded-md"
+                      >
+                        {{ $t('check_in_available') }}
+                        {{ formatDate(customer.upcomingStay.checkInDate) }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Aucun séjour -->
+                  <div
+                    v-if="
+                      (!customer.activeStays || customer.activeStays.length === 0) &&
+                      !customer.upcomingStay
+                    "
+                    class="text-gray-500 text-center p-4"
+                  >
+                    <p>{{ $t('Noactiveorupcomingstay') }}</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             <!-- Barre d'Actions Opérationnelles Directes -->
             <div class="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-200">
               <button
+                v-if="!customer.blacklisted"
                 @click="navigateToBookingPage"
                 class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center space-x-2"
               >
@@ -255,6 +279,7 @@
                 <span>{{ $t('NewBooking') }}</span>
               </button>
               <button
+                v-if="!customer.blacklisted"
                 @click="handlePickupDropoff"
                 class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition flex items-center space-x-2"
               >
@@ -438,7 +463,6 @@
               </div>
             </div>
 
-
             <!-- Calendar Tab -->
             <div v-if="activeTab === 'calendar'" class="bg-white rounded-xl border border-gray-200">
               <BaseCalendar
@@ -460,7 +484,7 @@
                       <div>
                         <strong>{{ day.events[0].reservation.roomNumber }}</strong>
                       </div>
-                      <div class="opacity-75">{{ $t('InProgress') }}</div>
+                      <div class="opacity-75">{{ $t('inprogress') }}</div>
                     </div>
 
                     <!-- Affichage pour un séjour À VENIR -->
@@ -498,6 +522,9 @@
         </div>
 
         <OverLoading v-if="isLoading" />
+      </div>
+      <div v-else class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
 
       <!-- Modals -->
@@ -570,6 +597,10 @@ import AuditLogsTable from '@/components/tables/AuditLogsTable.vue'
 import { useToast } from 'vue-toastification'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { CalendarEvent } from '@/components/calendars/BaseCalendar.vue'
+import { checkInReservation,checkOutReservation } from '@/services/reservation'
+import { useAuthStore } from '@/composables/user'
+import { BedDouble, CalendarClock, CalendarX } from 'lucide-vue-next';
+import Spinner from '@/components/spinner/Spinner.vue'
 
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -581,6 +612,7 @@ const activeTab = ref<string>('details')
 const loading = ref(false)
 const deleting = ref(false)
 const customerToDelete = ref<any>(null)
+const authStore = useAuthStore()
 
 // Modal states
 
@@ -593,6 +625,8 @@ const selectedDate = ref(new Date())
 const showBlacklistModal = ref(false)
 const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
+const isCheckingIn = ref<number | null>(null)
+const isCheckingOut = ref<number | null>(null);
 
 // Enhanced tabs with audit log
 const tabs = computed(() => [
@@ -735,7 +769,7 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
 
   blacklisting.value = true
   try {
-    const payload =  data.reason || 'Statut mis à jour'
+    const payload = data.reason || 'Statut mis à jour'
 
     await toggleGuestBlacklist(customerToBlacklist.value.id, payload)
 
@@ -819,27 +853,133 @@ const handlePickupDropoff = () => {
   showPickupModal.value = true
 }
 
-const handleCheckIn = () => {
-  // Implement check-in logic
-  console.log('Check-in for guest:', customer.value.id)
-  toast.success(t('toast.checkinSuccess'))
-}
 
-const handleCheckOut = () => {
-  // Implement check-out logic
-  console.log('Check-out for guest:', customer.value.id)
-  toast.success(t('toast.checkoutSuccess'))
-}
+
+const handleCheckIn = async (stay: any) => {
+  if (!stay || !stay.reservationId) {
+    toast.error(t('toast.invalidData'));
+    return;
+  }
+
+  isCheckingIn.value = stay.id;
+
+  try {
+    const fullReservation = customer.value.reservations.find(
+      (r: any) => r.id === stay.reservationId
+    );
+
+    if (!fullReservation || !fullReservation.reservationRooms || fullReservation.reservationRooms.length === 0) {
+      toast.error(t('toast.noRoomsFound'));
+      isCheckingIn.value = null;
+      return;
+    }
+
+    const reservationRoomIds = fullReservation.reservationRooms.map((room: any) => room.id);
+
+    const checkInData = {
+      reservationRooms: reservationRoomIds,
+      // notes: `Check-in effectué depuis la page de détails du client.`,
+    };
+
+    console.log("Envoi du payload de check-in:", checkInData);
+
+    await checkInReservation(fullReservation.id, checkInData);
+
+    toast.success(t('toast.checkInSuccess'));
+    await getCustomerProfileDetails();
+
+  } catch (error) {
+    console.error('Erreur lors du check-in:', error);
+    toast.error(t('toast.checkInError'));
+  } finally {
+    isCheckingIn.value = null;
+  }
+};
+
+
+
+// check-out handler
+
+const handleCheckOut = async (stay: any) => {
+  if (!stay || !stay.reservationId) {
+    toast.error(t('toast.InvalidReservationForCheckout'));
+    return;
+  }
+  isCheckingOut.value = stay.id;
+
+  try {
+
+    const fullReservation = customer.value.reservations.find(
+      (r: any) => r.id === stay.reservationId
+    );
+    if (!fullReservation) {
+      toast.error(t('toast.noReservationFound'));
+      isCheckingOut.value = null;
+      return;
+    }
+
+    const reservationRoomIds = fullReservation.reservationRooms
+      .filter((room: any) => room.status === 'checked_in')
+      .map((room: any) => room.id);
+
+    if (reservationRoomIds.length === 0) {
+       toast.info(t('toast.noRoomsCurrently'));
+       isCheckingOut.value = null;
+       return;
+    }
+
+    const checkOutData = {
+      reservationRooms: reservationRoomIds,
+      // notes: `Check-out effectué depuis la page de détails du client.`,
+
+    };
+
+    console.log("Envoi du payload de check-out:", checkOutData);
+
+    const response = await checkOutReservation(fullReservation.id, checkOutData);
+
+    if (response) {
+      toast.success(t('toast.checkOutSuccess'));
+      await getCustomerProfileDetails();
+    }
+
+  } catch (error: any) {
+    console.error('Erreur détaillée lors du check-out:', error.response);
+
+    // Extrait le message d'erreur du backend s'il existe
+    const mainMessage = error.response?.data?.message || t('toast.checkOutError');
+    const errorDetails = error.response?.data?.errors?.join(', ') || '';
+
+    toast.error(`${mainMessage} ${errorDetails ? `(${errorDetails})` : ''}`);
+
+  } finally {
+    isCheckingOut.value = null;
+  }
+};
 
 const handleReservationCheckIn = (reservation: any) => {
-  // Handle check-in for specific reservation
+
   console.log('Check-in for reservation:', reservation.id)
+
+  const stayObject = {
+    id: reservation.id,
+    reservationId: reservation.id
+  };
+
+  handleCheckIn(stayObject);
 }
 
 const handleReservationCheckOut = (reservation: any) => {
-  // Handle check-out for specific reservation
-  console.log('Check-out for reservation:', reservation.id)
+
+  console.log('Lancement du check-out pour la réservation depuis le tableau:', reservation.id);
+  const stayObject = {
+    id: reservation.id,
+    reservationId: reservation.id
+  };
+
+  handleCheckOut(stayObject);
 }
+
 
 const handleViewReservationDetails = (reservation: any) => {
   // Navigate to reservation details
@@ -926,6 +1066,17 @@ const handlePrintReceipt = (payment: any) => {
   console.log('Imprimer le reçu pour le paiement:', payment.id)
 }
 
+const canCheckInToday = (reservation: any): boolean => {
+  if (!reservation || !reservation.checkInDate) {
+    return false
+  }
+
+  const now = new Date()
+  const checkInDate = new Date(reservation.checkInDate)
+
+  return now.toDateString() === checkInDate.toDateString()
+}
+
 // Lifecycle
 onMounted(() => {
   getCustomerProfileDetails()
@@ -956,5 +1107,14 @@ onMounted(() => {
 
 .status-badge {
   animation: pulse 2s infinite;
+}
+
+.sidebar-scroll {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 </style>

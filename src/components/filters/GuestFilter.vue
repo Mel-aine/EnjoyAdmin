@@ -1,15 +1,15 @@
 <template>
   <div class="flex justify-end">
-    <BasicButton @click="showFilter = true" variant="secondary" :icon="Filter" :label="$t('filters.title')" />
+    <BasicButton @click="showFilter = true" variant="secondary" :icon="Filter" :label="$t('reservationsList.filterSectionTitle')" />
   </div>
 
-  <RightSideModal :is-open="showFilter" :title="$t('filters.title')" @close="showFilter = false">
+  <RightSideModal :is-open="showFilter" :title="$t('filtersGuest.title')" @close="showFilter = false">
     <div class="p-4 space-y-6">
       <!-- Search by Name/Email/Phone (texte libre) -->
       <div>
         <Input
-          :lb="$t('filters.searchLabel')"
-          :placeholder="$t('filters.searchPlaceholder')"
+          :lb="$t('filtersGuest.searchLabel')"
+          :placeholder="$t('filtersGuest.searchPlaceholder')"
           v-model="filters.search"
         />
       </div>
@@ -17,7 +17,7 @@
       <!-- Filtre par Statut VIP -->
       <div>
         <Select
-          :lb="$t('filters.vipStatus')"
+          :lb="$t('filtersGuest.vipStatus')"
           v-model="filters.vipStatus"
           :options="vipStatusOptions"
         />
@@ -26,7 +26,7 @@
       <!-- Filtre par Type de Client -->
       <div>
         <Select
-          :lb="$t('filters.guestType')"
+          :lb="$t('filtersGuest.guestType')"
           v-model="filters.guestType"
           :options="guestTypeOptions"
         />
@@ -35,15 +35,15 @@
       <!-- Filtre par Nationalité -->
       <div>
         <InputCountries
-          :lb="$t('filters.nationality')"
+          :lb="$t('filtersGuest.nationality')"
           v-model="filters.nationality"
         />
       </div>
 
       <!-- Boutons d'action -->
       <div class="pt-4 border-t flex justify-end gap-3">
-        <BasicButton @click="clearFilters" variant="light" :icon="XCircle" :label="$t('filters.clear')" />
-        <BasicButton @click="applyFilters" variant="primary" :icon="Search" :label="$t('filters.apply')" />
+        <BasicButton @click="clearFilters" variant="light" :icon="XCircle" :label="$t('filtersGuest.clear')" />
+        <BasicButton @click="applyFilters" variant="primary" :icon="Search" :label="$t('filtersGuest.apply')" />
       </div>
     </div>
   </RightSideModal>
@@ -75,7 +75,7 @@ const filters = ref({
 
 // Options pour les selects (vous pouvez les rendre dynamiques si besoin)
 const vipStatusOptions = computed(() => [
-  { label: t('filters.all'), value: '' },
+  { label: t('filtersGuest.all'), value: '' },
   { label: t('vipStatus.bronze'), value: 'bronze' },
   { label: t('vipStatus.silver'), value: 'silver' },
   { label: t('vipStatus.gold'), value: 'gold' },
@@ -85,7 +85,7 @@ const vipStatusOptions = computed(() => [
 ]);
 
 const guestTypeOptions = computed(() => [
-  { label: t('filters.all'), value: '' },
+  { label: t('filtersGuest.all'), value: '' },
   { value: 'travel_agent', label: 'Travel Agent' },
   { value: 'corporate', label: 'Corporate' },
   { value: 'individual', label: 'Individual' }
@@ -93,8 +93,18 @@ const guestTypeOptions = computed(() => [
 
 
 const applyFilters = () => {
-  // On émet un événement avec une copie des filtres
-  emit('filter', { ...filters.value });
+  const apiFilters = {
+    search: filters.value.search,
+    vip_status: filters.value.vipStatus,
+    guest_type: filters.value.guestType,
+    nationality: filters.value.nationality,
+  };
+   Object.keys(apiFilters).forEach(key => {
+    if (!apiFilters[key as keyof typeof apiFilters]) {
+      delete apiFilters[key as keyof typeof apiFilters];
+    }
+  });
+  emit('filter', apiFilters);
   showFilter.value = false;
 };
 

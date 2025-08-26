@@ -371,7 +371,13 @@
     "blacklistError": "Error while blacklisting guest",
     "guestUnblacklistedSuccess": "{name} has been removed from the blacklist successfully",
     "exportSuccessful": "Export completed successfully!",
-    "noDataToExport": "No data available for export."
+    "noDataToExport": "No data available for export.",
+    "invalidData" : "Invalid reservation data for check-in.",
+    "noRoomsFound" : "No rooms found for this reservation.",
+    "noRoomsCurrently" : "No rooms are currently available for check-in for this reservation.",
+    "noReservationFound" : "Reservation not found.",
+    "InvalidReservationForCheckout" : "Invalid reservation data for check-out."
+    
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -5095,7 +5101,7 @@
     "other": "Other"
   },
   "guestType": "Guest Type",
-  "StatutVIP": "Statut VIP",
+  "StatutVIP": "Status VIP",
   "State/Province": "State/Province",
   "postalCode": "Postal Code",
   "RegistrationNo": "Registration No",
@@ -5143,5 +5149,20 @@
   "destinationFolio": "Destination Folio",
   "inHouse": "In house",
   "reservation": "Reservation",
-  "billingContact": "Billing contact"
+  "billingContact": "Billing contact",
+  "filtersGuest": {
+    "title": "Guest Filters",
+    "searchLabel": "Search by Name, Email, or Phone",
+    "vipStatus": "VIP Status",
+    "guestType": "Guest Type",
+    "nationality": "Nationality",
+    "clear": "Clear Filters",
+    "apply": "Apply Filters",
+    "searchPlaceholder": "Enter name, email, or phone...",
+    "all": "All"
+  },
+  "check_in_available": "Check-in available on",
+  "CheckingIn...": "Checking in...",
+  "CheckOut..." : "Check Out...",
+  "GuestPreferences" : "Guest Preferences"
 }

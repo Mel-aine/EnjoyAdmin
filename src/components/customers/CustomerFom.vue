@@ -230,7 +230,19 @@
         {{ $t('OtherInformation') }}
       </h3>
       <div v-if="sections.otherInformation" class="mt-6 pt-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          {{ $t('Preference') }}
+        </label>
+        <MultipleSelect
+         v-model="form.preferences"
+          :options="Preferences"
+          :placeholder="$t('SelectRooms')"
+
+        />
+      </div>
+
+        <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <Input
               v-model="form.preferences.floor"
@@ -239,7 +251,7 @@
             />
           </div>
 
-          <!-- Préférence de vue -->
+
           <div>
             <Input
               v-model="form.preferences.view"
@@ -248,7 +260,7 @@
             />
           </div>
 
-          <!-- Type de lit -->
+
           <div>
             <Input
               v-model="form.preferences.bed_type"
@@ -256,10 +268,10 @@
               :placeholder="$t('preferences.bed_type.placeholder')"
             />
           </div>
-        </div>
+        </div> -->
 
-        <!-- Notes (prend toute la largeur) -->
-        <div class="mt-4">
+
+        <!-- <div class="mt-4">
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
             {{ $t('preferences.notes.label') }}
           </label>
@@ -269,7 +281,7 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 resize-vertical"
             :placeholder="$t('preferences.notes.placeholder')"
           ></textarea>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -305,6 +317,9 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import { getIdentityTypesByHotelId } from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
+import {getPreferencesByHotelId} from '@/services/configrationApi'
+import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
+
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -339,12 +354,7 @@ interface CustomerForm {
   issuingCountry: string
   issuingCity: string
   dateOfBirth: string
-  preferences: {
-    floor: string
-    view: string
-    bed_type: string
-    notes: string
-  }
+  preferences: string[]
 }
 
 interface SelectOption {
@@ -389,6 +399,7 @@ const cloudinaryConfig = {
 const isUploading = ref(false)
 const globalError = ref('')
 const pendingImages = ref<string[]>([])
+const Preferences = ref<SelectOption[]>([])
 
 // CustomerFom.vue
 
@@ -419,12 +430,7 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   issuingCountry: '',
   issuingCity: '',
   dateOfBirth: '',
-  preferences: {
-    floor: '',
-    view: '',
-    bed_type: '',
-    notes: '',
-  },
+   preferences: []
 })
 
 const sections = reactive<Sections>({
@@ -574,7 +580,8 @@ const handleSubmit = async () => {
       ...identityData,
       profilePhoto: profilePhotoUrl,
       idPhoto: idPhotoUrl,
-      preferences: JSON.stringify(preferences),
+      preferences: JSON.stringify(form.preferences),
+
     }
 
     console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
@@ -591,23 +598,32 @@ const handleSubmit = async () => {
 const populateForm = (data: Partial<CustomerForm>) => {
   Object.assign(form, data)
 
-  if (data.preferences) {
-    try {
-      const prefs =
-        typeof data.preferences === 'string' ? JSON.parse(data.preferences) : data.preferences
+    let finalPreferences: string[] = []
 
-      form.preferences = {
-        floor: prefs.floor || '',
-        view: prefs.view || '',
-        bed_type: prefs.bed_type || '',
-        notes: prefs.notes || '',
-      }
-    } catch (e) {
-      console.error('Erreur de parsing des préférences JSON dans populateForm:', e)
-      Object.assign(form.preferences, getEmptyCustomerForm().preferences)
+  if (data.preferences) {
+
+    if (Array.isArray(data.preferences)) {
+      finalPreferences = data.preferences
     }
+
+    else if (typeof data.preferences === 'string') {
+      try {
+        const parsed = JSON.parse(data.preferences)
+
+        if (Array.isArray(parsed)) {
+          finalPreferences = parsed
+        }
+
+      } catch (e) {
+        console.error('Erreur de parsing des préférences JSON dans populateForm:', e)
+
+      }
+    }
+
   }
+  form.preferences = finalPreferences
 }
+
 
 const resetForm = () => {
   Object.assign(form, getEmptyCustomerForm())
@@ -703,13 +719,26 @@ watch(
 
 onMounted(() => {
   fetchIdentityTypes()
+  loadPreferences()
 })
 
 defineExpose({
   resetForm,
   populateForm,
 })
+const loadPreferences = async () => {
+  try {
+    const hotelId = serviceStore.serviceId
+    const response = await getPreferencesByHotelId(hotelId!)
+    Preferences.value = response.data.data.data.map((i:any)=>({
+      label:i.name,
+      value:i.id
+    }))
+  } catch (error) {
+    console.error('Error loading preferences:', error)
 
+  }
+}
 const saveButtonLabel = computed(() => {
   return props.isEditMode ? t('SaveChanges') : t('Save')
 })

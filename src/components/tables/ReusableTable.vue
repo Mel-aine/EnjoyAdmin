@@ -142,7 +142,7 @@
                   <!-- Dropdown Actions -->
                   <div class="relative" v-if="getItemActions(item).length > 0">
                     <button
-                      @click="toggleDropdown(index)"
+                      @click="toggleDropdown(index, $event)"
                       class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       :title="'More options'"
                     >
@@ -154,7 +154,9 @@
                   <!-- Dropdown Menu -->
                   <div
                     v-if="openDropdown === index"
-                    class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
+                    ref="dropdownMenu"
+                    :class="{ 'dropdown-up': dropdownDirection === 'up' }"
+                    class="absolute right-0  w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
                     @click.stop
                   >
                     <div class="py-1">
@@ -197,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted,nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
 import InputCheckBox from '../forms/FormElements/InputCheckBox.vue'
@@ -250,8 +252,10 @@ const searchQuery = ref(props.modelValue)
 const selectedItems = ref<any[]>([])
 const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)
+const dropdownDirection = ref<'up' | 'down'>('down')
 
 const hasActions = computed(() => props.actions.length > 0)
+
 
 const filteredData = computed(() => {
   if (!searchQuery.value || !props.searchable) return props.data
@@ -315,8 +319,42 @@ const toggleSelectAll = () => {
   }
 }
 
-const toggleDropdown = (index: number) => {
-  openDropdown.value = openDropdown.value === index ? null : index
+// const toggleDropdown = (index: number) => {
+//   openDropdown.value = openDropdown.value === index ? null : index
+// }
+
+
+
+const toggleDropdown = async (index: number, event: MouseEvent) => {
+  if (openDropdown.value === index) {
+    openDropdown.value = null
+    return
+  }
+
+  // Réinitialiser la direction avant d'ouvrir
+  dropdownDirection.value = 'down'
+  openDropdown.value = index
+
+  await nextTick()
+
+  const triggerButton = event.currentTarget as HTMLElement
+  const menu = triggerButton.nextElementSibling as HTMLElement
+
+  if (!menu) {
+    console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
+    return;
+  }
+
+  const menuRect = menu.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+
+  console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
+
+  // Vérification de la position
+  if (menuRect.bottom > viewportHeight - 150) {
+    console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
+    dropdownDirection.value = 'up'
+  }
 }
 
 const handleAction = (action: Action, item: any) => {
@@ -401,4 +439,10 @@ onUnmounted(() => {
 
 <style scoped>
 /* Additional custom styles if needed */
+.dropdown-up {
+  bottom: 100%;
+  top: auto;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
 </style>

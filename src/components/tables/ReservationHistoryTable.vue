@@ -87,10 +87,10 @@ const tableColumns = computed(() => [
 ]);
 
 const tableActions = computed(() => [
-  { label: t('View'), variant: 'primary' as const, action: 'view-details' ,icon: Eye },
-  { label: t('Check In'), variant: 'secondary' as const, action: 'check-in', condition: (item: any) => item.status === 'confirmed' ,icon:CircleCheck  },
-  { label: t('Check Out'), variant: 'secondary' as const, action: 'check-out', condition: (item: any) => item.status === 'checked_in' ,icon:LogOut },
-  { label: t('Delete'), variant: 'danger' as const, action: 'delete'  ,icon: Trash2},
+  { label: t('View'), variant: 'primary' as const, handler: (item: any) => emit('view-details', item)  ,icon: Eye },
+  { label: t('Check In'), variant: 'secondary' as const, handler: (item: any) => emit('check-in', item) , condition: (item: any) => item.status === 'confirmed' && canCheckInToday(item) ,icon:CircleCheck  },
+  { label: t('Check Out'), variant: 'secondary' as const,  handler: (item: any) => emit('check-out', item) , condition: (item: any) => item.status === 'checked_in' ,icon:LogOut },
+  // { label: t('Delete'), variant: 'danger' as const, action: 'delete'  ,icon: Trash2},
 ]);
 
 // --- LOGIQUE ---
@@ -136,4 +136,15 @@ const getPaymentStatusClass = (status: string): string => {
   };
   return map[status as keyof typeof map] || 'bg-gray-100 text-gray-800';
 };
+
+const canCheckInToday = (reservation: any): boolean => {
+  if (!reservation || !reservation.checkInDate) {
+    return false
+  }
+
+  const now = new Date()
+  const checkInDate = new Date(reservation.checkInDate)
+
+  return now.toDateString() === checkInDate.toDateString()
+}
 </script>
