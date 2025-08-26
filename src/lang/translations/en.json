@@ -4692,7 +4692,7 @@
   "created_by": "Created By",
   "modified_by": "Modified By",
   "Room/Room types": "Room/Room types",
-  "res.no": "res.no",
+  "res.no": "Res.No",
   "roomFolios": "Room/Folios",
   "showAllTransactions": "Show All Transactions",
   "addPayment": "Add Payment",
@@ -5001,6 +5001,16 @@
   "Applying..." : "Applying...",
   "set_to_clean" : "Set to Clean",
   "select_housekeeper" : "Select Housekeeper",
-  "noRoomFound" : "No room found"
+  "noRoomFound" : "No room found",
+  "send_email":"Send Email",
+  "cashiering_center":"Cashiering Center",
+  "cashiering_searchPlaceholder":"Quick Search by Folio No./Voucher No...",
+  "new_payment":"New Payment",
+  "selectFolio": "Select Folio",
+  "sourceFolio": "Source Folio",
+  "destinationFolio": "Destination Folio",
+  "inHouse":"In house",
+  "reservation":"Reservation",
+  "billingContact":"Billing contact"
 
 }

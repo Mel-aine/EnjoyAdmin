@@ -1,215 +1,122 @@
 <template>
-    <AdminLayout>    <div class="p-6">
-        <div class="mb-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('cashiering.center') }}</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">{{ $t('cashiering.centerDescription') }}</p>
-            </div>
-            <div class="flex space-x-2">
-                <ButtonDropdown 
-                    :options="[
-                        { id: 'new-payment', label: $t('cashiering.addPayment'), icon: 'PlusIcon' }
-                    ]"
-                    buttonText="{{ $t('cashiering.addPayment') }}"
-                    buttonClass="bg-blue-600 text-white hover:bg-blue-700"
-                    @option-selected="openNewPaymentModal"
-                />
-                <ButtonDropdown 
-                    :options="[
-                        { id: 'export', label: $t('common.export'), icon: 'DownloadIcon' }
-                    ]"
-                    buttonText="{{ $t('common.export') }}"
-                    buttonClass="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    @option-selected="exportData"
-                />
-                <ButtonDropdown 
-                    :options="[
-                        { id: 'email', label: $t('common.sendEmail'), icon: 'MailIcon' }
-                    ]"
-                    buttonText="{{ $t('common.sendEmail') }}"
-                    buttonClass="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    @option-selected="sendEmail"
-                />
-                <ButtonDropdown 
-                    :options="[
-                        { id: 'print', label: $t('common.print'), icon: 'PrinterIcon' }
-                    ]"
-                    buttonText="{{ $t('common.print') }}"
-                    buttonClass="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    @option-selected="printData"
-                />
-            </div>
-        </div>
+    <AdminLayout>
+        <div class=" bg-white shadow-sm">
+            <div class="mb-0 p-3 flex justify-between items-center border-b border-gray-200">
+                <div class="flex gap-5 align-middle items-center  dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('cashiering_center') }}</h2>
+                    <Input v-model="searchQuery" :placeholder="$t('cashiering_searchPlaceholder', '')" />
+                </div>
+                <div class="flex space-x-2">
 
-        <!-- Quick Search -->
-        <div class="mb-4">
-            <SearchBar 
-                v-model="searchQuery" 
-                :placeholder="$t('cashiering.searchPlaceholder', 'Quick Search by Folio No./Voucher No...')" 
-                @search="handleSearchChange"
-            />
-        </div>
+                    <BasicButton :icon="PlusIcon" :label="$t('new_payment')" @click="openNewPaymentModal"/>
+                    <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" />
+                    <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />
+                    <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
 
-        <!-- Main Content -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <!-- City Ledger Selection -->
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-                <div class="mr-4">
-                    <Select
-                        lb="City Ledger"
-                        v-model="selectedCityLedger"
-                        :options="[
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                <!-- City Ledger Selection -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                    <div class="mr-4 w-52">
+                        <Select lb="City Ledger" class="" v-model="selectedCityLedger" :options="[
                             { label: 'AGODA TRAVELERS', value: 'AGODA TRAVELERS' },
                             { label: 'Other ledgers...', value: 'other' }
-                        ]"
-                    />
-                </div>
-                <div class="mr-4">
-                    <InputDoubleDatePicker
-                        lb="Posting Date"
-                        v-model:startDate="filters.startDate"
-                        v-model:endDate="filters.endDate"
-                    />
-                </div>
-                <div class="mr-4">
-                    <InputDatePicker
-                        lb="Departure Date"
-                        v-model="departureDate"
-                    />
-                </div>
-                <div class="flex items-end">
-                    <div class="flex items-center h-10">
-                        <CheckboxInput
-                            id="pending-ledger"
-                            v-model="showPendingLedger"
-                            label="Pending Ledger Commission"
-                        />
+                        ]" />
                     </div>
-                </div>
-                <div class="ml-4 flex items-end">
-                    <div class="flex items-center h-10">
-                        <CheckboxInput
-                            id="display-void"
-                            v-model="displayVoid"
-                            label="Display Void"
-                        />
+                    <div class="flex flex-col gap-2">
+                        <div>
+                            <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
+                                { label: 'Posting date', value: 'posting' },
+                                { label: 'Departure date', value: 'departure' },
+                            ]" />
+
+                        </div>
+                        <div class="mr-4">
+                            <InputDoubleDatePicker lb="Posting Date" v-model:startDate="filters.startDate"
+                                v-model:endDate="filters.endDate" />
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Summary Stats -->
-            <div class="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 dark:border-gray-700 text-center">
-                <DefaultCard class="bg-blue-50 dark:bg-blue-900/20">
-                    <template #header>
-                        <p class="text-sm font-medium text-blue-800 dark:text-blue-300">{{ $t('cashiering.cityLedgerTotal', 'City Ledger Total') }}</p>
-                    </template>
-                    <template #default>
-                        <p class="text-xl font-bold text-blue-900 dark:text-blue-200">{{ formatCurrency(66931.00) }}</p>
-                    </template>
-                </DefaultCard>
-                <DefaultCard class="bg-yellow-50 dark:bg-yellow-900/20">
-                    <template #header>
-                        <p class="text-sm font-medium text-yellow-800 dark:text-yellow-300">{{ $t('cashiering.unpaidInvoice', 'Unpaid Invoice') }}</p>
-                    </template>
-                    <template #default>
-                        <p class="text-xl font-bold text-yellow-900 dark:text-yellow-200">{{ formatCurrency(16920.00) }}</p>
-                    </template>
-                </DefaultCard>
-                <DefaultCard class="bg-green-50 dark:bg-green-900/20">
-                    <template #header>
-                        <p class="text-sm font-medium text-green-800 dark:text-green-300">{{ $t('cashiering.unassignedPayments', 'Unassigned Payments') }}</p>
-                    </template>
-                    <template #default>
-                        <p class="text-xl font-bold text-green-900 dark:text-green-200">{{ formatCurrency(50011.00) }}</p>
-                    </template>
-                </DefaultCard>
-                <DefaultCard class="bg-purple-50 dark:bg-purple-900/20">
-                    <template #header>
-                        <p class="text-sm font-medium text-purple-800 dark:text-purple-300">{{ $t('cashiering.assignedPayments', 'Assigned Payments') }}</p>
-                    </template>
-                    <template #default>
-                        <p class="text-xl font-bold text-purple-900 dark:text-purple-200">{{ formatCurrency(0) }}</p>
-                    </template>
-                </DefaultCard>
-            </div>
-
-            <!-- Opening Balance -->
-            <div class="flex justify-end p-4 border-b border-gray-200 dark:border-gray-700">
-                <DefaultCard class="text-right">
-                    <template #header>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('cashiering.openingBalance', 'Opening Balance:') }}</p>
-                    </template>
-                    <template #default>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(0.00) }}</p>
-                    </template>
-                </DefaultCard>
-            </div>
-
-            <!-- Table Content -->
-            <ReusableTable  :columns="columns" :data="filteredData" :actions="actions" :loading="loading"
-                :selectable="true" @selection-change="handleSelectionChange" @action="handleTableAction">
-                <!-- Custom cell for Description column -->
-                <template #cell-description="{ item }">
-                    <div>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ item.description }}</span>
-                        <p v-if="item.details" class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ item.details }}
-                        </p>
+                    <div class="flex justify-between flex-col gap-6">
+                        <InputCheckBox label="Pending Ledger Commission" id="pending" />
+                        <InputCheckBox label="Display Void" id="display-void" />
                     </div>
-                </template>
-
-                <!-- Custom cell for Credit column -->
-                <template #cell-credit="{ item }">
-                    <span class="text-sm"
-                        :class="item.credit > 0 ? 'font-medium text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'">{{
-                        formatCurrency(item.credit) }}</span>
-                </template>
-
-                <!-- Custom cell for Debit column -->
-                <template #cell-debit="{ item }">
-                    <span class="text-sm"
-                        :class="item.debit > 0 ? 'font-medium text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'">{{
-                        formatCurrency(item.debit) }}</span>
-                </template>
-
-                <!-- Custom cell for Balance column -->
-                <template #cell-balance="{ item }">
-                    <span class="text-sm font-medium"
-                        :class="item.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">{{
-                        formatCurrency(item.balance) }}</span>
-                </template>
-                <!-- The old table has been replaced with ReusableTable component above -->
-                <!-- The old table has been completely replaced with ReusableTable component above -->
-
-                <!-- Payment Entry Button -->
-                <div class="p-4 flex justify-center space-x-2">
-                    <ButtonDropdown
-                        :options="[{ id: 'payment-entry', label: $t('cashiering.paymentEntry', 'Payment entry'), icon: 'CashIcon' }]"
-                        buttonText="{{ $t('cashiering.paymentEntry', 'Payment entry') }}"
-                        buttonClass="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                        @option-selected="openPaymentEntryModal"
-                    />
-                    <ButtonDropdown
-                        :options="[{ id: 'reset', label: $t('common.reset'), icon: 'RefreshIcon' }]"
-                        buttonText="{{ $t('common.reset') }}"
-                        buttonClass="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                        @option-selected="resetFilters"
-                    />
+                   
                 </div>
-            </ReusableTable>
+                 <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
+                        <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full ">
+                            <span>0</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('City Ledger Total') }}</span>
+                        </div>
+                        <div class="flex flex-col  gap-2 items-center justify-start align-top ">
+                            <span>0</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unpaid Invoice') }}</span>
+                        </div>
+                        <div class="flex flex-col  gap-2 items-center justify-start align-top ">
+                            <span>0</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unassigned Payments') }}</span>
+                        </div>
+                        <div class="flex flex-col  gap-2 items-center justify-start align-top ">
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">0</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Assigned Payments') }}</span>
+                        </div>
+                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Opening Balance') }}</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ 0 }}</span>
+                        </div>
+
+                    </div>
+                    </div>
+
+              
+                <!-- Table Content -->
+                <ReusableTable :columns="columns" :data="filteredData" :actions="actions" :loading="loading" :searchable="false" :show-header="false"
+                    :selectable="true" @selection-change="handleSelectionChange">
+                    <!-- Custom cell for Description column -->
+                    <template #column-description="{ item }">
+                        <div>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ item.description
+                            }}</span>
+                            <p v-if="item.details" class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{
+                                item.details
+                            }}
+                            </p>
+                        </div>
+                    </template>
+
+                    <!-- Custom cell for Credit column -->
+                    <template #column-credit="{ item }">
+                        <span class="text-sm"
+                            :class="item.credit > 0 ? 'font-medium text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'">{{
+                                formatCurrency(item.credit) }}</span>
+                    </template>
+
+                    <!-- Custom cell for Debit column -->
+                    <template #column-debit="{ item }">
+                        <span class="text-sm"
+                            :class="item.debit > 0 ? 'font-medium text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'">{{
+                                formatCurrency(item.debit) }}</span>
+                    </template>
+
+                    <!-- Custom cell for Balance column -->
+                    <template #column-balance="{ item }">
+                        <span class="text-sm font-medium"
+                            :class="item.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">{{
+                                formatCurrency(item.balance) }}</span>
+                    </template>
+                </ReusableTable>
+            </div>
         </div>
-    </div>
-    <!-- Closing Balance -->
-    <div class="mt-6 flex justify-end">
-        <DefaultCard class="text-right">
-            <template #header>
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('cashiering.closingBalance', 'Closing Balance:') }}</p>
-            </template>
-            <template #default>
-                <p class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(closingBalance) }}</p>
-            </template>
-        </DefaultCard>
-    </div>
-</AdminLayout>
+                    <SplitFolioModal />
+
+        <template v-if="newPaymentVisible">
+            <NewPaymentCityLedger v-if="newPaymentVisible" @close="newPaymentVisible = false"/>
+        </template>
+    </AdminLayout>
 
 </template>
 
@@ -219,22 +126,26 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
-import ButtonDropdown from '../../components/common/ButtonDropdown.vue'
-import SearchBar from '../../components/common/SearchBar.vue'
-import DefaultCard from '../../components/common/DefaultCard.vue'
+
 import Select from '../../components/forms/FormElements/Select.vue'
-import InputDatePicker from '../../components/forms/FormElements/InputDatePicker.vue'
 import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoubleDatePicker.vue'
-import CheckboxInput from '../../components/forms/FormElements/CheckboxInput.vue'
+import BasicButton from '../../components/buttons/BasicButton.vue'
+import PlusIcon from '../../icons/PlusIcon.vue'
+import { FileDown, Mail, PrinterIcon } from 'lucide-vue-next'
+import Input from '../../components/forms/FormElements/Input.vue'
+import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
+import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
+import NewPaymentCityLedger from './NewPaymentCityLedger.vue'
+import SplitFolioModal from '../../components/reservations/foglio/SplitFolioModal.vue'
 const router = useRouter()
 const { t } = useI18n()
-
+const searchQuery = ref('')
 // State
 const activeTab = ref('pending')
 const loading = ref(false)
 const closingBalance = ref(35000)
 const showFilters = ref(false)
-
+const newPaymentVisible = ref(false)
 // Filters
 const filters = ref({
     startDate: '',
@@ -264,7 +175,7 @@ const transactions = ref([
         id: 1,
         date: '2023-11-01',
         description: 'Receipt for TIN',
-        details: 'Payments received from cityledger_ref1',
+        details: 'Payments received from',
         paymentType: 'cash',
         user: 'helpdesk/support',
         credit: 15.00,
@@ -277,7 +188,7 @@ const transactions = ref([
         id: 2,
         date: '2023-10-31',
         description: 'Receipt for 123456',
-        details: 'Payments received from cityledger_ref1',
+        details: 'Payments received from ',
         paymentType: 'cash',
         user: 'helpdesk/support',
         credit: 4.00,
@@ -289,7 +200,7 @@ const transactions = ref([
     {
         id: 3,
         date: '2023-01-01',
-        description: 'Guest - Emile Simalundu, Room: 8102 #102, 208',
+        description: 'Guest - Emile Simalundu',
         details: null,
         paymentType: 'ADONIS TRAVELS&TOURS',
         user: 'helpdesk/support',
@@ -298,11 +209,11 @@ const transactions = ref([
         assigned: 0.00,
         unassigned: 0.00,
         balance: -12720.00
-  },
+    },
     {
         id: 4,
         date: '2023-01-01',
-        description: 'Guest - Emile Simalundu, Room: 8102 #102',
+        description: 'Guest -',
         details: null,
         paymentType: 'ADONIS TRAVELS&TOURS',
         user: 'helpdesk/support',
@@ -315,7 +226,7 @@ const transactions = ref([
     {
         id: 5,
         date: '2023-01-01',
-        description: 'Payments received from cityledger',
+        description: 'Payments ',
         details: null,
         paymentType: 'cash',
         user: 'helpdesk/support',
@@ -469,7 +380,7 @@ function mapPayment(item) {
 }
 
 function openNewPaymentModal() {
-    router.push('/cashiering/new-payment')
+    newPaymentVisible.value = true
 }
 
 function resetFilters() {
@@ -502,7 +413,7 @@ const formatDate = (dateString) => {
 }
 
 
- 
+
 
 
 

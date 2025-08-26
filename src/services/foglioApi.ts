@@ -107,7 +107,7 @@ const API_URL = `${import.meta.env.VITE_API_URL as string}/folios`
 
 
 const authStore = useAuthStore()
-const headers:any = {
+const headers: any = {
   headers: {
     Authorization: `Bearer ${authStore.token}`,
   },
@@ -146,7 +146,7 @@ export const getFoglioWithParams = async (params: {
 }): Promise<any> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     // Add parameters to query string if they exist
     if (params.page) queryParams.append('page', params.page.toString())
     if (params.limit) queryParams.append('limit', params.limit.toString())
@@ -160,7 +160,7 @@ export const getFoglioWithParams = async (params: {
     if (params.is_overdue !== undefined) queryParams.append('is_overdue', params.is_overdue.toString())
     if (params.date_from) queryParams.append('date_from', params.date_from)
     if (params.date_to) queryParams.append('date_to', params.date_to)
-    
+
     const url = queryParams.toString() ? `${API_URL}?${queryParams.toString()}` : API_URL
     const response: AxiosResponse = await axios.get(url, headers)
     return response.data
@@ -557,7 +557,7 @@ export const getStaffView = async (id: number): Promise<any> => {
 export const searchFolios = async (params: SearchParams): Promise<any> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     if (params.query) queryParams.append('query', params.query)
     if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
     if (params.date_from) queryParams.append('date_from', params.date_from)
@@ -567,7 +567,7 @@ export const searchFolios = async (params: SearchParams): Promise<any> => {
     if (params.has_balance !== undefined) queryParams.append('has_balance', params.has_balance.toString())
     if (params.guest_name) queryParams.append('guest_name', params.guest_name)
     if (params.folio_number) queryParams.append('folio_number', params.folio_number)
-    
+
     const url = `${API_URL}/search?${queryParams.toString()}`
     const response: AxiosResponse = await axios.get(url, headers)
     return response.data
@@ -583,7 +583,7 @@ export const searchFolios = async (params: SearchParams): Promise<any> => {
 export const searchTransactions = async (params: TransactionSearchParams): Promise<any> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     if (params.folio_id) queryParams.append('folio_id', params.folio_id.toString())
     if (params.transaction_type) queryParams.append('transaction_type', params.transaction_type)
     if (params.category) queryParams.append('category', params.category)
@@ -591,7 +591,7 @@ export const searchTransactions = async (params: TransactionSearchParams): Promi
     if (params.date_to) queryParams.append('date_to', params.date_to)
     if (params.amount_min) queryParams.append('amount_min', params.amount_min.toString())
     if (params.amount_max) queryParams.append('amount_max', params.amount_max.toString())
-    
+
     const url = `${API_URL}/transactions/search?${queryParams.toString()}`
     const response: AxiosResponse = await axios.get(url, headers)
     return response.data
@@ -625,12 +625,12 @@ export const getAdvancedStatistics = async (params: {
 }): Promise<any> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
     if (params.date_from) queryParams.append('date_from', params.date_from)
     if (params.date_to) queryParams.append('date_to', params.date_to)
     if (params.group_by) queryParams.append('group_by', params.group_by)
-    
+
     const url = `${API_URL}/statistics-advanced?${queryParams.toString()}`
     const response: AxiosResponse = await axios.get(url, headers)
     return response.data
@@ -678,11 +678,11 @@ export const getStatistics = async (params: {
 }): Promise<any> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
     if (params.date_from) queryParams.append('date_from', params.date_from)
     if (params.date_to) queryParams.append('date_to', params.date_to)
-    
+
     const url = `${API_URL}/statistics?${queryParams.toString()}`
     const response: AxiosResponse = await axios.get(url, headers)
     return response.data
@@ -708,7 +708,7 @@ export const getAllFolioTransactions = async (params: {
 }): Promise<any> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     if (params.page) queryParams.append('page', params.page.toString())
     if (params.limit) queryParams.append('limit', params.limit.toString())
     if (params.folio_id) queryParams.append('folio_id', params.folio_id.toString())
@@ -716,7 +716,7 @@ export const getAllFolioTransactions = async (params: {
     if (params.category) queryParams.append('category', params.category)
     if (params.date_from) queryParams.append('date_from', params.date_from)
     if (params.date_to) queryParams.append('date_to', params.date_to)
-    
+
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
     const url = queryParams.toString() ? `${transactionApiUrl}?${queryParams.toString()}` : transactionApiUrl
     const response: AxiosResponse = await axios.get(url, headers)
@@ -842,7 +842,7 @@ export const printFolioPdf = async (data: {
   currencyId?: number
 }): Promise<any> => {
 
-  headers.responseType='blob'
+  headers.responseType = 'blob'
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print-pdf`, data, headers,)
     return response.data
@@ -855,7 +855,7 @@ export const printConfirmBookingPdf = async (data: {
   reservationId?: number
 }): Promise<any> => {
 
-  headers.responseType='blob'
+  headers.responseType = 'blob'
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_confirm_booking-pdf`, data, headers,)
     return response.data
@@ -868,7 +868,7 @@ export const printHotelPdf = async (data: {
   reservationId?: number
 }): Promise<any> => {
 
-  headers.responseType='blob'
+  headers.responseType = 'blob'
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_hotel-pdf`, data, headers,)
     return response.data
@@ -880,4 +880,36 @@ export const printHotelPdf = async (data: {
 
 
 
+/**
+ * get Foglio with query parameters
+ */
+export const findFolio = async (params: {
+  page?: number
+  limit?: number
+  hotelId?: number
+  searchText?: string
+  inhouse?: boolean
+  reservation?: boolean
+  dateFrom?: string
+  dateTo?: string
+}): Promise<any> => {
+  try {
+    const queryParams = new URLSearchParams()
 
+    // Add parameters to query string if they exist
+    if (params.page) queryParams.append('page', params.page.toString())
+    if (params.limit) queryParams.append('limit', params.limit.toString())
+    if (params.searchText) queryParams.append('searchText', params.searchText.toString())
+    if (params.hotelId) queryParams.append('hotelId', params.hotelId.toString())
+    if (params.inhouse) queryParams.append('inhouse', params.inhouse.toString())
+    if (params.reservation) queryParams.append('reservation', params.reservation.toString())
+    if (params.dateFrom) queryParams.append('dateFrom', params.dateFrom)
+    if (params.dateTo) queryParams.append('dateTo', params.dateTo)
+    const url = queryParams.toString() ? `${API_URL}/comprehensive/search?${queryParams.toString()}` : API_URL
+    const response: AxiosResponse = await axios.get(url, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching foglio with params:', error)
+    throw error
+  }
+}
