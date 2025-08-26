@@ -46,7 +46,7 @@
             <BasicButton :label="$t('addPayment')" @click="openAddPaymentModal" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
             <BasicButton :label="$t('applyDiscount')" />
-            <BasicButton :label="$t('folioOperations')" />
+           <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <!-- More Actions Dropdown -->
             <div class="relative">
@@ -136,6 +136,10 @@
           <CreateFolioModal :reservation-id="reservationId" :is-open="isCreateFolioModalOpen"
             @close="closeCreateFolioModal" @save="handleSaveFolio" :reservation="reservation" />
         </template>
+        <template v-if="isSplitFolioModalOpen">
+          <SplitFolioModal :reservation-id="reservationId" :is-open="isSplitFolioModalOpen"
+            @close="closeSplitFolioModal" @save="handleSaveSplitFolio" />
+        </template>
 
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
@@ -168,6 +172,8 @@ import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
 import { safeParseFloat, prepareFolioAmount } from '../../../utils/numericUtils'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
+import SplitFolioModal from './SplitFolioModal.vue'
+import RefreshIcon from '../../../icons/RefreshIcon.vue'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state
@@ -176,7 +182,16 @@ const isAddPaymentModalOpen = ref(false)
 const isCreateFolioModalOpen = ref(false)
 const isPrintModalOpen = ref(false)
 const selectedMoreAction = ref<any>(null)
-
+const isSplitFolioModalOpen = ref(false)
+const closeSplitFolioModal = () => {
+  alert('emit')
+  console.log('log',isSplitFolioModalOpen)
+  isSplitFolioModalOpen.value = false
+}
+const handleSaveSplitFolio = (folioData: any) => {
+  console.log('Save split folio:', folioData)
+  // Add save logic here
+}
 // More actions dropdown options
 const moreActionOptions = ref([
   { label: t('transferFolio'), id: 'transfer-folio' },
@@ -433,7 +448,7 @@ const handleTransferFolio = () => {
 
 const handleSplitFolio = () => {
   console.log('Split folio action')
-  // TODO: Implement split folio functionality
+  isSplitFolioModalOpen.value = true
 }
 
 const handleMergeFolio = () => {

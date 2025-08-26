@@ -32,7 +32,7 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-x-auto">
+    <div class="overflow-visible">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -47,7 +47,7 @@
             <th
               v-for="column in columns"
               :key="column.key"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300  capitalize tracking-wider"
             >
               {{ getColumnLabel(column) }}
             </th>
@@ -151,35 +151,35 @@
                       </svg>
                     </button>
 
-                    <!-- Dropdown Menu -->
-                    <div
-                      v-if="openDropdown === index"
-                      class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-99 border border-gray-200 dark:border-gray-600"
-                      @click.stop
-                    >
-                      <div class="py-1">
-                        <button
-                          v-for="action in getItemActions(item)"
-                          :key="action.label"
-                          @click="handleAction(action, item)"
-                          :class="[
-                            'block w-full text-left px-4 py-2 text-sm transition-colors',
-                            action.variant === 'danger'
-                              ? 'text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                          ]"
-                        >
-                          <div class="flex items-center gap-2">
-                            <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
-                            {{ action.label }}
-                          </div>
-                        </button>
-                      </div>
+                  <!-- Dropdown Menu -->
+                  <div
+                    v-if="openDropdown === index"
+                    class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
+                    @click.stop
+                  >
+                    <div class="py-1">
+                      <button
+                        v-for="action in getItemActions(item)"
+                        :key="action.label"
+                        @click="handleAction(action, item)"
+                        :class="[
+                          'block w-full text-left px-4 py-2 text-sm transition-colors',
+                          action.variant === 'danger'
+                            ? 'text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                        ]"
+                      >
+                        <div class="flex items-center gap-2">
+                          <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
+                          {{ action.label }}
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
-              </td>
-            </tr>
+              </div>
+            </td>
+          </tr>
           </template>
         </tbody>
       </table>
@@ -200,6 +200,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
+import InputCheckBox from '../forms/FormElements/InputCheckBox.vue'
 
 
 

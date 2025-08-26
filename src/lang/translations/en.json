@@ -366,7 +366,7 @@
     "unassignRoomError": "Failed to unassign room. Please try again.",
     "cancelReservationConfirm": "Are you sure you want to cancel this reservation?",
     "voidReservationConfirm": "Are you sure you want to void this reservation?",
-    "fetchError" : "Error fetching data ❌",
+    "fetchError": "Error fetching data ❌",
     "guestBlacklistedSuccess": "{name} has been blacklisted successfully",
     "blacklistError": "Error while blacklisting guest",
     "guestUnblacklistedSuccess": "{name} has been removed from the blacklist successfully",
@@ -3025,9 +3025,8 @@
       "passportNumber": "Passport Number",
       "idNumber": "ID Number",
       "visaNumber": "Visa Number",
-      "Identification" : "Identification",
+      "Identification": "Identification",
       "nationalID": "National ID"
-
     },
     "contactInfo": {
       "title": "Contact Information",
@@ -4742,7 +4741,7 @@
   "created_by": "Created By",
   "modified_by": "Modified By",
   "Room/Room types": "Room/Room types",
-  "res.no": "res.no",
+  "res.no": "Res.No",
   "roomFolios": "Room/Folios",
   "showAllTransactions": "Show All Transactions",
   "addPayment": "Add Payment",
@@ -4949,7 +4948,7 @@
       "blockedBy": "Blocked By",
       "createdAt": "Created On",
       "reason": "Reason",
-      "status" : "Status"
+      "status": "Status"
     }
   },
   "commons": {
@@ -4989,8 +4988,8 @@
   "errorDeleteBlock": "Error deleting maintenance block",
   "noDataToExport": "No data to export",
   "errorExportingBlocks": "Error exporting blocks",
-  "UpdateBlock" : "Edit Block",
-  "CreateBlock" : "Create Block",
+  "UpdateBlock": "Edit Block",
+  "CreateBlock": "Create Block",
   "PleaseCorrectFormErrors": "Please correct the form errors",
   "BlockUpdatedSuccessfully": "Block updated successfully",
   "ErrorUpdatingBlock": "Error updating block",
@@ -5004,11 +5003,11 @@
   "ConflictError": "Conflict detected",
   "RoomAlreadyBlocked": "The room is already blocked for the selected dates",
   "RoomHasReservation": "Cannot block a room with an active reservation for these dates",
-  "DateRange" : "Date Range",
-  "addRange" : "Add Range",
-  "RemoveRange" : "Remove Range",
-  "selected_period" : "Select a period",
-  "SelectReason" : "Select a Reason",
+  "DateRange": "Date Range",
+  "addRange": "Add Range",
+  "RemoveRange": "Remove Range",
+  "selected_period": "Select a period",
+  "SelectReason": "Select a Reason",
   "net_locks": "Net Locks",
   "ServiceIdRequired": "Service ID is required",
   "PleaseSelectRoomType": "Please select a room type",
@@ -5021,15 +5020,15 @@
   "RoomTypeIsRequired": "Room type is required",
   "HotelIdNotSet": "Hotel ID is not set",
   "ErrorLoadingData": "Error loading data",
-  "Configuration" : "Configuration",
+  "Configuration": "Configuration",
   "house_status_view": "House Status View",
   "bulk_update": "Bulk update successfully",
   "bulk_update_error": "Error updating bulk data",
-  "Applying..." : "Applying...",
-  "set_to_clean" : "Set to Clean",
-  "select_housekeeper" : "Select Housekeeper",
-  "noRoomFound" : "No room found",
-  "AddGuest" : "Add Guest",
+  "Applying...": "Applying...",
+  "set_to_clean": "Set to Clean",
+  "select_housekeeper": "Select Housekeeper",
+  "noRoomFound": "No room found",
+  "AddGuest": "Add Guest",
   "vipStatus": {
     "bronze": "Bronze",
     "silver": "Silver",
@@ -5081,31 +5080,31 @@
   "GuestProfileAuditTrail": "Guest Profile Audit Trail",
   "Noauditlogsavailable": "No audit logs available.",
   "GuestBookingCalendar": "Guest Booking Calendar",
-  "Pass" : "Pass",
+  "Pass": "Pass",
   "CurrentStay": "Current Stay",
   "UpcomingStay": "Upcoming Stay",
-  "PastStay" : "Past Stay",
+  "PastStay": "Past Stay",
   "guestDatabase.delete_title": "Delete Guest",
   "guestDatabase.delete_confirm_message": "Are you sure you want to delete {name}? This action cannot be undone.",
-  "Noactiveorupcomingstay" : "No active or upcoming stay",
-  "GuestTypes" : {
+  "Noactiveorupcomingstay": "No active or upcoming stay",
+  "GuestTypes": {
     "individual": "Individual",
     "corporate": "Corporate",
     "travel_agent": "Travel Agent",
     "group": "Group",
     "other": "Other"
   },
-  "guestType" : "Guest Type",
-  "StatutVIP" : "Statut VIP",
-  "State/Province" : "State/Province",
-  "postalCode" : "Postal Code",
-  "RegistrationNo" : "Registration No",
-  "IdentityInformation" : "Identity Information",
-  "IDType" : "ID Type",
-  "ExpiryDate" : "Expiry Date",
-  "Countryofissue" : "Country of issue",
-  "Cityofissue" : "City of issue",
-  "OtherInformation" : "Other Information",
+  "guestType": "Guest Type",
+  "StatutVIP": "Statut VIP",
+  "State/Province": "State/Province",
+  "postalCode": "Postal Code",
+  "RegistrationNo": "Registration No",
+  "IdentityInformation": "Identity Information",
+  "IDType": "ID Type",
+  "ExpiryDate": "Expiry Date",
+  "Countryofissue": "Country of issue",
+  "Cityofissue": "City of issue",
+  "OtherInformation": "Other Information",
   "preferences": {
     "floor": {
       "label": "Floor preference",
@@ -5131,14 +5130,18 @@
   },
   "uploadInProgress": "Upload in progress...",
   "upto": "up to",
-  "uploaded" : "Uploaded",
+  "uploaded": "Uploaded",
   "upload": {
     "drop_file": "Drop the file",
     "select_file": "Select a file"
-  }
-
-
-
-
-
+  },
+  "send_email": "Send Email",
+  "cashiering_searchPlaceholder": "Quick Search by Folio No./Voucher No...",
+  "new_payment": "New Payment",
+  "selectFolio": "Select Folio",
+  "sourceFolio": "Source Folio",
+  "destinationFolio": "Destination Folio",
+  "inHouse": "In house",
+  "reservation": "Reservation",
+  "billingContact": "Billing contact"
 }
