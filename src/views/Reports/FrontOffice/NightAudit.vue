@@ -1,355 +1,372 @@
 <template>
   <ReportsLayout>
     <div class="p-6">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        {{ $t('reports.frontOffice.nightAudit') }}
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400">
-        {{ $t('reports.frontOffice.nightAuditDescription') }}
-      </p>
-    </div>
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          {{ t('reports.frontOffice.guestCheckedIn') }}
+        </h1>
+      </div>
 
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('common.filters') }}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.auditDate') }}
-          </label>
-          <input
-            v-model="filters.auditDate"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.shift') }}
-          </label>
-          <select
-            v-model="filters.shift"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="night">{{ $t('common.nightShift') }}</option>
-            <option value="day">{{ $t('common.dayShift') }}</option>
-            <option value="evening">{{ $t('common.eveningShift') }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {{ $t('common.auditor') }}
-          </label>
-          <select
-            v-model="filters.auditor"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="john_doe">John Doe</option>
-            <option value="jane_smith">Jane Smith</option>
-          </select>
-        </div>
-      </div>
-      <div class="mt-4 flex gap-2">
-        <button
-          @click="loadNightAudit"
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          {{ $t('common.search') }}
-        </button>
-        <button
-          @click="exportReport"
-          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-        >
-          {{ $t('common.export') }}
-        </button>
-        <button
-          @click="runAudit"
-          class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-        >
-          {{ $t('reports.frontOffice.runAudit') }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.frontOffice.totalRevenue') }}</h3>
-        <p class="text-2xl font-bold text-green-600">${{ summary.totalRevenue.toFixed(2) }}</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.frontOffice.roomRevenue') }}</h3>
-        <p class="text-2xl font-bold text-blue-600">${{ summary.roomRevenue.toFixed(2) }}</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.frontOffice.occupancyRate') }}</h3>
-        <p class="text-2xl font-bold text-purple-600">{{ summary.occupancyRate }}%</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('reports.frontOffice.averageADR') }}</h3>
-        <p class="text-2xl font-bold text-orange-600">${{ summary.averageADR.toFixed(2) }}</p>
-      </div>
-    </div>
-
-    <!-- Revenue Breakdown -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <!-- Filters -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ $t('reports.frontOffice.revenueBreakdown') }}
+          Filters
         </h2>
-        <div class="space-y-3">
-          <div v-for="item in revenueBreakdown" :key="item.category" class="flex justify-between items-center">
-            <span class="text-gray-600 dark:text-gray-400">{{ $t(`revenue.${item.category}`) }}</span>
-            <span class="font-semibold text-gray-900 dark:text-white">${{ item.amount.toFixed(2) }}</span>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Date From -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Date
+            </label>
+            <InputDatepicker 
+              v-model="filters.arrivalFrom" 
+              :placeholder="t('common.from')"
+              class="w-full"
+            />
+          </div>
+          <!-- Currency -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Currency
+            </label>
+            <SelectComponent 
+              v-model="filters.currency"
+              :options="currencyOptions"
+              :placeholder="'Rs'"
+              class="w-full"
+            />
+          </div>
+          <!-- Buttons -->
+          <div class="flex items-end justify-end">
+            <div class="flex gap-2">
+              <ButtonComponent 
+                @click="exportData"
+                variant="secondary"
+                class="px-6 py-2"
+              >
+                Export
+              </ButtonComponent>
+              
+              <ButtonComponent 
+                @click="generateReport"
+                variant="primary"
+                class="px-6 py-2"
+              >
+                Report
+              </ButtonComponent>
+              
+              <ButtonComponent 
+                @click="resetForm"
+                variant="outline"
+                class="px-6 py-2"
+              >
+                Reset
+              </ButtonComponent>
+            </div>
           </div>
         </div>
       </div>
-      
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ $t('reports.frontOffice.operationalSummary') }}
-        </h2>
-        <div class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.checkIns') }}</span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ operationalSummary.checkIns }}</span>
+
+      <!-- Results Section -->
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <!-- Report Header -->
+        <div class="px-6 py-3 bg-blue-600 text-white">
+          <div class="text-sm">
+            As On Date: {{ filters.arrivalFrom }} Currency: {{ filters.currency }}
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.checkOuts') }}</span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ operationalSummary.checkOuts }}</span>
+        </div>
+
+        <!-- Room Charges Section -->
+        <div class="px-6 py-4">
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Room Charges</h3>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Room</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Folio No.</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Guest</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Source</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Company</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Rent Date</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Rate Type</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Ntml. Tariff (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Offd. Tariff (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Total Tax (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Total Rent (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Var %</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Checkin By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="text-xs">
+                  <td class="border border-gray-300 p-2">201 - GR</td>
+                  <td class="border border-gray-300 p-2">FN1948</td>
+                  <td class="border border-gray-300 p-2">Group Test test 2</td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2">COMPANY TEST</td>
+                  <td class="border border-gray-300 p-2">27/04/2019</td>
+                  <td class="border border-gray-300 p-2">European Plan 01</td>
+                  <td class="border border-gray-300 p-2 text-right">90.91</td>
+                  <td class="border border-gray-300 p-2 text-right">363.64</td>
+                  <td class="border border-gray-300 p-2 text-right">36.36</td>
+                  <td class="border border-gray-300 p-2 text-right">400.00</td>
+                  <td class="border border-gray-300 p-2 text-right">300.00</td>
+                  <td class="border border-gray-300 p-2">helpdesksupport</td>
+                </tr>
+                <tr class="text-xs">
+                  <td class="border border-gray-300 p-2">202 - GR</td>
+                  <td class="border border-gray-300 p-2">FN2098</td>
+                  <td class="border border-gray-300 p-2">Group Test test 2</td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2">COMPANY TEST</td>
+                  <td class="border border-gray-300 p-2">27/04/2019</td>
+                  <td class="border border-gray-300 p-2">European Plan 01</td>
+                  <td class="border border-gray-300 p-2 text-right">90.91</td>
+                  <td class="border border-gray-300 p-2 text-right">90.91</td>
+                  <td class="border border-gray-300 p-2 text-right">9.09</td>
+                  <td class="border border-gray-300 p-2 text-right">100.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2">helpdesksupport</td>
+                </tr>
+                <tr class="text-xs">
+                  <td class="border border-gray-300 p-2">203 - GR</td>
+                  <td class="border border-gray-300 p-2">FN2599</td>
+                  <td class="border border-gray-300 p-2">Group Test test 2</td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2">COMPANY TEST</td>
+                  <td class="border border-gray-300 p-2">27/04/2019</td>
+                  <td class="border border-gray-300 p-2">European Plan 01</td>
+                  <td class="border border-gray-300 p-2 text-right">90.91</td>
+                  <td class="border border-gray-300 p-2 text-right">181.82</td>
+                  <td class="border border-gray-300 p-2 text-right">18.18</td>
+                  <td class="border border-gray-300 p-2 text-right">200.00</td>
+                  <td class="border border-gray-300 p-2 text-right">100.00</td>
+                  <td class="border border-gray-300 p-2">helpdesksupport</td>
+                </tr>
+                <tr class="text-xs">
+                  <td class="border border-gray-300 p-2">304 - GR</td>
+                  <td class="border border-gray-300 p-2">FN1692</td>
+                  <td class="border border-gray-300 p-2">Group Test test 2</td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2">COMPANY TEST</td>
+                  <td class="border border-gray-300 p-2">27/04/2019</td>
+                  <td class="border border-gray-300 p-2">European Plan 01</td>
+                  <td class="border border-gray-300 p-2 text-right">100.00</td>
+                  <td class="border border-gray-300 p-2 text-right">363.64</td>
+                  <td class="border border-gray-300 p-2 text-right">36.36</td>
+                  <td class="border border-gray-300 p-2 text-right">400.00</td>
+                  <td class="border border-gray-300 p-2 text-right">263.64</td>
+                  <td class="border border-gray-300 p-2">helpdesksupport</td>
+                </tr>
+                <tr class="text-xs">
+                  <td class="border border-gray-300 p-2">207 - GR</td>
+                  <td class="border border-gray-300 p-2">FN1848</td>
+                  <td class="border border-gray-300 p-2">test 00001</td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2">COMPANY TEST</td>
+                  <td class="border border-gray-300 p-2">27/04/2019</td>
+                  <td class="border border-gray-300 p-2">European Plan 01</td>
+                  <td class="border border-gray-300 p-2 text-right">90.91</td>
+                  <td class="border border-gray-300 p-2 text-right">90.91</td>
+                  <td class="border border-gray-300 p-2 text-right">9.09</td>
+                  <td class="border border-gray-300 p-2 text-right">100.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2">helpdesksupport</td>
+                </tr>
+                <tr class="text-xs font-semibold bg-gray-50">
+                  <td class="border border-gray-300 p-2" colspan="7">Total (Rs)</td>
+                  <td class="border border-gray-300 p-2 text-right">463.64</td>
+                  <td class="border border-gray-300 p-2 text-right">1,090.92</td>
+                  <td class="border border-gray-300 p-2 text-right">109.08</td>
+                  <td class="border border-gray-300 p-2 text-right">1,200.00</td>
+                  <td class="border border-gray-300 p-2 text-right">663.64</td>
+                  <td class="border border-gray-300 p-2 text-right">Total: 5</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.noShows') }}</span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ operationalSummary.noShows }}</span>
+        </div>
+
+        <!-- Complimentary Section -->
+        <div class="px-6 py-4 border-t">
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Complimentary</h3>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Room</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Folio No.</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Guest</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Source</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Company</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Rent Date</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Rate Type</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Ntml. Tariff (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Offd. Tariff (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Total Tax (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Total Rent (Rs)</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Var %</th>
+                  <th class="border border-gray-300 text-left p-2 font-medium text-xs">Checkin By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="text-xs">
+                  <td class="border border-gray-300 p-2">801 - SR</td>
+                  <td class="border border-gray-300 p-2">FN2519</td>
+                  <td class="border border-gray-300 p-2">compliment</td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2"></td>
+                  <td class="border border-gray-300 p-2">27/04/2019</td>
+                  <td class="border border-gray-300 p-2">Breakfast</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2">helpdesksupport</td>
+                </tr>
+                <tr class="text-xs font-semibold bg-gray-50">
+                  <td class="border border-gray-300 p-2" colspan="7">Total (Rs)</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">0.00</td>
+                  <td class="border border-gray-300 p-2 text-right">Total: 1</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.cancellations') }}</span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ operationalSummary.cancellations }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.walkIns') }}</span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ operationalSummary.walkIns }}</span>
+        </div>
+
+        <!-- Daily Sales Summary -->
+        <div class="px-6 py-4 border-t bg-blue-500 text-white">
+          <div class="text-center font-semibold mb-2">below is the all details</div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-white">
+              <thead>
+                <tr>
+                  <th class="border border-white text-left p-2 text-xs">Sales Type</th>
+                  <th class="border border-white text-right p-2 text-xs">Room Charges (Rs)</th>
+                  <th class="border border-white text-right p-2 text-xs">Extra Charges (Rs)</th>
+                  <th class="border border-white text-right p-2 text-xs">Room Tax (Rs)</th>
+                  <th class="border border-white text-right p-2 text-xs">Extra Tax (Rs)</th>
+                  <th class="border border-white text-right p-2 text-xs">Discount (Rs)</th>
+                  <th class="border border-white text-right p-2 text-xs">Adjustment (Rs)</th>
+                  <th class="border border-white text-right p-2 text-xs">Total Sales (Rs)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border border-white p-2 text-xs">Room Sales</td>
+                  <td class="border border-white p-2 text-right text-xs">1,081.37</td>
+                  <td class="border border-white p-2 text-right text-xs">0.00</td>
+                  <td class="border border-white p-2 text-right text-xs">108.13</td>
+                  <td class="border border-white p-2 text-right text-xs">0.00</td>
+                  <td class="border border-white p-2 text-right text-xs">0.00</td>
+                  <td class="border border-white p-2 text-right text-xs">0.00</td>
+                  <td class="border border-white p-2 text-right text-xs">1,189.50</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Payment Summary -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('reports.frontOffice.paymentSummary') }}
-      </h2>
-      <ReusableTable
-        :title="t('reports.frontOffice.paymentSummary')"
-        :columns="paymentTableColumns"
-        :data="paymentSummary"
-        :searchable="false"
-        :empty-message="t('common.noDataAvailable')"
-      >
-        <template #amount="{ item }">
-          <span class="font-medium text-green-600">${{ item.amount.toFixed(2) }}</span>
-        </template>
-        <template #percentage="{ item }">
-          <span class="text-blue-600">{{ item.percentage.toFixed(1) }}%</span>
-        </template>
-      </ReusableTable>
-    </div>
-
-    <!-- Audit Trail 
-    <ReusableTable
-      :title="t('reports.frontOffice.auditTrail')"
-      :columns="auditTableColumns"
-      :data="auditTrail"
-      :searchable="true"
-      :empty-message="t('common.noDataAvailable')"
-    >
-      <template #amount="{ item }">
-        <span v-if="item.amount" :class="item.amount > 0 ? 'text-green-600' : 'text-red-600'">
-          ${{ item.amount.toFixed(2) }}
-        </span>
-        <span v-else class="text-gray-400">-</span>
-      </template>
-    </ReusableTable>-->
     </div>
   </ReportsLayout>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+<script lang="ts" setup>
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SelectComponent from '@/components/forms/FormElements/Select.vue'
+import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
-import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 
-interface RevenueItem {
-  category: string
-  amount: number
+interface FilterOptions {
+  value: string;
+  label: string;
 }
 
-interface PaymentSummaryItem {
-  method: string
-  transactions: number
-  amount: number
-  percentage: number
+interface Filters {
+  arrivalFrom: string;
+  currency: string;
 }
 
-interface AuditEntry {
-  id: string
-  timestamp: string
-  action: string
-  user: string
-  details: string
-  amount?: number
-}
+const showResults = ref<boolean>(false)
 
-const filters = ref({
-  auditDate: new Date().toISOString().split('T')[0],
-  shift: 'night',
-  auditor: ''
+const filters = ref<Filters>({
+  arrivalFrom: '27/04/2019',
+  currency: 'Rs'
 })
 
-const revenueBreakdown = ref<RevenueItem[]>([])
-const paymentSummary = ref<PaymentSummaryItem[]>([])
-const auditTrail = ref<AuditEntry[]>([])
-
-const operationalSummary = ref({
-  checkIns: 0,
-  checkOuts: 0,
-  noShows: 0,
-  cancellations: 0,
-  walkIns: 0
-})
-
-const summary = computed(() => {
-  const totalRevenue = revenueBreakdown.value.reduce((sum, item) => sum + item.amount, 0)
-  const roomRevenue = revenueBreakdown.value.find(item => item.category === 'rooms')?.amount || 0
-  const occupancyRate = 85 // Mock data
-  const averageADR = roomRevenue / (operationalSummary.value.checkIns || 1)
-  
-  return {
-    totalRevenue,
-    roomRevenue,
-    occupancyRate,
-    averageADR
-  }
-})
-
-// Table configurations
-const paymentTableColumns = computed<Column[]>(() => [
-  { 
-    key: 'method', 
-    label: t('common.paymentMethod'), 
-    type: 'text',
-    translatable: true,
-    translatePrefix: 'payments.methods'
-  },
-  { key: 'transactions', label: t('common.transactions'), type: 'text' },
-  { key: 'amount', label: t('common.amount'), type: 'custom' },
-  { key: 'percentage', label: t('common.percentage'), type: 'custom' }
+// Options for selects
+const currencyOptions = ref<FilterOptions[]>([
+  { value: 'Rs', label: 'Rs' },
+  { value: 'USD', label: 'USD' },
+  { value: 'EUR', label: 'EUR' }
 ])
 
-const auditTableColumns = computed(() => [
-  { 
-    key: 'timestamp', 
-    label: t('common.time'), 
-    type: 'datetime',
-    format: 'time'
-  },
-  { 
-    key: 'action', 
-    label: t('common.action'), 
-    type: 'text',
-    translatable: true,
-    translatePrefix: 'audit.actions'
-  },
-  { key: 'user', label: t('common.user'), type: 'text' },
-  { key: 'details', label: t('common.details'), type: 'text' },
-  { key: 'amount', label: t('common.amount'), type: 'custom' }
-])
+// Methods
+const generateReport = (): void => {
+  showResults.value = true
+  console.log('Generating report with filters:', filters.value)
+}
 
-const loadNightAudit = async () => {
-  // Mock data for demonstration
-  revenueBreakdown.value = [
-    { category: 'rooms', amount: 2450.00 },
-    { category: 'food', amount: 680.50 },
-    { category: 'beverage', amount: 320.75 },
-    { category: 'spa', amount: 150.00 },
-    { category: 'laundry', amount: 45.25 },
-    { category: 'telephone', amount: 12.50 },
-    { category: 'minibar', amount: 89.00 }
-  ]
-  
-  const totalAmount = revenueBreakdown.value.reduce((sum, item) => sum + item.amount, 0)
-  
-  paymentSummary.value = [
-    { method: 'cash', transactions: 15, amount: 850.00, percentage: (850 / totalAmount) * 100 },
-    { method: 'credit_card', transactions: 32, amount: 2100.00, percentage: (2100 / totalAmount) * 100 },
-    { method: 'debit_card', transactions: 8, amount: 450.00, percentage: (450 / totalAmount) * 100 },
-    { method: 'bank_transfer', transactions: 5, amount: 348.00, percentage: (348 / totalAmount) * 100 }
-  ]
-  
-  operationalSummary.value = {
-    checkIns: 18,
-    checkOuts: 22,
-    noShows: 2,
-    cancellations: 3,
-    walkIns: 4
+const exportData = (): void => {
+  console.log('Exporting data...')
+}
+
+const resetForm = (): void => {
+  filters.value = {
+    arrivalFrom: '',
+    currency: 'Rs'
   }
-  
-  auditTrail.value = [
-    {
-      id: '1',
-      timestamp: '2024-01-14T23:45:00',
-      action: 'check_in',
-      user: 'John Doe',
-      details: 'Guest check-in - Room 205',
-      amount: 150.00
-    },
-    {
-      id: '2',
-      timestamp: '2024-01-14T23:30:00',
-      action: 'payment_received',
-      user: 'Jane Smith',
-      details: 'Cash payment for Room 301',
-      amount: 200.00
-    },
-    {
-      id: '3',
-      timestamp: '2024-01-14T23:15:00',
-      action: 'no_show',
-      user: 'System',
-      details: 'No-show marked for reservation #12345'
-    },
-    {
-      id: '4',
-      timestamp: '2024-01-14T23:00:00',
-      action: 'rate_adjustment',
-      user: 'John Doe',
-      details: 'Rate adjusted for Room 102 - Corporate discount',
-      amount: -25.00
-    }
-  ]
+  showResults.value = false
 }
-
-const exportReport = () => {
-  console.log('Exporting night audit report...')
-}
-
-const runAudit = () => {
-  console.log('Running night audit process...')
-}
-
-const formatTime = (timestamp: string) => {
-  return new Date(timestamp).toLocaleTimeString()
-}
-
-onMounted(() => {
-  loadNightAudit()
-})
 </script>
+
+<style scoped>
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .flex-col > div {
+    width: 100%;
+  }
+  
+  .flex-col > div + div {
+    margin-top: 1rem;
+  }
+  
+  .items-end {
+    align-items: stretch;
+  }
+}
+
+/* Table styling to match the ReusableTable component */
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #d1d5db;
+  padding: 8px;
+  font-size: 12px;
+}
+
+th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+.bg-gray-50 th {
+  background-color: #f9fafb;
+}
+</style>

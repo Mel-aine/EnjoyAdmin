@@ -3,7 +3,7 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('reports.frontOffice.guestCheckedIn') }}
+          {{ t('reports.frontOffice.guestCheckedOut') }}
         </h1>
         <!-- <p class="text-gray-600 dark:text-gray-400">
           View and manage departing guest reservations
@@ -281,7 +281,7 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('reports.frontOffice.guestCheckedIn') }}
+            {{ t('reports.frontOffice.guestCheckedOut') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ hotelName }}</span> • 
@@ -294,7 +294,7 @@
         <!-- Utilisation de ResultTable avec les classes de style similaires -->
          <div class="overflow-x-auto">
           <ResultTable 
-          :title="t('reports.frontOffice.guestCheckedIn')"
+          :title="t('reports.frontOffice.guestCheckedOut')"
           :data="reservationData"
           :columns="selectedTableColumns"
            class="w-full mb-4 min-w-max"
