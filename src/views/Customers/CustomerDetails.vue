@@ -692,13 +692,12 @@ const calendarEvents = computed<CalendarEvent[]>(() => {
 })
 
 // Utility functions
-const formatDate = (dateString: string): string => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
+const formatDate = (dateStr:any, currentLocale = locale.value) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString(currentLocale, {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
+    day: 'numeric'
   })
 }
 
