@@ -326,7 +326,7 @@
     "defaultRoomsImported": "The import of default rooms was successful.",
     "roomtypeerror": "Error saving room type ❌",
     "emailAlreadyUsed": "This email is already in use for this service.",
-    "deleteError": "An error occurred while deleting the customer ❌",
+    "deleteError": "An error occurred while deleting the guest ❌",
     "hotelInfoUpdated": "Hotel information updated successfully! ✅",
     "hotelInfoUpdateError": "Failed to update hotel information ❌",
     "logoUploadError": "Failed to upload logo ❌",
@@ -339,7 +339,37 @@
     "AmenitiesSuccessUpdated": "Amenities updated successfully",
     "AmenitiesErrorUpdated": "An error occurred while updating amenities",
     "AmenitiesSuccessDeleted": "Amenities deleted successfully",
-    "AmenitiesErrorDeleted": "An error occurred while deleting amenities"
+    "AmenitiesErrorDeleted": "An error occurred while deleting amenities",
+    "checkInSuccess": "Check-in completed successfully!",
+    "checkInError": "Failed to complete check-in. Please try again.",
+    "checkOutSuccess": "Check-out completed successfully!",
+    "checkOutError": "Failed to complete check-out. Please try again.",
+    "addPaymentSuccess": "Payment added successfully!",
+    "addPaymentError": "Failed to add payment. Please try again.",
+    "amendStaySuccess": "Stay amended successfully!",
+    "amendStayError": "Failed to amend stay. Please try again.",
+    "roomMoveSuccess": "Room moved successfully!",
+    "roomMoveError": "Failed to move room. Please try again.",
+    "exchangeRoomSuccess": "Room exchanged successfully!",
+    "exchangeRoomError": "Failed to exchange room. Please try again.",
+    "stopRoomMoveSuccess": "Room move stopped successfully!",
+    "stopRoomMoveError": "Failed to stop room move. Please try again.",
+    "inclusionListSuccess": "Inclusion list updated successfully!",
+    "inclusionListError": "Failed to update inclusion list. Please try again.",
+    "cancelReservationSuccess": "Reservation cancelled successfully!",
+    "cancelReservationError": "Failed to cancel reservation. Please try again.",
+    "noShowSuccess": "Reservation marked as no show successfully!",
+    "noShowError": "Failed to mark reservation as no show. Please try again.",
+    "voidReservationSuccess": "Reservation voided successfully!",
+    "voidReservationError": "Failed to void reservation. Please try again.",
+    "unassignRoomSuccess": "Room unassigned successfully!",
+    "unassignRoomError": "Failed to unassign room. Please try again.",
+    "cancelReservationConfirm": "Are you sure you want to cancel this reservation?",
+    "voidReservationConfirm": "Are you sure you want to void this reservation?",
+    "fetchError" : "Error fetching data ❌",
+    "guestBlacklistedSuccess": "{name} has been blacklisted successfully",
+    "blacklistError": "Error while blacklisting guest",
+    "guestUnblacklistedSuccess": "{name} has been removed from the blacklist successfully"
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -966,7 +996,6 @@
   "Name": "Name",
   "Address": "Address",
   "edit": "Edit",
-  "delete": "Delete",
   "selectRoomTypes": "Select Room Types",
   "availableRoomTypes": "Available Room Types",
   "searchRoomTypes": "Search room types...",
@@ -2830,7 +2859,9 @@
     "MISSING_SERVICE_ID": "Service ID is required.",
     "TYPE_NOT_FOUND": "Room type not found.",
     "ROOMS_ASSOCIATED": "Cannot delete this type: associated rooms exist.",
-    "UNKNOWN": "An unknown error has occurred."
+    "UNKNOWN": "An unknown error has occurred.",
+    "deleteGuestConflict": "Cannot delete this guest as they have active reservations.",
+    "guestAlreadyBlacklisted": "This guest is already blacklisted"
   },
   "system_update": "System up to date",
   "now": "Today",
@@ -2850,7 +2881,9 @@
     "payments": "Payments",
     "planning": "Planning",
     "staff": "Staff",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "reservationHistory": "Reservation History",
+    "auditLog": "Audit Log"
   },
   "refresh": "Refresh",
   "All_statuses": "All statuses",
@@ -2960,7 +2993,12 @@
     "Checked-in": "Checked-in",
     "Checked-out": "Checked-out",
     "Pending": "Pending",
-    "No-show": "No-show"
+    "No-show": "No-show",
+    "checked_in": "Checked In",
+    "checked_out": "Checked Out",
+    "reserved": "Reserved",
+    "confirmed": "Confirmed",
+    "no_show": "No Show"
   },
   "refunded": "Refunded",
   "cancelled": "Cancelled",
@@ -2981,7 +3019,13 @@
       "lastName": "Last Name",
       "gender": "Gender",
       "dateOfBirth": "Date of Birth",
-      "nationality": "Nationality"
+      "nationality": "Nationality",
+      "passportNumber": "Passport Number",
+      "idNumber": "ID Number",
+      "visaNumber": "Visa Number",
+      "Identification" : "Identification",
+      "nationalID": "National ID"
+
     },
     "contactInfo": {
       "title": "Contact Information",
@@ -3949,7 +3993,11 @@
   "pickup_dropoff": "Pick Up / Drop Off",
   "validation": {
     "departureAfterArrival": "The departure date must be after the arrival date.",
-    "invalidDateRange": "Invalid date range."
+    "invalidDateRange": "Invalid date range.",
+    "reasonRequired": "Please select a reason",
+    "customReasonRequired": "Please provide a custom reason",
+    "customReasonTooShort": "Reason must be at least 10 characters long",
+    "reasonTooShort": "Reason must be at least 5 characters long"
   },
   "Currency": "Currency",
   "Add Currency": "Add Currency",
@@ -4718,34 +4766,6 @@
   "Options": "Options",
   "check in": "Check In",
   "processing": "Processing",
-  "toast": {
-    "checkInSuccess": "Check-in completed successfully!",
-    "checkInError": "Failed to complete check-in. Please try again.",
-    "checkOutSuccess": "Check-out completed successfully!",
-    "checkOutError": "Failed to complete check-out. Please try again.",
-    "addPaymentSuccess": "Payment added successfully!",
-    "addPaymentError": "Failed to add payment. Please try again.",
-    "amendStaySuccess": "Stay amended successfully!",
-    "amendStayError": "Failed to amend stay. Please try again.",
-    "roomMoveSuccess": "Room moved successfully!",
-    "roomMoveError": "Failed to move room. Please try again.",
-    "exchangeRoomSuccess": "Room exchanged successfully!",
-    "exchangeRoomError": "Failed to exchange room. Please try again.",
-    "stopRoomMoveSuccess": "Room move stopped successfully!",
-    "stopRoomMoveError": "Failed to stop room move. Please try again.",
-    "inclusionListSuccess": "Inclusion list updated successfully!",
-    "inclusionListError": "Failed to update inclusion list. Please try again.",
-    "cancelReservationSuccess": "Reservation cancelled successfully!",
-    "cancelReservationError": "Failed to cancel reservation. Please try again.",
-    "noShowSuccess": "Reservation marked as no show successfully!",
-    "noShowError": "Failed to mark reservation as no show. Please try again.",
-    "voidReservationSuccess": "Reservation voided successfully!",
-    "voidReservationError": "Failed to void reservation. Please try again.",
-    "unassignRoomSuccess": "Room unassigned successfully!",
-    "unassignRoomError": "Failed to unassign room. Please try again.",
-    "cancelReservationConfirm": "Are you sure you want to cancel this reservation?",
-    "voidReservationConfirm": "Are you sure you want to void this reservation?"
-  },
   "print_document": "Print Document",
   "select_template": "Select Template",
   "filename": "Filename",
@@ -4947,7 +4967,12 @@
     "selected": "Selected",
     "filters": "Filters",
     "reset": "Reset",
-    "apply": "Apply"
+    "apply": "Apply",
+    "editGuest": "Edit Guest",
+    "deleteGuest": "Delete Guest",
+    "detailLog": "Detail Log",
+    "blacklistGuest": "Blacklist Guest",
+    "unblacklistGuest": "Unblacklist Guest"
   },
   "statuses": {
     "blocked": "Blocked",
@@ -5002,15 +5027,116 @@
   "set_to_clean" : "Set to Clean",
   "select_housekeeper" : "Select Housekeeper",
   "noRoomFound" : "No room found",
-  "send_email":"Send Email",
-  "cashiering_center":"Cashiering Center",
-  "cashiering_searchPlaceholder":"Quick Search by Folio No./Voucher No...",
-  "new_payment":"New Payment",
-  "selectFolio": "Select Folio",
-  "sourceFolio": "Source Folio",
-  "destinationFolio": "Destination Folio",
-  "inHouse":"In house",
-  "reservation":"Reservation",
-  "billingContact":"Billing contact"
+  "AddGuest" : "Add Guest",
+  "vipStatus": {
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "diamond": "Diamond",
+    "none": "None",
+    "null": "None"
+  },
+  "days_short": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
+  },
+  "BlacklistGuest": "Blacklist Guest",
+  "UnblacklistGuest": "Unblacklist Guest",
+  "blacklistGuestDescription": "You are about to blacklist {name}. This action requires a valid reason.",
+  "blacklistReason": "Blacklist reason",
+  "customReason": "Custom reason",
+  "customReasonDetails": "Custom reason details",
+  "customReasonPlaceholder": "Please explain in detail the reason for this blacklist...",
+  "additionalNotesPlaceholder": "Add additional notes if necessary...",
+  "optional": "optional",
+  "minimumCharacters": "Minimum {count} characters required",
+  "blacklistWarningTitle": "Warning",
+  "blacklistWarningMessage": "This action is irreversible and will permanently prevent this guest from making reservations at your property.",
+  "unblacklistGuestDescription": "You are about to remove {name} from the blacklist. This action will allow the guest to make reservations at your property again.",
+  "unblacklistConfirmationMessage": "Are you sure you want to unblacklist this guest?",
+  "ConfirmUnblacklist": "Confirm Unblacklist",
+  "unblacklistConfirmationTitle": "Unblacklist Confirmation",
+  "BlacklistedCustomers": "Blacklisted Customers",
+  "historyOfReasons": "History of Reasons",
+  "noSpecificReasonRecorded": "No specific reason recorded.",
+  "UpcomingStays": "Upcoming Stays",
+  "Noactiveorupcomingstaysfound": "No active or upcoming stays found.",
+  "OutstandingBalance": "Outstanding Balance",
+  "ProcessPayment": "Process Payment",
+  "CurrentlyInHouse": "Currently In-House",
+  "NewBookings": "New Bookings",
+  "Pickup/Dropoff": "Pickup/Dropoff",
+  "EditProfile": "Edit Profile",
+  "Notprovided": "Not provided",
+  "CompleteReservationHistory": "Complete Reservation History",
+  "PaymentHistoryFolios": "Payment History & Folios",
+  "GuestProfileAuditTrail": "Guest Profile Audit Trail",
+  "Noauditlogsavailable": "No audit logs available.",
+  "GuestBookingCalendar": "Guest Booking Calendar",
+  "Pass" : "Pass",
+  "CurrentStay": "Current Stay",
+  "UpcomingStay": "Upcoming Stay",
+  "PastStay" : "Past Stay",
+  "guestDatabase.delete_title": "Delete Guest",
+  "guestDatabase.delete_confirm_message": "Are you sure you want to delete {name}? This action cannot be undone.",
+  "Noactiveorupcomingstay" : "No active or upcoming stay",
+  "GuestTypes" : {
+    "individual": "Individual",
+    "corporate": "Corporate",
+    "travel_agent": "Travel Agent",
+    "group": "Group",
+    "other": "Other"
+  },
+  "guestType" : "Guest Type",
+  "StatutVIP" : "Statut VIP",
+  "State/Province" : "State/Province",
+  "postalCode" : "Postal Code",
+  "RegistrationNo" : "Registration No",
+  "IdentityInformation" : "Identity Information",
+  "IDType" : "ID Type",
+  "ExpiryDate" : "Expiry Date",
+  "Countryofissue" : "Country of issue",
+  "Cityofissue" : "City of issue",
+  "OtherInformation" : "Other Information",
+  "preferences": {
+    "floor": {
+      "label": "Floor preference",
+      "placeholder": "e.g., High floor, Ground floor..."
+    },
+    "view": {
+      "label": "View preference",
+      "placeholder": "e.g., Sea view, Garden side..."
+    },
+    "bed_type": {
+      "label": "Bed type",
+      "placeholder": "e.g., King, Queen, Twin beds..."
+    },
+    "notes": {
+      "label": "Additional notes & allergies",
+      "placeholder": "e.g., Away from elevator, feather allergy, late arrival expected..."
+    }
+  },
+  "identity": {
+    "passport_number": "Passport Number",
+    "visa_number": "Visa Number",
+    "id_number": "ID Number"
+  },
+  "uploadInProgress": "Upload in progress...",
+  "upto": "up to",
+  "uploaded" : "Uploaded",
+  "upload": {
+    "drop_file": "Drop the file",
+    "select_file": "Select a file"
+  }
+
+
+
+
 
 }

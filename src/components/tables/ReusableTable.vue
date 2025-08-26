@@ -57,92 +57,99 @@
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
           <!-- Skeleton Loading Rows -->
-          <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`" class="animate-pulse">
-            <td v-if="selectable" class="px-6 py-4 whitespace-nowrap">
-              <div class="w-4 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
-            </td>
-            <td v-for="column in columns" :key="column.key" class="px-6 py-4 whitespace-nowrap">
-              <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
-            </td>
-            <td v-if="hasActions" class="px-6 py-4 whitespace-nowrap">
-              <div class="w-5 h-5 bg-gray-200 dark:bg-gray-600 rounded"></div>
-            </td>
-          </tr>
+           <template v-if="loading">
+            <tr  v-for="n in 5" :key="`skeleton-${n}`" class="animate-pulse">
+              <td v-if="selectable" class="px-6 py-4 whitespace-nowrap">
+                <div class="w-4 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
+              </td>
+              <td v-for="column in columns" :key="column.key" class="px-6 py-4 whitespace-nowrap">
+                <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
+              </td>
+              <td v-if="hasActions" class="px-6 py-4 whitespace-nowrap">
+                <div class="w-5 h-5 bg-gray-200 dark:bg-gray-600 rounded"></div>
+              </td>
+            </tr>
+          </template>
 
           <!-- Actual Data Rows -->
-          <tr v-else v-for="(item, index) in filteredData" :key="getItemKey(item, index)" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <td v-if="selectable" class="px-6 py-4 whitespace-nowrap">
-              <input
-                type="checkbox"
-                v-model="selectedItems"
-                :value="item"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-            </td>
-            <td
-              v-for="column in columns"
-              :key="column.key"
-              class="px-6 py-4 whitespace-nowrap"
-            >
-              <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white">
-                {{ getColumnValue(item, column) }}
-              </div>
-
-              <div v-else-if="column.type === 'email'" class="text-sm">
-                <a :href="`mailto:${getNestedValue(item, column.key)}`" class="text-blue-600 dark:text-blue-400 hover:underline">
-                  {{ getColumnValue(item, column) }}
-                </a>
-              </div>
-
-              <div v-else-if="column.type === 'badge'" class="text-sm">
-                <span
-                  v-if="getNestedValue(item, column.key)"
-                  :class="getBadgeClass(getNestedValue(item, column.key), column.badgeColors)"
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                >
-                  {{ getColumnValue(item, column) }}
-                </span>
-                <span v-else class="text-gray-400 dark:text-gray-500">-</span>
-              </div>
-
-              <div v-else-if="column.type === 'image' && column.imageKey" class="flex items-center gap-2">
-                <img
-                  v-if="getNestedValue(item, column.imageKey)"
-                  :src="getNestedValue(item, column.imageKey)"
-                  :alt="getNestedValue(item, column.key)"
-                  class="w-4 h-3 object-cover rounded-sm"
+           <template v-else>
+            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"  class="transition-colors"
+              :class="[
+                'hover:bg-gray-50 dark:hover:bg-gray-700',
+                rowClass(item)
+              ]">
+              <td v-if="selectable" class="px-6 py-4 whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  v-model="selectedItems"
+                  :value="item"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span class="text-sm text-gray-900 dark:text-white">{{ getColumnValue(item, column) }}</span>
-              </div>
-
-              <div v-else-if="column.type === 'date'" class="text-sm text-gray-900 dark:text-white">
-                {{ formatDate(getNestedValue(item, column.key), column.dateFormat) }}
-              </div>
-
-              <div v-else-if="column.type === 'custom'" class="text-sm">
-                <slot :name="`column-${column.key}`" :item="item" :value="getNestedValue(item, column.key)">
+              </td>
+              <td
+                v-for="column in columns"
+                :key="column.key"
+                class="px-6 py-4 whitespace-nowrap"
+              >
+                <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white">
                   {{ getColumnValue(item, column) }}
-                </slot>
-              </div>
+                </div>
 
-              <div v-else class="text-sm text-gray-900 dark:text-white">
-                {{ getColumnValue(item, column) || '-' }}
-              </div>
-            </td>
+                <div v-else-if="column.type === 'email'" class="text-sm">
+                  <a :href="`mailto:${getNestedValue(item, column.key)}`" class="text-blue-600 dark:text-blue-400 hover:underline">
+                    {{ getColumnValue(item, column) }}
+                  </a>
+                </div>
 
-            <td v-if="hasActions" class="px-6 py-4 whitespace-nowrap relative">
-              <div class="flex items-center gap-2">
-                <!-- Dropdown Actions -->
-                <div class="relative" v-if="getItemActions(item).length > 0">
-                  <button
-                    @click="toggleDropdown(index)"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                    :title="'More options'"
+                <div v-else-if="column.type === 'badge'" class="text-sm">
+                  <span
+                    v-if="getNestedValue(item, column.key)"
+                    :class="getBadgeClass(getNestedValue(item, column.key), column.badgeColors)"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                    </svg>
-                  </button>
+                    {{ getColumnValue(item, column) }}
+                  </span>
+                  <span v-else class="text-gray-400 dark:text-gray-500">-</span>
+                </div>
+
+                <div v-else-if="column.type === 'image' && column.imageKey" class="flex items-center gap-2">
+                  <img
+                    v-if="getNestedValue(item, column.imageKey)"
+                    :src="getNestedValue(item, column.imageKey)"
+                    :alt="getNestedValue(item, column.key)"
+                    class="w-4 h-3 object-cover rounded-sm"
+                  />
+                  <span class="text-sm text-gray-900 dark:text-white">{{ getColumnValue(item, column) }}</span>
+                </div>
+
+                <div v-else-if="column.type === 'date'" class="text-sm text-gray-900 dark:text-white">
+                  {{ formatDate(getNestedValue(item, column.key), column.dateFormat) }}
+                </div>
+
+                <div v-else-if="column.type === 'custom'" class="text-sm">
+                  <slot :name="`column-${column.key}`" :item="item" :value="getNestedValue(item, column.key)">
+                    {{ getColumnValue(item, column) }}
+                  </slot>
+                </div>
+
+                <div v-else class="text-sm text-gray-900 dark:text-white">
+                  {{ getColumnValue(item, column) || '-' }}
+                </div>
+              </td>
+
+              <td v-if="hasActions" class="px-6 py-4 whitespace-nowrap relative">
+                <div class="flex items-center gap-2">
+                  <!-- Dropdown Actions -->
+                  <div class="relative" v-if="getItemActions(item).length > 0">
+                    <button
+                      @click="toggleDropdown(index)"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                      :title="'More options'"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                      </svg>
+                    </button>
 
                   <!-- Dropdown Menu -->
                   <div
@@ -201,7 +208,7 @@ import InputCheckBox from '../forms/FormElements/InputCheckBox.vue'
 // HeaderAction interface removed as we're using slots now
 
 interface Props {
-  title: string
+  title?: string
   columns: Column[]
   data: any[]
   actions?: Action[] | any
@@ -214,6 +221,7 @@ interface Props {
   modelValue?: string // For v-model support on searchQuery
   showHeader?: boolean
   loading?: boolean // Loading state for skeleton display
+  rowClass?: (item: any) => string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -226,7 +234,8 @@ const props = withDefaults(defineProps<Props>(), {
   itemKey: 'id',
   modelValue: '',
   showHeader: true,
-  loading: false
+  loading: false,
+  rowClass: () => ''
 })
 
 const emit = defineEmits<{
