@@ -20,7 +20,7 @@
               <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
                 :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
                 @click="selectFolio(fo)">
-                <span class="capitalize">{{ fo.folioName }}</span>
+                <span class="capitalize">{{fo.folioNumber}} {{ fo.folioName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
             </div>
@@ -46,12 +46,12 @@
             <BasicButton :label="$t('addPayment')" @click="openAddPaymentModal" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
             <BasicButton :label="$t('applyDiscount')" />
-           <!-- <BasicButton :label="$t('folioOperations')" />-->
+            <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <!-- More Actions Dropdown -->
             <div class="relative">
-              <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')" :button-class="'bg-white border border-gray-200'"
-                @update:modeValue="handleMoreAction" />
+              <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
+                :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
             </div>
             <!-- Status indicators -->
             <div class="ml-auto flex items-center gap-2">
@@ -123,7 +123,7 @@
 
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
-          <AddChargeModal :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @save="handleSaveCharge" />
+          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @save="handleSaveCharge" />
         </template>
 
         <!-- Add Payment Modal -->
@@ -136,15 +136,34 @@
           <CreateFolioModal :reservation-id="reservationId" :is-open="isCreateFolioModalOpen"
             @close="closeCreateFolioModal" @save="handleSaveFolio" :reservation="reservation" />
         </template>
-        <template v-if="isSplitFolioModalOpen">
-          <SplitFolioModal :reservation-id="reservationId" :is-open="isSplitFolioModalOpen"
-            @close="closeSplitFolioModal" @save="handleSaveSplitFolio" />
+        <template v-if="isSplitFolioModal">
+          <SplitFolioModal :reservation-id="reservationId" :is-open="isSplitFolioModal" :default-folio="selectedFolio"
+            @close="closeSplitFolioModal" @save="handleSaveSplitFolio" @refresh="refreshFolio" />
         </template>
-
+        <template v-if="isTransferModal">
+          <TransferFolioModal :reservation-id="reservationId" :is-open="isTransferModal"
+            @close="closeTransferModal" @save="handleSaveTransfer" />
+        </template>
+        <template v-if="isCutFolioModal">
+          <CutFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isCutFolioModal"
+            @close="closeCutFolioModal" @save="handleSaveCut" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isRoomChargesModal">
+          <RoomChargeModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isRoomChargesModal"
+            @close="closeRoomChargesModal" @save="handleSaveRoomCharges" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isAdjustmentModal">
+          <AdjustmentFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isAdjustmentModal"
+            @close="closeAdjustmentModal" @save="handleSaveAdjustment" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isSendFolioModal">
+          <SendFolioModal :reservation-id="reservationId" :is-open="isSendFolioModal"
+            @close="closeSendFolioModal" @save="handleSaveSendFolio" />
+        </template>
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
           <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
-            @print-success="handlePrintSuccess" :reservation-id="reservationId" @print-error="handlePrintError" />
+          :reservation-id="reservationId" />
         </template>
       </div>
     </div>
@@ -162,7 +181,7 @@ import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 import AddPaymentModal from './AddPaymentModal.vue'
 import CreateFolioModal from './CreateFolioModal.vue'
-import {  SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
+import { SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
@@ -174,6 +193,9 @@ import { safeParseFloat, prepareFolioAmount } from '../../../utils/numericUtils'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
 import SplitFolioModal from './SplitFolioModal.vue'
 import RefreshIcon from '../../../icons/RefreshIcon.vue'
+import CutFolioModal from './CutFolioModal.vue'
+import RoomChargeModal from './RoomChargeModal.vue'
+import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state
@@ -183,25 +205,68 @@ const isCreateFolioModalOpen = ref(false)
 const isPrintModalOpen = ref(false)
 const selectedMoreAction = ref<any>(null)
 const isSplitFolioModalOpen = ref(false)
+/// manage more action folio
+
+const isAdjustmentModal = ref(false);
+const isRoomChargesModal = ref(false);
+const isTransferModal = ref(false);
+const isSplitFolioModal = ref(false);
+const isCutFolioModal = ref(false);
+const isSendFolioModal = ref(false);
+
+
 const closeSplitFolioModal = () => {
-  alert('emit')
-  console.log('log',isSplitFolioModalOpen)
-  isSplitFolioModalOpen.value = false
+  isSplitFolioModal.value = false
 }
 const handleSaveSplitFolio = (folioData: any) => {
   console.log('Save split folio:', folioData)
   // Add save logic here
 }
+const closeTransferModal = () => {
+  isTransferModal.value = false
+}
+const handleSaveTransfer = (transferData: any) => {
+  console.log('Save transfer:', transferData)
+  // Add save logic here
+}
+const closeCutFolioModal = () => {
+  isCutFolioModal.value = false
+}
+const handleSaveCut = (cutData: any) => {
+  console.log('Save cut:', cutData)
+  // Add save logic here
+}
+const closeRoomChargesModal = () => {
+  isRoomChargesModal.value = false
+}
+const handleSaveRoomCharges = (roomChargesData: any) => {
+  console.log('Save room charges:', roomChargesData)
+  // Add save logic here
+}
+const closeAdjustmentModal = () => {
+  isAdjustmentModal.value = false
+}
+const handleSaveAdjustment = (adjustmentData: any) => {
+  console.log('Save adjustment:', adjustmentData)
+  // Add save logic here
+}
+const closeSendFolioModal = () => {
+  isSendFolioModal.value = false
+}
+const handleSaveSendFolio = (sendFolioData: any) => {
+  console.log('Save send folio:', sendFolioData)
+  // Add save logic here
+}
+
+
 // More actions dropdown options
 const moreActionOptions = ref([
-  { label: t('transferFolio'), id: 'transfer-folio' },
-  { label: t('splitFolio'), id: 'split-folio' },
-  { label: t('mergeFolio'), id: 'merge-folio' },
-  { label: t('postCharges'), id: 'post-charges' },
-  { label: t('voidTransaction'), id: 'void-transaction' },
-  { label: t('adjustTransaction'), id: 'adjust-transaction' },
-  { label: t('exportFolio'), id: 'export-folio' },
-  { label: t('emailFolio'), id: 'email-folio' }
+  { label: t('adjustment'), id: 'adjustment' },
+  { label: t('roomCharges'), id: 'roomCharges' },
+  { label: t('transfer'), id: 'transfer' },
+  { label: t('splitFolio'), id: 'split' },
+  { label: t('cutFolio'), id: 'cut' },
+  { label: t('sendFolio'), id: 'send' }
 ])
 const props = defineProps({
   reservationId: {
@@ -245,7 +310,7 @@ const foglioData = computed(() => {
 const columns = computed<Column[]>(() => [
   { key: 'postingDate', label: t('Day'), type: 'date' },
   { key: 'refNo', label: t('Ref No.'), type: 'text' },
-  { key: 'category', label: t('Particulars'), type: 'text',translatable:true },
+  { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
   { key: 'description', label: t('Description'), type: 'text' },
   { key: 'guest.displayName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
@@ -263,16 +328,6 @@ const formatAmount = (amount: number) => {
 
 const getAmountColor = (amount: number) => {
   return amount >= 0 ? 'text-blue-600' : 'text-red-600'
-}
-
-const editItem = (item: FoglioItem) => {
-  console.log('Edit item:', item)
-  // Add edit logic here
-}
-
-const deleteItem = (item: FoglioItem) => {
-  console.log('Delete item:', item)
-  // Add delete logic here
 }
 
 // Modal handlers
@@ -342,7 +397,7 @@ const getFolosReservations = async () => {
               ...transaction,
               amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
                 grossAmount,
-                category:transaction.category==='room'?'Room Charges':transaction.category,
+              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
               folioId: folio.id,
               guest: folio.guest
 
@@ -410,29 +465,24 @@ const handleMoreAction = (action: any) => {
 
   console.log('More action selected:', action)
 
-  switch (action.api) {
-    case 'transfer-folio':
+  switch (action.id) {
+    case 'transfer':
       handleTransferFolio()
       break
-    case 'split-folio':
+    case 'split':
       handleSplitFolio()
       break
-    case 'merge-folio':
-      handleMergeFolio()
+    case 'cut':
+      handleCutFolio()
       break
-    case 'post-charges':
-      handlePostCharges()
+    case 'roomCharges':
+      handleRoomCharges()
       break
-    case 'void-transaction':
-      handleVoidTransaction()
-      break
-    case 'adjust-transaction':
+    case 'adjustment':
       handleAdjustTransaction()
       break
-    case 'export-folio':
-      handleExportFolio()
-      break
-    case 'email-folio':
+
+    case 'send':
       handleEmailFolio()
       break
     default:
@@ -443,42 +493,33 @@ const handleMoreAction = (action: any) => {
 // More action handlers (placeholder implementations)
 const handleTransferFolio = () => {
   console.log('Transfer folio action')
-  // TODO: Implement transfer folio functionality
+  isTransferModal.value = true
 }
 
 const handleSplitFolio = () => {
   console.log('Split folio action')
-  isSplitFolioModalOpen.value = true
+  isSplitFolioModal.value = true
 }
 
-const handleMergeFolio = () => {
-  console.log('Merge folio action')
-  // TODO: Implement merge folio functionality
+const handleCutFolio = () => {
+  console.log('Cut folio action')
+  isCutFolioModal.value = true
 }
 
-const handlePostCharges = () => {
-  console.log('Post charges action')
-  // TODO: Implement post charges functionality
-}
-
-const handleVoidTransaction = () => {
-  console.log('Void transaction action')
-  // TODO: Implement void transaction functionality
+const handleRoomCharges = () => {
+  console.log('Room charges action')
+  isRoomChargesModal.value = true
 }
 
 const handleAdjustTransaction = () => {
   console.log('Adjust transaction action')
-  // TODO: Implement adjust transaction functionality
+  isAdjustmentModal.value = true
 }
 
-const handleExportFolio = () => {
-  console.log('Export folio action')
-  // TODO: Implement export folio functionality
-}
 
 const handleEmailFolio = () => {
   console.log('Email folio action')
-  // TODO: Implement email folio functionality
+  isSendFolioModal.value = true
 }
 
 // Document data for printing
@@ -490,4 +531,8 @@ const printDocumentData = computed(() => ({
   balance: balance.value,
   reservationId: props.reservationId
 }))
+
+const refreshFolio = async () => {
+  await getFolosReservations()
+}
 </script>

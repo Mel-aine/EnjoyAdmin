@@ -568,7 +568,7 @@ export const searchFolios = async (params: SearchParams): Promise<any> => {
     if (params.guest_name) queryParams.append('guest_name', params.guest_name)
     if (params.folio_number) queryParams.append('folio_number', params.folio_number)
 
-    const url = `${API_URL}/search?${queryParams.toString()}`
+    const url = `${API_URL}/search/details?${queryParams.toString()}`
     const response: AxiosResponse = await axios.get(url, headers)
     return response.data
   } catch (error) {
@@ -910,6 +910,67 @@ export const findFolio = async (params: {
     return response.data
   } catch (error) {
     console.error('Error fetching foglio with params:', error)
+    throw error
+  }
+}
+
+
+/**
+ * split folio
+ * @param data 
+ * @returns 
+ */
+export const splitFolioHandler = async (data:any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/split`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error splitting folio:', error)
+    throw error
+  }
+}
+
+/**
+ * cut folio
+ * @param data 
+ * @returns 
+ */
+export const cutFolioHandler = async (data:any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/cut`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error cutting folio:', error)
+    throw error
+  }
+}
+
+/**
+ * add room charge
+ * @param data 
+ * @returns   room charge
+ */
+export const addRoomChargeHandler = async (data:any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/add`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error adding room charge:', error)
+    throw error
+  }
+}
+
+/**
+ * add adjustment
+ * @param data 
+ * @returns   adjustment
+ */
+export const addAdjustmentHandler = async (data:any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/add`, data, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error adding adjustment:', error)
     throw error
   }
 }

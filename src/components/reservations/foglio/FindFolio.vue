@@ -13,10 +13,21 @@ const isOpen = ref(false);
 const loading = ref(false);
 const folios = ref([]);
 const { t } = useI18n()
-const emit = defineEmits(['selectFolio']);
-const selectedFolio = ref<any>(null);
+// Props for v-model support
+const props = defineProps<{
+    modelValue?: any;
+}>();
+
+const emit = defineEmits(['selectFolio', 'update:modelValue']);
+
+// Use modelValue from props or fallback to internal ref
+const selectedFolio = computed({
+    get: () => props.modelValue || null,
+    set: (value) => emit('update:modelValue', value)
+});
+
 const selectFolio = (item: any) => {
-    selectedFolio.value = item
+    emit('update:modelValue', item);
     emit('selectFolio', item);
     isOpen.value = false;
 }
@@ -64,7 +75,7 @@ const columnsFolios = computed<Column[]>(() => {
         <div @click="isOpen = true"
             class=" cursor-pointer flex gap-3 dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
             <SearchIcon class="w-5 h-5 text-gray-500"></SearchIcon>
-            <input type="text" placeholder="Search folio" :disabled="true" class="w-24" :value="selectedFolio?.guest">
+            <input type="text" placeholder="Search folio" :disabled="true" class="w-full" :value="selectedFolio ? (typeof selectedFolio.guest === 'object' ? selectedFolio.guest?.displayName : selectedFolio.guest) || 'Search folio' : 'Search folio'">
         </div>
     </div>
 

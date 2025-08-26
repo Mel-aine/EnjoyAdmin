@@ -29,7 +29,7 @@
                                                 <label
                                                     class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{
                                                         $t('sourceFolio') }}</label>
-                                                <FindFolio @selectFolio="selectSourceFolio" />
+                                                <FindFolio @selectFolio="selectSourceFolio" v-model="selectFolio" />
                                             </div>
                                             <div class="col-span-3">
 
@@ -54,7 +54,7 @@
                                                 <label
                                                     class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{
                                                         $t('destinationFolio') }}</label>
-                                                <FindFolio @selectFolio="destinationSelected" />
+                                                <FindFolio @select-folio="destinationSelected"  />
                                             </div>
                                         </div>
                                     </div>
@@ -67,8 +67,8 @@
                         <!-- switch button-->
                         <div @click="splitFolio" :class="{ 'text-primary cursor-pointer': canSplit }"
                             class="flex text-gray-300 items-center cursor-pointer -ms-2 fixed top-1/2 left-[58%]">
-
-                            <ChevronRightCircle class="w-7 h-7" />
+                            <Spinner v-if="isSpliting" />
+                            <ChevronRightCircle class="w-7 h-7" v-else />
                         </div>
 
                     </div>
@@ -80,29 +80,28 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ReusableTable from '../../tables/ReusableTable.vue'
-import Select from '../../forms/FormElements/Select.vue'
-import Input from '../../forms/FormElements/Input.vue'
-import InputDatePicker from '../../components/forms/FormElements/InputDatePicker.vue'
 import { ChevronRightCircle, Save, Search, SearchCodeIcon, SearchIcon, SearchSlash, XIcon } from 'lucide-vue-next'
-import InputCurrency from '../../components/forms/FormElements/InputCurrency.vue'
-import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoubleDatePicker.vue'
-import BasicButton from '../../components/buttons/BasicButton.vue'
 import RadioGroup from '../../forms/FormElements/RadioGroup .vue'
-import { formatCurrency } from '../../../utils/numericUtils'
 import type { Column } from '../../../utils/models'
 import FindFolio from './FindFolio.vue'
-import { getFolioStatement } from '../../../services/foglioApi'
-import { split } from 'lodash'
+import { getFolioStatement, splitFolioHandler } from '../../../services/foglioApi'
+import Spinner from '../../spinner/Spinner.vue'
 
-const router = useRouter()
 const { t } = useI18n()
-
+const toast = useToast()
+const isSpliting = ref(false);
 // Loading state
 const loading = ref(false)
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'refresh'])
+const props = defineProps({
+    defaultFolio: {
+        type: Object,
+        default: () => ({})
+    }
+})
 // Form data
 const formData = ref({
     cityLedgerAccount: '',
@@ -165,14 +164,48 @@ const fetchFoliotransaction = async () => {
         loading.value = false
     }
 }
-const splitFolio = () => {
+const splitFolio = async () => {
+    if (selectedFolios.value && selectedFolios.value.length > 0 && destinationFolioSelected.value) {
+        isSpliting.value = true;
+        try {
+            const res = await splitFolioHandler({
+                sourceFolioId: selectFolio.value.id,
+                destinationFolioId: destinationFolioSelected.value.id,
+                transactionsToMove: selectedFolios.value.map((e: any) => e.id)
+            });
+            
+            // Show success toast
+            toast.success(t('toast.splitFolioSuccess'));
+            
+            // Move selected transactions to destination
+            const movedTransactions = selectedFolios.value;
+            destinationFolios.value = [...destinationFolios.value, ...movedTransactions];
+            
+            // Remove moved transactions from source
+            sourceFolios.value = sourceFolios.value.filter((transaction: any) => 
+                !selectedFolios.value.some((selected: any) => selected.id === transaction.id)
+            );
+            
+            // Clear selection
+            selectedFolios.value = [];
 
+            emit('refresh')
+            
+        } catch (e) {
+            console.error('Error splitting folio:', e);
+            toast.error(t('splitFolioError'));
+        } finally {
+            isSpliting.value = false;
+        }
+    }
 }
 
 const destinationSelected = (item: any) => {
     destinationFolioSelected.value = item
 }
 onMounted(() => {
-
+    if (props.defaultFolio) {
+        selectSourceFolio(props.defaultFolio)
+    }
 })
 </script>

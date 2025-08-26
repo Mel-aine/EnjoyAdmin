@@ -111,7 +111,6 @@
                 </ReusableTable>
             </div>
         </div>
-                    <SplitFolioModal />
 
         <template v-if="newPaymentVisible">
             <NewPaymentCityLedger v-if="newPaymentVisible" @close="newPaymentVisible = false"/>
@@ -136,7 +135,6 @@ import Input from '../../components/forms/FormElements/Input.vue'
 import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import NewPaymentCityLedger from './NewPaymentCityLedger.vue'
-import SplitFolioModal from '../../components/reservations/foglio/SplitFolioModal.vue'
 const router = useRouter()
 const { t } = useI18n()
 const searchQuery = ref('')

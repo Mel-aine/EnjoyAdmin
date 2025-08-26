@@ -59,13 +59,13 @@
           <!-- Skeleton Loading Rows -->
            <template v-if="loading">
             <tr  v-for="n in 5" :key="`skeleton-${n}`" class="animate-pulse">
-              <td v-if="selectable" class="px-6 py-4 whitespace-nowrap">
+              <td v-if="selectable" class="px-6 py-4">
                 <div class="w-4 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
               </td>
-              <td v-for="column in columns" :key="column.key" class="px-6 py-4 whitespace-nowrap">
+              <td v-for="column in columns" :key="column.key" class="px-6 py-4">
                 <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
               </td>
-              <td v-if="hasActions" class="px-6 py-4 whitespace-nowrap">
+              <td v-if="hasActions" class="px-6 py-4">
                 <div class="w-5 h-5 bg-gray-200 dark:bg-gray-600 rounded"></div>
               </td>
             </tr>
@@ -78,7 +78,7 @@
                 'hover:bg-gray-50 dark:hover:bg-gray-700',
                 rowClass(item)
               ]">
-              <td v-if="selectable" class="px-6 py-4 whitespace-nowrap">
+              <td v-if="selectable" class="px-6 py-4">
                 <input
                   type="checkbox"
                   v-model="selectedItems"
@@ -89,9 +89,9 @@
               <td
                 v-for="column in columns"
                 :key="column.key"
-                class="px-6 py-4 whitespace-nowrap"
+                class="px-6 py-4 break-words max-w-xs"
               >
-                <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white">
+                <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white break-words">
                   {{ getColumnValue(item, column) }}
                 </div>
 
@@ -122,7 +122,7 @@
                   <span class="text-sm text-gray-900 dark:text-white">{{ getColumnValue(item, column) }}</span>
                 </div>
 
-                <div v-else-if="column.type === 'date'" class="text-sm text-gray-900 dark:text-white">
+                <div v-else-if="column.type === 'date'" class="text-sm text-gray-900 dark:text-white break-words">
                   {{ formatDate(getNestedValue(item, column.key), column.dateFormat) }}
                 </div>
 
@@ -132,12 +132,12 @@
                   </slot>
                 </div>
 
-                <div v-else class="text-sm text-gray-900 dark:text-white">
+                <div v-else class="text-sm text-gray-900 dark:text-white break-words">
                   {{ getColumnValue(item, column) || '-' }}
                 </div>
               </td>
 
-              <td v-if="hasActions" class="px-6 py-4 whitespace-nowrap relative">
+              <td v-if="hasActions" class="px-6 py-4 relative">
                 <div class="flex items-center gap-2">
                   <!-- Dropdown Actions -->
                   <div class="relative" v-if="getItemActions(item).length > 0">
@@ -180,6 +180,7 @@
               </div>
             </td>
           </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -199,11 +200,6 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
-import InputCheckBox from '../forms/FormElements/InputCheckBox.vue'
-
-
-
-
 
 // HeaderAction interface removed as we're using slots now
 

@@ -12,7 +12,8 @@
 
       <!-- Folio -->
       <div>
-        <Select v-model="formData.folio" :options="folioOptions" :lb="$t('Folio')" :loading="isLoadingFolios" />
+        <InputFolioSelect :title="$t('folio')" v-model="formData.folio"
+          :reservation-id="reservationId" :is-required="true" />
       </div>
 
       <!-- Rec/Vou # -->
@@ -68,6 +69,7 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
+import InputFolioSelect from './InputFolioSelect.vue'
 import { getCurrencies, getPaymentMethods, getReservationTypes, getDiscounts, getTaxes, getExtraCharges } from '@/services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getReservationFolios, createFolioTransaction } from '../../../services/foglioApi'
@@ -78,7 +80,7 @@ import { useI18n } from 'vue-i18n'
 
 interface Props {
   isOpen: boolean
-  reservationId:number
+  reservationId: number
 }
 
 interface Emits {
