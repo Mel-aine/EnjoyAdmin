@@ -392,6 +392,24 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/reports/back-office/daily-receipt-detail',
+      name: 'DailyReceiptDetail',
+      component: () => import('../views/Reports/BackOffice/DailyReceiptDetail.vue'),
+      meta: {
+        title: 'Daily Receipt Detail',
+        requiresAuth: true,
+      },
+    },
+        {
+      path: '/reports/back-office/daily-receipt-summary',
+      name: 'DailyReceiptSummary',
+      component: () => import('../views/Reports/BackOffice/DailyReceiptSummary.vue'),
+      meta: {
+        title: 'Daily Receipt Summary',
+        requiresAuth: true,
+      },
+    },
     // Statistical Reports
     {
       path: '/reports/statistical/occupancy-reports',
