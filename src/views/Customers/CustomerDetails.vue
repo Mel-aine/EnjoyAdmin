@@ -137,13 +137,13 @@
                   <div class="text-4xl font-bold mb-3">
                     {{ formatCurrency(outstandingBalance) }}
                   </div>
-                  <button
+                  <!-- <button
                     v-if="outstandingBalance > 0"
                     @click="emitPayNow"
                     class="w-full bg-yellow-500 hover:bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-lg transition"
                   >
                     {{ $t('ProcessPayment') }}
-                  </button>
+                  </button> -->
                 </div>
               </div>
 
