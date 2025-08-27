@@ -401,12 +401,66 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-        {
+    {
       path: '/reports/back-office/daily-receipt-summary',
       name: 'DailyReceiptSummary',
       component: () => import('../views/Reports/BackOffice/DailyReceiptSummary.vue'),
       meta: {
         title: 'Daily Receipt Summary',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-revenue',
+      name: 'DailyRevenue',
+      component: () => import('../views/Reports/BackOffice/DailyRevenue.vue'),
+      meta: {
+        title: 'Daily Revenue',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-refund-report',
+      name: 'DailyRefundReport',
+      component: () => import('../views/Reports/BackOffice/DailyRefundReport.vue'),
+      meta: {
+        title: 'Daily Refund Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/expense-voucher',
+      name: 'ExpenseVoucher',
+      component: () => import('../views/Reports/BackOffice/ExpenseVoucher.vue'),
+      meta: {
+        title: 'Expense Voucher',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/folio-list',
+      name: 'FolioList',
+      component: () => import('../views/Reports/BackOffice/FolioList.vue'),
+      meta: {
+        title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/house-status',
+      name: 'HouseStatusReport',
+      component: () => import('../views/Reports/BackOffice/HouseStatus.vue'),
+      meta: {
+        title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/travel-agent-commission-summary',
+      name: 'TravelAgentCommissionSummary',
+      component: () => import('../views/Reports/BackOffice/TravelAgent.vue'),
+      meta: {
+        title: 'Travel Agent Commission Summary',
         requiresAuth: true,
       },
     },
