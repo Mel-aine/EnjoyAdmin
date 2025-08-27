@@ -23,9 +23,9 @@
                 :icon="Plus"
                 @click="goToCreatePage"
               />
-              <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" />
+              <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" @click="exportToCSV"/>
               <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" />
-              <UserFilters />
+              <GuestFilter @filter="handleFilterChange" />
             </template>
             <!-- Custom column templates -->
             <template #column-country="{ item }">
@@ -42,6 +42,11 @@
               </span>
             </template>
           </ReusableTable>
+           <TablePagination
+              v-if="paginationMeta"
+              :meta="paginationMeta"
+              @page-change="handlePageChange"
+            />
         </div>
       </FullScreenLayout>
     </AdminLayout>
@@ -74,6 +79,7 @@
       @close="closeDeleteModal"
       @confirm="confirmDeleteCustomer"
     />
+
   </div>
 </template>
 
@@ -85,7 +91,7 @@ import { useAuthStore } from '@/composables/user'
 import type { ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import { Plus, FileDown, FileTextIcon, CheckCircle } from 'lucide-vue-next'
-import { getCustomer } from '@/services/reservation'
+import { getGuests } from '@/services/guestApi'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -94,12 +100,14 @@ import { useBookingStore } from '@/composables/booking'
 import ModalCustomer from './ModalCustomer.vue'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../../components/buttons/BasicButton.vue'
-import UserFilters from '../../components/filters/UserFilters.vue'
+import GuestFilter from '@/components/filters/GuestFilter.vue'
 import { createGuest, updateGuest, deleteGuest } from '@/services/guestApi'
 import { Eye, Edit, Trash2, List, Ban } from 'lucide-vue-next'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
+import TablePagination from '@/components/tables/TablePagination.vue'
+
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -118,6 +126,8 @@ const customers = ref<ReservationType[]>([])
 const showBlacklistModal = ref(false)
 const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
+const activeFilters = ref({})
+const paginationMeta = ref(null)
 const breadcrumb = [
   { label: t('navigation.frontOffice'), href: '#' },
   { label: t('guest_database'), href: '#' },
@@ -126,7 +136,7 @@ const breadcrumb = [
 const columns = computed(() => [
   {
     key: 'userFullName',
-    label: t('GuestName'),
+    label: t('tooltip.guestName'),
     type: 'text' as const,
     sortable: true,
     translatable: false,
@@ -161,7 +171,7 @@ const columns = computed(() => [
   },
   {
     key: 'vipStatus',
-    label: t('vipStatus'),
+    label: t('StatutVIP'),
     type: 'custom' as const,
     sortable: true,
     dateFormat: 'short',
@@ -221,18 +231,25 @@ const onSearchChange = (query: string) => {
 
 //fonctions pour récupérer les clients
 
-const fetchCustomers = async () => {
+const fetchCustomers = async (page = 1) => {
   try {
     loading.value = true
     const serviceId = serviceStore.serviceId
-    const response = await getCustomer(serviceId!)
+     const allParams = {
+      ...activeFilters.value,
+      hotel_id: serviceId,
+      page: page,
+      limit: 10,
+    };
+    const response = await getGuests(allParams)
     console.log('@@@@@@22', response)
-    customers.value = response.data.map((c: any) => {
+    customers.value = response.data.data.data.map((c: any) => {
       return {
         ...c,
         userFullName: `${c.firstName} ${c.lastName}`,
       }
     })
+    paginationMeta.value = response.data.data.meta;
     console.log('customers', customers.value)
   } catch (error) {
     console.error('Failed to fetch fetchCustomers:', error)
@@ -242,6 +259,10 @@ const fetchCustomers = async () => {
 }
 
 // Actions are now handled directly through handler functions in the actions configuration
+
+const handlePageChange = (newPage: number) => {
+  fetchCustomers(newPage);
+};
 
 const handleCustomerAction = async (action: string, c: any) => {
   console.log('Customer action:', action, c)
@@ -287,8 +308,15 @@ const handleCloseModal = () => {
   selectedCustomer.value = null
 }
 
+const handleFilterChange = (newFilters: any) => {
+  activeFilters.value = newFilters;
+  fetchCustomers(1);
+};
+
+
+
 onMounted(async () => {
-  await fetchCustomers()
+  await fetchCustomers(1)
 })
 
 const goToCreatePage = () => {
@@ -468,6 +496,66 @@ const getRowClass = (item: any): string => {
   }
   return '';
 };
+
+const exportToCSV = () => {
+
+  if (!customers.value || customers.value.length === 0) {
+    toast.info(t('toast.noDataToExport'));
+    return;
+  }
+
+
+  const headers = columns.value.map(col => col.label);
+
+
+  const rows = customers.value.map(customer => {
+    return columns.value.map(column => {
+
+      const getNestedValue = (obj: any, path: string) => {
+        return path.split('.').reduce((current, key) => current?.[key], obj);
+      };
+
+      let value = getNestedValue(customer, column.key);
+
+      // Gérer les valeurs nulles ou indéfinies
+      if (value === null || value === undefined) {
+        value = '';
+      }
+
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+
+      return stringValue;
+    }).join(',');
+  });
+
+
+  const csvContent = [
+    headers.join(','),
+    ...rows
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  const filename = `guests-export-${new Date().toISOString().split('T')[0]}.csv`;
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  toast.success(t('toast.exportSuccessful'));
+};
+
+
 </script>
 
 <style scoped></style>

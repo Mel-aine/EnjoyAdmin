@@ -203,8 +203,8 @@ export const getReservatonCustomers = async (serviceProductId:  number): Promise
 
 /**
  * cancel reservation
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const cancelReservation = async (data: any) => {
   try {
@@ -224,8 +224,8 @@ export const cancelReservation = async (data: any) => {
 
 /**
  * void reservation
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const voidReservation = async (data: any) => {
   try {
@@ -245,8 +245,8 @@ export const voidReservation = async (data: any) => {
 
 /**
  * amend reservation
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const amendReservation = async (data: any) => {
   try {
@@ -284,7 +284,7 @@ export const markNoShow =async(data:any)=>{
   }
 }
 /***
- * 
+ *
  * get Room charges
  */
 export const getRoomCharges = async (reservationId: any) => {

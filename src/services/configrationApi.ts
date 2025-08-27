@@ -567,8 +567,8 @@ export const deleteIdentityTypeById = (id: number): Promise<AxiosResponse<any>> 
  */
 export const getIdentityTypesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/identity_types`, {
-    params: { hotelId },  
-   ...headers 
+    params: { hotelId },
+   ...headers
   })
 }
 
@@ -1033,6 +1033,13 @@ export const updatePreferenceById = (id: number, data: any): Promise<AxiosRespon
  */
 export const deletePreferenceById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/preferences/${id}`, headers)
+}
+
+/**
+ * get by hotel Id
+ */
+export const getPreferencesByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/preferences?hotelId=${hotelId}`, headers)
 }
 
 
