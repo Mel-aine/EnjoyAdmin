@@ -266,7 +266,7 @@
                       :disabled="isCheckingOut === stay.id"
                     >
                       <Spinner v-if="isCheckingOut === stay.id" class="w-4 h-4" />
-                      <span>{{ isCheckingOut ? $t('CheckOut...') : $t('CheckOut') }}</span>
+                      <!-- <span>{{ isCheckingOut ? $t('CheckOut...') : $t('CheckOut') }}</span> -->
                     </button>
                   </div>
                 </div>
@@ -299,7 +299,7 @@
                       :disabled="isCheckingIn === customer.upcomingStay.id"
                     >
                       <Spinner v-if="isCheckingIn === customer.upcomingStay.id" class="w-4 h-4" />
-                      <span>{{ isCheckingIn ? $t('CheckingIn....') : $t('CheckIn') }}</span>
+                      <!-- <span>{{ isCheckingIn ? $t('CheckingIn....') : $t('CheckIn') }}</span> -->
                     </button>
                     <div
                       v-else-if="!customer.blacklisted"
