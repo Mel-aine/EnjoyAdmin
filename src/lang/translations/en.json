@@ -5245,10 +5245,7 @@
   "GuestLogs" : "Guest Logs",
   "Timestamp" : "Timestamp",
   "Details" : "Details",
-  "SelectPreferences" : "Select Preferences"
-
-
-  "billingContact": "Billing contact",
+  "SelectPreferences" : "Select Preferences",
   "adjustment": "Adjustment",
   "roomCharges": "Room Charges",
   "transfer": "Transfer",
