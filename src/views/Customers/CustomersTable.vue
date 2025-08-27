@@ -79,6 +79,7 @@
       @close="closeDeleteModal"
       @confirm="confirmDeleteCustomer"
     />
+
   </div>
 </template>
 
@@ -106,6 +107,7 @@ import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import TablePagination from '@/components/tables/TablePagination.vue'
+
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -552,6 +554,8 @@ const exportToCSV = () => {
 
   toast.success(t('toast.exportSuccessful'));
 };
+
+
 </script>
 
 <style scoped></style>

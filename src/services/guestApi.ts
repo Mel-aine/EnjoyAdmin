@@ -4,6 +4,7 @@ import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/guests`
+const API_URL1 = `${import.meta.env.VITE_API_URL as string}`
 
 const authStore = useAuthStore()
 const headers = {
@@ -98,4 +99,11 @@ export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosR
  */
 export const getGuests = (params: any = {}): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}`, { params, ...headers })
+}
+
+/**
+ * get Activitylog
+ */
+export const getGuestsActivityLogs = (hotelId: number ,guestId:number,params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL1}/activity-log/${hotelId}/guests/${guestId}/activity-logs`, { params, ...headers })
 }

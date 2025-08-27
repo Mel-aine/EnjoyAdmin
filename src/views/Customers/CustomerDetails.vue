@@ -1,366 +1,186 @@
 <template>
   <AdminLayout>
     <FullScreenLayout>
-
-      <div class="container mx-auto px-4 py-8" v-if="customer">
-        <!-- Header -->
-        <div class="mb-8 slide-in">
-          <div class="flex items-center gap-4 mb-4">
+      <div class="h-full" v-if="customer">
+        <!-- Modern Header Section -->
+        <div class="shadow-sm px-4 py-3 mx-4 bg-white flex justify-between items-center">
+          <div class="flex gap-3 items-center">
             <button
               @click="goBack"
-              class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-1 px-2 rounded-lg transition-all duration-200 shadow"
+              class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
-              ← {{ $t('Back') }}
+              <ArrowLeft class="w-5 h-5" />
+            </button>
+            <Users class="w-6 h-6 text-primary" />
+            <div class="flex flex-col">
+              <span class="font-bold text-lg">{{ customer.title }} {{ customer.firstName }} {{ customer.lastName }}</span>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  v-if="customer.vipStatus"
+                  class="inline-flex items-center px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold uppercase"
+                >
+                  <Star class="w-3 h-3 mr-1" />
+                  {{ customer.vipStatus }}
+                </span>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 bg-gray-200 text-gray-800 rounded-full text-xs font-medium"
+                >
+                  {{ customer.guestType }}
+                </span>
+                <span
+                  v-if="customer.blacklisted"
+                  class="inline-flex items-center px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs font-semibold"
+                >
+                  <Ban class="w-3 h-3 mr-1" />
+                  {{ $t('Blacklisted') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Guest Stats -->
+
+            <div class="flex flex-col text-center">
+              <span class="text-sm font-bold mb-1">{{ $t('Outstanding') }}</span>
+              <div class="relative">
+                <span
+                  :class="[
+                    'text-lg font-bold px-3 py-1 rounded-lg',
+                    outstandingBalance > 0
+                      ? 'text-red-700 bg-red-100 border border-red-300 shadow-md'
+                      : 'text-green-700 bg-green-100 border border-green-300'
+                  ]"
+                >
+                  {{ formatCurrency(outstandingBalance) }}
+                </span>
+                <div
+                  v-if="outstandingBalance > 0"
+                  class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"
+                ></div>
+              </div>
+              </div>
+
+
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <button
+              v-if="!customer.blacklisted"
+              @click="navigateToBookingPage"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2"
+            >
+              <Calendar class="w-4 h-4" />
+              {{ $t('NewBooking') }}
+            </button>
+            <button
+              @click="navigateToEditPage"
+              class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition flex items-center gap-2"
+            >
+              <Edit class="w-4 h-4" />
+              {{ $t('EditProfile') }}
             </button>
           </div>
         </div>
 
-        <!-- Bandeau d'alerte pour client blacklisté -->
-
+        <!-- Blacklist Alert Banner -->
         <div
           v-if="customer.blacklisted"
-          class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg"
+          class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg"
         >
           <div class="flex items-start">
-            <div class="flex-shrink-0">
-              <Ban class="h-6 w-6 text-red-500" />
-            </div>
-            <div class="ml-3 flex-grow">
-              <h3 class="text-lg font-semibold text-red-800">{{ $t('BlacklistedCustomer') }}</h3>
-
-              <!-- On affiche l'historique s'il existe -->
-              <div v-if="blacklistHistory.length > 0" class="mt-2 text-sm text-red-700">
-                <p class="font-medium mb-2">{{ $t('historyOfReason') }} :</p>
-                <ul class="list-disc list-inside space-y-1">
-                  <!-- On boucle sur l'historique -->
+            <Ban class="h-5 w-5 text-red-500 mt-0.5" />
+            <div class="ml-3">
+              <h3 class="text-sm font-semibold text-red-800">{{ $t('BlacklistedCustomer') }}</h3>
+              <div v-if="blacklistHistory.length > 0" class="mt-1 text-xs text-red-700">
+                <p class="font-medium">{{ $t('historyOfReason') }}:</p>
+                <ul class="list-disc list-inside mt-1 space-y-0.5">
                   <li v-for="(item, index) in blacklistHistory" :key="index">
                     <span class="font-semibold">{{ formatDate(item.date.toISOString()) }}:</span>
                     {{ item.reason }}
                   </li>
                 </ul>
               </div>
-              <div v-else class="mt-2 text-sm text-red-700 italic">
-                {{ $t('noSpecificReasonRecord') }}
-              </div>
-
-              <!-- Bouton pour débloquer le client -->
-              <div class="mt-4">
-                <button
-                  @click="toggleBlacklistStatus"
-                  class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition"
-                >
-                  <div
-                    v-if="isLoading"
-                    class="w-4 h-4 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin"
-                  ></div>
-                  {{ $t('UnblacklistGuest') }}
-                </button>
-              </div>
+              <button
+                @click="toggleBlacklistStatus"
+                class="mt-2 bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs transition"
+              >
+                {{ $t('UnblacklistGuest') }}
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <!--  Quick Overview Dashboard -->
-          <div class="bg-gray-50 p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <!--  Informations du Client -->
-              <div class="lg:col-span-1 flex items-start space-x-5">
-                <div
-                  class="w-20 h-20 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0"
+        <!-- Navigation Tabs -->
+        <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5">
+          <div class="flex justify-between w-full">
+            <div class="border-b border-gray-200">
+              <nav class="flex space-x-8 px-6">
+                <button
+                  v-for="tab in tabs"
+                  :key="tab.id"
+                  @click="activeTab = tab.id"
+                  :class="[
+                    'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                  ]"
                 >
-                  <Users class="w-10 h-10 text-gray-600" />
-                </div>
-                <div>
-                  <div class="flex items-center gap-3 mb-2">
-                    <h1 class="text-2xl font-bold text-gray-900">
-                      {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }}
-                    </h1>
+                  <div class="flex items-center space-x-2">
+                    <component :is="tab.icon" class="w-5 h-5" />
+                    <span>{{ tab.label }}</span>
                   </div>
-                  <!-- Badges de Statut -->
-                  <div class="flex items-center gap-2 mb-3">
-                    <span
-                      v-if="customer.vipStatus"
-                      class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold uppercase"
-                    >
-                      <Star class="w-3 h-3 mr-1.5" />
-                      {{ customer.vipStatus }}
-                    </span>
-                    <span
-                      class="inline-flex items-center px-3 py-1 bg-gray-200 text-gray-800 rounded-full text-xs font-medium"
-                    >
-                      {{ customer.guestType }}
-                    </span>
-                  </div>
-                  <!-- Contact & Préférences -->
-                  <div class="space-y-2 text-sm text-gray-600">
-                    <div class="flex items-center space-x-2">
-                      <Mail class="w-4 h-4" />
-                      <span>{{ customer.email || 'N/A' }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <Phone class="w-4 h-4" />
-                      <span>{{ customer.phonePrimary || 'N/A' }}</span>
-                    </div>
-                    <div
-                      v-if="customer.preferences && Array.isArray(customer.preferences) && customer.preferences.length > 0"
-                      class="flex items-start space-x-3 pt-2"
-                    >
-
-                      <Heart class="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
-
-                      <div class="flex-grow">
-
-                        <h4 class="font-semibold text-gray-800 mb-2">{{ $t('GuestPreferences') }}</h4>
-                        <div class="flex flex-wrap gap-2">
-                          <span
-                            v-for="preference in customer.preferences"
-                            :key="preference.value"
-                            class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full"
-                          >
-
-                            {{ preference.label }}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 2: Finances & Actions Rapides -->
-              <div class="lg:col-span-1">
-                <div class="bg-indigo-600 text-white rounded-lg p-4 shadow-lg text-center">
-                  <h3 class="font-semibold text-sm opacity-80 mb-1">
-                    {{ $t('OutstandingBalance') }}
-                  </h3>
-                  <div class="text-4xl font-bold mb-3">
-                    {{ formatCurrency(outstandingBalance) }}
-                  </div>
-                  <!-- <button
-                    v-if="outstandingBalance > 0"
-                    @click="emitPayNow"
-                    class="w-full bg-yellow-500 hover:bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-lg transition"
-                  >
-                    {{ $t('ProcessPayment') }}
-                  </button> -->
-                </div>
-              </div>
-
-              <!-- Section 3: Statut du Séjour (Actuel & À Venir) -->
-              <div class="lg:col-span-1">
-                <!-- Timeline container -->
-                <div
-                  class="relative border-l border-gray-300 pl-6 space-y-4 max-h-[200px] overflow-y-auto sidebar-scroll pr-2"
-                >
-                  <!-- Séjours Actifs -->
-                  <div v-for="stay in customer.activeStays" :key="stay.id" class="relative">
-
-                    <span
-                      class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-500 rounded-full ring-4 ring-white"
-                    >
-                      🏨
-                    </span>
-
-                    <!-- Card -->
-                    <div
-                      class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-green-500"
-                    >
-                      <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-semibold text-gray-800">{{ $t('CurrentlyInHouse') }}</h3>
-                        <span
-                          :class="getReservationStatusInfo(stay.status).class"
-                          class="text-xs font-bold px-2 py-0.5 rounded-full"
-                        >
-                          {{ getReservationStatusInfo(stay.status).text }}
-                        </span>
-                      </div>
-                      <div class="text-sm space-y-1">
-                        <p>
-                          <strong>{{ $t('Room') }}:</strong> {{ stay.room?.roomNumber || 'N/A' }}
-                        </p>
-                        <p>
-                          <strong>{{ $t('departure') }}:</strong>
-                          {{ formatDate(stay.checkOutDate) }}
-                        </p>
-                      </div>
-                      <button
-                        v-if="!customer.blacklisted"
-                        @click="handleCheckOut(stay)"
-                         class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        :disabled="isCheckingOut === stay.id"
-                      >
-                        <Spinner  v-if="isCheckingOut === stay.id" class="w-4 h-4" />
-                        <span>{{ isCheckingOut ?  $t('CheckOut...') : $t('CheckOut') }}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Séjour à venir -->
-                  <div v-if="customer.upcomingStay" class="relative">
-
-                    <span
-                      class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full ring-4 ring-white"
-                    >
-                      📅
-                    </span>
-
-                    <!-- Card -->
-                    <div
-                      class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-blue-500"
-                    >
-                      <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-semibold text-gray-800">{{ $t('UpcomingStay') }}</h3>
-                        <span
-                          :class="getReservationStatusInfo(customer.upcomingStay.status).class"
-                          class="text-xs font-bold px-2 py-0.5 rounded-full"
-                        >
-                          {{ getReservationStatusInfo(customer.upcomingStay.status).text }}
-                        </span>
-                      </div>
-                      <div class="text-sm space-y-1">
-                        <p>
-                          <strong>{{ $t('Room Type') }}:</strong>
-                          {{ customer.upcomingStay.roomType?.roomTypeName || 'N/A' }}
-                        </p>
-                        <p>
-                          <strong>{{ $t('Check-in') }}:</strong>
-                          {{ formatDate(customer.upcomingStay.checkInDate) }}
-                        </p>
-                      </div>
-                      <button
-                        v-if="!customer.blacklisted && canCheckInToday(customer.upcomingStay)"
-                        @click="handleCheckIn(customer.upcomingStay)"
-                        class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        :disabled="isCheckingIn === customer.upcomingStay.id"
-                      >
-                        <Spinner   v-if="isCheckingIn === customer.upcomingStay.id" class="w-4 h-4" />
-                        <span>{{ isCheckingIn ?  $t('CheckingIn....') : $t('CheckIn') }}</span>
-                        <!-- <div
-                           v-if="isCheckingIn === customer.upcomingStay.id"
-                          class="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"
-                        ></div>
-                         <span v-if="isCheckingIn !== customer.upcomingStay.id">{{ $t('CheckIn') }}</span>
-                         <span v-else>{{ $t('CheckingIn...') }}</span> -->
-                      </button>
-                      <div
-                        v-else-if="!customer.blacklisted"
-                        class="mt-3 text-center text-sm text-gray-500 p-2 bg-gray-100 rounded-md"
-                      >
-                        {{ $t('check_in_available') }}
-                        {{ formatDate(customer.upcomingStay.checkInDate) }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Aucun séjour -->
-                  <div
-                    v-if="
-                      (!customer.activeStays || customer.activeStays.length === 0) &&
-                      !customer.upcomingStay
-                    "
-                    class="text-gray-500 text-center p-4"
-                  >
-                    <p>{{ $t('Noactiveorupcomingstay') }}</p>
-                  </div>
-                </div>
-              </div>
-
+                </button>
+              </nav>
             </div>
-
-            <!-- Barre d'Actions Opérationnelles Directes -->
-            <div class="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-200">
-              <button
-                v-if="!customer.blacklisted"
-                @click="navigateToBookingPage"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center space-x-2"
-              >
-                <Calendar class="w-4 h-4" />
-                <span>{{ $t('NewBooking') }}</span>
-              </button>
-              <button
-                v-if="!customer.blacklisted"
-                @click="handlePickupDropoff"
-                class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition flex items-center space-x-2"
-              >
-                <Car class="w-4 h-4" />
-                <span>{{ $t('Pickup/Dropoff') }}</span>
-              </button>
-              <button
-                @click="navigateToEditPage"
-                class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition flex items-center space-x-2"
-              >
-                <Edit class="w-4 h-4" />
-                <span>{{ $t('EditProfile') }}</span>
-              </button>
+            <div class="flex items-center px-4">
               <button
                 @click="handleDeleteClick"
-                class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition flex items-center space-x-2 ml-auto"
+                class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-200 transition flex items-center gap-2"
               >
                 <Trash2 class="w-4 h-4" />
                 <span>{{ $t('delete') }}</span>
               </button>
             </div>
           </div>
+        </div>
 
-          <!-- Enhanced Navigation Tabs -->
-          <div class="border-b border-gray-200">
-            <nav class="flex space-x-8 px-6">
-              <button
-                v-for="tab in tabs"
-                :key="tab.id"
-                @click="activeTab = tab.id"
-                :class="[
-                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                ]"
-              >
-                <div class="flex items-center space-x-2">
-                  <component :is="tab.icon" class="w-5 h-5" />
-                  <span>{{ tab.label }}</span>
-                </div>
-              </button>
-            </nav>
-          </div>
-
-          <!-- Enhanced Content -->
-          <div class="p-6">
-            <!-- Details Tab -->
-            <div
-              v-if="activeTab === 'details'"
-              class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6"
-            >
-              <!-- Basic Information -->
-              <div class="bg-gradient-to-br bg-white border border-gray-200 rounded-xl p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                  <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
-                  {{ $t('Basic_Information') }}
-                </h3>
-                <div class="space-y-3">
-                  <DetailRow
-                    :label="$t('customerDetails.basicInfo.firstName')"
-                    :value="customer.firstName || 'N/A'"
-                  />
-                  <DetailRow
-                    :label="$t('customerDetails.basicInfo.lastName')"
-                    :value="customer.lastName || 'N/A'"
-                  />
-                  <DetailRow
-                    :label="$t('customerDetails.basicInfo.gender')"
-                    :value="customer.gender || 'N/A'"
-                  />
-                  <DetailRow
-                    :label="$t('customerDetails.basicInfo.dateOfBirth')"
-                    :value="customer.dateOfBirth || 'N/A'"
-                  />
-                  <DetailRow
-                    :label="$t('customerDetails.basicInfo.nationality')"
-                    :value="customer.country || 'N/A'"
-                    type="badge"
-                  />
-                  <DetailRow
+        <!-- Tab Content -->
+        <div class="mx-4 bg-white">
+          <!-- Details Tab -->
+          <div
+            v-if="activeTab === 'details'"
+            class="p-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+          >
+            <!-- Basic Information Card -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
+                {{ $t('Basic_Information') }}
+              </h3>
+              <div class="space-y-3">
+                <DetailRow
+                  :label="$t('customerDetails.basicInfo.firstName')"
+                  :value="customer.firstName || 'N/A'"
+                />
+                <DetailRow
+                  :label="$t('customerDetails.basicInfo.lastName')"
+                  :value="customer.lastName || 'N/A'"
+                />
+                <DetailRow
+                  :label="$t('customerDetails.basicInfo.gender')"
+                  :value="customer.gender || 'N/A'"
+                />
+                <DetailRow
+                  :label="$t('customerDetails.basicInfo.dateOfBirth')"
+                  :value="customer.dateOfBirth || 'N/A'"
+                />
+                <DetailRow
+                  :label="$t('customerDetails.basicInfo.nationality')"
+                  :value="customer.country || 'N/A'"
+                  type="badge"
+                />
+                <DetailRow
                     v-if="customer.passportNumber"
                     :label="$t('customerDetails.basicInfo.passportNumber')"
                     :value="customer.passportNumber"
@@ -384,145 +204,222 @@
                     :value="$t('Notprovided')"
                     type="badge"
                   />
-                </div>
-              </div>
-
-              <!-- Contact Information -->
-              <div class="bg-gradient-to-br bg-white border border-gray-200 rounded-xl p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                  <Mail class="w-5 h-5 mr-2 text-purple-600" />
-                  {{ $t('customerDetails.contactInfo.title') }}
-                </h3>
-                <div class="space-y-3">
-                  <DetailRow
-                    :label="$t('customerDetails.contactInfo.email')"
-                    :value="customer.email"
-                  />
-                  <DetailRow
-                    :label="$t('customerDetails.contactInfo.phone')"
-                    :value="customer.phonePrimary || 'N/A'"
-                  />
-                  <DetailRow
-                    :label="$t('customerDetails.contactInfo.address')"
-                    :value="customer.addressLine || 'N/A'"
-                  />
-                </div>
               </div>
             </div>
 
-            <!-- Reservation History Tab -->
-            <div v-if="activeTab === 'reservations'" class="space-y-6">
-              <div class="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                  <Bookmark class="w-5 h-5 mr-2 text-blue-600" />
-                  {{ $t('CompleteReservationHistory') }}
-                </h3>
-                <ReservationHistoryTable
-                  :reservations="customer.reservations"
-                  :customer="customer"
-                  @check-in="handleReservationCheckIn"
-                  @check-out="handleReservationCheckOut"
-                  @view-details="handleViewReservationDetails"
-                  @delete="handleDeleteReservation"
+            <!-- Contact Information Card -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                <Mail class="w-5 h-5 mr-2 text-purple-600" />
+                {{ $t('customerDetails.contactInfo.title') }}
+              </h3>
+              <div class="space-y-3">
+                <DetailRow
+                  :label="$t('customerDetails.contactInfo.email')"
+                  :value="customer.email || 'N/A'"
+                />
+                <DetailRow
+                  :label="$t('customerDetails.contactInfo.phone')"
+                  :value="customer.phonePrimary || 'N/A'"
+                />
+                <DetailRow
+                  :label="$t('customerDetails.contactInfo.address')"
+                  :value="customer.addressLine || 'N/A'"
                 />
               </div>
             </div>
 
-            <!-- Payments Tab -->
-            <div v-if="activeTab === 'payments'" class="space-y-6">
-              <div class="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                  <CreditCard class="w-5 h-5 mr-2 text-blue-600" />
-                  {{ $t('PaymentHistoryFolios') }}
-                </h3>
-                <FolioTable
-                  :payments="customer.folios || []"
-                  @view-details="handleViewPaymentDetails"
-                  @refund="handleRefundPayment"
-                  @print-receipt="handlePrintReceipt"
-                />
+            <!-- Current Stay Status -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                <BedDouble class="w-5 h-5 mr-2 text-green-600" />
+                {{ $t('Stays Status') }}
+              </h3>
+
+              <!-- Timeline container -->
+              <div class="relative border-l border-gray-300 pl-6 space-y-4 max-h-[250px] overflow-y-auto sidebar-scroll pr-2">
+                <!-- Active Stays -->
+                <div v-for="stay in customer.activeStays" :key="stay.id" class="relative">
+                  <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-500 rounded-full ring-4 ring-white">
+                    🏨
+                  </span>
+
+                  <!-- Card -->
+                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-green-500">
+                    <div class="flex justify-between items-center mb-2">
+                      <h4 class="font-semibold text-gray-800">{{ $t('CurrentlyInHouse') }}</h4>
+                      <span
+                        :class="getReservationStatusInfo(stay.status).class"
+                        class="text-xs font-bold px-2 py-0.5 rounded-full"
+                      >
+                        {{ getReservationStatusInfo(stay.status).text }}
+                      </span>
+                    </div>
+                    <div class="text-sm space-y-1">
+                      <p><strong>{{ $t('Room') }}:</strong> {{ stay.room?.roomNumber || 'N/A' }}</p>
+                      <p><strong>{{ $t('departure') }}:</strong> {{ formatDate(stay.checkOutDate) }}</p>
+                    </div>
+                    <button
+                      v-if="!customer.blacklisted"
+                      @click="handleCheckOut(stay)"
+                      class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      :disabled="isCheckingOut === stay.id"
+                    >
+                      <Spinner v-if="isCheckingOut === stay.id" class="w-4 h-4" />
+                      <span>{{ isCheckingOut ? $t('CheckOut...') : $t('CheckOut') }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Upcoming Stay -->
+                <div v-if="customer.upcomingStay" class="relative">
+                  <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full ring-4 ring-white">
+                    📅
+                  </span>
+
+                  <!-- Card -->
+                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-blue-500">
+                    <div class="flex justify-between items-center mb-2">
+                      <h4 class="font-semibold text-gray-800">{{ $t('UpcomingStay') }}</h4>
+                      <span
+                        :class="getReservationStatusInfo(customer.upcomingStay.status).class"
+                        class="text-xs font-bold px-2 py-0.5 rounded-full"
+                      >
+                        {{ getReservationStatusInfo(customer.upcomingStay.status).text }}
+                      </span>
+                    </div>
+                    <div class="text-sm space-y-1">
+                      <p><strong>{{ $t('Room Type') }}:</strong> {{ customer.upcomingStay.roomType?.roomTypeName || 'N/A' }}</p>
+                      <p><strong>{{ $t('Check-in') }}:</strong> {{ formatDate(customer.upcomingStay.checkInDate) }}</p>
+                    </div>
+                    <button
+                      v-if="!customer.blacklisted && canCheckInToday(customer.upcomingStay)"
+                      @click="handleCheckIn(customer.upcomingStay)"
+                      class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      :disabled="isCheckingIn === customer.upcomingStay.id"
+                    >
+                      <Spinner v-if="isCheckingIn === customer.upcomingStay.id" class="w-4 h-4" />
+                      <span>{{ isCheckingIn ? $t('CheckingIn....') : $t('CheckIn') }}</span>
+                    </button>
+                    <div
+                      v-else-if="!customer.blacklisted"
+                      class="mt-3 text-center text-sm text-gray-500 p-2 bg-gray-100 rounded-md"
+                    >
+                      {{ $t('check_in_available') }}
+                      {{ formatDate(customer.upcomingStay.checkInDate) }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- No active or upcoming stay -->
+                <div
+                  v-if="(!customer.activeStays || customer.activeStays.length === 0) && !customer.upcomingStay"
+                  class="text-gray-500 text-center p-4"
+                >
+                  <BedDouble class="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                  <p class="text-sm">{{ $t('Noactiveorupcomingstay') }}</p>
+                </div>
               </div>
             </div>
 
-            <!-- Audit Log Tab -->
-            <div v-if="activeTab === 'audit'" class="bg-white rounded-xl border border-gray-200">
-              <div class="p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                  <Shield class="w-5 h-5 mr-2 text-blue-600" />
-                  {{ $t('GuestProfileAuditTrail') }}
-                </h3>
-                <template v-if="customer.auditLogs && customer.auditLogs.length > 0">
-                  <AuditLogsTable :audit-logs="customer.auditLogs" />
-                </template>
-                <template v-else>
-                  <div class="flex flex-col items-center justify-center text-gray-500 py-10">
-                    <FileSearch class="w-12 h-12 mb-3 text-gray-400" />
-                    <p class="text-sm">{{ $t('Noauditlogsavailable') }}</p>
-                  </div>
-                </template>
+
+            <!-- Guest Preferences -->
+            <div
+              v-if="customer.preferences && Array.isArray(customer.preferences) && customer.preferences.length > 0"
+              class="bg-white border border-gray-200 rounded-xl p-6 lg:col-span-2 xl:col-span-3"
+            >
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                <Heart class="w-5 h-5 mr-2 text-pink-600" />
+                {{ $t('GuestPreferences') }}
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="preference in customer.preferences"
+                  :key="preference.value"
+                  class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full"
+                >
+                  {{ preference.label }}
+                </span>
               </div>
             </div>
+          </div>
 
-            <!-- Calendar Tab -->
-            <div v-if="activeTab === 'calendar'" class="bg-white rounded-xl border border-gray-200">
-              <BaseCalendar
-                :title="$t('GuestBookingCalendar')"
-                :initial-date="selectedDate"
-                :events="calendarEvents"
-                @month-changed="onMonthChanged"
-                @day-click="onDayClick"
-              >
-                <!-- Le slot #day-content gère l'affichage à l'intérieur d'une case du calendrier -->
-                <template #day-content="{ day }">
-                  <!-- On vérifie s'il y a des événements pour ce jour -->
-                  <div
-                    v-if="day.events.length > 0"
-                    class="w-full text-center p-1 rounded-md text-xs truncate"
-                  >
-                    <!-- Affichage pour un séjour EN COURS -->
-                    <div v-if="day.events[0].type === 'current'" class="bg-blue-100 text-blue-800">
-                      <div>
-                        <strong>{{ day.events[0].reservation.roomNumber }}</strong>
-                      </div>
-                      <div class="opacity-75">{{ $t('inprogress') }}</div>
-                    </div>
+          <!-- Other tabs content remains the same -->
+          <div v-if="activeTab === 'reservations'" class="p-6">
+            <ReservationHistoryTable
+              :reservations="customer.reservations"
+              :customer="customer"
+              @check-in="handleReservationCheckIn"
+              @check-out="handleReservationCheckOut"
+              @view-details="handleViewReservationDetails"
+              @delete="handleDeleteReservation"
+            />
+          </div>
 
-                    <!-- Affichage pour un séjour À VENIR -->
-                    <div
-                      v-else-if="day.events[0].type === 'upcoming'"
-                      class="bg-yellow-100 text-yellow-800"
-                    >
-                      <div>
-                        <strong>{{ day.events[0].reservation.roomNumber }}</strong>
-                      </div>
-                      <div class="opacity-75">{{ $t('reserved') }}</div>
-                    </div>
+          <div v-if="activeTab === 'payments'" class="p-6">
+            <FolioTable
+              :payments="customer.folios || []"
+              @view-details="handleViewPaymentDetails"
+              @refund="handleRefundPayment"
+              @print-receipt="handlePrintReceipt"
+            />
+          </div>
 
-                    <!-- Affichage pour un séjour PASSÉ -->
-                    <div
-                      v-else-if="day.events[0].type === 'past'"
-                      class="bg-gray-100 text-gray-500"
-                    >
-                      <div class="opacity-75">{{ $t('Pass') }}</div>
-                    </div>
+          <div v-if="activeTab === 'audit'" class="p-6">
+            <template v-if="auditLogs.length > 0">
+               <AuditLogsTable
+                :logs="auditLogs"
+                :expanded-changes="[]"
+                @toggle-changes="handleToggleChanges"
+
+              />
+            </template>
+            <template v-else>
+              <div class="flex flex-col items-center justify-center text-gray-500 py-10">
+                <FileSearch class="w-12 h-12 mb-3 text-gray-400" />
+                <p class="text-sm">{{ $t('Noauditlogsavailable') }}</p>
+              </div>
+            </template>
+          </div>
+
+          <div v-if="activeTab === 'calendar'" class="p-6">
+            <BaseCalendar
+              :title="$t('GuestBookingCalendar')"
+              :initial-date="selectedDate"
+              :events="calendarEvents"
+              @month-changed="onMonthChanged"
+              @day-click="onDayClick"
+            >
+              <template #day-content="{ day }">
+                <div v-if="day.events.length > 0" class="w-full text-center p-1 rounded-md text-xs truncate">
+                  <div v-if="day.events[0].type === 'current'" class="bg-blue-100 text-blue-800">
+                    <div><strong>{{ day.events[0].reservation.roomNumber }}</strong></div>
+                    <div class="opacity-75">{{ $t('inprogress') }}</div>
                   </div>
-                </template>
-
-                <!-- La légende doit refléter nos nouveaux types d'événements -->
-                <template #legend>
-                  <div class="flex items-center justify-center space-x-6 mt-4 p-2 border-t">
-                    <LegendItem color="blue" :label="$t('CurrentStay')" />
-                    <LegendItem color="yellow" :label="$t('UpcomingStay')" />
-                    <LegendItem color="gray" :label="$t('PastStay')" />
+                  <div v-else-if="day.events[0].type === 'upcoming'" class="bg-yellow-100 text-yellow-800">
+                    <div><strong>{{ day.events[0].reservation.roomNumber }}</strong></div>
+                    <div class="opacity-75">{{ $t('reserved') }}</div>
                   </div>
-                </template>
-              </BaseCalendar>
-            </div>
+                  <div v-else-if="day.events[0].type === 'past'" class="bg-gray-100 text-gray-500">
+                    <div class="opacity-75">{{ $t('Pass') }}</div>
+                  </div>
+                </div>
+              </template>
+              <template #legend>
+                <div class="flex items-center justify-center space-x-6 mt-4 p-2 border-t">
+                  <LegendItem color="blue" :label="$t('CurrentStay')" />
+                  <LegendItem color="yellow" :label="$t('UpcomingStay')" />
+                  <LegendItem color="gray" :label="$t('PastStay')" />
+                </div>
+              </template>
+            </BaseCalendar>
           </div>
         </div>
 
         <OverLoading v-if="isLoading" />
       </div>
+
+      <!-- Loading State -->
       <div v-else class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
@@ -582,7 +479,7 @@ import InfoIcon from '@/icons/InfoIcon.vue'
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import { isLoading } from '@/composables/spinner'
 import DetailRow from '../Room/DetailRow.vue'
-import { getCustomerProfile, deleteGuest, toggleGuestBlacklist } from '@/services/guestApi'
+import { getCustomerProfile, deleteGuest, toggleGuestBlacklist ,getGuestsActivityLogs} from '@/services/guestApi'
 import router from '@/router'
 import { Ban } from 'lucide-vue-next'
 import PaymentModal from '../Bookings/PaymentModal.vue'
@@ -599,12 +496,32 @@ import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { CalendarEvent } from '@/components/calendars/BaseCalendar.vue'
 import { checkInReservation,checkOutReservation } from '@/services/reservation'
 import { useAuthStore } from '@/composables/user'
-import { BedDouble, CalendarClock, CalendarX } from 'lucide-vue-next';
+import { BedDouble, CalendarClock, CalendarX ,FileSearch} from 'lucide-vue-next';
 import Spinner from '@/components/spinner/Spinner.vue'
+import {  ArrowLeft } from 'lucide-vue-next'
+import { useServiceStore } from '@/composables/serviceStore'
+
+
+interface AuditLog {
+  id: string | number
+  action: string
+  description: string
+  changes?: Record<string, { old: any; new: any }> | null
+  timestamp: string
+  userId: string | number
+  userName?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  sessionId?: string | null
+  entityId?: string | number | null
+  entityType?: string | null
+  meta?: Record<string, any> | null
+}
+
 
 const { t, locale } = useI18n()
 const toast = useToast()
-
+const serviceStore = useServiceStore()
 // Reactive references
 const customer_id = router.currentRoute.value.params.id as string
 const customer = ref<any>(null) // Initialiser à null pour un v-if plus clair
@@ -613,6 +530,7 @@ const loading = ref(false)
 const deleting = ref(false)
 const customerToDelete = ref<any>(null)
 const authStore = useAuthStore()
+const auditLogs = ref<AuditLog[]>([])
 
 // Modal states
 
@@ -1076,13 +994,72 @@ const canCheckInToday = (reservation: any): boolean => {
   return now.toDateString() === checkInDate.toDateString()
 }
 
+const fetchActivityLogs = async () => {
+  if (loading.value) return
+
+  loading.value = true
+
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId || !customer_id) {
+      console.warn("Missing hotelId or customer_id for fetching logs.");
+      loading.value = false;
+      return;
+    }
+
+    const params: Record<string, any> = {
+      // page: currentPage.value,
+      limit: 15,
+    }
+
+    const res = await getGuestsActivityLogs(hotelId, Number(customer_id), params)
+
+    const newLogs: AuditLog[] = res.data.data.map((log: any) => ({
+        id: log.id,
+        action: log.action,
+        description: log.description,
+        changes: log.changes || null,
+        timestamp: log.timestamp,
+        userId: log.userId,
+        userName: log.userName || null,
+        ipAddress: log.ipAddress || null,
+        userAgent: log.userAgent || null,
+        sessionId: log.sessionId || null,
+        entityId: log.entityId || null,
+        entityType: log.entityType || null,
+        meta: log.meta || null,
+    }));
+    auditLogs.value = newLogs
+    console.log("newlog",newLogs)
+
+
+  } catch (err: any) {
+    console.error("Erreur récupération logs:", err)
+
+  } finally {
+    loading.value = false
+  }
+}
+const expandedChanges = ref<string[]>([])
+
+const handleToggleChanges = (logId: string) => {
+  const index = expandedChanges.value.indexOf(logId)
+  if (index > -1) {
+    expandedChanges.value.splice(index, 1)
+  } else {
+    expandedChanges.value.push(logId)
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   getCustomerProfileDetails()
+  fetchActivityLogs()
 })
 </script>
 
 <style scoped>
+/* Keep your existing styles */
 .slide-in {
   animation: slideIn 0.6s ease-out;
 }
@@ -1098,22 +1075,12 @@ onMounted(() => {
   }
 }
 
-.glass-effect {
-  backdrop-filter: blur(10px);
-  background: rgba(245, 245, 245, 1);
-  border: 1px solid rgba(75, 85, 99, 0.3);
-}
-
-.status-badge {
-  animation: pulse 2s infinite;
-}
-
 .sidebar-scroll {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .sidebar-scroll::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none;
 }
 </style>

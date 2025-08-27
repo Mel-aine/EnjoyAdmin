@@ -462,47 +462,16 @@
                 />
               </button>
               <div v-show="showOtherInfoSection" class="mt-4 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <!-- Préférence d'étage -->
-                  <div>
-                    <Input
-                      v-model="guestData.preferences.floor"
-                      :lb="$t('preferences.floor.label')"
-                      :placeholder="$t('preferences.floor.placeholder')"
-                      :disabled="!isEditing"
-                    />
-                  </div>
-                  <!-- Préférence de vue -->
-                  <div>
-                    <Input
-                      v-model="guestData.preferences.view"
-                      :lb="$t('preferences.view.label')"
-                      :placeholder="$t('preferences.view.placeholder')"
-                      :disabled="!isEditing"
-                    />
-                  </div>
-                  <!-- Type de lit -->
-                  <div>
-                    <Input
-                      v-model="guestData.preferences.bed_type"
-                      :lb="$t('preferences.bed_type.label')"
-                      :placeholder="$t('preferences.bed_type.placeholder')"
-                      :disabled="!isEditing"
-                    />
-                  </div>
-                </div>
-                <!-- Notes -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
-                    $t('preferences.notes.label')
-                  }}</label>
-                  <textarea
-                    v-model="guestData.preferences.notes"
-                    rows="3"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 resize-vertical"
-                    :placeholder="$t('preferences.notes.placeholder')"
-                    :disabled="!isEditing"
-                  ></textarea>
+               <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {{ $t('Preference') }}
+                  </label>
+                  <MultipleSelect
+                  v-model="guestData.preferences"
+                    :options="Preferences"
+                    :placeholder="$t('SelectPreferences')"
+
+                  />
                 </div>
               </div>
             </div>
@@ -526,7 +495,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch ,onMounted} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../buttons/BasicButton.vue'
@@ -542,6 +511,8 @@ import { createGuest, updateGuest, type GuestPayload } from '@/services/guestApi
 import { useServiceStore } from '@/composables/serviceStore'
 import { PlusCircle, ChevronRight } from 'lucide-vue-next'
 import UserCircleIcon from '@/icons/UserCircleIcon.vue'
+import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
+import {getPreferencesByHotelId} from '@/services/configrationApi'
 
 interface GuestData {
   title: string
@@ -570,12 +541,7 @@ interface GuestData {
   idExpiryDate: string
   issuingCountry: string
   issuingCity: string
-  preferences: {
-    floor: string
-    view: string
-    bed_type: string
-    notes: string
-  }
+  preferences: string[]
 }
 interface Props {
   guest?: any
@@ -584,10 +550,16 @@ interface Props {
   reservation: any
 }
 
+interface SelectOption {
+  value: string
+  label: string
+}
+
 const props = defineProps<Props>()
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
+const Preferences = ref<SelectOption[]>([])
 
 // State
 const isSaving = ref(false)
@@ -630,12 +602,7 @@ const initializeGuestData = (guest: any = null): GuestData => ({
   idExpiryDate: guest?.idExpiryDate || '',
   issuingCountry: guest?.issuingCountry || '',
   issuingCity: guest?.issuingCity || '',
-  preferences: {
-    floor: guest?.preferences?.floor || '',
-    view: guest?.preferences?.view || '',
-    bed_type: guest?.preferences?.bed_type || '',
-    notes: guest?.preferences?.notes || '',
-  },
+  preferences: guest.preferences || []
 })
 
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
@@ -808,4 +775,21 @@ const cancelEdit = () => {
     Object.assign(guestData, initializeGuestData(selectedGuest.value))
   }
 }
+
+const loadPreferences = async () => {
+  try {
+    const hotelId = serviceStore.serviceId
+    const response = await getPreferencesByHotelId(hotelId!)
+    Preferences.value = response.data.data.data.map((i:any)=>({
+      label:i.name,
+      value:i.id
+    }))
+  } catch (error) {
+    console.error('Error loading preferences:', error)
+
+  }
+}
+onMounted(()=>{
+  loadPreferences()
+})
 </script>

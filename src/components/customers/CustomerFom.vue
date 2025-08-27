@@ -237,7 +237,7 @@
         <MultipleSelect
          v-model="form.preferences"
           :options="Preferences"
-          :placeholder="$t('SelectRooms')"
+          :placeholder="$t('SelectPreferences')"
 
         />
       </div>
@@ -666,7 +666,7 @@ const fetchIdentityTypes = async () => {
         case 'visa':
           return {
             label: type.name,
-            value: type.id,
+            value: type.name,
             numberField: 'visaNumber',
             dateField: 'visaExpiry',
             label_fr: t('identity.visa_number'),
@@ -674,7 +674,7 @@ const fetchIdentityTypes = async () => {
         default:
           return {
             label: type.name,
-            value: type.id,
+            value: type.name,
             numberField: 'idNumber',
             dateField: 'idExpiryDate',
             label_fr: t('identity.id_number'),
