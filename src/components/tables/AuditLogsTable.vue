@@ -55,7 +55,7 @@
                         getActionBadgeColor(log.action)
                       ]"
                     >
-                      {{ log.action.toUpperCase() }}
+                      {{  $t(`${log.action}`) }}
                     </span>
 
                   </div>
@@ -151,7 +151,7 @@
           <div class="px-6 py-4">
             <div class="flex items-center justify-between mb-4">
               <h4 class="text-sm font-semibold text-gray-900">
-                {{ $t('Changes for {action}', { action: $t(`auditActions.${log.action}`) }) }}
+                {{ $t('Changesfor{action}', { action: $t(`auditActions.${log.action}`) }) }}
               </h4>
               <button
                 @click="$emit('toggle-changes', log.id)"
@@ -161,7 +161,7 @@
               </button>
             </div>
 
-            <div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+            <div class="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
               <div
                 v-for="(change, field) in log.changes"
                 :key="field"
@@ -221,7 +221,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed,watch } from 'vue'
 import {
   CalendarCheck,
   User,
@@ -270,7 +270,7 @@ interface AuditLog {
 
 interface Props {
   logs: AuditLog[]
-  expandedChanges: string[]
+  expandedChanges: (string | number)[]
 }
 
 const props = defineProps<Props>()
@@ -417,7 +417,11 @@ const getBrowserInfo = (userAgent: string): string => {
 }
 
 
-
+// watch(() => props.expandedChanges, (newVal) => {
+//   console.log('=== DEBUG AuditLogsTable Props ===')
+//   console.log('expandedChanges received:', newVal)
+//   console.log('Type:', typeof newVal, 'Length:', newVal?.length)
+// }, { immediate: true, deep: true })
 </script>
 
 <style scoped>

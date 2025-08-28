@@ -13,7 +13,7 @@
                 </svg>
             </span>
             <input type="personalEmail" :is-required="isRequired" v-model="localValue" @input="updateValue"
-                :placeholder="placeholder ?? 'info@gmail.com'"
+                :placeholder="placeholder ?? 'info@gmail.com'" :disabled="disabled"
                 class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
         </div>
     </div>
@@ -38,6 +38,10 @@ const props = defineProps({
     placeholder: {
         type: String,
         default: ''
+    },
+    disabled: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -55,3 +59,14 @@ onMounted(() => {
     localValue.value = props.modelValue
 })
 </script>
+<style scoped>
+input:disabled {
+    background-color: #f3f4f6;
+    /* Fond grisé */
+    cursor: not-allowed;
+    /* Curseur interdit */
+    border-color: #d1d5db;
+    /* Bord plus clair */
+    cursor: not-allowed;
+}
+</style>

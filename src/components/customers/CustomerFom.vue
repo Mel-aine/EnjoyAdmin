@@ -6,7 +6,7 @@
         <ImageUploader
           ref="profilePhotoUploader"
           v-model="form.profilePhoto"
-          label="Photo de profil"
+          :label="$t('ProfilePhoto')"
           :max-size-m-b="5"
           :cloudinary-config="cloudinaryConfig"
           @file-selected="onProfilePhotoSelected"
@@ -126,7 +126,7 @@
       <div>
         <Input
           v-model="form.registrationNumber"
-          :lb="$t('Registration No')"
+          :lb="$t('RegistrationNo')"
           :placeholder="$t('RegistrationNo')"
         />
       </div>
@@ -138,21 +138,13 @@
         @click="toggleSection('identity')"
         class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
       >
-        <svg
-          class="w-5 h-5 mr-2 text-gray-600 transition-transform"
-          :class="{ 'rotate-180': !sections.identity }"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          ></path>
-        </svg>
+       <ChevronDownIcon
+                  :class="[
+                    'w-6 h-6 text-gray-500 transition-transform',
+                    { 'rotate-180': sections.identity },
+                  ]"
+        />
+
         {{ $t('IdentityInformation') }}
       </h3>
       <div
@@ -163,7 +155,7 @@
           <ImageUploader
             ref="idPhotoUploader"
             v-model="form.idPhoto"
-            label="Photo de la pièce"
+            :label="$t('IDPhoto')"
             :max-size-m-b="10"
             :cloudinary-config="cloudinaryConfig"
             @file-selected="onIdPhotoSelected"
@@ -211,22 +203,13 @@
         @click="toggleSection('otherInformation')"
         class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
       >
-        <!-- Le chevron utilise la nouvelle clé 'otherInformation' -->
-        <svg
-          class="w-5 h-5 mr-2 text-gray-600 transition-transform"
-          :class="{ 'rotate-180': !sections.otherInformation }"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          ></path>
-        </svg>
+           <ChevronDownIcon
+                  :class="[
+                    'w-6 h-6 text-gray-500 transition-transform',
+                    { 'rotate-180': sections.otherInformation },
+                  ]"
+        />
+
         {{ $t('OtherInformation') }}
       </h3>
       <div v-if="sections.otherInformation" class="mt-6 pt-4">
@@ -242,46 +225,7 @@
         />
       </div>
 
-        <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <Input
-              v-model="form.preferences.floor"
-              :lb="$t('preferences.floor.label')"
-              :placeholder="$t('preferences.floor.placeholder')"
-            />
-          </div>
 
-
-          <div>
-            <Input
-              v-model="form.preferences.view"
-              :lb="$t('preferences.view.label')"
-              :placeholder="$t('preferences.view.placeholder')"
-            />
-          </div>
-
-
-          <div>
-            <Input
-              v-model="form.preferences.bed_type"
-              :lb="$t('preferences.bed_type.label')"
-              :placeholder="$t('preferences.bed_type.placeholder')"
-            />
-          </div>
-        </div> -->
-
-
-        <!-- <div class="mt-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">
-            {{ $t('preferences.notes.label') }}
-          </label>
-          <textarea
-            v-model="form.preferences.notes"
-            rows="4"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 resize-vertical"
-            :placeholder="$t('preferences.notes.placeholder')"
-          ></textarea>
-        </div> -->
       </div>
     </div>
 
@@ -319,6 +263,7 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 import {getPreferencesByHotelId} from '@/services/configrationApi'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
+import { ChevronDownIcon } from 'lucide-vue-next'
 
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))

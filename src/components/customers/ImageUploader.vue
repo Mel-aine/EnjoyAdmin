@@ -1,7 +1,10 @@
 <template>
   <div>
     <label v-if="label" class="block text-sm font-medium text-gray-700 mb-1.5">{{ label }}</label>
-    <div class="mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md h-40 relative">
+    <div
+      class="mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md h-40 relative"
+      :class="{ 'opacity-50 cursor-not-allowed': props.disabled }"
+    >
 
       <!-- État de chargement (seulement pendant l'upload) -->
       <div v-if="isUploading" class="space-y-2 text-center">
@@ -19,9 +22,10 @@
       <div
         v-else-if="!previewUrl && !modelValue"
         class="space-y-1 text-center w-full"
-        @dragover.prevent="dragOver = true"
-        @dragleave.prevent="dragOver = false"
-        @drop.prevent="handleDrop"
+        @dragover.prevent="!props.disabled && (dragOver = true)"
+        @dragleave.prevent="!props.disabled && (dragOver = false)"
+        @drop.prevent="!props.disabled && handleDrop"
+
         :class="{ 'bg-blue-50 border-blue-300': dragOver }"
       >
         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
@@ -36,6 +40,7 @@
               type="file"
               class="sr-only"
               accept="image/*"
+              :disabled="props.disabled"
               @change="handleImageSelect"
             >
           </label>
@@ -53,9 +58,9 @@
         />
         <button
           type="button"
-          @click="removeImage"
+          @click="!props.disabled && removeImage()"
           class="absolute top-1 right-1 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 transition-colors"
-          :disabled="isUploading"
+          :disabled="isUploading || props.disabled"
         >
           <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -117,11 +122,13 @@ interface Props {
     uploadPreset: string
     apiKey?: string
   }
+  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   label: '',
   maxSizeMB: 10,
+  disabled: false,
   cloudinaryConfig: () => ({
     cloudName: CLOUDINARY_NAME || '',
     uploadPreset: CLOUDINARY_UPLOAD_PRESET || '',
@@ -261,6 +268,7 @@ const uploadToCloudinary = async (): Promise<string> => {
 
 // Handlers d'événements
 const handleImageSelect = (event: Event) => {
+   if (props.disabled) return
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (file) {
@@ -271,6 +279,7 @@ const handleImageSelect = (event: Event) => {
 }
 
 const handleDrop = (event: DragEvent) => {
+   if (props.disabled) return
   dragOver.value = false
   const file = event.dataTransfer?.files[0]
   if (file) {
@@ -279,6 +288,7 @@ const handleDrop = (event: DragEvent) => {
 }
 
 const removeImage = () => {
+   if (props.disabled) return
   if (!isUploading.value) {
     // Nettoyer l'URL de prévisualisation
     if (previewUrl.value) {
