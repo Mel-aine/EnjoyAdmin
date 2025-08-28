@@ -219,11 +219,12 @@ import PlusIcon from '../../icons/PlusIcon.vue'
 import { PrinterIcon, Edit as EditIcon, DollarSign, Coffee, Utensils, Car, Wifi, Phone } from 'lucide-vue-next'
 import AddInvoiceIncidenPosc from './AddInvoiceIncidenPosc.vue'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
+import type { Column } from '../../utils/models'
 
 const { t } = useI18n()
 
 // State
-const selectedInvoice = ref(null)
+const selectedInvoice = <any>ref(null)
 const searchQuery = ref('')
 const hideVoid = ref(false)
 const showAddInvoiceModal = ref(false)
@@ -233,7 +234,7 @@ const dateRange = ref({
 })
 
 // Table configuration
-const invoiceColumns = ref([
+const invoiceColumns = ref<Column[]>([
     {
         key: 'invoice_details',
         label: t('invoice_details'),
@@ -247,22 +248,22 @@ const invoiceColumns = ref([
 ])
 
 // Sample invoice data
-const invoices = ref([])
+const invoices = ref<any>([])
 
 // Methods
-function selectInvoice(invoice) {
+function selectInvoice(invoice:any) {
     selectedInvoice.value = invoice
 }
 
-function onInvoiceRowClick(invoice) {
+function onInvoiceRowClick(invoice:any) {
     selectInvoice(invoice)
 }
 
-function getRowClass(invoice) {
+function getRowClass(invoice:any) {
     return selectedInvoice.value?.id === invoice.id ? 'bg-blue-50' : ''
 }
 
-function formatDate(dateString) {
+function formatDate(dateString:any) {
     return new Date(dateString).toLocaleDateString('en-GB')
 }
 
@@ -275,7 +276,7 @@ function performSearch() {
     }
 
     const query = searchQuery.value.toLowerCase().trim()
-    filteredInvoices.value = invoices.value.filter(invoice =>
+    filteredInvoices.value = invoices.value.filter((invoice:any) =>
         invoice.invoiceNumber.toLowerCase().includes(query) ||
         invoice.customerName.toLowerCase().includes(query)
     )
@@ -294,7 +295,7 @@ function closeAddInvoiceModal() {
     showAddInvoiceModal.value = false
 }
 
-function handleInvoiceCreated(newInvoice) {
+function handleInvoiceCreated(newInvoice:any) {
     invoices.value.unshift(newInvoice)
     selectedInvoice.value = newInvoice
     closeAddInvoiceModal()

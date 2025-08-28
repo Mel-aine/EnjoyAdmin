@@ -31,12 +31,7 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                    <Select lb="City Ledger" v-model="formData.cityLedgerAccount" :options="[
-                      { label: 'Select', value: '' },
-                      { label: 'AGODA TRAVELERS', value: 'AGODA TRAVELERS' },
-                      { label: 'BOOKING.COM', value: 'BOOKING.COM' },
-                      { label: 'EXPEDIA', value: 'EXPEDIA' }
-                    ]" :isRequired="true" />
+                   <InputSelectCityLeger v-model="formData.cityLedgerAccount"/>
 
                     <!-- Date -->
                     <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" />
@@ -84,7 +79,9 @@
                         <RadioGroup class="flex space-x-4" :options="[
                           { label: 'Posting date', value: 'posting' },
                           { label: 'Departure date', value: 'departure' },
-                        ]" />
+                        ]"
+                        v-model="formData.filter_options"
+                        />
 
                       </div>
                       <div class="mr-4">
@@ -93,7 +90,7 @@
                       </div>
                     </div>
                     <div class="col-span-5">
-                      <Input :lb="$t('res.no')" v-model="formData.resNo" />
+                      <Input :lb="$t('res.no')" :disabled="true" :placeholder="$t('new')"/>
                     </div>
                     <div class="justify-center align-middle pt-6">
                       <BasicButton :label="t('Search')" :icon="SearchCodeIcon"></BasicButton>
@@ -106,7 +103,7 @@
                 @selection-change="handleGuestSelectionChange" :searchable="false" :show-header="false">
                 <!-- Custom cell for Date column -->
                 <template #column-date="{ item }">
-                  <span class="text-xs text-gray-900 dark:text-white">{{ formatDate(item.date) }}</span>
+                  <span class="text-xs text-gray-900 dark:text-white">{{ formatDateT(item.date) }}</span>
                 </template>
 
                 <!-- Custom cell for Name column -->
@@ -117,7 +114,7 @@
                 <!-- Custom cell for Amount column -->
                 <template #cell-amount="{ item }">
                   <span class="text-xs font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.amount)
-                  }}</span>
+                    }}</span>
                 </template>
 
                 <!-- Custom cell for Assigned column -->
@@ -170,6 +167,9 @@ import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoub
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import { formatCurrency } from '../../utils/numericUtils'
 import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
+import { formatDateT } from '../../components/utilities/UtilitiesFunction'
+import type { Column } from '../../utils/models'
+import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -183,8 +183,12 @@ const formData = ref({
   paymentType: 'cash',
   reference: '',
   date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-  amount: null,
-  comment: ''
+  amount: 0,
+  comment: '',
+  startDate:new Date().toISOString().split('T')[0],
+  endDate:new Date().toISOString().split('T')[0],
+  paymentMethod:"",
+  filter_options:""
 })
 
 // Date range for map payment
@@ -229,49 +233,37 @@ const guestData = ref([
 const selectedGuests = ref([])
 
 // Table columns definition
-const guestColumns = [
-  { key: 'date', label: 'Date', sortable: true },
-  { key: 'name', label: 'Guest Name', sortable: true },
-  { key: 'folioNo', label: 'Folio No.', sortable: true },
-  { key: 'user', label: 'User', sortable: true },
-  { key: 'amount', label: 'Amount', sortable: true, type: 'currency' },
-  { key: 'assigned', label: 'Assigned', sortable: true, type: 'currency' },
-  { key: 'open', label: 'Open', sortable: true, type: 'currency' },
-  { key: 'assign', label: 'Assign', sortable: false, type: 'custom' }
-]
+const guestColumns = computed<Column[]>(() => {
+  return [
+    { key: 'date', label: 'Date', sortable: true },
+    { key: 'name', label: 'Guest Name', sortable: true },
+    { key: 'folioNo', label: 'Folio No.', sortable: true },
+    { key: 'user', label: 'User', sortable: true },
+    { key: 'amount', label: 'Amount', sortable: true, type: 'text' },
+    { key: 'assigned', label: 'Assigned', sortable: true, type: 'text' },
+    { key: 'open', label: 'Open', sortable: true, type: 'text' },
+    { key: 'assign', label: 'Assign', sortable: false, type: 'custom' }
+  ]
+})
 
 // Table actions
 const guestActions = [
   { key: 'assign', label: 'Assign', icon: 'check-circle' }
 ]
 
-// Methods
-const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
-  return new Date(dateString).toLocaleDateString('en-US', options)
-}
 
 
-const handleGuestSelectionChange = (selected) => {
+const handleGuestSelectionChange = (selected: any) => {
   selectedGuests.value = selected
   // Update the selected property in guestData
   guestData.value.forEach(guest => {
-    guest.selected = selectedGuests.value.some(item => item.folioNo === guest.folioNo)
+    guest.selected = selectedGuests.value.some((item: any) => item.folioNo === guest.folioNo)
   })
 }
 
-const handleGuestAction = ({ action, item }) => {
-  if (action === 'assign') {
-    assignPayment(item)
-  }
-}
 
-const assignPayment = (guest) => {
-  // Logic to assign payment to this guest
-  console.log('Assigning payment to guest:', guest)
-  // Here you would implement the logic to assign the payment
-  // For example, updating the assigned and open values
-}
+
+
 
 const savePayment = () => {
   // Validate form

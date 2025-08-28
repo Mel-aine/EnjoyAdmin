@@ -74,7 +74,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { vipStatusApi } from '@/services/configurationApi'
+import { vipStatusApi } from '@/services/configrationApi'
 
 // Reactive data
 const dialogVisible = ref(false)

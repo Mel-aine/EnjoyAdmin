@@ -68,7 +68,7 @@ interface UnsettledFolio {
   totalCharges: number
   totalPayments: number
   balance: number
-  status: 'Open' | 'Closed' | 'Pending' | 'Disputed'
+  status: string,
   lastActivity: string
   daysPending: number
 }
@@ -102,70 +102,6 @@ const breadcrumb = [
 
 // Mock data for unsettled folios
 const folios = ref<UnsettledFolio[]>([
-  {
-    id: '1',
-    folioNumber: '163',
-    guestName: 'Mr. Huzaifa Ramalawala',
-    reservationNumber: '167',
-    roomNumber: '101',
-    roomType: 'Deluxe Room',
-    checkInDate: '15/09/20',
-    checkOutDate: '15/09/20',
-    totalCharges: 1506.00,
-    totalPayments: 0.00,
-    balance: 1506.00,
-    status: 'Checked Out',
-    lastActivity: '2024-01-20',
-    daysPending: 15
-  },
-  {
-    id: '2',
-    folioNumber: '165',
-    guestName: 'Mr. Burhanuddin',
-    reservationNumber: '169',
-    roomNumber: '205',
-    roomType: 'Standard Room',
-    checkInDate: '17/09/20',
-    checkOutDate: '18/09/20',
-    totalCharges: 600.00,
-    totalPayments: 0.00,
-    balance: 600.00,
-    status: 'Checked Out',
-    lastActivity: '2024-01-18',
-    daysPending: 17
-  },
-  {
-    id: '3',
-    folioNumber: '192',
-    guestName: 'Mr. Huzaifa Ramalawala',
-    reservationNumber: '-',
-    roomNumber: '301',
-    roomType: 'Suite',
-    checkInDate: '15/09/20',
-    checkOutDate: '16/09/20',
-    totalCharges: 2016.00,
-    totalPayments: 0.00,
-    balance: 2016.00,
-    status: 'Checked Out',
-    lastActivity: '2024-01-16',
-    daysPending: 19
-  },
-  {
-    id: '4',
-    folioNumber: '167',
-    guestName: 'Mr. Kunal Patil',
-    reservationNumber: '171',
-    roomNumber: '102',
-    roomType: 'Deluxe Room',
-    checkInDate: '05/10/20',
-    checkOutDate: '06/10/20',
-    totalCharges: 2016.00,
-    totalPayments: 0.00,
-    balance: -2016.00,
-    status: 'Cancel',
-    lastActivity: '2024-01-06',
-    daysPending: 29
-  }
 ])
 
 // Table columns configuration

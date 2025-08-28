@@ -133,6 +133,8 @@ import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import NewPaymentCityLedger from './NewPaymentCityLedger.vue'
 import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
+import { type Column } from '../../utils/models'
+import { formatCurrency } from '../../utils/numericUtils'
 const router = useRouter()
 const { t } = useI18n()
 const searchQuery = ref('')
@@ -150,10 +152,10 @@ const filters = ref({
 })
 
 // Original data backup for filtering
-const originalTransactions = ref([])
-const selectCityLedger = ref(null)
+const originalTransactions = ref<any>([])
+const selectCityLedger = ref<any>(null)
 // Table columns
-const columns = ref([
+const columns = ref<Column[]>([
     { key: 'date', label: 'Date', type: 'custom' },
     { key: 'description', label: 'Description', type: 'custom' },
     { key: 'paymentType', label: 'Payment Type', type: 'custom' },
@@ -301,132 +303,21 @@ const filteredData = computed(() => {
     return filtered
 })
 
-// Methods
-function formatCurrency(value) {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 2
-    }).format(value)
-}
 
-function handleSelectionChange(items) {
+function handleSelectionChange(items:any) {
     selectedItems.value = items
     console.log('Selected items:', items)
 }
 
-function handleTableAction({ action, item }) {
-    console.log(`Action ${action.name} performed on item:`, item)
 
-    switch (action.name) {
-        case 'view':
-            viewDetails(item)
-            break
-        case 'edit':
-            editTransaction(item)
-            break
-        case 'delete':
-            deleteTransaction(item)
-            break
-        case 'void':
-            voidTransaction(item)
-            break
-        case 'print':
-            printReceipt(item)
-            break
-        case 'map':
-            mapPayment(item)
-            break
-    }
-}
 
-function handleSearchChange(query) {
-    console.log('Search query:', query)
-    // Implement search functionality here
-}
 
-function viewDetails(item) {
-    console.log('Viewing details for:', item)
-    // Implement view details functionality
-}
-
-function editTransaction(item) {
-    console.log('Editing transaction:', item)
-    // Implement edit functionality
-}
-
-function deleteTransaction(item) {
-    console.log('Deleting transaction:', item)
-    // Implement delete functionality with confirmation
-}
-
-function voidTransaction(item) {
-    console.log('Voiding transaction:', item)
-    // Implement void functionality
-}
-
-function printReceipt(item) {
-    console.log('Printing receipt for:', item)
-    // Implement print functionality
-}
-
-function mapPayment(item) {
-    console.log('Mapping payment for:', item)
-    // Implement map payment functionality
-}
 
 function openNewPaymentModal() {
     newPaymentVisible.value = true
 }
 
-function resetFilters() {
-    filters.value = {
-        startDate: '',
-        endDate: '',
-        user: ''
-    }
-    // Reset filtered data
-}
 
-// Then apply user filters
-if (filters.value.startDate) {
-    filtered = filtered.filter(t => new Date(t.date) >= new Date(filters.value.startDate))
-}
-
-if (filters.value.endDate) {
-    filtered = filtered.filter(t => new Date(t.date) <= new Date(filters.value.endDate))
-}
-
-if (filters.value.user) {
-    filtered = filtered.filter(t => t.user === filters.value.user)
-}
-
-
-// Methods
-const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
-    return new Date(dateString).toLocaleDateString('en-US', options)
-}
-
-
-
-
-
-
-const openPaymentEntryModal = () => {
-    console.log('Open payment entry modal')
-    // Implement payment entry modal logic
-}
-
-const exportData = () => {
-    console.log('Exporting data...')
-    // Implement export logic
-}
-
-const applyFilters = () => {
-    console.log('Applying filters:', filters.value)
-    // The computed filteredData will automatically update
-}
 
 
 // Lifecycle hooks

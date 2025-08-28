@@ -32,7 +32,7 @@ interface Option {
 }
 
 const props = defineProps<{
-  label: string
+  label?: string
   options: Option[]
   modelValue: string
 }>()

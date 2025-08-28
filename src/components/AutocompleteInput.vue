@@ -179,11 +179,11 @@ const id = ref(`autocomplete-${uuidv4()}`)
 
 // State
 const inputValue = ref('')
-const suggestions = ref([])
+const suggestions = ref<any>([])
 const isOpen = ref(false)
 const loading = ref(false)
-const activeIndex = ref(-1)
-const debounceTimeout = ref(null)
+const activeIndex = ref <any>(-1)
+const debounceTimeout =ref <any>(null)
 
 // Computed
 const displayValue = computed(() => {
@@ -202,28 +202,28 @@ const displayValue = computed(() => {
 })
 
 // Methods
-function getSuggestionKey(suggestion, index) {
+function getSuggestionKey(suggestion:any, index:any) {
   if (typeof suggestion === 'object' && suggestion !== null) {
     return suggestion[props.valueKey] || index
   }
   return index
 }
 
-function getSuggestionLabel(suggestion) {
+function getSuggestionLabel(suggestion:any) {
   if (typeof suggestion === 'object' && suggestion !== null) {
     return suggestion[props.labelKey] || ''
   }
   return String(suggestion)
 }
 
-function getSuggestionValue(suggestion) {
+function getSuggestionValue(suggestion:any) {
   if (typeof suggestion === 'object' && suggestion !== null) {
     return suggestion[props.valueKey] || suggestion
   }
   return suggestion
 }
 
-function isSelected(suggestion) {
+function isSelected(suggestion:any) {
   if (!props.modelValue) return false
   
   if (typeof props.modelValue === 'object' && typeof suggestion === 'object') {
@@ -233,7 +233,7 @@ function isSelected(suggestion) {
   return props.modelValue === getSuggestionValue(suggestion)
 }
 
-async function fetchData(query) {
+async function fetchData(query:any) {
   if (debounceTimeout.value) {
     clearTimeout(debounceTimeout.value)
   }
@@ -261,7 +261,7 @@ async function fetchData(query) {
   }, props.debounceMs)
 }
 
-function handleInput(event) {
+function handleInput(event:any) {
   const value = event.target.value
   inputValue.value = value
   
@@ -301,7 +301,7 @@ function handleBlur() {
   }, 150)
 }
 
-function handleKeydown(event) {
+function handleKeydown(event:any) {
   if (!isOpen.value && (event.key === 'ArrowDown' || event.key === 'Enter')) {
     isOpen.value = true
     fetchData(inputValue.value || '')
@@ -348,7 +348,7 @@ function handleKeydown(event) {
   }
 }
 
-function selectSuggestion(suggestion) {
+function selectSuggestion(suggestion:any) {
   const value = suggestion
   emit('update:modelValue', value)
   emit('change', value)

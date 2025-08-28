@@ -1253,13 +1253,13 @@ const router = createRouter({
     {
         path: '/new',
         name: 'CustomerCreate',
-        component: () => import('@/views/customers/CustomerEditPage.vue'),
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
       },
 
       {
         path: '/edit/:id',
         name: 'CustomerEdit',
-        component: () => import('@/views/customers/CustomerEditPage.vue'),
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
         props: true
       },
     {

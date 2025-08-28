@@ -364,7 +364,7 @@ const formatDate = (dateString: string) => {
 
   <!-- Print Modal -->
   <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-    @print-success="handlePrintSuccess" @print-error="handlePrintError" />
+    @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservation.id"/>
 </template>
 
 <style></style>

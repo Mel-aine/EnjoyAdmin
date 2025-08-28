@@ -245,7 +245,7 @@ const loadCompanyData = async () => {
 
   try {
     isLoading.value = true
-    const company: any = await getCompanyById(companyId.value)
+    const company: any = await getCompanyById(Number(companyId.value))
     console.log('Loaded company:', company)
 
     if (company) {

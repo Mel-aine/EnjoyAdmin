@@ -163,7 +163,7 @@
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
           <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
-          @print-started="handlePrintStarted" @print-completed="handlePrintCompleted" @print-error="handlePrintError"
+           @print-error="handlePrintError"
           :reservation-id="reservationId" />
         </template>
       </div>

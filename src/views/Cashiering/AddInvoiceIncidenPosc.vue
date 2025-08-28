@@ -56,7 +56,7 @@
           </div>
 
           <div class="space-y-4">
-            <InputPaymentMethodSelect v-model="form.paymentMethod" :paymentType="form.paymentType"
+            <InputPaymentMethodSelect  :paymentType="form.paymentType"
               />
           </div>
         </div>
@@ -220,11 +220,11 @@ const paymentTypeOptions = ref([
 
 // Computed
 const totalCharges = computed(() => {
-  return form.value.charges.reduce((sum, charge) => sum + (parseFloat(charge.amount) || 0), 0)
+  return form.value.charges.reduce((sum, charge) => sum + (parseFloat(`${charge.amount}`) || 0), 0)
 })
 
 const totalPayments = computed(() => {
-  return form.value.payments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0)
+  return form.value.payments.reduce((sum, payment) => sum + (parseFloat(`${payment.amount}`) || 0), 0)
 })
 
 const balance = computed(() => {
@@ -270,7 +270,7 @@ function addCharge() {
   })
 }
 
-function removeCharge(index) {
+function removeCharge(index:number) {
   form.value.charges.splice(index, 1)
 }
 
@@ -278,14 +278,14 @@ async function saveInvoice() {
   try {
     // Map form data to API structure
     const invoiceData = {
-      hotelId: useServiceStore().hotelId || 1,
-      guestId: parseInt(form.value.guestId) || 123,
+      hotelId: useServiceStore().serviceId  ,
+      guestId: parseInt(form.value.guestId) ,
       date: new Date(form.value.voucherDate).toISOString(),
       charges: form.value.charges.filter(c => c.particular && c.amount > 0).map(charge => ({
         description: charge.particular,
-        amount: parseFloat(charge.amount) || 0,
-        quantity: parseInt(charge.quantity) || 1,
-        unitPrice: parseFloat(charge.amount) / (parseInt(charge.quantity) || 1)
+        amount: charge.amount,
+        quantity: charge.quantity,
+        unitPrice: parseFloat(`${charge.amount}`) / (parseInt(`${charge.quantity}`) )
       })),
       paymentType: form.value.paymentType === 'debit' ? 'cash' : form.value.paymentType,
       description: `Voice Incidence - ${form.value.contactType} Services`,
