@@ -1327,6 +1327,24 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/cashiering/exchange-rate',
+      name: 'ExchangeRate',
+      component: () => import('../views/Cashiering/ExchangeRatePage.vue'),
+      meta: {
+        title: 'Exchange Rate',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/pos',
+      name: 'PosInterface',
+      component: () => import('../views/Cashiering/PosInterface.vue'),
+      meta: {
+        title: 'POS - Incidental Invoice',
+        requiresAuth: true,
+      },
+    },
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',
