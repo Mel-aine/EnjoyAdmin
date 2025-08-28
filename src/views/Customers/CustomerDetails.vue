@@ -654,11 +654,11 @@ const blacklistHistory = computed(() => {
     return []
   }
 
-  const notesArray = customer.value.notes.split('\n').filter((note) => note.trim() !== '')
+  const notesArray = customer.value.notes.split('\n').filter((note:any) => note.trim() !== '')
 
   const history = notesArray
-    .filter((note) => note.includes('[') && note.includes('] Blacklisted:'))
-    .map((note) => {
+    .filter((note:any) => note.includes('[') && note.includes('] Blacklisted:'))
+    .map((note:any) => {
       try {
         const timestampMatch = note.match(/\[(.*?)\]/)
         const reasonMatch = note.split('Blacklisted:')[1]
@@ -674,8 +674,8 @@ const blacklistHistory = computed(() => {
         return null
       }
     })
-    .filter((item) => item !== null)
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .filter((item:any) => item !== null)
+    .sort((a:any, b:any) => b.date.getTime() - a.date.getTime())
 
   return history
 })
