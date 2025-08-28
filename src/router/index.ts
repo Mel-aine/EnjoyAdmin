@@ -108,6 +108,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/customer_detail_log/:id',
+      name: 'CustomerAuditLog',
+      component: () => import('../views/Customers/CustomerDetailsLogs.vue'),
+      props: true,
+      meta: {
+        title: 'Customers Details',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/room_detail/:id',
       name: 'RoomDetailsModal',
       component: () => import('../views/Room/RoomDetailsModal.vue'),
