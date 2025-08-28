@@ -1,83 +1,69 @@
 <template>
     <AdminLayout>
-        <div class="flex h-screen bg-gray-50">
-            <!-- Left Sidebar - Invoice List -->
-            <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col">
-                <div class="p-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">{{ $t('incidental_invoices') }}</h3>
+        <div class="bg-white shadow-sm border-b border-gray-200 p-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-xl font-bold text-gray-900 me-16">{{ $t('incidental_invoices') }}</h2>
+
+                    <!-- Search -->
+                    <div class="relative flex">
+                        <Input v-model="searchQuery" :placeholder="$t('search_by_voucher_name_type')"
+                            class="w-64 rounded-r-none" @keyup.enter="performSearch" />
+                        <button @click="performSearch"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors border border-l-0 border-gray-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Date Range -->
+                    <InputDoubleDatePicker v-model:startDate="dateRange.start" v-model:endDate="dateRange.end"
+                        class="w-64" :defaultToToday="true" />
+
+                    <!-- Hide Void Checkbox -->
+                    <InputCheckBox v-model="hideVoid" :label="$t('hide_void')" id="hide-void" />
                 </div>
 
+                <div class="flex items-center space-x-2">
+                    <BasicButton :icon="PlusIcon" :label="$t('add_new')" @click="openAddInvoiceModal"
+                        variant="primary" />
+                </div>
+            </div>
+        </div>
+        <div class="flex h-screen bg-gray-50">
+            <!-- Left Sidebar - Invoice List -->
+            <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col mt-6">
                 <div class="flex-1 overflow-y-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 sticky top-0">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Invoice Number') }}</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Customer') }}</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Date') }}</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Amount') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="invoice in filteredInvoices" :key="invoice.id" 
-                                @click="selectInvoice(invoice)" 
-                                :class="[
-                                    'cursor-pointer hover:bg-gray-50 transition-colors',
-                                    selectedInvoice?.id === invoice.id ? 'bg-blue-50' : ''
-                                ]">
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="font-medium text-gray-900">{{ invoice.invoiceNumber }}</div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="text-sm text-gray-600">{{ invoice.customerName }}</div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="text-xs text-gray-500">{{ formatDate(invoice.date) }}</div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-right">
-                                    <div class="font-medium text-gray-900">Rs {{ invoice.totalCharges.toFixed(2) }}</div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <ReusableTable
+                        :columns="invoiceColumns"
+                        :data="filteredInvoices"
+                        :searchable="false"
+                        :show-header="false"
+                        :selectable="false"
+                        :rowClass="getRowClass"
+                        class="invoice-table"
+                        @row-click="onInvoiceRowClick"
+                    >
+                        <!-- Custom date column -->
+                        <template #column-invoice_details="{ item }">
+                                                         <div class="text-sm">{{ item.invoiceNumber }}</div>
+
+                             <div class="text-xs text-gray-500">{{ item.customerName }}</div>
+                            <div class="text-xs text-gray-500">{{ formatDate(item.date) }}</div>
+                        </template>
+                        
+                        <!-- Custom amount column -->
+                        <template #column-totalCharges="{ item }">
+                            <div class="font-medium text-gray-900 text-right">Rs {{ item.totalCharges.toFixed(2) }}</div>
+                        </template>
+                    </ReusableTable>
                 </div>
             </div>
 
             <!-- Main Content Area -->
             <div class="flex-1 flex flex-col">
-                <!-- Top Navigation Bar -->
-                <div class="bg-white shadow-sm border-b border-gray-200 p-4">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-4">
-                            <h2 class="text-xl font-bold text-gray-900">{{ $t('incidental_invoice') }}</h2>
-
-                            <!-- Search -->
-                            <div class="relative flex">
-                                <Input v-model="searchQuery" :placeholder="$t('search_by_voucher_name_type')"
-                                    class="w-64 rounded-r-none" @keyup.enter="performSearch" />
-                                <button @click="performSearch" 
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors border border-l-0 border-gray-300">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Date Range -->
-                            <InputDoubleDatePicker v-model:startDate="dateRange.start" v-model:endDate="dateRange.end"
-                                class="w-64" />
-
-                            <!-- Hide Void Checkbox -->
-                            <InputCheckBox v-model="hideVoid" :label="$t('hide_void')" id="hide-void" />
-                        </div>
-
-                        <div class="flex items-center space-x-2">
-                            <BasicButton :icon="PlusIcon" :label="$t('add_new')" @click="openAddInvoiceModal"
-                                variant="primary" />
-                            <BasicButton :label="$t('watch')" variant="secondary" />
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Invoice Details -->
                 <div class="flex-1 p-6 overflow-y-auto">
                     <div v-if="selectedInvoice" class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -90,19 +76,19 @@
                                     <div class="mt-2 space-y-1">
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('customer') }}:</span> {{
-                                            selectedInvoice.customerName }}
+                                                selectedInvoice.customerName }}
                                         </div>
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('voucher_date') }}:</span> {{
-                                            formatDate(selectedInvoice.date) }}
+                                                formatDate(selectedInvoice.date) }}
                                         </div>
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('prepared_by') }}:</span> {{
-                                            selectedInvoice.preparedBy }}
+                                                selectedInvoice.preparedBy }}
                                         </div>
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('total_charges') }}:</span> Rs {{
-                                            selectedInvoice.totalCharges.toFixed(2) }}
+                                                selectedInvoice.totalCharges.toFixed(2) }}
                                         </div>
                                     </div>
                                 </div>
@@ -145,15 +131,15 @@
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr v-for="charge in selectedInvoice.charges" :key="charge.id">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ charge.srNo
-                                                }}</td>
+                                            }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
                                                 charge.refNo }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
-                                                charge.particular }}</td>
+                                          
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{
                                                 charge.comments }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{
-                                                charge.amount.toFixed(2) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                                                Rs {{ charge.amount.toFixed(2) }}
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -230,15 +216,15 @@ import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoub
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import PlusIcon from '../../icons/PlusIcon.vue'
-import { PrinterIcon, Edit as EditIcon } from 'lucide-vue-next'
+import { PrinterIcon, Edit as EditIcon, DollarSign, Coffee, Utensils, Car, Wifi, Phone } from 'lucide-vue-next'
 import AddInvoiceIncidenPosc from './AddInvoiceIncidenPosc.vue'
+import ReusableTable from '../../components/tables/ReusableTable.vue'
 
 const { t } = useI18n()
 
 // State
 const selectedInvoice = ref(null)
 const searchQuery = ref('')
-const filteredInvoices = ref(invoices.value)
 const hideVoid = ref(false)
 const showAddInvoiceModal = ref(false)
 const dateRange = ref({
@@ -246,84 +232,41 @@ const dateRange = ref({
     end: ''
 })
 
-// Sample invoice data
-const invoices = ref([
+// Table configuration
+const invoiceColumns = ref([
     {
-        id: 1,
-        invoiceNumber: '3',
-        customerName: 'Ubed',
-        date: '2022-09-16',
-        preparedBy: 'helpdesksupport',
-        totalCharges: 100.00,
-        charges: [
-            {
-                id: 1,
-                srNo: 1,
-                refNo: 26,
-                particular: 'JUICE',
-                comments: '',
-                amount: 100.00
-            }
-        ],
-        payments: [
-            {
-                id: 1,
-                srNo: 1,
-                refNo: 30,
-                type: 'Cash',
-                comments: '',
-                amount: 100.00
-            }
-        ]
+        key: 'invoice_details',
+        label: t('invoice_details'),
+        type: 'custom'
     },
     {
-        id: 2,
-        invoiceNumber: '2',
-        customerName: 'Ashish Patel',
-        date: '2022-09-15',
-        preparedBy: 'helpdesksupport',
-        totalCharges: 100.00,
-        charges: [
-            {
-                id: 1,
-                srNo: 1,
-                refNo: 25,
-                particular: 'SERVICE',
-                comments: '',
-                amount: 100.00
-            }
-        ],
-        payments: []
-    },
-    {
-        id: 3,
-        invoiceNumber: '1',
-        customerName: 'Ankit',
-        date: '2022-09-13',
-        preparedBy: 'helpdesksupport',
-        totalCharges: 50.00,
-        charges: [
-            {
-                id: 1,
-                srNo: 1,
-                refNo: 24,
-                particular: 'FOOD',
-                comments: '',
-                amount: 50.00
-            }
-        ],
-        payments: []
+        key: 'totalCharges',
+        label: t('Amount'),
+        type: 'custom'
     }
 ])
+
+// Sample invoice data
+const invoices = ref([])
 
 // Methods
 function selectInvoice(invoice) {
     selectedInvoice.value = invoice
 }
 
+function onInvoiceRowClick(invoice) {
+    selectInvoice(invoice)
+}
+
+function getRowClass(invoice) {
+    return selectedInvoice.value?.id === invoice.id ? 'bg-blue-50' : ''
+}
+
 function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('en-GB')
 }
+
+const filteredInvoices = ref(invoices.value)
 
 function performSearch() {
     if (!searchQuery.value.trim()) {
@@ -332,7 +275,7 @@ function performSearch() {
     }
 
     const query = searchQuery.value.toLowerCase().trim()
-    filteredInvoices.value = invoices.value.filter(invoice => 
+    filteredInvoices.value = invoices.value.filter(invoice =>
         invoice.invoiceNumber.toLowerCase().includes(query) ||
         invoice.customerName.toLowerCase().includes(query)
     )
@@ -374,11 +317,35 @@ function editInvoice() {
 
 // Lifecycle
 onMounted(() => {
-    // Initialize filtered invoices
-    filteredInvoices.value = invoices.value
-    // Select first invoice by default
-    if (invoices.value.length > 0) {
-        selectedInvoice.value = invoices.value[0]
-    }
+   
 })
 </script>
+
+<style scoped>
+.invoice-table :deep(.min-w-full) {
+    table-layout: fixed;
+}
+
+.invoice-table :deep(th),
+.invoice-table :deep(td) {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+
+.invoice-table :deep(th) {
+    background-color: #f9fafb;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+.invoice-table :deep(tbody tr:hover) {
+    background-color: #f9fafb;
+}
+
+.invoice-table :deep(.bg-blue-50) {
+    background-color: #eff6ff !important;
+}
+</style>

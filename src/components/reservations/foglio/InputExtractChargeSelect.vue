@@ -1,8 +1,8 @@
 <template>
   <div ref="selectWrapper" class="w-full">
-    <label v-if="!hideLabel" for="discount_select" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+    <label v-if="!hideLabel" for="extract_charge_select" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
       :class="isDropdownOpen ? 'text-brand-500' : 'text-gray-500'">
-      {{ lb || $t('Discount') }}
+      {{ lb || $t('Particular') }}
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
 
@@ -12,7 +12,7 @@
         ref="inputRef"
         v-model="searchQuery"
         type="text"
-        :placeholder="placeholder || $t('Search discounts...')"
+        :placeholder="placeholder || $t('Search extra charges...')"
         :disabled="disabled || isLoading"
         class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300', customClass]"
@@ -35,44 +35,44 @@
       </div>
 
       <!-- Hidden input for form validation -->
-      <input type="hidden" :required="isRequired" :value="selectedDiscount?.id || ''" />
+      <input type="hidden" :required="isRequired" :value="selectedCharge?.id || ''" />
 
       <!-- Dropdown list -->
       <ul v-if="isDropdownOpen && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 z-999999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
+        class="custom-scrollbar  absolute top-full left-0  z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
         
         <!-- No results message -->
-        <li v-if="discountOptions.length === 0 && searchQuery.length > 0" 
+        <li v-if="chargeOptions.length === 0 && searchQuery.length > 0" 
           class="px-5 py-3 text-gray-500 text-center italic">
-          {{ $t('No discounts found') }}
+          {{ $t('No extra charges found') }}
         </li>
         
         <!-- Initial message when no search -->
-        <li v-else-if="discountOptions.length === 0 && searchQuery.length === 0" 
+        <li v-else-if="chargeOptions.length === 0 && searchQuery.length === 0" 
           class="px-5 py-3 text-gray-500 text-center italic">
-          {{ $t('Start typing to search discounts...') }}
+          {{ $t('Start typing to search extra charges...') }}
         </li>
         
-        <!-- Discount options -->
-        <li v-for="discount in discountOptions" 
-          :key="discount.id" 
-          @click="selectDiscount(discount)" 
+        <!-- Extra charge options -->
+        <li v-for="charge in chargeOptions" 
+          :key="charge.id" 
+          @click="selectCharge(charge)" 
           :class="[
             'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
             disabled ? 'cursor-not-allowed text-gray-400' : '',
-            selectedDiscount?.id === discount.id ? 'bg-brand-50 text-brand-700' : ''
+            selectedCharge?.id === charge.id ? 'bg-brand-50 text-brand-700' : ''
           ]" 
           role="option" 
-          :aria-selected="selectedDiscount?.id === discount.id">
+          :aria-selected="selectedCharge?.id === charge.id">
           <div class="flex flex-col">
             <div class="font-medium text-sm">
-              {{ discount.name || discount.discount_name }}
+              {{ charge.name || charge.charge_name }}
             </div>
             <div class="text-xs text-gray-500 mt-1">
-              {{ $t('Type') }}: {{ discount.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} | 
-              {{ $t('Value') }}: {{ formatDiscountValue(discount) }} |
-              {{ $t('Status') }}: {{ discount.status === 'active' ? $t('Active') : $t('Inactive') }}
+              {{ $t('Type') }}: {{ charge.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} | 
+              {{ $t('Value') }}: {{ formatChargeValue(charge) }} |
+              {{ $t('Status') }}: {{ charge.status === 'active' ? $t('Active') : $t('Inactive') }}
             </div>
           </div>
         </li>
@@ -84,20 +84,20 @@
 <script setup lang="ts">
 import DotSpinner from '@/components/spinner/DotSpinner.vue'
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-import { getDiscounts } from '@/services/configrationApi'
+import { getExtraCharges } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
 
-interface DiscountOption {
+interface ExtraChargeOption {
   id: number
   name?: string
-  discount_name?: string
+  charge_name?: string
   type: 'percentage' | 'flat'
   value: number
   status: 'active' | 'inactive'
   short_code?: string
   apply_on?: string
-  open_discount?: boolean
+  description?: string
 }
 
 interface Props {
@@ -122,21 +122,21 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const isDropdownOpen = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
-const discountOptions = ref<DiscountOption[]>([])
-const selectedDiscount = ref<DiscountOption | null>(null)
-const allDiscounts = ref<DiscountOption[]>([])
+const chargeOptions = ref<ExtraChargeOption[]>([])
+const selectedCharge = ref<ExtraChargeOption | null>(null)
+const allCharges = ref<ExtraChargeOption[]>([])
 
 // Computed
-const formatDiscountValue = computed(() => {
-  return (discount: DiscountOption) => {
-    if (discount.type === 'percentage') {
-      return `${discount.value}%`
+const formatChargeValue = computed(() => {
+  return (charge: ExtraChargeOption) => {
+    if (charge.type === 'percentage') {
+      return `${charge.value}%`
     } else {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'XAF',
         minimumFractionDigits: 0
-      }).format(discount.value || 0)
+      }).format(charge.value || 0)
     }
   }
 })
@@ -145,73 +145,75 @@ const formatDiscountValue = computed(() => {
 watch(
   () => props.modelValue,
   (newVal) => {
-    if (newVal && newVal !== selectedDiscount.value?.id) {
-      // Find the discount in current options or all discounts
-      const found = discountOptions.value.find(discount => discount.id === Number(newVal)) ||
-                   allDiscounts.value.find(discount => discount.id === Number(newVal))
+    if (newVal && newVal !== selectedCharge.value?.id) {
+      // Find the charge in current options or all charges
+      const found = chargeOptions.value.find(charge => charge.id === Number(newVal)) ||
+                   allCharges.value.find(charge => charge.id === Number(newVal))
       if (found) {
-        selectedDiscount.value = found
-        searchQuery.value = found.name || found.discount_name || ''
+        selectedCharge.value = found
+        searchQuery.value = found.name || found.charge_name || ''
       }
     } else if (!newVal) {
-      selectedDiscount.value = null
+      selectedCharge.value = null
       searchQuery.value = ''
     }
   },
   { immediate: true }
 )
 
-// Filter discounts based on search query
-const filterDiscounts = (query: string) => {
+// Filter charges based on search query
+const filterCharges = (query: string) => {
   if (!query.trim()) {
-    discountOptions.value = allDiscounts.value
+    chargeOptions.value = allCharges.value
     return
   }
 
   const searchTerm = query.toLowerCase()
-  discountOptions.value = allDiscounts.value.filter(discount => {
-    const name = (discount.name || discount.discount_name || '').toLowerCase()
-    const shortCode = (discount.short_code || '').toLowerCase()
-    const type = discount.type.toLowerCase()
+  chargeOptions.value = allCharges.value.filter(charge => {
+    const name = (charge.name || charge.charge_name || '').toLowerCase()
+    const shortCode = (charge.short_code || '').toLowerCase()
+    const type = charge.type.toLowerCase()
+    const description = (charge.description || '').toLowerCase()
     
     return name.includes(searchTerm) || 
            shortCode.includes(searchTerm) || 
-           type.includes(searchTerm)
+           type.includes(searchTerm) ||
+           description.includes(searchTerm)
   })
 }
 
 // Debounced search function
 const debouncedSearch = debounce((query: string) => {
-  filterDiscounts(query)
+  filterCharges(query)
 }, 300)
 
-// Load all discounts
-const loadDiscounts = async () => {
+// Load all extra charges
+const loadExtraCharges = async () => {
   try {
     isLoading.value = true
-    const response = await getDiscounts()
+    const response = await getExtraCharges()
     
     // Transform the response data
-    const discounts = (response.data?.data?.data || response.data?.data || response.data || []).map((discount: any) => {
+    const charges = (response.data?.data?.data || response.data?.data || response.data || []).map((charge: any) => {
       return {
-        id: discount.id,
-        name: discount.name,
-        discount_name: discount.discount_name,
-        type: discount.type || 'percentage',
-        value: discount.value || 0,
-        status: discount.status || 'active',
-        short_code: discount.short_code,
-        apply_on: discount.apply_on,
-        open_discount: discount.open_discount
+        id: charge.id,
+        name: charge.name,
+        charge_name: charge.charge_name,
+        type: charge.type || 'flat',
+        value: charge.value || 0,
+        status: charge.status || 'active',
+        short_code: charge.short_code,
+        apply_on: charge.apply_on,
+        description: charge.description
       }
     })
     
-    allDiscounts.value = discounts
-    discountOptions.value = discounts
+    allCharges.value = charges
+    chargeOptions.value = charges
   } catch (error) {
-    console.error('Error loading discounts:', error)
-    allDiscounts.value = []
-    discountOptions.value = []
+    console.error('Error loading extra charges:', error)
+    allCharges.value = []
+    chargeOptions.value = []
   } finally {
     isLoading.value = false
   }
@@ -222,8 +224,8 @@ const handleInput = (event: Event) => {
   searchQuery.value = target.value
   
   // Clear selection if user is typing
-  if (selectedDiscount.value && searchQuery.value !== (selectedDiscount.value.name || selectedDiscount.value.discount_name)) {
-    selectedDiscount.value = null
+  if (selectedCharge.value && searchQuery.value !== (selectedCharge.value.name || selectedCharge.value.charge_name)) {
+    selectedCharge.value = null
   }
   
   // Open dropdown and search
@@ -234,9 +236,9 @@ const handleInput = (event: Event) => {
 const handleFocus = () => {
   if (!props.disabled && !isLoading.value) {
     isDropdownOpen.value = true
-    // Load discounts if not already loaded
-    if (allDiscounts.value.length === 0) {
-      loadDiscounts()
+    // Load charges if not already loaded
+    if (allCharges.value.length === 0) {
+      loadExtraCharges()
     }
   }
 }
@@ -248,15 +250,15 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const selectDiscount = (discount: DiscountOption) => {
+const selectCharge = (charge: ExtraChargeOption) => {
   if (!props.disabled && !isLoading.value) {
-    selectedDiscount.value = discount
-    searchQuery.value = discount.name || discount.discount_name || ''
+    selectedCharge.value = charge
+    searchQuery.value = charge.name || charge.charge_name || ''
     isDropdownOpen.value = false
     
-    emit('update:modelValue', discount.id)
-    emit('select', discount)
-    emit('change', discount.id)
+    emit('update:modelValue', charge.id)
+    emit('select', charge)
+    emit('change', charge.id)
   }
 }
 
@@ -272,8 +274,8 @@ const handleClickOutside = (event: MouseEvent) => {
 // Lifecycle
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  // Load all discounts on mount
-  loadDiscounts()
+  // Load all charges on mount
+  loadExtraCharges()
 })
 
 onBeforeUnmount(() => {

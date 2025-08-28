@@ -5269,5 +5269,15 @@
   "cancellationRevenue":"Cancellation revenue",
   "dayUserCharge":"Day user charge",
   "adjustmentFolio":"Adjustment Folio",
-  "type":"Type"
+  "type":"Type",
+  "contact_type":"Contact Type",
+  "payment_type":"Payment Type",
+  "charges":"Charges",
+  "payment_method":"Payment Method",
+  "debit":"Credit",
+  "credit":"Debit",
+  "comments":"Comments",
+  "incidental_invoices":"Incidental Invoices",
+  "add_new":"Add new",
+  "hide_void":"hide void"
 }

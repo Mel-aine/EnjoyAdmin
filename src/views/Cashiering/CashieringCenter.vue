@@ -22,10 +22,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
                     <div class="mr-4 w-52">
-                        <Select lb="City Ledger" class="" v-model="selectedCityLedger" :options="[
-                            { label: 'AGODA TRAVELERS', value: 'AGODA TRAVELERS' },
-                            { label: 'Other ledgers...', value: 'other' }
-                        ]" />
+                        <InputSelectCityLeger v-model="selectCityLedger" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <div>
@@ -135,6 +132,7 @@ import Input from '../../components/forms/FormElements/Input.vue'
 import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import NewPaymentCityLedger from './NewPaymentCityLedger.vue'
+import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
 const router = useRouter()
 const { t } = useI18n()
 const searchQuery = ref('')
@@ -153,7 +151,7 @@ const filters = ref({
 
 // Original data backup for filtering
 const originalTransactions = ref([])
-
+const selectCityLedger = ref(null)
 // Table columns
 const columns = ref([
     { key: 'date', label: 'Date', type: 'custom' },

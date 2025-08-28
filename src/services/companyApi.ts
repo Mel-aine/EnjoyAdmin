@@ -170,3 +170,21 @@ export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
     handleApiError(error)
   }
 }
+
+
+/** get getCityLedger
+ * 
+ */
+
+export const getCityLedger = async (hotelId: number): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+      `/configuration/company_accounts/city_ledger/${hotelId}`,
+      headers
+    )
+    console.log('response',response)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}

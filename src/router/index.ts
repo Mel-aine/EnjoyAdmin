@@ -880,6 +880,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/configuration/master/vip-status',
+      name: 'VipStatus',
+      component: () => import('../views/Configuration/Master/VipStatus.vue'),
+      meta: {
+        title: 'VIP Status',
+        requiresAuth: true,
+      },
+    },
     // Settings Configuration
     {
       path: '/configuration/settings/email-accounts',
