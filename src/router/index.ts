@@ -438,11 +438,56 @@ const router = createRouter({
       },
     },
     {
+      path: '/reports/back-office/manager-report',
+      name: 'ManagerReport',
+      component: () => import('../views/Reports/BackOffice/ManagerReport.vue'),
+      meta: {
+        title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/reports/back-office/folio-list',
       name: 'FolioList',
       component: () => import('../views/Reports/BackOffice/FolioList.vue'),
       meta: {
         title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-extra-charge-detail',
+      name: 'DailyExtraChargeDetail',
+      component: () => import('../views/Reports/BackOffice/DailyExtraCharge.vue'),
+      meta: {
+        title: 'Daily Extra Charge Detail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/travel-agent-commission-detail',
+      name: 'travelAgentCommissionDetail',
+      component: () => import('../views/Reports/BackOffice/TravelAgentCommission.vue'),
+      meta: {
+        title: 'Travel Agent Commission Detail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/audit-trail',
+      name: 'auditTrail',
+      component: () => import('../views/Reports/Audit/AuditTrails.vue'),
+      meta: {
+        title: 'Audit Trail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/void-charge',
+      name: 'voidCharge',
+      component: () => import('../views/Reports/Audit/VoidCharge.vue'),
+      meta: {
+        title: 'Void Charge',
         requiresAuth: true,
       },
     },
