@@ -60,9 +60,9 @@ const handleApiError = (error: any) => {
 }
 
 // Get audit trail entries
-export const getAuditTrail = async (params: AuditTrailQueryParams): Promise<{ data: AuditTrailEntry[], meta: any } | undefined> => {
+export const getAuditTrail = async (params: AuditTrailQueryParams): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<{ data: AuditTrailEntry[], meta: any }>> = await apiClient.get(
+    const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
       '/configuration/audit-trail',
       {
         ...headers,

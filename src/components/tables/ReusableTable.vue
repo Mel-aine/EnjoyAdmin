@@ -36,7 +36,7 @@
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th v-if="selectable" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th v-if="selectable" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
               <input
                 type="checkbox"
                 v-model="selectAll"
@@ -51,7 +51,7 @@
             >
               {{ getColumnLabel(column) }}
             </th>
-            <th v-if="hasActions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th v-if="hasActions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
             </th>
           </tr>
         </thead>
@@ -73,11 +73,12 @@
 
           <!-- Actual Data Rows -->
            <template v-else>
-            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"  class="transition-colors"
+            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"  class="transition-colors cursor-pointer"
               :class="[
                 'hover:bg-gray-50 dark:hover:bg-gray-700',
                 rowClass(item)
-              ]">
+              ]"
+              @click="emit('row-click', item)">
               <td v-if="selectable" class="px-6 py-4">
                 <input
                   type="checkbox"
@@ -241,6 +242,7 @@ const emit = defineEmits<{
   'action': [action: string, item: any]
   'update:modelValue': [value: string]
   'search-change': [query: string]
+  'row-click': [item: any]
 }>()
 
 const searchQuery = ref(props.modelValue)

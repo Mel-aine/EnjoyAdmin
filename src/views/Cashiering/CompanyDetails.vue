@@ -17,7 +17,7 @@ const Button = {
 
 const { t } = useI18n();
 const toast = useToast();
-const company = ref<Company | null>(null);
+const company = ref<any>(null);
 const isLoading = ref(false);
 const showDeleteModal = ref(false);
 const deleting = ref(false);

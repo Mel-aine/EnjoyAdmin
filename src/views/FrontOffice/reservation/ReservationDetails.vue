@@ -557,7 +557,7 @@ onMounted(() => {
     <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
         @noshow-confirmed="handleNoShowConfirmed" />
     <!-- Print Modal -->
-    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose" :reservation-id="reservation.id"
         @print-success="handlePrintSuccess" @print-error="handlePrintError" :templates="templates" />
 </template>
 

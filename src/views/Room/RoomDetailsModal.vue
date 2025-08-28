@@ -391,7 +391,7 @@
               :day-modifiers="dayModifiers"
             >
             <template #day-content="{ day }">
-              <div v-for="event in day.events" :key="event.date">
+              <div v-for="(event,indx) in day.events" :key="indx">
                 <div v-if="event.type === 'reserved'" class="bg-red-50 border-red-300 p-1 rounded">
                   <div class="h-1 bg-red-500 rounded-full mb-1"></div>
                   <div class="text-xs text-red-600 truncate">

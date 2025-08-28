@@ -172,7 +172,7 @@
                           </div>
                         </td>
                         <td v-else
-                          :class="['px-0 py-0 h-12 border border-gray-300', isWeekend(cell.date) ? 'bg-gray-100' : '']">
+                          :class="['px-0 py-0 h-12 border border-gray-300', cell.date && isWeekend(cell.date) ? 'bg-gray-100' : '']">
                         </td>
                       </template>
                     </tr>

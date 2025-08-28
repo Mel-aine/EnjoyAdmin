@@ -196,8 +196,8 @@ export const getHouseStatus = (hotelId: number): Promise<AxiosResponse<any>> => 
 /**
  * bulkUpdate
  */
-export const bulkUpdateRooms = (data:any): Promise<AxiosResponse<any>> => {
-    return axios.post(`${API_URL}/rooms/bulk-update`, data , headers)
+export const bulkUpdateRooms = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/rooms/bulk-update`, data, headers)
 }
 
 
@@ -568,7 +568,7 @@ export const deleteIdentityTypeById = (id: number): Promise<AxiosResponse<any>> 
 export const getIdentityTypesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/identity_types`, {
     params: { hotelId },
-   ...headers
+    ...headers
   })
 }
 
@@ -1038,7 +1038,7 @@ export const deletePreferenceById = (id: number): Promise<AxiosResponse<any>> =>
 /**
  * get by hotel Id
  */
-export const getPreferencesByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+export const getPreferencesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/preferences?hotelId=${hotelId}`, headers)
 }
 
@@ -1189,6 +1189,117 @@ export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
  * get Reasons by category
  * @param category - The category to filter reasons by
  */
-export const getByCategory = (hotelId: number | string,  category: string): Promise<AxiosResponse<any>> => {
+export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, headers)
+}
+
+
+// VIP Status CRUD Operations
+export const vipStatusApi = {
+  // Get all VIP statuses for a hotel
+  async getVipStatuses(hotelId: number, params = {}) {
+    try {
+      const response = await axios.get(`${API_URL}/vip_statuses`, headers
+      )
+      return response.data
+    } catch (error) {
+      console.error('Error fetching VIP statuses:', error)
+      throw error
+    }
+  },
+
+  // Get single VIP status by ID
+  async getVipStatus(id: number, hotelId: number) {
+    try {
+      const response = await axios.get(`${API_URL}/vip_statuses/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching VIP status:', error)
+      throw error
+    }
+  },
+
+  // Create new VIP status
+  async createVipStatus(data: {
+    name: string
+    color: string
+    icon: string
+    hotelId: number
+  }) {
+    try {
+      // Input validation
+      if (!data.name || data.name.trim().length === 0) {
+        throw new Error('VIP status name is required')
+      }
+      if (!data.color || !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(data.color)) {
+        throw new Error('Valid hex color is required (#RRGGBB or #RGB)')
+      }
+      if (!data.icon || data.icon.trim().length === 0) {
+        throw new Error('Icon is required')
+      }
+      if (!data.hotelId || data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+
+      const response = await axios.post(`${API_URL}/vip_statuses`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error creating VIP status:', error)
+      throw error
+    }
+  },
+
+  // Update VIP status
+  async updateVipStatus(id: number, data: {
+    name?: string
+    color?: string
+    icon?: string
+    hotelId: number
+  }) {
+    try {
+      // Input validation
+      if (data.name !== undefined && data.name.trim().length === 0) {
+        throw new Error('VIP status name cannot be empty')
+      }
+      if (data.color && !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(data.color)) {
+        throw new Error('Valid hex color is required (#RRGGBB or #RGB)')
+      }
+      if (data.icon !== undefined && data.icon.trim().length === 0) {
+        throw new Error('Icon cannot be empty')
+      }
+
+      const response = await axios.put(`${API_URL}/vip_statuses/${id}`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error updating VIP status:', error)
+      throw error
+    }
+  },
+
+  // Delete VIP status
+  async deleteVipStatus(id: number, hotelId: number) {
+    try {
+      const response = await axios.delete(`${API_URL}/vip_statuses/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting VIP status:', error)
+      throw error
+    }
+  }
+}
+
+/**
+ * incidental_invoices
+ * @returns {Promise<AxiosResponse<any>>} incidental_invoices 
+ */
+export const incidental_invoices = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/incidental_invoices`, headers)
+}
+
+/**
+ * 
+ * post incidental invoices
+ */
+export const postIncidentalInvoices = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/incidental_invoices`, data, headers)
 }

@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Lock
 } from 'lucide-vue-next'
+import ExchangeRateModal from '../views/Cashiering/ExchangeRateModal.vue'
 
 export const getHotelMenu = (t: (key: string) => string) => {
   return [
@@ -78,7 +79,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
               path: '/cashiering/center',
               permission: 'dashboard_view',
             },
-            {
+            /*{
               name: t('travel_agent_database'),
               path: '/reservations',
               permission: 'dashboard_view',
@@ -87,26 +88,28 @@ export const getHotelMenu = (t: (key: string) => string) => {
               name: t('sales_person_database'),
               path: '/stay_view',
               permission: 'dashboard_view',
-            },
+            },*/
             {
               name: t('company_database'),
               path: '/cashiering/company_database',
               permission: 'dashboard_view',
             },
-            {
+           /* {
               name: t('expense_voucher'),
               path: '/room_view',
               permission: 'dashboard_view',
-            },
+            },*/
             {
               name: t('pos'),
-              path: '/guest_database',
+              path: '/cashiering/pos',
               permission: 'dashboard_view',
             },
             {
               name: t('exchange_rate'),
-              path: '/insert_transaction',
+              path: '/cashiering/exchange-rate',
               permission: 'dashboard_view',
+              openInModal: true,
+              component: ExchangeRateModal,
             }
 
           ]

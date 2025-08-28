@@ -1,22 +1,17 @@
 <template>
-  <div
-    :class="[
-      'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
-      sidebarStore.isExpanded ? 'w-64' : 'w-16',
-      sidebarStore.isMobileOpen ? 'translate-x-0' : '-translate-x-full',
-      'lg:translate-x-0'
-    ]"
-  >
+  <div :class="[
+    'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
+    sidebarStore.isExpanded ? 'w-64' : 'w-16',
+    sidebarStore.isMobileOpen ? 'translate-x-0' : '-translate-x-full',
+    'lg:translate-x-0'
+  ]">
     <!-- Sidebar Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-200">
       <div v-if="sidebarStore.isExpanded" class="flex items-center space-x-2">
         <Settings class="w-6 h-6 text-blue-600" />
         <h2 class="text-lg font-semibold text-gray-900">Configuration</h2>
       </div>
-      <button
-        @click="sidebarStore.toggleSidebar()"
-        class="p-1 rounded-md hover:bg-gray-100 lg:hidden"
-      >
+      <button @click="sidebarStore.toggleSidebar()" class="p-1 rounded-md hover:bg-gray-100 lg:hidden">
         <X class="w-5 h-5" />
       </button>
     </div>
@@ -25,12 +20,8 @@
     <div v-if="sidebarStore.isExpanded" class="p-4 border-b border-gray-200">
       <div class="relative">
         <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search configuration..."
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+        <input v-model="searchQuery" type="text" placeholder="Search configuration..."
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
       </div>
     </div>
 
@@ -38,34 +29,24 @@
     <nav class="flex-1 overflow-y-auto p-4 space-y-2 scroll-smooth">
       <!-- Rooms Section -->
       <div class="space-y-1">
-        <button
-          @click="toggleSection('rooms')"
-          :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
-            sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
-          ]"
-        >
+        <button @click="toggleSection('rooms')" :class="[
+          'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+          sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
+        ]">
           <div class="flex items-center space-x-3">
             <Home class="w-5 h-5 text-gray-600" />
             <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Rooms</span>
           </div>
-          <ChevronDown
-            v-if="sidebarStore.isExpanded"
-            :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
-              expandedSections.rooms ? 'rotate-180' : ''
-            ]"
-          />
+          <ChevronDown v-if="sidebarStore.isExpanded" :class="[
+            'w-4 h-4 text-gray-400 transition-transform',
+            expandedSections.rooms ? 'rotate-180' : ''
+          ]" />
         </button>
-        
+
         <div v-if="expandedSections.rooms && sidebarStore.isExpanded" class="ml-6 space-y-1">
-          <router-link
-            v-for="item in filteredRoomsItems"
-            :key="item.path"
-            :to="item.path"
+          <router-link v-for="item in filteredRoomsItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50"
-          >
+            active-class="text-blue-600 bg-blue-50">
             {{ item.label }}
           </router-link>
         </div>
@@ -73,34 +54,24 @@
 
       <!-- Rates Section -->
       <div class="space-y-1">
-        <button
-          @click="toggleSection('rates')"
-          :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
-            sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
-          ]"
-        >
+        <button @click="toggleSection('rates')" :class="[
+          'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+          sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
+        ]">
           <div class="flex items-center space-x-3">
             <DollarSign class="w-5 h-5 text-gray-600" />
             <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Rates</span>
           </div>
-          <ChevronDown
-            v-if="sidebarStore.isExpanded"
-            :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
-              expandedSections.rates ? 'rotate-180' : ''
-            ]"
-          />
+          <ChevronDown v-if="sidebarStore.isExpanded" :class="[
+            'w-4 h-4 text-gray-400 transition-transform',
+            expandedSections.rates ? 'rotate-180' : ''
+          ]" />
         </button>
-        
+
         <div v-if="expandedSections.rates && sidebarStore.isExpanded" class="ml-6 space-y-1">
-          <router-link
-            v-for="item in filteredRatesItems"
-            :key="item.path"
-            :to="item.path"
+          <router-link v-for="item in filteredRatesItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50"
-          >
+            active-class="text-blue-600 bg-blue-50">
             {{ item.label }}
           </router-link>
         </div>
@@ -108,34 +79,24 @@
 
       <!-- Housekeeping Section -->
       <div class="space-y-1">
-        <button
-          @click="toggleSection('housekeeping')"
-          :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
-            sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
-          ]"
-        >
+        <button @click="toggleSection('housekeeping')" :class="[
+          'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+          sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
+        ]">
           <div class="flex items-center space-x-3">
             <Users class="w-5 h-5 text-gray-600" />
             <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Housekeeping</span>
           </div>
-          <ChevronDown
-            v-if="sidebarStore.isExpanded"
-            :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
-              expandedSections.housekeeping ? 'rotate-180' : ''
-            ]"
-          />
+          <ChevronDown v-if="sidebarStore.isExpanded" :class="[
+            'w-4 h-4 text-gray-400 transition-transform',
+            expandedSections.housekeeping ? 'rotate-180' : ''
+          ]" />
         </button>
-        
+
         <div v-if="expandedSections.housekeeping && sidebarStore.isExpanded" class="ml-6 space-y-1">
-          <router-link
-            v-for="item in filteredHousekeepingItems"
-            :key="item.path"
-            :to="item.path"
+          <router-link v-for="item in filteredHousekeepingItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50"
-          >
+            active-class="text-blue-600 bg-blue-50">
             {{ item.label }}
           </router-link>
         </div>
@@ -143,34 +104,24 @@
 
       <!-- Master Section -->
       <div class="space-y-1">
-        <button
-          @click="toggleSection('master')"
-          :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
-            sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
-          ]"
-        >
+        <button @click="toggleSection('master')" :class="[
+          'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+          sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
+        ]">
           <div class="flex items-center space-x-3">
             <Database class="w-5 h-5 text-gray-600" />
             <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Master</span>
           </div>
-          <ChevronDown
-            v-if="sidebarStore.isExpanded"
-            :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
-              expandedSections.master ? 'rotate-180' : ''
-            ]"
-          />
+          <ChevronDown v-if="sidebarStore.isExpanded" :class="[
+            'w-4 h-4 text-gray-400 transition-transform',
+            expandedSections.master ? 'rotate-180' : ''
+          ]" />
         </button>
-        
+
         <div v-if="expandedSections.master && sidebarStore.isExpanded" class="ml-6 space-y-1">
-          <router-link
-            v-for="item in filteredMasterItems"
-            :key="item.path"
-            :to="item.path"
+          <router-link v-for="item in filteredMasterItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50"
-          >
+            active-class="text-blue-600 bg-blue-50">
             {{ item.label }}
           </router-link>
         </div>
@@ -178,34 +129,24 @@
 
       <!-- Settings Section -->
       <div class="space-y-1">
-        <button
-          @click="toggleSection('settings')"
-          :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
-            sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
-          ]"
-        >
+        <button @click="toggleSection('settings')" :class="[
+          'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+          sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
+        ]">
           <div class="flex items-center space-x-3">
             <Cog class="w-5 h-5 text-gray-600" />
             <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Settings</span>
           </div>
-          <ChevronDown
-            v-if="sidebarStore.isExpanded"
-            :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
-              expandedSections.settings ? 'rotate-180' : ''
-            ]"
-          />
+          <ChevronDown v-if="sidebarStore.isExpanded" :class="[
+            'w-4 h-4 text-gray-400 transition-transform',
+            expandedSections.settings ? 'rotate-180' : ''
+          ]" />
         </button>
-        
+
         <div v-if="expandedSections.settings && sidebarStore.isExpanded" class="ml-6 space-y-1">
-          <router-link
-            v-for="item in filteredSettingsItems"
-            :key="item.path"
-            :to="item.path"
+          <router-link v-for="item in filteredSettingsItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50"
-          >
+            active-class="text-blue-600 bg-blue-50">
             {{ item.label }}
           </router-link>
         </div>
@@ -285,6 +226,7 @@ const masterItems = [
   { path: '/configuration/master/reservation-type', label: 'Reservation Type' },
   { path: '/configuration/master/preference-type', label: 'Preference Type' },
   { path: '/configuration/master/preference', label: 'Preference' },
+  { path: '/configuration/master/vip-status', label: 'vip status' },
   { path: '/configuration/master/business-source', label: 'Business Source' }
 ]
 
@@ -303,35 +245,35 @@ const settingsItems = [
 // Filtered items based on search
 const filteredRoomsItems = computed(() => {
   if (!searchQuery.value) return roomsItems
-  return roomsItems.filter(item => 
+  return roomsItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
 const filteredRatesItems = computed(() => {
   if (!searchQuery.value) return ratesItems
-  return ratesItems.filter(item => 
+  return ratesItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
 const filteredHousekeepingItems = computed(() => {
   if (!searchQuery.value) return housekeepingItems
-  return housekeepingItems.filter(item => 
+  return housekeepingItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
 const filteredMasterItems = computed(() => {
   if (!searchQuery.value) return masterItems
-  return masterItems.filter(item => 
+  return masterItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
 const filteredSettingsItems = computed(() => {
   if (!searchQuery.value) return settingsItems
-  return settingsItems.filter(item => 
+  return settingsItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })

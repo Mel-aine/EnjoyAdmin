@@ -880,6 +880,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/configuration/master/vip-status',
+      name: 'VipStatus',
+      component: () => import('../views/Configuration/Master/VipStatus.vue'),
+      meta: {
+        title: 'VIP Status',
+        requiresAuth: true,
+      },
+    },
     // Settings Configuration
     {
       path: '/configuration/settings/email-accounts',
@@ -1244,13 +1253,13 @@ const router = createRouter({
     {
         path: '/new',
         name: 'CustomerCreate',
-        component: () => import('@/views/customers/CustomerEditPage.vue'),
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
       },
 
       {
         path: '/edit/:id',
         name: 'CustomerEdit',
-        component: () => import('@/views/customers/CustomerEditPage.vue'),
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
         props: true
       },
     {
@@ -1324,6 +1333,24 @@ const router = createRouter({
       component: () => import('../views/Cashiering/CompanyDetails.vue'),
       meta: {
         title: 'Company Details',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/exchange-rate',
+      name: 'ExchangeRate',
+      component: () => import('../views/Cashiering/ExchangeRatePage.vue'),
+      meta: {
+        title: 'Exchange Rate',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/pos',
+      name: 'PosInterface',
+      component: () => import('../views/Cashiering/PosInterface.vue'),
+      meta: {
+        title: 'POS - Incidental Invoice',
         requiresAuth: true,
       },
     },
