@@ -5280,8 +5280,7 @@
   "comments":"Comments",
   "incidental_invoices":"Incidental Invoices",
   "add_new":"Add new",
-  "hide_void":"hide void"
-  "type":"Type",
+  "hide_void":"hide void",
   "Changesfor{action}" : "Changes for {action}",
   "Before" : "Before",
   "After" : "After",

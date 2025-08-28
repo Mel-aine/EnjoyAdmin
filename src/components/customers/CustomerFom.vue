@@ -306,6 +306,8 @@ interface SelectOption {
   value: string
   label: string
   label_fr?: string
+  numberField?:any
+  dateField?:any
 }
 interface Sections {
   identity: boolean
