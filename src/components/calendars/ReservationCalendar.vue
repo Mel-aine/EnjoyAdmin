@@ -143,8 +143,68 @@
                         </div>
                       </td>
 
-
                       <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
+                        <!-- Réservation -->
+                        <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
+                          class="relative px-0 py-0 h-12 border border-gray-300">
+                          <div :class="[
+                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            getReservationColor(cell.reservation.reservation_status),
+                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
+                            @mouseenter="showReservationTooltip(cell.reservation, $event)"
+                            @mouseleave="hideReservationTooltip">
+                            <span class="truncate flex items-center gap-1">
+                              {{ cell.reservation.guest_name }}
+                              <br>
+                            </span>
+                            <div class="absolute -top-2 flex items-center gap-1">
+                              <Crown v-if="cell.reservation.is_master"
+                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0"
+                                :title="$t('Primary')" />
+                              <DollarSignIcon v-if="cell.reservation?.is_balance" class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
+                              <User2 v-if="cell.reservation?.isWomen" class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
+                            </div>
+                          </div>
+                        </td>
+
+                        <!-- Room Block -->
+                        <td v-else-if="cell.type === 'room_block'" :colspan="cell.colspan"
+                          class="relative px-0 py-0 h-12 border border-gray-300">
+                          <div :class="[
+                            'absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            getRoomBlockColor(cell.roomBlock.status),
+                          ]" :style="getReservationStyle(cell)">
+                            <span class="truncate">
+                              🚫 {{ cell.roomBlock.reason || 'Room Blocked' }}
+                              <br>
+                              <small>{{ cell.roomBlock.status }}</small>
+                            </span>
+                          </div>
+                        </td>
+
+                        <!-- Chambres avec statut spécial (maintenance, out_of_service, cleaning) -->
+                        <td v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
+                          class="px-0 py-0 h-12 border border-gray-300">
+                          <div :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
+                            <component :is="getRoomStatusIcon(room.room_status)"
+                              :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
+                          </div>
+                        </td>
+
+                        <!-- Cellules vides/sélectionnables -->
+                        <td v-else-if="shouldShowCell(group, room, cell)"
+                          :colspan="getUnifiedColspan(group, room, cell)"
+                          :class="[
+                            'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
+                            getUnifiedCellClass(group, room, cell)
+                          ]"
+                          @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
+                          @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date)"
+                          @mouseup="endCellSelection">
+                        </td>
+                      </template>
+
+                      <!-- <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
                         <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
                           class="relative px-0 py-0 h-12 border border-gray-300">
 
@@ -229,7 +289,7 @@
                             @mouseup="endCellSelection"
                           ></td>
                         </template>
-                      </template>
+                      </template> -->
                     </tr>
                   </template>
                 </template>
@@ -1200,6 +1260,59 @@ function navigateToAddReservationFromCells() {
       roomNumber: selectionInfo.roomNumber,
     },
   })
+}
+
+// Fonction pour déterminer si la cellule doit être affichée
+function shouldShowCell(group:any, room:any, cell:any) {
+  // En mode sélection, toujours afficher toutes les cellules
+  if (cellSelection.value.isSelecting) {
+    return true
+  }
+
+  // En mode normal, ne pas afficher les cellules qui sont à l'intérieur d'une sélection
+  // mais qui ne sont pas le début de cette sélection
+  return !isInsideSelection(group.room_type, room.room_number, cell.date) ||
+         isStartOfSelection(group.room_type, room.room_number, cell.date)
+}
+
+// Fonction pour déterminer le colspan unifié (que ce soit en mode sélection ou non)
+function getUnifiedColspan(group:any, room:any, cell:any) {
+  // Si on est en mode sélection, toujours colspan = 1
+  if (cellSelection.value.isSelecting) {
+    return 1
+  }
+
+  // Si on n'est pas en mode sélection, vérifier si c'est le début d'une sélection confirmée
+  if (isStartOfSelection(group.room_type, room.room_number, cell.date)) {
+    return getSelectionColspan()
+  }
+
+  // Par défaut, colspan = 1
+  return 1
+}
+
+// Fonction pour déterminer la classe CSS unifiée
+function getUnifiedCellClass(group:any, room:any, cell:any) {
+  const baseClasses :any[]= []
+
+  // Si on est en mode sélection
+  if (cellSelection.value.isSelecting) {
+    if (isCellSelected(group.room_type, room.room_number, cell.date)) {
+      baseClasses.push('bg-blue-400', 'cell-selected')
+    } else {
+      baseClasses.push(isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
+    }
+  }
+  // Si on n'est pas en mode sélection
+  else {
+    if (isStartOfSelection(group.room_type, room.room_number, cell.date)) {
+      baseClasses.push('bg-blue-400', 'cell-selected')
+    } else {
+      baseClasses.push(isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
+    }
+  }
+
+  return baseClasses.join(' ')
 }
 
 // Cleanup des event listeners
