@@ -1,13 +1,13 @@
 <template>
   <FullScreenLayout>
     <AppHeader />
-    <div class="reservation-calendar font-sans h-screen flex flex-col ">
-
+    <div class="reservation-calendar font-sans h-screen flex flex-col">
       <div class="mb-4 bg-white px-6 py-1 flex items-center justify-between rounded-b-lg border-b">
         <div class="flex gap-2">
           <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="selectedDate" />
           <div
-            class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-300 focus:ring focus:ring-primary/30">
+            class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-300 focus:ring focus:ring-primary/30"
+          >
             <label>{{ $t('show') }}</label>
             <select v-model="daysToShow" @change="setDays(Number(daysToShow))" class="outline-0">
               <option :value="7">7 {{ $t('days') }}</option>
@@ -23,9 +23,9 @@
             </div>
           </div>
         </div>
-        <div class="flex gap-2  items-center">
+        <div class="flex gap-2 items-center">
           <Select :options="rateTypeOptions" v-model="selectRateType" class="min-w-[12rem]" />
-          <StatusLegend :sections="legendSections"/>
+          <StatusLegend :sections="legendSections" />
         </div>
       </div>
       <div class="flex-1 flex flex-col min-h-0">
@@ -34,31 +34,62 @@
           <table class="min-w-full text-sm table-fixed">
             <thead>
               <tr>
-                <th class="bg-gray-100 px-2 py-1 border-r border-gray-300  w-50 min-w-[6rem]">
+                <th class="bg-gray-100 px-2 py-1 border-r border-gray-300 w-50 min-w-[6rem]">
                   <div class="flex justify-between items-center">
                     <div class="max-w-md">
-                      <SelectDropdown v-model="selectedRoomTypes" :options="roomTypeOptions"
-                        :placeholder="$t('roomType')" button-class="bg-white text-primary border border-blue-200  w-42"
-                        dropdown-class="w-full" select-all-text="Select All" :max-display-items="3" />
+                      <SelectDropdown
+                        v-model="selectedRoomTypes"
+                        :options="roomTypeOptions"
+                        :placeholder="$t('roomType')"
+                        button-class="bg-white text-primary border border-blue-200  w-42"
+                        dropdown-class="w-full"
+                        select-all-text="Select All"
+                        :max-display-items="3"
+                      />
                     </div>
                   </div>
-
                 </th>
-                <th v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['px-2 py-1 text-center border-r border-gray-300 relative', isWeekend(date) ? 'bg-orange-200/25' : 'bg-gray-50']"
-                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
-                  <button v-if="idx === 0" @click="prevDay"
-                    class="absolute left-1 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded transition-colors">
+                <th
+                  v-for="(date, idx) in visibleDates"
+                  :key="idx"
+                  :class="[
+                    'px-2 py-1 text-center border-r border-gray-300 relative cursor-pointer select-none',
+                    isWeekend(date) ? 'bg-orange-200/25' : 'bg-gray-50',
+                    isDateInSelection(date) ? 'bg-blue-200' : '',
+                  ]"
+                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
+                  @mousedown="startDateSelection(date, $event)"
+                  @mouseenter="updateDateSelection(date)"
+                  @mouseup="endDateSelection"
+                >
+                  <button
+                    v-if="idx === 0"
+                    @click="prevDay"
+                    class="absolute left-1 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded transition-colors"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"
+                      />
                     </svg>
                   </button>
                   <div>{{ formatDate(date) }}</div>
                   <div class="text-xs text-gray-400">{{ formatDay(date) }}</div>
-                  <button v-if="idx === visibleDates.length - 1" @click="nextDay"
-                    class="absolute right-1 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded transition-colors">
+                  <button
+                    v-if="idx === visibleDates.length - 1"
+                    @click="nextDay"
+                    class="absolute right-1 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded transition-colors"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </button>
                 </th>
@@ -70,15 +101,18 @@
         <div class="flex-1 overflow-y-auto border border-gray-300">
           <table class="min-w-full text-sm table-fixed">
             <colgroup>
-              <col class="w-24 min-w-[6rem]">
-              <col v-for="(date, ind) in visibleDates" :key="ind"
-                :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+              <col class="w-24 min-w-[6rem]" />
+              <col
+                v-for="(date, ind) in visibleDates"
+                :key="ind"
+                :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
+              />
             </colgroup>
             <tbody>
               <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
                 <tr v-for="i in 8" :key="i">
                   <td class="px-2 py-1">
-                    <div class="h-4  w-50 bg-gray-200 rounded animate-pulse"></div>
+                    <div class="h-4 w-50 bg-gray-200 rounded animate-pulse"></div>
                   </td>
                   <td v-for="j in visibleDates.length" :key="j" class="px-0 py-0 h-12">
                     <div class="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
@@ -91,28 +125,57 @@
                     <tr>
                       <td
                         class="h-4 min-w-50 font-bold bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 transition-colors"
-                        @click="toggleRoomType(group.room_type)">
+                        @click="toggleRoomType(group.room_type)"
+                      >
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-2">
                             <svg
-                              :class="['w-4 h-4 transition-transform', collapsedRoomTypes[group.room_type] ? 'rotate-0' : 'rotate-90']"
-                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                              :class="[
+                                'w-4 h-4 transition-transform',
+                                collapsedRoomTypes[group.room_type] ? 'rotate-0' : 'rotate-90',
+                              ]"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"
+                              />
                             </svg>
                             <span>{{ group.room_type }}</span>
                           </div>
                         </div>
                       </td>
-                      <td v-for="(date, j) in visibleDates" :key="j"
+                      <td
+                        v-for="(date, j) in visibleDates"
+                        :key="j"
                         :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
-                        class=" bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 ">
-                        <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
-                          <span class="text-xs">{{ roomRateForDate[group.room_type_id] ?? 'N/A' }}</span>
+                        :class="[
+                          'bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200',
+                          isDateInSelection(date) ? 'bg-blue-200' : '',
+                        ]"
+                        @mousedown="startDateSelection(date, $event)"
+                        @mouseenter="updateDateSelection(date)"
+                        @mouseup="endDateSelection"
+                      >
+                        <div
+                          class="flex flex-col gap-1 justify-center align-middle self-center items-center"
+                        >
+                          <span class="text-xs">{{
+                            roomRateForDate[group.room_type_id] ?? 'N/A'
+                          }}</span>
                         </div>
                       </td>
                     </tr>
-                    <tr v-for="room in group.room_details" :key="room.room_number || room.room_status + Math.random()"
-                      v-show="!collapsedRoomTypes[group.room_type]" class="transition-all duration-200 ease-in-out">
+                    <tr
+                      v-for="room in group.room_details"
+                      :key="room.room_number || room.room_status + Math.random()"
+                      v-show="!collapsedRoomTypes[group.room_type]"
+                      class="transition-all duration-200 ease-in-out"
+                    >
                       <td class="font-semibold px-2 py-1 border border-gray-300">
                         <div class="flex justify-between">
                           <span>{{ room.room_number || '-' }}</span>
@@ -124,14 +187,25 @@
                               <CigaretteOff class="w-4 h-4" />
                             </span>
                             <span class="text-xs" v-if="room.room_housekeeping_status === 'clean'">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
                                 stroke-linejoin="round"
-                                class="lucide lucide-brush-cleaning-icon lucide-brush-cleaning w-4 h-4">
+                                class="lucide lucide-brush-cleaning-icon lucide-brush-cleaning w-4 h-4"
+                              >
                                 <path d="m16 22-1-4" />
                                 <path
-                                  d="M19 13.99a1 1 0 0 0 1-1V12a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V4a2 2 0 0 0-4 0v5a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2v.99a1 1 0 0 0 1 1" />
-                                <path d="M5 14h14l1.973 6.767A1 1 0 0 1 20 22H4a1 1 0 0 1-.973-1.233z" />
+                                  d="M19 13.99a1 1 0 0 0 1-1V12a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V4a2 2 0 0 0-4 0v5a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2v.99a1 1 0 0 0 1 1"
+                                />
+                                <path
+                                  d="M5 14h14l1.973 6.767A1 1 0 0 1 20 22H4a1 1 0 0 1-.973-1.233z"
+                                />
                                 <path d="m8 22 1-4" />
                               </svg>
                               <BrushClea class="w-4 h-4" />
@@ -143,37 +217,101 @@
                         </div>
                       </td>
 
-
                       <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
-                        <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                          class="relative px-0 py-0 h-12 border border-gray-300">
 
-                          <div :class="[
-                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
-                            getReservationColor(cell.reservation.reservation_status),
-                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
-                            @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                            @mouseleave="hideReservationTooltip">
-                            <span class="truncate">
-                              {{ cell.reservation.guest_name }}
-                              <br>
-                            </span>
-
-                          </div>
-
-                        </td>
                         <td
-                          v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
-                          class="px-0 py-0 h-12 border border-gray-300">
+                          v-if="cell.type === 'reservation'"
+                          :colspan="cell.colspan"
+                          class="relative px-0 py-0 h-12 border border-gray-300"
+                        >
                           <div
-                            :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
-                            <component :is="getRoomStatusIcon(room.room_status)"
-                              :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
+                            :class="[
+                              'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                              getReservationColor(cell.reservation.reservation_status),
+                            ]"
+                            :style="getReservationStyle(cell)"
+                            @click="showReservationModal(cell.reservation)"
+                            @mouseenter="showReservationTooltip(cell.reservation, $event)"
+                            @mouseleave="hideReservationTooltip"
+                          >
+                            <span class="truncate">{{ cell.reservation.guest_name }}<br /></span>
                           </div>
                         </td>
-                        <td v-else
-                          :class="['px-0 py-0 h-12 border border-gray-300', cell.date && isWeekend(cell.date) ? 'bg-gray-100' : '']">
+
+                        <!-- Cellules de maintenance avec sélection individuelle -->
+                        <td
+                          v-else-if="
+                            cell.type === 'room' &&
+                            ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)
+                          "
+                          :class="[
+                            'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable',
+                            isCellSelected(group.room_type, room.room_number, cell.date)
+                              ? 'bg-blue-400'
+                              : '',
+                            isWeekend(cell.date) &&
+                            !isCellSelected(group.room_type, room.room_number, cell.date)
+                              ? 'weekend-cell'
+                              : '',
+                          ]"
+                          @mousedown="
+                            startCellSelection(group.room_type, room.room_number, cell.date, $event)
+                          "
+                          @mouseenter="
+                            updateCellSelection(group.room_type, room.room_number, cell.date)
+                          "
+                          @mouseup="endCellSelection"
+                        >
+                          <div
+                            :class="[
+                              'flex items-center justify-center h-full w-full',
+                              getRoomStatusColor(room.room_status),
+                            ]"
+                          >
+                            <component
+                              :is="getRoomStatusIcon(room.room_status)"
+                              :class="['w-5 h-5', getRoomStatusColor(room.room_status)]"
+                            />
+                          </div>
                         </td>
+
+                        <!-- Cellules libres avec sélection individuelle -->
+                        <template v-if="cellSelection.isSelecting">
+                          <td
+                            :class="[
+                              'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
+                              isCellSelected(group.room_type, room.room_number, cell.date)
+                                ? 'bg-blue-400 cell-selected'
+                                : (isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
+                            ]"
+                            @mousedown="
+                              startCellSelection(group.room_type, room.room_number, cell.date, $event)
+                            "
+                            @mouseenter="
+                              updateCellSelection(group.room_type, room.room_number, cell.date)
+                            "
+                            @mouseup="endCellSelection"
+                          ></td>
+                        </template>
+                        <template v-else>
+                          <td
+                            v-if="!isInsideSelection(group.room_type, room.room_number, cell.date) || isStartOfSelection(group.room_type, room.room_number, cell.date)"
+                            :colspan="isStartOfSelection(group.room_type, room.room_number, cell.date) ? getSelectionColspan() : 1"
+                            :class="[
+                              'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
+                              isStartOfSelection(group.room_type, room.room_number, cell.date)
+                                ? 'bg-blue-400 cell-selected'
+                                : (isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
+                            ]"
+                            @mousedown="
+                              startCellSelection(group.room_type, room.room_number, cell.date, $event)
+                            "
+                            @mouseenter="
+                              updateCellSelection(group.room_type, room.room_number, cell.date)
+                            "
+                            @mouseup="endCellSelection"
+                          ></td>
+                        </template>
                       </template>
                     </tr>
                   </template>
@@ -184,46 +322,60 @@
         </div>
         <div class="sticky bottom-0 bg-white shadow z-10">
           <table class="min-w-full border-t border border-gray-300 text-xs table-fixed">
-
             <tfoot>
-              <!--<tr class="text-md">
-                <td class="bg-gray-100 font-bold border border-gray-300  w-50 min-w-[6rem]">
-                  {{ $t('Room Legend') }}
-                </td>
-                <td :colspan="visibleDates.length" class="bg-gray-50 border border-gray-300 p-3">
-                  <span v-for="legend in legends" :key="legend.type" class="inline-flex items-center gap-1 mr-4">
-                    <span :class="['inline-block w-4 h-4 rounded', getReservationColor(legend.type)]"></span>
-                    <span class="text-xs">{{ $t(legend.label) }}</span>
-                  </span>
-                </td>
-              </tr> -->
               <tr>
-                <td class="bg-gray-100 border w-50 h-7 border-gray-300">{{ $t('Unassigned reservations') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
+                <td class="bg-gray-100 border w-50 h-7 border-gray-300">
+                  {{ $t('Unassigned reservations') }}
                 </td>
-              </tr>
-             <!-- <tr>
-                <td class="bg-gray-100 border border-gray-300">{{ $t('Allocations') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">{{
-                    getAllocatedRoomsApi(date) }}
-                </td>
-              </tr> -->
-              <tr>
-                <td class="bg-gray-100  w-50 h-7 border border-gray-300">% {{ $t('Occupancy') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
-                    getOccupancyApi(date)
-                  }} %</td>
+                <td
+                  v-for="(date, idx) in visibleDates"
+                  :key="idx"
+                  :class="[
+                    'text-center border border-gray-300',
+                    isWeekend(date) ? 'bg-gray-100' : '',
+                    isDateInSelection(date) ? 'bg-blue-200' : '',
+                  ]"
+                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
+                  v-html="getUnassignedApi(date)"
+                  @mousedown="startDateSelection(date, $event)"
+                  @mouseenter="updateDateSelection(date)"
+                  @mouseup="endDateSelection"
+                ></td>
               </tr>
               <tr>
-                <td class="bg-gray-100 w-50 h-7 border border-gray-300">{{ $t('Available Rooms') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
-                    getAvailableRoomsApi(date) }}
+                <td class="bg-gray-100 w-50 h-7 border border-gray-300">% {{ $t('Occupancy') }}</td>
+                <td
+                  v-for="(date, idx) in visibleDates"
+                  :key="idx"
+                  :class="[
+                    'text-center border border-gray-300',
+                    isWeekend(date) ? 'bg-gray-100' : '',
+                    isDateInSelection(date) ? 'bg-blue-200' : '',
+                  ]"
+                  @mousedown="startDateSelection(date, $event)"
+                  @mouseenter="updateDateSelection(date)"
+                  @mouseup="endDateSelection"
+                >
+                  {{ getOccupancyApi(date) }} %
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray-100 w-50 h-7 border border-gray-300">
+                  {{ $t('Available Rooms') }}
+                </td>
+                <td
+                  v-for="(date, idx) in visibleDates"
+                  :key="idx"
+                  :class="[
+                    'text-center border border-gray-300',
+                    isWeekend(date) ? 'bg-gray-100' : '',
+                    isDateInSelection(date) ? 'bg-blue-200' : '',
+                  ]"
+                  @mousedown="startDateSelection(date, $event)"
+                  @mouseenter="updateDateSelection(date)"
+                  @mouseup="endDateSelection"
+                >
+                  {{ getAvailableRoomsApi(date) }}
                 </td>
               </tr>
             </tfoot>
@@ -231,95 +383,331 @@
         </div>
       </div>
     </div>
+
+    <!-- Date Selection Tooltip -->
+    <div
+      v-if="dateSelection.isSelecting && dateSelection.startDate && dateSelection.endDate"
+      :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y - 60}px;z-index:1000;`"
+      class="rounded-lg bg-white shadow-lg border text-sm pointer-events-none px-4 py-2"
+    >
+      <div class="font-medium text-gray-800 mb-1">{{ $t('Selected Dates') }}</div>
+      <div class="text-gray-600">
+        {{ formatDate(dateSelection.startDate) }} - {{ formatDate(dateSelection.endDate) }}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        {{ getSelectionNights() }} {{ getSelectionNights() > 1 ? $t('nights') : $t('night') }}
+      </div>
+    </div>
+
+    <!-- Confirmed Selection Tooltip with Action -->
+    <div
+      v-if="getSelectionInfo()"
+      :style="`position:fixed;left:${selectionTooltipPosition.x - 150}px;top:${selectionTooltipPosition.y + 20}px;z-index:1000;`"
+      class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm"
+    >
+      <div class="bg-gray-100 border-b border-gray-200 rounded-t-lg px-4 py-2">
+        <h3 class="font-semibold text-gray-800">{{ $t('Selection Details') }}</h3>
+      </div>
+
+      <div class="p-4">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
+          <div><strong>{{ $t('Chambre') }}:</strong></div>
+          <div>{{ getSelectionInfo().roomNumber }}</div>
+
+          <div><strong>{{ $t('Type') }}:</strong></div>
+          <div>{{ getSelectionInfo().roomType }}</div>
+
+          <div><strong>{{ $t('Du') }}:</strong></div>
+          <div>{{ formatDate(getSelectionInfo().startDate) }}</div>
+
+          <div><strong>{{ $t('Au') }}:</strong></div>
+          <div>{{ formatDate(getSelectionInfo().endDate) }}</div>
+
+          <div><strong>{{ $t('Nuits') }}:</strong></div>
+          <div>{{ getSelectionInfo().totalNights }}</div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 border-t border-gray-200 rounded-b-lg px-4 py-3 flex justify-end gap-2">
+        <button
+          @click="clearCellSelection"
+          class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-300 transition"
+        >
+          {{ $t('Effacer') }}
+        </button>
+        <button
+          @click="navigateToAddReservationFromCells"
+          class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
+        >
+          {{ $t('Réserver') }}
+        </button>
+      </div>
+    </div>
     <!--tooltip-->
-    <div v-if="tooltipReservation && tooltipPosition"
+    <div
+      v-if="tooltipReservation && tooltipPosition"
       :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y + 12}px;z-index:1000;`"
-      class="rounded-lg bg-white w-90 max-w-fulltext-sm pointer-events-none">
+      class="rounded-lg bg-white w-90 max-w-fulltext-sm pointer-events-none"
+    >
       <div class="bg-primary shadow-lg border text-white rounded-t-lg px-4 py-2 mb-2">
-        <div class="font-bold">{{ $t('guests') }}: {{ tooltipReservation.guests }} {{ $t('guests') }}</div>
-        <div>{{ $t('Guest name') }}: <span class="font-bold">{{ tooltipReservation.guest_name }}</span></div>
-        <div>{{ $t('reservation_id') }}: <span class="font-bold">{{ tooltipReservation.reservation_id }}</span></div>
-        <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span>
+        <div class="font-bold">
+          {{ $t('guests') }}: {{ tooltipReservation.guests }} {{ $t('guests') }}
+        </div>
+        <div>
+          {{ $t('Guest name') }}: <span class="font-bold">{{ tooltipReservation.guest_name }}</span>
+        </div>
+        <div>
+          {{ $t('reservation_id') }}:
+          <span class="font-bold">{{ tooltipReservation.reservation_id }}</span>
+        </div>
+        <div>
+          {{ $t('reservation_code') }}:
+          <span class="font-bold">{{ tooltipReservation.reservation_number }}</span>
         </div>
         <div class="flex gap-3 mt-2">
           <span class="flex items-center gap-1">
-            <component :is="getReservationTypeIcon(tooltipReservation.reservation_type)" class="w-4 h-4" />
+            <component
+              :is="getReservationTypeIcon(tooltipReservation.reservation_type)"
+              class="w-4 h-4"
+            />
             <span class="text-xs">{{ $t(tooltipReservation.reservation_type || '-') }}</span>
           </span>
           <span class="flex items-center gap-1">
-            <component :is="getCustomerTypeIcon(tooltipReservation.customer_type)" class="w-4 h-4" />
+            <component
+              :is="getCustomerTypeIcon(tooltipReservation.customer_type)"
+              class="w-4 h-4"
+            />
             <span class="text-xs">{{ $t(tooltipReservation.customer_type || '-') }}</span>
           </span>
         </div>
       </div>
-      <!--  <ChevronInfo>
-      <template #left>
-        <div class="text-center">
-          <div class="font-bold text-xl">{{ formatDate(new Date(tooltipReservation.check_in_date)) }}</div>
-          <div class="text-md text-black">{{ formatDay(new Date(tooltipReservation.check_in_date)) }}</div>
-        </div>
-      </template>
-      <template #right>
-        <div class="text-center">
-          <div class="font-bold text-xl">{{ formatDate(new Date(tooltipReservation.check_out_date)) }}</div>
-          <div class="text-md text-black">{{ formatDay(new Date(tooltipReservation.check_out_date)) }}</div>
-        </div>
-      </template>
-    </ChevronInfo>
-    <div class="flex gap-2 mt-2 mb-2">
-      <div class="text-md text-gray-500">{{ $t('Comment') }}:</div>
-      <div>{{ tooltipReservation.comment || $t('none') }}</div>
     </div>
-    <ChevronInfo>
-      <template #left>
-        <div class="text-center">
-          <div class="font-bold text-sm ">{{ $t('Amount Due') }}</div>
-          <div class="font-bold text-lg">{{ formatCurrency(tooltipReservation.remaining_amount ?? 0) }}</div>
-        </div>
-      </template>
-      <template #right>
-        <div class="text-center">
-          <div class="font-bold text-sm">{{ $t('paid') }}</div>
-          <div class="font-bold text-lg">{{ formatCurrency(tooltipReservation.total_amount ?? 0) }}</div>
-        </div>
-      </template>
-    </ChevronInfo>-->
-    </div>
-    <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
+    <AddBookingModal
+      v-if="showModalAddingModal"
+      @close="showModalAddingModal = false"
+      @refresh="refresh"
+    />
     <template v-if="modalReservation && showDetail">
-      <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
-        :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
+      <ReservationRigthModal
+        :is-open="showDetail"
+        :title="$t('reservationDetails')"
+        :reservation-data="modalReservation"
+        @close="closeReservationModal"
+        @save="handleReservationSave"
+      />
     </template>
   </FullScreenLayout>
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon } from 'lucide-vue-next'
+import {
+  HotelIcon,
+  GlobeIcon,
+  UserIcon,
+  UsersIcon,
+  BookIcon,
+  Cigarette,
+  CigaretteOff,
+  CigaretteOffIcon,
+  BedSingleIcon,
+  LucideBrush,
+  BrushIcon,
+} from 'lucide-vue-next'
 
 import { watch } from 'vue'
 import { CheckCircle, X } from 'lucide-vue-next'
-import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
-import AddBookingModal from '../modal/AddBookingModal.vue';
-import { ref, computed, onMounted } from 'vue'
+import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
+import AddBookingModal from '../modal/AddBookingModal.vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
-import { getDailyOccupancyAndReservations } from "@/services/api"
+import { getDailyOccupancyAndReservations } from '@/services/api'
+import { useRouter } from 'vue-router'
 
-const isLoading = ref(false);
+const router = useRouter()
+const selectionTooltipPosition = ref({ x: 0, y: 0 })
+const isLoading = ref(false)
+
+// Date selection state
+const dateSelection = ref({
+  isSelecting: false,
+  startDate: null as Date | null,
+  endDate: null as Date | null,
+  confirmedStart: null as Date | null,
+  confirmedEnd: null as Date | null,
+})
+
+const confirmedTooltipPosition = ref({ x: 0, y: 0 })
+
+// Date selection methods
+function startDateSelection(date: Date, event: MouseEvent) {
+  event.preventDefault()
+  dateSelection.value.isSelecting = true
+  dateSelection.value.startDate = new Date(date)
+  dateSelection.value.endDate = new Date(date)
+
+  // Clear any previous confirmed selection
+  dateSelection.value.confirmedStart = null
+  dateSelection.value.confirmedEnd = null
+
+  document.addEventListener('mouseup', endDateSelection)
+  document.addEventListener('mousemove', handleMouseMove)
+}
+
+function updateDateSelection(date: Date) {
+  if (!dateSelection.value.isSelecting || !dateSelection.value.startDate) return
+
+  const startTime = dateSelection.value.startDate.getTime()
+  const currentTime = date.getTime()
+
+  if (currentTime >= startTime) {
+    dateSelection.value.endDate = new Date(date)
+  } else {
+    dateSelection.value.endDate = new Date(dateSelection.value.startDate)
+    dateSelection.value.startDate = new Date(date)
+  }
+}
+
+function endDateSelection(event?: MouseEvent) {
+  if (!dateSelection.value.isSelecting) return
+
+  dateSelection.value.isSelecting = false
+
+  // Confirm the selection if we have both start and end dates
+  if (dateSelection.value.startDate && dateSelection.value.endDate) {
+    dateSelection.value.confirmedStart = new Date(dateSelection.value.startDate)
+    dateSelection.value.confirmedEnd = new Date(dateSelection.value.endDate)
+
+    // Position the confirmed tooltip
+    if (event) {
+      confirmedTooltipPosition.value = { x: event.clientX + 12, y: event.clientY - 120 }
+    }
+  }
+
+  // Reset temporary selection
+  dateSelection.value.startDate = null
+  dateSelection.value.endDate = null
+
+  document.removeEventListener('mouseup', endDateSelection)
+  document.removeEventListener('mousemove', handleMouseMove)
+}
+
+function handleMouseMove(event: MouseEvent) {
+  if (dateSelection.value.isSelecting) {
+    tooltipPosition.value = { x: event.clientX, y: event.clientY }
+  }
+}
+
+function isDateInSelection(date: Date): boolean {
+  // Check temporary selection (during dragging)
+  if (
+    dateSelection.value.isSelecting &&
+    dateSelection.value.startDate &&
+    dateSelection.value.endDate
+  ) {
+    const startTime = Math.min(
+      dateSelection.value.startDate.getTime(),
+      dateSelection.value.endDate.getTime(),
+    )
+    const endTime = Math.max(
+      dateSelection.value.startDate.getTime(),
+      dateSelection.value.endDate.getTime(),
+    )
+    const dateTime = date.getTime()
+    return dateTime >= startTime && dateTime <= endTime
+  }
+
+  // Check confirmed selection
+  if (dateSelection.value.confirmedStart && dateSelection.value.confirmedEnd) {
+    const startTime = dateSelection.value.confirmedStart.getTime()
+    const endTime = dateSelection.value.confirmedEnd.getTime()
+    const dateTime = date.getTime()
+    return dateTime >= startTime && dateTime <= endTime
+  }
+
+  return false
+}
+
+function getSelectionNights(): number {
+  if (!dateSelection.value.startDate || !dateSelection.value.endDate) return 0
+  const start = Math.min(
+    dateSelection.value.startDate.getTime(),
+    dateSelection.value.endDate.getTime(),
+  )
+  const end = Math.max(
+    dateSelection.value.startDate.getTime(),
+    dateSelection.value.endDate.getTime(),
+  )
+  return Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+}
+
+function getConfirmedSelectionNights(): number {
+  if (!dateSelection.value.confirmedStart || !dateSelection.value.confirmedEnd) return 0
+  const start = dateSelection.value.confirmedStart.getTime()
+  const end = dateSelection.value.confirmedEnd.getTime()
+  return Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+}
+
+function clearSelection() {
+  dateSelection.value.confirmedStart = null
+  dateSelection.value.confirmedEnd = null
+  dateSelection.value.startDate = null
+  dateSelection.value.endDate = null
+  dateSelection.value.isSelecting = false
+}
+
+function navigateToAddReservation() {
+  if (dateSelection.value.confirmedStart && dateSelection.value.confirmedEnd) {
+    const checkinDate = dateSelection.value.confirmedStart.toISOString().split('T')[0]
+    const checkoutDate = dateSelection.value.confirmedEnd.toISOString().split('T')[0]
+
+    // Navigate to add reservation page with query parameters
+    router.push({
+      name: 'AddReservation', // Adjust this to match your route name
+      query: {
+        checkin: checkinDate,
+        checkout: checkoutDate,
+      },
+    })
+  }
+}
+
+function formatDateLong(date: Date): string {
+  return date.toLocaleDateString('en', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+// Cleanup event listeners on unmount
+onUnmounted(() => {
+  document.removeEventListener('mouseup', endDateSelection)
+  document.removeEventListener('mousemove', handleMouseMove)
+})
+
 function getReservationTypeIcon(type: string) {
   switch (type) {
-    case 'Direct Booking': return BookIcon;
-    case 'Hotel': return HotelIcon;
-    case 'Online': return GlobeIcon;
-    default: return BookIcon;
+    case 'Direct Booking':
+      return BookIcon
+    case 'Hotel':
+      return HotelIcon
+    case 'Online':
+      return GlobeIcon
+    default:
+      return BookIcon
   }
 }
 const rateTypeOptions = ref<any>([])
 function getCustomerTypeIcon(type: string) {
   switch (type) {
-    case 'Individual': return UserIcon;
-    case 'Group': return UsersIcon;
-    default: return UserIcon;
+    case 'Individual':
+      return UserIcon
+    case 'Group':
+      return UsersIcon
+    default:
+      return UserIcon
   }
 }
 // --- ROOM STATUS COLOR & ICON ---
@@ -328,36 +716,48 @@ import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
-import { getRateTypeByHotelId, getRateTypes } from '../../services/configrationApi';
-import SelectDropdown from '../common/SelectDropdown.vue';
-import StatusLegend from '../common/StatusLegend.vue';
+import { getRateTypeByHotelId, getRateTypes } from '../../services/configrationApi'
+import SelectDropdown from '../common/SelectDropdown.vue'
+import StatusLegend from '../common/StatusLegend.vue'
 
 function getRoomStatusColor(status: string): string {
   switch (status) {
-    case 'available': return 'text-green-400';
-    case 'occupied': return 'text-red-400';
-    case 'maintenance': return 'text-yellow-400';
-    case 'out_of_service': return 'text-red-400';
-    case 'cleaning': return 'text-purple-400';
-    default: return 'text-gray-300';
+    case 'available':
+      return 'text-green-400'
+    case 'occupied':
+      return 'text-red-400'
+    case 'maintenance':
+      return 'text-yellow-400'
+    case 'out_of_service':
+      return 'text-red-400'
+    case 'cleaning':
+      return 'text-purple-400'
+    default:
+      return 'text-gray-300'
   }
 }
 
 function getRoomStatusIcon(status: string) {
   switch (status) {
-    case 'available': return CheckCircle;
-    case 'occupied': return UserCircleIcon;
-    case 'maintenance': return WarningIcon;
-    case 'out_of_service': return ErrorIcon;
-    case 'cleaning': return GridIcon;
-    default: return GridIcon;
+    case 'available':
+      return CheckCircle
+    case 'occupied':
+      return UserCircleIcon
+    case 'maintenance':
+      return WarningIcon
+    case 'out_of_service':
+      return ErrorIcon
+    case 'cleaning':
+      return GridIcon
+    default:
+      return GridIcon
   }
 }
 
 const serviceStore = useServiceStore()
 const { t, locale } = useI18n()
 const serviceResponse = ref<any>({})
-const showModalAddingModal = ref<boolean>(false);
+const showModalAddingModal = ref<boolean>(false)
 const showDetail = ref<boolean>(false)
 const legends = [
   { type: 'confirmed', label: t('Confirmed reservation') },
@@ -366,16 +766,16 @@ const legends = [
   { type: 'blocked', label: t('Blocked Room') },
   { type: 'checkout', label: t('Check Out') },
   { type: 'departure', label: t('Departures today') },
-  { type: 'inhouse', label: t('In House') }
+  { type: 'inhouse', label: t('In House') },
 ]
-const selectRateType = ref(0);
+const selectRateType = ref(0)
 const modalReservation = ref<any | null>(null)
 function showReservationModal(reservation: any) {
   showDetail.value = true
   modalReservation.value = reservation
 }
 function closeReservationModal() {
-  modalReservation.value = null;
+  modalReservation.value = null
   showDetail.value = false
 }
 
@@ -384,7 +784,7 @@ function handleReservationSave(data?: any) {
   // Refresh the calendar data when reservation is saved/updated
   refresh()
 }
-const selectedDate = ref((new Date()).toISOString().split('T')[0])
+const selectedDate = ref(new Date().toISOString().split('T')[0])
 const daysToShow = ref(15)
 
 // Collapsible room types state
@@ -404,7 +804,9 @@ const visibleDates = computed(() => {
   })
 })
 const start_date = computed(() => visibleDates.value[0].toISOString().split('T')[0])
-const end_date = computed(() => visibleDates.value[visibleDates.value.length - 1].toISOString().split('T')[0])
+const end_date = computed(
+  () => visibleDates.value[visibleDates.value.length - 1].toISOString().split('T')[0],
+)
 
 // --- API DATA ADAPTERS ---
 const apiRoomGroups = computed(() => {
@@ -419,7 +821,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   const cells = []
   let i = 0
   const reservations = (group.reservations || []).filter(
-    (r: any) => r.assigned_room_number === room.room_number || room.room_number === null
+    (r: any) => r.assigned_room_number === room.room_number || room.room_number === null,
   )
   while (i < visibleDates.value.length) {
     const date = visibleDates.value[i]
@@ -445,21 +847,24 @@ function getRoomRowCellsApi(group: any, room: any) {
       const start = new Date(reservation.check_in_date)
       const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-      const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
+      const colspan = visibleDates.value.filter(
+        (d) => d >= date && d <= end && d <= lastVisible,
+      ).length
 
+      const is_check_in = reservation.check_in_date.startsWith(dStr)
 
+      const reservationDates = visibleDates.value.filter(
+        (d) => d >= date && d <= end && d <= lastVisible,
+      )
+      const lastVisibleDateOfReservation =
+        reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null
+      const checkOutDate = new Date(reservation.check_out_date)
 
-      const is_check_in = reservation.check_in_date.startsWith(dStr);
-
-      const reservationDates = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible);
-      const lastVisibleDateOfReservation = reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null;
-      const checkOutDate = new Date(reservation.check_out_date);
-
-      const is_check_out = lastVisibleDateOfReservation && (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() && lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() && lastVisibleDateOfReservation.getDate() === checkOutDate.getDate());
-
-
-
-
+      const is_check_out =
+        lastVisibleDateOfReservation &&
+        lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() &&
+        lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() &&
+        lastVisibleDateOfReservation.getDate() === checkOutDate.getDate()
 
       cells.push({
         type: 'reservation',
@@ -469,13 +874,14 @@ function getRoomRowCellsApi(group: any, room: any) {
         is_check_in,
         is_check_out,
         date,
-        key: i
+        key: i,
       })
       i += colspan
     } else {
       cells.push({
         type: 'room',
-        key: i
+        date,
+        key: i,
       })
       i += 1
     }
@@ -487,7 +893,9 @@ function getRoomRowCellsApi(group: any, room: any) {
 function getUnassignedApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  return metric ? `<span class='${metric.unassigned_reservations > 0 ? 'text-red-400' : ''}'>${metric.unassigned_reservations}</span>` : '0'
+  return metric
+    ? `<span class='${metric.unassigned_reservations > 0 ? 'text-red-400' : ''}'>${metric.unassigned_reservations}</span>`
+    : '0'
 }
 function getAllocatedRoomsApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
@@ -522,61 +930,76 @@ function formatTime(dt: string) {
 }
 
 function getReservationStyle(cell: any) {
-  const { is_check_in, is_check_out, colspan } = cell;
+  const { is_check_in, is_check_out, colspan } = cell
 
-
-
-  let width = 'calc(100% - 4px)';
-  let left = '2px';
+  let width = 'calc(100% - 4px)'
+  let left = '2px'
 
   if (colspan > 0) {
     if (is_check_in && is_check_out) {
       if (colspan === 1) {
-        width = 'calc(50% - 4px)';
-        left = 'calc(25% + 2px)';
+        width = 'calc(50% - 4px)'
+        left = 'calc(25% + 2px)'
       } else {
-        width = `calc(${(colspan - 1) / colspan * 100}% - 4px)`;
-        left = `calc(${0.5 / colspan * 100}% + 2px)`;
+        width = `calc(${((colspan - 1) / colspan) * 100}% - 4px)`
+        left = `calc(${(0.5 / colspan) * 100}% + 2px)`
       }
     } else if (is_check_in) {
-      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
-      left = `calc(${0.5 / colspan * 100}% + 2px)`;
+      width = `calc(${((colspan - 0.5) / colspan) * 100}% - 4px)`
+      left = `calc(${(0.5 / colspan) * 100}% + 2px)`
     } else if (is_check_out) {
-      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
+      width = `calc(${((colspan - 0.5) / colspan) * 100}% - 4px)`
     }
   }
 
-  return { width, left };
+  return { width, left }
 }
 function getReservationColor(type: string) {
   switch (type) {
-    case 'confirmed': return 'bg-green-500'
-    case 'request': return 'bg-orange-500'
-    case 'complimentary': return 'bg-blue-500'
-    case 'blocked': return 'bg-purple-500'
-    case 'checkout': return 'bg-gray-700'
-    case 'departure': return 'bg-red-500'
-    case 'inhouse': return 'bg-teal-500'
-    case 'checked_in': return 'bg-green-700'
-    case 'occupied': return 'bg-green-700'
-    default: return 'bg-gray-400'
+    case 'confirmed':
+      return 'bg-green-500'
+    case 'request':
+      return 'bg-orange-500'
+    case 'complimentary':
+      return 'bg-blue-500'
+    case 'blocked':
+      return 'bg-purple-500'
+    case 'checkout':
+      return 'bg-gray-700'
+    case 'departure':
+      return 'bg-red-500'
+    case 'inhouse':
+      return 'bg-teal-500'
+    case 'checked_in':
+      return 'bg-green-700'
+    case 'occupied':
+      return 'bg-green-700'
+    default:
+      return 'bg-gray-400'
   }
 }
 
-
 // --- API CALL ---
 const getLocaleDailyOccupancyAndReservations = async () => {
-  isLoading.value = true;
+  isLoading.value = true
   const serviceId = serviceStore.serviceId!
-  const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+  const response = await getDailyOccupancyAndReservations(
+    serviceId,
+    start_date.value,
+    end_date.value,
+  )
   serviceResponse.value = response.data
   console.log('this is the response', response)
-  isLoading.value = false;
+  isLoading.value = false
 }
 const refresh = async () => {
-  showModalAddingModal.value = false;
+  showModalAddingModal.value = false
   const serviceId = serviceStore.serviceId!
-  const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+  const response = await getDailyOccupancyAndReservations(
+    serviceId,
+    start_date.value,
+    end_date.value,
+  )
   serviceResponse.value = response.data
 }
 function prevDay() {
@@ -600,15 +1023,17 @@ const roomTypeOptions = computed(() => {
     const res = serviceResponse.value?.grouped_reservation_details.map((item: any) => {
       return {
         label: item.room_type,
-        id: item.room_type_id
+        id: item.room_type_id,
       }
     })
     if (selectedRoomTypes.value.length === 0) {
-      selectedRoomTypes.value = serviceResponse.value?.grouped_reservation_details.map((item: any) => {
-        return item.room_type_id
-      })
+      selectedRoomTypes.value = serviceResponse.value?.grouped_reservation_details.map(
+        (item: any) => {
+          return item.room_type_id
+        },
+      )
     }
-    return res;
+    return res
   }
   return []
 })
@@ -621,12 +1046,11 @@ watch([selectedDate, daysToShow], () => {
 })
 
 const addReservation = () => {
-  showModalAddingModal.value = true;
+  showModalAddingModal.value = true
 }
 
-
 const tooltipReservation = ref<any | null>(null)
-const tooltipPosition = ref<{ x: number, y: number } | null>(null)
+const tooltipPosition = ref<{ x: number; y: number } | null>(null)
 
 function showReservationTooltip(reservation: any, event: MouseEvent) {
   tooltipReservation.value = reservation
@@ -637,15 +1061,7 @@ function hideReservationTooltip() {
   tooltipPosition.value = null
 }
 
-const statusElements = ref([
-  'all',
-  "vacant",
-  "occupied",
-  "reserved",
-  "blocked",
-  "dueOut",
-  "dirty"
-])
+const statusElements = ref(['all', 'vacant', 'occupied', 'reserved', 'blocked', 'dueOut', 'dirty'])
 
 // Function to get room status count from API response
 function getRoomStatusCount(status: string): number {
@@ -665,10 +1081,10 @@ const fectRateTypes = async () => {
   rateTypeOptions.value = response.data?.data?.map((item: any) => {
     return {
       label: item.rateTypeName,
-      value: item.rateTypeId
+      value: item.rateTypeId,
     }
   })
-  selectRateType.value = rateTypeOptions.value[0]?.value;
+  selectRateType.value = rateTypeOptions.value[0]?.value
   console.log('rateTypeOptions.value', rateTypeOptions.value)
 
   console.log('selectRateType.value', selectRateType.value)
@@ -684,21 +1100,20 @@ const roomRateForDate = computed(() => {
   }
 
   // Find the selected rate type in the current data
-  const selectedRateTypes = currentRateTypeData.value.find((rateType: any) =>
-    rateType.rateTypeId === selectRateType.value
+  const selectedRateTypes = currentRateTypeData.value.find(
+    (rateType: any) => rateType.rateTypeId === selectRateType.value,
   )
   console.log('selected rates', selectedRateTypes)
   if (!selectedRateTypes || !selectedRateTypes.roomTypes) {
     return []
   }
-  const result = {} as any;
+  const result = {} as any
   selectedRateTypes.roomTypes.forEach((roomType: any) => {
     result[roomType.roomTypeId] = roomType.roomRate
   })
   console.log('result', result)
-  return result;
-}
-)
+  return result
+})
 
 const legendSections = [
   {
@@ -711,8 +1126,8 @@ const legendSections = [
       { label: 'Maintenance Block', color: '#1e3a8a' },
       { label: 'Stayover', color: '#f97316' },
       { label: 'Dayuse Reservation', color: '#22c55e' },
-      { label: 'Dayuse', color: '#7f1d1d' }
-    ]
+      { label: 'Dayuse', color: '#7f1d1d' },
+    ],
   },
   {
     title: 'Booking Indicators',
@@ -723,8 +1138,8 @@ const legendSections = [
       { label: 'Stop Room Move', icon: 'NoSymbolIcon' },
       { label: 'Single Lady', icon: 'UserIcon' },
       { label: 'VIP Guest', icon: 'StarIcon' },
-      { label: 'Split Reservation', icon: 'ScissorsIcon' }
-    ]
+      { label: 'Split Reservation', icon: 'ScissorsIcon' },
+    ],
   },
   {
     title: 'Room Indicators',
@@ -739,8 +1154,276 @@ const legendSections = [
       { label: 'Pet Friendly Room', icon: 'HeartIcon' },
       { label: 'Unassigned Room', color: '#e5e7eb' },
       { label: 'Inventory', color: '#fecaca' },
-      { label: 'Unconfirmed Bookings', color: '#f87171' }
-    ]
+      { label: 'Unconfirmed Bookings', color: '#f87171' },
+    ],
+  },
+]
+// État de sélection modifié pour les cellules individuelles
+const cellSelection = ref({
+  selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
+  isSelecting: false,
+  startCell: null as { roomType: string; roomNumber: string; date: Date } | null,
+  currentCell: null as { roomType: string; roomNumber: string; date: Date } | null,
+})
+
+// Fonction pour créer une clé unique pour une cellule
+function getCellKey(roomType: string, roomNumber: string, date: Date): string {
+  const dateStr = date.toISOString().split('T')[0]
+  return `${roomType}_${roomNumber}_${dateStr}`
+}
+
+// Fonction pour démarrer la sélection de cellules
+function startCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
+  event.preventDefault()
+
+  cellSelection.value.isSelecting = true
+  cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date) }
+  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date) }
+
+  // Effacer la sélection précédente
+  cellSelection.value.selectedCells.clear()
+
+  // Ajouter la cellule de départ
+  const cellKey = getCellKey(roomType, roomNumber, date)
+  cellSelection.value.selectedCells.add(cellKey)
+
+  document.addEventListener('mouseup', endCellSelection)
+  document.addEventListener('mousemove', handleCellMouseMove)
+}
+
+// Fonction pour mettre à jour la sélection de cellules lors du survol
+function updateCellSelection(roomType: string, roomNumber: string, date: Date) {
+  if (!cellSelection.value.isSelecting || !cellSelection.value.startCell) return
+
+  // Autoriser uniquement la sélection sur la même chambre
+  if (
+    cellSelection.value.startCell.roomType !== roomType ||
+    cellSelection.value.startCell.roomNumber !== roomNumber
+  ) {
+    return
   }
-];
+
+  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date) }
+
+  // Recalculer les cellules sélectionnées
+  calculateSelectedCells()
+}
+
+// Fonction pour calculer toutes les cellules sélectionnées dans la plage
+function calculateSelectedCells() {
+  if (!cellSelection.value.startCell || !cellSelection.value.currentCell) return
+
+  cellSelection.value.selectedCells.clear()
+
+  const startDate = cellSelection.value.startCell.date
+  const endDate = cellSelection.value.currentCell.date
+  const roomType = cellSelection.value.startCell.roomType
+  const roomNumber = cellSelection.value.startCell.roomNumber
+
+  // Déterminer la plage de dates (du plus petit au plus grand)
+  const minDate = new Date(Math.min(startDate.getTime(), endDate.getTime()))
+  const maxDate = new Date(Math.max(startDate.getTime(), endDate.getTime()))
+
+  // Ajouter toutes les dates dans la plage
+  const current = new Date(minDate)
+  while (current <= maxDate) {
+    const cellKey = getCellKey(roomType, roomNumber, current)
+    cellSelection.value.selectedCells.add(cellKey)
+    current.setDate(current.getDate() + 1)
+  }
+}
+
+// Fonction pour terminer la sélection de cellules
+function endCellSelection(event?: MouseEvent) {
+  if (!cellSelection.value.isSelecting) return
+
+  cellSelection.value.isSelecting = false
+
+  if (event) {
+    selectionTooltipPosition.value = { x: event.clientX, y: event.clientY };
+  }
+
+  // La sélection reste active même après la fin du glisser-déposer
+  console.log('Cellules sélectionnées:', Array.from(cellSelection.value.selectedCells))
+
+  document.removeEventListener('mouseup', endCellSelection)
+  document.removeEventListener('mousemove', handleCellMouseMove)
+}
+
+// Gestionnaire de mouvement de souris
+function handleCellMouseMove(event: MouseEvent) {
+  // Vous pouvez ajouter ici des fonctionnalités supplémentaires si nécessaire
+}
+
+// Fonction pour vérifier si une cellule est sélectionnée
+function isCellSelected(roomType: string, roomNumber: string, date: Date): boolean {
+  const cellKey = getCellKey(roomType, roomNumber, date)
+  return cellSelection.value.selectedCells.has(cellKey)
+}
+
+// Fonction pour effacer la sélection de cellules
+function clearCellSelection() {
+  cellSelection.value.selectedCells.clear()
+  cellSelection.value.isSelecting = false
+  cellSelection.value.startCell = null
+  cellSelection.value.currentCell = null
+}
+
+// Fonction pour obtenir les informations de la sélection actuelle
+function getSelectionInfo() {
+  if (cellSelection.value.selectedCells.size === 0) return null
+
+  // Analyser les cellules sélectionnées pour extraire les informations
+  const cells = Array.from(cellSelection.value.selectedCells)
+  const firstCell = cells[0].split('_')
+  const roomType = firstCell[0]
+  const roomNumber = firstCell[1]
+
+  // Extraire toutes les dates
+  const dates = cells
+    .map((cell) => new Date(cell.split('_')[2]))
+    .sort((a, b) => a.getTime() - b.getTime())
+
+  return {
+    roomType,
+    roomNumber,
+    startDate: dates[0],
+    endDate: dates[dates.length - 1],
+    totalNights: dates.length,
+    cellCount: cells.length,
+  }
+}
+
+// Helper functions for cell selection merging
+function isStartOfSelection(roomType: string, roomNumber: string, date: Date): boolean {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return false
+
+  const selectionStartDate = selectionInfo.startDate
+  const cellDate = new Date(date)
+
+  return (
+    selectionInfo.roomType === roomType &&
+    selectionInfo.roomNumber === roomNumber &&
+    cellDate.getTime() === selectionStartDate.getTime()
+  )
+}
+
+function getSelectionColspan(): number {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return 1
+  return selectionInfo.cellCount
+}
+
+function isInsideSelection(roomType: string, roomNumber: string, date: Date): boolean {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return false
+
+  const selectionStartDate = selectionInfo.startDate
+  const selectionEndDate = selectionInfo.endDate
+  const cellDate = new Date(date)
+
+  return (
+    selectionInfo.roomType === roomType &&
+    selectionInfo.roomNumber === roomNumber &&
+    cellDate.getTime() >= selectionStartDate.getTime() &&
+    cellDate.getTime() <= selectionEndDate.getTime()
+  )
+}
+
+// Fonction pour naviguer vers l'ajout de réservation
+function navigateToAddReservationFromCells() {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return
+
+  const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
+  const checkoutDate = new Date(selectionInfo.endDate)
+  checkoutDate.setDate(checkoutDate.getDate() + 1) // Check-out le jour suivant
+  const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
+
+  router.push({
+    name: 'AddReservation',
+    query: {
+      checkin: checkinDate,
+      checkout: checkoutDateStr,
+      roomType: selectionInfo.roomType,
+      roomNumber: selectionInfo.roomNumber,
+    },
+  })
+}
+
+// Cleanup des event listeners
+onUnmounted(() => {
+  document.removeEventListener('mouseup', endCellSelection)
+  document.removeEventListener('mousemove', handleCellMouseMove)
+})
 </script>
+<style scoped>
+/* Style pour les cellules sélectionnées individuellement */
+.cell-selected {
+  background-color: #3b82f6 !important;
+  border-color: #1d4ed8 !important;
+  position: relative;
+}
+
+.cell-selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #1d4ed8;
+}
+
+/* Effet de survol uniquement sur les cellules libres */
+.cell-hoverable:hover {
+  background-color: #dbeafe !important;
+  border-color: #60a5fa !important;
+}
+
+/* Transition fluide pour les cellules */
+.cell-transition {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Style pour indiquer qu'une cellule est sélectionnable */
+.cell-selectable {
+  cursor: pointer;
+}
+
+/* Remove any row or column highlighting styles */
+.no-row-highlight {
+  background-color: inherit !important;
+}
+
+/* Weekend cells remain subtle */
+.weekend-cell {
+  background-color: #f9fafb;
+}
+
+.weekend-cell.cell-selected {
+  background-color: #3b82f6 !important;
+}
+
+/* Ensure header cells don't change color during selection */
+.header-cell {
+  background-color: inherit !important;
+}
+
+.room-name-cell {
+  background-color: inherit !important;
+}
+
+/* Style pour le tooltip flottant */
+.selection-info-tooltip {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 2px solid #3b82f6;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+</style>
