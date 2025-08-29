@@ -1,7 +1,7 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="'Add Charge'" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="$t('Add Charge')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">Add Charge</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ $t('Add Charge') }}</h3>
     </template>
     <!-- Form -->
     <div class="px-2 space-y-4">
@@ -13,50 +13,41 @@
 
       <!-- Folio -->
       <div>
-        <InputFolioSelect :title="$t('folio')" v-model="formData.folio"
-          :reservation-id="reservationId" :is-required="true" />
+        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId"
+          :is-required="true" />
       </div>
 
       <!-- Rec/Vou # -->
       <div>
-        <Input v-model="formData.recVouNumber" type="text" :lb="$t('Rec/Vou #')"
+        <Input v-model="formData.recVouNumber" type="text" :lb="$t('Rec/Vou #')" :disabled="true"
           placeholder="Enter receipt/voucher number" />
       </div>
 
 
       <!-- Charge -->
       <div>
-        <Select v-model="formData.charge" :options="chargeOptions" :lb="$t('Charge')" />
+        <InputExtractChargeSelect v-model="formData.charge" :lb="$t('Charge')" />
       </div>
-      <!-- Add as Inclusion -->
+      <!-- Add as Inclusion 
       <div class="flex items-center">
         <input v-model="formData.addAsInclusion" type="checkbox" id="addAsInclusion"
           class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
         <label for="addAsInclusion" class="ml-2 text-sm text-gray-700">Add as Inclusion</label>
-      </div>
+      </div>-->
 
       <!-- Quantity -->
       <div>
         <Input v-model="formData.quantity" input-type="number" min="1" class="w-20" :lb="$t('Qty')" />
-
       </div>
 
       <!-- Amount -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-        <div class="flex space-x-2">
-          <div class="flex-1">
-            <Select v-model="formData.currency" :options="currencyOptions"  />
-          </div>
-          <div class="flex-2">
-            <Input v-model="formData.amount" input-type="number" min="1" />
-          </div>
-        </div>
+        <InputCurrency v-model="formData.amount" :lb="$t('amount')" />
       </div>
 
       <!-- Discount -->
       <div>
-        <Select v-model="formData.discount" :options="discountsOptions" :lb="$t('Discount')" />
+        <InputDiscountSelect v-model="formData.discount" />
       </div>
 
       <!-- Comment -->
@@ -79,15 +70,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
-import { X, Calendar, ChevronDown } from 'lucide-vue-next'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
-import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import InputFolioSelect from './InputFolioSelect.vue'
 import { getDiscounts, getExtraCharges } from '../../../services/configrationApi'
 import { safeParseFloat, prepareFolioAmount, isValidMonetaryAmount } from '../../../utils/numericUtils'
+import InputExtractChargeSelect from './InputExtractChargeSelect.vue'
+import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
+import InputDiscountSelect from './InputDiscountSelect.vue'
 
 interface Props {
   isOpen: boolean
@@ -101,10 +93,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const foliosOptions = ref([{ value: '', label: '-select-' }])
-const chargeOptions = ref([{ value: '', label: '-select-' }])
-const currencyOptions = ref([{ value: '', label: '-select-' }])
-const discountsOptions = ref([{ value: '', label: '-select-' }])
 
 const formData = reactive({
   date: new Date().toISOString().split('T')[0],
@@ -163,36 +151,6 @@ watch(() => props.isOpen, (newVal) => {
     }
   }
 })
-
-
-// Fetch identity types from API
-const loadata = async () => {
-  try {
-    const response = await getExtraCharges()
-    console.log('response', response)
-    chargeOptions.value = chargeOptions.value.concat((response.data.data.data || []).map((e: any) => {
-      return { ...e, label: e.name, value: e.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching identity types:', error)
-  } finally {
-  }
-}
-// Fetch discounts from API
-const fetchDiscounts = async () => {
-  try {
-    const response = await getDiscounts()
-    discountsOptions.value =discountsOptions.value.concat(( response.data.data.data || []).map((e: any) => {
-      return { ...e, label: e.name, value: e.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching discounts:', error)
-  } finally {
-  }
-}
-
-loadata()
-fetchDiscounts()
 </script>
 
 <style scoped>
