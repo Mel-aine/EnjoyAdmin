@@ -382,7 +382,8 @@
     "noRoomsFound" : "No rooms found for this reservation.",
     "noRoomsCurrently" : "No rooms are currently available for check-in for this reservation.",
     "noReservationFound" : "Reservation not found.",
-    "InvalidReservationForCheckout" : "Invalid reservation data for check-out."
+    "InvalidReservationForCheckout" : "Invalid reservation data for check-out.",
+    "errorfetchRateTypes" : "Error fetching rate types"
     
   },
   "EditRoomType": "Edit Room Type",
@@ -5287,6 +5288,7 @@
   "After" : "After",
   "Room/Guest" : "Room/Guest",
   "ProfilePhoto" : "Profile Photo",
+  "SelectionDetails" : "Selection Details",
   "city_ledger":"City Ledger",
   "bank":"Bank"
 }
