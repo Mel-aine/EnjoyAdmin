@@ -92,6 +92,8 @@ export interface  ReservationType{
   created_by: number
   lastModified_by: number
   payment:string
+  arrivedDate : any
+  departDate : any
 }
 
 // export interface userDataType {

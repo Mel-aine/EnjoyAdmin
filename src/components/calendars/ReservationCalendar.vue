@@ -1248,7 +1248,7 @@ function navigateToAddReservationFromCells() {
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
   const checkoutDate = new Date(selectionInfo.endDate)
-  checkoutDate.setDate(checkoutDate.getDate() + 1) // Check-out le jour suivant
+  checkoutDate.setDate(checkoutDate.getDate() )
   const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
 
   router.push({

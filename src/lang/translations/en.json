@@ -5290,5 +5290,9 @@
   "ProfilePhoto" : "Profile Photo",
   "SelectionDetails" : "Selection Details",
   "city_ledger":"City Ledger",
-  "bank":"Bank"
+  "bank":"Bank",
+  "TodaysArrivals" : "Today's  Arrivals",
+  "TodaysDepartures" : "Today's Departures",
+  "InHouseGuests" : "In House Guests",
+  "AllReservations" : "All Reservations"
 }
