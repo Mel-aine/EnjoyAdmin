@@ -155,13 +155,13 @@
                             @mouseenter="showReservationTooltip(cell.reservation, $event)"
                             @mouseleave="hideReservationTooltip">
                             <span class="truncate flex items-center gap-1">
-                             
+
                               {{ cell.reservation.guest_name }}
                               <br>
                             </span>
                             <div class="absolute -top-2 flex items-center gap-1">
-                               <Crown v-if="cell.reservation.is_master" 
-                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0" 
+                               <Crown v-if="cell.reservation.is_master"
+                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0"
                                 :title="$t('Primary')" />
                                 <DollarSignIcon v-if="cell.reservation?.is_balance" class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
                                 <User2 v-if="cell.reservation?.isWomen" class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
@@ -193,9 +193,42 @@
                               :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
                           </div>
                         </td>
-                        <td v-else
-                          :class="['px-0 py-0 h-12 border border-gray-300', cell.date && isWeekend(cell.date) ? 'bg-gray-100' : '']">
-                        </td>
+                         <template v-if="cellSelection.isSelecting">
+                          <td
+                            :class="[
+                              'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
+                              isCellSelected(group.room_type, room.room_number, cell.date)
+                                ? 'bg-blue-400 cell-selected'
+                                : (isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
+                            ]"
+                            @mousedown="
+                              startCellSelection(group.room_type, room.room_number, cell.date, $event)
+                            "
+                            @mouseenter="
+                              updateCellSelection(group.room_type, room.room_number, cell.date)
+                            "
+                            @mouseup="endCellSelection"
+                          ></td>
+                        </template>
+                        <template v-else>
+                          <td
+                            v-if="!isInsideSelection(group.room_type, room.room_number, cell.date) || isStartOfSelection(group.room_type, room.room_number, cell.date)"
+                            :colspan="isStartOfSelection(group.room_type, room.room_number, cell.date) ? getSelectionColspan() : 1"
+                            :class="[
+                              'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
+                              isStartOfSelection(group.room_type, room.room_number, cell.date)
+                                ? 'bg-blue-400 cell-selected'
+                                : (isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
+                            ]"
+                            @mousedown="
+                              startCellSelection(group.room_type, room.room_number, cell.date, $event)
+                            "
+                            @mouseenter="
+                              updateCellSelection(group.room_type, room.room_number, cell.date)
+                            "
+                            @mouseup="endCellSelection"
+                          ></td>
+                        </template>
                       </template>
                     </tr>
                   </template>
@@ -245,6 +278,65 @@
         </div>
       </div>
     </div>
+     <!-- Date Selection Tooltip -->
+    <div
+      v-if="dateSelection.isSelecting && dateSelection.startDate && dateSelection.endDate"
+      :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y - 60}px;z-index:1000;`"
+      class="rounded-lg bg-white shadow-lg border text-sm pointer-events-none px-4 py-2"
+    >
+      <div class="font-medium text-gray-800 mb-1">{{ $t('Selected Dates') }}</div>
+      <div class="text-gray-600">
+        {{ formatDate(dateSelection.startDate) }} - {{ formatDate(dateSelection.endDate) }}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        {{ getSelectionNights() }} {{ getSelectionNights() > 1 ? $t('nights') : $t('night') }}
+      </div>
+    </div>
+
+    <!-- Confirmed Selection Tooltip with Action -->
+    <div
+      v-if="getSelectionInfo()"
+      :style="`position:fixed;left:${selectionTooltipPosition.x - 150}px;top:${selectionTooltipPosition.y + 20}px;z-index:1000;`"
+      class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm"
+    >
+      <div class="bg-gray-100 border-b border-gray-200 rounded-t-lg px-4 py-2">
+        <h3 class="font-semibold text-gray-800">{{ $t('Selection Details') }}</h3>
+      </div>
+
+      <div class="p-4">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
+          <div><strong>{{ $t('Chambre') }}:</strong></div>
+          <div>{{ getSelectionInfo().roomNumber }}</div>
+
+          <div><strong>{{ $t('Type') }}:</strong></div>
+          <div>{{ getSelectionInfo().roomType }}</div>
+
+          <div><strong>{{ $t('Du') }}:</strong></div>
+          <div>{{ formatDate(getSelectionInfo().startDate) }}</div>
+
+          <div><strong>{{ $t('Au') }}:</strong></div>
+          <div>{{ formatDate(getSelectionInfo().endDate) }}</div>
+
+          <div><strong>{{ $t('Nuits') }}:</strong></div>
+          <div>{{ getSelectionInfo().totalNights }}</div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 border-t border-gray-200 rounded-b-lg px-4 py-3 flex justify-end gap-2">
+        <button
+          @click="clearCellSelection"
+          class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-300 transition"
+        >
+          {{ $t('Effacer') }}
+        </button>
+        <button
+          @click="navigateToAddReservationFromCells"
+          class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
+        >
+          {{ $t('Réserver') }}
+        </button>
+      </div>
+    </div>
     <!--tooltip-->
     <div v-if="tooltipReservation && tooltipPosition"
       :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y + 12}px;z-index:1000;`"
@@ -278,7 +370,7 @@
 <script setup lang="ts">
 import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2 } from 'lucide-vue-next'
 
-import { watch } from 'vue'
+import { watch,onUnmounted } from 'vue'
 import { CheckCircle, X } from 'lucide-vue-next'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 import AddBookingModal from '../modal/AddBookingModal.vue';
@@ -314,6 +406,41 @@ import Select from '../forms/FormElements/Select.vue'
 import { getRateTypeByHotelId, getRateTypes } from '../../services/configrationApi';
 import SelectDropdown from '../common/SelectDropdown.vue';
 import StatusLegend from '../common/StatusLegend.vue';
+import { useRouter } from 'vue-router'
+
+
+
+const router = useRouter()
+const selectionTooltipPosition = ref({ x: 0, y: 0 })
+// Date selection state
+const dateSelection = ref({
+  isSelecting: false,
+  startDate: null as Date | null,
+  endDate: null as Date | null,
+  confirmedStart: null as Date | null,
+  confirmedEnd: null as Date | null,
+})
+
+
+
+
+
+
+function getSelectionNights(): number {
+  if (!dateSelection.value.startDate || !dateSelection.value.endDate) return 0
+  const start = Math.min(
+    dateSelection.value.startDate.getTime(),
+    dateSelection.value.endDate.getTime(),
+  )
+  const end = Math.max(
+    dateSelection.value.startDate.getTime(),
+    dateSelection.value.endDate.getTime(),
+  )
+  return Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+}
+
+
+
 
 function getRoomStatusColor(status: string): string {
   switch (status) {
@@ -387,8 +514,9 @@ const visibleDates = computed(() => {
   })
 })
 const start_date = computed(() => visibleDates.value[0].toISOString().split('T')[0])
-const end_date = computed(() => visibleDates.value[visibleDates.value.length - 1].toISOString().split('T')[0])
-
+const end_date = computed(
+  () => visibleDates.value[visibleDates.value.length - 1].toISOString().split('T')[0],
+)
 // --- API DATA ADAPTERS ---
 const apiRoomGroups = computed(() => {
   return serviceResponse.value.grouped_reservation_details || []
@@ -400,61 +528,136 @@ const apiRoomBlocks = computed(() => {
   return serviceResponse.value.room_blocks || []
 })
 
-// Function to check if a reservation is the first room in a multi-room reservation
-function isFirstRoomInMultiRoomReservation(reservation: any): boolean {
-  if (!reservation?.reservation_id) return false
-  
-  // Get all reservations with the same reservation_id across all room groups
-  const allReservations: any[] = []
-  apiRoomGroups.value.forEach((group: any) => {
-    if (group.reservations) {
-      allReservations.push(...group.reservations)
-    }
-  })
-  
-  // Find all reservations with the same reservation_id
-  const sameReservationRooms = allReservations.filter(
-    (r: any) => r.reservation_id === reservation.reservation_id
-  )
-  
-  // If there's only one room, it's not a multi-room reservation
-  if (sameReservationRooms.length <= 1) return false
-  
-  // Sort by room number or assigned room number to determine the "first" room
-  sameReservationRooms.sort((a: any, b: any) => {
-    const roomA = a.assigned_room_number || a.room_number || ''
-    const roomB = b.assigned_room_number || b.room_number || ''
-    return roomA.localeCompare(roomB)
-  })
-  
-  // Check if this reservation is the first one in the sorted list
-  return sameReservationRooms[0] === reservation
-}
+
 
 // --- API TABLE ROWS ---
+// function getRoomRowCellsApi(group: any, room: any) {
+//   const cells = []
+//   let i = 0
+
+//   // Fixed filtering logic for multi-room reservations
+//   const allReservations = group.reservations || []
+//   const reservations = allReservations.filter((r: any) => {
+//     // Match by assigned room number, room number, or if room number is null (unassigned rooms)
+//     return r.assigned_room_number === room.room_number ||
+//            r.room_number === room.room_number ||
+//            (room.room_number === null && !r.assigned_room_number)
+//   })
+
+//   // Filter room blocks for this room
+//   const roomBlocks = apiRoomBlocks.value.filter(
+//     (b: any) => b.room && b.room.room_number === room.room_number
+//   )
+
+//   while (i < visibleDates.value.length) {
+//     const date = visibleDates.value[i]
+//     const dStr = date.toISOString().split('T')[0]
+
+//     // Check for room block first (higher priority)
+//     let roomBlock = roomBlocks.find((b: any) => {
+//       const startDate = new Date(b.block_from_date)
+//       const endDate = new Date(b.block_to_date)
+//       return startDate <= date && endDate >= date
+//     })
+
+//     if (roomBlock) {
+//       // Calculate colspan for room block
+//       const start = new Date(roomBlock.block_from_date)
+//       const end = new Date(roomBlock.block_to_date)
+//       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
+//       const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
+
+//       cells.push({
+//         type: 'room_block',
+//         roomBlock,
+//         colspan,
+//         date,
+//         key: i
+//       })
+//       i += colspan
+//     } else {
+//       // Find reservation starting on this date
+//       let reservation = reservations.find((r: any) => {
+//         // If reservation starts today
+//         return r.check_in_date.startsWith(dStr)
+//       })
+
+//       // If no reservation starts today, check if a reservation started before and is still ongoing
+//       if (!reservation) {
+//         reservation = reservations.find((r: any) => {
+//           const start = new Date(r.check_in_date)
+//           const end = new Date(r.check_out_date)
+//           return start < date && end >= date
+//         })
+//       }
+
+//     if (reservation) {
+//       // Calculate colspan: from current date to min(end date, last visible date)
+//       const start = new Date(reservation.check_in_date)
+//       const end = new Date(reservation.check_out_date)
+//       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
+//       const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
+
+
+
+//       const is_check_in = reservation.check_in_date.startsWith(dStr);
+
+//       const reservationDates = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible);
+//       const lastVisibleDateOfReservation = reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null;
+//       const checkOutDate = new Date(reservation.check_out_date);
+
+//       const is_check_out = lastVisibleDateOfReservation && (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() && lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() && lastVisibleDateOfReservation.getDate() === checkOutDate.getDate());
+
+
+
+
+
+//         cells.push({
+//           type: 'reservation',
+//           reservation,
+//           middle: reservation.check_in_date.startsWith(dStr),
+//           colspan,
+//           is_check_in,
+//           is_check_out,
+//           date,
+//           key: i
+//         })
+//         i += colspan
+//       } else {
+//         cells.push({
+//           type: 'room',
+//           key: i
+//         })
+//         i += 1
+//       }
+//     }
+//   }
+//   return cells
+// }
 function getRoomRowCellsApi(group: any, room: any) {
-  const cells = []
+  const cells: any[] = []
   let i = 0
-  
-  // Fixed filtering logic for multi-room reservations
+
+  // --- Récupération des réservations ---
   const allReservations = group.reservations || []
   const reservations = allReservations.filter((r: any) => {
-    // Match by assigned room number, room number, or if room number is null (unassigned rooms)
-    return r.assigned_room_number === room.room_number || 
-           r.room_number === room.room_number || 
-           (room.room_number === null && !r.assigned_room_number)
+    return (
+      r.assigned_room_number === room.room_number ||
+      r.room_number === room.room_number ||
+      (room.room_number === null && !r.assigned_room_number)
+    )
   })
-  
-  // Filter room blocks for this room
+
+  // --- Récupération des room blocks ---
   const roomBlocks = apiRoomBlocks.value.filter(
     (b: any) => b.room && b.room.room_number === room.room_number
   )
-  
+
   while (i < visibleDates.value.length) {
     const date = visibleDates.value[i]
-    const dStr = date.toISOString().split('T')[0]
+    const dStr = date.toISOString().split("T")[0]
 
-    // Check for room block first (higher priority)
+    // --- Vérifier d'abord les room blocks (priorité plus haute) ---
     let roomBlock = roomBlocks.find((b: any) => {
       const startDate = new Date(b.block_from_date)
       const endDate = new Date(b.block_to_date)
@@ -462,79 +665,89 @@ function getRoomRowCellsApi(group: any, room: any) {
     })
 
     if (roomBlock) {
-      // Calculate colspan for room block
       const start = new Date(roomBlock.block_from_date)
       const end = new Date(roomBlock.block_to_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-      const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
+      const colspan = visibleDates.value.filter(
+        (d) => d >= date && d <= end && d <= lastVisible
+      ).length
 
       cells.push({
-        type: 'room_block',
+        type: "room_block",
         roomBlock,
         colspan,
         date,
-        key: i
+        key: i,
       })
       i += colspan
-    } else {
-      // Find reservation starting on this date
-      let reservation = reservations.find((r: any) => {
-        // If reservation starts today
-        return r.check_in_date.startsWith(dStr)
-      })
+      continue
+    }
 
-      // If no reservation starts today, check if a reservation started before and is still ongoing
-      if (!reservation) {
-        reservation = reservations.find((r: any) => {
-          const start = new Date(r.check_in_date)
-          const end = new Date(r.check_out_date)
-          return start < date && end >= date
-        })
-      }
+    // --- Sinon, on cherche une réservation ---
+    let reservation = reservations.find((r: any) => {
+      return r.check_in_date.startsWith(dStr)
+    })
+
+    if (!reservation) {
+      reservation = reservations.find((r: any) => {
+        const start = new Date(r.check_in_date)
+        const end = new Date(r.check_out_date)
+        return start < date && end >= date
+      })
+    }
 
     if (reservation) {
-      // Calculate colspan: from current date to min(end date, last visible date)
       const start = new Date(reservation.check_in_date)
       const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-      const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
 
+      const colspan = visibleDates.value.filter(
+        (d) => d >= date && d <= end && d <= lastVisible
+      ).length
 
+      const is_check_in = reservation.check_in_date.startsWith(dStr)
 
-      const is_check_in = reservation.check_in_date.startsWith(dStr);
+      const reservationDates = visibleDates.value.filter(
+        (d) => d >= date && d <= end && d <= lastVisible
+      )
+      const lastVisibleDateOfReservation =
+        reservationDates.length > 0
+          ? reservationDates[reservationDates.length - 1]
+          : null
+      const checkOutDate = new Date(reservation.check_out_date)
 
-      const reservationDates = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible);
-      const lastVisibleDateOfReservation = reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null;
-      const checkOutDate = new Date(reservation.check_out_date);
+      const is_check_out =
+        lastVisibleDateOfReservation &&
+        lastVisibleDateOfReservation.getFullYear() ===
+          checkOutDate.getFullYear() &&
+        lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() &&
+        lastVisibleDateOfReservation.getDate() === checkOutDate.getDate()
 
-      const is_check_out = lastVisibleDateOfReservation && (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() && lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() && lastVisibleDateOfReservation.getDate() === checkOutDate.getDate());
-
-
-
-
-
-        cells.push({
-          type: 'reservation',
-          reservation,
-          middle: reservation.check_in_date.startsWith(dStr),
-          colspan,
-          is_check_in,
-          is_check_out,
-          date,
-          key: i
-        })
-        i += colspan
-      } else {
-        cells.push({
-          type: 'room',
-          key: i
-        })
-        i += 1
-      }
+      cells.push({
+        type: "reservation",
+        reservation,
+        middle: reservation.check_in_date.startsWith(dStr),
+        colspan,
+        is_check_in,
+        is_check_out,
+        date,
+        key: i,
+      })
+      i += colspan
+    } else {
+      // Pas de réservation ni de block → cellule libre
+      cells.push({
+        type: "room",
+        date,
+        key: i,
+      })
+      i += 1
     }
   }
+
   return cells
 }
+
 
 // --- API FOOTER ---
 function getUnassignedApi(date: Date) {
@@ -675,9 +888,6 @@ watch([selectedDate, daysToShow], () => {
   getLocaleDailyOccupancyAndReservations()
 })
 
-const addReservation = () => {
-  showModalAddingModal.value = true;
-}
 
 
 const tooltipReservation = ref<any | null>(null)
@@ -798,4 +1008,272 @@ const legendSections = [
     ]
   }
 ];
+// État de sélection modifié pour les cellules individuelles
+const cellSelection = ref({
+  selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
+  isSelecting: false,
+  startCell: null as { roomType: string; roomNumber: string; date: Date } | null,
+  currentCell: null as { roomType: string; roomNumber: string; date: Date } | null,
+})
+
+// Fonction pour créer une clé unique pour une cellule
+function getCellKey(roomType: string, roomNumber: string, date: Date): string {
+  const dateStr = date.toISOString().split('T')[0]
+  return `${roomType}_${roomNumber}_${dateStr}`
+}
+
+// Fonction pour démarrer la sélection de cellules
+function startCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
+  event.preventDefault()
+
+  cellSelection.value.isSelecting = true
+  cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date) }
+  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date) }
+
+  // Effacer la sélection précédente
+  cellSelection.value.selectedCells.clear()
+
+  // Ajouter la cellule de départ
+  const cellKey = getCellKey(roomType, roomNumber, date)
+  cellSelection.value.selectedCells.add(cellKey)
+
+  document.addEventListener('mouseup', endCellSelection)
+  document.addEventListener('mousemove', handleCellMouseMove)
+}
+
+// Fonction pour mettre à jour la sélection de cellules lors du survol
+function updateCellSelection(roomType: string, roomNumber: string, date: Date) {
+  if (!cellSelection.value.isSelecting || !cellSelection.value.startCell) return
+
+  // Autoriser uniquement la sélection sur la même chambre
+  if (
+    cellSelection.value.startCell.roomType !== roomType ||
+    cellSelection.value.startCell.roomNumber !== roomNumber
+  ) {
+    return
+  }
+
+  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date) }
+
+  // Recalculer les cellules sélectionnées
+  calculateSelectedCells()
+}
+
+// Fonction pour calculer toutes les cellules sélectionnées dans la plage
+function calculateSelectedCells() {
+  if (!cellSelection.value.startCell || !cellSelection.value.currentCell) return
+
+  cellSelection.value.selectedCells.clear()
+
+  const startDate = cellSelection.value.startCell.date
+  const endDate = cellSelection.value.currentCell.date
+  const roomType = cellSelection.value.startCell.roomType
+  const roomNumber = cellSelection.value.startCell.roomNumber
+
+  // Déterminer la plage de dates (du plus petit au plus grand)
+  const minDate = new Date(Math.min(startDate.getTime(), endDate.getTime()))
+  const maxDate = new Date(Math.max(startDate.getTime(), endDate.getTime()))
+
+  // Ajouter toutes les dates dans la plage
+  const current = new Date(minDate)
+  while (current <= maxDate) {
+    const cellKey = getCellKey(roomType, roomNumber, current)
+    cellSelection.value.selectedCells.add(cellKey)
+    current.setDate(current.getDate() + 1)
+  }
+}
+
+// Fonction pour terminer la sélection de cellules
+function endCellSelection(event?: MouseEvent) {
+  if (!cellSelection.value.isSelecting) return
+
+  cellSelection.value.isSelecting = false
+
+  if (event) {
+    selectionTooltipPosition.value = { x: event.clientX, y: event.clientY };
+  }
+
+  // La sélection reste active même après la fin du glisser-déposer
+  console.log('Cellules sélectionnées:', Array.from(cellSelection.value.selectedCells))
+
+  document.removeEventListener('mouseup', endCellSelection)
+  document.removeEventListener('mousemove', handleCellMouseMove)
+}
+
+// Gestionnaire de mouvement de souris
+function handleCellMouseMove(event: MouseEvent) {
+  // Vous pouvez ajouter ici des fonctionnalités supplémentaires si nécessaire
+}
+
+// Fonction pour vérifier si une cellule est sélectionnée
+function isCellSelected(roomType: string, roomNumber: string, date: Date): boolean {
+  const cellKey = getCellKey(roomType, roomNumber, date)
+  return cellSelection.value.selectedCells.has(cellKey)
+}
+
+// Fonction pour effacer la sélection de cellules
+function clearCellSelection() {
+  cellSelection.value.selectedCells.clear()
+  cellSelection.value.isSelecting = false
+  cellSelection.value.startCell = null
+  cellSelection.value.currentCell = null
+}
+
+// Fonction pour obtenir les informations de la sélection actuelle
+function getSelectionInfo() {
+  if (cellSelection.value.selectedCells.size === 0) return null
+
+  // Analyser les cellules sélectionnées pour extraire les informations
+  const cells = Array.from(cellSelection.value.selectedCells)
+  const firstCell = cells[0].split('_')
+  const roomType = firstCell[0]
+  const roomNumber = firstCell[1]
+
+  // Extraire toutes les dates
+  const dates = cells
+    .map((cell) => new Date(cell.split('_')[2]))
+    .sort((a, b) => a.getTime() - b.getTime())
+
+  return {
+    roomType,
+    roomNumber,
+    startDate: dates[0],
+    endDate: dates[dates.length - 1],
+    totalNights: dates.length,
+    cellCount: cells.length,
+  }
+}
+
+// Helper functions for cell selection merging
+function isStartOfSelection(roomType: string, roomNumber: string, date: Date): boolean {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return false
+
+  const selectionStartDate = selectionInfo.startDate
+  const cellDate = new Date(date)
+
+  return (
+    selectionInfo.roomType === roomType &&
+    selectionInfo.roomNumber === roomNumber &&
+    cellDate.getTime() === selectionStartDate.getTime()
+  )
+}
+
+function getSelectionColspan(): number {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return 1
+  return selectionInfo.cellCount
+}
+
+function isInsideSelection(roomType: string, roomNumber: string, date: Date): boolean {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return false
+
+  const selectionStartDate = selectionInfo.startDate
+  const selectionEndDate = selectionInfo.endDate
+  const cellDate = new Date(date)
+
+  return (
+    selectionInfo.roomType === roomType &&
+    selectionInfo.roomNumber === roomNumber &&
+    cellDate.getTime() >= selectionStartDate.getTime() &&
+    cellDate.getTime() <= selectionEndDate.getTime()
+  )
+}
+
+// Fonction pour naviguer vers l'ajout de réservation
+function navigateToAddReservationFromCells() {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return
+
+  const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
+  const checkoutDate = new Date(selectionInfo.endDate)
+  checkoutDate.setDate(checkoutDate.getDate() + 1) // Check-out le jour suivant
+  const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
+
+  router.push({
+    name: 'New Booking',
+    query: {
+      checkin: checkinDate,
+      checkout: checkoutDateStr,
+      roomType: selectionInfo.roomType,
+      roomNumber: selectionInfo.roomNumber,
+    },
+  })
+}
+
+// Cleanup des event listeners
+onUnmounted(() => {
+  document.removeEventListener('mouseup', endCellSelection)
+  document.removeEventListener('mousemove', handleCellMouseMove)
+})
 </script>
+<style scoped>
+/* Style pour les cellules sélectionnées individuellement */
+.cell-selected {
+  background-color: #3b82f6 !important;
+  border-color: #1d4ed8 !important;
+  position: relative;
+}
+
+.cell-selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #1d4ed8;
+}
+
+/* Effet de survol uniquement sur les cellules libres */
+.cell-hoverable:hover {
+  background-color: #dbeafe !important;
+  border-color: #60a5fa !important;
+}
+
+/* Transition fluide pour les cellules */
+.cell-transition {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Style pour indiquer qu'une cellule est sélectionnable */
+.cell-selectable {
+  cursor: pointer;
+}
+
+/* Remove any row or column highlighting styles */
+.no-row-highlight {
+  background-color: inherit !important;
+}
+
+/* Weekend cells remain subtle */
+.weekend-cell {
+  background-color: #f9fafb;
+}
+
+.weekend-cell.cell-selected {
+  background-color: #3b82f6 !important;
+}
+
+/* Ensure header cells don't change color during selection */
+.header-cell {
+  background-color: inherit !important;
+}
+
+.room-name-cell {
+  background-color: inherit !important;
+}
+
+/* Style pour le tooltip flottant */
+.selection-info-tooltip {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 2px solid #3b82f6;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+</style>
