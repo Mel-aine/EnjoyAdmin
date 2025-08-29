@@ -5288,5 +5288,9 @@
   "After" : "After",
   "Room/Guest" : "Room/Guest",
   "ProfilePhoto" : "Profile Photo",
-  "SelectionDetails" : "Selection Details"
+  "SelectionDetails" : "Selection Details",
+  "TodaysArrivals" : "Today's  Arrivals",
+  "TodaysDepartures" : "Today's Departures",
+  "InHouseGuests" : "In House Guests",
+  "AllReservations" : "All Reservations"
 }

@@ -72,11 +72,11 @@
 
     <div v-if="activeFilter !== 'totalReservations'" class="mb-4 flex items-center gap-2">
       <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Active filter') }}:</span>
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
         {{ getActiveFilterLabel() }}
         <button
           @click="clearFilter"
-          class="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-blue-400 hover:text-blue-600 dark:hover:text-blue-300">
+          class="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300">
           <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
@@ -457,7 +457,7 @@ const handleBookingAction = (action: string, booking: any) => {
     selectedReservationId.value = booking.id
     modalShow.value = true
   } else if (action === 'view') {
-    router.push({ name: 'reservationDetails', params: { id: booking.id } })
+    router.push({ name: 'ReservationDetails', params: { id: booking.id } })
     store.setBooking(booking)
   }
 }
@@ -520,14 +520,14 @@ const activeFilter = ref<string>('totalReservations')
 const getActiveFilterLabel = () => {
   switch (activeFilter.value) {
     case 'arrivals':
-      return t('Today\'s Arrivals')
+      return t('TodaysArrivals')
     case 'departures':
-      return t('Today\'s Departures')
+      return t('TodaysDepartures')
     case 'inHouse':
-      return t('In House Guests')
+      return t('InHouseGuests')
     case 'totalReservations':
     default:
-      return t('All Reservations')
+      return t('AllReservations')
   }
 }
 const getTodayDate = () => {
