@@ -561,6 +561,8 @@ import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'
 import AddPaymentModal from '../../components/reservations/foglio/AddPaymentModal.vue'
 import router from '../../router'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
 const isAddPaymentModalOpen = ref(false)
 const performChecking = () => {
@@ -638,7 +640,25 @@ const {
   onOccupancyChange,
   getRoomExtraInfo,
   onRoomNumberChange,
+
 } = useBooking()
+
+
+const initializeForm = () => {
+  // Call the original initialize from useBooking if it sets default values
+  initialize()
+
+  // Check for query parameters and update reservation object
+  if (route.query.checkin) {
+    reservation.value.checkinDate = route.query.checkin as string
+  }
+  if (route.query.checkout) {
+    reservation.value.checkoutDate = route.query.checkout as string
+  }
+
+}
+
+
 
 // Dropdown options pour les actions de chambre
 const dropdownOptions = computed(() => [
@@ -669,6 +689,7 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   initialize()
+  initializeForm()
 })
 </script>
 <style scoped>

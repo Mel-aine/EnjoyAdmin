@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { getRoomTypes } from '@/services/roomTypeApi'
-import { getRateTypes } from '@/services/rateTypeApi'
+import { getRateTypes ,getRateTypesByRoomTypes} from '@/services/rateTypeApi'
 import { createReservation, getReservationDetailsById } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
@@ -474,6 +474,7 @@ export function useBooking() {
       }
 
       const response = await getRoomTypes(hotelId)
+      console.log("fetchRoomtype",response)
 
       if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
         throw new Error('Invalid room types data structure')
@@ -502,7 +503,7 @@ export function useBooking() {
         throw new Error('roomTypeId ID not found')
       }
 
-      const response = await getRateTypes(roomTypeId)
+      const response = await getRateTypesByRoomTypes(roomTypeId)
 
       if (!response.data) {
         throw new Error('Invalid rate types data structure')

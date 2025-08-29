@@ -281,7 +281,7 @@
      <!-- Date Selection Tooltip -->
     <div
       v-if="dateSelection.isSelecting && dateSelection.startDate && dateSelection.endDate"
-      :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y - 60}px;z-index:1000;`"
+      :style="tooltipPosition ? `position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y - 60}px;z-index:1000;` : ''"
       class="rounded-lg bg-white shadow-lg border text-sm pointer-events-none px-4 py-2"
     >
       <div class="font-medium text-gray-800 mb-1">{{ $t('Selected Dates') }}</div>
@@ -300,25 +300,25 @@
       class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm"
     >
       <div class="bg-gray-100 border-b border-gray-200 rounded-t-lg px-4 py-2">
-        <h3 class="font-semibold text-gray-800">{{ $t('Selection Details') }}</h3>
+        <h3 class="font-semibold text-gray-800">{{ $t('SelectionDetails') }}</h3>
       </div>
 
       <div class="p-4">
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
-          <div><strong>{{ $t('Chambre') }}:</strong></div>
-          <div>{{ getSelectionInfo().roomNumber }}</div>
+        <div  class="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
+          <div><strong>{{ $t('Room') }}:</strong></div>
+          <div>{{ getSelectionInfo()?.roomNumber }}</div>
 
-          <div><strong>{{ $t('Type') }}:</strong></div>
-          <div>{{ getSelectionInfo().roomType }}</div>
+          <div><strong>{{ $t('roomType') }}:</strong></div>
+          <div>{{ getSelectionInfo()?.roomType }}</div>
 
-          <div><strong>{{ $t('Du') }}:</strong></div>
-          <div>{{ formatDate(getSelectionInfo().startDate) }}</div>
+          <div><strong>{{ $t('from') }}:</strong></div>
+          <div>{{ formatDate(getSelectionInfo()?.startDate ?? new Date()) }}</div>
 
-          <div><strong>{{ $t('Au') }}:</strong></div>
-          <div>{{ formatDate(getSelectionInfo().endDate) }}</div>
+          <div class="capitalize"><strong>{{ $t('to') }}:</strong></div>
+          <div>{{ formatDate(getSelectionInfo()?.endDate ?? new Date()) }}</div>
 
-          <div><strong>{{ $t('Nuits') }}:</strong></div>
-          <div>{{ getSelectionInfo().totalNights }}</div>
+          <div><strong>{{ $t('Nights') }}:</strong></div>
+          <div>{{ getSelectionInfo()?.totalNights }}</div>
         </div>
       </div>
 
@@ -327,13 +327,13 @@
           @click="clearCellSelection"
           class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-300 transition"
         >
-          {{ $t('Effacer') }}
+          {{ $t('Clear') }}
         </button>
         <button
           @click="navigateToAddReservationFromCells"
           class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
         >
-          {{ $t('Réserver') }}
+          {{ $t('Booking') }}
         </button>
       </div>
     </div>
@@ -665,7 +665,7 @@ function getRoomRowCellsApi(group: any, room: any) {
     })
 
     if (roomBlock) {
-      const start = new Date(roomBlock.block_from_date)
+      // const start = new Date(roomBlock.block_from_date)
       const end = new Date(roomBlock.block_to_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
       const colspan = visibleDates.value.filter(
@@ -697,18 +697,18 @@ function getRoomRowCellsApi(group: any, room: any) {
     }
 
     if (reservation) {
-      const start = new Date(reservation.check_in_date)
+      // const start = new Date(reservation.check_in_date)
       const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
 
       const colspan = visibleDates.value.filter(
-        (d) => d >= date && d <= end && d <= lastVisible
+        (d:any) => d >= date && d <= end && d <= lastVisible
       ).length
 
       const is_check_in = reservation.check_in_date.startsWith(dStr)
 
       const reservationDates = visibleDates.value.filter(
-        (d) => d >= date && d <= end && d <= lastVisible
+        (d:any) => d >= date && d <= end && d <= lastVisible
       )
       const lastVisibleDateOfReservation =
         reservationDates.length > 0
@@ -1124,15 +1124,15 @@ function getSelectionInfo() {
   if (cellSelection.value.selectedCells.size === 0) return null
 
   // Analyser les cellules sélectionnées pour extraire les informations
-  const cells = Array.from(cellSelection.value.selectedCells)
+  const cells :any[] = Array.from(cellSelection.value.selectedCells)
   const firstCell = cells[0].split('_')
   const roomType = firstCell[0]
   const roomNumber = firstCell[1]
 
   // Extraire toutes les dates
   const dates = cells
-    .map((cell) => new Date(cell.split('_')[2]))
-    .sort((a, b) => a.getTime() - b.getTime())
+    .map((cell:any) => new Date(cell.split('_')[2]))
+    .sort((a:any, b:any) => a.getTime() - b.getTime())
 
   return {
     roomType,
@@ -1212,7 +1212,7 @@ onUnmounted(() => {
 /* Style pour les cellules sélectionnées individuellement */
 .cell-selected {
   background-color: #3b82f6 !important;
-  border-color: #1d4ed8 !important;
+  border-color: #2860fb !important;
   position: relative;
 }
 
@@ -1226,7 +1226,7 @@ onUnmounted(() => {
   height: 8px;
   background-color: white;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px #1d4ed8;
+  box-shadow: 0 0 0 2px #4473f4;
 }
 
 /* Effet de survol uniquement sur les cellules libres */
@@ -1247,10 +1247,6 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* Remove any row or column highlighting styles */
-.no-row-highlight {
-  background-color: inherit !important;
-}
 
 /* Weekend cells remain subtle */
 .weekend-cell {
@@ -1261,19 +1257,7 @@ onUnmounted(() => {
   background-color: #3b82f6 !important;
 }
 
-/* Ensure header cells don't change color during selection */
-.header-cell {
-  background-color: inherit !important;
-}
 
-.room-name-cell {
-  background-color: inherit !important;
-}
 
-/* Style pour le tooltip flottant */
-.selection-info-tooltip {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  border: 2px solid #3b82f6;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
+
 </style>
