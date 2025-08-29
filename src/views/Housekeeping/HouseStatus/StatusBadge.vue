@@ -15,10 +15,10 @@
       />
       <span :class="['text-xs font-medium', getTextColor()]">
         {{ room }}
-        <!-- <template v-if="status !== room">
+        <template v-if="status !== room">
           <span class="mx-1 text-xs">·</span>
           <span class="text-xs">{{ status }}</span>
-        </template> -->
+        </template>
         <template v-if="tag">
           <span class="mx-1 text-xs">·</span>
           <span class="text-xs">{{ tag }}</span>

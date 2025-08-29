@@ -240,6 +240,12 @@
     "taxes": "Taxes",
     "extraCharges": "Frais Supplémentaires",
     "Add Room Charge": "Ajouter Frais de Chambre",
+  "Add Adjustment": "Ajouter Ajustement",
+  "Adjustment Folio": "Folio d'Ajustement",
+  "Round Off": "Arrondir",
+  "Enter comment": "Entrez un commentaire",
+  "Adjustment added successfully": "Ajustement ajouté avec succès",
+  "Error adding adjustment": "Erreur lors de l'ajout de l'ajustement",
     "Apply Rate": "Appliquer Tarif",
     "Bulk Update": "Mise à Jour en Lot",
     "Room Operations": "Opérations de Chambre",
@@ -4433,5 +4439,49 @@
     "emailPlaceholder": "Entrez l'adresse email",
     "applyFilters": "Appliquer les Filtres",
     "clearFilters": "Effacer les Filtres"
+    
+  },
+  "maintenance_block": "Blocs de Maintenance",
+  "BlockRoom": "Bloquer une Chambre",
+  "deleteBlockConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce bloc de maintenance ? Cette action ne peut pas être annulée.",
+  "maintenanceBlocks": {
+    "noBlocksFound": "Aucun bloc de maintenance trouvé",
+    "noBlocksMessage": "Il n'y a actuellement aucun bloc de maintenance. Créez un nouveau bloc pour commencer.",
+    "columns": {
+      "roomNumber": "Numéro de Chambre",
+      "roomType": "Type de Chambre",
+      "blockDates": "Période de Blocage",
+      "blockedBy": "Bloqué par",
+      "createdAt": "Créé le",
+      "reason": "Motif"
+    }
+  },
+  "commons": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "view": "Voir",
+    "print": "Imprimer",
+    "sendEmail": "Envoyer un Email",
+    "save": "Enregistrer",
+    "close": "Fermer",
+    "actions": "Actions",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée disponible",
+    "selectAll": "Tout sélectionner",
+    "selected": "Sélectionné",
+    "filters": "Filtres",
+    "reset": "Réinitialiser",
+    "apply": "Appliquer"
+  },
+  "statuses": {
+    "blocked": "Bloquée",
+    "maintenance": "Maintenance",
+    "outOfOrder": "Hors service",
+    "available": "Disponible",
+    "occupied": "Occupée",
+    "dirty": "Sale"
   }
+
+
 }

@@ -35,7 +35,7 @@ export const useCurrencyStore = defineStore('currency', {
       this.loading = true;
       try {
         const response = await getCurrencies();
-        this.currencies = response.data;
+        this.currencies = response.data.data;
         localStorage.setItem('currencies', JSON.stringify(this.currencies));
         return this.currencies;
       } catch (error) {

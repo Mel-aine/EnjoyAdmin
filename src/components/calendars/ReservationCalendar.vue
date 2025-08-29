@@ -23,16 +23,9 @@
             </div>
           </div>
         </div>
-        <div class="flex gap-2 flex-wrap items-center">
-          <div
-            class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-2 bg-white text-primary  border border-gray-300 focus:ring focus:ring-primary/30">
-            <select class="outline-0">
-              <option value="BB">BB</option>
-              <option value="BO">BO</option>
-              <option value="PC">PC</option>
-            </select>
-          </div>
-
+        <div class="flex gap-2  items-center">
+          <Select :options="rateTypeOptions" v-model="selectRateType" class="min-w-[12rem]" />
+          <StatusLegend :sections="legendSections"/>
         </div>
       </div>
       <div class="flex-1 flex flex-col min-h-0">
@@ -41,9 +34,18 @@
           <table class="min-w-full text-sm table-fixed">
             <thead>
               <tr>
-                <th class="bg-gray-100 px-2 py-1 border-r border-gray-300 w-24 min-w-[6rem]">{{ $t('Room') }}</th>
+                <th class="bg-gray-100 px-2 py-1 border-r border-gray-300  w-50 min-w-[6rem]">
+                  <div class="flex justify-between items-center">
+                    <div class="max-w-md">
+                      <SelectDropdown v-model="selectedRoomTypes" :options="roomTypeOptions"
+                        :placeholder="$t('roomType')" button-class="bg-white text-primary border border-blue-200  w-42"
+                        dropdown-class="w-full" select-all-text="Select All" :max-display-items="3" />
+                    </div>
+                  </div>
+
+                </th>
                 <th v-for="(date, idx) in visibleDates" :key="idx"
-                  class="bg-gray-50 px-2 py-1 text-center border-r border-gray-300 relative"
+                  :class="['px-2 py-1 text-center border-r border-gray-300 relative', isWeekend(date) ? 'bg-orange-200/25' : 'bg-gray-50']"
                   :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
                   <button v-if="idx === 0" @click="prevDay"
                     class="absolute left-1 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded transition-colors">
@@ -76,7 +78,7 @@
               <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
                 <tr v-for="i in 8" :key="i">
                   <td class="px-2 py-1">
-                    <div class="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    <div class="h-4  w-50 bg-gray-200 rounded animate-pulse"></div>
                   </td>
                   <td v-for="j in visibleDates.length" :key="j" class="px-0 py-0 h-12">
                     <div class="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
@@ -85,56 +87,96 @@
               </template>
               <template v-else>
                 <template v-for="group in apiRoomGroups" :key="group.room_type">
-                  <tr>
-                    <td :colspan="visibleDates.length + 1"
-                      class="font-bold bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 transition-colors"
-                      @click="toggleRoomType(group.room_type)">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                          <svg
-                            :class="['w-4 h-4 transition-transform', collapsedRoomTypes[group.room_type] ? 'rotate-0' : 'rotate-90']"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                          <span>{{ group.room_type }}</span>
-                          <span class="text-xs text-gray-500 font-normal">({{ group.room_details.length }})</span>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr v-for="room in group.room_details" :key="room.room_number || room.room_status + Math.random()"
-                    v-show="!collapsedRoomTypes[group.room_type]" class="transition-all duration-200 ease-in-out">
-                    <td class="font-semibold px-2 py-1 border border-gray-300">{{ room.room_number || '-' }}</td>
-                    <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
-                      <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                        class="relative px-0 py-0 h-12 border border-gray-300">
-
-                        <div :class="[
-                          'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
-                          getReservationColor(cell.reservation.reservation_status),
-                        ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
-                          @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                          @mouseleave="hideReservationTooltip">
-                          <span class="truncate">
-                            {{ cell.reservation.guest_name }}
-                            <br>
-                          </span>
-
-                        </div>
-
-                      </td>
+                  <template v-if="selectedRoomTypes.includes(group.room_type_id)">
+                    <tr>
                       <td
-                        v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
-                        class="px-0 py-0 h-12 border border-gray-300">
-                        <div
-                          :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
-                          <component :is="getRoomStatusIcon(room.room_status)"
-                            :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
+                        class="h-4 min-w-50 font-bold bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 transition-colors"
+                        @click="toggleRoomType(group.room_type)">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <svg
+                              :class="['w-4 h-4 transition-transform', collapsedRoomTypes[group.room_type] ? 'rotate-0' : 'rotate-90']"
+                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                            <span>{{ group.room_type }}</span>
+                          </div>
                         </div>
                       </td>
-                      <td v-else class="px-0 py-0 h-12 border border-gray-300"></td>
-                    </template>
-                  </tr>
+                      <td v-for="(date, j) in visibleDates" :key="j"
+                        :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
+                        class=" bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 ">
+                        <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
+                          <span class="text-xs">{{ roomRateForDate[group.room_type_id] ?? 'N/A' }}</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr v-for="room in group.room_details" :key="room.room_number || room.room_status + Math.random()"
+                      v-show="!collapsedRoomTypes[group.room_type]" class="transition-all duration-200 ease-in-out">
+                      <td class="font-semibold px-2 py-1 border border-gray-300">
+                        <div class="flex justify-between">
+                          <span>{{ room.room_number || '-' }}</span>
+                          <div class="flex gap-1 text-gray-500">
+                            <span class="text-xs" v-if="room.is_smoking">
+                              <Cigarette class="w-4 h-4" />
+                            </span>
+                            <span v-else>
+                              <CigaretteOff class="w-4 h-4" />
+                            </span>
+                            <span class="text-xs" v-if="room.room_housekeeping_status === 'clean'">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-brush-cleaning-icon lucide-brush-cleaning w-4 h-4">
+                                <path d="m16 22-1-4" />
+                                <path
+                                  d="M19 13.99a1 1 0 0 0 1-1V12a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V4a2 2 0 0 0-4 0v5a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2v.99a1 1 0 0 0 1 1" />
+                                <path d="M5 14h14l1.973 6.767A1 1 0 0 1 20 22H4a1 1 0 0 1-.973-1.233z" />
+                                <path d="m8 22 1-4" />
+                              </svg>
+                              <BrushClea class="w-4 h-4" />
+                            </span>
+                            <span v-else>
+                              <LucideBrush class="w-4 h-4" />
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+
+                      <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
+                        <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
+                          class="relative px-0 py-0 h-12 border border-gray-300">
+
+                          <div :class="[
+                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            getReservationColor(cell.reservation.reservation_status),
+                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
+                            @mouseenter="showReservationTooltip(cell.reservation, $event)"
+                            @mouseleave="hideReservationTooltip">
+                            <span class="truncate">
+                              {{ cell.reservation.guest_name }}
+                              <br>
+                            </span>
+
+                          </div>
+
+                        </td>
+                        <td
+                          v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
+                          class="px-0 py-0 h-12 border border-gray-300">
+                          <div
+                            :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
+                            <component :is="getRoomStatusIcon(room.room_status)"
+                              :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
+                          </div>
+                        </td>
+                        <td v-else
+                          :class="['px-0 py-0 h-12 border border-gray-300', cell.date && isWeekend(cell.date) ? 'bg-gray-100' : '']">
+                        </td>
+                      </template>
+                    </tr>
+                  </template>
                 </template>
               </template>
             </tbody>
@@ -142,44 +184,46 @@
         </div>
         <div class="sticky bottom-0 bg-white shadow z-10">
           <table class="min-w-full border-t border border-gray-300 text-xs table-fixed">
-            <colgroup>
-              <col class="w-24 min-w-[6rem]">
-              <col v-for="(date, ind) in visibleDates" :key="ind"
-                :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
-            </colgroup>
+
             <tfoot>
-              <tr class="text-md">
-                <td colspan="1" class="bg-gray-100 font-bold border border-gray-300 w-24 min-w-[6rem]">
+              <!--<tr class="text-md">
+                <td class="bg-gray-100 font-bold border border-gray-300  w-50 min-w-[6rem]">
                   {{ $t('Room Legend') }}
                 </td>
-                <td colspan="99" class="bg-gray-50 border border-gray-300 p-3">
+                <td :colspan="visibleDates.length" class="bg-gray-50 border border-gray-300 p-3">
                   <span v-for="legend in legends" :key="legend.type" class="inline-flex items-center gap-1 mr-4">
                     <span :class="['inline-block w-4 h-4 rounded', getReservationColor(legend.type)]"></span>
                     <span class="text-xs">{{ $t(legend.label) }}</span>
                   </span>
                 </td>
-              </tr>
+              </tr> -->
               <tr>
-                <td class="bg-gray-100 border border-gray-300">{{ $t('Unassigned reservations') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300"
-                  v-html="getUnassignedApi(date)">
+                <td class="bg-gray-100 border w-50 h-7 border-gray-300">{{ $t('Unassigned reservations') }}</td>
+                <td v-for="(date, idx) in visibleDates" :key="idx"
+                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
                 </td>
               </tr>
-              <tr>
+             <!-- <tr>
                 <td class="bg-gray-100 border border-gray-300">{{ $t('Allocations') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300">{{
-                  getAllocatedRoomsApi(date) }}
+                <td v-for="(date, idx) in visibleDates" :key="idx"
+                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">{{
+                    getAllocatedRoomsApi(date) }}
                 </td>
+              </tr> -->
+              <tr>
+                <td class="bg-gray-100  w-50 h-7 border border-gray-300">% {{ $t('Occupancy') }}</td>
+                <td v-for="(date, idx) in visibleDates" :key="idx"
+                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
+                    getOccupancyApi(date)
+                  }} %</td>
               </tr>
               <tr>
-                <td class="bg-gray-100 border border-gray-300">% {{ $t('Occupancy') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300">{{
-                  getOccupancyApi(date) }} %</td>
-              </tr>
-              <tr>
-                <td class="bg-gray-100 border border-gray-300">{{ $t('Available Rooms') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300">{{
-                  getAvailableRoomsApi(date) }}
+                <td class="bg-gray-100 w-50 h-7 border border-gray-300">{{ $t('Available Rooms') }}</td>
+                <td v-for="(date, idx) in visibleDates" :key="idx"
+                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
+                    getAvailableRoomsApi(date) }}
                 </td>
               </tr>
             </tfoot>
@@ -250,12 +294,10 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon } from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon } from 'lucide-vue-next'
 
 import { watch } from 'vue'
 import { CheckCircle, X } from 'lucide-vue-next'
-import ChevronInfo from '../common/ChevronInfo.vue'
-import { formatCurrency } from '../utilities/UtilitiesFunction'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 import AddBookingModal from '../modal/AddBookingModal.vue';
 import { ref, computed, onMounted } from 'vue'
@@ -272,7 +314,7 @@ function getReservationTypeIcon(type: string) {
     default: return BookIcon;
   }
 }
-
+const rateTypeOptions = ref<any>([])
 function getCustomerTypeIcon(type: string) {
   switch (type) {
     case 'Individual': return UserIcon;
@@ -285,6 +327,10 @@ import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
+import Select from '../forms/FormElements/Select.vue'
+import { getRateTypeByHotelId, getRateTypes } from '../../services/configrationApi';
+import SelectDropdown from '../common/SelectDropdown.vue';
+import StatusLegend from '../common/StatusLegend.vue';
 
 function getRoomStatusColor(status: string): string {
   switch (status) {
@@ -322,6 +368,7 @@ const legends = [
   { type: 'departure', label: t('Departures today') },
   { type: 'inhouse', label: t('In House') }
 ]
+const selectRateType = ref(0);
 const modalReservation = ref<any | null>(null)
 function showReservationModal(reservation: any) {
   showDetail.value = true
@@ -465,6 +512,11 @@ function formatDate(date: Date) {
 function formatDay(date: Date) {
   return date.toLocaleDateString('en', { weekday: 'short' })
 }
+
+function isWeekend(date: Date): boolean {
+  const day = date?.getDay()
+  return day === 0 || day === 6 // Sunday = 0, Saturday = 6
+}
 function formatTime(dt: string) {
   return new Date(dt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
@@ -543,7 +595,23 @@ function setToday() {
 function setDays(n: number) {
   daysToShow.value = n
 }
-
+const roomTypeOptions = computed(() => {
+  if (serviceResponse.value?.grouped_reservation_details) {
+    const res = serviceResponse.value?.grouped_reservation_details.map((item: any) => {
+      return {
+        label: item.room_type,
+        id: item.room_type_id
+      }
+    })
+    if (selectedRoomTypes.value.length === 0) {
+      selectedRoomTypes.value = serviceResponse.value?.grouped_reservation_details.map((item: any) => {
+        return item.room_type_id
+      })
+    }
+    return res;
+  }
+  return []
+})
 onMounted(() => {
   getLocaleDailyOccupancyAndReservations()
 })
@@ -586,4 +654,93 @@ function getRoomStatusCount(status: string): number {
   }
   return serviceResponse.value.global_room_status_stats[status] || 0
 }
+// Store the current rate types data
+const currentRateTypeData = ref<any>([])
+const selectedRoomTypes = ref<any>([])
+
+const fectRateTypes = async () => {
+  const response = await getRateTypeByHotelId(serviceStore.serviceId!)
+  console.log('rateTypeOptions', response.data?.data)
+  currentRateTypeData.value = response.data?.data
+  rateTypeOptions.value = response.data?.data?.map((item: any) => {
+    return {
+      label: item.rateTypeName,
+      value: item.rateTypeId
+    }
+  })
+  selectRateType.value = rateTypeOptions.value[0]?.value;
+  console.log('rateTypeOptions.value', rateTypeOptions.value)
+
+  console.log('selectRateType.value', selectRateType.value)
+  return response.data?.data || []
+}
+fectRateTypes()
+// Function to get room rate for a specific room type and date
+const roomRateForDate = computed(() => {
+  console.log('rumm', selectRateType.value)
+  console.log('currentRateTypeData.value', currentRateTypeData.value)
+  if (!selectRateType.value || !currentRateTypeData.value.length) {
+    return []
+  }
+
+  // Find the selected rate type in the current data
+  const selectedRateTypes = currentRateTypeData.value.find((rateType: any) =>
+    rateType.rateTypeId === selectRateType.value
+  )
+  console.log('selected rates', selectedRateTypes)
+  if (!selectedRateTypes || !selectedRateTypes.roomTypes) {
+    return []
+  }
+  const result = {} as any;
+  selectedRateTypes.roomTypes.forEach((roomType: any) => {
+    result[roomType.roomTypeId] = roomType.roomRate
+  })
+  console.log('result', result)
+  return result;
+}
+)
+
+const legendSections = [
+  {
+    title: 'Booking Status',
+    items: [
+      { label: 'Arrived', color: '#f87171' },
+      { label: 'Checked Out', color: '#60a5fa' },
+      { label: 'Due Out', color: '#b91c1c' },
+      { label: 'Confirmed Reservation', color: '#4ade80' },
+      { label: 'Maintenance Block', color: '#1e3a8a' },
+      { label: 'Stayover', color: '#f97316' },
+      { label: 'Dayuse Reservation', color: '#22c55e' },
+      { label: 'Dayuse', color: '#7f1d1d' }
+    ]
+  },
+  {
+    title: 'Booking Indicators',
+    items: [
+      { label: 'Group Owner', icon: 'UserGroupIcon' },
+      { label: 'Group Booking', icon: 'UserGroupIcon' },
+      { label: 'Payment Pending', icon: 'CreditCardIcon' },
+      { label: 'Stop Room Move', icon: 'NoSymbolIcon' },
+      { label: 'Single Lady', icon: 'UserIcon' },
+      { label: 'VIP Guest', icon: 'StarIcon' },
+      { label: 'Split Reservation', icon: 'ScissorsIcon' }
+    ]
+  },
+  {
+    title: 'Room Indicators',
+    items: [
+      { label: 'No Smoking', icon: 'NoSymbolIcon' },
+      { label: 'Smoking', icon: 'FireIcon' },
+      { label: 'Dirty', icon: 'ExclamationCircleIcon' },
+      { label: 'Clean', icon: 'CheckCircleIcon' },
+      { label: 'Connected Rooms', icon: 'LinkIcon' },
+      { label: 'Work Order', icon: 'WrenchIcon' },
+      { label: 'ADA / Accessible Room', icon: 'UserIcon' },
+      { label: 'Pet Friendly Room', icon: 'HeartIcon' },
+      { label: 'Unassigned Room', color: '#e5e7eb' },
+      { label: 'Inventory', color: '#fecaca' },
+      { label: 'Unconfirmed Bookings', color: '#f87171' }
+    ]
+  }
+];
 </script>

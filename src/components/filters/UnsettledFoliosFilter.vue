@@ -1,91 +1,90 @@
 <template>
-  <div class="flex justify-end mb-3">
-    <BasicButton @click="showFilter = true" variant="secondary" :icon="FilterIcon"
-      :label="$t('unsettledFolios.filterSectionTitle')">
-    </BasicButton>
-  </div>
-  <RightSideModal :is-open="showFilter" :title="$t('unsettledFolios.filterSectionTitle')"
-    @close="showFilter = false">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      <!-- Search by Guest Name/Folio Number -->
-      <div class="lg:col-span-2">
-        <Input :lb="$t('unsettledFolios.searchByGuestOrFolio')" :inputType="'text'"
-          :placeholder="$t('unsettledFolios.searchPlaceholder')" :id="'searchText'"
-          :forLabel="'unsettledFolios.searchByGuestOrFolio'" v-model="filters.searchText" />
-      </div>
-
-      <!-- Status Filter -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Search</h3>
+    
+    <!-- Search by dropdown and input -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
-        <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterStatus') }}:</label>
-        <select id="status" v-model="filters.status"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-          <option value="">{{ $t('unsettledFolios.filterAll') }}</option>
-          <option v-for="statusOption in statusOptions" :key="statusOption" :value="statusOption">
-            {{ $t(`folioStatus.${statusOption}`) }}
-          </option>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search by</label>
+        <select v-model="filters.searchBy" 
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+          <option value="all">All</option>
+          <option value="folio">Folio#</option>
+          <option value="guest">Guest Name</option>
+          <option value="reservation">Reservation#</option>
         </select>
       </div>
-
-      <!-- Room Type Filter -->
+      
       <div>
-        <label for="roomType" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterRoomType') }}:</label>
-        <select id="roomType" v-model="filters.roomType"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-          <option value="">{{ $t('unsettledFolios.filterAll') }}</option>
-          <option v-for="type in activeRoomTypes" :key="type.id" :value="type.id">{{ type.label }}</option>
-        </select>
-      </div>
-
-      <!-- Balance Range Filter -->
-      <div>
-        <label for="minBalance" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.minBalance') }}:</label>
-        <input id="minBalance" v-model="filters.minBalance" type="number" step="0.01" min="0"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-          :placeholder="$t('unsettledFolios.enterMinBalance')" />
-      </div>
-
-      <div>
-        <label for="maxBalance" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.maxBalance') }}:</label>
-        <input id="maxBalance" v-model="filters.maxBalance" type="number" step="0.01" min="0"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-          :placeholder="$t('unsettledFolios.enterMaxBalance')" />
-      </div>
-
-      <!-- Date Range Filter -->
-      <div v-if="showDate">
-        <label for="dateFrom" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterDateFrom') }}:</label>
-        <div class="relative">
-          <flat-pickr v-model="filters.dateFrom" :config="flatpickrConfig"
-            class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-            :placeholder="$t('Selectdate')" />
-          <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-            <CalendarIcon />
-          </span>
-        </div>
-      </div>
-
-      <div v-if="showDate">
-        <label for="dateTo" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterDateTo') }}:</label>
-        <div class="relative">
-          <flat-pickr v-model="filters.dateTo" :config="flatpickrConfig"
-            class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-            :placeholder="$t('Selectdate')" />
-          <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-            <CalendarIcon />
-          </span>
-        </div>
-      </div>
-
-      <div class="mt-2 flex justify-end gap-3 lg:col-span-2">
-        <BasicButton @click="applyFilters" variant="secondary" :icon="SearchIcon"
-          :label="$t('unsettledFolios.applyFilters')">
-        </BasicButton>
-        <BasicButton @click="clearFilters" variant="secondary" :icon="XCircleIcon"
-          :label="$t('unsettledFolios.clearFilters')">
-        </BasicButton>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
+        <input v-model="filters.searchText" type="text" placeholder="Folio#, Res#, G..."
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400" />
       </div>
     </div>
-  </RightSideModal>
+
+    <!-- Arrival checkbox and date range -->
+    <div class="mb-4">
+      <div class="flex items-center mb-2">
+        <input v-model="filters.arrivalEnabled" type="checkbox" id="arrival" 
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+        <label for="arrival" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Arrival</label>
+      </div>
+      
+      <div v-if="filters.arrivalEnabled" class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
+        <div class="relative">
+          <flat-pickr v-model="filters.dateFrom" :config="flatpickrConfig"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            placeholder="01/09/20" />
+          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <CalendarIcon class="h-4 w-4" />
+          </span>
+        </div>
+        
+        <div class="flex items-center">
+          <span class="text-gray-500 mx-2">→</span>
+          <div class="relative flex-1">
+            <flat-pickr v-model="filters.dateTo" :config="flatpickrConfig"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="31/10/20" />
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <CalendarIcon class="h-4 w-4" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status dropdown -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+      <select v-model="filters.status" 
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+        <option value="">-Select-</option>
+        <option value="Checked Out">Checked Out</option>
+        <option value="Cancel">Cancel</option>
+        <option value="Open">Open</option>
+        <option value="Pending">Pending</option>
+      </select>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex justify-between items-center">
+      <button @click="clearFilters" 
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+        Clear
+      </button>
+      
+      <button @click="applyFilters" 
+        class="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        Search
+      </button>
+    </div>
+    
+    <!-- Additional note -->
+    <div class="mt-4 text-center">
+      <p class="text-sm text-red-500">You can also filter the date as per your requirement</p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -105,11 +104,10 @@ import { useServiceStore } from '@/composables/serviceStore';
 
 // Define folio filter interface
 interface FolioFilterItem {
+  searchBy: string;
   searchText: string;
   status: string;
-  roomType: string;
-  minBalance: string;
-  maxBalance: string;
+  arrivalEnabled: boolean;
   dateFrom: string;
   dateTo: string;
 }
@@ -124,11 +122,10 @@ defineProps({
 
 // Filter state
 const filters = ref<FolioFilterItem>({
-  searchText: '', // For guest name or folio number
+  searchBy: 'all',
+  searchText: '',
   status: '',
-  roomType: '',
-  minBalance: '',
-  maxBalance: '',
+  arrivalEnabled: false,
   dateFrom: '',
   dateTo: '',
 });
@@ -142,10 +139,9 @@ const statusOptions = ref([
 ]);
 
 const flatpickrConfig = {
-  dateFormat: 'Y-m-d',
-  altInput: true,
-  altFormat: 'F j, Y',
-  wrap: true,
+  dateFormat: 'd/m/y',
+  altInput: false,
+  wrap: false,
 }
 
 const activeRoomTypes = ref<RoomTypeData[]>([]);
@@ -155,11 +151,10 @@ const applyFilters = () => {
 };
 
 const clearFilters = () => {
+  filters.value.searchBy = 'all';
   filters.value.searchText = '';
   filters.value.status = '';
-  filters.value.roomType = '';
-  filters.value.minBalance = '';
-  filters.value.maxBalance = '';
+  filters.value.arrivalEnabled = false;
   filters.value.dateFrom = '';
   filters.value.dateTo = '';
   applyFilters(); // Re-apply filters to show all

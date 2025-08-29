@@ -22,7 +22,7 @@ import PrintModal from '../../../components/common/PrintModal.vue';
 import BookingConfirmationTemplate from '../../../components/common/templates/BookingConfirmationTemplate.vue';
 import { useServiceStore } from '../../../composables/serviceStore';
 import NoShowReservation from '../../../components/reservations/foglio/NoShowReservation.vue';
-import { checkOutReservation } from '../../../services/reservation';
+import AuditTrail from '../../../components/audit/AuditTrail.vue';
 
 // Simple Button component
 const Button = {
@@ -68,7 +68,7 @@ const tabs = computed(() => [
     { id: 'guest_details', label: t('Guest Details') },
     { id: 'room_charges', label: t('Room Charges') },
     // { id: 'credid_card', label: t('Credit Card') },
-    //{ id: 'audit_trial', label: t('Audit Trail') },
+    { id: 'audit_trial', label: t('Audit Trail') },
 
 ]);
 const activeTab = ref<string>('folio_operations');
@@ -428,12 +428,12 @@ onMounted(() => {
                     <div class="flex">
                         <Adult class="w-5" />
                         <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults ?? 0
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="flex">
                         <Child class="w-4" />
                         <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child ?? 0
-                            }}</span>
+                        }}</span>
                     </div>
                 </div>
                 <div class="flex gap-8">
@@ -533,6 +533,9 @@ onMounted(() => {
             <div v-if="activeTab === 'guest_details'">
                 <GuestDetails :reservation="reservation" :guest="reservation.guest" />
             </div>
+            <div v-if="activeTab === 'audit_trial'">
+                <AuditTrail :entity-ids="[reservation.id]"/>
+            </div>
         </div>
 
         <!-- Show message when no reservation data is found -->
@@ -554,7 +557,7 @@ onMounted(() => {
     <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
         @noshow-confirmed="handleNoShowConfirmed" />
     <!-- Print Modal -->
-    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose" :reservation-id="reservation.id"
         @print-success="handlePrintSuccess" @print-error="handlePrintError" :templates="templates" />
 </template>
 

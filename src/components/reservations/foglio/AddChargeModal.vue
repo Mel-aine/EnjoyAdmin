@@ -13,7 +13,8 @@
 
       <!-- Folio -->
       <div>
-        <Select v-model="formData.folio" :options="foliosOptions" :lb="$t('Folio')" />
+        <InputFolioSelect :title="$t('folio')" v-model="formData.folio"
+          :reservation-id="reservationId" :is-required="true" />
       </div>
 
       <!-- Rec/Vou # -->
@@ -84,11 +85,13 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
+import InputFolioSelect from './InputFolioSelect.vue'
 import { getDiscounts, getExtraCharges } from '../../../services/configrationApi'
 import { safeParseFloat, prepareFolioAmount, isValidMonetaryAmount } from '../../../utils/numericUtils'
 
 interface Props {
   isOpen: boolean
+  reservationId: number
 }
 
 interface Emits {

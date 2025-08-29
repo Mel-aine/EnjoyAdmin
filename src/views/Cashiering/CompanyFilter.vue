@@ -1,70 +1,63 @@
 <template>
   <div class="flex justify-end mb-3">
     <BasicButton @click="showFilter = true" variant="secondary" :icon="FilterIcon"
-      :label="$t('companyDatabase.filterSectionTitle')">
+      :label="$t('companyFilter.title')">
     </BasicButton>
   </div>
-  <RightSideModal :is-open="showFilter" :title="$t('companyDatabase.filterSectionTitle')"
+  <RightSideModal :is-open="showFilter" :title="$t('companyFilter.title')"
     @close="showFilter = false">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
       <!-- Search by Company Name/Contact Person -->
       <div class="lg:col-span-2">
-        <Input :lb="$t('companyDatabase.searchByNameOrContact')" :inputType="'text'"
-          :placeholder="$t('companyDatabase.searchPlaceholder')" :id="'searchText'"
-          :forLabel="'companyDatabase.searchByNameOrContact'" v-model="filters.searchText" />
+        <Input :lb="$t('companyFilter.title')" :inputType="'text'"
+          :placeholder="$t('companyFilter.searchText')" :id="'searchText'"
+          :forLabel="'companyFilter.searchText'" v-model="filters.searchText" />
       </div>
 
       <!-- Status Filter -->
       <div>
-        <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('companyDatabase.filterStatus') }}:</label>
+        <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('companyFilter.status') }}:</label>
         <select id="status" v-model="filters.status"
           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-          <option value="">{{ $t('companyDatabase.filterAll') }}</option>
+          <option value="">{{ $t('all') }}</option>
           <option v-for="statusOption in statusOptions" :key="statusOption" :value="statusOption">
-            {{ $t(`companyDatabase.status_${statusOption.toLowerCase()}`) }}
+            {{ $t(`${statusOption.toLowerCase()}`) }}
           </option>
         </select>
       </div>
 
       <!-- Country Filter -->
       <div>
-        <label for="country" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('companyDatabase.filterCountry') }}:</label>
-        <select id="country" v-model="filters.country"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-          <option value="">{{ $t('companyDatabase.filterAllCountries') }}</option>
-          <option v-for="countryOption in countryOptions" :key="countryOption" :value="countryOption">
-            {{ countryOption }}
-          </option>
-        </select>
+       <InputCountries  v-model="filters.country" />
       </div>
 
       <!-- Balance Range Filter -->
       <div>
-        <Input :lb="$t('companyDatabase.minBalance')" :inputType="'number'"
-          :placeholder="$t('companyDatabase.minBalancePlaceholder')" :id="'minBalance'"
-          :forLabel="'companyDatabase.minBalance'" v-model="filters.minBalance" />
+        <Input :lb="$t('companyFilter.minBalance')" :inputType="'number'"
+          :placeholder="$t('companyFilter.minBalance')" :id="'minBalance'"
+          :forLabel="'companyFilter.minBalance'" v-model="filters.minBalance" />
       </div>
 
       <div>
-        <Input :lb="$t('companyDatabase.maxBalance')" :inputType="'number'"
-          :placeholder="$t('companyDatabase.maxBalancePlaceholder')" :id="'maxBalance'"
-          :forLabel="'companyDatabase.maxBalance'" v-model="filters.maxBalance" />
+        <Input :lb="$t('companyFilter.maxBalance')" :inputType="'number'"
+          :placeholder="$t('companyFilter.maxBalance')" :id="'maxBalance'"
+          :forLabel="'companyFilter.maxBalance'" v-model="filters.maxBalance" />
       </div>
 
       <!-- Email Filter -->
       <div class="lg:col-span-2">
-        <Input :lb="$t('companyDatabase.filterByEmail')" :inputType="'email'"
-          :placeholder="$t('companyDatabase.emailPlaceholder')" :id="'email'"
-          :forLabel="'companyDatabase.filterByEmail'" v-model="filters.email" />
+        <Input :lb="$t('companyFilter.email')" :inputType="'email'"
+          :placeholder="$t('companyFilter.email')" :id="'email'"
+          :forLabel="'companyFilter.filterByEmail'" v-model="filters.email" />
       </div>
 
       <!-- Action Buttons -->
       <div class="mt-2 flex justify-end gap-3 lg:col-span-2">
         <BasicButton @click="applyFilters" variant="primary" :icon="SearchIcon"
-          :label="$t('companyDatabase.applyFilters')">
+          :label="$t('companyFilter.applyFilters')">
         </BasicButton>
         <BasicButton @click="clearFilters" variant="secondary" :icon="XCircleIcon"
-          :label="$t('companyDatabase.clearFilters')">
+          :label="$t('companyFilter.clearFilters')">
         </BasicButton>
       </div>
     </div>
@@ -80,6 +73,7 @@ import {
 import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
+import InputCountries from '../../components/forms/FormElements/InputCountries.vue';
 
 const { t } = useI18n();
 
@@ -109,15 +103,9 @@ const showFilter = ref(false);
 
 // Options for status dropdown
 const statusOptions = ref([
-  'Active', 'Inactive', 'Suspended', 'Pending'
+   t('Active'), t('Inactive'),  t('Suspended'),  t('Pending')
 ]);
 
-// Options for country dropdown (you can expand this list)
-const countryOptions = ref([
-  'United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Italy', 'Spain',
-  'Australia', 'Japan', 'China', 'India', 'Brazil', 'Mexico', 'South Africa', 'Nigeria',
-  'Egypt', 'Morocco', 'Kenya', 'Ghana', 'Cameroon'
-]);
 
 const applyFilters = () => {
   emits('filter', filters.value);

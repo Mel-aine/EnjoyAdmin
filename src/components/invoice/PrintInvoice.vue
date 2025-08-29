@@ -32,9 +32,8 @@
 
                     <!-- Folio -->
                     <div class="mb-4">
-                        <Select
-                        :is-loading="isLoadingFolios"
-                        v-model="folio" :options="folioOptions" :lb="$t('Folio')" :loading="isLoadingFolios" />
+                        <InputFolioSelect :title="$t('folio')" v-model="folio"
+                          :reservation-id="reservationId" :is-required="true" />
                     </div>
                     <!-- Currency -->
                     <div>
@@ -69,6 +68,7 @@ import { getReservationFolios, printFolioPdf } from '../../services/foglioApi'
 import { getCurrencies } from '../../services/configrationApi'
 import PdfExporter from '../common/PdfExporter.vue'
 import Select from '../forms/FormElements/Select.vue'
+import InputFolioSelect from '../reservations/foglio/InputFolioSelect.vue'
 import BasicButton from '../buttons/BasicButton.vue'
 import Invoicehotel from './Invoicehotel.vue'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
@@ -103,7 +103,7 @@ interface Props {
     title?: string
     documentData: any
     defaultFilename?: string
-    pdfTheme?: Record<string, any>,
+    pdfTheme?: Record<string, any>
     reservationId: number
 }
 

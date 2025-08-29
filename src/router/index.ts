@@ -74,6 +74,7 @@ const router = createRouter({
         title: 'Edit Booking',
         requiresAuth: true,
       },
+
     },
 
     {
@@ -107,22 +108,12 @@ const router = createRouter({
       },
     },
     {
-      path: '/house_status',
-      name: 'HouseStatus',
-      component: () => import('../views/Housekeeping/HouseStatus/HouseStatusView.vue'),
+      path: '/customer_detail_log/:id',
+      name: 'CustomerAuditLog',
+      component: () => import('../views/Customers/CustomerDetailsLogs.vue'),
       props: true,
       meta: {
-        title: 'House Status',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/work_order',
-      name: 'WorkOrder',
-      component: () => import('../views/Housekeeping/WorkOrder/WorkOrderView.vue'),
-      props: true,
-      meta: {
-        title: 'Work Order',
+        title: 'Customers Details',
         requiresAuth: true,
       },
     },
@@ -1006,6 +997,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/configuration/master/vip-status',
+      name: 'VipStatus',
+      component: () => import('../views/Configuration/Master/VipStatus.vue'),
+      meta: {
+        title: 'VIP Status',
+        requiresAuth: true,
+      },
+    },
     // Settings Configuration
     {
       path: '/configuration/settings/email-accounts',
@@ -1272,37 +1272,6 @@ const router = createRouter({
       },
     },
 
-    //travel
-    {
-      path: '/dashboardTravel',
-      name: 'dashboard travel',
-      component: () => import('../views/Travel/DashboardTravel.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/all_routes',
-      name: 'all routes',
-      component: () => import('../views/Travel/ItineraryView.vue'),
-    },
-    {
-      path: '/vehicle_fleet',
-      name: 'vehicle fleet',
-      component: () => import('../views/Travel/Equipement/VehicleView.vue'),
-    },
-    {
-      path: '/scheduled_trips',
-      name: 'scheduled trips',
-      component: () => import('../views/Travel/TravelManagement.vue/TravelList.vue'),
-    },
-    {
-      path: '/schedules',
-      name: 'schedules',
-      component: () => import('../views/Travel/Planning/ScheduleView.vue'),
-      meta: {
-        title: 'Schedules',
-        requiresAuth: true,
-      },
-    },
     {
       path: '/amenities',
       name: 'amenities',
@@ -1330,11 +1299,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/driver',
-      name: 'driver',
-      component: () => import('../views/Travel/DriverView.vue'),
-    },
+
 
     /// Staff Management
 
@@ -1394,15 +1359,6 @@ const router = createRouter({
     },
 
     {
-      path: '/vehicle_assignment',
-      name: 'vehicle assigment',
-      component: () => import('../views/Travel/Planning/VehicleAssignement.vue'),
-      meta: {
-        title: 'Vehicle assigment',
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/custom-guest-table',
       name: 'Custom Guest Table',
       component: () => import('../views/Tables/CustomGuestTable.vue'),
@@ -1411,6 +1367,18 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+        path: '/new',
+        name: 'CustomerCreate',
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
+      },
+
+      {
+        path: '/edit/:id',
+        name: 'CustomerEdit',
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
+        props: true
+      },
     {
       path: '/reusable-table-example',
       name: 'Reusable Table Example',
@@ -1432,6 +1400,24 @@ const router = createRouter({
     },
     // Cashiering routes
     {
+      path: '/cashiering/center',
+      name: 'CashieringCenter',
+      component: () => import('../views/Cashiering/CashieringCenter.vue'),
+      meta: {
+        title: 'Cashiering Center',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/new-payment',
+      name: 'NewPaymentCityLedger',
+      component: () => import('../views/Cashiering/NewPaymentCityLedger.vue'),
+      meta: {
+        title: 'New Payment',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/cashiering/company_database',
       name: 'CompanyDatabase',
       component: () => import('../views/Cashiering/CompanyDatabase.vue'),
@@ -1449,6 +1435,42 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/Cashiering/edit_company/:id',
+      name: 'EditCompany',
+      component: () => import('../views/Cashiering/AddCompany.vue'),
+      meta: {
+        title: 'Edit Company',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/Cashiering/company_details/:id',
+      name: 'CompanyDetails',
+      component: () => import('../views/Cashiering/CompanyDetails.vue'),
+      meta: {
+        title: 'Company Details',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/exchange-rate',
+      name: 'ExchangeRate',
+      component: () => import('../views/Cashiering/ExchangeRatePage.vue'),
+      meta: {
+        title: 'Exchange Rate',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/pos',
+      name: 'PosInterface',
+      component: () => import('../views/Cashiering/PosInterface.vue'),
+      meta: {
+        title: 'POS - Incidental Invoice',
+        requiresAuth: true,
+      },
+    },
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',
@@ -1458,32 +1480,40 @@ const router = createRouter({
         title: '404 - Page Not Found',
       },
     },
+    //Housekeeping routes
+    {
+      path: '/house_status',
+      name: 'HouseStatus',
+      component: () => import('../views/Housekeeping/HouseStatus/HouseStatusView.vue'),
+      props: true,
+      meta: {
+        title: 'House Status',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/work_order',
+      name: 'WorkOrder',
+      component: () => import('../views/Housekeeping/WorkOrder/WorkOrderView.vue'),
+      props: true,
+      meta: {
+        title: 'Work Order',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/maintenance_block',
+      name: 'MaintenanceBlock',
+      component: () => import('../views/Housekeeping/MaintenanceBlock/MaintenanceBlockView.vue'),
+      props: true,
+      meta: {
+        title: 'Maintenance Block',
+        requiresAuth: true,
+      },
+    },
   ],
 })
-// router.beforeEach(async (to, from, next) => {
-//   isLoading.value = true
 
-//   const authStore = useAuthStore()
-//   // const serviceStore = useServiceStore();
-
-//   try {
-//     console.log('user', authStore.user)
-//     console.log('token', authStore.token)
-//     console.log('UserId', authStore.UserId)
-//     // Si la route nécessite une auth mais qu’on n’est pas connecté
-//     if (to.meta.requiresAuth && (!authStore.token || !authStore.user)) {
-//       return next('/')
-//     }
-//     if (to.path === '/' && authStore.token && authStore.user && authStore.UserId) {
-//       next('/dashboard')
-//     }
-
-//     return next()
-//   } catch (error) {
-//     console.error('Error in navigation guard:', error)
-//     return next('/')
-//   }
-// })
 router.beforeEach(async (to, from, next) => {
   isLoading.value = true
 

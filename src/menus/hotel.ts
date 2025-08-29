@@ -3,10 +3,11 @@ import {
   CreditCard,
   Home,
   Settings,
-  Lock,
-  Clipboard, 
-  BarChart2
+  BarChart3,
+  ClipboardList,
+  Lock
 } from 'lucide-vue-next'
+import ExchangeRateModal from '../views/Cashiering/ExchangeRateModal.vue'
 
 export const getHotelMenu = (t: (key: string) => string) => {
   return [
@@ -54,11 +55,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
               path: '/lost_and_found',
               permission: 'dashboard_view',
             },
-           /* {
-              name: t('night_audit'),
-              path: '/night_audit',
-              permission: 'dashboard_view',
-            },
+           /*
             {
               name: t('guest_reviews'),
               path: '/guest_reviews',
@@ -79,10 +76,10 @@ export const getHotelMenu = (t: (key: string) => string) => {
           subItems: [
             {
               name: t('cashiering_center'),
-              path: '/dashboard',
+              path: '/cashiering/center',
               permission: 'dashboard_view',
             },
-            {
+            /*{
               name: t('travel_agent_database'),
               path: '/reservations',
               permission: 'dashboard_view',
@@ -91,26 +88,28 @@ export const getHotelMenu = (t: (key: string) => string) => {
               name: t('sales_person_database'),
               path: '/stay_view',
               permission: 'dashboard_view',
-            },
+            },*/
             {
               name: t('company_database'),
               path: '/cashiering/company_database',
               permission: 'dashboard_view',
             },
-            {
+           /* {
               name: t('expense_voucher'),
               path: '/room_view',
               permission: 'dashboard_view',
-            },
+            },*/
             {
               name: t('pos'),
-              path: '/guest_database',
+              path: '/cashiering/pos',
               permission: 'dashboard_view',
             },
             {
               name: t('exchange_rate'),
-              path: '/insert_transaction',
+              path: '/cashiering/exchange-rate',
               permission: 'dashboard_view',
+              openInModal: true,
+              component: ExchangeRateModal,
             }
 
           ]
@@ -129,7 +128,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
             {
               name: t('maintenance_block'),
-              path: '/add_booking',
+              path: '/maintenance_block',
               permission: 'bookings_create',
             },
             {
@@ -139,6 +138,35 @@ export const getHotelMenu = (t: (key: string) => string) => {
             },
           ],
         },
+
+        //Night Audit
+        {
+              icon: ClipboardList,
+              name: t('night_audit'),
+              path: '/night_audit',
+              permission: 'dashboard_view',
+        },
+        //Reports
+        {
+              icon: BarChart3,
+              name: t('Reports'),
+              path: '/reports',
+              permission: 'dashboard_view',
+        },
+        //Net Locks
+        {
+              icon: Lock,
+              name: t('net_locks'),
+              path: '/net_locks',
+              permission: 'dashboard_view',
+        },
+        //Configuration
+        // {
+        //   icon: Settings,
+        //   name: t('configuration'),
+        //   permission: 'dashboard_view',
+        //   path: '/reports',
+        // },
         //back office
         /*{
           name: t('Back Office'),
@@ -301,30 +329,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
           permission: 'dashboard_view',
           path: '/reports',
         },*/
-        {
-          icon: BarChart2,
-          name: t('Reports'),
-          permission: 'reports_view',
-          path: '/reports',
-        },
-        {
-          icon: Lock,
-          name: t('netLocks'),
-          permission: 'dashboard_view',
-          path: '/netlocks',
-        },
-        {
-          icon: Clipboard,
-          name: t('nightAuditLog'),
-          permission: 'dashboard_view',
-          path: '/night_audit_log',
-        },
-        {
-          icon: Settings,
-          name: t('configuration'),
-          permission: 'dashboard_view',
-          path: '/reports',
-        },
+
 
 
       ],
