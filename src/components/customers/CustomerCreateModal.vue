@@ -2,7 +2,7 @@
   <div v-if="isOpen" class="fixed inset-0 z-50 overflow-hidden">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/25 bg-opacity-50" @click="$emit('close')"></div>
-    
+
     <!-- Modal -->
     <div class="absolute right-0 top-0 h-full w-full max-w-6xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col">
       <!-- Header -->
@@ -17,7 +17,7 @@
           </svg>
         </button>
       </div>
-      
+
       <!-- Content -->
       <div class="flex-1 overflow-y-auto p-6">
         <form @submit.prevent="handleSubmit" class="space-y-8">
@@ -264,7 +264,7 @@
           </div>
         </form>
       </div>
-      
+
       <!-- Footer -->
       <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
         <BasicButton
@@ -344,12 +344,15 @@ interface SelectOption {
   value: string
   label: string
   label_fr?: string
+  numberField?:any
+  dateField?:any
 }
 
 interface RichSelectOption extends SelectOption {
   numberField: string
   dateField: string
   label_fr: string
+
 }
 
 interface Sections {
@@ -639,22 +642,22 @@ const handleSubmit = async () => {
     }
 
     console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
-    
-    const response = await createGuest(finalFormData)
-    
-    if (response.data) {
-      const createdCustomer = {
-        ...response.data,
-        firstName: form.firstName,
-        lastName: form.lastName,
-        phoneNumber: form.phonePrimary,
-        email: form.email,
-      }
-      
-      toast.success(t('toast.SuccessCreated'))
-      emit('customerCreated', createdCustomer)
-      emit('close')
-    }
+
+    // const response = await createGuest(finalFormData)
+
+    // if (response.data) {
+    //   const createdCustomer = {
+    //     ...response.data,
+    //     firstName: form.firstName,
+    //     lastName: form.lastName,
+    //     phoneNumber: form.phonePrimary,
+    //     email: form.email,
+    //   }
+
+    //   toast.success(t('toast.SuccessCreated'))
+    //   emit('customerCreated', createdCustomer)
+    //   emit('close')
+    // }
   } catch (error: any) {
     console.error('Error creating customer:', error)
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'

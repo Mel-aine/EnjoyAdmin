@@ -5113,6 +5113,7 @@
   "RegistrationNo": "Registration No",
   "IdentityInformation": "Identity Information",
   "IDType": "ID Type",
+  "IDPhoto" : "ID Photo",
   "ExpiryDate": "Expiry Date",
   "Countryofissue": "Country of issue",
   "Cityofissue": "City of issue",
@@ -5280,5 +5281,10 @@
   "incidental_invoices":"Incidental Invoices",
   "add_new":"Add new",
   "hide_void":"hide void",
-  "roomRate":"Room Rate"
+  "roomRate":"Room Rate",
+  "Changesfor{action}" : "Changes for {action}",
+  "Before" : "Before",
+  "After" : "After",
+  "Room/Guest" : "Room/Guest",
+  "ProfilePhoto" : "Profile Photo"
 }

@@ -4,7 +4,7 @@
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
           <div class="flex justify-between pt-2 px-2 pb-2">
-            <span>Room/Guest</span>
+            <span>{{ $t('Room/Guest') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="createNewGuest" />
           </div>
 
@@ -87,19 +87,6 @@
                 </svg>
                 <span>{{ isEditing ? $t('Cancel') : $t('Edit') }}</span>
               </button>
-              <button
-                class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-                @click="uploadImage"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-              </button>
             </div>
           </div>
 
@@ -110,7 +97,7 @@
               <!-- ImageUploader pour la Photo de Profil -->
               <div class="col-span-12 md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
-                  $t('Profile Photo')
+                  $t('ProfilePhoto')
                 }}</label>
                 <ImageUploader
                   ref="profilePhotoUploader"
@@ -118,6 +105,7 @@
                   :disabled="!isEditing"
                   @upload-success="onProfilePhotoSuccess"
                   @upload-error="onUploadError"
+                  :key="`profile-${resetKey}`"
                 />
               </div>
 
@@ -187,13 +175,14 @@
 
                   <!-- Mobile -->
                   <div>
-                    <Input
-                      :lb="$t('Mobile')"
+                      <InputPhone
+                      :title="$t('mobile')"
                       v-model="guestData.mobile"
-                      type="tel"
-                      :placeholder="$t('Mobile')"
+                      :id="'tel'"
+                      :is-required="false"
                       :disabled="!isEditing"
                     />
+
                   </div>
                 </div>
 
@@ -212,7 +201,7 @@
                   <!-- Genre -->
                   <div>
                     <Select
-                      :lb="$t('Gender')"
+                      :lb="$t('gender')"
                       v-model="guestData.gender"
                       :options="genderOptions"
                       :placeholder="$t('Male')"
@@ -234,7 +223,7 @@
                   <!-- Statut VIP -->
                   <div>
                     <Select
-                      :lb="$t('VIP Status')"
+                      :lb="$t('StatutVIP')"
                       v-model="guestData.vipStatus"
                       :options="vipStatusOptions"
                       :placeholder="$t('Select')"
@@ -285,7 +274,7 @@
                 <!-- Ville -->
                 <div>
                   <Input
-                    :lb="$t('City')"
+                    :lb="$t('city')"
                     v-model="guestData.city"
                     type="text"
                     :placeholder="$t('City')"
@@ -340,7 +329,7 @@
                 <!-- Numéro d'enregistrement -->
                 <div>
                   <Input
-                    :lb="$t('Registration No')"
+                    :lb="$t('RegistrationNo')"
                     v-model="guestData.registrationNo"
                     type="text"
                     :placeholder="$t('Registration No')"
@@ -356,7 +345,7 @@
                 @click="toggleIdentitySection"
                 class="flex items-center justify-between w-full text-left"
               >
-                <h3 class="text-lg font-medium text-gray-700">{{ $t('Identity Information') }}</h3>
+                <h3 class="text-lg font-medium text-gray-700">{{ $t('IdentityInformation') }}</h3>
                 <ChevronDownIcon
                   :class="[
                     'w-5 h-5 text-gray-500 transition-transform',
@@ -372,7 +361,7 @@
                 <!-- ImageUploader pour la Photo de la Pièce d'Identité -->
                 <div class="col-span-12 md:col-span-2">
                   <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
-                    $t('ID Photo')
+                    $t('IDPhoto')
                   }}</label>
                   <ImageUploader
                     ref="idPhotoUploader"
@@ -380,6 +369,7 @@
                     :disabled="!isEditing"
                     @upload-success="onIdPhotoSuccess"
                     @upload-error="onUploadError"
+                    :key="`id-${resetKey}`"
                   />
                 </div>
 
@@ -388,7 +378,7 @@
                     <!-- Type de Pièce d'Identité -->
                     <div>
                       <Select
-                        :lb="$t('ID Type')"
+                        :lb="$t('IDType')"
                         v-model="guestData.idType"
                         :options="idTypeOptions"
                         :placeholder="$t('Select ID Type')"
@@ -398,10 +388,10 @@
                     <!-- Numéro de Pièce d'Identité -->
                     <div class="md:col-span-2">
                       <Input
-                        :lb="$t('ID Number')"
+                        :lb="idNumberLabel"
                         v-model="guestData.idNumber"
                         type="text"
-                        :placeholder="$t('Enter ID Number')"
+                        :placeholder="idNumberLabel"
                         :disabled="!isEditing"
                       />
                     </div>
@@ -414,15 +404,6 @@
                       />
                     </div>
                   </div>
-
-                  <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> -->
-                  <!-- Date de Naissance -->
-                  <!-- <div>
-            <InputDatePicker :title="$t('Date of Birth')" v-model="guestData.dateOfBirth" :placeholder="$t('Select Date')" :disabled="!isEditing" />
-          </div> -->
-                  <!-- Date d'Expiration -->
-
-                  <!-- </div> -->
 
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Pays d'Émission -->
@@ -467,10 +448,10 @@
                     {{ $t('Preference') }}
                   </label>
                   <MultipleSelect
-                  v-model="guestData.preferences"
+                    v-model="guestData.preferences"
                     :options="Preferences"
                     :placeholder="$t('SelectPreferences')"
-
+                    :disabled="!isEditing"
                   />
                 </div>
               </div>
@@ -482,7 +463,7 @@
             <BasicButton variant="secondary" :label="$t('Cancel')" @click="cancelEdit" />
             <BasicButton
               variant="primary"
-              :label="$t('Save Changes')"
+              :label="isCreatingNewGuest ? $t('Create Guest') : $t('Save Changes')"
               @click="saveGuest"
               :loading="isSaving"
             />
@@ -495,7 +476,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch ,onMounted} from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../buttons/BasicButton.vue'
@@ -512,13 +493,13 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { PlusCircle, ChevronRight } from 'lucide-vue-next'
 import UserCircleIcon from '@/icons/UserCircleIcon.vue'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
-import {getPreferencesByHotelId} from '@/services/configrationApi'
+import { getPreferencesByHotelId ,getIdentityTypesByHotelId} from '@/services/configrationApi'
 
 interface GuestData {
   title: string
   firstName: string
   lastName: string
-  profilePhoto?: string | null
+  profilePhoto: string | null
   phone: string
   mobile: string
   email: string
@@ -534,15 +515,16 @@ interface GuestData {
   company: string
   fax: string
   registrationNo: string
-  idPhoto?: string | null
+  idPhoto: string | null
   idType: string
   idNumber: string
   dateOfBirth: string
   idExpiryDate: string
   issuingCountry: string
   issuingCity: string
-  preferences: string[]
+  preferences?: any;
 }
+
 interface Props {
   guest?: any
   reservationId?: number
@@ -553,6 +535,13 @@ interface Props {
 interface SelectOption {
   value: string
   label: string
+  label_fr?:string
+}
+
+interface RichSelectOption extends SelectOption {
+  numberField: string
+  dateField: string
+  label_fr: string
 }
 
 const props = defineProps<Props>()
@@ -564,46 +553,128 @@ const Preferences = ref<SelectOption[]>([])
 // State
 const isSaving = ref(false)
 const isEditing = ref(false)
+const resetKey = ref(0) // Clé pour forcer la réinitialisation des composants
 
 // State pour les sections dépliantes
 const showIdentitySection = ref(false)
 const showOtherInfoSection = ref(false)
+const idTypeOptions = ref<SelectOption[]>([])
 
 const selectedGuest = ref(
   props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null,
 )
 const isCreatingNewGuest = ref(false)
 
+// Refs pour les uploaders
+const profilePhotoUploader = ref<InstanceType<typeof ImageUploader> | null>(null)
+const idPhotoUploader = ref<InstanceType<typeof ImageUploader> | null>(null)
+
+const parsePreferencesFromDB = (preferencesFromDB: any[] = []): { label: string; value: string }[] => {
+  if (!Array.isArray(preferencesFromDB)) return []
+  return preferencesFromDB.map(pref => ({
+    label: pref.label || pref.name || pref.value || '',
+    value: pref.value || pref.id || pref.label || ''
+  })).filter(pref => pref.label && pref.value)
+}
+
+// Fonction pour convertir les préférences vers le format BD
+const formatPreferencesForDB = (selectedPreferenceValues: string[] | undefined): string => {
+  if (!selectedPreferenceValues || selectedPreferenceValues.length === 0) {
+
+    return '[]'
+  }
+  return JSON.stringify(selectedPreferenceValues)
+}
+
 // Fonction d'initialisation mise à jour avec tous les nouveaux champs
-const initializeGuestData = (guest: any = null): GuestData => ({
-  title: guest?.title || 'Mr',
-  firstName: guest?.firstName || '',
-  lastName: guest?.lastName || '',
-  profilePhoto: guest?.profilePhoto || null,
-  phone: guest?.phone || '',
-  mobile: guest?.mobile || '',
-  email: guest?.email || '',
-  gender: guest?.gender || 'male',
-  guestType: guest?.guestType || '',
-  vipStatus: guest?.vipStatus || 'regular',
-  address: guest?.addressLine || '',
-  country: guest?.country || '',
-  stateProvince: guest?.stateProvince || '',
-  city: guest?.city || '',
-  postalCode: guest?.postalCode || '',
-  nationality: guest?.nationality || '',
-  company: guest?.companyName || '',
-  fax: guest?.fax || '',
-  registrationNo: guest?.registrationNumber || '',
-  idPhoto: guest?.idPhoto || null,
-  idType: guest?.idType || '',
-  idNumber: guest?.idNumber || '',
-  dateOfBirth: guest?.dateOfBirth || '',
-  idExpiryDate: guest?.idExpiryDate || '',
-  issuingCountry: guest?.issuingCountry || '',
-  issuingCity: guest?.issuingCity || '',
-  preferences: guest.preferences || []
-})
+const mapApiCustomerToFormData = (customer: any): GuestData => {
+  const baseData: GuestData = {
+    title: customer?.title || 'Mr',
+    firstName: customer?.firstName || '',
+    lastName: customer?.lastName || '',
+    profilePhoto: customer?.profilePhoto || null,
+    phone: customer?.phone || customer?.phonePrimary || '',
+    mobile: customer?.mobile || customer?.mobileNumber || '',
+    email: customer?.email || '',
+    gender: customer?.gender || 'male',
+    guestType: customer?.guestType || '',
+    vipStatus: customer?.vipStatus || '',
+    address: customer?.addressLine || customer?.address || '',
+    country: customer?.country || '',
+    stateProvince: customer?.stateProvince || '',
+    city: customer?.city || '',
+    postalCode: customer?.postalCode || '',
+    nationality: customer?.nationality || '',
+    company: customer?.companyName || customer?.company || '',
+    fax: customer?.fax || '',
+    registrationNo: customer?.registrationNumber || customer?.registrationNo || '',
+    idPhoto: customer?.idPhoto || null,
+    idType: '',
+    idNumber: '',
+    dateOfBirth: customer?.dateOfBirth || '',
+    idExpiryDate: '',
+    issuingCountry: customer?.issuingCountry || '',
+    issuingCity: customer?.issuingCity || '',
+    preferences: parsePreferencesFromDB(customer?.preferences)
+  }
+
+  if (customer?.passportNumber) {
+    baseData.idType = customer.idType
+    baseData.idNumber = customer.passportNumber
+    baseData.idExpiryDate = customer.passportExpiry
+  } else if (customer?.visaNumber) {
+    baseData.idType = customer.idType
+    baseData.idNumber = customer.visaNumber
+    baseData.idExpiryDate = customer.visaExpiry
+  } else if (customer?.idNumber) {
+    baseData.idType = customer.idType || 'ID National'
+    baseData.idNumber = customer.idNumber
+    baseData.idExpiryDate = customer.idExpiryDate
+  }
+
+  if (baseData.idExpiryDate && typeof baseData.idExpiryDate === 'string') {
+    baseData.idExpiryDate = baseData.idExpiryDate.substring(0, 10)
+  }
+
+  return baseData
+}
+
+// Fonction d'initialisation mise à jour
+const initializeGuestData = (guest: any = null): GuestData => {
+  if (guest) {
+    return mapApiCustomerToFormData(guest)
+  }
+
+  return {
+    title: 'Mr',
+    firstName: '',
+    lastName: '',
+    profilePhoto: null,
+    phone: '',
+    mobile: '',
+    email: '',
+    gender: 'male',
+    guestType: '',
+    vipStatus: '',
+    address: '',
+    country: '',
+    stateProvince: '',
+    city: '',
+    postalCode: '',
+    nationality: '',
+    company: '',
+    fax: '',
+    registrationNo: '',
+    idPhoto: null,
+    idType: '',
+    idNumber: '',
+    dateOfBirth: '',
+    idExpiryDate: '',
+    issuingCountry: '',
+    issuingCity: '',
+    preferences: []
+  }
+}
 
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
@@ -616,6 +687,7 @@ watch(
   selectedGuest,
   (newGuest) => {
     Object.assign(guestData, initializeGuestData(newGuest))
+    resetKey.value++
   },
   { deep: true },
 )
@@ -632,20 +704,21 @@ const genderOptions = computed(() => [
   { label: t('Other'), value: 'other' },
 ])
 // Nouvelles options pour le type de client
-const guestTypeOptions = computed(() => [
-  { label: t('Individual'), value: 'individual' },
-  { label: t('Corporate'), value: 'corporate' },
-  { label: t('Group'), value: 'group' },
-])
+
+const guestTypeOptions: SelectOption[] = [
+  { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
+  { value: 'corporate', label: t('GuestTypes.corporate') },
+  { value: 'individual', label: t('GuestTypes.individual') },
+]
 const vipStatusOptions = computed(() => [
-  { label: t('Regular'), value: 'regular' },
-  { label: t('VIP'), value: 'vip' },
-  { label: t('VVIP'), value: 'vvip' },
+  { label: t('vipStatus.bronze'), value: 'bronze' },
+  { label: t('vipStatus.silver'), value: 'silver' },
+  { label: t('vipStatus.gold'), value: 'gold' },
+  { label: t('vipStatus.platinum'), value: 'platinum' },
+  { label: t('vipStatus.diamond'), value: 'diamond' },
+  { label: t('vipStatus.none'), value: 'none' },
 ])
-const idTypeOptions = computed(() => [
-  { label: t('Passport'), value: 'passport' },
-  { label: t('National ID'), value: 'national_id' },
-])
+
 
 // --- Méthodes ---
 
@@ -654,13 +727,24 @@ const selectGuest = (guest: any) => {
   isCreatingNewGuest.value = false
   Object.assign(guestData, initializeGuestData(guest))
   isEditing.value = false
+  resetKey.value++
 }
 
 const createNewGuest = () => {
+  console.log('Creating new guest')
   selectedGuest.value = null
   isCreatingNewGuest.value = true
-  Object.assign(guestData, initializeGuestData())
+
+  // Réinitialiser complètement les données
+  Object.assign(guestData, initializeGuestData(null))
+
+  // Forcer la réinitialisation des composants ImageUploader
+  resetKey.value++
+
+  // Passer en mode édition
   isEditing.value = true
+
+  console.log('Guest data after reset:', guestData)
 }
 
 const toggleIdentitySection = () => {
@@ -673,18 +757,45 @@ const toggleOtherInfoSection = () => {
 }
 
 const editGuest = () => {
-  isEditing.value = !isEditing.value
+  if (isEditing.value && isCreatingNewGuest.value) {
+
+    cancelEdit()
+  } else {
+    isEditing.value = !isEditing.value
+  }
 }
 
-// Fonctions pour gérer les retours du composant ImageUploader
-const onProfilePhotoSuccess = (result: any) => {
-  guestData.profilePhoto = result.info.secure_url
-  toast.success(t('Profile photo uploaded successfully'))
+// Fonctions pour gérer les uploads d'images
+const onProfilePhotoSuccess = async (result: any) => {
+  try {
+
+    if (profilePhotoUploader.value?.hasSelectedFile()) {
+      const uploadedUrl = await profilePhotoUploader.value.uploadToCloudinary()
+      guestData.profilePhoto = uploadedUrl
+    } else {
+      guestData.profilePhoto = result.url || result.info?.secure_url || result
+    }
+    toast.success(t('Profile photo uploaded successfully'))
+  } catch (error) {
+    console.error('Error handling profile photo:', error)
+    toast.error(t('Profile photo upload failed'))
+  }
 }
 
-const onIdPhotoSuccess = (result: any) => {
-  guestData.idPhoto = result.info.secure_url
-  toast.success(t('ID photo uploaded successfully'))
+const onIdPhotoSuccess = async (result: any) => {
+  try {
+
+    if (idPhotoUploader.value?.hasSelectedFile()) {
+      const uploadedUrl = await idPhotoUploader.value.uploadToCloudinary()
+      guestData.idPhoto = uploadedUrl
+    } else {
+      guestData.idPhoto = result.url || result.info?.secure_url || result
+    }
+    toast.success(t('ID photo uploaded successfully'))
+  } catch (error) {
+    console.error('Error handling ID photo:', error)
+    toast.error(t('ID photo upload failed'))
+  }
 }
 
 const onUploadError = (error: any) => {
@@ -699,7 +810,7 @@ const prepareGuestPayload = (): GuestPayload => {
     title: guestData.title,
     firstName: guestData.firstName,
     lastName: guestData.lastName,
-    profilePhoto: guestData.profilePhoto,
+    profilePhoto: guestData.profilePhoto?? undefined,
     phonePrimary: guestData.phone,
     mobileNumber: guestData.mobile,
     email: guestData.email,
@@ -715,14 +826,14 @@ const prepareGuestPayload = (): GuestPayload => {
     companyName: guestData.company,
     fax: guestData.fax,
     registrationNumber: guestData.registrationNo,
-    idPhoto: guestData.idPhoto,
+    idPhoto: guestData.idPhoto ?? undefined,
     idType: guestData.idType,
     idNumber: guestData.idNumber,
     dateOfBirth: guestData.dateOfBirth,
     idExpiryDate: guestData.idExpiryDate,
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,
-    // preferences: guestData.preferences
+    preferences: formatPreferencesForDB(guestData.preferences)
   }
 
   // Optionnel: Nettoyer les valeurs vides
@@ -739,21 +850,48 @@ const prepareGuestPayload = (): GuestPayload => {
 const saveGuest = async () => {
   isSaving.value = true
   try {
+    // Upload des images si nécessaire
+    if (profilePhotoUploader.value?.hasSelectedFile()) {
+      guestData.profilePhoto = await profilePhotoUploader.value.uploadToCloudinary()
+    }
+
+    if (idPhotoUploader.value?.hasSelectedFile()) {
+      guestData.idPhoto = await idPhotoUploader.value.uploadToCloudinary()
+    }
+
     const payload = prepareGuestPayload()
 
     if (isCreatingNewGuest.value) {
-      await createGuest(payload)
+      const response = await createGuest(payload)
       toast.success(t('Guest created successfully'))
+
+      // Mettre à jour la liste des invités si possible
+      if (response.data && props.reservation) {
+        // Ajouter le nouvel invité à la liste
+        props.reservation.guests = props.reservation.guests || []
+        props.reservation.guests.push(response.data)
+
+        // Sélectionner le nouvel invité
+        selectedGuest.value = response.data
+        Object.assign(guestData, initializeGuestData(response.data))
+      }
+
+      isCreatingNewGuest.value = false
     } else {
       const guestId = selectedGuest.value?.id
       if (!guestId) throw new Error('Guest ID is required for update')
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
+
+      // Mettre à jour les données de l'invité sélectionné
+      if (selectedGuest.value) {
+        Object.assign(selectedGuest.value, guestData)
+      }
     }
 
     isEditing.value = false
-    isCreatingNewGuest.value = false
-    // Idéalement, rafraîchir la liste des clients ici
+    resetKey.value++
+
   } catch (error: any) {
     console.error('Error saving guest:', error)
     const errorMessage = error.response?.data?.message || error.message
@@ -770,26 +908,86 @@ const cancelEdit = () => {
     const guestToSelect = props.guest || guestList.value?.[0]
     if (guestToSelect) {
       selectGuest(guestToSelect)
+    } else {
+      selectedGuest.value = null
+      Object.assign(guestData, initializeGuestData(null))
     }
   } else {
     Object.assign(guestData, initializeGuestData(selectedGuest.value))
   }
+  resetKey.value++
 }
 
 const loadPreferences = async () => {
   try {
     const hotelId = serviceStore.serviceId
     const response = await getPreferencesByHotelId(hotelId!)
-    Preferences.value = response.data.data.data.map((i:any)=>({
-      label:i.name,
-      value:i.id
+    Preferences.value = response.data.data.data.map((i: any) => ({
+      label: i.name,
+      value: i.id
     }))
+
   } catch (error) {
     console.error('Error loading preferences:', error)
-
   }
 }
-onMounted(()=>{
+
+const fetchIdentityTypes = async () => {
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId) return
+
+    const res = await getIdentityTypesByHotelId(hotelId)
+
+    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+
+      const normalizedName = type.name.toLowerCase().replace(/ /g, '')
+
+      switch (normalizedName) {
+        case 'passport':
+        case 'passeport':
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'passportNumber',
+            dateField: 'passportExpiry',
+            label_fr: t('identity.passport_number'),
+          }
+        case 'visa':
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'visaNumber',
+            dateField: 'visaExpiry',
+            label_fr: t('identity.visa_number'),
+          }
+        default:
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'idNumber',
+            dateField: 'idExpiryDate',
+            label_fr: t('identity.id_number'),
+          }
+      }
+    })
+  } catch (err) {
+    console.error('Erreur lors de la récupération des types de pièces:', err)
+  }
+}
+
+const selectedIdTypeInfo = computed(() => {
+  return idTypeOptions.value.find((opt) => opt.value === guestData.idType)
+})
+
+const idNumberLabel = computed(() => {
+  // Retourne le label personnalisé, ou un label par défaut
+  return selectedIdTypeInfo.value?.label_fr || t('identity.id_number')
+})
+
+onMounted(() => {
   loadPreferences()
+  fetchIdentityTypes()
+
 })
 </script>

@@ -262,11 +262,11 @@
                     <button
                       v-if="!customer.blacklisted"
                       @click="handleCheckOut(stay)"
-                      class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                       :disabled="isCheckingOut === stay.id"
                     >
                       <Spinner v-if="isCheckingOut === stay.id" class="w-4 h-4" />
-                      <!-- <span>{{ isCheckingOut ? $t('CheckOut...') : $t('CheckOut') }}</span> -->
+                      <span>{{ isCheckingOut ? '' : $t('CheckOut') }}</span>
                     </button>
                   </div>
                 </div>
@@ -299,7 +299,7 @@
                       :disabled="isCheckingIn === customer.upcomingStay.id"
                     >
                       <Spinner v-if="isCheckingIn === customer.upcomingStay.id" class="w-4 h-4" />
-                      <!-- <span>{{ isCheckingIn ? $t('CheckingIn....') : $t('CheckIn') }}</span> -->
+                      <span>{{ isCheckingIn ? '' : $t('CheckIn') }}</span>
                     </button>
                     <div
                       v-else-if="!customer.blacklisted"
@@ -369,7 +369,7 @@
             <template v-if="auditLogs.length > 0">
                <AuditLogsTable
                 :logs="auditLogs"
-                :expanded-changes="[]"
+                :expanded-changes="expandedChanges"
                 @toggle-changes="handleToggleChanges"
 
               />
@@ -382,38 +382,7 @@
             </template>
           </div>
 
-          <div v-if="activeTab === 'calendar'" class="p-6">
-            <BaseCalendar
-              :title="$t('GuestBookingCalendar')"
-              :initial-date="selectedDate"
-              :events="calendarEvents"
-              @month-changed="onMonthChanged"
-              @day-click="onDayClick"
-            >
-              <template #day-content="{ day }">
-                <div v-if="day.events.length > 0" class="w-full text-center p-1 rounded-md text-xs truncate">
-                  <div v-if="day.events[0].type === 'current'" class="bg-blue-100 text-blue-800">
-                    <div><strong>{{ day.events[0].reservation.roomNumber }}</strong></div>
-                    <div class="opacity-75">{{ $t('inprogress') }}</div>
-                  </div>
-                  <div v-else-if="day.events[0].type === 'upcoming'" class="bg-yellow-100 text-yellow-800">
-                    <div><strong>{{ day.events[0].reservation.roomNumber }}</strong></div>
-                    <div class="opacity-75">{{ $t('reserved') }}</div>
-                  </div>
-                  <div v-else-if="day.events[0].type === 'past'" class="bg-gray-100 text-gray-500">
-                    <div class="opacity-75">{{ $t('Pass') }}</div>
-                  </div>
-                </div>
-              </template>
-              <template #legend>
-                <div class="flex items-center justify-center space-x-6 mt-4 p-2 border-t">
-                  <LegendItem color="blue" :label="$t('CurrentStay')" />
-                  <LegendItem color="yellow" :label="$t('UpcomingStay')" />
-                  <LegendItem color="gray" :label="$t('PastStay')" />
-                </div>
-              </template>
-            </BaseCalendar>
-          </div>
+
         </div>
 
         <OverLoading v-if="isLoading" />
@@ -551,63 +520,10 @@ const tabs = computed(() => [
   { id: 'details', label: t('tab.details'), icon: InfoIcon },
   { id: 'reservations', label: t('tab.reservationHistory'), icon: Bookmark },
   { id: 'payments', label: t('tab.payments'), icon: CreditCard },
-  { id: 'audit', label: t('tab.auditLog'), icon: Shield },
-  { id: 'calendar', label: t('tab.calendar'), icon: CalendarIcon },
+  { id: 'audit', label: t('tab.auditLog'), icon: Shield }
+
 ])
 
-// Computed properties
-
-const calendarEvents = computed<CalendarEvent[]>(() => {
-  if (!customer.value?.reservations || customer.value.reservations.length === 0) {
-    return []
-  }
-
-  const events = []
-
-  // On boucle sur TOUTES les réservations du client
-  for (const reservation of customer.value.reservations) {
-    // On s'assure que les dates sont valides
-    if (!reservation.arrivedDate || !reservation.departDate) {
-      continue
-    }
-
-    const startDate = new Date(reservation.arrivedDate)
-    const endDate = new Date(reservation.departDate)
-
-    // Normaliser les dates pour éviter les problèmes de fuseaux horaires
-    const normalize = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
-    let eventType = 'past' // Par défaut, un séjour passé
-
-    if (reservation.status === 'checked_in') {
-      eventType = 'current' // Séjour en cours
-    } else if (['confirmed', 'reserved', 'pending'].includes(reservation.status)) {
-      eventType = 'upcoming' // Séjour à venir
-    } else if (['completed', 'checked_out'].includes(reservation.status)) {
-      eventType = 'past' // Séjour passé/terminé
-    } else {
-      continue // On ignore les réservations annulées, voided, etc.
-    }
-
-    // On crée un événement pour chaque jour de la réservation
-    let currentDate = new Date(startDate)
-    while (normalize(currentDate) <= normalize(endDate)) {
-      events.push({
-        date: new Date(currentDate),
-        type: eventType,
-        // On attache la réservation entière pour pouvoir afficher ses détails
-        reservation: {
-          ...reservation,
-          // On essaie de trouver le numéro de chambre dans reservationRooms
-          roomNumber: reservation.reservationRooms?.[0]?.room?.roomNumber || 'N/A',
-        },
-      })
-      currentDate.setDate(currentDate.getDate() + 1)
-    }
-  }
-
-  return events
-})
 
 // Utility functions
 const formatDate = (dateStr:any, currentLocale = locale.value) => {
@@ -738,11 +654,11 @@ const blacklistHistory = computed(() => {
     return []
   }
 
-  const notesArray = customer.value.notes.split('\n').filter((note) => note.trim() !== '')
+  const notesArray = customer.value.notes.split('\n').filter((note:any) => note.trim() !== '')
 
   const history = notesArray
-    .filter((note) => note.includes('[') && note.includes('] Blacklisted:'))
-    .map((note) => {
+    .filter((note:any) => note.includes('[') && note.includes('] Blacklisted:'))
+    .map((note:any) => {
       try {
         const timestampMatch = note.match(/\[(.*?)\]/)
         const reasonMatch = note.split('Blacklisted:')[1]
@@ -758,8 +674,8 @@ const blacklistHistory = computed(() => {
         return null
       }
     })
-    .filter((item) => item !== null)
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .filter((item:any) => item !== null)
+    .sort((a:any, b:any) => b.date.getTime() - a.date.getTime())
 
   return history
 })
@@ -1040,15 +956,21 @@ const fetchActivityLogs = async () => {
     loading.value = false
   }
 }
-const expandedChanges = ref<string[]>([])
+const expandedChanges = ref<(string | number)[]>([])
 
-const handleToggleChanges = (logId: string) => {
-  const index = expandedChanges.value.indexOf(logId)
+const handleToggleChanges = (logId: string | number) => {
+
+  const logIdStr = String(logId)
+  const index = expandedChanges.value.indexOf(logIdStr)
+
   if (index > -1) {
     expandedChanges.value.splice(index, 1)
+
   } else {
-    expandedChanges.value.push(logId)
+    expandedChanges.value.push(logIdStr)
+
   }
+
 }
 
 // Lifecycle

@@ -1,9 +1,12 @@
 <template>
   <div class="relative" ref="multiSelectRef">
     <div
-      @click="toggleDropdown"
+      @click="disabled ? null : toggleDropdown()"
       class="dark:bg-dark-900 min-h-[44px] flex items-center w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-      :class="{ 'text-gray-800 dark:text-white/90': isOpen }"
+      :class="{
+        'text-gray-800 dark:text-white/90': isOpen,
+        'cursor-not-allowed opacity-50 bg-gray-100 dark:bg-gray-800': disabled
+      }"
     >
       <span v-if="selectedItems.length === 0" class="text-gray-400"> {{ $t('select_item') }} </span>
 
@@ -15,7 +18,7 @@
         <button
           @click.stop="clearAll"
           class="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          v-if="selectedItems.length > 0"
+          v-if="selectedItems.length > 0 && !disabled"
         >
           <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -34,12 +37,14 @@
           v-for="(item) in visibleSelectedItems"
           :key="`${item.label}|${item.value}`"
           class="group flex items-center justify-center h-[30px] rounded-full border-[0.7px] border-transparent bg-gray-100 py-1 pl-2.5 pr-2 text-sm text-gray-800 hover:border-gray-200 dark:bg-gray-800 dark:text-white/90 dark:hover:border-gray-800"
+          :class="{ 'opacity-75': disabled }"
         >
           <span class="truncate max-w-[120px]">{{ item.label }}</span>
           <button
             @click.stop="removeItem(item)"
             class="pl-2 text-gray-500 cursor-pointer group-hover:text-gray-400 dark:text-gray-400 flex-shrink-0"
             aria-label="Remove item"
+            v-if="!disabled"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -57,6 +62,7 @@
           v-if="hiddenItemsCount > 0"
           class="flex items-center justify-center h-[30px] rounded-full border-[0.7px] border-gray-300 bg-gray-50 px-2.5 text-sm text-gray-600 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
           :title="hiddenItemsTooltip"
+          :class="{ 'opacity-75': disabled }"
         >
           +{{ hiddenItemsCount }}
         </div>
@@ -69,12 +75,14 @@
             v-for="item in selectedItems"
             :key="item.value"
             class="group flex items-center justify-center h-[30px] rounded-full border-[0.7px] border-transparent bg-gray-100 py-1 pl-2.5 pr-2 text-sm text-gray-800 hover:border-gray-200 dark:bg-gray-800 dark:text-white/90 dark:hover:border-gray-800 flex-shrink-0"
+            :class="{ 'opacity-75': disabled }"
           >
             <span class="truncate max-w-[150px]">{{ item.label }}</span>
             <button
               @click.stop="removeItem(item)"
               class="pl-2 text-gray-500 cursor-pointer group-hover:text-gray-400 dark:text-gray-400"
               aria-label="Remove item"
+              v-if="!disabled"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -91,7 +99,7 @@
 
       <svg
         class="ml-auto flex-shrink-0"
-        :class="{ 'transform rotate-180': isOpen }"
+        :class="{ 'transform rotate-180': isOpen, 'opacity-50': disabled }"
         width="20"
         height="20"
         viewBox="0 0 20 20"
@@ -117,7 +125,7 @@
       leave-to-class="transform scale-95 opacity-0"
     >
       <div
-        v-if="isOpen"
+        v-if="isOpen && !disabled"
         class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-900 dark:border-gray-700"
       >
         <!-- Barre de recherche -->
@@ -127,6 +135,7 @@
             type="text"
             :placeholder="$t('search...')"
             class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            :disabled="disabled"
           />
         </div>
 
@@ -140,6 +149,7 @@
               @click="selectAll"
               class="text-purple-600 hover:text-purple-700 dark:text-purple-400"
               v-if="selectedItems.length < filteredOptions.length"
+              :disabled="disabled"
             >
               {{ $t('all_select') }}
             </button>
@@ -147,6 +157,7 @@
               @click="clearAll"
               class="text-red-600 hover:text-red-700 dark:text-red-400"
               v-if="selectedItems.length > 0"
+              :disabled="disabled"
             >
               {{ $t('all_dis') }}
             </button>
@@ -213,6 +224,10 @@ const props = defineProps({
     type: String,
     default: 'limited', // 'compact', 'limited', 'scroll'
     validator: (value) => ['compact', 'limited', 'scroll'].includes(value)
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -263,31 +278,36 @@ const displayModeTooltip = computed(() => {
 })
 
 const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
-  if (isOpen.value) {
-    searchQuery.value = ''
+  if (!props.disabled) {
+    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+      searchQuery.value = ''
+    }
   }
 }
 
 const toggleItem = (item) => {
-  // Utiliser label + value comme identifiant unique
-  const uniqueId = `${item.label}|${item.value}`
-  const selectedId = `${item.label}|${item.value}`
-  const index = selectedItems.value.findIndex((selected) => `${selected.label}|${selected.value}` === selectedId)
-  if (index === -1) {
-    selectedItems.value.push(item)
-  } else {
-    selectedItems.value.splice(index, 1)
+  if (!props.disabled) {
+    const uniqueId = `${item.label}|${item.value}`
+    const selectedId = `${item.label}|${item.value}`
+    const index = selectedItems.value.findIndex((selected) => `${selected.label}|${selected.value}` === selectedId)
+    if (index === -1) {
+      selectedItems.value.push(item)
+    } else {
+      selectedItems.value.splice(index, 1)
+    }
+    emit('update:modelValue', selectedItems.value)
   }
-  emit('update:modelValue', selectedItems.value)
 }
 
 const removeItem = (item) => {
-  const selectedId = `${item.label}|${item.value}`
-  const index = selectedItems.value.findIndex((selected) => `${selected.label}|${selected.value}` === selectedId)
-  if (index !== -1) {
-    selectedItems.value.splice(index, 1)
-    emit('update:modelValue', selectedItems.value)
+  if (!props.disabled) {
+    const selectedId = `${item.label}|${item.value}`
+    const index = selectedItems.value.findIndex((selected) => `${selected.label}|${selected.value}` === selectedId)
+    if (index !== -1) {
+      selectedItems.value.splice(index, 1)
+      emit('update:modelValue', selectedItems.value)
+    }
   }
 }
 
@@ -296,23 +316,30 @@ const isSelected = (item) => {
 }
 
 const selectAll = () => {
-  selectedItems.value = [...filteredOptions.value]
-  emit('update:modelValue', selectedItems.value)
+  if (!props.disabled) {
+    selectedItems.value = [...filteredOptions.value]
+    emit('update:modelValue', selectedItems.value)
+  }
 }
 
 const clearAll = () => {
-  selectedItems.value = []
-  emit('update:modelValue', selectedItems.value)
+  if (!props.disabled) {
+    selectedItems.value = []
+    emit('update:modelValue', selectedItems.value)
+  }
 }
 
 const cycleDisplayMode = () => {
-  const modes = ['compact', 'limited', 'scroll']
-  const currentIndex = modes.indexOf(displayMode.value)
-  displayMode.value = modes[(currentIndex + 1) % modes.length]
+  // This function is not used in the template, but keeping it for completeness if you intend to use it.
+  if (!props.disabled) {
+    const modes = ['compact', 'limited', 'scroll']
+    const currentIndex = modes.indexOf(displayMode.value)
+    displayMode.value = modes[(currentIndex + 1) % modes.length]
+  }
 }
 
 const handleClickOutside = (event) => {
-  if (multiSelectRef.value && !multiSelectRef.value.contains(event.target)) {
+  if (multiSelectRef.value && !multiSelectRef.value.contains(event.target) && !props.disabled) {
     isOpen.value = false
   }
 }

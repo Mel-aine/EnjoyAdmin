@@ -70,23 +70,18 @@ const mapApiCustomerToFormData = (customer: any) => {
   formData.idNumber = '';
   formData.idExpiryDate = '';
   formData.idType = '';
-  formData.preferences = {
-    floor: '',
-    view: '',
-    bed_type: '',
-    notes: '',
-  };
+
 
   if (customer.passportNumber) {
-    formData.idType = 'Passeport';
+    formData.idType = customer.idType;
     formData.idNumber = customer.passportNumber;
     formData.idExpiryDate = customer.passportExpiry;
   } else if (customer.visaNumber) {
-    formData.idType = 'Visa';
+    formData.idType = customer.idType;
     formData.idNumber = customer.visaNumber;
     formData.idExpiryDate = customer.visaExpiry;
   } else if (customer.idNumber) {
-    formData.idType = 'ID National';
+    formData.idType = customer.idType;
     formData.idNumber = customer.idNumber;
     formData.idExpiryDate = customer.idExpiryDate;
   }
@@ -95,22 +90,6 @@ const mapApiCustomerToFormData = (customer: any) => {
       formData.idExpiryDate = formData.idExpiryDate.substring(0, 10);
   }
 
-
-  if (customer.preferences) {
-    try {
-
-      const prefs = typeof customer.preferences === 'string'
-        ? JSON.parse(customer.preferences)
-        : customer.preferences;
-
-      formData.preferences.floor = prefs.floor || '';
-      formData.preferences.view = prefs.view || '';
-      formData.preferences.bed_type = prefs.bed_type || '';
-      formData.preferences.notes = prefs.notes || '';
-    } catch (e) {
-      console.error('Erreur de parsing des préférences JSON:', e);
-    }
-  }
 
   return formData;
 };
