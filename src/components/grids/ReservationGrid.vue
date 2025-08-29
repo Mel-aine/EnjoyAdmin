@@ -4,22 +4,34 @@
     <div class="bg-gray-50 mt-2 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div class="flex items-center gap-4">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ $t('Reservations') }}</h2>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+                <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('totalReservations')"
           @click="handleFilterClick('totalReservations')">
           {{ statistics.totalReservations }} {{ $t('reservations') }}
         </span>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+
+        <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('arrivals')"
           @click="handleFilterClick('arrivals')">
           {{ statistics.arrivals }} {{ $t('arrivals') }}
         </span>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+
+        <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('departures')"
           @click="handleFilterClick('departures')">
           {{ statistics.departures }} {{ $t('departures') }}
         </span>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+
+        <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('inHouse')"
           @click="handleFilterClick('inHouse')">
           {{ statistics.inHouse }} {{ $t('in house') }}
         </span>
+
       </div>
 
       <div class="flex items-center gap-3">
@@ -56,6 +68,20 @@
         </BasicButton>
         <BookingFilter @filter="applyFilter" />
       </div>
+    </div>
+
+    <div v-if="activeFilter !== 'totalReservations'" class="mb-4 flex items-center gap-2">
+      <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Active filter') }}:</span>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+        {{ getActiveFilterLabel() }}
+        <button
+          @click="clearFilter"
+          class="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </span>
     </div>
 
     <!-- Loading State -->
@@ -215,6 +241,7 @@ const sortBy = ref('date')
 const currentPage = ref(1)
 const pageSize = ref(12)
 const filter =ref<FitlterItem>()
+const allReservations = ref<ReservationType[]>([])
 
 // Utility functions
 const safeTranslate = (key: string) => {
@@ -343,7 +370,7 @@ const applyFilter = async (filter: FitlterItem) => {
     if (res.status === 200 || res.status === 201) {
       console.log(res.data)
 
-      reservations.value = res.data?.reservations.map((res: any) => {
+      const mappedReservations = res.data?.reservations.map((res: any) => {
         const user = res.guest
         const statusClasses = getStatusColor(res.status).split(' ')
         const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
@@ -368,6 +395,8 @@ const applyFilter = async (filter: FitlterItem) => {
         }
       });
 
+      reservations.value = mappedReservations;
+      allReservations.value = mappedReservations;
       statistics.value = res.data.statistics
     }
   } catch (error) {
@@ -390,7 +419,7 @@ const getStatusColor = (status: string) => {
     case 'checked-in':
       return 'bg-purple-100 text-purple-700'
     case 'checked-out':
-      return 'bg-blue-100 text-blue-700'
+      return 'bg-gray-100 text-gray-700'
     default:
       return 'bg-gray-100 text-gray-700'
   }
@@ -403,11 +432,21 @@ const getPaymentColor = (status: string) => {
     case 'unpaid':
       return 'bg-red-100 text-red-700'
     case 'refunded':
-      return 'bg-blue-100 text-blue-700'
+      return 'bg-gray-100 text-gray-700'
     case 'pending':
       return 'bg-yellow-100 text-yellow-700'
     default:
       return 'bg-gray-100 text-gray-700'
+  }
+}
+
+const getFilterBadgeClass = (filterType: string) => {
+  const isActive = activeFilter.value === filterType
+
+  if (isActive) {
+    return 'bg-gray-500 text-white shadow-lg transform scale-105'
+  } else {
+    return 'text-gray-500 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
   }
 }
 
@@ -418,7 +457,7 @@ const handleBookingAction = (action: string, booking: any) => {
     selectedReservationId.value = booking.id
     modalShow.value = true
   } else if (action === 'view') {
-    router.push({ name: 'reservationDetails', params: { id: booking.id } })
+    router.push({ name: 'ReservationDetails', params: { id: booking.id } })
     store.setBooking(booking)
   }
 }
@@ -474,40 +513,92 @@ const refresh = () => {
   applyFilter(filter.value)
 }
 
-const handleFilterClick = (filter: string) => {
-  // Create filter object based on the clicked statistic
-  const filterObj: FitlterItem = {
-    checkInDate: '',
-    checkOutDate: '',
-    roomType: '',
-    searchText: '',
-    status: '',
-  }
+const activeFilter = ref<string>('totalReservations')
 
-  // Set specific filter based on the clicked statistic
-  switch (filter) {
+
+
+const getActiveFilterLabel = () => {
+  switch (activeFilter.value) {
     case 'arrivals':
-      // Filter for today's arrivals
-      const today = new Date().toISOString().split('T')[0]
-      filterObj.checkInDate = today
-      break
+      return t('TodaysArrivals')
     case 'departures':
-      // Filter for today's departures
-      const todayDeparture = new Date().toISOString().split('T')[0]
-      filterObj.checkOutDate = todayDeparture
-      break
+      return t('TodaysDepartures')
     case 'inHouse':
-      // Filter for checked-in guests
-      filterObj.status = 'checked_in'
-      break
+      return t('InHouseGuests')
     case 'totalReservations':
     default:
-      // Show all reservations (no specific filter)
+      return t('AllReservations')
+  }
+}
+const getTodayDate = () => {
+  return new Date().toISOString().split('T')[0]
+}
+
+// Check if a date is today
+const isToday = (dateString: string) => {
+  const date = new Date(dateString).toISOString().split('T')[0]
+  const today = getTodayDate()
+  return date === today
+}
+
+// Check if guest is currently in house
+const isInHouse = (reservation: any) => {
+  const today = new Date()
+  const checkInDate = new Date(reservation.checkInDate)
+  const checkOutDate = new Date(reservation.checkOutDate)
+
+  return (
+    (reservation.status === 'checked-in' || reservation.status === 'checked_in') &&
+    checkInDate <= today &&
+    checkOutDate > today
+  )
+}
+
+
+const handleFilterClick = async (filterType: string) => {
+  activeFilter.value = filterType
+  currentPage.value = 1
+
+  switch (filterType) {
+    case 'totalReservations':
+      // Show all reservations
+      reservations.value = [...allReservations.value]
+      break
+
+    case 'arrivals':
+      // Filter for today's arrivals
+      reservations.value = allReservations.value.filter(reservation =>
+        isToday(reservation.arrivedDate)
+      )
+      break
+
+    case 'departures':
+      // Filter for today's departures
+      reservations.value = allReservations.value.filter(reservation =>
+        isToday(reservation.departDate)
+      )
+      break
+
+    case 'inHouse':
+      // Filter for guests currently in house
+      reservations.value = allReservations.value.filter(reservation =>
+        isInHouse(reservation)
+      )
+      break
+
+    default:
+      reservations.value = [...allReservations.value]
       break
   }
 
+  console.log(`Filtered ${filterType}:`, reservations.value.length, 'reservations')
 }
 
+const clearFilter = () => {
+  activeFilter.value = 'totalReservations'
+  reservations.value = [...allReservations.value]
+  currentPage.value = 1
+}
 </script>
 
 <style scoped>
