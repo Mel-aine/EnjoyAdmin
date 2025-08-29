@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, PencilIcon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { ArrowLeft, Building2Icon, PencilIcon, CheckCircle, CreditCard, Calendar, ArrowUpDown, StopCircle, List, X, Eye, Trash2, UserMinus, ChevronUp, ChevronDown, Users } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue';
@@ -217,7 +217,7 @@ const roomRateTypeSummary = computed(() => {
 
 
 
-    return roomNumbers;
+    return roomNumbers[0];
 });
 const closeAddPaymentModal = () => {
     isAddPaymentModalOpen.value = false;
@@ -424,61 +424,63 @@ onMounted(() => {
                 <div class="flex gap-2 align-middle self-center items-center">
                     <ArrowLeft @click="router.back()" class="cursor-pointer"></ArrowLeft>
                     <Building2Icon class="text-primary"></Building2Icon>
+                    <Users v-if="reservation.reservationRooms.length > 1" />
                     <span class="font-bold">{{ reservation.guest?.displayName }}</span>
                     <div class="flex">
                         <Adult class="w-5" />
                         <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults ?? 0
-                        }}</span>
+                            }}</span>
                     </div>
                     <div class="flex">
                         <Child class="w-4" />
                         <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child ?? 0
-                        }}</span>
+                            }}</span>
+                    </div>
+                    <div class="flex gap-8 ms-10">
+                        <!--arrival Days-->
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
+                            <span class="text-xs flex gap-2">
+                                <span>{{ formatDateT(reservation.arrivedDate) }}</span>
+                                <span>
+                                    <PencilIcon class="w-3" />
+                                </span>
+                            </span>
+                        </div>
+                        <!--depature-->
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
+                            <span class="text-xs flex gap-2">
+                                <span>{{ formatDateT(reservation.departDate) }}</span>
+                                <span @click="">
+                                    <PencilIcon class="w-3" />
+                                </span>
+                            </span>
+                        </div>
+                        <!--Nigth-->
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold capitalize">{{ $t('nights') }}</span>
+                            <span class="text-xs flex gap-2">
+                                <span>{{ reservation.nights ?? reservation.numberOfNights }}</span>
+                            </span>
+                        </div>
+                        <!--room/roomtype-->
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
+                            <span class="text-xs flex gap-2 flex-col">
+                                <span>{{ roomRateTypeSummary }}</span>
+                            </span>
+                        </div>
+                        <!--depature-->
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold capitalize">{{ $t('res.no') }}</span>
+                            <span class="text-xs flex gap-2">
+                                <span>{{ reservation.reservationNumber }}</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-8">
-                    <!--arrival Days-->
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
-                        <span class="text-xs flex gap-2">
-                            <span>{{ formatDateT(reservation.arrivedDate) }}</span>
-                            <span>
-                                <PencilIcon class="w-3" />
-                            </span>
-                        </span>
-                    </div>
-                    <!--depature-->
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
-                        <span class="text-xs flex gap-2">
-                            <span>{{ formatDateT(reservation.departDate) }}</span>
-                            <span @click="">
-                                <PencilIcon class="w-3" />
-                            </span>
-                        </span>
-                    </div>
-                    <!--Nigth-->
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold capitalize">{{ $t('nights') }}</span>
-                        <span class="text-xs flex gap-2">
-                            <span>{{ reservation.nights ?? reservation.numberOfNights }}</span>
-                        </span>
-                    </div>
-                    <!--room/roomtype-->
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
-                        <span class="text-xs flex gap-2 flex-col">
-                            <span v-for="(i, ind) in roomRateTypeSummary" :key="ind">{{ i }}</span>
-                        </span>
-                    </div>
-                    <!--depature-->
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold capitalize">{{ $t('res.no') }}</span>
-                        <span class="text-xs flex gap-2">
-                            <span>{{ reservation.reservationNumber }}</span>
-                        </span>
-                    </div>
-                </div>
+
                 <div class="flex gap-x-2">
                     <span
                         class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">{{
@@ -534,7 +536,7 @@ onMounted(() => {
                 <GuestDetails :reservation="reservation" :guest="reservation.guest" />
             </div>
             <div v-if="activeTab === 'audit_trial'">
-                <AuditTrail :entity-ids="[reservation.id]"/>
+                <AuditTrail :entity-ids="[reservation.id]" />
             </div>
         </div>
 
@@ -557,8 +559,9 @@ onMounted(() => {
     <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
         @noshow-confirmed="handleNoShowConfirmed" />
     <!-- Print Modal -->
-    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose" :reservation-id="reservation.id"
-        @print-success="handlePrintSuccess" @print-error="handlePrintError" :templates="templates" />
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
+        :reservation-id="reservation.id" @print-success="handlePrintSuccess" @print-error="handlePrintError"
+        :templates="templates" />
 </template>
 
 <style></style>

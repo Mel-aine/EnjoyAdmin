@@ -66,7 +66,7 @@ interface PaymentMethod {
 }
 
 interface Props {
-  modelValue?: PaymentMethod | null
+  modelValue?: number | null // Changed to number (ID)
   label?: string
   placeholder?: string
   hideLabel?: boolean
@@ -74,7 +74,9 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: PaymentMethod | null): void
+  (e: 'update:modelValue', value: number | null): void // Changed to number (ID)
+  (e: 'select', method: PaymentMethod): void // Emit selected method object
+  (e: 'change', methodId: number | null): void // Emit method ID on change
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -97,7 +99,8 @@ const selectedIndex = ref(-1)
 // Computed properties
 const displayValue = computed(() => {
   if (props.modelValue) {
-    return props.modelValue.name
+    const selectedMethod = paymentMethods.value.find(method => method.id === props.modelValue)
+    return selectedMethod ? selectedMethod.name : ''
   }
   return searchQuery.value
 })
@@ -109,7 +112,7 @@ const filteredPaymentMethods = computed(() => {
     // Filter by payment type if provided
     if (props.paymentType) {
       filtered = filtered.filter(method => 
-        method.type?.toLowerCase() === props.paymentType?.toLowerCase()
+        method.methodType?.toLowerCase() === props.paymentType?.toLowerCase()
       )
     }
     
@@ -124,7 +127,7 @@ const filteredPaymentMethods = computed(() => {
   // Filter by payment type if provided
   if (props.paymentType) {
     filtered = filtered.filter(method => 
-      method.type?.toLowerCase() === props.paymentType?.toLowerCase()
+      method.methodType?.toLowerCase() === props.paymentType?.toLowerCase()
     )
   }
   
@@ -134,7 +137,8 @@ const filteredPaymentMethods = computed(() => {
 // Watchers
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    searchQuery.value = newValue.name
+    const selectedMethod = paymentMethods.value.find(method => method.id === newValue)
+    searchQuery.value = selectedMethod ? selectedMethod.name : ''
   } else {
     searchQuery.value = ''
   }
@@ -153,6 +157,7 @@ const handleInput = (event: Event) => {
   
   if (!target.value && props.modelValue) {
     emit('update:modelValue', null)
+    emit('change', null) // Emit change event when cleared
   }
   
   showDropdown.value = true
@@ -191,7 +196,9 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const selectPaymentMethod = (paymentMethod: PaymentMethod) => {
-  emit('update:modelValue', paymentMethod)
+  emit('update:modelValue', paymentMethod.id) // Emit only the ID
+  emit('select', paymentMethod) // Emit the selected method object
+  emit('change', paymentMethod.id) // Emit the method ID on change
   searchQuery.value = paymentMethod.name
   showDropdown.value = false
   selectedIndex.value = -1
@@ -203,21 +210,22 @@ const loadPaymentMethods = async () => {
     isLoading.value = true
     const hotelId = useServiceStore().serviceId!
     const response = await getPaymentMethods(hotelId)
+    console.log('city test',response)
     
     if (response.data && Array.isArray(response.data.data)) {
       paymentMethods.value = response.data.data.map((method: any) => ({
         id: method.id,
-        name: method.name || method.method_name || 'Unknown',
+        name: method.methodName  ,
         description: method.description,
-        type: method.type || method.payment_type,
+        type: method.methodType,
         ...method
       }))
     } else if (response.data && Array.isArray(response.data)) {
       paymentMethods.value = response.data.map((method: any) => ({
         id: method.id,
-        name: method.name || method.method_name || 'Unknown',
+        name: method.methodName,
         description: method.description,
-        type: method.type || method.payment_type,
+        type: method.methodType,
         ...method
       }))
     }

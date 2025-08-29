@@ -5286,5 +5286,7 @@
   "Before" : "Before",
   "After" : "After",
   "Room/Guest" : "Room/Guest",
-  "ProfilePhoto" : "Profile Photo"
+  "ProfilePhoto" : "Profile Photo",
+  "city_ledger":"City Ledger",
+  "bank":"Bank"
 }

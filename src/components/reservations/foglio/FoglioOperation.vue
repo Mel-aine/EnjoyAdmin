@@ -26,9 +26,13 @@
             </div>
           </Accordion>
         </div>
-        <div class="px-4">
+        <div class="px-4 gap-1 py-2 text-sm flex flex-col">
           <div class="flex justify-between">
             <span>{{ $t('total') }}</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.totalChargesWithTaxes) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>{{ $t('paid') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <div class="flex justify-between  text-red-200">
@@ -123,7 +127,7 @@
 
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
-          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @save="handleSaveCharge" />
+          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @refresh="refreshFolio" />
         </template>
 
         <!-- Add Payment Modal -->
@@ -310,7 +314,7 @@ const foglioData = computed(() => {
 // Table columns configuration
 const columns = computed<Column[]>(() => [
   { key: 'postingDate', label: t('Day'), type: 'date' },
-  { key: 'refNo', label: t('Ref No.'), type: 'text' },
+  { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
   { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
   { key: 'description', label: t('Description'), type: 'text' },
   { key: 'guest.displayName', label: t('User'), type: 'custom' },
@@ -377,7 +381,46 @@ const selectFolio = (folio: any) => {
 const showAllTransactions = () => {
   selectedFolio.value = null
 }
+const refreshFolio =async ()=>{
+  try {
+    const resp = await getReservationFolios(props.reservationId)
+    console.log(resp)
 
+    // Handle the case where folios contain their transactions
+    if (resp.data && Array.isArray(resp.data)) {
+      folioList.value = resp.data
+
+      // Extract all transactions from all folios
+      allTransactions.value = []
+      resp.data.forEach((folio: any) => {
+        if (folio.transactions && Array.isArray(folio.transactions)) {
+          // Add folioId to each transaction and add to allTransactions
+          folio.transactions.forEach((transaction: any) => {
+            allTransactions.value.push({
+              ...transaction,
+              amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                grossAmount,
+              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+              folioId: folio.id,
+              guest: folio.guest
+
+            })
+          })
+        }
+      })
+    } else if (resp.data.folios) {
+      // Alternative structure where folios and transactions are separate
+      folioList.value = resp.data.folios
+      allTransactions.value = resp.data.transactions || []
+    } else {
+      // Fallback: treat response as direct folio array
+      folioList.value = resp.data || []
+      allTransactions.value = []
+    }
+  } catch (e) {
+    console.log(e)
+  } 
+}
 const getFolosReservations = async () => {
   loading.value = true
   try {
@@ -424,6 +467,7 @@ const getFolosReservations = async () => {
 getFolosReservations()
 const handleSavePayment = (paymentData: any) => {
   closeAddPaymentModal()
+
 }
 
 // Create Folio modal handlers
@@ -533,7 +577,5 @@ const printDocumentData = computed(() => ({
   reservationId: props.reservationId
 }))
 
-const refreshFolio = async () => {
-  await getFolosReservations()
-}
+
 </script>

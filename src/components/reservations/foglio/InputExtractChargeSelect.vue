@@ -71,8 +71,7 @@
             </div>
             <div class="text-xs text-gray-500 mt-1">
               {{ $t('Type') }}: {{ charge.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} | 
-              {{ $t('Value') }}: {{ formatChargeValue(charge) }} |
-              {{ $t('Status') }}: {{ charge.status === 'active' ? $t('Active') : $t('Inactive') }}
+              {{ $t('Value') }}: {{ formatCurrency(charge.rateInclusiveTax) }} |
             </div>
           </div>
         </li>
@@ -87,6 +86,7 @@ import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { getExtraCharges } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
+import { formatCurrency } from '../../../utils/numericUtils'
 
 interface ExtraChargeOption {
   id: number
@@ -98,6 +98,7 @@ interface ExtraChargeOption {
   short_code?: string
   apply_on?: string
   description?: string
+  rateInclusiveTax: number
 }
 
 interface Props {
@@ -192,18 +193,18 @@ const loadExtraCharges = async () => {
   try {
     isLoading.value = true
     const response = await getExtraCharges()
-    
+    console.log('response.data',response.data)
     // Transform the response data
     const charges = (response.data?.data?.data || response.data?.data || response.data || []).map((charge: any) => {
       return {
         id: charge.id,
         name: charge.name,
-        charge_name: charge.charge_name,
         type: charge.type || 'flat',
-        value: charge.value || 0,
+        value: charge.rate || 0,
+        rateInclusiveTax: charge.rateInclusiveTax,
         status: charge.status || 'active',
-        short_code: charge.short_code,
-        apply_on: charge.apply_on,
+        shortCode: charge.shortCode,
+        chargeAppliesOn: charge.chargeAppliesOn,
         description: charge.description
       }
     })
