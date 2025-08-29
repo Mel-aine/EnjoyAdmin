@@ -371,19 +371,19 @@ const filters = ref<Filters>({
 
 // Sample data for admin user
 const adminData = ref<PaymentItem[]>([
-  { payMethod: 'AirPay(Rs)', tranCount: 1, amount: '200.00', voidCount: 1, voidAmount: '200.00', total: '0.00' },
-  { payMethod: 'Cash(Rs)', tranCount: 2, amount: '7,072.72', voidCount: 0, voidAmount: '0.00', total: '7,072.72' },
-  { payMethod: 'Credit(Rs)', tranCount: 5, amount: '1,277.27', voidCount: 3, voidAmount: '300.00', total: '977.27' },
-  { payMethod: 'ICIC Bank Or ICIC Swip(Rs)', tranCount: 1, amount: '200.00', voidCount: 0, voidAmount: '0.00', total: '200.00' }
+  { payMethod: 'AirPay', tranCount: 1, amount: '200.00', voidCount: 1, voidAmount: '200.00', total: '0.00' },
+  { payMethod: 'Cash', tranCount: 2, amount: '7,072.72', voidCount: 0, voidAmount: '0.00', total: '7,072.72' },
+  { payMethod: 'Credit', tranCount: 5, amount: '1,277.27', voidCount: 3, voidAmount: '300.00', total: '977.27' },
+  { payMethod: 'ICIC Bank Or ICIC Swip', tranCount: 1, amount: '200.00', voidCount: 0, voidAmount: '0.00', total: '200.00' }
 ])
 
 // Sample data for helpdesk user
 const helpdeskData = ref<PaymentItem[]>([
-  { payMethod: 'ABC(Rs)', tranCount: 1, amount: '539.50', voidCount: 0, voidAmount: '0.00', total: '539.50' },
-  { payMethod: 'Cash(Rs)', tranCount: 2, amount: '6,977.03', voidCount: 0, voidAmount: '0.00', total: '6,977.03' },
-  { payMethod: 'Credit(Rs)', tranCount: 1, amount: '980.90', voidCount: 1, voidAmount: '980.50', total: '0.00' },
-  { payMethod: 'ABC(Rs)', tranCount: 4, amount: '650.00', voidCount: 3, voidAmount: '350.00', total: '300.00' },
-  { payMethod: 'Cash(Rs)', tranCount: 10, amount: '1,011.71', voidCount: 7, voidAmount: '1,260.50', total: '268.79' }
+  { payMethod: 'ABC', tranCount: 1, amount: '539.50', voidCount: 0, voidAmount: '0.00', total: '539.50' },
+  { payMethod: 'Cash', tranCount: 2, amount: '6,977.03', voidCount: 0, voidAmount: '0.00', total: '6,977.03' },
+  { payMethod: 'Credit', tranCount: 1, amount: '980.90', voidCount: 1, voidAmount: '980.50', total: '0.00' },
+  { payMethod: 'ABC', tranCount: 4, amount: '650.00', voidCount: 3, voidAmount: '350.00', total: '300.00' },
+  { payMethod: 'Cash', tranCount: 10, amount: '1,011.71', voidCount: 7, voidAmount: '1,260.50', total: '268.79' }
 ])
 
 // Summary data

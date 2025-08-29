@@ -435,7 +435,7 @@ const selectedTableColumns = computed(() => {
     { key: 'resNo', label: 'Res. No' },
     { key: 'guest', label: 'Guest' },
     { key: 'room', label: 'Room' },
-    { key: 'rate', label: 'Rate (Rs)' },
+    { key: 'rate', label: 'Rate ' },
     { key: 'arrival', label: 'Arrival' },
     { key: 'departure', label: 'Departure' },
     { key: 'pax', label: 'Pax' }

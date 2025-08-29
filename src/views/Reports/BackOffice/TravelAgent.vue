@@ -63,7 +63,6 @@
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <ButtonComponent 
-              @click="exportData"
               variant="secondary"
               class="min-w-24 w-full sm:w-auto"
             >

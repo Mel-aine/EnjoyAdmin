@@ -181,6 +181,7 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import type { Column } from '../../../utils/models'
 
 interface FilterOptions {
   value: string;
@@ -343,7 +344,7 @@ const refundData = ref<RefundData[]>([
 ])
 
 // Table columns
-const tableColumns = ref([
+const tableColumns = ref<Column[]>([
   { key: 'receiptNo', label: 'Receipt No.' },
   { key: 'refundDate', label: 'Refund Date' },
   { key: 'refundTime', label: 'Time' },
@@ -352,11 +353,11 @@ const tableColumns = ref([
   { key: 'roomNo', label: 'Room No.' },
   { key: 'refundReason', label: 'Refund Reason' },
   { key: 'paymentMethod', label: 'Payment Method' },
-  { key: 'refundAmount', label: 'Refund Amount (Rs)', type: 'currency', highlight: true },
+  { key: 'refundAmount', label: 'Refund Amount ', type: 'text', },
   { key: 'currency', label: 'Currency' },
   { key: 'receivedBy', label: 'Received By' },
   { key: 'authorizedBy', label: 'Authorized By' },
-  { key: 'status', label: 'Status', type: 'status' },
+  { key: 'status', label: 'Status', type: 'custom' },
   { key: 'remarks', label: 'Remarks' }
 ])
 
