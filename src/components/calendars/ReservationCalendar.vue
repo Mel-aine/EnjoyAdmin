@@ -154,11 +154,33 @@
                           ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
                             @mouseenter="showReservationTooltip(cell.reservation, $event)"
                             @mouseleave="hideReservationTooltip">
-                            <span class="truncate">
+                            <span class="truncate flex items-center gap-1">
+                             
                               {{ cell.reservation.guest_name }}
                               <br>
                             </span>
+                            <div class="absolute -top-2 flex items-center gap-1">
+                               <Crown v-if="cell.reservation.is_master" 
+                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0" 
+                                :title="$t('Primary')" />
+                                <DollarSignIcon v-if="cell.reservation?.is_balance" class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
+                                <User2 v-if="cell.reservation?.isWomen" class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
+                            </div>
+                          </div>
 
+                        </td>
+                        <td v-else-if="cell.type === 'room_block'" :colspan="cell.colspan"
+                          class="relative px-0 py-0 h-12 border border-gray-300">
+
+                          <div :class="[
+                            'absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            getRoomBlockColor(cell.roomBlock.status),
+                          ]" :style="getReservationStyle(cell)">
+                            <span class="truncate">
+                              🚫 {{ cell.roomBlock.reason || 'Room Blocked' }}
+                              <br>
+                              <small>{{ cell.roomBlock.status }}</small>
+                            </span>
                           </div>
 
                         </td>
@@ -204,14 +226,6 @@
                   :style="`width: calc((100% - 6rem) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
                 </td>
               </tr>
-             <!-- <tr>
-                <td class="bg-gray-100 border border-gray-300">{{ $t('Allocations') }}</td>
-                <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">{{
-                    getAllocatedRoomsApi(date) }}
-                </td>
-              </tr> -->
               <tr>
                 <td class="bg-gray-100  w-50 h-7 border border-gray-300">% {{ $t('Occupancy') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
@@ -252,38 +266,6 @@
           </span>
         </div>
       </div>
-      <!--  <ChevronInfo>
-      <template #left>
-        <div class="text-center">
-          <div class="font-bold text-xl">{{ formatDate(new Date(tooltipReservation.check_in_date)) }}</div>
-          <div class="text-md text-black">{{ formatDay(new Date(tooltipReservation.check_in_date)) }}</div>
-        </div>
-      </template>
-      <template #right>
-        <div class="text-center">
-          <div class="font-bold text-xl">{{ formatDate(new Date(tooltipReservation.check_out_date)) }}</div>
-          <div class="text-md text-black">{{ formatDay(new Date(tooltipReservation.check_out_date)) }}</div>
-        </div>
-      </template>
-    </ChevronInfo>
-    <div class="flex gap-2 mt-2 mb-2">
-      <div class="text-md text-gray-500">{{ $t('Comment') }}:</div>
-      <div>{{ tooltipReservation.comment || $t('none') }}</div>
-    </div>
-    <ChevronInfo>
-      <template #left>
-        <div class="text-center">
-          <div class="font-bold text-sm ">{{ $t('Amount Due') }}</div>
-          <div class="font-bold text-lg">{{ formatCurrency(tooltipReservation.remaining_amount ?? 0) }}</div>
-        </div>
-      </template>
-      <template #right>
-        <div class="text-center">
-          <div class="font-bold text-sm">{{ $t('paid') }}</div>
-          <div class="font-bold text-lg">{{ formatCurrency(tooltipReservation.total_amount ?? 0) }}</div>
-        </div>
-      </template>
-    </ChevronInfo>-->
     </div>
     <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
     <template v-if="modalReservation && showDetail">
@@ -294,7 +276,7 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon } from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2 } from 'lucide-vue-next'
 
 import { watch } from 'vue'
 import { CheckCircle, X } from 'lucide-vue-next'
@@ -304,6 +286,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getDailyOccupancyAndReservations } from "@/services/api"
+import CrownIcon from '@/icons/CrownIcon.vue'
 
 const isLoading = ref(false);
 function getReservationTypeIcon(type: string) {
@@ -413,32 +396,101 @@ const apiRoomGroups = computed(() => {
 const apiOccupancyMetrics = computed(() => {
   return serviceResponse.value.daily_occupancy_metrics || []
 })
+const apiRoomBlocks = computed(() => {
+  return serviceResponse.value.room_blocks || []
+})
+
+// Function to check if a reservation is the first room in a multi-room reservation
+function isFirstRoomInMultiRoomReservation(reservation: any): boolean {
+  if (!reservation?.reservation_id) return false
+  
+  // Get all reservations with the same reservation_id across all room groups
+  const allReservations: any[] = []
+  apiRoomGroups.value.forEach((group: any) => {
+    if (group.reservations) {
+      allReservations.push(...group.reservations)
+    }
+  })
+  
+  // Find all reservations with the same reservation_id
+  const sameReservationRooms = allReservations.filter(
+    (r: any) => r.reservation_id === reservation.reservation_id
+  )
+  
+  // If there's only one room, it's not a multi-room reservation
+  if (sameReservationRooms.length <= 1) return false
+  
+  // Sort by room number or assigned room number to determine the "first" room
+  sameReservationRooms.sort((a: any, b: any) => {
+    const roomA = a.assigned_room_number || a.room_number || ''
+    const roomB = b.assigned_room_number || b.room_number || ''
+    return roomA.localeCompare(roomB)
+  })
+  
+  // Check if this reservation is the first one in the sorted list
+  return sameReservationRooms[0] === reservation
+}
 
 // --- API TABLE ROWS ---
 function getRoomRowCellsApi(group: any, room: any) {
   const cells = []
   let i = 0
-  const reservations = (group.reservations || []).filter(
-    (r: any) => r.assigned_room_number === room.room_number || room.room_number === null
+  
+  // Fixed filtering logic for multi-room reservations
+  const allReservations = group.reservations || []
+  const reservations = allReservations.filter((r: any) => {
+    // Match by assigned room number, room number, or if room number is null (unassigned rooms)
+    return r.assigned_room_number === room.room_number || 
+           r.room_number === room.room_number || 
+           (room.room_number === null && !r.assigned_room_number)
+  })
+  
+  // Filter room blocks for this room
+  const roomBlocks = apiRoomBlocks.value.filter(
+    (b: any) => b.room && b.room.room_number === room.room_number
   )
+  
   while (i < visibleDates.value.length) {
     const date = visibleDates.value[i]
     const dStr = date.toISOString().split('T')[0]
 
-    // Find reservation starting on this date
-    let reservation = reservations.find((r: any) => {
-      // If reservation starts today
-      return r.check_in_date.startsWith(dStr)
+    // Check for room block first (higher priority)
+    let roomBlock = roomBlocks.find((b: any) => {
+      const startDate = new Date(b.block_from_date)
+      const endDate = new Date(b.block_to_date)
+      return startDate <= date && endDate >= date
     })
 
-    // If no reservation starts today, check if a reservation started before and is still ongoing
-    if (!reservation) {
-      reservation = reservations.find((r: any) => {
-        const start = new Date(r.check_in_date)
-        const end = new Date(r.check_out_date)
-        return start < date && end >= date
+    if (roomBlock) {
+      // Calculate colspan for room block
+      const start = new Date(roomBlock.block_from_date)
+      const end = new Date(roomBlock.block_to_date)
+      const lastVisible = visibleDates.value[visibleDates.value.length - 1]
+      const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
+
+      cells.push({
+        type: 'room_block',
+        roomBlock,
+        colspan,
+        date,
+        key: i
       })
-    }
+      i += colspan
+    } else {
+      // Find reservation starting on this date
+      let reservation = reservations.find((r: any) => {
+        // If reservation starts today
+        return r.check_in_date.startsWith(dStr)
+      })
+
+      // If no reservation starts today, check if a reservation started before and is still ongoing
+      if (!reservation) {
+        reservation = reservations.find((r: any) => {
+          const start = new Date(r.check_in_date)
+          const end = new Date(r.check_out_date)
+          return start < date && end >= date
+        })
+      }
 
     if (reservation) {
       // Calculate colspan: from current date to min(end date, last visible date)
@@ -461,23 +513,24 @@ function getRoomRowCellsApi(group: any, room: any) {
 
 
 
-      cells.push({
-        type: 'reservation',
-        reservation,
-        middle: reservation.check_in_date.startsWith(dStr),
-        colspan,
-        is_check_in,
-        is_check_out,
-        date,
-        key: i
-      })
-      i += colspan
-    } else {
-      cells.push({
-        type: 'room',
-        key: i
-      })
-      i += 1
+        cells.push({
+          type: 'reservation',
+          reservation,
+          middle: reservation.check_in_date.startsWith(dStr),
+          colspan,
+          is_check_in,
+          is_check_out,
+          date,
+          key: i
+        })
+        i += colspan
+      } else {
+        cells.push({
+          type: 'room',
+          key: i
+        })
+        i += 1
+      }
     }
   }
   return cells
@@ -488,11 +541,6 @@ function getUnassignedApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
   return metric ? `<span class='${metric.unassigned_reservations > 0 ? 'text-red-400' : ''}'>${metric.unassigned_reservations}</span>` : '0'
-}
-function getAllocatedRoomsApi(date: Date) {
-  const dStr = date.toISOString().split('T')[0]
-  const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  return metric ? metric.allocated_rooms : '0'
 }
 function getOccupancyApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
@@ -516,9 +564,6 @@ function formatDay(date: Date) {
 function isWeekend(date: Date): boolean {
   const day = date?.getDay()
   return day === 0 || day === 6 // Sunday = 0, Saturday = 6
-}
-function formatTime(dt: string) {
-  return new Date(dt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 function getReservationStyle(cell: any) {
@@ -560,6 +605,16 @@ function getReservationColor(type: string) {
     case 'checked_in': return 'bg-green-700'
     case 'occupied': return 'bg-green-700'
     default: return 'bg-gray-400'
+  }
+}
+
+function getRoomBlockColor(status: string) {
+  switch (status) {
+    case 'active': return 'bg-red-500'
+    case 'pending': return 'bg-yellow-500'
+    case 'cancelled': return 'bg-gray-500'
+    case 'expired': return 'bg-gray-400'
+    default: return 'bg-red-600'
   }
 }
 

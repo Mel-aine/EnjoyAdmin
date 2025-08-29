@@ -5279,5 +5279,6 @@
   "comments":"Comments",
   "incidental_invoices":"Incidental Invoices",
   "add_new":"Add new",
-  "hide_void":"hide void"
+  "hide_void":"hide void",
+  "roomRate":"Room Rate"
 }
