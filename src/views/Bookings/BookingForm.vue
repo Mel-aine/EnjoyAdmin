@@ -61,7 +61,7 @@
                 </div>
 
                 <div>
-                  <Select :lb="$t('booking_type')" v-model="reservation.bookingType" :options="BookingType" />
+                  <Select :lb="$t('ReservationType')" v-model="reservation.bookingType" :options="BookingType" />
                 </div>
 
                 <!-- Booking Source -->
@@ -81,14 +81,14 @@
                   <div>
                     <span class="font-normal">{{ $t('RateOffered') }} : </span>
                     <label class="inline-flex items-center cursor-pointer text-sm ml-2">
-                      <input type="checkbox" v-model="reservation.isComplementary" class="form-checkbox" />
+                      <input type="checkbox" v-model="reservation.isComplementary" class="form-checkbox" :disabled="true" />
                       <span class="ml-2">{{ $t('Contract') }}</span>
                     </label>
                   </div>
 
                   <div class="space-x-2">
                     <label class="inline-flex items-center cursor-pointer text-sm">
-                      <input type="checkbox" class="form-checkbox" />
+                      <input type="checkbox" class="form-checkbox" :disabled="true" />
                       <span class="ml-2">{{ $t('BookAllAvailableRooms') }}</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer text-sm">
@@ -96,7 +96,7 @@
                       <span class="ml-2">{{ $t('QuickGroupBooking') }}</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer text-sm">
-                      <input type="checkbox" class="form-checkbox" />
+                      <input type="checkbox" class="form-checkbox"  v-model="reservation.isComplementary"/>
                       <span class="ml-2">{{ $t('ComplimentaryRoom') }}</span>
                     </label>
                   </div>
@@ -153,7 +153,7 @@
                           {{ $t('Adult') }}
                         </label>
                         <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
-                          @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
+                          @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"  :disabled="!room.roomType"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
@@ -163,18 +163,20 @@
                           {{ $t('Children') }}
                         </label>
                         <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
-                          @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
+                          @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"  :disabled="!room.roomType"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Rate Display avec détails -->
                       <div class="relative inline-block">
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          {{ $t('rate') }} (XAF)
+                          {{ $t('rate') }}
                         </label>
-                        <div v-if="!isCustomPrize" class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
+                        <div v-if="!isCustomPrize"
+                          class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': isLoadingRate }">
-                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3" @click="isCustomPrize =true">
+                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
+                            @click="isCustomPrize = true">
                             <PencilLine :size="18" />
                           </span>
 
@@ -209,7 +211,7 @@
                                 <div class="flex flex-col">
                                   <span class="font-medium text-gray-500 dark:text-gray-200">{{
                                     option.label
-                                  }}</span>
+                                    }}</span>
                                 </div>
                               </li>
                             </ul>
@@ -269,12 +271,12 @@
                   </div>
                 </div>
 
-                <div class="pt-1">
+                <!-- <div class="pt-1">
                   <button type="button"
                     class="px-4 py-2 text-sm border border-orange-600 text-orange-600 rounded hover:bg-orange-600 hover:text-white transition font-normal">
                     {{ $t('C_Form') }}
                   </button>
-                </div>
+                </div>-->
               </section>
 
               <!-- Other Information -->
@@ -290,17 +292,16 @@
                       <span>{{ $t('otherInfo.emailBookingVouchers') }}</span>
                     </label>
 
-                    <div v-if="otherInfo.emailBookingVouchers" class="flex space-x-2 items-center pl-6">
+                    <div v-if="otherInfo.emailBookingVouchers" class="flex space-x-2 pl-6">
                       <div class="w-[900px]">
                         <InputEmail placeholder="info@gmail.com" v-model="otherInfo.voucherEmail" />
                       </div>
-                      <button type="button"
-                        class="px-3 py-1 border border-purple-600 text-purple-600 rounded text-sm hover:bg-purple-600 hover:text-white transition font-normal">
-                        {{ $t('otherInfo.previewVoucher') }}
-                      </button>
+                     <div class="flex flex-col  h-full justify-center align-middle self-center mt-2 ">
+                       <BasicButton :label="$t('otherInfo.previewVoucher')" variant="dark"></BasicButton>
+                     </div>
                     </div>
                   </div>
-
+ <!-- 
                   <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.sendEmailAtCheckout" class="form-checkbox" />
@@ -311,49 +312,42 @@
                       <Select :options="emailTemplates" v-model="otherInfo.emailTemplate" />
                     </div>
                   </div>
-
+                 
                   <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.accessToGuestPortal" class="form-checkbox" />
                       <span>{{ $t('otherInfo.accessToGuestPortal') }}</span>
                     </label>
-                  </div>
+                  </div> -->
 
-                  <div>
+                  <!--  <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.successRateOnRegistrationCard" class="form-checkbox" />
                       <span>{{ $t('otherInfo.successRateOnRegistrationCard') }}</span>
                     </label>
-                  </div>
+                  </div>-->
                 </div>
               </section>
             </div>
           </form>
 
           <!-- Form actions -->
-          <div class="flex flex-col sm:flex-row justify-between items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <button type="button" @click.prevent="goBack"
-              class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition" :disabled="isLoading">
-              {{ $t('Cancel') }}
-            </button>
+          <div class="flex flex-col sm:flex-row  justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
+            <BasicButton type="button" @click.prevent="goBack" :disabled="isLoading" :label="$t('Cancel')">
+            </BasicButton>
 
             <div class="flex space-x-3">
-              <button v-if="showCheckinButton" type="button" @click.prevent="performChecking"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                {{ $t('Check-In') }}
-              </button>
-              <button v-if="!confirmReservation" type="button" @click.prevent="handleSubmit()" :disabled="isLoading"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                {{ $t('Reserve') }}
-              </button>
+              <BasicButton v-if="showCheckinButton" type="button" @click.prevent="performChecking" :label="$t('Check-In')">
+              </BasicButton>
+              <BasicButton v-if="!confirmReservation"  variant="info" :loading="isLoading" type="submit" @click="handleSubmit()" :disabled="isLoading" :label="$t('Reserve')">
+              </BasicButton>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky lg:top-20 self-start">
+      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky  ">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
           <span v-if="confirmReservation"
@@ -510,18 +504,29 @@
         </label>
 
         <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-700">{{ $t('PaymentMode') }}</h3>
+                <!-- payment -->
+        <div class="grid grid-cols-2  gap-6 mt-5">
 
-        <div v-for="payment in PaymentMethods" :key="payment.id" class="space-y-2 space-x-2">
-          <label class="inline-flex items-center cursor-pointer text-sm space-x-2">
-            <input type="radio" name="paymentMode" :value="payment.value" v-model="billing.paymentMode"
-              class="form-radio" />
-            <span>{{ payment.label }}</span>
-          </label>
-
-          <div v-if="payment.type === 'BANK' && billing.paymentMode === payment.value" class="ml-6 mt-1">
-            <Select :options="creditTypes" v-model="billing.creditType" placeholder="Sélectionner le type de carte" />
+          <!-- Payment Information -->
+          <div class="space-y-4">
+        
+            <div class="flex space-x-4">
+              <label class="flex items-center">
+                <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" />
+                {{ $t('cash') }}
+              </label>
+              <label class="flex items-center">
+                <input type="radio" v-model="billing.paymentType" value="bank" class="mr-2" />
+                {{ $t('bank') }}
+              </label>
+            </div>
           </div>
-        </div>
+
+          <div class="space-y-4">
+            <InputPaymentMethodSelect  :paymentType="billing.paymentType" v-model="billing.paymentMode" :hide-label="true"
+              />
+          </div>
+        </div> 
 
         <div v-if="isPaymentButtonShow" class="mt-4">
           <button type="button" class="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition"
@@ -562,6 +567,8 @@ import { useBooking } from '@/composables/useBooking2'
 import AddPaymentModal from '../../components/reservations/foglio/AddPaymentModal.vue'
 import router from '../../router'
 import { useRoute } from 'vue-router'
+import BasicButton from '../../components/buttons/BasicButton.vue'
+import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 const route = useRoute()
 
 const isAddPaymentModalOpen = ref(false)
@@ -573,10 +580,10 @@ const closeAddPaymentModal = () => {
 }
 
 const handleSavePayment = (payment: any) => {
- router.push({
-        name: 'ReservationDetails',
-        params: { id: reservationId.value }
-    });
+  router.push({
+    name: 'ReservationDetails',
+    params: { id: reservationId.value }
+  });
 }
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
@@ -617,7 +624,6 @@ const {
   BookingType,
   creditTypes,
   billToOptions,
-  emailTemplates,
   reservationId,
   // Methods
   initialize,
