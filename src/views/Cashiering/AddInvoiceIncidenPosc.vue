@@ -45,12 +45,12 @@
             </div>
             <div class="flex space-x-4">
               <label class="flex items-center">
-                <input type="radio" v-model="form.paymentType" value="debit" class="mr-2" />
-                {{ $t('debit') }}
+                <input type="radio" v-model="form.paymentType" value="cash" class="mr-2" />
+                {{ $t('cash') }}
               </label>
               <label class="flex items-center">
-                <input type="radio" v-model="form.paymentType" value="credit" class="mr-2" />
-                {{ $t('credit') }}
+                <input type="radio" v-model="form.paymentType" value="bank" class="mr-2" />
+                {{ $t('bank') }}
               </label>
             </div>
           </div>
@@ -173,7 +173,7 @@ const form = ref({
   customerPhone: '',
   customerEmail: '',
   selectedCustomer: null,
-  paymentType: 'debit',
+  paymentType: 'cash',
   paymentMethod: '',
   voucherNumber: '',
   voucherDate: new Date().toISOString().split('T')[0],
@@ -205,18 +205,6 @@ const contactTypeOptions = ref([
   { label: 'Company', value: 'company' }
 ])
 
-const paymentMethodOptions = ref([
-  { label: 'Cash', value: 'cash' },
-  { label: 'Card', value: 'card' },
-  { label: 'Bank Transfer', value: 'bank_transfer' }
-])
-
-
-const paymentTypeOptions = ref([
-  { label: 'Cash', value: 'cash' },
-  { label: 'Card', value: 'card' },
-  { label: 'Cheque', value: 'cheque' }
-])
 
 // Computed
 const totalCharges = computed(() => {

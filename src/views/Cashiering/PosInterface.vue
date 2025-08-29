@@ -7,10 +7,11 @@
 
                     <!-- Search -->
                     <div class="relative flex">
-                        <Input v-model="searchQuery" :placeholder="$t('search_by_voucher_name_type')"
-                            class="w-64 rounded-r-none" @keyup.enter="performSearch" />
+                        <input v-model="searchQuery" :placeholder="$t('search_by_voucher_name_type')"
+                            class="w-64 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-ring-primary rounded-r-none" 
+                            @keyup.enter="performSearch" />
                         <button @click="performSearch"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors border border-l-0 border-gray-300">
+                            class="px-4 py-2 bg-white text-primary rounded-r-md hover:bg-primary/25 transition-colors border border-l-0 border-gray-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
