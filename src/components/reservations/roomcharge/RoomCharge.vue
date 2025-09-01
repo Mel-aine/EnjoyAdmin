@@ -34,10 +34,13 @@
 
           <!-- Single Room Display -->
           <div v-else>
-            <Accordion :title="$t('RoomNumber')">
+            <Accordion :title="$t('roomNumber')">
               <div>
                 <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
+                  <div class="flex flex-col">
                   <span class="capitalize">{{ singleRoom?.roomNumber || '---' }}</span>
+                  <span class="text-xs text-gray-500">{{ singleRoom?.guestName }}</span>
+                  </div>
                   <ChevronRight class="w-4 h-4" />
                 </div>
               </div>
