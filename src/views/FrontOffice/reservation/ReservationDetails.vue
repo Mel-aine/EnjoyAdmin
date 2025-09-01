@@ -528,7 +528,7 @@ onMounted(() => {
                 <FoglioOperation :reservation-id="reservation.id" :reservation="reservation"></FoglioOperation>
             </div>
             <div v-if="activeTab === 'booking_details'">
-                <BookingDetails :booking="reservation"></BookingDetails>
+                <BookingDetails :booking="reservation" :guest="reservation.guest"></BookingDetails>
             </div>
             <div v-if="activeTab === 'guest_details'">
                 <GuestDetails :reservation="reservation" :guest="reservation.guest" />

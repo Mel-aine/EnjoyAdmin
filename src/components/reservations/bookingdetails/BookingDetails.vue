@@ -1,78 +1,66 @@
 <template>
-  <div class="bg-white rounded-lg shadow-md p-6 mx-4 mt-4">
+  <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
     <!-- Status Bar -->
-    <div class="flex space-x-6 mb-6 text-sm">
-      <span class="text-gray-600">{{ $t('All') }} 3</span>
-      <span class="text-gray-600">{{ $t('Reserved') }} 0</span>
-      <span class="text-gray-600">{{ $t('Due Out') }} 0</span>
-      <span class="text-gray-600">{{ $t('Departed') }} 1</span>
-      <span class="text-gray-600">{{ $t('Void') }} 1</span>
-      <span class="text-gray-600">{{ $t('No Show') }} 0</span>
-      <span class="text-gray-600">{{ $t('In House') }} 0</span>
-      <span class="text-gray-600">{{ $t('Cancel') }} 0</span>
-      <div class="ml-auto flex space-x-6">
-        <span class="text-gray-600">{{ $t('Remark') }} 0</span>
-        <span class="text-gray-600">{{ $t('Task') }} 0</span>
-        <span class="text-gray-600">{{ $t('Message') }} 0</span>
-        <span class="text-gray-600">{{ $t('Preference') }} 0</span>
+    <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
+      <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
+      <span class="text-gray-600">{{ $t('Reserved') }} {{ statusCounts.reserved }}</span>
+      <span class="text-gray-600">{{ $t('Due Out') }} {{ statusCounts.dueOut }}</span>
+      <span class="text-gray-600">{{ $t('Departed') }} {{ statusCounts.departed }}</span>
+      <span class="text-gray-600">{{ $t('Void') }} {{ statusCounts.void }}</span>
+      <span class="text-gray-600">{{ $t('No Show') }} {{ statusCounts.noShow }}</span>
+      <span class="text-gray-600">{{ $t('In House') }} {{ statusCounts.inHouse }}</span>
+      <span class="text-gray-600">{{ $t('Cancel') }} {{ statusCounts.cancel }}</span>
+      <div class="ml-auto flex flex-wrap gap-3 md:gap-6">
+        <span class="text-gray-600">{{ $t('Remark') }} {{ remarkCount }}</span>
+        <span class="text-gray-600">{{ $t('Task') }} {{ taskCount }}</span>
+        <span class="text-gray-600">{{ $t('Message') }} {{ messageCount }}</span>
+        <span class="text-gray-600">{{ $t('Preference') }} {{ preferenceCount }}</span>
       </div>
     </div>
 
     <!-- Main Content Grid -->
-    <div class="grid grid-cols-12 gap-6">
-      <!-- Left Section - Room Details (style Room/Guest appliqué) -->
-      <div class="col-span-2 border-r-2 border-gray-100 bg-gray-50 rounded-lg">
-        <div class="h-full flex flex-col justify-between">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+      <!-- Left Section - Room Details -->
+      <div class="lg:col-span-2 border-r-0 lg:border-r-2 border-gray-100 bg-gray-50 rounded-lg">
+        <div class="h-full flex flex-col">
           <div class="bg-white h-full rounded-lg">
             <div class="flex justify-between pt-2 px-2 pb-2">
               <span>{{ $t('Room') }}</span>
             </div>
-            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ $t('Single') }}</div>
+            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ roomTypeSummary }}</div>
             
             <div class="space-y-2 px-2">
               <div 
-                v-for="room in rooms" 
-                :key="room.number"
+                v-for="room in reservationRooms" 
+                :key="room.id"
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 rounded"
                 :class="
-                  selectedRoom?.number === room.number
+                  selectedRoom?.id === room.id
                     ? 'bg-blue-100 border-l-4 border-blue-500'
                     : 'bg-gray-100'
                 "
                 @click="selectRoom(room)"
               >
-                <span>{{ room.number }} - {{ room.guest }}</span>
+                <span>{{ room.room?.roomNumber }} - {{ getGuestName(room) }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
-            </div>
-          </div>
-          
-          <!-- Financial Summary -->
-          <div class="mt-6 space-y-4 px-4">
-            <div class="text-center">
-              <div class="text-sm font-medium text-gray-700 mb-1">{{ $t('Total') }}</div>
-              <div class="text-base font-semibold text-gray-900">Rs 600.00</div>
-            </div>
-            <div class="text-center">
-              <div class="text-sm font-medium text-gray-700 mb-1">{{ $t('Balance') }}</div>
-              <div class="text-base font-semibold text-red-600">Rs 600.00</div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Middle Section - Billing Information -->
-      <div class="col-span-5">
-        <div class="bg-gray-50 rounded-lg p-4">
+      <div class="lg:col-span-5">
+        <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-medium text-gray-900 flex items-center text-xl">
+            <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl">
               {{ $t('Billing Information') }}
             </h3>
           </div>
           
           <div class="space-y-4">
             <!-- Bill To and Type Section -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
                   :lb="$t('Bill To')"
@@ -85,7 +73,7 @@
               
               <!-- Type Section -->
               <div>
-                <div class="flex space-x-4">
+                <div class="flex flex-col md:flex-row md:space-x-4">
                     <Radio
                       :label="$t('type')"
                       :options="[
@@ -100,7 +88,7 @@
             </div>
 
             <!-- Payment Mode and GSTIN -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
                   :lb="$t('Payment Mode')"
@@ -137,10 +125,10 @@
       </div>
 
       <!-- Right Section - Source Information -->
-      <div class="col-span-5">
-        <div class="bg-gray-50 rounded-lg p-4">
+      <div class="lg:col-span-5">
+        <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
-          <h3 class="font-medium text-xl text-gray-900 mb-4">{{ $t('Source Information') }}</h3>
+          <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('Source Information') }}</h3>
             <button
               class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
               @click="toggleEditMode"
@@ -172,7 +160,7 @@
           </div>
           <div class="space-y-4">
             <!-- Market Code and Business Source -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
                   :lb="$t('Market Code')"
@@ -195,8 +183,18 @@
             </div>
 
             <!-- Travel agent and Voucher No -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <Input
+                  :lb="$t('Voucher No.')"
+                  v-model="sourceData.voucherNo"
+                  type="text"
+                  :placeholder="$t('Voucher No')"
+                  :disabled="!editMode"
+                />
+              </div>
+              <!-- travel agent -->
+<!--               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Travelagent') }}</label>
                 <div class="flex">
                   <div class="flex-1">
@@ -215,22 +213,26 @@
                     <UserCircleIcon class="w-4 h-4" />
                   </button>
                 </div>
+              </div> -->
+              <div>
+                <div class="flex">
+                <InputCurrency
+                  v-model="sourceData.planValue"
+                  :lb="$t('Plan Value')"
+                  id="plan-value"
+                  :disabled="!editMode"
+                  :show-currency-selector="true"
+                  placeholder="Entrez la valeur du plan"
+                  input-type="number"
+                  :is-required="false"
+                  :min="0"
+                  currency="XAF"/>
+                </div>
               </div>
               
-              <div>
-                <Input
-                  :lb="$t('Voucher No.')"
-                  v-model="sourceData.voucherNo"
-                  type="text"
-                  :placeholder="$t('Voucher No')"
-                  :disabled="!editMode"
-                />
-              </div>
-            </div>
+              <!-- Commission -->
 
-            <!-- Commission Plan and Plan Value -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
+<!--               <div>
                 <Select
                   :lb="$t('Commission Plan')"
                   v-model="sourceData.commissionPlan"
@@ -238,25 +240,11 @@
                   :placeholder="$t('--Select--')"
                   :disabled="!editMode"
                 />
-              </div>
-              
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Plan Value') }}</label>
-                <div class="flex">
-                  <input 
-                    type="text" 
-                    v-model="sourceData.planValue"
-                    :placeholder="$t('Plan Value')" 
-                    :disabled="!editMode"
-                    class="h-11 flex-1 rounded-lg rounded-r-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:bg-gray-50"
-                  >
-                  <span class="h-11 px-3 py-2.5 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-sm text-gray-600 flex items-center">Rs</span>
-                </div>
-              </div>
+              </div> -->
             </div>
 
             <!-- Company and Sales Person -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
                 <div class="flex">
@@ -266,17 +254,16 @@
                       :options="companyOptions"
                       :placeholder="$t('-Select-')"
                       :disabled="!editMode"
-                      customClass="rounded-r-none"
+                      customClass="rounded-r-none h-11"
                     />
                   </div>
-                    <button 
-                      class="px-3 py-2.5 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-sm text-gray-600 flex items-center hover:bg-gray-300 transition-colors"
-                      :disabled="!editMode"
-                    >
-                      <Building class="w-4 h-4" />
-                    </button>
+                  <button 
+                    class=" w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
+                    :disabled="!editMode"
+                  >
+                    <Building class="w-4 h-4" />
+                  </button>
                 </div>
-
               </div>
               
               <div>
@@ -295,9 +282,22 @@
     </div>
 
     <!-- Bottom Action Bar -->
-    <div class="mt-6 bg-gray-50 p-4 rounded-lg">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-6 flex-wrap text-sm">
+    <div class="mt-6 bg-gray-50 p-3 md:p-4 rounded-lg">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <!-- Left side - Financial Summary -->
+        <div class="flex text-sm">
+          <div class="flex flex-col space-y-1">
+            <div class="text-gray-700 font-medium">{{ $t('Total') }}</div>
+            <div class="font-medium text-orange-600">{{ $t('Balance') }}</div>
+          </div>
+          <div class="flex flex-col space-y-1 ml-8">
+            <div class="font-medium text-gray-700">{{ formatCurrency(totalAmount) }}</div>
+            <div class="font-medium text-orange-600">{{ formatCurrency(balanceAmount) }}</div>
+          </div>
+        </div>
+
+        <!-- Center - Checkboxes -->
+        <div class="flex flex-col md:flex-row md:items-center md:space-x-6 gap-2 md:gap-0 text-sm">
           <label class="flex items-center">
             <InputCheckbox
               type="checkbox" 
@@ -345,8 +345,9 @@
           </label>
         </div>
         
-        <div class="flex items-center space-x-3">
-          <BasicButton variant="secondary" :label="$t('Apply To Group')" @click="applyToGroup" :disabled="!editMode" />
+        <!-- Right side - Action Buttons -->
+        <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
+          <BasicButton variant="secondary" :label="$t('Apply To Group')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
           <BasicButton 
             v-if="editMode"
             variant="primary" 
@@ -354,6 +355,7 @@
             @click="saveChanges"
             :disabled="isSaving"
             :loading="isSaving" 
+            class="w-full md:w-auto"
           />
         </div>
       </div>
@@ -362,7 +364,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../../buttons/BasicButton.vue'
@@ -371,11 +373,12 @@ import InputCheckbox from '../../forms/FormElements/InputCheckBox.vue'
 import Radio from '@/components/forms/FormElements/RadioGroup .vue'
 import Select from '../../forms/FormElements/Select.vue'
 import { ChevronRight, Building } from 'lucide-vue-next'
-import UserCircleIcon from '@/icons/UserCircleIcon.vue'
+import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 
 interface Props {
   booking?: any
+  guest?: any
 }
 
 interface BillingData {
@@ -405,41 +408,81 @@ interface Options {
   accessGuestPortal: boolean
 }
 
-interface Room {
-  number: string
-  guest: string
-  type: string
-  rate: string
-  status: string
-  checkIn: string
-  checkOut: string
-  nights: number
-}
-
 const props = withDefaults(defineProps<Props>(), {
-  booking: () => ({})
+  booking: () => ({}),
+  guest: () => ({})
 })
 
 const { t, locale } = useI18n()
 const toast = useToast()
 const editMode = ref(false)
 const isSaving = ref(false)
-const selectedRoom = ref<Room | null>(null)
+const selectedRoom = ref<any>(null)
 
-// Données des chambres
-const rooms = ref<Room[]>([
-  { number: '132', guest: 'Mr. Ashu', type: 'Single', rate: 'Rs 200.00', status: 'Reserved', checkIn: '2023-10-15', checkOut: '2023-10-17', nights: 2 },
-  { number: '133', guest: 'Mr. Ashu', type: 'Single', rate: 'Rs 200.00', status: 'In House', checkIn: '2023-10-15', checkOut: '2023-10-18', nights: 3 },
-  { number: '131', guest: 'Mr. Ashu', type: 'Single', rate: 'Rs 200.00', status: 'Void', checkIn: '2023-10-16', checkOut: '2023-10-19', nights: 3 }
-])
+// Computed properties for booking data
+const bookingData = computed(() => props.booking || {})
+const guestData = computed(() => props.guest || {})
 
-// Reactive data
+// Computed properties for room data
+const reservationRooms = computed(() => {
+  return bookingData.value.reservationRooms || []
+})
+
+const selectedRoomId = computed(() => {
+  return selectedRoom.value?.id || ''
+})
+
+const totalRooms = computed(() => reservationRooms.value.length)
+
+const roomTypeSummary = computed(() => {
+  if (reservationRooms.value.length === 0) return 'N/A'
+  
+  const roomTypes = [...new Set(reservationRooms.value.map(room => room.roomType?.roomTypeName || 'N/A'))]
+  return roomTypes.join(', ')
+})
+
+const statusCounts = computed(() => {
+  const counts = {
+    reserved: 0,
+    dueOut: 0,
+    departed: 0,
+    void: 0,
+    noShow: 0,
+    inHouse: 0,
+    cancel: 0
+  }
+  
+  if (!reservationRooms.value.length) return counts
+  
+  reservationRooms.value.forEach(room => {
+    const status = room.status?.toLowerCase() || ''
+    if (status.includes('reserved')) counts.reserved++
+    if (status.includes('due_out')) counts.dueOut++
+    if (status.includes('departed')) counts.departed++
+    if (status.includes('void')) counts.void++
+    if (status.includes('no_show')) counts.noShow++
+    if (status.includes('in_house')) counts.inHouse++
+    if (status.includes('cancel')) counts.cancel++
+  })
+  
+  return counts
+})
+
+const totalAmount = computed(() => bookingData.value.totalAmount || bookingData.value.total || 0)
+const balanceAmount = computed(() => bookingData.value.remainingAmount || bookingData.value.balance || 0)
+
+const remarkCount = computed(() => bookingData.value.remarks?.length || 0)
+const taskCount = computed(() => bookingData.value.tasks?.length || 0)
+const messageCount = computed(() => bookingData.value.messages?.length || 0)
+const preferenceCount = computed(() => guestData.value.preferences?.length || 0)
+
+// Reactive data - Initialiser avec des valeurs vides
 const billingData = reactive<BillingData>({
-  billTo: 'company',
-  paymentMode: 'cash',
+  billTo: '',
+  paymentMode: '',
   type: 'cash',
   gstinNo: '',
-  reservationType: 'confirm_booking'
+  reservationType: ''
 })
 
 const sourceData = reactive<SourceData>({
@@ -478,7 +521,8 @@ const paymentModeOptions = computed(() => [
 const reservationTypeOptions = computed(() => [
   { label: t('Confirm Booking'), value: 'confirm_booking' },
   { label: t('Tentative Booking'), value: 'tentative_booking' },
-  { label: t('Waitlist'), value: 'waitlist' }
+  { label: t('Waitlist'), value: 'waitlist' },
+  { label: t('Booking inquiry'), value: 'Booking inquiry' }
 ])
 
 const marketCodeOptions = computed(() => [
@@ -493,7 +537,8 @@ const businessSourceOptions = computed(() => [
   { label: t('Walk-in'), value: 'walk_in' },
   { label: t('Online'), value: 'online' },
   { label: t('Phone'), value: 'phone' },
-  { label: t('Agent'), value: 'agent' }
+  { label: t('Agent'), value: 'agent' },
+  { label: t('Indirect Bookings'), value: 'Indirect Bookings' }
 ])
 
 const travelAgentOptions = computed(() => [
@@ -520,17 +565,30 @@ const salesPersonOptions = computed(() => [
   { label: t('Sales Rep 2'), value: 'sales_2' }
 ])
 
-const bookingData = computed(() => props.booking)
-
 // Methods
-const selectRoom = (room: Room) => {
+const getGuestName = (room: any) => {
+  if (room.guest) {
+    return room.guest.displayName || `${room.guest.firstName} ${room.guest.lastName}`
+  }
+  return guestData.value.displayName || `${guestData.value.firstName} ${guestData.value.lastName}` || t('Guest')
+}
+
+const selectRoom = (room: any) => {
   selectedRoom.value = room
+  // Mettre à jour les données de source avec les informations de la chambre sélectionnée
+  if (room) {
+    sourceData.voucherNo = bookingData.value.reservationNumber || ''
+    sourceData.planValue = room.roomRate || ''
+    // Autres mises à jour si nécessaire
+  }
 }
 
 const toggleEditMode = () => {
   editMode.value = !editMode.value
   if (!editMode.value) {
     // Reset data when canceling edit
+    initBillingData()
+    initSourceData()
   }
 }
 
@@ -558,27 +616,103 @@ const applyToGroup = () => {
   toast.info(t('Applied to group'))
 }
 
-const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+// Initialize billing data from booking
+const initBillingData = () => {
+  if (bookingData.value) {
+    // Set billTo based on guest type
+    if (guestData.value.guestType === 'corporate') {
+      billingData.billTo = 'company'
+    } else if (guestData.value.guestType === 'travel_agent') {
+      billingData.billTo = 'agent'
+    } else {
+      billingData.billTo = 'individual'
+    }
+    
+    // Set payment type based on VIP status
+    billingData.type = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
+    
+    // Set GSTIN from company registration if available
+    if (guestData.value.company && guestData.value.registrationNo) {
+      billingData.gstinNo = guestData.value.registrationNo
+    }
+    
+    // Set reservation type from booking data
+    if (bookingData.value.reservationType) {
+      billingData.reservationType = bookingData.value.reservationType
+    }
   }
-  return new Date(dateString).toLocaleDateString(locale.value, options)
 }
 
-const getStatusClass = (status: string) => {
-  const statusClasses = {
-    confirmed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    checked_in: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    checked_out: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+// Initialize source data from booking
+const initSourceData = () => {
+  if (bookingData.value) {
+    // Set market code and business source if available in booking data
+    if (bookingData.value.sourceOfBusiness) {
+      sourceData.businessSource = bookingData.value.sourceOfBusiness
+    }
+    
+    // Set voucher number from booking data - CORRECTION ICI
+    if (bookingData.value.reservationNumber) {
+      sourceData.voucherNo = bookingData.value.reservationNumber
+    }
+    
+    // Set company if available
+    if (bookingData.value.companyName) {
+      sourceData.company = bookingData.value.companyName
+    }
+    
+    // Set plan value from selected room or first room
+    if (selectedRoom.value && selectedRoom.value.roomRate) {
+      sourceData.planValue = selectedRoom.value.roomRate
+    } else if (reservationRooms.value.length > 0 && reservationRooms.value[0].roomRate) {
+      sourceData.planValue = reservationRooms.value[0].roomRate
+    }
   }
-  return statusClasses[status as keyof typeof statusClasses] || 'bg-gray-100 text-gray-800'
 }
 
-console.log('booking', props.booking)
+// Initialize data when component is mounted or props change
+onMounted(() => {
+  // Sélectionner la première chambre par défaut
+  if (reservationRooms.value.length > 0) {
+    selectedRoom.value = reservationRooms.value[0]
+  }
+  
+  // Initialiser les données après avoir sélectionné la chambre
+  initBillingData()
+  initSourceData()
+  
+  console.log('BookingDetails mounted with booking:', bookingData.value)
+})
+
+// Watch for changes in booking data
+watch(() => props.booking, (newBooking) => {
+  if (newBooking) {
+    // Sélectionner la première chambre si aucune n'est sélectionnée
+    if (!selectedRoom.value && reservationRooms.value.length > 0) {
+      selectedRoom.value = reservationRooms.value[0]
+    }
+    
+    initBillingData()
+    initSourceData()
+  }
+}, { deep: true })
+
+// Watch for changes in guest data
+watch(() => props.guest, (newGuest) => {
+  if (newGuest) {
+    initBillingData()
+  }
+}, { deep: true })
+
+// Watch for changes in selected room
+watch(selectedRoom, (newRoom) => {
+  if (newRoom) {
+    // Mettre à jour les données spécifiques à la chambre
+    if (newRoom.roomRate) {
+      sourceData.planValue = newRoom.roomRate
+    }
+  }
+})
 </script>
 
 <style scoped>
@@ -598,5 +732,11 @@ input[type="checkbox"]:disabled {
 
 .transition-colors {
   transition: background-color 0.2s, color 0.2s;
+}
+
+@media (max-width: 768px) {
+  .grid > div {
+    margin-bottom: 1rem;
+  }
 }
 </style>
