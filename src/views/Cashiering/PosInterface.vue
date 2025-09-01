@@ -8,7 +8,7 @@
                     <!-- Search -->
                     <div class="relative flex">
                         <input v-model="searchQuery" :placeholder="$t('search_by_voucher_name_type')"
-                            class="w-64 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-ring-primary rounded-r-none" 
+                            class="w-64 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-ring-primary rounded-r-none"
                             @keyup.enter="performSearch" />
                         <button @click="performSearch"
                             class="px-4 py-2 bg-white text-primary rounded-r-md hover:bg-primary/25 transition-colors border border-l-0 border-gray-300">
@@ -20,8 +20,7 @@
                     </div>
 
                     <!-- Date Range -->
-                    <InputDoubleDatePicker v-model:startDate="dateRange.start" v-model:endDate="dateRange.end"
-                        class="w-64" :defaultToToday="true" />
+                    <InputDoubleDatePicker v-model="dateRange" allow-past-dates class="w-64" />
 
                     <!-- Hide Void Checkbox -->
                     <InputCheckBox v-model="hideVoid" :label="$t('hide_void')" id="hide-void" />
@@ -37,27 +36,29 @@
             <!-- Left Sidebar - Invoice List -->
             <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col mt-6">
                 <div class="flex-1 overflow-y-auto">
-                    <ReusableTable
-                        :columns="invoiceColumns"
-                        :data="filteredInvoices"
-                        :searchable="false"
-                        :show-header="false"
-                        :selectable="false"
-                        :rowClass="getRowClass"
-                        class="invoice-table"
-                        @row-click="onInvoiceRowClick"
-                    >
+
+                    <!-- Invoice Table -->
+                    <ReusableTable :columns="invoiceColumns" :data="filteredInvoices" :searchable="false"
+                        :show-header="false" :selectable="false" :rowClass="getRowClass" class="invoice-table"
+                        @row-click="onInvoiceRowClick" :loading="isLoading">
                         <!-- Custom date column -->
                         <template #column-invoice_details="{ item }">
-                                                         <div class="text-sm">{{ item.invoiceNumber }}</div>
+                            <div :class="{ 'voided-invoice-details': item.status === 'voided' }">
+                                <div class="text-sm">{{ item.invoiceNumber }}</div>
 
-                             <div class="text-xs text-gray-500">{{ item.customerName }}</div>
-                            <div class="text-xs text-gray-500">{{ formatDate(item.date) }}</div>
+                                <div class="text-xs text-gray-500">{{ item.guest.fullName }}</div>
+                                <div class="text-xs text-gray-500">{{ formatDate(item.createdAt) }}</div>
+                            </div>
+
                         </template>
-                        
+
                         <!-- Custom amount column -->
                         <template #column-totalCharges="{ item }">
-                            <div class="font-medium text-gray-900 text-right">Rs {{ item.totalCharges.toFixed(2) }}</div>
+                            <div :class="{ 'voided-invoice-details': item.status === 'voided' }">
+                                <div class="font-medium text-gray-900 text-right">{{ formatCurrency(item.amount) }}
+                                </div>
+
+                            </div>
                         </template>
                     </ReusableTable>
                 </div>
@@ -67,7 +68,8 @@
             <div class="flex-1 flex flex-col">
                 <!-- Invoice Details -->
                 <div class="flex-1 p-6 overflow-y-auto">
-                    <div v-if="selectedInvoice" class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div v-if="selectedInvoice" class="bg-white rounded-lg shadow-sm border border-gray-200"
+                        :class="{ 'voided-invoice-details': selectedInvoice.status === 'voided' }">
                         <!-- Invoice Header -->
                         <div class="p-6 border-b border-gray-200">
                             <div class="flex justify-between items-start">
@@ -77,30 +79,37 @@
                                     <div class="mt-2 space-y-1">
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('customer') }}:</span> {{
-                                                selectedInvoice.customerName }}
+                                                selectedInvoice.guest.displayName }}
                                         </div>
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('voucher_date') }}:</span> {{
-                                                formatDate(selectedInvoice.date) }}
+                                                formatDate(selectedInvoice.createdAt) }}
                                         </div>
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('prepared_by') }}:</span> {{
-                                                selectedInvoice.preparedBy }}
+                                                selectedInvoice.creator.firstName + ' ' + selectedInvoice.creator.lastName
+                                            }}
                                         </div>
                                         <div class="text-sm text-gray-600">
-                                            <span class="font-medium">{{ $t('total_charges') }}:</span> Rs {{
-                                                selectedInvoice.totalCharges.toFixed(2) }}
+                                            <span class="font-medium">{{ $t('total_charges') }}:</span> {{
+                                                formatCurrency(parseFloat(selectedInvoice.amount)) }}
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Action Buttons -->
-                                <div class="flex space-x-2">
+                                <div v-if="selectedInvoice.status !== 'voided'" class="flex space-x-2">
                                     <BasicButton :icon="PrinterIcon" :label="$t('print')" variant="secondary"
                                         @click="printInvoice" />
                                     <BasicButton :label="$t('void')" variant="danger" @click="voidInvoice" />
                                     <BasicButton :icon="EditIcon" :label="$t('edit')" variant="primary"
                                         @click="editInvoice" />
+                                </div>
+                                <!-- Voided Status Indicator -->
+                                <div v-else class="flex items-center space-x-2">
+                                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
+                                        {{ $t('voided') }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -108,85 +117,33 @@
                         <!-- Charges Section -->
                         <div class="p-6 border-b border-gray-200">
                             <h4 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('charges') }}</h4>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('sr_no') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('ref_no') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('particular') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('comments') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('amount_rs') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr v-for="charge in selectedInvoice.charges" :key="charge.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ charge.srNo
-                                            }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
-                                                charge.refNo }}</td>
-                                          
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{
-                                                charge.comments }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
-                                                Rs {{ charge.amount.toFixed(2) }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <ReusableTable :columns="chargesColumns" :data="chargesTableData" :loading="isLoadingFolio"
+                                :searchable="false" :show-header="false" :selectable="false"
+                                :empty-state-title="$t('no_charges_found')"
+                                :empty-state-message="$t('no_charges_available')">
+                                <!-- Custom amount column -->
+                                <template #column-totalAmount="{ item }">
+                                    <div class="text-right font-medium">
+                                        {{ formatCurrency(parseFloat(item.totalAmount || 0)) }}
+                                    </div>
+                                </template>
+                            </ReusableTable>
                         </div>
 
                         <!-- Payments Section -->
                         <div class="p-6">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('payments') }}</h4>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('sr_no') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('ref_no') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('type') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('comments') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                {{ $t('amount_rs') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr v-for="payment in selectedInvoice.payments" :key="payment.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
-                                                payment.srNo }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
-                                                payment.refNo }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
-                                                payment.type }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{
-                                                payment.comments }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-right">-{{
-                                                payment.amount.toFixed(2) }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('Payments') }}</h4>
+                            <ReusableTable :columns="paymentsColumns" :data="paymentsTableData"
+                                :loading="isLoadingFolio" :searchable="false" :show-header="false" :selectable="false"
+                                :empty-state-title="$t('no_payments_found')"
+                                :empty-state-message="$t('no_payments_available')">
+                                <!-- Custom amount column -->
+                                <template #column-totalAmount="{ item }">
+                                    <div class="text-right font-medium text-green-600">
+                                        {{ formatCurrency(parseFloat(item.totalAmount || 0)) }}
+                                    </div>
+                                </template>
+                            </ReusableTable>
                         </div>
                     </div>
 
@@ -205,6 +162,11 @@
         <!-- Add Invoice Modal -->
         <AddInvoiceIncidenPosc v-if="showAddInvoiceModal" @close="closeAddInvoiceModal"
             @invoice-created="handleInvoiceCreated" />
+
+        <!-- Void Invoice Modal -->
+        <VoidInvoice :is-open="showVoidModal" :invoice-id="selectedInvoice?.id"
+            :invoice-number="selectedInvoice?.invoiceNumber" @close="showVoidModal = false"
+            @void-confirmed="handleVoidConfirmed" />
     </AdminLayout>
 </template>
 
@@ -212,7 +174,6 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
-import Input from '../../components/forms/FormElements/Input.vue'
 import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoubleDatePicker.vue'
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
@@ -220,7 +181,11 @@ import PlusIcon from '../../icons/PlusIcon.vue'
 import { PrinterIcon, Edit as EditIcon, DollarSign, Coffee, Utensils, Car, Wifi, Phone } from 'lucide-vue-next'
 import AddInvoiceIncidenPosc from './AddInvoiceIncidenPosc.vue'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
+import VoidInvoice from '../../components/invoice/VoidInvoice.vue'
 import type { Column } from '../../utils/models'
+import { getIncidentalInvoices } from '../../services/configrationApi'
+import { getFolioStatement } from '../../services/foglioApi'
+import { formatCurrency } from '../../utils/numericUtils'
 
 const { t } = useI18n()
 
@@ -229,9 +194,17 @@ const selectedInvoice = <any>ref(null)
 const searchQuery = ref('')
 const hideVoid = ref(false)
 const showAddInvoiceModal = ref(false)
+const showVoidModal = ref(false)
+const isLoading = ref(false)
+
+// Set default date range: yesterday to today
+const yesterday = new Date()
+yesterday.setDate(yesterday.getDate() - 1)
+const today = new Date()
+
 const dateRange = ref({
-    start: '',
-    end: ''
+    start: yesterday.toISOString().split('T')[0],
+    end: today.toISOString().split('T')[0]
 })
 
 // Table configuration
@@ -248,45 +221,197 @@ const invoiceColumns = ref<Column[]>([
     }
 ])
 
-// Sample invoice data
-const invoices = ref<any>([])
+// Charges table columns
+const chargesColumns = ref<Column[]>([
+    {
+        key: 'srNo',
+        label: t('sr_no'),
+        type: 'text'
+    },
+    {
+        key: 'transactionNumber',
+        label: t('ref_no'),
+        type: 'text'
+    },
+    {
+        key: 'description',
+        label: t('particular'),
+        type: 'text'
+    },
+    {
+        key: 'notes',
+        label: t('comments'),
+        type: 'text'
+    },
+    {
+        key: 'totalAmount',
+        label: t('amount'),
+        type: 'custom'
+    }
+])
 
-// Methods
-function selectInvoice(invoice:any) {
-    selectedInvoice.value = invoice
+// Payments table columns
+const paymentsColumns = ref<Column[]>([
+    {
+        key: 'srNo',
+        label: t('sr_no'),
+        type: 'text'
+    },
+    {
+        key: 'transactionNumber',
+        label: t('ref_no'),
+        type: 'text'
+    },
+    {
+        key: 'paymentMethodName',
+        label: t('type'),
+        type: 'text'
+    },
+    {
+        key: 'notes',
+        label: t('comments'),
+        type: 'text'
+    },
+    {
+        key: 'totalAmount',
+        label: t('amount'),
+        type: 'custom'
+    }
+])
+
+// Invoice data
+const invoices = ref<any>([])
+const filteredInvoices = computed(() => invoices.value)
+
+// Folio statement data
+const folioCharges = ref<any>([])
+const folioPayments = ref<any>([])
+const isLoadingFolio = ref(false)
+
+// Computed data for tables with serial numbers
+const chargesTableData = computed(() => {
+    return folioCharges.value.map((charge: any, index: number) => ({
+        ...charge,
+        srNo: index + 1,
+        transactionNumber: charge.transactionNumber || charge.reference || '-',
+        description: charge.description || charge.category || '-',
+        notes: charge.notes || '-'
+    }))
+})
+
+const paymentsTableData = computed(() => {
+    return folioPayments.value.map((payment: any, index: number) => ({
+        ...payment,
+        srNo: index + 1,
+        transactionNumber: payment.transactionNumber || payment.reference || '-',
+        paymentMethodName: payment.paymentMethod?.methodName || payment.category || payment.transactionType || '-',
+        notes: payment.notes || '-'
+    }))
+})
+
+// API Methods
+async function loadInvoices() {
+    try {
+        isLoading.value = true
+        const params: any = {
+            dateFrom: dateRange.value.start,
+            dateTo: dateRange.value.end
+        }
+
+        // Add search filter if provided (folio number matching)
+        if (searchQuery.value.trim()) {
+            params.folioNumber = searchQuery.value.trim()
+        }
+
+        // Add status filter if hideVoid is checked
+        if (hideVoid.value) {
+            params.hideVoided =  hideVoid // or whatever status excludes void invoices
+        }
+
+        const response = await getIncidentalInvoices(params)
+        invoices.value = response.data?.data?.data || []
+        console.log('rservation', invoices.value)
+        // Clear selected invoice if it's no longer in the list
+        if (selectedInvoice.value && !invoices.value.find((inv: any) => inv.id === selectedInvoice.value.id)) {
+            selectedInvoice.value = null
+        }
+    } catch (error) {
+        console.error('Error loading invoices:', error)
+        invoices.value = []
+    } finally {
+        isLoading.value = false
+    }
 }
 
-function onInvoiceRowClick(invoice:any) {
+// Load folio statement data
+async function loadFolioStatement(folioId: number) {
+    try {
+        isLoadingFolio.value = true
+        const response = await getFolioStatement(folioId)
+        console.log('reservation', response)
+
+        // Extract transactions from the response
+        const transactions = response.data?.transactions || []
+
+        // Filter charges and payments
+        folioCharges.value = transactions.filter((transaction: any) =>
+            transaction.transactionType !== 'payment'
+        )
+
+        folioPayments.value = transactions.filter((transaction: any) =>
+            transaction.transactionType === 'payment'
+        )
+
+        console.log('Folio charges:', folioCharges.value)
+        console.log('Folio payments:', folioPayments.value)
+    } catch (error) {
+        console.error('Error loading folio statement:', error)
+        folioCharges.value = []
+        folioPayments.value = []
+    } finally {
+        isLoadingFolio.value = false
+    }
+}
+
+// Methods
+function selectInvoice(invoice: any) {
+    selectedInvoice.value = invoice
+
+    // Load folio statement data if folioId is available
+    if (invoice?.folioId) {
+        loadFolioStatement(invoice.folioId)
+    } else {
+        // Clear folio data if no folioId
+        folioCharges.value = []
+        folioPayments.value = []
+    }
+}
+
+function onInvoiceRowClick(invoice: any) {
+
     selectInvoice(invoice)
 }
 
-function getRowClass(invoice:any) {
-    return selectedInvoice.value?.id === invoice.id ? 'bg-blue-50' : ''
+function getRowClass(invoice: any) {
+    let classes = selectedInvoice.value?.id === invoice.id ? 'bg-blue-50' : ''
+    if (invoice.status === 'voided') {
+        classes += ' voided-invoice'
+    }
+    return classes
 }
 
-function formatDate(dateString:any) {
+function formatDate(dateString: any) {
     return new Date(dateString).toLocaleDateString('en-GB')
 }
 
-const filteredInvoices = ref(invoices.value)
-
 function performSearch() {
-    if (!searchQuery.value.trim()) {
-        filteredInvoices.value = invoices.value
-        return
-    }
-
-    const query = searchQuery.value.toLowerCase().trim()
-    filteredInvoices.value = invoices.value.filter((invoice:any) =>
-        invoice.invoiceNumber.toLowerCase().includes(query) ||
-        invoice.customerName.toLowerCase().includes(query)
-    )
+    loadInvoices()
 }
 
-// Watch for search query changes
-watch(searchQuery, () => {
-    performSearch()
-})
+// Watch for changes that should trigger API calls
+watch([dateRange, searchQuery, hideVoid], () => {
+    loadInvoices()
+}, { deep: true })
 
 function openAddInvoiceModal() {
     showAddInvoiceModal.value = true
@@ -296,10 +421,10 @@ function closeAddInvoiceModal() {
     showAddInvoiceModal.value = false
 }
 
-function handleInvoiceCreated(newInvoice:any) {
-    invoices.value.unshift(newInvoice)
-    selectedInvoice.value = newInvoice
+function handleInvoiceCreated(newInvoice: any) {
     closeAddInvoiceModal()
+    // Reload invoices to get the latest data from API
+    loadInvoices()
 }
 
 function printInvoice() {
@@ -308,8 +433,13 @@ function printInvoice() {
 }
 
 function voidInvoice() {
-    console.log('Voiding invoice:', selectedInvoice.value)
-    // Implement void functionality
+    showVoidModal.value = true
+}
+
+function handleVoidConfirmed() {
+    showVoidModal.value = false
+    // Reload invoices to get the latest data from API
+    loadInvoices()
 }
 
 function editInvoice() {
@@ -319,11 +449,37 @@ function editInvoice() {
 
 // Lifecycle
 onMounted(() => {
-   
+    loadInvoices()
 })
 </script>
 
 <style scoped>
+/* Voided invoice styling */
+.voided-invoice {
+    opacity: 0.6;
+    text-decoration: line-through;
+    background-color: #fef2f2 !important;
+    pointer-events: none;
+}
+
+.voided-invoice-details {
+    opacity: 0.7;
+}
+
+.voided-invoice-details * {
+    text-decoration: line-through;
+    color: #6b7280 !important;
+}
+
+.voided-invoice-details .bg-red-100 {
+    text-decoration: none;
+}
+
+/* Prevent interactions on voided invoices */
+.voided-invoice:hover {
+    cursor: not-allowed;
+}
+
 .invoice-table :deep(.min-w-full) {
     table-layout: fixed;
 }

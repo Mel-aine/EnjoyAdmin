@@ -56,8 +56,7 @@
           </div>
 
           <div class="space-y-4">
-            <InputPaymentMethodSelect  :paymentType="form.paymentType"
-              />
+            <InputPaymentMethodSelect :paymentType="form.paymentType" v-model="form.paymentMethod" />
           </div>
         </div>
         <!-- Charges Section -->
@@ -96,7 +95,7 @@
                     {{ charge.refNo }}
                   </td>
                   <td class=" w-50 px-6 py-4 whitespace-nowrap">
-                    <InputExtractChargeSelect v-model="charge.particular" :hide-label="true" />
+                    <InputExtractChargeSelect v-model="charge.particular" :hide-label="true" @select="(selectedCharge) => handleChargeChange(selectedCharge, index)" />
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <Input type="number" v-model="charge.quantity" class="w-20 text-center" min="1" step="1" />
@@ -138,7 +137,7 @@
         </div>
         <div class="flex space-x-3">
           <BasicButton :label="$t('cancel')" variant="secondary" @click="$emit('close')" />
-          <BasicButton :label="$t('pay')" variant="primary" @click="saveInvoice" :disabled="!isFormValid" />
+          <BasicButton :label="$t('pay')" variant="primary" @click="saveInvoice" :disabled="!isFormValid || isLoading" :loading="isLoading" />
         </div>
       </div>
     </div>
@@ -146,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Input from '../../components/forms/FormElements/Input.vue'
 import InputAddNameSearch from '../../components/forms/FormElements/InputAddNameSearch.vue'
@@ -159,26 +158,31 @@ import InputDatePicker from '../../components/forms/FormElements/InputDatePicker
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 import { useServiceStore } from '../../composables/serviceStore'
 import { postIncidentalInvoices } from '../../services/configrationApi'
+import { prepareFolioAmount, safeParseFloat } from '../../utils/numericUtils'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
+const toast = useToast()
 
 // Emits
 const emit = defineEmits(['close', 'invoice-created'])
 
+// Loading state
+const isLoading = ref(false)
+
 // Form data
 const form = ref({
   contactType: 'guest',
-  guestId:'',
+  guestId: '',
   customerName: '',
   customerPhone: '',
   customerEmail: '',
   selectedCustomer: null,
   paymentType: 'cash',
-  paymentMethod: '',
+  paymentMethod: 0,
   voucherNumber: '',
   voucherDate: new Date().toISOString().split('T')[0],
-  preparedBy: 'helpdesksupport',
-  charges: [
+  charges: <any[]>[
     {
       refNo: '',
       particular: '',
@@ -188,14 +192,6 @@ const form = ref({
       amount: 0
     }
   ],
-  payments: [
-    {
-      refNo: '',
-      type: '',
-      comments: '',
-      amount: 0
-    }
-  ]
 })
 
 // Options
@@ -211,12 +207,9 @@ const totalCharges = computed(() => {
   return form.value.charges.reduce((sum, charge) => sum + (parseFloat(`${charge.amount}`) || 0), 0)
 })
 
-const totalPayments = computed(() => {
-  return form.value.payments.reduce((sum, payment) => sum + (parseFloat(`${payment.amount}`) || 0), 0)
-})
 
 const balance = computed(() => {
-  return (totalCharges.value - totalPayments.value).toFixed(2)
+  return (totalCharges.value).toFixed(2)
 })
 
 const isFormValid = computed(() => {
@@ -229,7 +222,7 @@ function searchGuest() {
   // Implement guest search functionality
 }
 
-function handleCustomerSelected(customer:any) {
+function handleCustomerSelected(customer: any) {
   if (customer) {
     // Update form data with selected customer information
     form.value.customerName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
@@ -254,45 +247,112 @@ function addCharge() {
     quantity: 1,
     discount: '',
     comments: '',
-    amount: 0
+    amount: 0,
+    rateInclusiveTax: 0,
+    taxAmount: 0,
   })
 }
 
-function removeCharge(index:number) {
+function removeCharge(index: number) {
   form.value.charges.splice(index, 1)
 }
 
+function handleChargeChange(selectedCharge: any, chargeIndex: number) {
+  if (selectedCharge && selectedCharge.rateInclusiveTax && chargeIndex !== undefined) {
+    const charge = form.value.charges[chargeIndex]
+    if (charge) {
+      // Calculate amount based on quantity
+      const quantity = charge.quantity || 1
+      charge.amount = selectedCharge.rateInclusiveTax * quantity
+      // Store additional charge data for invoice creation
+      charge.name = selectedCharge.name || selectedCharge.charge_name
+      charge.rateInclusiveTax = selectedCharge.rateInclusiveTax
+      charge.taxAmount = selectedCharge.taxAmount || 0
+      
+      console.log('Charge selected:', selectedCharge)
+      console.log('Updated charge amount to:', charge.amount, 'for quantity:', quantity)
+    }
+  }
+}
+
+// Watch for quantity changes to recalculate amounts
+watch(
+  () => form.value.charges.map(charge => charge.quantity),
+  (newQuantities, oldQuantities) => {
+    if (oldQuantities) {
+      newQuantities.forEach((newQty, index) => {
+        const oldQty = oldQuantities[index]
+        if (newQty !== oldQty && form.value.charges[index].rateInclusiveTax) {
+          const charge = form.value.charges[index]
+          charge.amount = charge.rateInclusiveTax * (newQty || 1)
+          console.log('Quantity changed for charge', index, 'new amount:', charge.amount)
+        }
+      })
+    }
+  },
+  { deep: true }
+)
+
 async function saveInvoice() {
+  if (isLoading.value) return
+  if (!form.value.paymentMethod) {
+    toast.error(t('Please select a payment method'))
+    return
+  }
+  if(!form.value.guestId) {
+    toast.error(t('Please select a guest'))
+    return
+  }
+  if (!form.value.charges.some(c => c.particular && c.amount > 0)) {
+    toast.error(t('Please add at least one charge with a valid amount'))
+    return
+  }
   try {
+    isLoading.value = true
+    
     // Map form data to API structure
     const invoiceData = {
-      hotelId: useServiceStore().serviceId  ,
-      guestId: parseInt(form.value.guestId) ,
+      hotelId: useServiceStore().serviceId,
+      guestId: parseInt(form.value.guestId),
       date: new Date(form.value.voucherDate).toISOString(),
       charges: form.value.charges.filter(c => c.particular && c.amount > 0).map(charge => ({
-        description: charge.particular,
-        amount: charge.amount,
-        quantity: charge.quantity,
-        unitPrice: parseFloat(`${charge.amount}`) / (parseInt(`${charge.quantity}`) )
+        transactionType: 'charge',
+        category: 'extract_charge',
+        description: charge?.name,
+        amount: prepareFolioAmount(charge.amount),
+        quantity: safeParseFloat(charge.quantity, 1),
+        unitPrice: safeParseFloat(charge?.rateInclusiveTax, 0),
+        taxAmount: safeParseFloat(charge?.taxAmount, 0),
+        departmentId: '',
+        reference: '',
+        extraChargeId:charge?.particular,
+        notes: charge.comments || '',
+        discountId: Number(charge.discount),
       })),
-      paymentType: form.value.paymentType === 'debit' ? 'cash' : form.value.paymentType,
+      paymentType:  form.value.paymentType,
+      paymentMethodId: form.value.paymentMethod,
       description: `Voice Incidence - ${form.value.contactType} Services`,
       notes: form.value.charges.map(c => c.comments).filter(Boolean).join('; ') || 'Invoice created from POS system'
     }
 
     // Call the API
     const response = await postIncidentalInvoices(invoiceData)
-    
+
     if (response.data) {
+      // Show success toast
+      toast.success(t('Invoice created successfully!'))
+      
       // Emit success event with the created invoice
       emit('invoice-created', response.data)
-      
-      // Close the modal
-      emit('close')
+    } else {
+      toast.error(t('Failed to create invoice. Please try again.'))
     }
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error creating invoice:', error)
-    // Handle error - you might want to show a toast notification here
+    const errorMessage = error?.response?.data?.message || error?.message || t('An error occurred while creating the invoice.')
+    toast.error(errorMessage)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>

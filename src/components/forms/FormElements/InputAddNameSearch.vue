@@ -150,11 +150,7 @@ watch(value, (newValue) => {
 
     if (exactMatch) {
         selectCustomer(exactMatch);
-    } else {
-        const newCustomer = { firstName: newValue };
-        selectedCustomer.value.firstName = newValue;
-        emit('customerSelected', newCustomer);
-    }
+    } 
 });
 
 // Handle opening create customer modal

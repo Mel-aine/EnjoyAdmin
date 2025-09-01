@@ -84,7 +84,8 @@
                   type="checkbox"
                   v-model="selectedItems"
                   :value="item"
-                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  :disabled="props.canSelectItem && !props.canSelectItem(item)"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </td>
               <td
@@ -221,6 +222,7 @@ interface Props {
   showHeader?: boolean
   loading?: boolean // Loading state for skeleton display
   rowClass?: (item: any) => string
+  canSelectItem?: (item: any) => boolean // Function to determine if an item can be selected
 }
 
 const props = withDefaults(defineProps<Props>(), {

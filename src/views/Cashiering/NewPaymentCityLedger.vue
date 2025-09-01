@@ -31,33 +31,26 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                   <InputSelectCityLeger v-model="formData.cityLedgerAccount"/>
+                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" />
 
                     <!-- Date -->
                     <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" />
 
                     <!-- Payment Type -->
                     <Select lb="Payment Type" v-model="formData.paymentType" :options="[
-                      { label: 'Select', value: '' },
                       { label: 'Cash', value: 'cash' },
-                      { label: 'Credit Card', value: 'credit' },
                       { label: 'Bank Transfer', value: 'bank' }
                     ]" :isRequired="true" />
 
                     <!-- Payment method -->
-                    <Select lb="Payment Method" v-model="formData.paymentMethod" :options="[
-                      { label: 'Select', value: '' },
-                      { label: 'Cash', value: 'cash' },
-                      { label: 'Credit Card', value: 'credit' },
-                      { label: 'Bank Transfer', value: 'bank' }
-                    ]" :isRequired="true" />
+                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
                     <div class="col-span-2">
-                      <InputCurrency lb="Amount" v-model="formData.amount" :isRequired="true" placeholder="0.00"
+                      <InputCurrency lb="Total Amount to Pay" v-model="formData.amount" placeholder="0.00"
                         step="0.01" />
-
+                      <small class="text-gray-500 text-xs mt-1">Auto-calculated from assigned amounts</small>
                     </div>
                     <div class="col-span-3">
                       <Input :lb="$t('comment')" v-model="formData.comment" />
@@ -69,38 +62,35 @@
 
                   <div class="mt-2 grid grid-cols-12 align-middle items-center gap-3">
 
-                    <!-- Select Options -->
-                    <div class="col-span-2">
-                      <Select lb="Options" :options="[{ label: 'Select', value: '' }]" />
-                    </div>
+
                     <!-- Date Range -->
                     <div class="flex flex-col gap-2 col-span-4">
                       <div>
                         <RadioGroup class="flex space-x-4" :options="[
                           { label: 'Posting date', value: 'posting' },
                           { label: 'Departure date', value: 'departure' },
-                        ]"
-                        v-model="formData.filter_options"
-                        />
+                        ]" v-model="formData.filter_options" />
 
                       </div>
                       <div class="mr-4">
-                        <InputDoubleDatePicker lb="Posting Date" v-model:startDate="formData.startDate"
-                          v-model:endDate="formData.endDate" />
+                        <InputDoubleDatePicker lb="Posting Date" v-model="formData.dateRange"
+                          :allow-past-dates="true" />
                       </div>
                     </div>
-                    <div class="col-span-5">
-                      <Input :lb="$t('res.no')" :disabled="true" :placeholder="$t('new')"/>
+                    <div class="col-span-7">
+                      <Input :lb="$t('res.no')" :disabled="true" :placeholder="$t('new')" />
                     </div>
                     <div class="justify-center align-middle pt-6">
-                      <BasicButton :label="t('Search')" :icon="SearchCodeIcon"></BasicButton>
+                      <BasicButton :label="t('Search')" :icon="SearchCodeIcon" @click="searchTransactions"
+                        :loading="loading"></BasicButton>
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Guest Data Table -->
               <ReusableTable :columns="guestColumns" :data="guestData" :selectable="true" :loading="loading"
-                @selection-change="handleGuestSelectionChange" :searchable="false" :show-header="false">
+                @selection-change="handleGuestSelectionChange" :searchable="false" :show-header="false"
+                :can-select-item="canSelectItem">
                 <!-- Custom cell for Date column -->
                 <template #column-date="{ item }">
                   <span class="text-xs text-gray-900 dark:text-white">{{ formatDateT(item.date) }}</span>
@@ -122,7 +112,9 @@
                   <span class="text-xs text-gray-900 dark:text-white">{{ formatCurrency(item.assigned) }}</span>
                 </template>
                 <template #column-assign="{ item }">
-                  <Input v-model="item.assign" />
+                  <Input v-model="item.assign" :disabled="!isItemSelected(item)" @input="validateAssignAmount(item)"
+                    @blur="validateAssignAmount(item)" type="number" :min="0" :max="item.open" step="0.01"
+                    placeholder="0.00" />
                 </template>
 
                 <!-- Custom cell for Open column -->
@@ -140,10 +132,9 @@
 
               <div class="flex space-x-3">
                 <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-900 dark:text-white">
-                  {{ $t('Balance') }}: {{ formatCurrency(33000.00) }}
-                </span>
+                  {{ $t('Balance') }}: {{ formatCurrency(totalAssignedAmount) }} </span>
                 <BasicButton :label="$t('Close')" variant="secondary" @click="closeModal" />
-                <BasicButton :label="$t('Save')" variant="primary" @click="savePayment" :icon="Save" />
+                <BasicButton :label="$t('Save')" variant="primary" @click="savePayment" :icon="Save" :loading="loading"/>
               </div>
             </div>
           </div>
@@ -154,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
@@ -170,64 +161,137 @@ import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
 import { formatDateT } from '../../components/utilities/UtilitiesFunction'
 import type { Column } from '../../utils/models'
 import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
+import { getCityLedgerDetails, postTransactionPayCompanyBulk } from '../../services/companyApi'
+import { useServiceStore } from '../../composables/serviceStore'
+import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
+import { useToast } from 'vue-toastification'
+import { useAuthStore } from '../../composables/user'
 
 const router = useRouter()
 const { t } = useI18n()
+const serviceStore = useServiceStore()
+const toast = useToast()
+const authStore = useAuthStore()
+
+// Props from parent component
+const props = defineProps<{
+  selectedCompanyId?: number | null
+  dateRange?: {
+    startDate: string
+    endDate: string
+  }
+  activeTab?: string
+}>()
 
 // Loading state
 const loading = ref(false)
-const emit = defineEmits(['close'])
-// Form data
+const emit = defineEmits(['close','payment-saved'])
+
+// Initialize date range with yesterday and today
+const getYesterday = () => {
+  const date = new Date()
+  date.setDate(date.getDate() - 1)
+  return date.toISOString().split('T')[0]
+}
+
+const getToday = () => {
+  const date = new Date()
+  return date.toISOString().split('T')[0]
+}
+
+// Form data with props initialization
 const formData = ref({
-  cityLedgerAccount: '',
+  cityLedgerAccount: null,
+  cityLedgerAccountId: props.selectedCompanyId ?? 0,
   paymentType: 'cash',
   reference: '',
   date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
   amount: 0,
   comment: '',
-  startDate:new Date().toISOString().split('T')[0],
-  endDate:new Date().toISOString().split('T')[0],
-  paymentMethod:"",
-  filter_options:""
+  dateRange: {
+    start: props.dateRange?.startDate || getYesterday(),
+    end: props.dateRange?.endDate || getToday(),
+  },
+  paymentMethod: 0,
+  filter_options: props.activeTab || "posting"
 })
 
-// Date range for map payment
-const startDate = ref('2021-12-01')
-const endDate = ref('2022-01-01')
+// City ledger data
+const cityLedgerData = ref<any>({
+  transactions: [],
+  totals: {
+    cityLedgerTotal: 0,
+    unpaidInvoice: 0,
+    unassignedPayments: 0,
+    assignedPayments: 0,
+    openingBalance: 0
+  },
+  companyAccount: null
+})
 
-// Sample guest data
-const guestData = ref([
-  {
-    date: '2023-01-01',
-    name: 'Emile Simalundu',
-    folioNo: '295',
-    user: 'helpdesk/support',
-    amount: 12720.00,
-    assigned: 0.00,
-    open: 12720.00,
-    selected: false
-  },
-  {
-    date: '2023-01-05',
-    name: 'Emma Chen',
-    folioNo: '296',
-    user: 'helpdesk/support',
-    amount: 8500.00,
-    assigned: 0.00,
-    open: 8500.00,
-    selected: false
-  },
-  {
-    date: '2023-01-10',
-    name: 'John Smith',
-    folioNo: '297',
-    user: 'helpdesk/support',
-    amount: 14780.00,
-    assigned: 0.00,
-    open: 14780.00,
-    selected: false
+
+// Guest data from API
+const guestData = ref([])
+
+// Load city ledger data function
+const loadCityLedgerData = async () => {
+  if (!formData.value.cityLedgerAccountId) {
+    guestData.value = []
+    cityLedgerData.value = {
+      transactions: [],
+      totals: {
+        cityLedgerTotal: 0,
+        unpaidInvoice: 0,
+        unassignedPayments: 0,
+        assignedPayments: 0,
+        openingBalance: 0
+      },
+      companyAccount: null
+    }
+    return
   }
-])
+
+  try {
+    guestData.value = []
+    loading.value = true
+    const response = await getCityLedgerDetails({
+      companyAccountId: formData.value.cityLedgerAccountId,
+      hotelId: serviceStore.serviceId!,
+      dateFrom: formData.value.dateRange.start,
+      dateTo: formData.value.dateRange.end,
+      usePostingDate: formData.value.filter_options === 'posting',
+      searchText: '',
+      showVoided: false,
+      page: 1,
+      limit: 100
+    })
+
+    if (response) {
+      console.log('esponse', response)
+      cityLedgerData.value = response
+      // Transform API data to guest data format
+      guestData.value = response.data.map((transaction: any, index: number) => ({
+        id: transaction.id,
+        date: transaction.date,
+        name: transaction.guestName,
+        folioNo: transaction.folioNo,
+        user: transaction.user || 'System',
+        amount: Math.abs(transaction.amount),
+        assigned: 0,
+        open: Math.abs(transaction.debit),
+        assign: 0,
+        selected: false
+      }))
+
+      // Update form amount with total balance
+      formData.value.amount = cityLedgerData.value.totals?.unassignedPayments || 0
+    }
+  } catch (error) {
+    console.error('Error loading city ledger data:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
 // Selected guests
 const selectedGuests = ref([])
@@ -235,7 +299,7 @@ const selectedGuests = ref([])
 // Table columns definition
 const guestColumns = computed<Column[]>(() => {
   return [
-    { key: 'date', label: 'Date', sortable: true },
+    { key: 'date', label: 'Date', sortable: true, type: 'date' },
     { key: 'name', label: 'Guest Name', sortable: true },
     { key: 'folioNo', label: 'Folio No.', sortable: true },
     { key: 'user', label: 'User', sortable: true },
@@ -246,6 +310,13 @@ const guestColumns = computed<Column[]>(() => {
   ]
 })
 
+// Computed property for total assigned amount
+const totalAssignedAmount = computed(() => {
+  return formData.value.amount -  guestData.value.reduce((sum, item:any) => {
+    return sum + (parseFloat(item.assign) || 0)
+  }, 0)
+})
+
 // Table actions
 const guestActions = [
   { key: 'assign', label: 'Assign', icon: 'check-circle' }
@@ -253,52 +324,236 @@ const guestActions = [
 
 
 
+// Check if an item can be selected (has open balance > 0)
+const canSelectItem = (item: any) => {
+  const openAmount = parseFloat(item.open) || 0
+  return openAmount > 0
+}
+
 const handleGuestSelectionChange = (selected: any) => {
-  selectedGuests.value = selected
+  // Filter out items that cannot be selected (open balance <= 0)
+  const validSelected = selected.filter((item: any) => canSelectItem(item))
+  
+  // Show warning if user tried to select items with zero balance
+  if (selected.length > validSelected.length) {
+    toast.warning('Cannot select items with zero open balance')
+  }
+  
+  selectedGuests.value = validSelected
+  
   // Update the selected property in guestData
-  guestData.value.forEach(guest => {
-    guest.selected = selectedGuests.value.some((item: any) => item.folioNo === guest.folioNo)
+  guestData.value.forEach((guest:any) => {
+    const isSelected = selectedGuests.value.some((item: any) => item.id === guest.id)
+    guest.selected = isSelected
+
+    if (isSelected) {
+      // Auto-assign the open value when selected
+      const openAmount = parseFloat(guest.open) || 0
+      if (openAmount > 0) {
+        guest.assign = openAmount
+        console.log(`Auto-assigned ${formatCurrency(openAmount)} to ${guest.name}`)
+      }
+    } else {
+      // Reset assign value when deselected
+      guest.assign = 0
+      console.log(`Reset assignment for ${guest.name}`)
+    }
   })
+
+  // Log total assigned amount for debugging
+  const total = guestData.value.reduce((sum, item:any) => sum + (parseFloat(item.assign) || 0), 0)
+  console.log(`Total assigned amount: ${formatCurrency(total)}`)
+}
+const handChangeCityLedger = (item: any) => {
+  formData.value.cityLedgerAccount = item;
+  formData.value.cityLedgerAccountId = item.id
+  loadCityLedgerData()
+}
+// Check if an item is selected
+const isItemSelected = (item: any) => {
+  return selectedGuests.value.some((selected: any) => selected.id === item.id)
+}
+
+// Validate assign amount to not exceed open value
+const validateAssignAmount = (item: any) => {
+  // Convert to number to handle string inputs
+  const assignValue = parseFloat(item.assign) || 0
+  const openValue = parseFloat(item.open) || 0
+
+  if (assignValue > openValue) {
+    item.assign = openValue
+    toast.warning(`Assigned amount cannot exceed open amount of ${formatCurrency(openValue)}`)
+  }
+  if (assignValue < 0) {
+    item.assign = 0
+    toast.warning('Assigned amount cannot be negative')
+  }
+
+  // Ensure the value is properly formatted
+  item.assign = parseFloat(item.assign) || 0
+}
+
+// Search transactions with refined details
+const searchTransactions = async () => {
+  if (!formData.value.cityLedgerAccountId) {
+    toast.error('Please select a city ledger account first')
+    return
+  }
+
+  try {
+    loading.value = true
+    // Clear current selections when searching
+    selectedGuests.value = []
+
+    // Reload data with current filter settings
+    await loadCityLedgerData()
+
+    toast.success(`Found ${guestData.value.length} transactions`)
+
+    console.log('Transaction search completed with filters:', {
+      cityLedgerAccountId: formData.value.cityLedgerAccountId,
+      dateRange: `${formData.value.dateRange.start} to ${formData.value.dateRange.end}`,
+      filterOption: formData.value.filter_options,
+      totalTransactions: guestData.value.length
+    })
+  } catch (error) {
+    console.error('Search error:', error)
+    toast.error('Failed to search transactions')
+  } finally {
+    loading.value = false
+  }
 }
 
 
 
 
 
-const savePayment = () => {
-  // Validate form
-  if (!formData.value.cityLedgerAccount) {
-    alert('Please select a city ledger account')
-    return
+const savePayment = async () => {
+  try {
+    // Start loading
+    loading.value = true
+
+    // Validate form
+    if (!formData.value.cityLedgerAccountId) {
+      toast.error('Please select a city ledger account')
+      return
+    }
+
+    if (!formData.value.paymentMethod) {
+      toast.error('Please select a payment method')
+      return
+    }
+
+    if (!formData.value.amount) {
+      toast.error('Please assign amounts to selected items')
+      return
+    }
+
+    // Get selected items with assigned amounts
+    const selectedItems = guestData.value.filter((g:any) => g.selected && g.assign > 0)
+
+
+    if (selectedItems.length === 0) {
+      toast.error('Please select items and assign amounts')
+      return
+    }
+    // Prepare payment data according to API schema
+    const paymentData = {
+      companyId: formData.value.cityLedgerAccountId,
+      hotelId: serviceStore.serviceId,
+      amount: formData.value.amount,
+      description: formData.value.comment || 'City Ledger Payment',
+      reference: formData.value.reference || '',
+      voucher: formData.value.reference || '',
+      paymentMethodId: formData.value.paymentMethod,
+      postingDate: new Date().toISOString(),
+      transactionDate: formData.value.date ? new Date(formData.value.date).toISOString() : new Date().toISOString(),
+      mappings: selectedItems.map((item:any) => ({
+        transactionId: item.id,
+        newAssignedAmount: parseFloat(item.assign) || 0
+      })),
+      assignedBy: authStore.user?.id,
+      assignmentDate: new Date().toISOString(),
+      notes: formData.value.comment || ''
+    }
+
+    console.log('Saving payment with data:', paymentData)
+
+    // Call API
+    const response = await postTransactionPayCompanyBulk(paymentData)
+
+    if (response && response.success) {
+      toast.success('Payment saved successfully!')
+      // Emit event to parent component to refresh data
+      emit('payment-saved')
+      // Close modal after successful save
+      closeModal()
+    } else {
+      const errorMessage = response?.message || 'Failed to save payment. Please try again.'
+      toast.error(errorMessage)
+    }
+  } catch (error) {
+    console.error('Error saving payment:', error)
+    toast.error('An error occurred while saving the payment')
+  } finally {
+    loading.value = false
   }
-
-  if (!formData.value.paymentType) {
-    alert('Please select a payment type')
-    return
-  }
-
-  if (!formData.value.amount) {
-    alert('Please enter an amount')
-    return
-  }
-
-  // Process payment logic here
-  console.log('Saving payment:', formData.value)
-  console.log('Selected guests:', guestData.value.filter(g => g.selected))
-
-  // Close modal after saving
-  closeModal()
 }
 
 const closeModal = () => {
   emit('close')
 }
 
+// Watchers for prop changes
+watch(
+  () => props.selectedCompanyId,
+  (newCompanyId) => {
+    if (newCompanyId) {
+      formData.value.cityLedgerAccountId = newCompanyId
+      // Set a placeholder cityLedgerAccount object to enable search
+      loadCityLedgerData()
+    } else {
+      formData.value.cityLedgerAccount = null
+      formData.value.cityLedgerAccountId = 0
+      guestData.value = []
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.dateRange,
+  (newDateRange) => {
+    if (newDateRange) {
+      formData.value.dateRange.start = newDateRange.startDate
+      formData.value.dateRange.end = newDateRange.endDate
+      if (formData.value.cityLedgerAccount) {
+        loadCityLedgerData()
+      }
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.activeTab,
+  (newActiveTab) => {
+    if (newActiveTab) {
+      formData.value.filter_options = newActiveTab
+      if (formData.value.cityLedgerAccount) {
+        loadCityLedgerData()
+      }
+    }
+  }
+)
+
+
+
+// Load data on component mount
 onMounted(() => {
-  // Simulate loading data
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-  }, 500)
+  // Load data if props are provided or if cityLedgerAccount is set
+  if (formData.value.cityLedgerAccount || props.selectedCompanyId) {
+    loadCityLedgerData()
+  }
 })
 </script>
