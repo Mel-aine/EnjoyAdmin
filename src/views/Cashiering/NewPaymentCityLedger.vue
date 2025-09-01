@@ -177,8 +177,8 @@ const authStore = useAuthStore()
 const props = defineProps<{
   selectedCompanyId?: number | null
   dateRange?: {
-    startDate: string
-    endDate: string
+    start: string
+    end: string
   }
   activeTab?: string
 }>()
@@ -209,8 +209,8 @@ const formData = ref({
   amount: 0,
   comment: '',
   dateRange: {
-    start: props.dateRange?.startDate || getYesterday(),
-    end: props.dateRange?.endDate || getToday(),
+    start: props.dateRange?.start || getYesterday(),
+    end: props.dateRange?.end || getToday(),
   },
   paymentMethod: 0,
   filter_options: props.activeTab || "posting"
@@ -525,8 +525,8 @@ watch(
   () => props.dateRange,
   (newDateRange) => {
     if (newDateRange) {
-      formData.value.dateRange.start = newDateRange.startDate
-      formData.value.dateRange.end = newDateRange.endDate
+      formData.value.dateRange.start = newDateRange.start
+      formData.value.dateRange.end = newDateRange.end
       if (formData.value.cityLedgerAccount) {
         loadCityLedgerData()
       }

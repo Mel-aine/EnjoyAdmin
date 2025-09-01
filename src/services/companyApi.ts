@@ -205,7 +205,7 @@ export const getCityLedgerDetails = async (params: {
   showVoided: boolean, // Default to hide voided transactions
   page: number,
   limit: number
-}): Promise<AxiosResponse | undefined> => {
+}): Promise<any> => {
   try {
     const response: AxiosResponse<AxiosResponse> = await axios.get(
       `${API_URL}/city_ledger`,
@@ -224,7 +224,7 @@ export const getCityLedgerDetails = async (params: {
 /**
  * pos transaction payment 
  */
-export const postTransactionPayCompanyBulk = async (data: any): Promise<AxiosResponse | undefined> => {
+export const postTransactionPayCompanyBulk = async (data: any): Promise<any> => {
   try {
     const response: AxiosResponse<AxiosResponse> = await axios.post(
       `${API_URL}/company_folios/payment-with-assignment`, data, headers
