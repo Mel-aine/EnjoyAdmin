@@ -207,17 +207,7 @@
           </div>
         </template>
 
-        <!-- Custom Actions Column -->
-        <template #column-actions="{ item }">
-          <div class="flex items-center gap-1">
-            <button class="p-1 hover:bg-gray-100 rounded" @click="editItem(item)">
-              <PencilIcon class="w-4 h-4 text-gray-500" />
-            </button>
-            <button class="p-1 hover:bg-gray-100 rounded" @click="deleteItem(item)">
-              <TrashIcon class="w-4 h-4 text-red-500" />
-            </button>
-          </div>
-        </template>
+
       </ReusableTable>
 
       <!-- Footer Summary -->
@@ -325,14 +315,14 @@ const columns = computed<Column[]>(() => [
   { key: 'tax', label: t('Tax'), type: 'custom' },
   { key: 'adjustment', label: t('Adjustment'), type: 'custom' },
   { key: 'netAmount', label: t('NetAmount'), type: 'custom' },
-  { key: 'actions', label: t('Actions'), type: 'custom' }
+
 ])
 
 // More Actions Options
 const getMoreActionOptions = () => {
   const baseOptions = [
-    { label: t('updateDetails'), id: 'updateDetails' },
-    { label: t('applyDiscount'), id: 'applyDiscount' },
+    // { label: t('updateDetails'), id: 'updateDetails' },
+    // { label: t('applyDiscount'), id: 'applyDiscount' },
     { label: t('RemoveTransaction'), id: 'removeTransaction' },
   ]
 
@@ -428,15 +418,7 @@ const applyDiscount = () => {
   // Implement apply discount functionality
 }
 
-const editItem = (item: any) => {
-  console.log('Edit item:', item)
-  // Implement edit functionality
-}
 
-const deleteItem = (item: any) => {
-  console.log('Delete item:', item)
-  // Implement delete functionality
-}
 
 const refreshData = async () => {
   await loadRoomCharges()
