@@ -4,11 +4,11 @@
     <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
       <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
       <span class="text-gray-600">{{ $t('Reserved') }} {{ statusCounts.reserved }}</span>
-      <span class="text-gray-600">{{ $t('Due Out') }} {{ statusCounts.dueOut }}</span>
+      <span class="text-gray-600">{{ $t('DueOut') }} {{ statusCounts.dueOut }}</span>
       <span class="text-gray-600">{{ $t('Departed') }} {{ statusCounts.departed }}</span>
       <span class="text-gray-600">{{ $t('Void') }} {{ statusCounts.void }}</span>
-      <span class="text-gray-600">{{ $t('No Show') }} {{ statusCounts.noShow }}</span>
-      <span class="text-gray-600">{{ $t('In House') }} {{ statusCounts.inHouse }}</span>
+      <span class="text-gray-600">{{ $t('NoShow') }} {{ statusCounts.noShow }}</span>
+      <span class="text-gray-600">{{ $t('InHouse') }} {{ statusCounts.inHouse }}</span>
       <span class="text-gray-600">{{ $t('Cancel') }} {{ statusCounts.cancel }}</span>
       <div class="ml-auto flex flex-wrap gap-3 md:gap-6">
         <span class="text-gray-600">{{ $t('Remark') }} {{ remarkCount }}</span>
@@ -54,7 +54,7 @@
         <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl">
-              {{ $t('Billing Information') }}
+              {{ $t('BillingInformation') }}
             </h3>
           </div>
           
@@ -63,7 +63,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
-                  :lb="$t('Bill To')"
+                  :lb="$t('BillTo')"
                   v-model="billingData.billTo"
                   :options="billToOptions"
                   :placeholder="$t('Company')"
@@ -91,7 +91,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
-                  :lb="$t('Payment Mode')"
+                  :lb="$t('PaymentMode')"
                   v-model="billingData.paymentMode"
                   :options="paymentModeOptions"
                   :placeholder="$t('Cash')"
@@ -101,10 +101,10 @@
               
               <div>
                 <Input
-                  :lb="$t('GSTIN No')"
+                  :lb="$t('GSTINNo')"
                   v-model="billingData.gstinNo"
                   type="text"
-                  :placeholder="$t('GST Number')"
+                  :placeholder="$t('GSTNumber')"
                   :disabled="!editMode"
                 />
               </div>
@@ -113,10 +113,10 @@
             <!-- Reservation Type -->
             <div>
               <Select
-                :lb="$t('Reservation Type')"
+                :lb="$t('ReservationType')"
                 v-model="billingData.reservationType"
                 :options="reservationTypeOptions"
-                :placeholder="$t('Confirm Booking')"
+                :placeholder="$t('ConfirmBooking')"
                 :disabled="!editMode"
               />
             </div>
@@ -128,7 +128,7 @@
       <div class="lg:col-span-5">
         <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
-          <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('Source Information') }}</h3>
+          <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('SourceInformation') }}</h3>
             <button
               class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
               @click="toggleEditMode"
@@ -163,7 +163,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
-                  :lb="$t('Market Code')"
+                  :lb="$t('MarketCode')"
                   v-model="sourceData.marketCode"
                   :options="marketCodeOptions"
                   :placeholder="$t('-Select-')"
@@ -173,7 +173,7 @@
               
               <div>
                 <Select
-                  :lb="$t('Business Source')"
+                  :lb="$t('BusinessSource')"
                   v-model="sourceData.businessSource"
                   :options="businessSourceOptions"
                   :placeholder="$t('-Select-')"
@@ -186,10 +186,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Input
-                  :lb="$t('Voucher No.')"
+                  :lb="$t('VoucherNo')"
                   v-model="sourceData.voucherNo"
                   type="text"
-                  :placeholder="$t('Voucher No')"
+                  :placeholder="$t('VoucherNo')"
                   :disabled="!editMode"
                 />
               </div>
@@ -218,7 +218,7 @@
                 <div class="flex">
                 <InputCurrency
                   v-model="sourceData.planValue"
-                  :lb="$t('Plan Value')"
+                  :lb="$t('PlanValue')"
                   id="plan-value"
                   :disabled="!editMode"
                   :show-currency-selector="true"
@@ -231,7 +231,6 @@
               </div>
               
               <!-- Commission -->
-
 <!--               <div>
                 <Select
                   :lb="$t('Commission Plan')"
@@ -268,7 +267,7 @@
               
               <div>
                 <Select
-                  :lb="$t('Sales Person')"
+                  :lb="$t('SalesPerson')"
                   v-model="sourceData.salesPerson"
                   :options="salesPersonOptions"
                   :placeholder="$t('-Select-')"
@@ -305,7 +304,7 @@
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Send Mail') }}
+            {{ $t('SendMail') }}
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -314,7 +313,7 @@
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Check Out Mail') }}
+            {{ $t('CheckOutMail') }}
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -323,7 +322,7 @@
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Thank You email to Guest') }}
+            {{ $t('ThankYouemailToGuest') }}
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -332,7 +331,7 @@
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Supress Rate on GR Card') }}
+            {{ $t('SupressRateOnGRCard') }}
           </label>
           <label class="flex items-center">
             <InputCheckbox 
@@ -341,17 +340,17 @@
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Access Guest Portal') }}
+            {{ $t('AccessGuestPortal') }}
           </label>
         </div>
         
         <!-- Right side - Action Buttons -->
         <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
-          <BasicButton variant="secondary" :label="$t('Apply To Group')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
+          <BasicButton variant="secondary" :label="$t('ApplyToGroup')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
           <BasicButton 
             v-if="editMode"
             variant="primary" 
-            :label="$t('Save Changes')" 
+            :label="$t('SaveChanges')" 
             @click="saveChanges"
             :disabled="isSaving"
             :loading="isSaving" 
