@@ -2,10 +2,7 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
-import type {
-  RoomTypeData,
-} from '@/types/option'
-
+ 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/night-audit`
 
 
@@ -73,4 +70,11 @@ export const getNightAuditNightlyCharges = (hotelId: number, auditDate:string): 
  */
 export const getNightAuditPendingReservations = (hotelId: number, auditDate:string): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/${hotelId}/${auditDate}/pending-reservations`, headers)
+}
+
+/***
+ * post postNightlyCharges
+ * */
+export const postNightlyCharges = (hotelId: number, auditDate:string, data:any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/${hotelId}/${auditDate}/nightly-charges`, data, headers)
 }

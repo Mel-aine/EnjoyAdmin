@@ -128,18 +128,13 @@
               {{ $t('Post room charges for all occupied rooms based on current working date') }}
             </p>
           </div>
-          <div class="mb-4">
-            <BasicButton :label="$t('Post All Charges')" variant="primary" @click="postAllCharges"
-              :loading="postingCharges" />
+          <div class="mb-4 flex gap-3 "  v-if="canPostCharges" >
+           <span class="align-middle self-center items-center">{{selectedCharges.length}} {{ $t('Record(s) Selected') }} </span> <BasicButton :label="$t('Post')" variant="primary" @click="postSelectedCharges"
+              :loading="postingCharges"  />
           </div>
           <ReusableTable :columns="nightlyChargesColumns" :data="nightlyChargesData" :searchable="false"
-            :show-header="false" :loading="loading">
-            <template #actions="{ item }">
-              <div class="flex space-x-2">
-                <BasicButton :label="$t('Post')" variant="primary" size="sm" @click="postCharge(item)"
-                  :disabled="item.posted" />
-              </div>
-            </template>
+            :show-header="false" :loading="loading" :selectable="true" @selection-change="handleChargesSelectionChange">
+          
           </ReusableTable>
         </div>
 
@@ -201,14 +196,14 @@ import BasicButton from '../../components/buttons/BasicButton.vue'
 import { CheckIcon, InfoIcon } from 'lucide-vue-next'
 import { formatDateT } from '../../components/utilities/UtilitiesFunction'
 import type { Action, Column } from '../../utils/models'
-import { getFoglioWithParams, settleFolio, getFolioStatement, processCheckout, postRoomCharges, postTaxesAndFees, postTransaction } from '@/services/foglioApi'
+import { getFoglioWithParams, settleFolio, getFolioStatement, processCheckout, postRoomCharges, postTaxesAndFees, postTransaction, addRoomChargeHandler } from '@/services/foglioApi'
 import { useReservation } from '@/composables/useReservation'
 import {
   getReleaseReservations
 } from '@/services/reservation'
 import { createPayment, confirmPayment, checkExtendStay } from '@/services/api'
 import { useServiceStore } from '../../composables/serviceStore'
-import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations } from '../../services/nightAudit'
+import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations, postNightlyCharges } from '../../services/nightAudit'
 import VoidReservation from '../../components/reservations/foglio/VoidReservation.vue'
 import NoShowReservation from '../../components/reservations/foglio/NoShowReservation.vue'
 import CancelReseravtion from '../../components/reservations/foglio/CancelReseravtion.vue'
@@ -263,6 +258,7 @@ const releaseReservationsData = ref([])
 const roomStatusData = ref([])
 const unsettledFoliosData = ref([])
 const nightlyChargesData = ref([])
+const selectedCharges = ref<any[]>([])
 
 // API Functions
 const fetchPendingReservations = async () => {
@@ -307,7 +303,13 @@ const fetchRoomStatus = async () => {
     // Get rooms due for checkout today
     const response = await getNightAuditRoomStatus(Number(serviceStore.serviceId), currentDate.value)
     console.log('roomo status', response)
-    roomStatusData.value = response.data?.data?.roomStatus || []
+    const roomStatusList = response.data?.data?.roomStatus || []
+
+    // Set noaction based on isRequiredAction for each room
+    roomStatusData.value = roomStatusList.map((room: any) => ({
+      ...room,
+      noaction: !room.isRequiredAction
+    }))
 
   } catch (error) {
     console.error('Error fetching room status:', error)
@@ -409,12 +411,11 @@ const unsettledFoliosColumns: Column[] = [
 ]
 
 const nightlyChargesColumns: Column[] = [
-  { key: 'resNo', label: 'Res No#', type: 'text' },
-  { key: 'guest', label: 'Guest', type: 'text' },
-  { key: 'folio', label: 'Folio', type: 'text' },
-  { key: 'type', label: 'Type', type: 'text' },
-  { key: 'amount', label: 'Amount', type: 'text' },
-  { key: 'actions', label: 'Actions', type: 'custom' }
+  { key: 'reservation_number', label: 'Res No#', type: 'text' },
+  { key: 'guest_name', label: 'Guest', type: 'text' },
+  { key: 'folio_id', label: 'Folio', type: 'text' },
+  { key: 'rate_type', label: 'Type', type: 'text' },
+  { key: 'rate', label: 'Amount', type: 'text' },
 ]
 
 const pendingReservationsActions: Action[] = [
@@ -488,8 +489,9 @@ const validateStep = (step: number): boolean => {
       }
       return true
     case 3:
-      // Step 3 to 4: room status must be empty (all resolved)
-      if (roomStatusData.value.length > 0) {
+      // Step 3 to 4: check if there are no records with isRequiredAction set to true
+      const roomsWithRequiredAction = roomStatusData.value.filter((room: any) => room.isRequiredAction === true)
+      if (roomsWithRequiredAction.length > 0) {
         toast.error(t('Please resolve all room status issues before proceeding'))
         return false
       }
@@ -636,9 +638,6 @@ const handlerPendingReservation = (item: any, action: string) => {
   }
 }
 
-const moveGuest = (item: any) => {
-  toast.info(`Move guest: ${item.guest}`)
-}
 
 const editReservation = (item: any) => {
   toast.info(`Edit reservation: ${item.resNo}`)
@@ -692,54 +691,55 @@ const changeRelease = async (item: any) => {
   }
 }
 
-const checkOutGuest = (item: any) => {
-  selectedGuestForCheckOut.value = item;
-  showCheckOutModal.value = true;
+
+// Handle selection change for nightly charges
+const handleChargesSelectionChange = (selectedItems: any[]) => {
+  selectedCharges.value = selectedItems
 }
 
-const amendStayAction = async (item: any) => {
+// Computed property to check if post button should be enabled
+const canPostCharges = computed(() => {
+  return selectedCharges.value.length > 0
+})
+
+// Post selected charges function
+const postSelectedCharges = async () => {
+  if (selectedCharges.value.length === 0) {
+    toast.warning(t('Please select at least one charge to post'))
+    return
+  }
+
   try {
-    // This would typically open a modal for date selection
-    // For now, we'll extend the stay by 1 day
-    const newCheckOutDate = new Date(item.checkOutDate || new Date())
-    newCheckOutDate.setDate(newCheckOutDate.getDate() + 1)
-
-    const payload = {
-      reservationId: item.reservationId || item.id,
-      newCheckOutDate: newCheckOutDate.toISOString().split('T')[0],
-      notes: 'Stay extended during night audit'
+    postingCharges.value = true
+    const playload = {
+      auditDate:currentDate.value,
+      charges: selectedCharges.value.map((ch:any)=>{
+        return{
+          reservationId : ch.reservation_id,
+          folioId : ch.folio_id,
+          description : `Night Audit - ${currentDate} posting` ,
+          amount : ch.rate,
+        }
+      })
     }
+    const charges = await postNightlyCharges(Number(serviceStore.serviceId), currentDate.value, playload )
 
-    await amendStay(payload, fetchRoomStatus)
-    toast.success(t('Stay amended successfully'))
+    console.log('responses', charges)
+
+    // Clear selection after posting
+    selectedCharges.value = []
+    toast.success(t('Selected charges posted successfully'))
+    // Refresh nightly charges data
+    await fetchNightlyCharges()
   } catch (error) {
-    console.error('Amend stay error:', error)
-    toast.error(t('Failed to amend stay'))
+    console.error('Error posting selected charges:', error)
+    toast.error(t('Failed to post selected charges'))
+  } finally {
+    postingCharges.value = false
   }
 }
 
-const settlePayment = async (item: any) => {
-  try {
-    // Simulate payment settlement using settleFolio API
-    const settlementData = {
-      folioId: item.id,
-      paymentMethodId: 1, // Default to cash payment
-      amount: item.balance,
-      reference: `SETTLE-${Date.now()}`,
-      notes: 'Night audit settlement'
-    }
 
-    await settleFolio(settlementData)
-
-    toast.success(t('Payment settled successfully'))
-
-    // Refresh the unsettled folios list
-    await fetchUnsettledFolios()
-  } catch (error) {
-    console.error('Error settling payment:', error)
-    toast.error(t('Failed to settle payment'))
-  }
-}
 
 const finishNightAudit = async () => {
   finishingAudit.value = true

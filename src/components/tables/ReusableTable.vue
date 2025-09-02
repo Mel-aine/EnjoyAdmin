@@ -278,6 +278,11 @@ const getItemKey = (item: any, index: number) => {
 }
 
 const getItemActions = (item: any) => {
+  // Don't show actions if the row has noaction set to true
+  if (item.noaction === true) {
+    return []
+  }
+  
   return props.actions.filter((action:any) =>
     !action.condition || action.condition(item)
   )
