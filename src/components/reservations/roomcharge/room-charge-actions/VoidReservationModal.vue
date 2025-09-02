@@ -48,9 +48,7 @@
                   type="checkbox"
                   :id="`prev-reservation-${reservation.roomId}`"
                   v-model="reservation.selected"
-                  :disabled="formData.applyChargesOn === 'group'"
                   class="w-4 h-4 text-blue-600 border-gray-300 rounded "
-                  :class="{ 'cursor-not-allowed': formData.applyChargesOn === 'group' }"
                 />
                 <label :for="`prev-reservation-${reservation.roomId}`"
                        class="text-sm flex-1"
@@ -81,10 +79,7 @@
                 />
                 <label :for="`other-reservation-${reservation.roomId}`"
                        class="text-sm flex-1"
-                       :class="{
-                         'cursor-pointer': formData.applyChargesOn !== 'group',
-                         'text-gray-400': formData.applyChargesOn === 'group'
-                       }">
+                     >
                   <div class="font-medium">{{ reservation.name }}</div>
                   <div class="text-xs text-gray-500">
                     {{ reservation.room }}
@@ -95,10 +90,10 @@
             </div>
 
             <!-- No reservations message -->
-            <div v-if="allReservations.length === 0"
+            <!-- <div v-if="allReservations.length === 0"
                  class="text-sm text-gray-500 italic p-3 bg-yellow-50 border border-yellow-200 rounded">
               {{ $t('NoReservationsAvailable') }}
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -191,6 +186,25 @@ interface VoidReservationData {
   reservationId: number
   selectedReservations: number[]
   reason: string
+}
+
+
+interface VoidReservationResponse {
+  message: string
+  reservationId: string
+  isPartialVoid: boolean
+  allRoomsVoided: boolean
+  roomsVoided: string[]
+  voidDetails: {
+    originalStatus: string
+    currentStatus: string
+    voidedDate: string
+    reason: string
+    roomsVoidedCount: number
+    totalRoomsInReservation: number
+    foliosVoided: number
+    voidedRoomIds: string[]
+  }
 }
 
 interface Emits {
@@ -297,6 +311,62 @@ const resetForm = () => {
   useDropdownReason.value = true
 }
 
+// const handleVoidReservation = async () => {
+//   if (!isFormValid.value) {
+//     toast.error(t('Void reason is required'))
+//     return
+//   }
+
+//   isVoiding.value = true
+
+//   try {
+//     const voidData: VoidReservationData = {
+//       reservationId: props.reservationId,
+//       selectedReservations: getSelectedReservationIds.value,
+//       reason: formData.reason,
+//     }
+
+//     console.log('Voiding reservation with data:', voidData)
+
+//     const response = await voidReservation(voidData)
+
+//     if (response && response.message) {
+//       const successMessage = response.message.includes('successfully')
+//         ? response.message
+//         : t('reservation_void_successfully')
+
+//       toast.success(successMessage)
+
+//       console.log('Reservation voided successfully!',response)
+//       console.log(`- Reservation ID: ${response.reservationId}`)
+//       console.log(`- Rooms voided: ${response.roomsVoided?.join(', ')}`)
+
+//       emit('void-success')
+//       closeModal()
+//     } else {
+//       toast.error(t('error_voiding_reservation'))
+//     }
+
+//   } catch (error: any) {
+//     console.error('Error voiding reservation:', error)
+
+//     if (error.response) {
+//       const errorMessage = error.response.data?.message ||
+//                           error.response.data?.error ||
+//                           `${t('error_voiding_reservation')} (${error.response.status})`
+//       toast.error(errorMessage)
+//     } else if (error.request) {
+//       toast.error(t('network_error') || 'Erreur réseau')
+//     } else {
+//       toast.error(error.message || t('error_voiding_reservation'))
+//     }
+//   } finally {
+//     isVoiding.value = false
+//   }
+// }
+
+
+
 const handleVoidReservation = async () => {
   if (!isFormValid.value) {
     toast.error(t('Void reason is required'))
@@ -314,7 +384,7 @@ const handleVoidReservation = async () => {
 
     console.log('Voiding reservation with data:', voidData)
 
-    const response = await voidReservation(voidData)
+    const response: VoidReservationResponse = await voidReservation(voidData)
 
     if (response && response.message) {
       const successMessage = response.message.includes('successfully')
@@ -322,12 +392,23 @@ const handleVoidReservation = async () => {
         : t('reservation_void_successfully')
 
       toast.success(successMessage)
-
-      console.log('Reservation voided successfully!',response)
+      console.log('Room(s) voided successfully!', response)
       console.log(`- Reservation ID: ${response.reservationId}`)
+      console.log(`- Is partial void: ${response.isPartialVoid}`)
+      console.log(`- All rooms voided: ${response.allRoomsVoided}`)
       console.log(`- Rooms voided: ${response.roomsVoided?.join(', ')}`)
+      console.log(`- Rooms count: ${response.voidDetails.roomsVoidedCount}/${response.voidDetails.totalRoomsInReservation}`)
 
-      emit('void-success')
+      if (response.voidDetails.foliosVoided > 0) {
+        console.log(`- Folios voided: ${response.voidDetails.foliosVoided}`)
+      }
+
+      emit('void-success', {
+        isPartialVoid: response.isPartialVoid,
+        allRoomsVoided: response.allRoomsVoided,
+        roomsVoided: response.roomsVoided,
+        roomsCount: response.voidDetails.roomsVoidedCount
+      })
       closeModal()
     } else {
       toast.error(t('error_voiding_reservation'))
