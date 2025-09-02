@@ -128,13 +128,15 @@
               {{ $t('Post room charges for all occupied rooms based on current working date') }}
             </p>
           </div>
-          <div class="mb-4 flex gap-3 "  v-if="canPostCharges" >
-           <span class="align-middle self-center items-center">{{selectedCharges.length}} {{ $t('Record(s) Selected') }} </span> <BasicButton :label="$t('Post')" variant="primary" @click="postSelectedCharges"
-              :loading="postingCharges"  />
+          <div class="mb-4 flex gap-3 " v-if="canPostCharges">
+            <span class="align-middle self-center items-center">{{ selectedCharges.length }} {{ $t('Record(s) Selected')
+              }}
+            </span>
+            <BasicButton :label="$t('Post')" variant="primary" @click="postSelectedCharges" :loading="postingCharges" />
           </div>
           <ReusableTable :columns="nightlyChargesColumns" :data="nightlyChargesData" :searchable="false"
             :show-header="false" :loading="loading" :selectable="true" @selection-change="handleChargesSelectionChange">
-          
+
           </ReusableTable>
         </div>
 
@@ -161,8 +163,6 @@
           <div class="flex space-x-4">
             <BasicButton :label="$t('Finish Night Audit')" variant="primary" @click="finishNightAudit"
               :loading="finishingAudit" />
-            <BasicButton v-if="auditCompleted" :label="$t('Generate Reports')" variant="secondary"
-              @click="generateReports" />
           </div>
 
         </div>
@@ -214,12 +214,6 @@ const serviceStore = useServiceStore();
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToast()
-const {
-  performCheckIn,
-  performCheckOut,
-  amendStay,
-  markNoShow: markNoShowComposable
-} = useReservation()
 const getYesterday = () => {
   const date = new Date()
   date.setDate(date.getDate() - 1)
@@ -712,17 +706,17 @@ const postSelectedCharges = async () => {
   try {
     postingCharges.value = true
     const playload = {
-      auditDate:currentDate.value,
-      charges: selectedCharges.value.map((ch:any)=>{
-        return{
-          reservationId : ch.reservation_id,
-          folioId : ch.folio_id,
-          description : `Night Audit - ${currentDate} posting` ,
-          amount : ch.rate,
+      auditDate: currentDate.value,
+      charges: selectedCharges.value.map((ch: any) => {
+        return {
+          reservationId: ch.reservation_id,
+          folioId: ch.folio_id,
+          description: `Night Audit - ${currentDate} posting`,
+          amount: ch.rate,
         }
       })
     }
-    const charges = await postNightlyCharges(Number(serviceStore.serviceId), currentDate.value, playload )
+    const charges = await postNightlyCharges(Number(serviceStore.serviceId), currentDate.value, playload)
 
     console.log('responses', charges)
 
@@ -753,31 +747,13 @@ const finishNightAudit = async () => {
     auditCompleted.value = true
     // Success notification
     toast.success(t('Night audit completed successfully. Business day closed.'))
-
+    router.back();
 
   } catch (error) {
     console.error('Night audit completion error:', error)
     toast.error(t('Failed to complete night audit'))
   } finally {
     finishingAudit.value = false
-  }
-}
-
-const generateReports = async () => {
-  try {
-    toast.info(t('Generating night audit reports...'))
-
-    // Simulate report generation
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    toast.success(t('Night audit reports generated successfully'))
-
-    // In a real implementation, this would download or open the reports
-    console.log('Night audit reports generated for date:', currentDate.value)
-
-  } catch (error) {
-    console.error('Report generation error:', error)
-    toast.error(t('Failed to generate reports'))
   }
 }
 

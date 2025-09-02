@@ -103,17 +103,17 @@ const printDocumentData = computed(() => ({
 }))
 
 const roomRateTypeSummary = computed(() => {
-    if (!props.reservation?.reservationRooms || props.reservation.reservationRooms.length === 0) {
-        return 'N/A';
-    }
-    const reservationRooms = props.reservation.reservationRooms;
-    const totalRooms = reservationRooms.length;
+  if (!props.reservation?.reservationRooms || props.reservation.reservationRooms.length === 0) {
+    return 'N/A';
+  }
+  const reservationRooms = props.reservation.reservationRooms;
+  const totalRooms = reservationRooms.length;
 
-    // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map((room: any) => {
-        return `${room.room?.roomNumber}`
-    })
-    return roomNumbers;
+  // Get room numbers and create summary
+  const roomNumbers = reservationRooms.map((room: any) => {
+    return `${room.room?.roomNumber}`
+  })
+  return roomNumbers;
 });
 // Icon mapping for different actions
 const actionIconMap = {
@@ -309,7 +309,7 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
-            <span v-for="(value,ind) in roomRateTypeSummary" :key="ind">
+            <span v-for="(value, ind) in roomRateTypeSummary" :key="ind">
               {{ value }}
             </span>
           </div>
@@ -344,18 +344,25 @@ const formatDate = (dateString: string) => {
   </div>
 
   <!-- Cancel Reservation Modal -->
-  <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
-    @cancel-confirmed="handleCancelConfirmed" />
-
-  <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
-    :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-    @void-confirmed="handleVoidConfirmed" />
-  <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
-    :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-    @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+  <template v-if="showCancelModal">
+    <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+      @cancel-confirmed="handleCancelConfirmed" />
+  </template>
+  <template v-if="showVoidModal">
+    <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
+      :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+      @void-confirmed="handleVoidConfirmed" />
+  </template>
+  <template v-if="showAmendModal">
+    <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+      :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+      @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+  </template>
   <!-- NoShow Reservation Modal -->
-  <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
-    @noshow-confirmed="handleNoShowConfirmed" />
+  <template v-if="showNoShowModal">
+    <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
+      @noshow-confirmed="handleNoShowConfirmed" />
+  </template>
   <!-- Add Payment Modal -->
   <template v-if="isAddPaymentModalOpen">
     <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
@@ -363,8 +370,10 @@ const formatDate = (dateString: string) => {
   </template>
 
   <!-- Print Modal -->
-  <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-    @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservation.id"/>
+  <template v-if="showPrintModal">
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+      @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservation.id" />
+  </template>
 </template>
 
 <style></style>
