@@ -3,7 +3,7 @@
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">{{ $t('Check-out') }}</h3>
     </template>
-    
+
     <!-- Loading Skeleton -->
     <div v-if="isLoading" class="px-2 space-y-4">
       <div class="animate-pulse">
@@ -18,7 +18,7 @@
         <div class="h-10 bg-gray-200 rounded mb-4"></div>
       </div>
     </div>
-    
+
     <!-- Form -->
     <div v-else class="px-2 space-y-4">
       <!-- Perform Check-out on -->
@@ -28,19 +28,19 @@
         </label>
         <div class="flex space-x-4">
           <label class="flex items-center">
-            <input 
-              v-model="formData.checkOutType" 
-              type="radio" 
-              value="group" 
+            <input
+              v-model="formData.checkOutType"
+              type="radio"
+              value="group"
               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
             />
             <span class="ml-2 text-sm text-gray-700">{{ $t('Group') }}</span>
           </label>
           <label class="flex items-center">
-            <input 
-              v-model="formData.checkOutType" 
-              type="radio" 
-              value="individual" 
+            <input
+              v-model="formData.checkOutType"
+              type="radio"
+              value="individual"
               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
             />
             <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
@@ -54,15 +54,15 @@
           {{ $t('Select Rooms') }}
         </label>
         <div class="space-y-2 max-h-40 overflow-y-auto">
-          <label 
-            v-for="room in reservationRooms" 
-            :key="room.id" 
+          <label
+            v-for="room in reservationRooms"
+            :key="room.id"
             class="flex items-center p-2 border rounded hover:bg-gray-50"
           >
-            <input 
-              v-model="formData.selectedRooms" 
-              type="checkbox" 
-              :value="room.id" 
+            <input
+              v-model="formData.selectedRooms"
+              type="checkbox"
+              :value="room.id"
               :disabled="reservationRooms.length === 1 && formData.checkOutType === 'group'"
               class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
@@ -77,16 +77,16 @@
 
     <template #footer>
       <div class="flex justify-end space-x-2">
-        <BasicButton 
-          variant="secondary" 
-          @click="closeModal" 
+        <BasicButton
+          variant="secondary"
+          @click="closeModal"
           :label="$t('Cancel')"
           :disabled="isLoading"
         />
-        <BasicButton 
-          variant="primary" 
-          @click="performCheckOut" 
-          :label="formData.checkOutType === 'group' ? $t('Group Check-out') : $t('Check-out')" 
+        <BasicButton
+          variant="primary"
+          @click="performCheckOut"
+          :label="formData.checkOutType === 'group' ? $t('Group Check-out') : $t('Check-out')"
           :loading="isLoading"
           :disabled="isLoading || !canCheckOut"
         />
@@ -151,10 +151,10 @@ const reservationRooms = ref<any>([])
 
 // Computed properties
 const canCheckOut = computed(() => {
-  const hasRoomsSelected = formData.checkOutType === 'group' 
+  const hasRoomsSelected = formData.checkOutType === 'group'
     ? reservationRooms.value.length > 0
     : formData.selectedRooms.length > 0
-  
+
   // Can check out if rooms are selected and no outstanding balance
   return hasRoomsSelected && formData.outstandingBalance <= 0
 })
@@ -200,7 +200,7 @@ const resetForm = () => {
 
 const getBookingDetailsById = async () => {
   if (!props.reservationId) return
-  
+
   try {
     isLoading.value = true
     const response = await getReservationDetailsById(props.reservationId)
@@ -217,8 +217,8 @@ const getBookingDetailsById = async () => {
       // For group checkout with multiple rooms, select all
       formData.selectedRooms = reservationRooms.value.map((room:any) => room.id)
     }
-     
-    
+
+
     console.log('Reservation rooms loaded:', reservationRooms.value)
   } catch (error) {
     console.error('Error fetching reservation details:', error)
@@ -236,22 +236,22 @@ const closeModal = () => {
 const calculateFinalBill = async () => {
   try {
     isCalculating.value = true
-    
+
     // TODO: Implement API call to calculate final bill
     // This would typically call a folio API to get the current balance
     // For now, we'll simulate with room folio balances
     const totalBalance = reservationRooms.value.reduce((sum:number, room:any) => {
       return sum + (room.folioBalance || 0)
     }, 0)
-    
+
     formData.finalBillAmount = totalBalance
     formData.outstandingBalance = Math.max(0, totalBalance) // Only positive balances are outstanding
-    
+
     console.log('Calculated final bill:', {
       finalBillAmount: formData.finalBillAmount,
       outstandingBalance: formData.outstandingBalance
     })
-    
+
   } catch (error) {
     console.error('Error calculating final bill:', error)
     toast.error(t('Failed to calculate final bill'))
@@ -282,7 +282,7 @@ const performCheckOut = async () => {
     // Prepare check-out payload
     const checkOutDateTime = `${formData.checkOutDate}T${formData.checkOutTime}:00`
     const payload: CheckOutReservationPayload = {
-      reservationRooms: formData.checkOutType === 'group' 
+      reservationRooms: formData.checkOutType === 'group'
         ? reservationRooms.value.map((room:any) => room.id)
         : formData.selectedRooms,
       actualCheckOutTime: checkOutDateTime
@@ -295,7 +295,7 @@ const performCheckOut = async () => {
 
     // Emit success event
     emit('success', { ...payload, response })
-    
+
     // Close modal
     closeModal()
   } catch (error) {

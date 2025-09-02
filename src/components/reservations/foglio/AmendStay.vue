@@ -198,10 +198,10 @@ const getBookingDetailsById = async () => {
             // Set amend type based on number of rooms
             if (reservationRooms.value.length > 1) {
                 formData.value.amendType = 'group'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
             } else {
                 formData.value.amendType = 'individual'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
             }
         }
     } catch (error) {
@@ -275,9 +275,7 @@ watch(() => props.reservationId, (newVal) => {
 // Watch for amend type changes
 watch(() => formData.value.amendType, (newType) => {
     if (newType === 'group') {
-        formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
-    } else {
-        formData.value.selectedRooms = []
+        formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
     }
 })
 
@@ -286,11 +284,11 @@ watch(() => reservationRooms.value, (newRooms) => {
     if (newRooms.length === 1) {
         // Auto-select the single room and set to individual amend
         formData.value.amendType = 'individual'
-        formData.value.selectedRooms = [newRooms[0].id]
+        formData.value.selectedRooms = [newRooms[0].room.id]
     } else if (newRooms.length > 1) {
         // Auto-select all rooms for group amend
         if (formData.value.amendType === 'group') {
-            formData.value.selectedRooms = newRooms.map((room: any) => room.id)
+            formData.value.selectedRooms = newRooms.map((room: any) => room.room.id)
         }
     }
 }, { deep: true })

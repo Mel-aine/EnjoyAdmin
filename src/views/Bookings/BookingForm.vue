@@ -250,7 +250,7 @@
                 <div>
                   <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
                 </div>
-                <div>
+                <!-- <div>
                   <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" forLabel="'address'"
                     v-model="guest.address" />
                 </div>
@@ -269,7 +269,7 @@
                     <Input :inputType="'text'" :lb="$t('Zipcode')" :id="'zipcode'" forLabel="'zipcode'"
                       v-model="guest.zipcode" />
                   </div>
-                </div>
+                </div> -->
 
                 <!-- <div class="pt-1">
                   <button type="button"
@@ -301,7 +301,7 @@
                      </div>
                     </div>
                   </div>
- <!-- 
+ <!--
                   <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.sendEmailAtCheckout" class="form-checkbox" />
@@ -312,7 +312,7 @@
                       <Select :options="emailTemplates" v-model="otherInfo.emailTemplate" />
                     </div>
                   </div>
-                 
+
                   <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.accessToGuestPortal" class="form-checkbox" />
@@ -509,7 +509,7 @@
 
           <!-- Payment Information -->
           <div class="space-y-4">
-        
+
             <div class="flex space-x-4">
               <label class="flex items-center">
                 <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" />
@@ -526,7 +526,7 @@
             <InputPaymentMethodSelect  :paymentType="billing.paymentType" v-model="billing.paymentMode" :hide-label="true"
               />
           </div>
-        </div> 
+        </div>
 
         <div v-if="isPaymentButtonShow" class="mt-4">
           <button type="button" class="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition"

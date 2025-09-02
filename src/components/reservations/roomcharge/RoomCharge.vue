@@ -232,6 +232,11 @@
           <VoidReservation :reservation-id="reservationId" :is-open="isVoidReservationModalOpen"
             @close="closeVoidReservationModal" :selected-items="selectedTableItems"  @void-success="handleVoidSuccess" :all-room-charges="filteredRoomChargeData" />
         </template>
+
+         <template v-if="isCheckInReservationModalOpen">
+          <CheckInReservation :reservation-id="reservationId" :is-open="isCheckInReservationModalOpen"
+            @close="closeCheckInReservationModal" />
+        </template>
     </div>
   </div>
 </template>
@@ -248,7 +253,7 @@ import type { Column } from '../../../utils/models'
 import { getRoomCharges } from '../../../services/reservation'
 import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
-import { voidReservation } from '../../../services/reservation'
+import CheckInReservation from '../CheckInReservation.vue'
 
 const { t } = useI18n()
 
@@ -274,9 +279,12 @@ const roomChargeData = ref<any[]>([])
 const groupRooms = ref<any[]>([])
 const singleRoom = ref<any>(null)
 const summaryData = ref<any>(null)
+const reservationStatus = ref<string>('')
+const checkInDate = ref<string>('')
 const isVoidReservationModalOpen = ref(false)
 const selectedTableItems = ref<any[]>([])
 const toast = useToast()
+const isCheckInReservationModalOpen = ref(false)
 
 // Computed Properties
 const isGroupReservation = computed(() => props.isGroup || groupRooms.value.length > 1)
@@ -304,6 +312,26 @@ const selectedRoomTotal = computed(() => {
   return roomCharges.reduce((sum, item) => sum + (item.netAmount || 0), 0)
 })
 
+// Fonction pour vérifier si le check-in est possible
+const canCheckIn = computed(() => {
+  // Vérifier si le statut est "confirmed" (ou équivalent)
+  const isConfirmed = reservationStatus.value?.toLowerCase() === 'confirmed' ||
+                     reservationStatus.value?.toLowerCase() === 'confirmée' ||
+                     reservationStatus.value?.toLowerCase() === 'confirm'
+
+  // Vérifier si la date de check-in est aujourd'hui ou dans le passé
+  const today = new Date()
+  const checkIn = new Date(checkInDate.value)
+
+  // Normaliser les dates pour comparer seulement jour/mois/année
+  const todayStr = today.toDateString()
+  const checkInStr = checkIn.toDateString()
+
+  const isCheckInDateReached = checkIn <= today
+
+  return isConfirmed && isCheckInDateReached
+})
+
 // Table Columns
 const columns = computed<Column[]>(() => [
   { key: 'transactionDate', label: t('Stay'), type: 'custom' },
@@ -327,9 +355,15 @@ const getMoreActionOptions = () => {
   ]
 
   if (isGroupReservation.value) {
-    return [
-      ...baseOptions,
-      { label: t('groupCheckIn'), id: 'groupCheckIn' },
+    const groupOptions = []
+
+    // Ajouter "Group Check In" seulement si les conditions sont remplies
+    if (canCheckIn.value) {
+      groupOptions.push({ label: t('groupCheckIn'), id: 'groupCheckIn' })
+    }
+
+    // Ajouter les autres options de groupe
+    groupOptions.push(
       { label: t('UnassignRooms'), id: 'unassignRooms' },
       { label: t('VoidGroup'), id: 'voidGroup' },
       { label: t('GroupAmendStay'), id: 'groupAmendStay' },
@@ -337,8 +371,10 @@ const getMoreActionOptions = () => {
       { label: t('SetReleaseDate'), id: 'setReleaseDate' },
       { label: t('GroupSettlement'), id: 'groupSettlement' },
       { label: t('AddBookingToGroup'), id: 'addBookingToGroup' },
-      { label: t('GroupCancellation'), id: 'groupCancellation' },
-    ]
+      { label: t('GroupCancellation'), id: 'groupCancellation' }
+    )
+
+    return [...baseOptions, ...groupOptions]
   }
 
   return baseOptions
@@ -389,14 +425,16 @@ const selectRoom = (roomId: number) => {
   selectedRoomId.value = selectedRoomId.value === roomId ? null : roomId
 }
 
-
-
 const handleMoreAction = (action: any) => {
   console.log('More action selected:', action)
   // Handle different actions based on action.id
   switch (action.id) {
     case 'groupCheckIn':
-      // Handle group check-in
+      if (canCheckIn.value) {
+        openCheckInReservationModal()
+      } else {
+        toast.warning(t('checkInNotAvailable'))
+      }
       break
     case 'unassignRooms':
       // Handle unassign rooms
@@ -417,8 +455,6 @@ const applyDiscount = () => {
   console.log('Apply discount clicked')
   // Implement apply discount functionality
 }
-
-
 
 const refreshData = async () => {
   await loadRoomCharges()
@@ -442,6 +478,9 @@ const loadRoomCharges = async () => {
       totalAmount.value = response.data.summary?.totalNetAmount || 0
       balanceAmount.value = response.data.summary?.totalNetAmount || 0
 
+      // Récupérer le statut et la date de check-in depuis la réponse
+      reservationStatus.value = response.data.status || response.data.reservationStatus || ''
+      checkInDate.value = response.data.checkInDate || response.data.stay?.checkInDate || ''
 
       // Handle single room reservation
       if (response.data.roomChargesTable && response.data.roomChargesTable.length > 0) {
@@ -457,16 +496,16 @@ const loadRoomCharges = async () => {
           room.id && index === self.findIndex(r => r.id === room.id)
         )
 
-
         if (uniqueRooms.length > 1) {
           // Multiple rooms - treat as group
           groupRooms.value = uniqueRooms
           console.log("uniqueRooms",uniqueRooms)
-          selectedRoomId.value = uniqueRooms[0]?.id || null
+           selectedRoomId.value = null
         } else if (uniqueRooms.length === 1) {
           // Single room
           singleRoom.value = uniqueRooms[0]
           groupRooms.value = []
+          selectedRoomId.value = null
         }
       }
     }
@@ -478,11 +517,19 @@ const loadRoomCharges = async () => {
 }
 
 //handle Modal
+
+const openCheckInReservationModal = () =>{
+   isCheckInReservationModalOpen.value = true
+}
+
+const closeCheckInReservationModal = () =>{
+   isCheckInReservationModalOpen.value = false
+}
 const openVoidReservationModal = () => {
-  if (selectedTableItems.value.length === 0) {
-    toast.warning(t('toast.selectedItems'))
-    return
-  }
+  // if (selectedTableItems.value.length === 0) {
+  //   toast.warning(t('toast.selectedItems'))
+  //   return
+  // }
   isVoidReservationModalOpen.value = true
 }
 
@@ -505,8 +552,6 @@ const handleVoidSuccess = async () => {
     toast.warning(t('data_refresh_failed'))
   }
 }
-
-
 
 // Lifecycle
 onMounted(() => {

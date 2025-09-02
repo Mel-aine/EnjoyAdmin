@@ -14,6 +14,8 @@ import VoidReservation from './foglio/VoidReservation.vue';
 import AmendStay from './foglio/AmendStay.vue';
 import AddPaymentModal from './foglio/AddPaymentModal.vue';
 import NoShowReservation from './foglio/NoShowReservation.vue';
+import CheckOutReservation from './CheckOutReservation.vue';
+import CheckInReservation from './CheckInReservation.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -55,6 +57,8 @@ const showPrintModal = ref(false)
 const showVoidModal = ref(false)
 const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
+const isCkeckOutModalOpen = ref(false)
+const isCkeckInModalOpen = ref(false)
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
 }
@@ -85,6 +89,22 @@ const openAddPaymentModal = () => {
 
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
+}
+
+const openCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = true
+}
+
+const closeCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = false
+}
+
+const openCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = true
+}
+
+const closeCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = false
 }
 const handleSavePayment = (data: any) => {
   console.log('Add payment data:', data)
@@ -207,8 +227,10 @@ const handleOptionSelected = async (option: any) => {
       showVoidModal.value = true;
       break;
     case 'check_in':
+      openCheckInReservationModal()
       break;
     case 'check_out':
+      openCheckOutReservationModal()
       break
     case 'room_move':
       break;
@@ -360,6 +382,17 @@ const formatDate = (dateString: string) => {
   <template v-if="isAddPaymentModalOpen">
     <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
       @save="handleSavePayment" />
+  </template>
+  <!--check out template-->
+  <template v-if="isCkeckOutModalOpen">
+    <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
+       @close="closeCheckOutReservationModal" />
+  </template>
+
+   <!--check in template-->
+  <template v-if="isCkeckInModalOpen">
+            <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
+                @close="closeCheckInReservationModal" />
   </template>
 
   <!-- Print Modal -->

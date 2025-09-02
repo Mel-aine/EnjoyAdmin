@@ -331,6 +331,16 @@
             <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen"
                 @close="closeAddPaymentModal" @save="handleSavePayment" />
         </template>
+        <!--check out template-->
+          <template v-if="isCkeckOutModalOpen">
+            <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
+                @close="closeCheckOutReservationModal" />
+        </template>
+        <!--check in template-->
+          <template v-if="isCkeckInModalOpen">
+            <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
+                @close="closeCheckInReservationModal" />
+        </template>
     </template>
 
 
@@ -361,6 +371,8 @@ import AddPaymentModal from './foglio/AddPaymentModal.vue'
 import BookingInvoice from '../common/templates/BookingInvoice.vue'
 import NoShowReservation from './foglio/NoShowReservation.vue'
 import GroupReservationRoomList from './GroupReservationRoomList.vue'
+import CheckOutReservation from './CheckOutReservation.vue'
+import CheckInReservation from './CheckInReservation.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -418,6 +430,8 @@ const showPrintModal = ref(false)
 const showVoidModal = ref(false)
 const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
+const isCkeckOutModalOpen = ref(false)
+const isCkeckInModalOpen = ref(false)
 const reservationId = ref(props.reservationData?.reservation_id || 0)
 
 
@@ -450,6 +464,25 @@ const handleNoShowConfirmed = () => {
 }
 const openAddPaymentModal = () => {
     isAddPaymentModalOpen.value = true
+}
+
+const openCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = true
+
+}
+
+const closeCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = false
+}
+
+const openCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = true
+
+
+}
+
+const closeCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = false
 }
 
 const closeAddPaymentModal = () => {
@@ -684,8 +717,10 @@ const handleOptionSelected = async (option: any) => {
         case 'inclusion_list':
             break;
         case 'check_in':
+          openCheckInReservationModal()
             break;
         case 'check_out':
+          openCheckOutReservationModal()
             break;
         case 'room_move':
             break;

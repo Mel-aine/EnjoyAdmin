@@ -209,6 +209,11 @@ export function useBooking() {
     groupName: '',
     title: '',
     id: 0,
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zipcode: '',
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -537,6 +542,11 @@ export function useBooking() {
         title: customer.title || '',
         id: customer.id || 0,
         roleId: customer.roleId || null,
+        address: customer.address || '',
+        country: customer.country || '',
+        state: customer.state || '',
+        city: customer.city || '',
+        zipcode: customer.zipcode || '',
       }
 
       // Mettre à jour le nom sur la carte
@@ -552,13 +562,18 @@ export function useBooking() {
         groupName: '',
         title: '',
         id: 0,
+        address: '',
+        country: '',
+        state: '',
+        city: '',
+        zipcode: '',
       }
       paymentData.value.cardHolderName = ''
     }
   }
   //save reservation
   const saveReservation = async () => {
-    isLoading.value = true 
+    isLoading.value = true
     try {
       // Validation
       if (!formData.value.firstName || !formData.value.email) {
@@ -582,11 +597,11 @@ export function useBooking() {
         title: formData.value.title || 'Mr',
         company_name: formData.value.companyName || '',
         group_name: formData.value.groupName || '',
-        address_line: guest.value.address,
-        country: guest.value.country,
-        state: guest.value.state,
-        city: guest.value.city,
-        zipcode: guest.value.zipcode,
+        address_line: formData.value.address,
+        country: formData.value.country,
+        state: formData.value.state,
+        city: formData.value.city,
+        zipcode: formData.value.zipcode,
         status: 'confirmed',
         reservation_status: 'confirmed',
 
