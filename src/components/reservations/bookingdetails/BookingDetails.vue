@@ -1,299 +1,742 @@
 <template>
-  <div class="bg-white rounded-lg shadow-md p-6 mx-4 mt-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-        {{ $t('Booking Details') }}
-      </h2>
-      <button 
-        @click="editMode = !editMode"
-        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-      >
-        <PencilIcon class="w-4 h-4 mr-2" />
-        {{ editMode ? $t('Cancel') : $t('Edit') }}
-      </button>
+  <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
+    <!-- Status Bar -->
+    <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
+      <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
+      <span class="text-gray-600">{{ $t('Reserved') }} {{ statusCounts.reserved }}</span>
+      <span class="text-gray-600">{{ $t('Due Out') }} {{ statusCounts.dueOut }}</span>
+      <span class="text-gray-600">{{ $t('Departed') }} {{ statusCounts.departed }}</span>
+      <span class="text-gray-600">{{ $t('Void') }} {{ statusCounts.void }}</span>
+      <span class="text-gray-600">{{ $t('No Show') }} {{ statusCounts.noShow }}</span>
+      <span class="text-gray-600">{{ $t('In House') }} {{ statusCounts.inHouse }}</span>
+      <span class="text-gray-600">{{ $t('Cancel') }} {{ statusCounts.cancel }}</span>
+      <div class="ml-auto flex flex-wrap gap-3 md:gap-6">
+        <span class="text-gray-600">{{ $t('Remark') }} {{ remarkCount }}</span>
+        <span class="text-gray-600">{{ $t('Task') }} {{ taskCount }}</span>
+        <span class="text-gray-600">{{ $t('Message') }} {{ messageCount }}</span>
+        <span class="text-gray-600">{{ $t('Preference') }} {{ preferenceCount }}</span>
+      </div>
     </div>
 
-    <!-- Booking Information Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Reservation Details -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          {{ $t('Reservation Information') }}
-        </h3>
-        <div class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Reservation Number') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ bookingData.reservationNumber }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Booking Date') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.createdAt) }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Status') }}:</span>
-            <span :class="getStatusClass(bookingData.status)" class="px-2 py-1 text-xs font-medium rounded-full">
-              {{ $t(bookingData.status) }}
-            </span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Booking Source') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $t(bookingData.bookingSource??"") }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stay Details -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          {{ $t('Stay Information') }}
-        </h3>
-        <div class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Check-in Date') }}:</span>
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.arrivedDate) }}</span>
-              <PencilIcon v-if="editMode" class="w-3 h-3 text-gray-400 cursor-pointer hover:text-blue-500" />
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+      <!-- Left Section - Room Details -->
+      <div class="lg:col-span-2 border-r-0 lg:border-r-2 border-gray-100 bg-gray-50 rounded-lg">
+        <div class="h-full flex flex-col">
+          <div class="bg-white h-full rounded-lg">
+            <div class="flex justify-between pt-2 px-2 pb-2">
+              <span>{{ $t('Room') }}</span>
+            </div>
+            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ roomTypeSummary }}</div>
+            
+            <div class="space-y-2 px-2">
+              <div 
+                v-for="room in reservationRooms" 
+                :key="room.id"
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 rounded"
+                :class="
+                  selectedRoom?.id === room.id
+                    ? 'bg-blue-100 border-l-4 border-blue-500'
+                    : 'bg-gray-100'
+                "
+                @click="selectRoom(room)"
+              >
+                <span>{{ room.room?.roomNumber }} - {{ getGuestName(room) }}</span>
+                <ChevronRight class="w-4 h-4" />
+              </div>
             </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Check-out Date') }}:</span>
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(bookingData.departDate) }}</span>
-              <PencilIcon v-if="editMode" class="w-3 h-3 text-gray-400 cursor-pointer hover:text-blue-500" />
+        </div>
+      </div>
+
+      <!-- Middle Section - Billing Information -->
+      <div class="lg:col-span-5">
+        <div class="bg-gray-50 rounded-lg p-3 md:p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl">
+              {{ $t('Billing Information') }}
+            </h3>
+          </div>
+          
+          <div class="space-y-4">
+            <!-- Bill To and Type Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Select
+                  :lb="$t('Bill To')"
+                  v-model="billingData.billTo"
+                  :options="billToOptions"
+                  :placeholder="$t('Company')"
+                  :disabled="!editMode"
+                />
+              </div>
+              
+              <!-- Type Section -->
+              <div>
+                <div class="flex flex-col md:flex-row md:space-x-4">
+                    <Radio
+                      :label="$t('type')"
+                      :options="[
+                        { value: 'cash', label: $t('Cash') },
+                        { value: 'credit', label: $t('Credit') }
+                      ]"
+                      v-model="billingData.type"
+                      :disabled="!editMode"
+                    />
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Mode and GSTIN -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Select
+                  :lb="$t('Payment Mode')"
+                  v-model="billingData.paymentMode"
+                  :options="paymentModeOptions"
+                  :placeholder="$t('Cash')"
+                  :disabled="!editMode"
+                />
+              </div>
+              
+              <div>
+                <Input
+                  :lb="$t('GSTIN No')"
+                  v-model="billingData.gstinNo"
+                  type="text"
+                  :placeholder="$t('GST Number')"
+                  :disabled="!editMode"
+                />
+              </div>
+            </div>
+
+            <!-- Reservation Type -->
+            <div>
+              <Select
+                :lb="$t('Reservation Type')"
+                v-model="billingData.reservationType"
+                :options="reservationTypeOptions"
+                :placeholder="$t('Confirm Booking')"
+                :disabled="!editMode"
+              />
             </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Number of Nights') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ bookingData.nights?? bookingData.numberOfNights }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Total Guests') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">
-              {{ bookingData.adults }} {{ $t('Adults') }}, {{ bookingData.children }} {{ $t('Children') }}
-            </span>
-          </div>
         </div>
       </div>
 
-      <!-- Room Details -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          {{ $t('Room Information') }}
-        </h3>
-        <div class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Number') }}:</span>
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">
-                <span v-for="value in roomRateTypeSummary" :key="value">{{ value }}</span>
-              </span>
-              <PencilIcon v-if="editMode" class="w-3 h-3 text-gray-400 cursor-pointer hover:text-blue-500" />
+      <!-- Right Section - Source Information -->
+      <div class="lg:col-span-5">
+        <div class="bg-gray-50 rounded-lg p-3 md:p-4">
+          <div class="flex items-center justify-between mb-4">
+          <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('Source Information') }}</h3>
+            <button
+              class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+              @click="toggleEditMode"
+            >
+              <svg
+                v-if="!editMode"
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              <span>{{ editMode ? $t('Cancel') : $t('Edit') }}</span>
+            </button>
+          </div>
+          <div class="space-y-4">
+            <!-- Market Code and Business Source -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Select
+                  :lb="$t('Market Code')"
+                  v-model="sourceData.marketCode"
+                  :options="marketCodeOptions"
+                  :placeholder="$t('-Select-')"
+                  :disabled="!editMode"
+                />
+              </div>
+              
+              <div>
+                <Select
+                  :lb="$t('Business Source')"
+                  v-model="sourceData.businessSource"
+                  :options="businessSourceOptions"
+                  :placeholder="$t('-Select-')"
+                  :disabled="!editMode"
+                />
+              </div>
+            </div>
+
+            <!-- Travel agent and Voucher No -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Input
+                  :lb="$t('Voucher No.')"
+                  v-model="sourceData.voucherNo"
+                  type="text"
+                  :placeholder="$t('Voucher No')"
+                  :disabled="!editMode"
+                />
+              </div>
+              <!-- travel agent -->
+<!--               <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Travelagent') }}</label>
+                <div class="flex">
+                  <div class="flex-1">
+                    <Select
+                      v-model="sourceData.travelAgent"
+                      :options="travelAgentOptions"
+                      :placeholder="$t('-Select-')"
+                      :disabled="!editMode"
+                      customClass="rounded-r-none"
+                    />
+                  </div>
+                  <button 
+                    class="px-3 py-2 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-300 transition-colors"
+                    :disabled="!editMode"
+                  >
+                    <UserCircleIcon class="w-4 h-4" />
+                  </button>
+                </div>
+              </div> -->
+              <div>
+                <div class="flex">
+                <InputCurrency
+                  v-model="sourceData.planValue"
+                  :lb="$t('Plan Value')"
+                  id="plan-value"
+                  :disabled="!editMode"
+                  :show-currency-selector="true"
+                  placeholder="Entrez la valeur du plan"
+                  input-type="number"
+                  :is-required="false"
+                  :min="0"
+                  currency="XAF"/>
+                </div>
+              </div>
+              
+              <!-- Commission -->
+
+<!--               <div>
+                <Select
+                  :lb="$t('Commission Plan')"
+                  v-model="sourceData.commissionPlan"
+                  :options="commissionPlanOptions"
+                  :placeholder="$t('--Select--')"
+                  :disabled="!editMode"
+                />
+              </div> -->
+            </div>
+
+            <!-- Company and Sales Person -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
+                <div class="flex">
+                  <div class="flex-1">
+                    <Select
+                      v-model="sourceData.company"
+                      :options="companyOptions"
+                      :placeholder="$t('-Select-')"
+                      :disabled="!editMode"
+                      customClass="rounded-r-none h-11"
+                    />
+                  </div>
+                  <button 
+                    class=" w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
+                    :disabled="!editMode"
+                  >
+                    <Building class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <Select
+                  :lb="$t('Sales Person')"
+                  v-model="sourceData.salesPerson"
+                  :options="salesPersonOptions"
+                  :placeholder="$t('-Select-')"
+                  :disabled="!editMode"
+                />
+              </div>
             </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Type') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">
-              <span v-for="value in roomTypeSumarry" :key="value">{{ value }} </span>
-            </span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Rate Plan') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">
-              <span v-for="value in ratePlan" :key="value">{{ value }} </span>
-            </span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Room Rate') }}:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(roomRates??0) }}</span>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- Financial Summary -->
-    <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-        {{ $t('Financial Summary') }}
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-blue-600">{{ formatCurrency(bookingData.balanceSummary?.totalChargesWithTaxes??0) }}</div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Total Amount') }}</div>
+    <!-- Bottom Action Bar -->
+    <div class="mt-6 bg-gray-50 p-3 md:p-4 rounded-lg">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <!-- Left side - Financial Summary -->
+        <div class="flex text-sm">
+          <div class="flex flex-col space-y-1">
+            <div class="text-gray-700 font-medium">{{ $t('Total') }}</div>
+            <div class="font-medium text-orange-600">{{ $t('Balance') }}</div>
+          </div>
+          <div class="flex flex-col space-y-1 ml-8">
+            <div class="font-medium text-gray-700">{{ formatCurrency(totalAmount) }}</div>
+            <div class="font-medium text-orange-600">{{ formatCurrency(balanceAmount) }}</div>
+          </div>
         </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-green-600">{{ formatCurrency(bookingData.balanceSummary?.totalPayments) }}</div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Paid Amount') }}</div>
+
+        <!-- Center - Checkboxes -->
+        <div class="flex flex-col md:flex-row md:items-center md:space-x-6 gap-2 md:gap-0 text-sm">
+          <label class="flex items-center">
+            <InputCheckbox
+              type="checkbox" 
+              v-model="options.sendMail" 
+              :disabled="!editMode" 
+              class="mr-2"
+            />
+            {{ $t('Send Mail') }}
+          </label>
+          <label class="flex items-center">
+            <InputCheckbox
+              type="checkbox" 
+              v-model="options.checkOutMail" 
+              :disabled="!editMode" 
+              class="mr-2"
+            />
+            {{ $t('Check Out Mail') }}
+          </label>
+          <label class="flex items-center">
+            <InputCheckbox
+              type="checkbox" 
+              v-model="options.thankYouEmail" 
+              :disabled="!editMode" 
+              class="mr-2"
+            />
+            {{ $t('Thank You email to Guest') }}
+          </label>
+          <label class="flex items-center">
+            <InputCheckbox
+              type="checkbox" 
+              v-model="options.suppressRate" 
+              :disabled="!editMode" 
+              class="mr-2"
+            />
+            {{ $t('Supress Rate on GR Card') }}
+          </label>
+          <label class="flex items-center">
+            <InputCheckbox 
+              type="checkbox" 
+              v-model="options.accessGuestPortal" 
+              :disabled="!editMode" 
+              class="mr-2"
+            />
+            {{ $t('Access Guest Portal') }}
+          </label>
         </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-orange-600">{{ formatCurrency(bookingData.balanceSummary?.outstandingBalance??0) }}</div>
-          <div class="text-sm text-orange-600 dark:text-gray-400">{{ $t('Balance Amount') }}</div>
-        </div>
-         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600">{{ formatCurrency(bookingData.balanceSummary?.totalTaxes??0) }}</div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taxAmount') }}</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-blue-600">{{ formatCurrency(bookingData.depositAmount??0) }}</div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Deposit Amount') }}</div>
+        
+        <!-- Right side - Action Buttons -->
+        <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
+          <BasicButton variant="secondary" :label="$t('Apply To Group')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
+          <BasicButton 
+            v-if="editMode"
+            variant="primary" 
+            :label="$t('Save Changes')" 
+            @click="saveChanges"
+            :disabled="isSaving"
+            :loading="isSaving" 
+            class="w-full md:w-auto"
+          />
         </div>
       </div>
-    </div>
-
-    <!-- Additional Information -->
-    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Special Requests -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          {{ $t('Special Requests') }}
-        </h3>
-        <div v-if="bookingData.specialRequests" class="text-sm text-gray-700 dark:text-gray-300">
-          {{ bookingData.specialRequests }}
-        </div>
-        <div v-else class="text-sm text-gray-500 dark:text-gray-400 italic">
-          {{ $t('No special requests') }}
-        </div>
-      </div>
-
-      <!-- Booking Notes -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          {{ $t('Booking Notes') }}
-        </h3>
-        <div v-if="bookingData.notes" class="text-sm text-gray-700 dark:text-gray-300">
-          {{ bookingData.notes }}
-        </div>
-        <div v-else class="text-sm text-gray-500 dark:text-gray-400 italic">
-          {{ $t('No booking notes') }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div v-if="editMode" class="mt-6 flex justify-end space-x-3">
-      <button 
-        @click="editMode = false"
-        class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-      >
-        {{ $t('Cancel') }}
-      </button>
-      <button 
-        @click="saveChanges"
-        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-      >
-        {{ $t('Save Changes') }}
-      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PencilIcon } from 'lucide-vue-next'
+import { useToast } from 'vue-toastification'
+import BasicButton from '../../buttons/BasicButton.vue'
+import Input from '../../forms/FormElements/Input.vue'
+import InputCheckbox from '../../forms/FormElements/InputCheckBox.vue'
+import Radio from '@/components/forms/FormElements/RadioGroup .vue'
+import Select from '../../forms/FormElements/Select.vue'
+import { ChevronRight, Building } from 'lucide-vue-next'
+import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 
 interface Props {
   booking?: any
+  guest?: any
+}
+
+interface BillingData {
+  billTo: string
+  paymentMode: string
+  type: string
+  gstinNo: string
+  reservationType: string
+}
+
+interface SourceData {
+  marketCode: string
+  businessSource: string
+  travelAgent: string
+  voucherNo: string
+  commissionPlan: string
+  planValue: string
+  company: string
+  salesPerson: string
+}
+
+interface Options {
+  sendMail: boolean
+  checkOutMail: boolean
+  thankYouEmail: boolean
+  suppressRate: boolean
+  accessGuestPortal: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  booking: () => ({})
+  booking: () => ({}),
+  guest: () => ({})
 })
 
 const { t, locale } = useI18n()
+const toast = useToast()
 const editMode = ref(false)
-console.log('booking', props.booking)
-const bookingData = computed(() => props.booking)
+const isSaving = ref(false)
+const selectedRoom = ref<any>(null)
 
-const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+// Computed properties for booking data
+const bookingData = computed(() => props.booking || {})
+const guestData = computed(() => props.guest || {})
+
+// Computed properties for room data
+const reservationRooms = computed(() => {
+  return bookingData.value.reservationRooms || []
+})
+
+const selectedRoomId = computed(() => {
+  return selectedRoom.value?.id || ''
+})
+
+const totalRooms = computed(() => reservationRooms.value.length)
+
+const roomTypeSummary = computed(() => {
+  if (reservationRooms.value.length === 0) return 'N/A'
+  
+  const roomTypes = [...new Set(reservationRooms.value.map(room => room.roomType?.roomTypeName || 'N/A'))]
+  return roomTypes.join(', ')
+})
+
+const statusCounts = computed(() => {
+  const counts = {
+    reserved: 0,
+    dueOut: 0,
+    departed: 0,
+    void: 0,
+    noShow: 0,
+    inHouse: 0,
+    cancel: 0
   }
-  return new Date(dateString).toLocaleDateString(locale.value, options)
-}
+  
+  if (!reservationRooms.value.length) return counts
+  
+  reservationRooms.value.forEach(room => {
+    const status = room.status?.toLowerCase() || ''
+    if (status.includes('reserved')) counts.reserved++
+    if (status.includes('due_out')) counts.dueOut++
+    if (status.includes('departed')) counts.departed++
+    if (status.includes('void')) counts.void++
+    if (status.includes('no_show')) counts.noShow++
+    if (status.includes('in_house')) counts.inHouse++
+    if (status.includes('cancel')) counts.cancel++
+  })
+  
+  return counts
+})
 
+const totalAmount = computed(() => bookingData.value.totalAmount || bookingData.value.total || 0)
+const balanceAmount = computed(() => bookingData.value.remainingAmount || bookingData.value.balance || 0)
 
-const getStatusClass = (status: string) => {
-  const statusClasses = {
-    confirmed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    checked_in: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    checked_out: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+const remarkCount = computed(() => bookingData.value.remarks?.length || 0)
+const taskCount = computed(() => bookingData.value.tasks?.length || 0)
+const messageCount = computed(() => bookingData.value.messages?.length || 0)
+const preferenceCount = computed(() => guestData.value.preferences?.length || 0)
+
+// Reactive data - Initialiser avec des valeurs vides
+const billingData = reactive<BillingData>({
+  billTo: '',
+  paymentMode: '',
+  type: 'cash',
+  gstinNo: '',
+  reservationType: ''
+})
+
+const sourceData = reactive<SourceData>({
+  marketCode: '',
+  businessSource: '',
+  travelAgent: '',
+  voucherNo: '',
+  commissionPlan: '',
+  planValue: '',
+  company: '',
+  salesPerson: ''
+})
+
+const options = reactive<Options>({
+  sendMail: false,
+  checkOutMail: false,
+  thankYouEmail: false,
+  suppressRate: false,
+  accessGuestPortal: false
+})
+
+// Options for select fields
+const billToOptions = computed(() => [
+  { label: t('Company'), value: 'company' },
+  { label: t('Individual'), value: 'individual' },
+  { label: t('Agent'), value: 'agent' }
+])
+
+const paymentModeOptions = computed(() => [
+  { label: t('Cash'), value: 'cash' },
+  { label: t('Credit Card'), value: 'credit_card' },
+  { label: t('Bank Transfer'), value: 'bank_transfer' },
+  { label: t('Check'), value: 'check' }
+])
+
+const reservationTypeOptions = computed(() => [
+  { label: t('Confirm Booking'), value: 'confirm_booking' },
+  { label: t('Tentative Booking'), value: 'tentative_booking' },
+  { label: t('Waitlist'), value: 'waitlist' },
+  { label: t('Booking inquiry'), value: 'Booking inquiry' }
+])
+
+const marketCodeOptions = computed(() => [
+  { label: t('-Select-'), value: '' },
+  { label: t('Corporate'), value: 'corporate' },
+  { label: t('Leisure'), value: 'leisure' },
+  { label: t('Group'), value: 'group' }
+])
+
+const businessSourceOptions = computed(() => [
+  { label: t('-Select-'), value: '' },
+  { label: t('Walk-in'), value: 'walk_in' },
+  { label: t('Online'), value: 'online' },
+  { label: t('Phone'), value: 'phone' },
+  { label: t('Agent'), value: 'agent' },
+  { label: t('Indirect Bookings'), value: 'Indirect Bookings' }
+])
+
+const travelAgentOptions = computed(() => [
+  { label: t('-Select-'), value: '' },
+  { label: t('Agent 1'), value: 'agent_1' },
+  { label: t('Agent 2'), value: 'agent_2' }
+])
+
+const commissionPlanOptions = computed(() => [
+  { label: t('-Select-'), value: '' },
+  { label: t('Standard 10%'), value: 'standard_10' },
+  { label: t('Premium 15%'), value: 'premium_15' }
+])
+
+const companyOptions = computed(() => [
+  { label: t('-Select-'), value: '' },
+  { label: t('Company A'), value: 'company_a' },
+  { label: t('Company B'), value: 'company_b' }
+])
+
+const salesPersonOptions = computed(() => [
+  { label: t('-Select-'), value: '' },
+  { label: t('Sales Rep 1'), value: 'sales_1' },
+  { label: t('Sales Rep 2'), value: 'sales_2' }
+])
+
+// Methods
+const getGuestName = (room: any) => {
+  if (room.guest) {
+    return room.guest.displayName || `${room.guest.firstName} ${room.guest.lastName}`
   }
-  return statusClasses[status as keyof typeof statusClasses] || 'bg-gray-100 text-gray-800'
+  return guestData.value.displayName || `${guestData.value.firstName} ${guestData.value.lastName}` || t('Guest')
 }
 
-const saveChanges = () => {
-  // Implement save logic here
-  console.log('Saving booking changes...')
-  editMode.value = false
+const selectRoom = (room: any) => {
+  selectedRoom.value = room
+  // Mettre à jour les données de source avec les informations de la chambre sélectionnée
+  if (room) {
+    sourceData.voucherNo = bookingData.value.reservationNumber || ''
+    sourceData.planValue = room.roomRate || ''
+    // Autres mises à jour si nécessaire
+  }
 }
 
-const roomRateTypeSummary = computed(() => {
-    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
-        return 'N/A';
+const toggleEditMode = () => {
+  editMode.value = !editMode.value
+  if (!editMode.value) {
+    // Reset data when canceling edit
+    initBillingData()
+    initSourceData()
+  }
+}
+
+const saveChanges = async () => {
+  isSaving.value = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    console.log('Saving billing data:', billingData)
+    console.log('Saving source data:', sourceData)
+    console.log('Saving options:', options)
+    
+    toast.success(t('Changes saved successfully'))
+    editMode.value = false
+  } catch (error) {
+    console.error('Error saving changes:', error)
+    toast.error(t('Error saving changes'))
+  } finally {
+    isSaving.value = false
+  }
+}
+
+const applyToGroup = () => {
+  console.log('Applying to group...')
+  toast.info(t('Applied to group'))
+}
+
+// Initialize billing data from booking
+const initBillingData = () => {
+  if (bookingData.value) {
+    // Set billTo based on guest type
+    if (guestData.value.guestType === 'corporate') {
+      billingData.billTo = 'company'
+    } else if (guestData.value.guestType === 'travel_agent') {
+      billingData.billTo = 'agent'
+    } else {
+      billingData.billTo = 'individual'
     }
-
-    const reservationRooms = props.booking.reservationRooms;
-
-    // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map((room: any) => {
-        return `${room.room?.roomNumber}/${room.roomType.roomTypeName}`
-    })
-
-
-
-    return roomNumbers;
-});
-
-const ratePlan = computed(() => {
-    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
-        return 'N/A';
+    
+    // Set payment type based on VIP status
+    billingData.type = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
+    
+    // Set GSTIN from company registration if available
+    if (guestData.value.company && guestData.value.registrationNo) {
+      billingData.gstinNo = guestData.value.registrationNo
     }
+    
+    // Set reservation type from booking data
+    if (bookingData.value.reservationType) {
+      billingData.reservationType = bookingData.value.reservationType
+    }
+  }
+}
 
-    const reservationRooms = props.booking.reservationRooms;
+// Initialize source data from booking
+const initSourceData = () => {
+  if (bookingData.value) {
+    // Set market code and business source if available in booking data
+    if (bookingData.value.sourceOfBusiness) {
+      sourceData.businessSource = bookingData.value.sourceOfBusiness
+    }
+    
+    // Set voucher number from booking data - CORRECTION ICI
+    if (bookingData.value.reservationNumber) {
+      sourceData.voucherNo = bookingData.value.reservationNumber
+    }
+    
+    // Set company if available
+    if (bookingData.value.companyName) {
+      sourceData.company = bookingData.value.companyName
+    }
+    
+    // Set plan value from selected room or first room
+    if (selectedRoom.value && selectedRoom.value.roomRate) {
+      sourceData.planValue = selectedRoom.value.roomRate
+    } else if (reservationRooms.value.length > 0 && reservationRooms.value[0].roomRate) {
+      sourceData.planValue = reservationRooms.value[0].roomRate
+    }
+  }
+}
 
-    // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map((room: any) => {
-        return `${room.roomRates?.rateType?.rateTypeName}`
-    })
-    return roomNumbers;
+// Initialize data when component is mounted or props change
+onMounted(() => {
+  // Sélectionner la première chambre par défaut
+  if (reservationRooms.value.length > 0) {
+    selectedRoom.value = reservationRooms.value[0]
+  }
+  
+  // Initialiser les données après avoir sélectionné la chambre
+  initBillingData()
+  initSourceData()
+  
+  console.log('BookingDetails mounted with booking:', bookingData.value)
 })
 
-
-const roomTypeSumarry = computed(() => {
-    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
-        return 'N/A';
+// Watch for changes in booking data
+watch(() => props.booking, (newBooking) => {
+  if (newBooking) {
+    // Sélectionner la première chambre si aucune n'est sélectionnée
+    if (!selectedRoom.value && reservationRooms.value.length > 0) {
+      selectedRoom.value = reservationRooms.value[0]
     }
+    
+    initBillingData()
+    initSourceData()
+  }
+}, { deep: true })
 
-    const reservationRooms = props.booking.reservationRooms;
+// Watch for changes in guest data
+watch(() => props.guest, (newGuest) => {
+  if (newGuest) {
+    initBillingData()
+  }
+}, { deep: true })
 
-    // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map((room: any) => {
-        return `${room.roomType?.roomTypeName}`
-    })
-    return roomNumbers;
-})
-
-const roomRates = computed(() => {
-    if (!props.booking?.reservationRooms || props.booking.reservationRooms.length === 0) {
-        return '0';
+// Watch for changes in selected room
+watch(selectedRoom, (newRoom) => {
+  if (newRoom) {
+    // Mettre à jour les données spécifiques à la chambre
+    if (newRoom.roomRate) {
+      sourceData.planValue = newRoom.roomRate
     }
-
-    const reservationRooms = props.booking.reservationRooms;
-
-    // Get room numbers and create summary
-    const roomNumbers = reservationRooms[0].roomRate
-    return roomNumbers;
+  }
 })
-
-console.log('booking',props.booking);
 </script>
 
 <style scoped>
-/* Add any custom styles here */
+.border-l-4 {
+  border-left-width: 4px;
+}
+
+input[type="radio"]:disabled + span {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.transition-colors {
+  transition: background-color 0.2s, color 0.2s;
+}
+
+@media (max-width: 768px) {
+  .grid > div {
+    margin-bottom: 1rem;
+  }
+}
 </style>
