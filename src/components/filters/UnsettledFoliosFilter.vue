@@ -7,84 +7,66 @@
   
   <RightSideModal :is-open="showFilter" :title="$t('reservationsList.filterSectionTitle')"
     @close="showFilter = false">
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-6">
       <!-- Search by dropdown and input -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search by</label>
-          <select v-model="filters.searchBy" 
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-            <option value="all">All</option>
-            <option value="folio">Folio#</option>
-            <option value="guest">Guest Name</option>
-            <option value="reservation">Reservation#</option>
-          </select>
-        </div>
+        <Select :lb="'Search by'" v-model="filters.searchBy" :options="searchByOptions" />
         
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
-          <input v-model="filters.searchText" type="text" placeholder="Folio#, Res#, G..."
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400" />
-        </div>
+        <Input :lb="'Search'" :inputType="'text'"
+          :placeholder="'Folio#, Res#, G...'"
+          :id="'searchText'"
+          :forLabel="'search'"
+          v-model="filters.searchText" />
       </div>
 
-      <!-- Arrival checkbox and date range -->
-      <div>
-        <div class="flex items-center mb-2">
+      <!-- Arrival section -->
+      <div class="space-y-3">
+        <div class="flex items-center">
           <input v-model="filters.arrivalEnabled" type="checkbox" id="arrival" 
             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
           <label for="arrival" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Arrival</label>
         </div>
         
-        <div v-if="filters.arrivalEnabled" class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
-          <div class="relative">
-            <flat-pickr v-model="filters.dateFrom" :config="flatpickrConfig"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="01/09/20" />
-            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <CalendarIcon class="h-4 w-4" />
-            </span>
+        <div v-if="filters.arrivalEnabled" class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 md:pl-6 items-end">
+          <InputDatePicker 
+            :lb="'From Date'" 
+            :inputType="'date'"
+            :id="'dateFrom'"
+            :forLabel="'dateFrom'"
+            v-model="filters.dateFrom"
+            :placeholder="'01/09/20'" 
+          />
+          
+          <div class="flex justify-center py-2 md:py-0">
+            <span class="text-gray-500 text-lg md:mb-1">→</span>
           </div>
           
-          <div class="flex items-center">
-            <span class="text-gray-500 mx-2">→</span>
-            <div class="relative flex-1">
-              <flat-pickr v-model="filters.dateTo" :config="flatpickrConfig"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="31/10/20" />
-              <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <CalendarIcon class="h-4 w-4" />
-              </span>
-            </div>
-          </div>
+          <InputDatePicker 
+            :lb="'To Date'" 
+            :inputType="'date'"
+            :id="'dateTo'"
+            :forLabel="'dateTo'"
+            v-model="filters.dateTo"
+            :placeholder="'31/10/20'" 
+          />
         </div>
       </div>
 
       <!-- Status dropdown -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-        <select v-model="filters.status" 
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-          <option value="">-Select-</option>
-          <option value="Checked Out">Checked Out</option>
-          <option value="Cancel">Cancel</option>
-          <option value="Open">Open</option>
-          <option value="Pending">Pending</option>
-        </select>
-      </div>
+      <Select :lb="'Status'" v-model="filters.status" :options="statusOptions" />
 
       <!-- Additional note -->
-      <div class="text-center">
+      <div class="text-center pt-2">
         <p class="text-sm text-red-500">You can also filter the date as per your requirement</p>
       </div>
 
       <!-- Action buttons -->
-      <div class="mt-4 flex justify-end gap-3">
+      <div class="mt-2 flex flex-col-reverse sm:flex-row justify-end gap-3">
         <BasicButton @click="clearFilters" variant="secondary" :icon="XCircleIcon"
-          :label="$t('reservationsList.clearFilters')">
+          :label="$t('reservationsList.clearFilters')" class="w-full sm:w-auto">
         </BasicButton>
         <BasicButton @click="applyFilters" variant="primary" :icon="SearchIcon"
-          :label="$t('reservationsList.applyFilters')">
+          :label="$t('reservationsList.applyFilters')" class="w-full sm:w-auto">
         </BasicButton>
       </div>
     </div>
@@ -92,18 +74,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import {
   Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon
 } from 'lucide-vue-next';
 import RightSideModal from '@/components/modal/RightSideModal.vue';
-import flatPickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css'
-import CalendarIcon from '@/icons/CalendarIcon.vue';
+import Input from '@/components/forms/FormElements/Input.vue';
+import Select from '@/components/forms/FormElements/Select.vue';
+import BasicButton from '@/components/buttons/BasicButton.vue';
 import { getTypeProductByServiceId } from '@/services/api';
 import type { RoomTypeData } from '@/types/option';
 import { useServiceStore } from '@/composables/serviceStore';
-import BasicButton from '@/components/buttons/BasicButton.vue';
+import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 
 // Define folio filter interface
 interface FolioFilterItem {
@@ -128,15 +110,24 @@ const filters = ref<FolioFilterItem>({
 });
 
 const showFilter = ref(false);
-const serviceStore = useServiceStore()
-
-const flatpickrConfig = {
-  dateFormat: 'd/m/y',
-  altInput: false,
-  wrap: false,
-}
-
+const serviceStore = useServiceStore();
 const activeRoomTypes = ref<RoomTypeData[]>([]);
+
+// Options for dropdowns using the same pattern as the first component
+const searchByOptions = computed(() => [
+  { label: 'All', value: 'all' },
+  { label: 'Folio#', value: 'folio' },
+  { label: 'Guest Name', value: 'guest' },
+  { label: 'Reservation#', value: 'reservation' }
+]);
+
+const statusOptions = computed(() => [
+  { label: '-Select-', value: '' },
+  { label: 'Checked Out', value: 'Checked Out' },
+  { label: 'Cancel', value: 'Cancel' },
+  { label: 'Open', value: 'Open' },
+  { label: 'Pending', value: 'Pending' }
+]);
 
 const applyFilters = () => {
   emits('filter', filters.value);
@@ -150,12 +141,13 @@ const clearFilters = () => {
   filters.value.arrivalEnabled = false;
   filters.value.dateFrom = '';
   filters.value.dateTo = '';
+  applyFilters(); // Re-apply filters to show all
 };
 
 const fetchRoomType = async () => {
   try {
-    const serviceId = serviceStore.serviceId
-    const response = await getTypeProductByServiceId(serviceId)
+    const serviceId = serviceStore.serviceId;
+    const response = await getTypeProductByServiceId(serviceId);
 
     activeRoomTypes.value = response.data
       .filter((type: RoomTypeData) => type.status === 'active')
@@ -163,15 +155,16 @@ const fetchRoomType = async () => {
         ...item,
         value: item.id,
         label: item.name,
-      }))
+      }));
   } catch (error) {
-    console.error('Error fetching room types:', error)
+    console.error('Error fetching room types:', error);
   }
-}
+};
 
 // Initial filter application on component mount
 onMounted(() => {
   fetchRoomType();
+  applyFilters();
 });
 </script>
 

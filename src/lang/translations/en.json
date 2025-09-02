@@ -4851,7 +4851,7 @@
     }
   },
   "folioStatus": {
-    "Open": "Open",
+    "open": "Open",
     "Closed": "Closed",
     "Pending": "Pending",
     "Disputed": "Disputed"
