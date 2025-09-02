@@ -17,7 +17,7 @@
           <!-- Header with action buttons -->
           <div class="flex flex-wrap justify-end gap-2 pb-2  border-b border-gray-200">
             <BasicButton :label="$t('Update details')" />
-            <BasicButton :label="$t('applyDiscount')" />
+            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
           </div>
         </template>
 
@@ -57,6 +57,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Apply Discount Modal -->
+    <ApplyDiscountRoomCharge
+      v-if="isApplyDiscountModalOpen"
+      :is-open="isApplyDiscountModalOpen"
+      :reservation-id="reservationId"
+      :room-charges="roomChargeData"
+      @close="closeApplyDiscountModal"
+      @discount-applied="handleDiscountApplied"
+    />
   </div>
 
 </template>
@@ -69,6 +79,7 @@ import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
 import { getRoomCharges } from '../../../services/reservation'
+import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 
 const { t } = useI18n()
 const isOpen = ref(false)
@@ -81,6 +92,7 @@ const props = defineProps({
 // Modal state
 const isAddRoomChargeModalOpen = ref(false)
 const isApplyRateModalOpen = ref(false)
+const isApplyDiscountModalOpen = ref(false)
 
 interface RoomChargeItem {
   id: number
@@ -192,6 +204,22 @@ const handleApplyRate = (rateData: any) => {
   console.log('Applying rate:', rateData)
   // Here you would typically update room charges with new rates
   closeApplyRateModal()
+}
+
+// Apply Discount modal handlers
+const openApplyDiscountModal = () => {
+  isApplyDiscountModalOpen.value = true
+}
+
+const closeApplyDiscountModal = () => {
+  isApplyDiscountModalOpen.value = false
+}
+
+const handleDiscountApplied = (discountData: any) => {
+  console.log('Discount applied:', discountData)
+  // Refresh room charges data after discount is applied
+  getTransactionFolio()
+  closeApplyDiscountModal()
 }
 const getTransactionFolio =async()=>{
   loading.value = true;

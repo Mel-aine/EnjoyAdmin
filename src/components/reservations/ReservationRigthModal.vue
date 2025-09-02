@@ -171,10 +171,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('status') }}
                                             </label>
-                                            <span
-                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-10">
-                                                {{ $t(reservation.status) }}
-                                            </span>
+                                            <ReservationStatus :status="reservation.status" />
                                         </div>
 
                                         <div>
@@ -348,6 +345,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
+import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
 import CancelReservation from './foglio/CancelReseravtion.vue'
 import PrintModal from '../common/PrintModal.vue'

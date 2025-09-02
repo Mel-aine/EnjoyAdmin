@@ -1,5 +1,5 @@
 <template>
-    <div :class="'relative dropdown-container '+id ":id="id">
+    <div :class="'relative dropdown-container '+id " :id="id">
 
         <button @click="toggleDropdown" :class="[
             'flex items-center gap-2 px-4 py-2 rounded-md  duration-200',
@@ -72,7 +72,7 @@ const handleOptionClick = (option: DropdownOption) => {
 // Close dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
     const target = event.target as HTMLElement
-    const dropdown = document.querySelector('.dropdown-container .'+props.id)
+    const dropdown = document.getElementById(props.id)
     if (dropdown && !dropdown.contains(target)) {
         isOpen.value = false
     }
