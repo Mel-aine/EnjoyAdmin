@@ -5307,10 +5307,8 @@
   "prepared_by":"Prepared by",
   "total_charges":"Total Charges",
   "voucher_date":"Voucher Date",
-  "payments":"Payments",
   "ref_no":"Ref. No",
-  "sr_no":"Sr. No"
-  "AllReservations" : "All Reservations",
+  "sr_no":"Sr. No",
   "GroupRooms": "Group Rooms",
   "GroupInfo": "Group Info",
   "Balance": "Balance",

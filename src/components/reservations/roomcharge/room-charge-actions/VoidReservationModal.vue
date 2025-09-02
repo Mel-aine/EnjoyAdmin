@@ -41,7 +41,7 @@
 
           <div class="border rounded-lg p-3 max-h-80 overflow-y-auto bg-gray-50">
             <!-- Previously selected items (highlighted) -->
-            <div v-if="previouslySelectedReservations.length > 0" class="mb-4">
+            <div v-if="previouslySelectedReservations.length > 0" class="">
               <div v-for="reservation in previouslySelectedReservations" :key="`prev-${reservation.roomId}`"
                    class="flex items-center space-x-2 py-2 hover:bg-gray-100   rounded mb-1 px-2">
                 <input
@@ -52,10 +52,7 @@
                 />
                 <label :for="`prev-reservation-${reservation.roomId}`"
                        class="text-sm flex-1"
-                       :class="{
-                         'cursor-pointer': formData.applyChargesOn !== 'group',
-                         'text-gray-400': formData.applyChargesOn === 'group'
-                       }">
+                     >
                   <div class="font-medium ">{{ reservation.name }}</div>
                   <div class="text-xs ">
                     {{ reservation.room }}
@@ -66,16 +63,16 @@
             </div>
 
             <!-- Other reservations -->
-            <div v-if="otherReservations.length > 0" class="mb-2">
+            <div v-if="otherReservations.length > 0" class="">
               <div v-for="reservation in otherReservations" :key="`other-${reservation.roomId}`"
                    class="flex items-center space-x-2 py-1 hover:bg-gray-100 rounded px-2">
                 <input
                   type="checkbox"
                   :id="`other-reservation-${reservation.roomId}`"
                   v-model="reservation.selected"
-                  :disabled="formData.applyChargesOn === 'group'"
+
                   class="w-4 h-4 text-blue-600 border-gray-300 rounded "
-                  :class="{ 'cursor-not-allowed': formData.applyChargesOn === 'group' }"
+
                 />
                 <label :for="`other-reservation-${reservation.roomId}`"
                        class="text-sm flex-1"

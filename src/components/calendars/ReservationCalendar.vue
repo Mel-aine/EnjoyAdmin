@@ -1200,7 +1200,7 @@ function getSelectionInfo() {
     startDate: dates[0],
     endDate: dates[dates.length - 1],
     totalNights: dates.length,
-    cellCount: cells.length,
+    cellCount: cells.length -1,
   }
 }
 
