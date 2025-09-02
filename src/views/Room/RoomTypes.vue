@@ -128,7 +128,7 @@
                 <div class="flex justify-between items-start mb-4">
                   <div class="flex-1">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-purple-600 transition-colors">
-                      {{ roomType.name }}
+                      {{ roomType.roomTypeName }}
                     </h3>
                     <div class="flex items-center gap-2">
                       <span
@@ -432,7 +432,7 @@ const filteredGridData = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(room =>
-      room.name.toLowerCase().includes(query) ||
+      room.roomTypeName.toLowerCase().includes(query) ||
       room.description?.toLowerCase().includes(query)
     )
   }
@@ -821,7 +821,7 @@ const handleBookingAction = (action: string, type: any) => {
       const vatRate = form.value.vat || 0
 
       form.value = {
-        name: roomTypeToEdit.name,
+        name: roomTypeToEdit.roomTypeName,
         status: roomTypeToEdit.status,
         description: roomTypeToEdit.description,
         price: priceTTC,
