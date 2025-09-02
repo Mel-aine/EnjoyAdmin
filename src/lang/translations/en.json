@@ -4852,7 +4852,7 @@
     }
   },
   "folioStatus": {
-    "Open": "Open",
+    "open": "Open",
     "Closed": "Closed",
     "Pending": "Pending",
     "Disputed": "Disputed"
@@ -5295,6 +5295,21 @@
   "TodaysArrivals" : "Today's  Arrivals",
   "TodaysDepartures" : "Today's Departures",
   "InHouseGuests" : "In House Guests",
+  "AllReservations" : "All Reservations",
+  "no_invoice_selected":"No invoice selected",
+  "select_invoice_from_sidebar":"Select invoice from sidebar",
+  "invoice_details":"Invoice Details",
+  "invoice_number":"Invoice Number",
+  "invoice_date":"Invoice Date",
+  "invoice_status":"Invoice Status",
+  "invoice_total":"Invoice Total",
+  "search_by_voucher_name_type":"Search by voucher name or type",
+  "prepared_by":"Prepared by",
+  "total_charges":"Total Charges",
+  "voucher_date":"Voucher Date",
+  "payments":"Payments",
+  "ref_no":"Ref. No",
+  "sr_no":"Sr. No"
   "AllReservations" : "All Reservations",
   "GroupRooms": "Group Rooms",
   "GroupInfo": "Group Info",

@@ -33,6 +33,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/front-office/night-audit',
+      name: 'NightAudit_Office',
+      component: () => import('../views/FrontOffice/NightAudit.vue'),
+      meta: {
+        title: 'Night Audit',
+        requiresAuth: false,
+      },
+    },
 
     {
       path: '/welcome',

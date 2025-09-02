@@ -22,7 +22,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
                     <div class="mr-4 w-52">
-                        <InputSelectCityLeger v-model="selectCityLedger" />
+                        <InputSelectCityLeger v-model="selectCityLedger" @select="handChangeCityLedger" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <div>
@@ -33,37 +33,37 @@
 
                         </div>
                         <div class="mr-4">
-                            <InputDoubleDatePicker lb="Posting Date" v-model:startDate="filters.startDate"
-                                v-model:endDate="filters.endDate" />
+                            <InputDoubleDatePicker lb="Posting Date" :allow-past-dates="true"
+                                v-model="dateRange" />
                         </div>
                     </div>
 
                     <div class="flex justify-between flex-col gap-6">
-                        <InputCheckBox label="Pending Ledger Commission" id="pending" />
-                        <InputCheckBox label="Display Void" id="display-void" />
+                        <InputCheckBox v-model="pendingLedgerCommission" label="Pending Ledger Commission" id="pending" />
+                        <InputCheckBox v-model="displayVoid" label="Display Void" id="display-void" />
                     </div>
                    
                 </div>
                  <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
                         <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full ">
-                            <span>0</span>
+                            <span>{{ formatCurrency(totals.cityLedgerTotal) }}</span>
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('City Ledger Total') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
-                            <span>0</span>
+                            <span>{{ formatCurrency(totals.unpaidInvoice) }}</span>
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unpaid Invoice') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
-                            <span>0</span>
+                            <span>{{ formatCurrency(totals.unassignedPayments) }}</span>
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unassigned Payments') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">0</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ formatCurrency(totals.assignedPayments) }}</span>
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Assigned Payments') }}</span>
                         </div>
                          <div class="flex flex-col  gap-2 items-center justify-start align-top ">
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Opening Balance') }}</span>
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ 0 }}</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ formatCurrency(totals.openingBalance) }}</span>
                         </div>
 
                     </div>
@@ -71,7 +71,7 @@
 
               
                 <!-- Table Content -->
-                <ReusableTable :columns="columns" :data="filteredData" :actions="actions" :loading="loading" :searchable="false" :show-header="false"
+                <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false" :show-header="false"
                     :selectable="true" @selection-change="handleSelectionChange">
                     <!-- Custom cell for Description column -->
                     <template #column-description="{ item }">
@@ -110,14 +110,19 @@
         </div>
 
         <template v-if="newPaymentVisible">
-            <NewPaymentCityLedger v-if="newPaymentVisible" @close="newPaymentVisible = false"/>
+            <NewPaymentCityLedger 
+                v-if="newPaymentVisible" 
+                :selectedCompanyId="selectCityLedger?.id"
+                :dateRange="dateRange"
+                :activeTab="activeTab"
+                @close="newPaymentVisible = false"/>
         </template>
     </AdminLayout>
 
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
@@ -135,28 +140,64 @@ import NewPaymentCityLedger from './NewPaymentCityLedger.vue'
 import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
 import { type Column } from '../../utils/models'
 import { formatCurrency } from '../../utils/numericUtils'
+import { getCityLedgerDetails } from '../../services/companyApi'
+import { useServiceStore } from '../../composables/serviceStore'
 const router = useRouter()
 const { t } = useI18n()
+const serviceStore = useServiceStore()
 const searchQuery = ref('')
+
 // State
-const activeTab = ref('pending')
+const activeTab = ref('posting')
+const totals = ref<any>({})
 const loading = ref(false)
 const closingBalance = ref(35000)
 const showFilters = ref(false)
 const newPaymentVisible = ref(false)
+const pendingLedgerCommission = ref(false)
+const displayVoid = ref(false)
+
+// Initialize date range with yesterday and today
+const getYesterday = () => {
+    const date = new Date()
+    date.setDate(date.getDate() - 1)
+    return date.toISOString().split('T')[0]
+}
+
+const getToday = () => {
+    const date = new Date()
+    return date.toISOString().split('T')[0]
+}
+const dateRange = ref({
+    start: getYesterday(),
+    end: getToday(),
+})
 // Filters
 const filters = ref({
-    startDate: '',
-    endDate: '',
+    startDate: getYesterday(),
+    endDate: getToday(),
     user: ''
+})
+
+// City Ledger data
+const selectCityLedgerId = ref<any>(null)
+const selectCityLedger = ref<any>(null)
+const cityLedgerData = ref<any>({
+    transactions: [],
+    totals: {
+        cityLedgerTotal: 0,
+        unpaidInvoice: 0,
+        unassignedPayments: 0,
+        assignedPayments: 0,
+        openingBalance: 0
+    }
 })
 
 // Original data backup for filtering
 const originalTransactions = ref<any>([])
-const selectCityLedger = ref<any>(null)
 // Table columns
 const columns = ref<Column[]>([
-    { key: 'date', label: 'Date', type: 'custom' },
+    { key: 'date', label: 'Date', type: 'date' },
     { key: 'description', label: 'Description', type: 'custom' },
     { key: 'paymentType', label: 'Payment Type', type: 'custom' },
     { key: 'user', label: 'User', type: 'custom' },
@@ -169,72 +210,48 @@ const columns = ref<Column[]>([
 
 // Sample data
 const transactions = ref([
-    {
-        id: 1,
-        date: '2023-11-01',
-        description: 'Receipt for TIN',
-        details: 'Payments received from',
-        paymentType: 'cash',
-        user: 'helpdesk/support',
-        credit: 15.00,
-        debit: 0.00,
-        assigned: 0.00,
-        unassigned: 0.00,
-        balance: 15.00
-    },
-    {
-        id: 2,
-        date: '2023-10-31',
-        description: 'Receipt for 123456',
-        details: 'Payments received from ',
-        paymentType: 'cash',
-        user: 'helpdesk/support',
-        credit: 4.00,
-        debit: 0.00,
-        assigned: 0.00,
-        unassigned: 0.00,
-        balance: 4.00
-    },
-    {
-        id: 3,
-        date: '2023-01-01',
-        description: 'Guest - Emile Simalundu',
-        details: null,
-        paymentType: 'ADONIS TRAVELS&TOURS',
-        user: 'helpdesk/support',
-        credit: 0.00,
-        debit: 12720.00,
-        assigned: 0.00,
-        unassigned: 0.00,
-        balance: -12720.00
-    },
-    {
-        id: 4,
-        date: '2023-01-01',
-        description: 'Guest -',
-        details: null,
-        paymentType: 'ADONIS TRAVELS&TOURS',
-        user: 'helpdesk/support',
-        credit: 0.00,
-        debit: 12720.00,
-        assigned: 12720.00,
-        unassigned: 0.00,
-        balance: 0.00
-    },
-    {
-        id: 5,
-        date: '2023-01-01',
-        description: 'Payments ',
-        details: null,
-        paymentType: 'cash',
-        user: 'helpdesk/support',
-        credit: 40000.00,
-        debit: 0.00,
-        assigned: 0.00,
-        unassigned: 40000.00,
-        balance: 40000.00
-    }
 ])
+const handChangeCityLedger =(item:any)=>{
+    selectCityLedger.value = item;
+    loadCityLedgerData()
+}
+// Load city ledger data function
+const loadCityLedgerData = async () => {
+    if (!selectCityLedger.value?.id) {
+        transactions.value = []
+        return
+    }
+
+    loading.value = true
+    try {
+        const params = {
+            companyAccountId: selectCityLedger.value.id,
+            hotelId: serviceStore.serviceId!,
+            dateFrom: dateRange.value.start,
+            dateTo: dateRange.value.end,
+            usePostingDate: activeTab.value === 'posting',
+            searchText: searchQuery.value || '',
+            showVoided: displayVoid.value,
+            page: 1,
+            limit: 100
+        }
+
+        const response = await getCityLedgerDetails(params)
+        console.log('response', response)
+        
+        if (response?.data) {
+            cityLedgerData.value = response.companyAccount
+            totals.value = response.totals;
+            transactions.value = response.data || []
+            originalTransactions.value = [...transactions.value]
+        }
+    } catch (error) {
+        console.error('Error loading city ledger data:', error)
+        transactions.value = []
+    } finally {
+        loading.value = false
+    }
+}
 
 // Actions
 const actions = ref([
@@ -275,34 +292,6 @@ const actions = ref([
 // Selected items
 const selectedItems = ref([])
 
-// Computed
-const filteredData = computed(() => {
-    // First filter by tab
-    let filtered = [];
-
-    switch (activeTab.value) {
-        case 'pending':
-            filtered = transactions.value.filter(t => t.description.includes('cityledger'))
-            break
-        case 'payments':
-            filtered = transactions.value.filter(t => t.credit > 0)
-            break
-        case 'unpaid':
-            filtered = transactions.value.filter(t => t.debit > 0 && t.assigned === 0)
-            break
-        case 'unsettled':
-            filtered = transactions.value.filter(t => t.balance !== 0)
-            break
-        case 'assigned':
-            filtered = transactions.value.filter(t => t.assigned > 0)
-            break
-        default:
-            filtered = transactions.value
-    }
-
-    return filtered
-})
-
 
 function handleSelectionChange(items:any) {
     selectedItems.value = items
@@ -320,14 +309,43 @@ function openNewPaymentModal() {
 
 
 
+// Watchers
+watch(selectCityLedger.value, (newValue) => {
+    console.log('selection', newValue)
+    if (newValue) {
+        loadCityLedgerData()
+    }
+}, { deep: true })
+
+watch([() => dateRange.value.start, () => dateRange.value.end], () => {
+    if (selectCityLedger.value?.id) {
+        loadCityLedgerData()
+    }
+})
+
+watch(activeTab, () => {
+    if (selectCityLedger.value?.id) {
+        loadCityLedgerData()
+    }
+})
+
+watch(displayVoid, () => {
+    if (selectCityLedger.value?.id) {
+        loadCityLedgerData()
+    }
+})
+
+watch(searchQuery, () => {
+    if (selectCityLedger.value?.id) {
+        loadCityLedgerData()
+    }
+})
+
 // Lifecycle hooks
 onMounted(() => {
-    loading.value = true
-    // Simulate API call
-    setTimeout(() => {
-        // Store original data for filtering
-        originalTransactions.value = [...transactions.value]
-        loading.value = false
-    }, 1000)
+    // Initialize with default date range
+    if (selectCityLedger.value?.id) {
+        loadCityLedgerData()
+    }
 })
 </script>

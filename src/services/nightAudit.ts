@@ -1,0 +1,80 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from 'axios'
+import type { AxiosResponse } from 'axios'
+import { useAuthStore } from '@/composables/user'
+ 
+const API_URL = `${import.meta.env.VITE_API_URL as string}/night-audit`
+
+
+const authStore = useAuthStore()
+const headers = {
+  headers: {
+    Authorization: `Bearer ${authStore.token}`,
+  },
+  withCredentials: true,
+}
+
+/**
+ * Calculate and store night audit data
+ */
+export const createNightAudit = (data:any ): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/post`, data, headers)
+}
+
+/**
+ *  get night audit details
+ *  */
+export const getNightAuditDetails = (hotelId: number, auditDate:string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/${auditDate}`, headers)
+}
+
+/**
+ *  get night audit list
+ *  */
+export const getNightAuditList = (hotelId: number,): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/history`, headers)
+}
+
+/**
+ * get night audit summary
+ * */
+export const getNightAuditSummary = (hotelId: number,): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/summary`, headers)
+}
+
+/**
+ * get night audit room status
+ * */
+export const getNightAuditRoomStatus = (hotelId: number, auditDate:string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/${auditDate}/room-status`, headers)
+}
+
+/**
+ * get night audit unsettled-folios
+ * */
+export const getNightAuditUnsettledFolios = (hotelId: number, auditDate:string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/${auditDate}/unsettled-folios`, headers)
+}
+
+
+/***
+ * get night audit nightly-charges
+ * */
+export const getNightAuditNightlyCharges = (hotelId: number, auditDate:string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/${auditDate}/nightly-charges`, headers)
+}
+
+
+/**
+ * get night audit pending-reservations
+ */
+export const getNightAuditPendingReservations = (hotelId: number, auditDate:string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/${auditDate}/pending-reservations`, headers)
+}
+
+/***
+ * post postNightlyCharges
+ * */
+export const postNightlyCharges = (hotelId: number, auditDate:string, data:any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/${hotelId}/${auditDate}/nightly-charges`, data, headers)
+}

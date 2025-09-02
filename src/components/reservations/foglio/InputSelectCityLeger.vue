@@ -146,25 +146,6 @@ const formatBalance = computed(() => {
   }
 })
 
-// Watch for modelValue changes
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    if (newVal && newVal !== selectedCityLedger.value?.id) {
-      // Find the ledger in current options or all ledgers
-      const found = cityLedgerOptions.value.find(ledger => ledger.id === Number(newVal)) ||
-                   allCityLedgers.value.find(ledger => ledger.id === Number(newVal))
-      if (found) {
-        selectedCityLedger.value = found
-        searchQuery.value = found.name || ''
-      }
-    } else if (!newVal) {
-      selectedCityLedger.value = null
-      searchQuery.value = ''
-    }
-  },
-  { immediate: true }
-)
 
 // Filter city ledgers based on search query
 const filterCityLedgers = (query: string) => {
@@ -192,7 +173,7 @@ const filterCityLedgers = (query: string) => {
 // Debounced search function
 const debouncedSearch = debounce((query: string) => {
   filterCityLedgers(query)
-}, 300)
+}, 1)
 
 // Load all city ledgers
 const loadCityLedgers = async () => {
@@ -216,6 +197,7 @@ const loadCityLedgers = async () => {
     
     allCityLedgers.value = ledgers
     cityLedgerOptions.value = ledgers
+    
   } catch (error) {
     console.error('Error loading city ledgers:', error)
     allCityLedgers.value = []
@@ -224,6 +206,34 @@ const loadCityLedgers = async () => {
     isLoading.value = false
   }
 }
+// Watch for modelValue changes
+watch(
+  () => props.modelValue,
+  async (newVal) => {
+    if (newVal && newVal !== selectedCityLedger.value?.id) {
+      // Ensure ledgers are loaded first
+      if (allCityLedgers.value.length === 0) {
+        await loadCityLedgers()
+      }
+      
+      // Find the ledger in current options or all ledgers
+      const found = cityLedgerOptions.value.find(ledger => ledger.id === Number(newVal)) ||
+                   allCityLedgers.value.find(ledger => ledger.id === Number(newVal))
+      if (found) {
+        selectedCityLedger.value = found
+        searchQuery.value = found.name || ''
+        // Filter to show the selected item and similar ones
+        filterCityLedgers(found.name || '')
+      }
+    } else if (!newVal) {
+      selectedCityLedger.value = null
+      searchQuery.value = ''
+      // Reset to show all options when no selection
+      cityLedgerOptions.value = allCityLedgers.value
+    }
+  },
+  { immediate: true }
+)
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement

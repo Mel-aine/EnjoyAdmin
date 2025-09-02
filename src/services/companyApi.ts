@@ -2,6 +2,8 @@ import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '../composables/serviceStore'
+import axios from 'axios'
+const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration`
 
 const authStore = useAuthStore()
 const serviceStore = useServiceStore();
@@ -135,7 +137,7 @@ export const deleteCompany = async (companyId: number): Promise<ApiResponse | un
       `/configuration/company_accounts/${companyId}`,
       headers
     )
-    console.log('response',response)
+    console.log('response', response)
     return response.data
   } catch (error) {
     handleApiError(error)
@@ -182,7 +184,52 @@ export const getCityLedger = async (hotelId: number): Promise<ApiResponse | unde
       `/configuration/company_accounts/city_ledger/${hotelId}`,
       headers
     )
-    console.log('response',response)
+    console.log('response', response)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/**
+ * filter city lefer transaction 
+ */
+
+export const getCityLedgerDetails = async (params: {
+  companyAccountId: number,
+  hotelId: number,
+  dateFrom: string,
+  dateTo: string,
+  usePostingDate: boolean, // Default to posting date
+  searchText: string,
+  showVoided: boolean, // Default to hide voided transactions
+  page: number,
+  limit: number
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse<AxiosResponse> = await axios.get(
+      `${API_URL}/city_ledger`,
+      {
+        params,
+        ...headers
+      }
+    )
+    console.log('response', response)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/**
+ * pos transaction payment 
+ */
+export const postTransactionPayCompanyBulk = async (data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse<AxiosResponse> = await axios.post(
+      `${API_URL}/company_folios/payment-with-assignment`, data, headers
+    )
+    console.log('response', response)
     return response.data
   } catch (error) {
     handleApiError(error)
