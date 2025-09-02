@@ -30,7 +30,8 @@
             <!-- Custom column templates -->
             <template #column-country="{ item }">
               <div class="font-medium text-gray-900">
-                {{ $t(`countries_lists.${item.country.toLowerCase()}`) }}
+                <!-- {{ $t(`countries_lists.${item.country.toLowerCase()}`) }} -->
+                {{item.country  }}
               </div>
             </template>
             <template #column-vipStatus="{ item }">
