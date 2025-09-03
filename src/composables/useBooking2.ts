@@ -221,7 +221,8 @@ export function useBooking() {
     idNumber: '',
     idExpiryDate: '',
     issuingCountry: '',
-    issuingCity: ''
+    issuingCity: '',
+    profilePhoto:''
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -556,6 +557,18 @@ export function useBooking() {
         state: customer.state || '',
         city: customer.city || '',
         zipcode: customer.zipcode || '',
+        idPhoto: customer.idPhoto || null,
+        idType: customer.idType,
+        idNumber: customer.idNumber,
+        idExpiryDate: customer.idExpiryDate,
+        issuingCountry: customer.issuingCountry,
+        issuingCity: customer.issuingCity,
+        profilePhoto:customer.profilePhoto || null,
+        passportNumber: null,
+        passportExpiry: null,
+        visaNumber: null,
+        visaExpiry: null
+
       }
 
       // Mettre à jour le nom sur la carte
@@ -589,21 +602,22 @@ export function useBooking() {
         throw new Error('Guest information is incomplete')
       }
 
-      if (roomConfigurations.value.some((room) => !room.roomType)) {
-        throw new Error('Room configuration is incomplete')
-      }
+      // if (roomConfigurations.value.some((room) => !room.roomType)) {
+      //   throw new Error('Room configuration is incomplete')
+      // }
 
       if (!serviceStore.serviceId) {
         throw new Error('Service ID is missing')
       }
 
       let identityPayload = {
-        idPhoto: formData.value.idPhoto,
+        idPhoto: formData.value.idPhoto || null,
         idType: formData.value.idType,
         idNumber: formData.value.idNumber,
         idExpiryDate: formData.value.idExpiryDate,
         issuingCountry: formData.value.issuingCountry,
         issuingCity: formData.value.issuingCity,
+        profilePhoto:formData.value.profilePhoto || null,
         passportNumber: null,
         passportExpiry: null,
         visaNumber: null,
@@ -690,7 +704,7 @@ export function useBooking() {
         // Additional info
         is_complementary: Boolean(reservation.value.isComplementary),
 
-        complimentary_room: Boolean(reservation.value.complimentaryRoom),
+        complimentary_room: Boolean(reservation.value.isComplementary),
 
         // Payment info
         bill_to: billing.value.billTo,
@@ -709,20 +723,20 @@ export function useBooking() {
       }
 
       //Validation finale
-      if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
-        throw new Error('At least one valid room configuration is required')
-      }
+      // if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
+      //   throw new Error('At least one valid room configuration is required')
+      // }
 
       console.log('Final reservation payload:', reservationPayload)
 
-      const response = await createReservation(reservationPayload)
-      reservationId.value = response.reservationId
-      console.log('reservationId.value', reservationId.value)
+      // const response = await createReservation(reservationPayload)
+      // reservationId.value = response.reservationId
+      // console.log('reservationId.value', reservationId.value)
 
-      if (response.reservationId) {
-        isPaymentButtonShow.value = true
-        confirmReservation.value = true
-      }
+      // if (response.reservationId) {
+      //   isPaymentButtonShow.value = true
+      //   confirmReservation.value = true
+      // }
       // resetForm()
       toast.success(t('reservationCreated'))
 

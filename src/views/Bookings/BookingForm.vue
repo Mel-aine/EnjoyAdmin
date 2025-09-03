@@ -360,7 +360,7 @@
             </BasicButton>
 
             <div class="flex space-x-3">
-              <BasicButton v-if="showCheckinButton" type="button" @click.prevent="openCheckInReservationModal" :label="$t('Check-In')">
+              <BasicButton v-if="showCheckinButton" type="button" @click="openCheckInReservationModal" :label="$t('Check-In')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation"  variant="info" :loading="isLoading" type="submit" @click="handleSubmit()" :disabled="isLoading" :label="$t('Reserve')">
               </BasicButton>
@@ -784,7 +784,18 @@ const onQuickGroupBookingChange = (event: Event) => {
     while (roomConfigurations.value.length > 2) {
       removeRoom(roomConfigurations.value[roomConfigurations.value.length - 1].id)
     }
+  }else {
+
+    reservation.value.rooms = 1;
+
+    while (roomConfigurations.value.length < 1) {
+      addRoom();
+    }
+    while (roomConfigurations.value.length > 1) {
+      removeRoom(roomConfigurations.value[roomConfigurations.value.length - 1].id);
+    }
   }
+
 }
 
 onMounted(() => {
