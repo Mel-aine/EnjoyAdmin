@@ -175,7 +175,7 @@
                 <Select
                   :lb="$t('BusinessSource')"
                   v-model="sourceData.businessSource"
-                  :options="businessSourceOptions"
+                  :options="BusinessSource"
                   :placeholder="$t('-Select-')"
                   :disabled="!editMode"
                 />
@@ -193,6 +193,26 @@
                   :disabled="!editMode"
                 />
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
+                  <div class="flex">
+                    <div class="flex-1">
+                      <Select
+                        v-model="sourceData.company"
+                        :options="companyOptions"
+                        :placeholder="$t('-Select-')"
+                        :disabled="!editMode"
+                        customClass="rounded-r-none h-11"
+                      />
+                    </div>
+                    <button 
+                      class=" w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
+                      :disabled="!editMode"
+                    >
+                      <Building class="w-4 h-4" />
+                    </button>
+              </div>
+            </div> 
               <!-- travel agent -->
 <!--               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Travelagent') }}</label>
@@ -214,21 +234,21 @@
                   </button>
                 </div>
               </div> -->
-              <div>
+<!--               <div>
                 <div class="flex">
-                <InputCurrency
-                  v-model="sourceData.planValue"
-                  :lb="$t('PlanValue')"
-                  id="plan-value"
-                  :disabled="!editMode"
-                  :show-currency-selector="true"
-                  placeholder="Entrez la valeur du plan"
-                  input-type="number"
-                  :is-required="false"
-                  :min="0"
+                  <InputCurrency
+                    v-model="sourceData.planValue"
+                    :lb="$t('PlanValue')"
+                    id="plan-value"
+                    :disabled="!editMode"
+                    :show-currency-selector="true"
+                    placeholder="Entrez la valeur du plan"
+                    input-type="number"
+                    :is-required="false"
+                    :min="0"
                   currency="XAF"/>
                 </div>
-              </div>
+              </div> -->
               
               <!-- Commission -->
 <!--               <div>
@@ -243,29 +263,8 @@
             </div>
 
             <!-- Company and Sales Person -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
-                <div class="flex">
-                  <div class="flex-1">
-                    <Select
-                      v-model="sourceData.company"
-                      :options="companyOptions"
-                      :placeholder="$t('-Select-')"
-                      :disabled="!editMode"
-                      customClass="rounded-r-none h-11"
-                    />
-                  </div>
-                  <button 
-                    class=" w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
-                    :disabled="!editMode"
-                  >
-                    <Building class="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">             
+<!--               <div>
                 <Select
                   :lb="$t('SalesPerson')"
                   v-model="sourceData.salesPerson"
@@ -273,7 +272,7 @@
                   :placeholder="$t('-Select-')"
                   :disabled="!editMode"
                 />
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -374,6 +373,7 @@ import Select from '../../forms/FormElements/Select.vue'
 import { ChevronRight, Building } from 'lucide-vue-next'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
+import { useBooking } from '@/composables/useBooking2'
 
 interface Props {
   booking?: any
@@ -504,11 +504,7 @@ const options = reactive<Options>({
 })
 
 // Options for select fields
-const billToOptions = computed(() => [
-  { label: t('Company'), value: 'company' },
-  { label: t('Individual'), value: 'individual' },
-  { label: t('Agent'), value: 'agent' }
-])
+
 
 const paymentModeOptions = computed(() => [
   { label: t('Cash'), value: 'cash' },
@@ -516,7 +512,16 @@ const paymentModeOptions = computed(() => [
   { label: t('Bank Transfer'), value: 'bank_transfer' },
   { label: t('Check'), value: 'check' }
 ])
-
+const {
+  // Options
+  BookingSource,
+  BusinessSource,
+  BookingType,
+  creditTypes,
+  billToOptions,
+  emailTemplates,
+  reservationId,
+} = useBooking()
 const reservationTypeOptions = computed(() => [
   { label: t('Confirm Booking'), value: 'confirm_booking' },
   { label: t('Tentative Booking'), value: 'tentative_booking' },
@@ -529,15 +534,6 @@ const marketCodeOptions = computed(() => [
   { label: t('Corporate'), value: 'corporate' },
   { label: t('Leisure'), value: 'leisure' },
   { label: t('Group'), value: 'group' }
-])
-
-const businessSourceOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Walk-in'), value: 'walk_in' },
-  { label: t('Online'), value: 'online' },
-  { label: t('Phone'), value: 'phone' },
-  { label: t('Agent'), value: 'agent' },
-  { label: t('Indirect Bookings'), value: 'Indirect Bookings' }
 ])
 
 const travelAgentOptions = computed(() => [
