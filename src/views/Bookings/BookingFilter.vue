@@ -10,6 +10,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
         <!-- Search by Name/Number -->
         <div class="lg:col-span-2">
+          
           <Input :lb="$t('reservationsList.searchByNameOrNumber')" :inputType="'text'"
             :placeholder="$t('reservationsList.searchPlaceholder')" :id="'searchText'"
             :forLabel="'reservationsList.searchByNameOrNumber'" v-model="filters.searchText" />

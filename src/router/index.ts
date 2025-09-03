@@ -1097,6 +1097,61 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Channel Manager Configuration Routes
+    {
+      path: '/configuration/channel-manager',
+      name: 'ChannelManager',
+      component: () => import('../views/Configuration/ChannelManager/ChannelManager.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/connections',
+      name: 'ChannelManagerConnections',
+      component: () => import('../views/Configuration/ChannelManager/Connections.vue'),
+      meta: {
+        title: 'Channel Manager Connections',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/mapping',
+      name: 'ChannelManagerMapping',
+      component: () => import('../views/Configuration/ChannelManager/Mapping.vue'),
+      meta: {
+        title: 'Channel Manager Mapping',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/rates-inventory',
+      name: 'ChannelManagerRatesInventory',
+      component: () => import('../views/Configuration/ChannelManager/RatesInventory.vue'),
+      meta: {
+        title: 'Rates & Inventory',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/sync-settings',
+      name: 'ChannelManagerSyncSettings',
+      component: () => import('../views/Configuration/ChannelManager/SyncSettings.vue'),
+      meta: {
+        title: 'Sync Settings',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/logs',
+      name: 'ChannelManagerLogs',
+      component: () => import('../views/Configuration/ChannelManager/Logs.vue'),
+      meta: {
+        title: 'Channel Manager Logs',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/department',
       name: 'department',

@@ -282,6 +282,50 @@
                 </transition>
               </div>
 
+              <!-- Channel Manager Configuration -->
+              <div>
+                <button 
+                  @click="toggleSection('channelManager')"
+                  :class="[
+                    'menu-item group text-sm w-full',
+                    {
+                      'menu-item-active': openSections.channelManager,
+                      'menu-item-inactive': !openSections.channelManager,
+                    },
+                    !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
+                  ]">
+                 
+                  <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
+                    {{ $t('configuration.channelManager.title') }}
+                  </span>
+                  <ChevronDownIcon v-if="isExpanded || isHovered || isMobileOpen"
+                    :class="[
+                      'ml-auto w-5 h-5 transition-transform duration-200',
+                      {
+                        'rotate-180 text-purple-400': openSections.channelManager,
+                      },
+                    ]" />
+                </button>
+                
+                <transition name="slide-down">
+                  <div v-show="openSections.channelManager && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                    <router-link 
+                      v-for="item in channelManagerConfig" 
+                      :key="item.path"
+                      :to="item.path"
+                      :class="[
+                        'menu-dropdown-item text-sm flex items-center gap-2',
+                        {
+                          'menu-dropdown-item-active': isActive(item.path),
+                          'menu-dropdown-item-inactive': !isActive(item.path),
+                        },
+                      ]">
+                      {{ $t(item.label) }}
+                    </router-link>
+                  </div>
+                </transition>
+              </div>
+
             </div>
           </div>
         </nav>
@@ -306,7 +350,8 @@ const openSections = ref<any>({
   rates: false,
   housekeeping: false,
   master: true, // Default open
-  settings: false
+  settings: false,
+  channelManager: false
 })
 
 // Rooms Configuration
@@ -369,6 +414,16 @@ const settingsConfig = ref([
   { name: 'check-in-and-reservation-settings', path: '/configuration/settings/check-in-and-reservation-settings', label: 'configuration.settings.checkInAndReservationSettings' },
   { name: 'display-settings', path: '/configuration/settings/display-settings', label: 'configuration.settings.displaySettings' },
   { name: 'pagination-settings', path: '/configuration/settings/pagination-settings', label: 'configuration.settings.paginationSettings' }
+])
+
+// Channel Manager Configuration
+const channelManagerConfig = ref([
+  { name: 'overview', path: '/configuration/channel-manager', label: 'configuration.channelManager.title' },
+  { name: 'connections', path: '/configuration/channel-manager/connections', label: 'configuration.channelManager.connections.title' },
+  { name: 'mapping', path: '/configuration/channel-manager/mapping', label: 'configuration.channelManager.mapping.title' },
+  { name: 'rates-inventory', path: '/configuration/channel-manager/rates-inventory', label: 'configuration.channelManager.ratesInventory.title' },
+  { name: 'sync-settings', path: '/configuration/channel-manager/sync-settings', label: 'configuration.channelManager.syncSettings.title' },
+  { name: 'logs', path: '/configuration/channel-manager/logs', label: 'configuration.channelManager.logs.title' }
 ])
 
 const toggleSection = (section: string) => {

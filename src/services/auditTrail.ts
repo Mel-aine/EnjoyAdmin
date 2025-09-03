@@ -63,7 +63,7 @@ const handleApiError = (error: any) => {
 export const getAuditTrail = async (params: AuditTrailQueryParams): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
-      '/configuration/audit-trail',
+      '/audit-trail',
       {
         ...headers,
         params,
