@@ -510,6 +510,33 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/reports/statistical/business-analysis',
+      name: 'buisnessAnalysis',
+      component: () => import('../views/Reports/Statistical/BusinessAnalysis.vue'),
+      meta: {
+        title: 'Business Analysis',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/monthly-statistics',
+      name: 'MonthlyStatistics',
+      component: () => import('../views/Reports/Statistical/MonthlyStatistics.vue'),
+      meta: {
+        title: 'Monthly Statistics',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/room-sale-statistics',
+      name: 'RoomSaleStatistics',
+      component: () => import('../views/Reports/Statistical/RoomSaleStatistics.vue'),
+      meta: {
+        title: 'Room Sale Statistics',
+        requiresAuth: true,
+      },
+    },
     // Additional Front Office Reports
     {
       path: '/reports/front-office/guest-list',
