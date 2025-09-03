@@ -4481,7 +4481,32 @@
     "available": "Disponible",
     "occupied": "Occupée",
     "dirty": "Sale"
-  }
-
-
+  },
+  "applyDiscount": "Appliquer une Remise",
+  "discountRule": "Règle de Remise",
+  "allNights": "Toutes les Nuits",
+  "firstNight": "Première Nuit",
+  "lastNight": "Dernière Nuit",
+  "selectNights": "Sélectionner les Nuits",
+  "selectNightsToApplyDiscount": "Sélectionner les nuits pour appliquer la remise",
+  "audited": "Audité",
+  "notAudited": "Non Audité",
+  "applyFor": "Appliquer Pour",
+  "allRooms": "Toutes les Chambres",
+  "applyToSelectedTransaction": "Appliquer à la Transaction Sélectionnée",
+  "selectTransactions": "Sélectionner les Transactions",
+  "loadingTransactions": "Chargement des transactions...",
+  "discountAmount": "Montant de la Remise",
+  "enterDiscountAmount": "Entrez le montant de la remise",
+  "notes": "Notes",
+  "enterAdditionalNotes": "Entrez des notes supplémentaires",
+  "pleaseSelectDiscount": "Veuillez sélectionner une remise",
+  "pleaseSelectDiscountRule": "Veuillez sélectionner une règle de remise",
+  "pleaseSelectAtLeastOneNight": "Veuillez sélectionner au moins une nuit",
+  "pleaseSelectAtLeastOneTransaction": "Veuillez sélectionner au moins une transaction",
+  "pleaseEnterValidDiscountAmount": "Veuillez entrer un montant de remise valide",
+  "discountAppliedSuccessfully": "Remise appliquée avec succès",
+  "errorApplyingDiscount": "Erreur lors de l'application de la remise",
+  "errorFetchingReservationDetails": "Erreur lors de la récupération des détails de la réservation",
+  "errorLoadingTransactions": "Erreur lors du chargement des transactions"
 }

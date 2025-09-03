@@ -49,7 +49,7 @@
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
             <BasicButton :label="$t('addPayment')" @click="openAddPaymentModal" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
-            <BasicButton :label="$t('applyDiscount')" />
+            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <!-- More Actions Dropdown -->
@@ -170,6 +170,16 @@
            @print-error="handlePrintError"
           :reservation-id="reservationId" />
         </template>
+        <!-- Apply Discount Modal -->
+        <template v-if="isApplyDiscountModal">
+          <ApplyDiscountRoomCharge 
+            :is-open="isApplyDiscountModal" 
+            :reservation-id="reservationId"
+            :reservation-number="reservation?.reservationNumber"
+            @close="closeApplyDiscountModal" 
+            @discount-applied="handleDiscountApplied" 
+          />
+        </template>
       </div>
     </div>
   </div>
@@ -201,6 +211,7 @@ import RefreshIcon from '../../../icons/RefreshIcon.vue'
 import CutFolioModal from './CutFolioModal.vue'
 import RoomChargeModal from './RoomChargeModal.vue'
 import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
+import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state
@@ -218,6 +229,7 @@ const isTransferModal = ref(false);
 const isSplitFolioModal = ref(false);
 const isCutFolioModal = ref(false);
 const isSendFolioModal = ref(false);
+const isApplyDiscountModal = ref(false);
 
 
 const closeSplitFolioModal = () => {
@@ -247,6 +259,18 @@ const closeRoomChargesModal = () => {
 const handleSaveRoomCharges = (roomChargesData: any) => {
   console.log('Save room charges:', roomChargesData)
   // Add save logic here
+}
+const closeApplyDiscountModal = () => {
+  isApplyDiscountModal.value = false
+}
+const openApplyDiscountModal = () => {
+  isApplyDiscountModal.value = true
+}
+const handleDiscountApplied = (discountData: any) => {
+  console.log('Discount applied:', discountData)
+  // Add discount application logic here
+  // Refresh folio data after applying discount
+  refreshFolio()
 }
 const closeAdjustmentModal = () => {
   isAdjustmentModal.value = false

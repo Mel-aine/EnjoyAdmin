@@ -437,7 +437,7 @@ const totalRooms = computed(() => reservationRooms.value.length)
 const roomTypeSummary = computed(() => {
   if (reservationRooms.value.length === 0) return 'N/A'
   
-  const roomTypes = [...new Set(reservationRooms.value.map(room => room.roomType?.roomTypeName || 'N/A'))]
+  const roomTypes = [...new Set(reservationRooms.value.map((room:any) => room.roomType?.roomTypeName || 'N/A'))]
   return roomTypes.join(', ')
 })
 
@@ -454,7 +454,7 @@ const statusCounts = computed(() => {
   
   if (!reservationRooms.value.length) return counts
   
-  reservationRooms.value.forEach(room => {
+  reservationRooms.value.forEach((room:any) => {
     const status = room.status?.toLowerCase() || ''
     if (status.includes('reserved')) counts.reserved++
     if (status.includes('due_out')) counts.dueOut++

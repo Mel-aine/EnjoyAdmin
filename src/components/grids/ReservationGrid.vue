@@ -35,6 +35,34 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <!-- Reservation Mode Toggle -->
+        <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+          <button @click="reservationMode = 'all'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'all'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+          ]">
+            {{ $t('All') }}
+          </button>
+          <button @click="reservationMode = 'single'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'single'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+          ]">
+            <User class="w-4 h-4" />
+          </button>
+          <button @click="reservationMode = 'group'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'group'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+          ]">
+            <Users class="w-4 h-4" />
+          </button>
+        </div>
+
         <!-- View Toggle -->
         <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
           <button @click="viewMode = 'grid'" :class="[
@@ -139,20 +167,7 @@
         <!-- Custom column for status -->
         <template #column-status="{ item }">
           <div class="flex flex-col gap-1">
-            <span :class="[
-              'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.statusColor.bg,
-              item.statusColor.text
-            ]">
-              {{ item.statusColor.label }}
-            </span>
-            <span :class="[
-              'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.paymentStatusColor.bg,
-              item.paymentStatusColor.text
-            ]">
-              {{ item.paymentStatusColor.label }}
-            </span>
+            <ReservationStatus :status="item.status" />
           </div>
         </template>
       </ReusableTable>
@@ -164,13 +179,16 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ $t('No reservations') }}</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('Get started by creating a new reservation.') }}
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+        {{ getEmptyStateTitle() }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {{ getEmptyStateMessage() }}
       </p>
     </div>
 
     <!-- Pagination -->
-    <div v-if="!loading && filteredReservations.length > 0" class="mt-6 flex items-center justify-between">
+    <div v-if="!loading && filteredReservations.length > 0 && totalPages > 1" class="mt-6 flex items-center justify-between">
       <div class="text-sm text-gray-700 dark:text-gray-300">
         {{ $t('Showing') }} {{ (currentPage - 1) * pageSize + 1 }} {{ $t('to') }}
         {{ Math.min(currentPage * pageSize, filteredReservations.length) }} {{ $t('of') }}
@@ -214,14 +232,10 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { FitlterItem } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import AddBookingModal from '../modal/AddBookingModal.vue'
-import BookingForm from '@/views/Bookings/BookingForm.vue'
 import { filterReservation } from '../../services/hotelApi'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, User2Icon, UserCircle2Icon, UserMinus, X } from 'lucide-vue-next'
-import { formatTime } from '../utilities/UtilitiesFunction'
-import Adult from '../../icons/Adult.vue'
-import Child from '../../icons/Child.vue'
-import ButtomDropdownAction from '../common/ButtomDropdownAction.vue'
 import ReservationCardItem from '../reservations/ReservationCardItem.vue'
+import ReservationStatus from '@/components/common/ReservationStatus.vue'
+import { Users, User } from 'lucide-vue-next'
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -237,6 +251,7 @@ const loadingDelete = ref(false)
 const loading = ref(true)
 
 const viewMode = ref<'grid' | 'list'>('grid')
+const reservationMode = ref<'all' | 'single' | 'group'>('all')
 const sortBy = ref('date')
 const currentPage = ref(1)
 const pageSize = ref(12)
@@ -346,6 +361,18 @@ const filteredReservations = computed(() => {
       break
   }
 
+  // Filter based on reservation mode
+  if (reservationMode.value === 'single') {
+    filtered = filtered.filter((reservation: any) => {
+      return !reservation.reservationRooms || reservation.reservationRooms.length === 1
+    })
+  } else if (reservationMode.value === 'group') {
+    filtered = filtered.filter((reservation:any) => {
+      return reservation.reservationRooms && reservation.reservationRooms.length > 1
+    })
+  }
+  // 'all' mode shows all reservations, no filtering needed
+
   // Sort reservations
   filtered.sort((a, b) => {
     const aValue = a[sortBy.value as keyof ReservationType]
@@ -379,6 +406,25 @@ const paginatedReservations = computed(() => {
   return filteredReservations.value.slice(start, end)
 })
 
+// Helper functions for empty state
+const getEmptyStateTitle = () => {
+  if (reservationMode.value === 'single') {
+    return safeTranslate('No single room reservations')
+  } else if (reservationMode.value === 'group') {
+    return safeTranslate('No group reservations')
+  }
+  return safeTranslate('No reservations')
+}
+
+const getEmptyStateMessage = () => {
+  if (reservationMode.value === 'single') {
+    return safeTranslate('No reservations with single room found in the current filter range.')
+  } else if (reservationMode.value === 'group') {
+    return safeTranslate('No reservations with multiple rooms found in the current filter range.')
+  }
+  return safeTranslate('Get started by creating a new reservation.')
+}
+
 // Methods
 const applyFilter = async (filter: FitlterItem) => {
   loading.value = true
@@ -392,8 +438,6 @@ const applyFilter = async (filter: FitlterItem) => {
 
       const mappedReservations = res.data?.reservations.map((res: any) => {
         const user = res.guest
-        const statusClasses = getStatusColor(res.status).split(' ')
-        const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
 
         return {
           ...res,
@@ -402,16 +446,6 @@ const applyFilter = async (filter: FitlterItem) => {
           email: user?.email || '',
           phone: user?.phoneNumber || '',
           userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-          statusColor: {
-            label: safeTranslate(res.status),
-            bg: statusClasses[0],
-            text: statusClasses[1],
-          },
-          paymentStatusColor: {
-            label: safeTranslate(res.paymentStatus),
-            bg: paymentClasses[0],
-            text: paymentClasses[1],
-          },
         }
       });
 
@@ -424,38 +458,6 @@ const applyFilter = async (filter: FitlterItem) => {
   } finally {
     loading.value = false
     currentPage.value = 1 // Reset to first page after filtering
-  }
-}
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'confirmed':
-      return 'bg-green-100 text-green-700'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-700'
-    case 'cancelled':
-      return 'bg-red-100 text-red-700'
-    case 'checked-in':
-      return 'bg-purple-100 text-purple-700'
-    case 'checked-out':
-      return 'bg-gray-100 text-gray-700'
-    default:
-      return 'bg-gray-100 text-gray-700'
-  }
-}
-
-const getPaymentColor = (status: string) => {
-  switch (status) {
-    case 'paid':
-      return 'bg-green-100 text-green-700'
-    case 'unpaid':
-      return 'bg-red-100 text-red-700'
-    case 'refunded':
-      return 'bg-gray-100 text-gray-700'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-700'
-    default:
-      return 'bg-gray-100 text-gray-700'
   }
 }
 
@@ -514,13 +516,7 @@ onMounted(async () => {
     searchText: '',
     status: '',
   };
-  await applyFilter({
-    checkInDate: '',
-    checkOutDate: '',
-    roomType: '',
-    searchText: '',
-    status: '',
-  })
+  //await applyFilter(filter.value)
 })
 
 const openBookingModal = () => {

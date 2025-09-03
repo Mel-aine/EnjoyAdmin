@@ -23,6 +23,7 @@ import BookingConfirmationTemplate from '../../../components/common/templates/Bo
 import { useServiceStore } from '../../../composables/serviceStore';
 import NoShowReservation from '../../../components/reservations/foglio/NoShowReservation.vue';
 import AuditTrail from '../../../components/audit/AuditTrail.vue';
+import ReservationStatus from '../../../components/common/ReservationStatus.vue';
 
 // Simple Button component
 const Button = {
@@ -429,12 +430,12 @@ onMounted(() => {
                     <div class="flex">
                         <Adult class="w-5" />
                         <span class="text-sm items-end align-center self-center pt-2">{{ reservation.adults ?? 0
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="flex">
                         <Child class="w-4" />
                         <span class="text-sm items-end align-bottom self-center pt-2">{{ reservation.child ?? 0
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="flex gap-8 ms-10">
                         <!--arrival Days-->
@@ -480,11 +481,8 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-
-                <div class="flex gap-x-2">
-                    <span
-                        class="border align-middle p-1 text-sm items-center self-center border-amber-600 text-amber-500">{{
-                            $t(reservation.status) }}</span>
+                <div class="flex gap-x-2 h-full align-middle self-center items-center justify-center ">
+                    <ReservationStatus :status="reservation.status" />
                     <button @click="checkInRerservation" :disabled="isCheckingIn" v-if="canCheckIn"
                         class="bg-green-600 rounded-lg text-white  px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
                         <Spinner v-if="isCheckingIn" class="w-4 h-4" />

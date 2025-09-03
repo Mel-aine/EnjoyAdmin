@@ -178,11 +178,11 @@
             <div class="text-xs text-gray-500">{{ item.description || '' }}</div>
           </div>
         </template>
-
-        <!-- Custom Discount Column -->
-        <template #column-discount="{ item }">
-          <div class="text-sm" :class="item.discount > 0 ? 'text-red-600' : 'text-gray-500'">
-            {{ item.discount > 0 ? '-' + formatAmount(item.discount) : '0.00' }}
+        <template #header-actions>
+          <!-- Header with action buttons -->
+          <div class="flex flex-wrap justify-end gap-2 pb-2  border-b border-gray-200">
+            <BasicButton :label="$t('Update details')" />
+            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
           </div>
         </template>
 
@@ -238,6 +238,16 @@
             @close="closeCheckInReservationModal" />
         </template>
     </div>
+
+    <!-- Apply Discount Modal -->
+    <ApplyDiscountRoomCharge
+      v-if="isApplyDiscountModalOpen"
+      :is-open="isApplyDiscountModalOpen"
+      :reservation-id="reservationId"
+      :room-charges="roomChargeData"
+      @close="closeApplyDiscountModal"
+      @discount-applied="handleDiscountApplied"
+    />
   </div>
 </template>
 
@@ -251,6 +261,7 @@ import Accordion from '../../common/Accordion.vue'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
 import type { Column } from '../../../utils/models'
 import { getRoomCharges } from '../../../services/reservation'
+import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
 import CheckInReservation from '../CheckInReservation.vue'
@@ -270,6 +281,24 @@ const props = defineProps({
 })
 
 // Reactive Data
+  }
+})
+// Modal state
+const isAddRoomChargeModalOpen = ref(false)
+const isApplyRateModalOpen = ref(false)
+const isApplyDiscountModalOpen = ref(false)
+
+interface RoomChargeItem {
+  id: number
+  date: string
+  roomNumber: string
+  rateType: string
+  description: string
+  amount: number
+  status: 'active' | 'inactive'
+  nights: number
+}
+
 const loading = ref(false)
 const selectedMoreAction = ref<any>(null)
 const selectedRoomId = ref<number | null>(null)
@@ -525,6 +554,39 @@ const openCheckInReservationModal = () =>{
 const closeCheckInReservationModal = () =>{
    isCheckInReservationModalOpen.value = false
 }
+
+const handleApplyRate = (rateData: any) => {
+  console.log('Applying rate:', rateData)
+  // Here you would typically update room charges with new rates
+  closeApplyRateModal()
+}
+
+// Apply Discount modal handlers
+const openApplyDiscountModal = () => {
+  isApplyDiscountModalOpen.value = true
+}
+
+const closeApplyDiscountModal = () => {
+  isApplyDiscountModalOpen.value = false
+}
+
+const handleDiscountApplied = (discountData: any) => {
+  console.log('Discount applied:', discountData)
+  // Refresh room charges data after discount is applied
+  getTransactionFolio()
+  closeApplyDiscountModal()
+}
+const getTransactionFolio =async()=>{
+  loading.value = true;
+  const response  = await getRoomCharges(props.reservationId);
+  console.log(response.data);
+  if(response.data){
+    roomChargeData.value = response.data.roomChargesTable;
+    totalAmount.value = response.data.summary?.totalNetAmount;
+  }
+  loading.value = false;
+}
+getTransactionFolio();
 const openVoidReservationModal = () => {
   // if (selectedTableItems.value.length === 0) {
   //   toast.warning(t('toast.selectedItems'))

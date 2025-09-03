@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="flex gap-2  items-center">
-          <Select :options="rateTypeOptions" v-model="selectRateType" class="min-w-[12rem]" />
+          <Select :options="rateTypeOptions" v-model="selectRateType" class="min-w-[12rem]" :is-loading="loadingRates" />
           <StatusLegend :sections="legendSections"/>
         </div>
       </div>
@@ -107,6 +107,14 @@
                         :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
                         class=" bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 ">
                         <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
+                          <div class="flex gap-1">
+                            <span class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
+                            {{ getAvailableRoomsByType(date, group.room_type_id) }}
+                          </span>
+                          <span class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded">
+                            {{ getUnassignedRoomsByType(date, group.room_type_id) }}
+                          </span>
+                          </div>
                           <span class="text-xs">{{ roomRateForDate[group.room_type_id] ?? 'N/A' }}</span>
                         </div>
                       </td>
@@ -424,6 +432,16 @@
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
     </template>
+    
+    <!-- Unassigned Reservations Modal -->
+    <UnassignedReservationsModal 
+      v-if="showUnassignedModal"
+      :is-open="showUnassignedModal"
+      :date="selectedUnassignedDate"
+      :reservations="unassignedReservations"
+      @close="closeUnassignedModal"
+      @room-assigned="handleRoomAssigned"
+    />
   </FullScreenLayout>
 </template>
 
@@ -463,9 +481,10 @@ import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
-import { getRateTypeByHotelId, getRateTypes } from '../../services/configrationApi';
+import { getRateStayViewTypeByHotelId,} from '../../services/configrationApi';
 import SelectDropdown from '../common/SelectDropdown.vue';
 import StatusLegend from '../common/StatusLegend.vue';
+import UnassignedReservationsModal from '../modal/UnassignedReservationsModal.vue';
 import { useRouter } from 'vue-router'
 
 
@@ -485,7 +504,7 @@ const dateSelection = ref({
 
 
 
-
+const loadingRates =ref(false);
 function getSelectionNights(): number {
   if (!dateSelection.value.startDate || !dateSelection.value.endDate) return 0
   const start = Math.min(
@@ -529,6 +548,9 @@ const { t, locale } = useI18n()
 const serviceResponse = ref<any>({})
 const showModalAddingModal = ref<boolean>(false);
 const showDetail = ref<boolean>(false)
+const showUnassignedModal = ref<boolean>(false)
+const selectedUnassignedDate = ref<string>('')
+const unassignedReservations = ref<any[]>([])
 const legends = [
   { type: 'confirmed', label: t('Confirmed reservation') },
   { type: 'request', label: t('Reservation Request') },
@@ -553,6 +575,37 @@ function handleReservationSave(data?: any) {
   console.log('Reservation saved:', data)
   // Refresh the calendar data when reservation is saved/updated
   refresh()
+}
+
+// Unassigned reservations modal handlers
+function openUnassignedModal(date: string) {
+  selectedUnassignedDate.value = date
+  // Get unassigned reservations for the selected date
+  const metric = apiOccupancyMetrics.value.find((m: any) => m.date === date)
+  if (metric && metric.unassigned_reservations_details) {
+    unassignedReservations.value = metric.unassigned_reservations_details
+  } else {
+    unassignedReservations.value = []
+  }
+  showUnassignedModal.value = true
+}
+
+function closeUnassignedModal() {
+  showUnassignedModal.value = false
+  selectedUnassignedDate.value = ''
+  unassignedReservations.value = []
+}
+
+function handleRoomAssigned(data: any) {
+  console.log('Room assigned:', data)
+  // Refresh the calendar data when room is assigned
+  refresh()
+  closeUnassignedModal()
+}
+
+// Global function for handling unassigned clicks (called from HTML)
+;(window as any).handleUnassignedClick = (date: string) => {
+  openUnassignedModal(date)
 }
 const selectedDate = ref((new Date()).toISOString().split('T')[0])
 const daysToShow = ref(15)
@@ -813,7 +866,10 @@ function getRoomRowCellsApi(group: any, room: any) {
 function getUnassignedApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  return metric ? `<span class='${metric.unassigned_reservations > 0 ? 'text-red-400' : ''}'>${metric.unassigned_reservations}</span>` : '0'
+  if (metric && metric.unassigned_reservations > 0) {
+    return `<span class='inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs cursor-pointer hover:bg-blue-600 transition-colors' onclick='handleUnassignedClick("${dStr}")'>${metric.unassigned_reservations}</span>`
+  }
+  return '0'
 }
 function getOccupancyApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
@@ -824,6 +880,30 @@ function getAvailableRoomsApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
   return metric ? metric.total_available_rooms : '0'
+}
+
+function getAvailableRoomsByType(date: Date, roomTypeId: number) {
+  const dStr = date.toISOString().split('T')[0]
+  const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
+  
+  if (metric && metric.available_rooms_by_type) {
+    const roomTypeData = metric.available_rooms_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
+    return roomTypeData ? roomTypeData.available_count : '0'
+  }
+  
+  return '0'
+}
+
+function getUnassignedRoomsByType(date: Date, roomTypeId: number) {
+  const dStr = date.toISOString().split('T')[0]
+  const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
+  
+  if (metric && metric.unassigned_room_reservations_by_type) {
+    const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
+    return roomTypeData ? roomTypeData.unassigned_count : '0'
+  }
+  
+  return '0'
 }
 
 // --- UTILS ---
@@ -984,7 +1064,8 @@ const currentRateTypeData = ref<any>([])
 const selectedRoomTypes = ref<any>([])
 
 const fectRateTypes = async () => {
-  const response = await getRateTypeByHotelId(serviceStore.serviceId!)
+  loadingRates.value = true;
+  const response = await getRateStayViewTypeByHotelId(serviceStore.serviceId!)
   console.log('rateTypeOptions', response.data?.data)
   currentRateTypeData.value = response.data?.data
   rateTypeOptions.value = response.data?.data?.map((item: any) => {
@@ -994,9 +1075,7 @@ const fectRateTypes = async () => {
     }
   })
   selectRateType.value = rateTypeOptions.value[0]?.value;
-  console.log('rateTypeOptions.value', rateTypeOptions.value)
-
-  console.log('selectRateType.value', selectRateType.value)
+  loadingRates.value = false;
   return response.data?.data || []
 }
 fectRateTypes()

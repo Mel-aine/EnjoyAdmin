@@ -153,7 +153,7 @@ const fetchRoomType = async () => {
             .map((item: RoomTypeData) => ({
                 ...item,
                 value: item.id,
-                label: item.name,
+                label: item.roomTypeName,
             }))
     } catch (error) {
         console.error('Erreur lors de la récupération des roomtypes:', error)

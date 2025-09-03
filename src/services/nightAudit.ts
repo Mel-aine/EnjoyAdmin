@@ -9,7 +9,7 @@ const API_URL = `${import.meta.env.VITE_API_URL as string}/night-audit`
 const authStore = useAuthStore()
 const headers = {
   headers: {
-    Authorization: `Bearer ${authStore.token}`,
+    Authorization: `Bearer ${authStore.token}`, 
   },
   withCredentials: true,
 }
@@ -18,7 +18,7 @@ const headers = {
  * Calculate and store night audit data
  */
 export const createNightAudit = (data:any ): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/post`, data, headers)
+  return axios.post(`${API_URL}`, data, headers)
 }
 
 /**
