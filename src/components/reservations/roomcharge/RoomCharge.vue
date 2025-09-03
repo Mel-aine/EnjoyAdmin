@@ -280,9 +280,7 @@ const props = defineProps({
   }
 })
 
-// Reactive Data
-  }
-})
+
 // Modal state
 const isAddRoomChargeModalOpen = ref(false)
 const isApplyRateModalOpen = ref(false)
