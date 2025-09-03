@@ -24,7 +24,7 @@ export interface UpdateFolioData {
 
 export interface TransactionData {
   folioId: number
-  transactionType: 'charge' | 'payment' | 'adjustment'
+  transactionType: string
   category: string
   description: string
   amount: number

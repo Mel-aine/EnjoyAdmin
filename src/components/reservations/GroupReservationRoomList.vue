@@ -40,12 +40,26 @@
             </p>
           </div>
 
-          <!-- Room Number -->
+          <!-- Room Number / Assign Room -->
           <div>
             <span class="text-gray-600 dark:text-gray-400">{{ $t('Room') }}</span>
-            <p class="font-medium text-gray-900 dark:text-white">
-              {{ room.room?.roomNumber || $t('notAssigned') }}
-            </p>
+            <div v-if="room.room?.roomNumber" class="font-medium text-gray-900 dark:text-white">
+              {{ room.room.roomNumber }}
+            </div>
+            <div v-else class="flex items-center gap-2">
+              <!-- Placeholder Image -->
+              <div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
+                <Home class="w-4 h-4 text-gray-400" />
+              </div>
+              <!-- Assign Room Button -->
+              <button 
+                @click.stop="openRoomAssignment(room)"
+                class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors flex items-center gap-1"
+              >
+                <Plus class="w-3 h-3" />
+                {{ $t('assignRoom') }}
+              </button>
+            </div>
           </div>
 
           <!-- Passengers -->
@@ -83,16 +97,27 @@
         </div>
       </div>
     </div>
+
+    <!-- Room Selection Modal -->
+    <RoomSelectionModal
+      :is-open="showRoomSelectionModal"
+      :reservation="selectedReservationRoom"
+      :available-rooms="availableRooms"
+      @close="closeRoomSelection"
+      @room-selected="handleRoomSelected"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
 import StaredIcon from '../../icons/StaredIcon.vue'
-import { CrownIcon } from 'lucide-vue-next'
+import { CrownIcon, Home, Plus } from 'lucide-vue-next'
+import RoomSelectionModal from '../modal/RoomSelectionModal.vue'
 
 interface Room {
   id?: number
@@ -124,9 +149,79 @@ interface Props {
 
 interface Emits {
   (e: 'room-selected', room: Room): void
+  (e: 'room-assigned', data: { roomId: number; roomNumber: string; reservationRoom: Room }): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
+
+// Room assignment modal state
+const showRoomSelectionModal = ref(false)
+const selectedReservationRoom = ref<Room | null>(null)
+const availableRooms = ref<any[]>([])
+
+// Mock function to get available rooms - replace with actual API call
+const getAvailableRoomsForRoomType = async (roomTypeId: string) => {
+  // TODO: Replace with actual API call
+  return [
+    {
+      id: 101,
+      room_number: '101',
+      bed_type: 'King',
+      max_occupancy: 2,
+      floor: 1,
+      status: 'available',
+      features: ['WiFi', 'AC', 'TV']
+    },
+    {
+      id: 102,
+      room_number: '102',
+      bed_type: 'Queen',
+      max_occupancy: 2,
+      floor: 1,
+      status: 'available',
+      features: ['WiFi', 'AC', 'TV', 'Balcony']
+    },
+    {
+      id: 201,
+      room_number: '201',
+      bed_type: 'King',
+      max_occupancy: 2,
+      floor: 2,
+      status: 'available',
+      features: ['WiFi', 'AC', 'TV', 'Ocean View']
+    }
+  ]
+}
+
+const openRoomAssignment = async (room: Room) => {
+  selectedReservationRoom.value = room
+  
+  try {
+    // Get available rooms for the room type
+    availableRooms.value = await getAvailableRoomsForRoomType(room.roomType?.roomTypeName || '')
+    showRoomSelectionModal.value = true
+  } catch (error) {
+    console.error('Error fetching available rooms:', error)
+    // Handle error - show toast or notification
+  }
+}
+
+const closeRoomSelection = () => {
+  showRoomSelectionModal.value = false
+  selectedReservationRoom.value = null
+  availableRooms.value = []
+}
+
+const handleRoomSelected = (roomData: { roomId: number; roomNumber: string }) => {
+  if (selectedReservationRoom.value) {
+    emit('room-assigned', {
+      roomId: roomData.roomId,
+      roomNumber: roomData.roomNumber,
+      reservationRoom: selectedReservationRoom.value
+    })
+  }
+  closeRoomSelection()
+}
 </script>

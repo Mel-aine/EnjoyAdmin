@@ -33,6 +33,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/front-office/night-audit',
+      name: 'NightAudit_Office',
+      component: () => import('../views/FrontOffice/NightAudit.vue'),
+      meta: {
+        title: 'Night Audit',
+        requiresAuth: false,
+      },
+    },
 
     {
       path: '/welcome',
@@ -1203,6 +1212,15 @@ const router = createRouter({
       component: () => import('../components/calendars/ReservationCalendarInterface.vue'),
       meta: {
         title: 'Reservation Calendar',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/demo/apply-discount',
+      name: 'ApplyDiscountDemo',
+      component: () => import('../components/demo/ApplyDiscountDemo.vue'),
+      meta: {
+        title: 'Apply Discount Demo',
         requiresAuth: true,
       },
     },

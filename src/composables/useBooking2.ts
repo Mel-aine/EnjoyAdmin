@@ -5,11 +5,12 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { getRoomTypes } from '@/services/roomTypeApi'
-import { getRateTypes } from '@/services/rateTypeApi'
+import { getRateTypes ,getRateTypesByRoomTypes} from '@/services/rateTypeApi'
 import { createReservation, getReservationDetailsById } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
+import { getBusinessSources } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -59,8 +60,9 @@ interface Billing {
   totalAmount: number
   billTo: string
   taxExempt: boolean
-  paymentMode: string
-  creditType: string
+  paymentMode?: number
+  creditType: string,
+  paymentType:string
 }
 
 interface PaymentData {
@@ -224,8 +226,8 @@ export function useBooking() {
     totalAmount: 0,
     billTo: 'guest',
     taxExempt: false,
-    paymentMode: 'cash',
     creditType: '',
+    paymentType:'cash'
   })
 
   const dateError = ref<string | null>(null)
@@ -243,9 +245,10 @@ export function useBooking() {
     return `${formData.value.firstName} ${formData.value.lastName}`.trim()
   })
 
+  const businessSourcesLo = ref<any>([])
   // Options depuis le store
   const BookingSource = computed(() => serviceStore.bookingSources || [])
-  const BusinessSource = computed(() => serviceStore.businessSources || [])
+  const BusinessSource = computed(() => businessSourcesLo.value || [])
   const BookingType = computed(() => serviceStore.reservationType || [])
 
   const creditTypes = computed(() => [
@@ -260,12 +263,15 @@ export function useBooking() {
     { label: t('Agent'), value: 'agent' },
   ])
 
-  const emailTemplates = computed(() => [
-    { label: t('Thank You Email'), value: 'thank-you' },
-    { label: t('Confirmation Email'), value: 'confirmation' },
-    { label: t('Welcome Email'), value: 'welcome' },
-  ])
-
+  const getBusinessSource = async () => {
+    const resp = await getBusinessSources();
+    console.log('response',resp)
+    businessSourcesLo.value = resp.data?.data?.data.map((s:any) => ({
+        value: s.name,
+        label: s.name
+      }))
+  }
+  getBusinessSource();
   // Watchers
   watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
     const arrivalDate = reservation.value.checkinDate
@@ -321,7 +327,7 @@ export function useBooking() {
   watch(
     () => billing.value.paymentMode,
     (newMode) => {
-      paymentData.value.paymentMethod = newMode
+      paymentData.value.paymentMethod = `${newMode??''}`
     },
   )
 
@@ -474,6 +480,7 @@ export function useBooking() {
       }
 
       const response = await getRoomTypes(hotelId)
+      console.log("fetchRoomtype",response)
 
       if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
         throw new Error('Invalid room types data structure')
@@ -502,7 +509,7 @@ export function useBooking() {
         throw new Error('roomTypeId ID not found')
       }
 
-      const response = await getRateTypes(roomTypeId)
+      const response = await getRateTypesByRoomTypes(roomTypeId)
 
       if (!response.data) {
         throw new Error('Invalid rate types data structure')
@@ -551,7 +558,7 @@ export function useBooking() {
   }
   //save reservation
   const saveReservation = async () => {
-    isLoading.value = true
+    isLoading.value = true 
     try {
       // Validation
       if (!formData.value.firstName || !formData.value.email) {
@@ -1079,7 +1086,6 @@ export function useBooking() {
     try {
       console.log('Initializing booking composable...')
       await fetchRoomTypes()
-      await fetchPaymentMethod()
       console.log('Booking composable initialized successfully')
     } catch (error) {
       console.error('Error initializing booking composable:', error)
@@ -1123,24 +1129,7 @@ export function useBooking() {
 
 
   }
-  const fetchPaymentMethod = async () => {
-    try {
 
-      const response = await getPaymentMethods(serviceStore.serviceId!)
-      console.log('response....', response.data.data)
-      PaymentMethods.value = response.data.data.map((p: any) => {
-        return {
-          ...p,
-          label: p.methodName,
-          value: p.id
-        }
-      })
-
-    } catch (error) {
-      console.error('error', error)
-
-    }
-  }
 
   const showCheckinButton = computed(() => {
 
@@ -1191,7 +1180,6 @@ export function useBooking() {
     BookingType,
     creditTypes,
     billToOptions,
-    emailTemplates,
 
     // Room configuration methods
     addRoom,

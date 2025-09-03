@@ -369,10 +369,10 @@ const extraChargeColumns = computed(() => [
   { key: 'voucherNo', label: 'Voucher No' },
   { key: 'reference', label: 'Reference' },
   { key: 'quantity', label: 'Quantity' },
-  { key: 'amount', label: 'Amount(Rs)' },
-  { key: 'discount', label: 'Discount(Rs)' },
-  { key: 'tax', label: 'Tax(Rs)' },
-  { key: 'total', label: 'Total(Rs)' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'discount', label: 'Discount' },
+  { key: 'tax', label: 'Tax' },
+  { key: 'total', label: 'Total' },
   { key: 'user', label: 'User' }
 ])
 
