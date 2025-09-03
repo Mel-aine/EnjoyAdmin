@@ -10,7 +10,7 @@ import { createReservation, getReservationDetailsById } from '@/services/reserva
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getBusinessSources } from '../services/configrationApi'
+import { getBusinessSourcesByHotelId } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -35,6 +35,7 @@ interface Reservation {
   bookingSource: string
   businessSource: string
   isComplementary: boolean
+  complimentaryRoom?: boolean
 }
 
 interface Guest {
@@ -189,6 +190,7 @@ export function useBooking() {
     bookingSource: '',
     businessSource: '',
     isComplementary: false,
+    complimentaryRoom: false,
   })
 
   const guest = ref<Guest>({
@@ -214,6 +216,12 @@ export function useBooking() {
     state: '',
     city: '',
     zipcode: '',
+    idPhoto: '',
+    idType: '',
+    idNumber: '',
+    idExpiryDate: '',
+    issuingCountry: '',
+    issuingCity: ''
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -269,7 +277,8 @@ export function useBooking() {
   ])
 
   const getBusinessSource = async () => {
-    const resp = await getBusinessSources();
+    const hotelId = serviceStore.serviceId
+    const resp = await getBusinessSourcesByHotelId(hotelId!);
     console.log('response',resp)
     businessSourcesLo.value = resp.data?.data?.data.map((s:any) => ({
         value: s.name,
@@ -588,6 +597,40 @@ export function useBooking() {
         throw new Error('Service ID is missing')
       }
 
+      let identityPayload = {
+        idPhoto: formData.value.idPhoto,
+        idType: formData.value.idType,
+        idNumber: formData.value.idNumber,
+        idExpiryDate: formData.value.idExpiryDate,
+        issuingCountry: formData.value.issuingCountry,
+        issuingCity: formData.value.issuingCity,
+        passportNumber: null,
+        passportExpiry: null,
+        visaNumber: null,
+        visaExpiry: null
+      }
+
+      // Appliquer la même logique que dans selectCustomer pour les types d'identité
+      if (formData.value.idType) {
+        const normalizedIdType = formData.value.idType.toLowerCase().replace(/ /g, '')
+
+        switch (normalizedIdType) {
+          case 'passport':
+          case 'passeport':
+            identityPayload.passportNumber = formData.value.idNumber
+            identityPayload.passportExpiry = formData.value.idExpiryDate
+            break
+          case 'visa':
+            identityPayload.visaNumber = formData.value.idNumber
+            identityPayload.visaExpiry = formData.value.idExpiryDate
+            break
+          default:
+            identityPayload.idNumber = formData.value.idNumber
+            identityPayload.idExpiryDate = formData.value.idExpiryDate
+            break
+        }
+      }
+
       const reservationPayload = {
         // Guest information
         first_name: formData.value.firstName,
@@ -602,8 +645,10 @@ export function useBooking() {
         state: formData.value.state,
         city: formData.value.city,
         zipcode: formData.value.zipcode,
-        status: 'confirmed',
+        ...identityPayload,
         reservation_status: 'confirmed',
+        status: 'confirmed',
+
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
@@ -613,9 +658,9 @@ export function useBooking() {
 
         // Dates and guests
         arrived_date: reservation.value.checkinDate,
-        arrived_time: reservation.value.checkinTime,
+        check_in_time: reservation.value.checkinTime,
         depart_date: reservation.value.checkoutDate,
-        depart_time: reservation.value.checkoutTime,
+        check_out_time: reservation.value.checkoutTime,
         number_of_nights: numberOfNights.value,
         nights: numberOfNights.value,
 
@@ -645,6 +690,8 @@ export function useBooking() {
         // Additional info
         is_complementary: Boolean(reservation.value.isComplementary),
 
+        complimentary_room: Boolean(reservation.value.complimentaryRoom),
+
         // Payment info
         bill_to: billing.value.billTo,
         payment_mode: billing.value.paymentMode,
@@ -661,7 +708,7 @@ export function useBooking() {
         created_by: Number(authStore.UserId),
       }
 
-      // Validation finale
+      //Validation finale
       if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
         throw new Error('At least one valid room configuration is required')
       }
@@ -679,7 +726,7 @@ export function useBooking() {
       // resetForm()
       toast.success(t('reservationCreated'))
 
-      return response
+      // return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
@@ -845,7 +892,7 @@ export function useBooking() {
     // Assigner avec conversion explicite et arrondi
     billing.value.roomCharges = Number(roomCharges.toFixed(2))
     billing.value.taxes = Number(taxes.toFixed(2))
-    billing.value.totalAmount = Number((roomCharges + taxes).toFixed(2))
+    billing.value.totalAmount = Number((roomCharges).toFixed(2))
   }
 
   // Ajouter un watcher pour recalculer quand taxExempt change
@@ -1055,6 +1102,7 @@ export function useBooking() {
       bookingSource: '',
       businessSource: '',
       isComplementary: false,
+      complimentaryRoom: false,
     })
 
     roomConfigurations.value = [
@@ -1089,6 +1137,12 @@ export function useBooking() {
       groupName: '',
       title: '',
       id: 0,
+      idPhoto: '',
+      idType: '',
+      idNumber: '',
+      idExpiryDate: '',
+      issuingCountry: '',
+      issuingCity: ''
     })
 
 

@@ -70,6 +70,10 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+   allowPastDates: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -84,6 +88,10 @@ const flatpickrConfig = computed(() => {
     altFormat: 'F j, Y',
     wrap: true,
     disableMobile: true,
+  }
+
+  if (!props.allowPastDates) {
+    config.minDate = "today"
   }
 
   if (props.maxDate) config.maxDate = props.maxDate

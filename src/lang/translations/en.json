@@ -3969,7 +3969,9 @@
   "guestTitles": {
     "mr": "Mr",
     "mrs": "Mrs",
-    "ms": "Ms"
+    "ms": "Ms",
+    "miss" : "Miss",
+    "dr" : "Dr"
   },
   "otherInfo": {
     "emailBookingVouchers": "Email Booking Vouchers",
@@ -5438,6 +5440,12 @@
   "TotalDiscounts" : "Total Discounts",
   "TotalTax" : "Total Tax" ,
   "TotalCharges" : "Total Charges",
-  "VoidReservation" : "Void Reservation"
+  "VoidReservation" : "Void Reservation",
+  "detailsOfTaxes" : "Details of taxes",
+  "Included" : "Included",
+  "Miss" : "Miss", 
+  "SelectRateType" : "Select Rate Type",
+  "SelectBusinessSource" : "Select Business Source",
+  "SelectBookingSource" : "Select Booking Source"
 
 }

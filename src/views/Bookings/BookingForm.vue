@@ -27,7 +27,7 @@
                     {{ $t('check_in') }}
                   </label>
                   <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none"
+                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "false"
                       :placeholder="$t('Selectdate')" />
                     <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                   </div>
@@ -61,16 +61,25 @@
                 </div>
 
                 <div>
-                  <Select :lb="$t('ReservationType')" v-model="reservation.bookingType" :options="BookingType" />
+                  <Select :lb="$t('ReservationType')" v-model="reservation.bookingType" :options="BookingType" :placeholder="$t('SelectReservationType')" />
                 </div>
 
                 <!-- Booking Source -->
                 <div>
-                  <Select :lb="$t('booking_source')" v-model="reservation.bookingSource" :options="BookingSource" />
+                  <Select :lb="$t('booking_source')" v-model="reservation.bookingSource" :options="BookingSource" :placeholder="$t('SelectBookingSource')" />
                 </div>
 
                 <div>
-                  <Select :lb="$t('business_source')" v-model="reservation.businessSource" :options="BusinessSource" />
+                   <AutoCompleteSelect
+                             v-model="reservation.businessSource"
+                            :options="BusinessSource"
+                            :defaultValue="$t('SelectBusinessSource')"
+                            :lb="$t('business_source')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownBooking"
+                            @clear-error="emit('clear-error')"
+                          />
+
                 </div>
               </div>
 
@@ -92,7 +101,7 @@
                       <span class="ml-2">{{ $t('BookAllAvailableRooms') }}</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer text-sm">
-                      <input type="checkbox" class="form-checkbox" />
+                      <input type="checkbox" class="form-checkbox"  v-model="quickGroupBooking" @change="onQuickGroupBookingChange" />
                       <span class="ml-2">{{ $t('QuickGroupBooking') }}</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer text-sm">
@@ -132,19 +141,52 @@
                     <!-- Room Configuration Fields -->
                     <div class="grid md:grid-cols-6 grid-cols-1 gap-4 items-end">
                       <div class="relative">
-                        <Select :lb="$t('roomType')" :options="RoomTypes" v-model="room.roomType"
-                          @update:modelValue="onRoomTypeChange(room.id, $event)" :disabled="isLoadingRoom" />
+                         <AutoCompleteSelect
+                            v-model="room.roomType"
+                            :options="RoomTypes"
+                            :defaultValue="$t('SelectRoomType')"
+                            :lb="$t('roomType')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownRoomType"
+                            :disabled="isLoadingRoom"
+                            @update:modelValue="onRoomTypeChange(room.id, $event)"
+                            @clear-error="emit('clear-error')"
+                          />
+                        <!-- <Select :lb="$t('roomType')" :options="RoomTypes" v-model="room.roomType"
+                          @update:modelValue="onRoomTypeChange(room.id, $event)" :disabled="isLoadingRoom" /> -->
                       </div>
 
                       <div class="relative">
-                        <Select :lb="$t('configuration.rates.rateType')" :options="getRateTypesForRoom(room.id)"
+                         <AutoCompleteSelect
+                            v-model="room.rateType"
+                            :options="getRateTypesForRoom(room.id)"
+                            :defaultValue="$t('SelectRateType')"
+                            :lb="$t('configuration.rates.rateType')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownRateType"
+                            :disabled="!room.roomType"
+                            @update:modelValue="onRateTypeChange(room.id, $event)"
+                            @clear-error="emit('clear-error')"
+                          />
+                        <!-- <Select :lb="$t('configuration.rates.rateType')" :options="getRateTypesForRoom(room.id)"
                           v-model="room.rateType" @update:modelValue="onRateTypeChange(room.id, $event)"
-                          :disabled="!room.roomType" />
+                          :disabled="!room.roomType" /> -->
                       </div>
 
                       <div class="relative">
-                        <Select :lb="$t('Room')" :options="getRoomsForRoom(room.id)" v-model="room.roomNumber"
-                          :disabled="!room.roomType" @update:modelValue="onRoomNumberChange(room)" />
+                         <AutoCompleteSelect
+                             v-model="room.roomNumber"
+                            :options="getRoomsForRoom(room.id)"
+                            :defaultValue="$t('SelectRoom')"
+                            :lb="$t('Room')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownRoom"
+                            :disabled="!room.roomType"
+                            @update:modelValue="onRoomNumberChange(room)"
+                            @clear-error="emit('clear-error')"
+                          />
+                        <!-- <Select :lb="$t('Room')" :options="getRoomsForRoom(room.id)" v-model="room.roomNumber"
+                          :disabled="!room.roomType" @update:modelValue="onRoomNumberChange(room)" /> -->
                       </div>
 
                       <!-- Adult Count avec gestion des changements -->
@@ -250,26 +292,7 @@
                 <div>
                   <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
                 </div>
-                <!-- <div>
-                  <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" forLabel="'address'"
-                    v-model="guest.address" />
-                </div>
-                <div class="grid md:grid-cols-4 grid-cols-1 gap-6">
-                  <div>
-                    <InputCountries :lb="'Country'" v-model="guest.country" />
-                  </div>
-                  <div>
-                    <Input :inputType="'text'" :lb="$t('State')" :id="'State'" forLabel="'State'"
-                      v-model="guest.state" />
-                  </div>
-                  <div>
-                    <Input :inputType="'text'" :lb="$t('City')" :id="'city'" forLabel="'city'" v-model="guest.city" />
-                  </div>
-                  <div>
-                    <Input :inputType="'text'" :lb="$t('Zipcode')" :id="'zipcode'" forLabel="'zipcode'"
-                      v-model="guest.zipcode" />
-                  </div>
-                </div> -->
+
 
                 <!-- <div class="pt-1">
                   <button type="button"
@@ -337,7 +360,7 @@
             </BasicButton>
 
             <div class="flex space-x-3">
-              <BasicButton v-if="showCheckinButton" type="button" @click.prevent="performChecking" :label="$t('Check-In')">
+              <BasicButton v-if="showCheckinButton" type="button" @click.prevent="openCheckInReservationModal" :label="$t('Check-In')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation"  variant="info" :loading="isLoading" type="submit" @click="handleSubmit()" :disabled="isLoading" :label="$t('Reserve')">
               </BasicButton>
@@ -347,7 +370,7 @@
       </div>
 
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky  ">
+      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky ">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
           <span v-if="confirmReservation"
@@ -460,12 +483,30 @@
 
             </div>
             <!-- taxes-->
-            <div v-if="room.taxes && room.taxes.length > 0" class="flex flex-col mt-3">
-              <div v-for="tax in room.taxes" :key="tax.id"
-                class="flex justify-between font-medium text-gray-800 text-sm">
-                <span class="font-medium text-gray-500">{{ tax.taxName }}({{ tax.postingType == "flat_amount" ?
-                  formatCurrency(parseFloat(tax.amount)) : `${tax.percentage}%` }})</span>
-                <span>{{ formatCurrency(tax.taxAmount) }}</span>
+           <div v-if="room.taxes && room.taxes.length > 0" class="flex flex-col mt-3">
+              <div class="flex items-center justify-between mb-2 cursor-pointer"
+                  @click="toggleTaxDetails(room.id)">
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-700">{{ $t('detailsOfTaxes') }}</span>
+                  <svg class="w-4 h-4 ml-2 transform transition-transform duration-200"
+                      :class="{ 'rotate-180': showTaxDetails[room.id]  }"
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                  {{ $t('Included') }}
+                </span>
+              </div>
+
+              <div v-show="showTaxDetails[room.id] " class="transition-all duration-200">
+                <div v-for="tax in room.taxes" :key="tax.id"
+                    class="flex justify-between font-medium text-gray-800 text-sm mb-1">
+                  <span class="font-medium text-gray-500">{{ tax.taxName }}({{ tax.postingType == "flat_amount" ?
+                    formatCurrency(parseFloat(tax.amount)) : `${tax.percentage}%` }})</span>
+                  <span class="text-gray-500">{{ formatCurrency(tax.taxAmount) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -478,14 +519,14 @@
               <span>{{ formatCurrency(totalRoomCharges) }}</span>
             </div>
 
-            <div v-if="!billing.taxExempt" class="flex justify-between text-gray-700">
+            <!-- <div v-if="!billing.taxExempt" class="flex justify-between text-gray-700">
               <span>{{ $t('Taxes') }}</span>
               <span>{{ formatCurrency(billing.taxes) }}</span>
             </div>
             <div v-else class="flex justify-between text-green-600 text-sm">
               <span>{{ $t('TaxExempt') }}</span>
               <span>{{ $t('Applied') }}</span>
-            </div>
+            </div> -->
 
             <div class="flex justify-between font-semibold text-gray-900 border-t border-gray-300 pt-3 text-lg">
               <span>{{ $t('DueAmount') }}</span>
@@ -498,10 +539,10 @@
           <Select :lb="$t('BillTo')" :options="billToOptions" v-model="billing.billTo" />
         </div>
 
-        <label class="inline-flex items-center mt-4 cursor-pointer text-sm">
+        <!-- <label class="inline-flex items-center mt-4 cursor-pointer text-sm">
           <input type="checkbox" v-model="billing.taxExempt" class="form-checkbox" />
           <span class="ml-2">{{ $t('TaxExempt') }}</span>
-        </label>
+        </label> -->
 
         <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-700">{{ $t('PaymentMode') }}</h3>
                 <!-- payment -->
@@ -542,6 +583,12 @@
     <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
       @save="handleSavePayment" />
   </template>
+
+   <!--check in template-->
+  <template v-if="isCkeckInModalOpen && reservationId">
+            <CheckInReservation :reservation-id="reservationId" :is-open="isCkeckInModalOpen"
+                @close="closeCheckInReservationModal" />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -569,7 +616,10 @@ import router from '../../router'
 import { useRoute } from 'vue-router'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
+import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
+import CheckInReservation from '@/components/reservations/CheckInReservation.vue'
 const route = useRoute()
+const isCkeckInModalOpen = ref(false)
 
 const isAddPaymentModalOpen = ref(false)
 const performChecking = () => {
@@ -577,6 +627,12 @@ const performChecking = () => {
 }
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
+}
+
+const showTaxDetails = ref<Record<string, boolean>>({})
+
+const toggleTaxDetails = (roomId: string) => {
+  showTaxDetails.value[roomId] = !showTaxDetails.value[roomId]
 }
 
 const handleSavePayment = (payment: any) => {
@@ -588,7 +644,25 @@ const handleSavePayment = (payment: any) => {
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
 }
+
+const openCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = true
+}
+
+const closeCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = false
+}
 const { t } = useI18n()
+const useDropdownRoomType = ref(true)
+const useDropdownRateType = ref(true)
+const useDropdownRoom = ref(true)
+const useDropdownBooking = ref(true)
+interface Emits {
+
+  (e: 'clear-error'): void
+}
+
+const emit = defineEmits<Emits>()
 
 const {
   // Data
@@ -647,6 +721,7 @@ const {
   getRoomExtraInfo,
   onRoomNumberChange,
 
+
 } = useBooking()
 
 
@@ -693,6 +768,25 @@ const handleSubmit = async () => {
   }
 }
 
+const quickGroupBooking = ref(false)
+
+// Méthode pour gérer le changement de Quick Group Booking
+const onQuickGroupBookingChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    // Mettre le nombre de chambres à 2
+    reservation.value.rooms = 2
+
+    // S'assurer qu'on a exactement 2 chambres dans la configuration
+    while (roomConfigurations.value.length < 2) {
+      addRoom()
+    }
+    while (roomConfigurations.value.length > 2) {
+      removeRoom(roomConfigurations.value[roomConfigurations.value.length - 1].id)
+    }
+  }
+}
+
 onMounted(() => {
   initialize()
   initializeForm()
@@ -710,4 +804,5 @@ onMounted(() => {
   display: none;
   /* Safari and Chrome */
 }
+
 </style>

@@ -95,7 +95,7 @@
       <!-- Action Buttons -->
       <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
-        <BasicButton :label="$t('applyDiscount')" @click="applyDiscount" />
+        <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
 
         <!-- More Actions Dropdown -->
         <div class="relative">
@@ -178,13 +178,7 @@
             <div class="text-xs text-gray-500">{{ item.description || '' }}</div>
           </div>
         </template>
-        <template #header-actions>
-          <!-- Header with action buttons -->
-          <div class="flex flex-wrap justify-end gap-2 pb-2  border-b border-gray-200">
-            <BasicButton :label="$t('Update details')" />
-            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
-          </div>
-        </template>
+
 
         <!-- Custom Tax Column -->
         <template #column-tax="{ item }">
@@ -382,7 +376,7 @@ const getMoreActionOptions = () => {
   ]
 
   if (isGroupReservation.value) {
-    const groupOptions = []
+    const groupOptions :any[] = []
 
     // Ajouter "Group Check In" seulement si les conditions sont remplies
     if (canCheckIn.value) {
@@ -478,10 +472,7 @@ const updateDetails = () => {
   // Implement update details functionality
 }
 
-const applyDiscount = () => {
-  console.log('Apply discount clicked')
-  // Implement apply discount functionality
-}
+
 
 const refreshData = async () => {
   await loadRoomCharges()
@@ -612,6 +603,14 @@ const handleVoidSuccess = async () => {
     toast.warning(t('data_refresh_failed'))
   }
 }
+
+const closeApplyRateModal = () => {
+  isApplyRateModalOpen.value = false
+}
+
+
+
+getTransactionFolio();
 
 // Lifecycle
 onMounted(() => {
