@@ -977,7 +977,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
 
     const roomCharges = roomConfigurations.value.reduce((total, room) => {
       const roomRate = prepareFolioAmount(room.rate)
-      const nights = Number(numberOfNights.value) || 0
+      const nights = Math.max(1, Number(numberOfNights.value) || 1)
       return Number(total) + (roomRate * nights)
     }, 0)
     const defaultaxes = roomConfigurations.value.reduce((total, room) => {

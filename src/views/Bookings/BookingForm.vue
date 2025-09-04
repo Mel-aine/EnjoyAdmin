@@ -27,7 +27,7 @@
                     {{ $t('check_in') }}
                   </label>
                   <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "true"
+                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "false"
                       :placeholder="$t('Selectdate')" />
                     <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                   </div>
