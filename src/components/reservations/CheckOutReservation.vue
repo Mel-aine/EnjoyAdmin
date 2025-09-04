@@ -20,7 +20,7 @@
     </div>
 
     <!-- Form -->
-    <div v-else class="px-2 space-y-4">
+    <div v-else class="px-2 space-y-4 ">
       <!-- Perform Check-out on -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">

@@ -146,6 +146,8 @@ export function useBooking() {
   const isPaymentButtonShow = ref(false)
   const confirmReservation = ref(false)
   const PaymentMethods = ref<any[]>([])
+  const pendingUploads = ref<Set<string>>(new Set())
+  const uploadErrors = ref<string[]>([])
   const isCustomPrize = ref(false);
   const roomTypeBaseInfo = ref<
     Map<
@@ -288,7 +290,32 @@ export function useBooking() {
   }
   getBusinessSource();
   // Watchers
-  watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
+  // watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
+  //   const arrivalDate = reservation.value.checkinDate
+  //   const departureDate = reservation.value.checkoutDate
+
+  //   if (!arrivalDate || !departureDate) {
+  //     dateError.value = null
+  //     return
+  //   }
+
+  //   const arrival = new Date(arrivalDate)
+  //   const departure = new Date(departureDate)
+
+  //   if (departure <= arrival) {
+  //     dateError.value = 'validation.departureAfterArrival'
+  //   } else {
+  //     dateError.value = null
+  //   }
+  //   roomConfigurations.value.forEach((room) => {
+  //     onRoomNumberChange(room)
+  //   })
+  //   updateBilling()
+  // })
+
+  watch(
+  [() => reservation.value.checkinDate, () => reservation.value.checkoutDate],
+  () => {
     const arrivalDate = reservation.value.checkinDate
     const departureDate = reservation.value.checkoutDate
 
@@ -297,19 +324,29 @@ export function useBooking() {
       return
     }
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // pour comparer uniquement la date (pas l'heure)
+
     const arrival = new Date(arrivalDate)
     const departure = new Date(departureDate)
+    arrival.setHours(0, 0, 0, 0)
+    departure.setHours(0, 0, 0, 0)
 
-    if (departure <= arrival) {
+    if (arrival < today) {
+      dateError.value = 'validation.arrivalInPast'
+    } else if (departure < arrival) {
       dateError.value = 'validation.departureAfterArrival'
     } else {
       dateError.value = null
     }
+
     roomConfigurations.value.forEach((room) => {
       onRoomNumberChange(room)
     })
     updateBilling()
-  })
+  }
+)
+
 
   // Watch pour la synchronisation du nombre de chambres
   watch(
@@ -593,6 +630,43 @@ export function useBooking() {
       paymentData.value.cardHolderName = ''
     }
   }
+
+
+
+// Fonction pour attendre que tous les uploads soient terminés
+const waitForPendingUploads = async (): Promise<boolean> => {
+  const maxWaitTime = 30000
+  const checkInterval = 500
+  let waitTime = 0
+
+  while (pendingUploads.value.size > 0 && waitTime < maxWaitTime) {
+    await new Promise(resolve => setTimeout(resolve, checkInterval))
+    waitTime += checkInterval
+  }
+
+  if (pendingUploads.value.size > 0) {
+    throw new Error('Upload timeout: Some images are still being uploaded')
+  }
+
+  if (uploadErrors.value.length > 0) {
+    throw new Error(`Upload errors: ${uploadErrors.value.join(', ')}`)
+  }
+
+  return true
+}
+
+// Fonction pour suivre l'état des uploads
+const trackUpload = (uploadId: string) => {
+  pendingUploads.value.add(uploadId)
+}
+
+const completeUpload = (uploadId: string, success: boolean, error?: string) => {
+  pendingUploads.value.delete(uploadId)
+  if (!success && error) {
+    uploadErrors.value.push(error)
+  }
+}
+
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true
@@ -608,6 +682,19 @@ export function useBooking() {
 
       if (!serviceStore.serviceId) {
         throw new Error('Service ID is missing')
+      }
+
+      await waitForPendingUploads()
+
+
+      uploadErrors.value = []
+
+      if (formData.value.profilePhoto && !formData.value.profilePhoto.startsWith('http')) {
+        throw new Error('Profile photo upload incomplete')
+      }
+
+      if (formData.value.idPhoto && !formData.value.idPhoto.startsWith('http')) {
+        throw new Error('ID photo upload incomplete')
       }
 
       let identityPayload = {
@@ -729,18 +816,18 @@ export function useBooking() {
 
       console.log('Final reservation payload:', reservationPayload)
 
-      // const response = await createReservation(reservationPayload)
-      // reservationId.value = response.reservationId
-      // console.log('reservationId.value', reservationId.value)
+      const response = await createReservation(reservationPayload)
+      reservationId.value = response.reservationId
+      console.log('reservationId.value', reservationId.value)
 
-      // if (response.reservationId) {
-      //   isPaymentButtonShow.value = true
-      //   confirmReservation.value = true
-      // }
-      // resetForm()
+      if (response.reservationId) {
+        isPaymentButtonShow.value = true
+        confirmReservation.value = true
+      }
+
       toast.success(t('reservationCreated'))
 
-      // return response
+       return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
@@ -1213,16 +1300,33 @@ export function useBooking() {
 
   }
 
+const isCheckedIn = ref(false)
 
-  const showCheckinButton = computed(() => {
+// Updated computed property for showing check-in button
+const showCheckinButton = computed(() => {
+  // Don't show if reservation isn't confirmed
+  if (!confirmReservation.value) {
+    return false
+  }
 
-    if (!confirmReservation.value) {
-      return false
-    }
+  if (isCheckedIn.value) {
+    return false
+  }
 
-    const today = new Date().toISOString().split('T')[0]
-    return reservation.value.checkinDate === today
-  })
+  const hasValidRooms = roomConfigurations.value.some(room =>
+    room.roomType && room.roomNumber
+  )
+
+  if (!hasValidRooms) {
+    return false
+  }
+
+  // Only show on check-in date
+  const today = new Date().toISOString().split('T')[0]
+  return reservation.value.checkinDate === today
+})
+
+
 
   return {
     // Data
@@ -1248,6 +1352,7 @@ export function useBooking() {
     dateError,
     confirmReservation,
     isCustomPrize,
+    isCheckedIn,
 
     // Computed
     numberOfNights,
@@ -1288,6 +1393,11 @@ export function useBooking() {
     resetForm,
     isPaymentButtonShow,
     selectBooking,
-    reservationId
+    reservationId,
+     pendingUploads,
+    uploadErrors,
+    trackUpload,
+    completeUpload,
+    waitForPendingUploads,
   }
 }

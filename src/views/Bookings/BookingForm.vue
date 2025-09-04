@@ -27,7 +27,7 @@
                     {{ $t('check_in') }}
                   </label>
                   <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "false"
+                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "true"
                       :placeholder="$t('Selectdate')" />
                     <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                   </div>
@@ -362,12 +362,15 @@
             <div class="flex space-x-3">
               <BasicButton v-if="showCheckinButton" type="button" @click="openCheckInReservationModal" :label="$t('Check-In')">
               </BasicButton>
-              <BasicButton v-if="!confirmReservation"  variant="info" :loading="isLoading" type="submit" @click="handleSubmit()" :disabled="isLoading" :label="$t('Reserve')">
+              <BasicButton v-if="!confirmReservation"  variant="info" :loading="isLoading" type="submit" @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
+                :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
               </BasicButton>
             </div>
           </div>
         </div>
       </div>
+
+
 
       <!-- Right Side: Billing Summary -->
       <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky ">
@@ -586,7 +589,7 @@
 
    <!--check in template-->
   <template v-if="isCkeckInModalOpen && reservationId">
-            <CheckInReservation :reservation-id="reservationId" :is-open="isCkeckInModalOpen"
+            <CheckInReservation :reservation-id="reservationId" :is-open="isCkeckInModalOpen" :check-in-complete = "handleCheckInComplete"
                 @close="closeCheckInReservationModal" />
   </template>
 </template>
@@ -652,6 +655,10 @@ const openCheckInReservationModal = () => {
 const closeCheckInReservationModal = () => {
     isCkeckInModalOpen.value = false
 }
+
+const handleCheckInComplete = () => {
+  isCheckedIn.value = true
+}
 const { t } = useI18n()
 const useDropdownRoomType = ref(true)
 const useDropdownRateType = ref(true)
@@ -684,6 +691,7 @@ const {
   isPaymentButtonShow,
   confirmReservation,
   isCustomPrize,
+  isCheckedIn,
 
   // Computed
   numberOfNights,
@@ -720,9 +728,19 @@ const {
   onOccupancyChange,
   getRoomExtraInfo,
   onRoomNumberChange,
+  pendingUploads,
+  uploadErrors,
+
+
 
 
 } = useBooking()
+
+// Computed pour vérifier s'il y a des uploads en cours
+const hasPendingUploads = computed(() => {
+  return pendingUploads.value.size > 0
+})
+
 
 
 const initializeForm = () => {

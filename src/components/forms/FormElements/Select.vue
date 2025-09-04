@@ -13,7 +13,7 @@
         :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300', props.customClass]">
         <span>{{ selectedOption?.label || defaultValue || props.placeholder }}</span>
         <DotSpinner v-if="isLoading"></DotSpinner>
-        <span v-else :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'">▼</span>
+        <span v-else :class="isDropdownOpen ? 'text-purple-500 text-xs' : 'text-gray-500 text-xs'">▼</span>
       </div>
 
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />

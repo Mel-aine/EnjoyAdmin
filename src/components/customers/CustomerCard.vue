@@ -19,6 +19,10 @@ import { useToast } from 'vue-toastification'
 // Ajout de l'import manquant
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import { useBooking } from '@/composables/useBooking2'
+
+
+
 
 
 interface SelectOption {
@@ -61,6 +65,7 @@ const globalError = ref('')
 const pendingImages = ref<string[]>([])
 const profilePhotoUploader = ref<ImageUploaderInstance | null>(null)
 const idPhotoUploader = ref<ImageUploaderInstance | null>(null)
+const { trackUpload, completeUpload } = useBooking()
 
 const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
@@ -212,9 +217,25 @@ const idNumberLabel = computed(() => {
 })
 
 
+
+
+const cloudinaryConfig = {
+  cloudName: CLOUDINARY_NAME || '',
+  uploadPreset: CLOUDINARY_UPLOAD_PRESET || '',
+}
+
+
+
+
+// Modifiez vos handlers d'images :
+
 const onProfilePhotoSuccess = (data: { url: string; file: File }) => {
   console.log('Photo de profil uploadée avec succès:', data.url)
-   selectedCustomer.value.profilePhoto = data.url
+  selectedCustomer.value.profilePhoto = data.url
+
+  // Marquer l'upload comme terminé avec succès
+  completeUpload('profilePhoto', true)
+
   const index = pendingImages.value.indexOf('Photo de profil')
   if (index > -1) {
     pendingImages.value.splice(index, 1)
@@ -223,44 +244,82 @@ const onProfilePhotoSuccess = (data: { url: string; file: File }) => {
 
 const onIdPhotoSuccess = (data: { url: string; file: File }) => {
   console.log("Photo d'identité uploadée avec succès:", data.url)
-   selectedCustomer.value.idPhoto = data.url
+  selectedCustomer.value.idPhoto = data.url
+
+  // Marquer l'upload comme terminé avec succès
+  completeUpload('idPhoto', true)
+
   const index = pendingImages.value.indexOf('Photo de la pièce')
   if (index > -1) {
     pendingImages.value.splice(index, 1)
   }
 }
 
-
 const onUploadError = (error: any) => {
   console.error('Upload error:', error)
+
+  // Marquer les uploads comme échoués
+  completeUpload('profilePhoto', false, 'Profile photo upload failed')
+  completeUpload('idPhoto', false, 'ID photo upload failed')
+
   toast.error(t('Image upload failed'))
 }
 
-const cloudinaryConfig = {
-  cloudName: CLOUDINARY_NAME || '',
-  uploadPreset: CLOUDINARY_UPLOAD_PRESET || '',
-}
-
 // Gestionnaires d'événements pour la sélection de fichiers
-const onProfilePhotoSelected = (data: { file: File; preview: string }) => {
+
+const onProfilePhotoSelected = async (data: { file: File; preview: string }) => {
   console.log('Photo de profil sélectionnée:', data.file.name)
+
+  // Commencer le suivi de l'upload
+  trackUpload('profilePhoto')
+
   if (!pendingImages.value.includes('Photo de profil')) {
     pendingImages.value.push('Photo de profil')
   }
   globalError.value = ''
+
+  // Déclencher l'upload automatiquement après sélection
+  try {
+    if (profilePhotoUploader.value?.hasSelectedFile()) {
+      await profilePhotoUploader.value.uploadToCloudinary()
+    }
+  } catch (error) {
+    console.error('Erreur upload photo de profil:', error)
+    completeUpload('profilePhoto', false, 'Profile photo upload failed')
+    toast.error('Erreur lors de l\'upload de la photo de profil')
+  }
 }
 
-const onIdPhotoSelected = (data: { file: File; preview: string }) => {
+const onIdPhotoSelected = async (data: { file: File; preview: string }) => {
   console.log("Photo d'identité sélectionnée:", data.file.name)
+
+  // Commencer le suivi de l'upload
+  trackUpload('idPhoto')
+
   if (!pendingImages.value.includes('Photo de la pièce')) {
     pendingImages.value.push('Photo de la pièce')
   }
   globalError.value = ''
+
+  // Déclencher l'upload automatiquement après sélection
+  try {
+    if (idPhotoUploader.value?.hasSelectedFile()) {
+      await idPhotoUploader.value.uploadToCloudinary()
+    }
+  } catch (error) {
+    console.error('Erreur upload photo ID:', error)
+    completeUpload('idPhoto', false, 'ID photo upload failed')
+    toast.error('Erreur lors de l\'upload de la photo d\'identité')
+  }
 }
 
 // Gestionnaires pour la suppression de fichiers
 const onProfilePhotoRemoved = () => {
   console.log('Photo de profil supprimée')
+
+  // Marquer l'upload comme terminé (supprimé)
+  completeUpload('profilePhoto', true)
+
   const index = pendingImages.value.indexOf('Photo de profil')
   if (index > -1) {
     pendingImages.value.splice(index, 1)
@@ -270,12 +329,20 @@ const onProfilePhotoRemoved = () => {
 
 const onIdPhotoRemoved = () => {
   console.log("Photo d'identité supprimée")
+
+  // Marquer l'upload comme terminé (supprimé)
+  completeUpload('idPhoto', true)
+
   const index = pendingImages.value.indexOf('Photo de la pièce')
   if (index > -1) {
     pendingImages.value.splice(index, 1)
   }
   selectedCustomer.value.idPhoto = null
 }
+
+
+
+
 onMounted(() => {
   fetchGuest()
   fetchIdentityTypes()
@@ -293,9 +360,8 @@ console.log('modalevalue', props.modelValue)
         class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors"
       >
         <h2 class="text-xl font-semibold text-gray-900 flex items-center">
-          <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1"></path>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen-icon lucide-user-pen w-6 h-6 mr-2 text-purple-600"><path d="M11.5 15H7a4 4 0 0 0-4 4v2"/><path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><circle cx="10" cy="7" r="4"/></svg>
+
           {{ $t('personalInformation') }}
         </h2>
 
@@ -322,6 +388,8 @@ console.log('modalevalue', props.modelValue)
             :label="$t('ProfilePhoto')"
             :max-size-m-b="5"
             :cloudinary-config="cloudinaryConfig"
+             @file-selected="onProfilePhotoSelected"
+            @file-removed="onProfilePhotoRemoved"
             @upload-success="onProfilePhotoSuccess"
             @upload-error="onUploadError"
           />
@@ -468,6 +536,8 @@ console.log('modalevalue', props.modelValue)
               :cloudinary-config="cloudinaryConfig"
               @upload-success="onIdPhotoSuccess"
               @upload-error="onUploadError"
+              @file-selected="onIdPhotoSelected"
+              @file-removed="onIdPhotoRemoved"
               :key="`id-${resetKey}`"
               class="w-full aspect-square"
             />

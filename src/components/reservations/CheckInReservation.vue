@@ -128,6 +128,7 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
+  (e: 'check-in-complete'): void
   (e: 'success', data: any): void
 }
 
@@ -261,6 +262,7 @@ const performCheckIn = async () => {
 
     // Emit success event
     emit('success', { ...payload, response })
+    emit('check-in-complete')
 
     // Close modal
     closeModal()
@@ -276,6 +278,8 @@ onMounted(()=>{
     getBookingDetailsById()
   }
 })
+
+
 </script>
 
 <style scoped>

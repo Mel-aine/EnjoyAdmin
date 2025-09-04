@@ -4007,7 +4007,9 @@
   "create_task": "Create Task",
   "pickup_dropoff": "Pick Up / Drop Off",
   "validation": {
-    "departureAfterArrival": "The departure date must be after the arrival date.",
+    "arrivalInPast": "Check-in date cannot be in the past.",
+    "departureAfterArrival": "Check-out date must be the same day or after the check-in date.",
+
     "invalidDateRange": "Invalid date range.",
     "reasonRequired": "Please select a reason",
     "customReasonRequired": "Please provide a custom reason",
