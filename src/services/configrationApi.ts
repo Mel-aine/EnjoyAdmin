@@ -7,7 +7,7 @@ import type {
 } from '@/types/option'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration`
-
+const URL = `${import.meta.env.VITE_API_URL as string}`
 
 const authStore = useAuthStore()
 const headers = {
@@ -150,6 +150,15 @@ export const getRoomById = (id: number): Promise<AxiosResponse<any>> => {
  */
 export const updateRoomById = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/rooms/${id}`, data, headers)
+}
+/**
+ * Update a reservation-room
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateReservationRoomById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${URL}/reservation-rooms/${id}`, data, headers)
 }
 /**
  * Delete a room
