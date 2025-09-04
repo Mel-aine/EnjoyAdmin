@@ -41,6 +41,11 @@ export const getHotelMenu = (t: (key: string) => string) => {
               permission: 'dashboard_view',
             },
             {
+              name: t('insert_transaction'),
+              path: '/insert_transaction',
+              permission: 'dashboard_view',
+            },
+            {
               name: t('guest_database'),
               path: '/guest_database',
               permission: 'dashboard_view',
