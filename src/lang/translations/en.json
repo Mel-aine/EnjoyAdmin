@@ -4185,12 +4185,131 @@
       "overview": "Overview",
       "quickActions": "Quick Actions",
       "quickActionsSubtitle": "Quickly access main channel manager features",
+      "inventoryChannelBooking": "Inventory Channel Booking",
+      "channelsBooking": "Channels Booking",
+      "roomsRates": "Rooms & Rates",
+      "channelManager": "Channel Manager",
+      "properties": "Properties",
+      "logs": "Logs",
+      "channelInventory": "Channel Inventory",
       "addConnection": "Add Connection",
       "syncAll": "Sync All",
       "migrateHotelData": "Migrate Hotel Data",
       "recentActivity": "Recent Activity",
       "migrationError": "Migration Error",
-      
+      "channelsBooking": {
+        "title": "Channels Booking",
+        "subtitle": "Manage and monitor bookings from all connected channels",
+        "bookingsList": "Bookings List",
+        "acknowledged": "Acknowledged",
+        "notAcknowledged": "Not Acknowledged",
+        "acknowledge": "Acknowledge",
+        "bookingAcknowledged": "Booking acknowledged successfully",
+        "bookingCancelled": "Booking cancelled successfully",
+        "exportStarted": "Export started, you will receive an email when ready",
+        "filters": {
+          "otaName": "OTA Name",
+          "otaNamePlaceholder": "Select OTA",
+          "acknowledged": "Acknowledged",
+          "acknowledgedPlaceholder": "Select status",
+          "status": "Status",
+          "statusPlaceholder": "Select status",
+          "dateRange": "Date Range",
+          "arrivalDate": "Arrival Date",
+          "departureDate": "Departure Date",
+          "bookingDate": "Booking Date"
+        },
+        "status": {
+          "new": "New",
+          "cancelled": "Cancelled",
+          "confirmed": "Confirmed"
+        },
+        "table": {
+          "status": "Status",
+          "uniqueId": "Unique ID",
+          "property": "Property",
+          "customer": "Customer",
+          "dates": "Dates",
+          "roomsCount": "Rooms",
+          "acknowledged": "Acknowledged",
+          "total": "Total"
+        },
+        "errors": {
+          "loadFailed": "Failed to load bookings",
+          "acknowledgeFailed": "Failed to acknowledge booking",
+          "cancelFailed": "Failed to cancel booking"
+        }
+      },
+      "channelInventory": {
+        "title": "Channel Inventory",
+        "subtitle": "Manage rates, availability, and restrictions for all channels",
+        "inventoryList": "Inventory List",
+        "calendarView": "Calendar View",
+        "listView": "List View",
+        "calendarViewComingSoon": "Calendar view coming soon",
+        "selectedItems": "Selected {count} items",
+        "sync": "Sync",
+        "itemSynced": "Item synced successfully",
+        "changesSaved": "Changes saved successfully",
+        "filters": {
+          "channel": "Channel",
+          "channelPlaceholder": "Select channel",
+          "roomType": "Room Type",
+          "roomTypePlaceholder": "Select room type",
+          "ratePlan": "Rate Plan",
+          "ratePlanPlaceholder": "Select rate plan",
+          "dateRange": "Date Range",
+          "status": "Status",
+          "statusPlaceholder": "Select status"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "closed": "Closed"
+        },
+        "table": {
+          "date": "Date",
+          "channel": "Channel",
+          "roomType": "Room Type",
+          "ratePlan": "Rate Plan",
+          "rate": "Rate",
+          "availability": "Availability",
+          "restrictions": "Restrictions",
+          "status": "Status"
+        },
+        "bulkActions": {
+          "updateRates": "Update Rates",
+          "updateAvailability": "Update Availability",
+          "updateRestrictions": "Update Restrictions",
+          "newRate": "New Rate",
+          "ratePlaceholder": "Enter rate amount",
+          "availability": "Availability",
+          "availabilityPlaceholder": "Enter availability count",
+          "minStay": "Minimum Stay",
+          "minStayPlaceholder": "Enter minimum nights",
+          "maxStay": "Maximum Stay",
+          "maxStayPlaceholder": "Enter maximum nights",
+          "closedToArrival": "Closed to Arrival",
+          "closedToDeparture": "Closed to Departure",
+          "ratesUpdated": "Rates updated successfully",
+          "availabilityUpdated": "Availability updated successfully",
+          "restrictionsUpdated": "Restrictions updated successfully"
+        },
+        "errors": {
+          "loadFailed": "Failed to load inventory",
+          "syncFailed": "Failed to sync item",
+          "bulkUpdateFailed": "Failed to update selected items"
+        }
+      },
+      "iframe": {
+        "title": "Channel Manager",
+        "subtitle": "External channel management interface",
+        "loading": "Loading channel manager...",
+        "error": "Failed to load channel manager",
+        "retry": "Retry",
+        "loadError": "Unable to load the channel manager interface",
+        "invalidResponse": "Invalid response from server"
+      },
       "connections": {
         "title": "Connections",
         "subtitle": "Manage your channel manager connections",
@@ -4203,6 +4322,7 @@
         "connectedChannels": "Connected Channels",
         "connecting": "Connecting",
         "error": "Error",
+        "success": "Success",
         "addConnection": "Add Connection",
         "editConnection": "Edit Connection",
         "deleteConnection": "Delete Connection",

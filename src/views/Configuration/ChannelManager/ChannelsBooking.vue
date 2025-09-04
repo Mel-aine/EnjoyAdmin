@@ -1,5 +1,5 @@
 <template>
-  <IframeView page="/channels" />
+  <IframeView page="/bookings" />
 </template>
 
 <script setup lang="ts">

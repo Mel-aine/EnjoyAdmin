@@ -16,6 +16,13 @@ const getHeaders = () => ({
   withCredentials: true,
 })
 
+const headers = {
+  headers: {
+    Authorization: `Bearer ${authStore.token}`,
+  },
+  withCredentials: true,
+}
+
 const serviceStore = useServiceStore();
 // --- Types ---
 export interface ChannelConnection {
@@ -530,3 +537,19 @@ export const getChannelRatePlans = (channelId: number): Promise<AxiosResponse<Ap
 }[]>>> => {
   return axios.get(`${API_URL}/channel-manager/channels/${channelId}/rate-plans`, getHeaders())
 }
+
+
+
+/**
+ * Get iframe URL for channel
+ */
+export const getIframUrl = (page:string): Promise<AxiosResponse<ApiResponse<{
+  url: string
+}>>> => {
+  return axios.post(`${CHANNEX_API_URL}/iframe/url`,{
+    hotelId: serviceStore.serviceId,
+    page: page
+  }, headers)
+}
+
+      

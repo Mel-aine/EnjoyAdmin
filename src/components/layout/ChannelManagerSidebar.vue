@@ -46,197 +46,31 @@
             
             <!-- Channel Manager Navigation -->
             <div class="space-y-1">
-              <!-- Overview/Dashboard -->
               <router-link 
-                :to="'/configuration/channel-manager'"
+                v-for="menuItem in menuItems"
+                :key="menuItem.path"
+                :to="menuItem.path"
                 :class="[
                   'menu-item group',
                   {
-                    'menu-item-active': isActive('/configuration/channel-manager'),
-                    'menu-item-inactive': !isActive('/configuration/channel-manager'),
+                    'menu-item-active': isActive(menuItem.path),
+                    'menu-item-inactive': !isActive(menuItem.path),
                   },
                   !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
                 ]">
                 <span :class="[
-                  isActive('/configuration/channel-manager')
+                  isActive(menuItem.path)
                     ? 'menu-item-icon-active'
                     : 'menu-item-icon-inactive',
                 ]">
-                  <DashboardIcon />
+                  <component :is="menuItem.icon" />
                 </span>
                 <span v-if="isExpanded || isHovered || isMobileOpen"
                   class="menu-item-text">
-                  {{ $t('configuration.channelManager.overview') }}
-                </span>
-              </router-link>
-
-              <!-- Connections -->
-              <router-link 
-                :to="'/configuration/channel-manager/connections'"
-                :class="[
-                  'menu-item group',
-                  {
-                    'menu-item-active': isActive('/configuration/channel-manager/connections'),
-                    'menu-item-inactive': !isActive('/configuration/channel-manager/connections'),
-                  },
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span :class="[
-                  isActive('/configuration/channel-manager/connections')
-                    ? 'menu-item-icon-active'
-                    : 'menu-item-icon-inactive',
-                ]">
-                  <ConnectionIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.connections.title') }}
-                </span>
-              </router-link>
-
-              <!-- Mapping -->
-              <router-link 
-                :to="'/configuration/channel-manager/mapping'"
-                :class="[
-                  'menu-item group',
-                  {
-                    'menu-item-active': isActive('/configuration/channel-manager/mapping'),
-                    'menu-item-inactive': !isActive('/configuration/channel-manager/mapping'),
-                  },
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span :class="[
-                  isActive('/configuration/channel-manager/mapping')
-                    ? 'menu-item-icon-active'
-                    : 'menu-item-icon-inactive',
-                ]">
-                  <MappingIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.mapping.title') }}
-                </span>
-              </router-link>
-
-              <!-- Rates & Inventory -->
-              <router-link 
-                :to="'/configuration/channel-manager/rates-inventory'"
-                :class="[
-                  'menu-item group',
-                  {
-                    'menu-item-active': isActive('/configuration/channel-manager/rates-inventory'),
-                    'menu-item-inactive': !isActive('/configuration/channel-manager/rates-inventory'),
-                  },
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span :class="[
-                  isActive('/configuration/channel-manager/rates-inventory')
-                    ? 'menu-item-icon-active'
-                    : 'menu-item-icon-inactive',
-                ]">
-                  <RatesIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.ratesInventory.title') }}
-                </span>
-              </router-link>
-
-              <!-- Sync Settings -->
-              <router-link 
-                :to="'/configuration/channel-manager/sync-settings'"
-                :class="[
-                  'menu-item group',
-                  {
-                    'menu-item-active': isActive('/configuration/channel-manager/sync-settings'),
-                    'menu-item-inactive': !isActive('/configuration/channel-manager/sync-settings'),
-                  },
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span :class="[
-                  isActive('/configuration/channel-manager/sync-settings')
-                    ? 'menu-item-icon-active'
-                    : 'menu-item-icon-inactive',
-                ]">
-                  <SyncIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.syncSettings.title') }}
-                </span>
-              </router-link>
-
-              <!-- Logs -->
-              <router-link 
-                :to="'/configuration/channel-manager/logs'"
-                :class="[
-                  'menu-item group',
-                  {
-                    'menu-item-active': isActive('/configuration/channel-manager/logs'),
-                    'menu-item-inactive': !isActive('/configuration/channel-manager/logs'),
-                  },
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span :class="[
-                  isActive('/configuration/channel-manager/logs')
-                    ? 'menu-item-icon-active'
-                    : 'menu-item-icon-inactive',
-                ]">
-                  <LogsIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.logs.title') }}
+                  {{ $t(menuItem.title) }}
                 </span>
               </router-link>
             </div>
-
-            <!-- Divider -->
-            <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-
-            <!-- Quick Actions Section -->
-            <div class="space-y-1">
-              <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <span v-if="isExpanded || isHovered || isMobileOpen">
-                  {{ $t('configuration.channelManager.quickActions') }}
-                </span>
-              </div>
-              
-              <!-- Add Connection -->
-              <button 
-                @click="$emit('add-connection')"
-                :class="[
-                  'menu-item group w-full text-left',
-                  'menu-item-inactive hover:menu-item-active',
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span class="menu-item-icon-inactive group-hover:menu-item-icon-active">
-                  <PlusIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.addConnection') }}
-                </span>
-              </button>
-
-              <!-- Sync All -->
-              <button 
-                @click="$emit('sync-all')"
-                :class="[
-                  'menu-item group w-full text-left',
-                  'menu-item-inactive hover:menu-item-active',
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
-                ]">
-                <span class="menu-item-icon-inactive group-hover:menu-item-icon-active">
-                  <RefreshIcon />
-                </span>
-                <span v-if="isExpanded || isHovered || isMobileOpen"
-                  class="menu-item-text">
-                  {{ $t('configuration.channelManager.syncAll') }}
-                </span>
-              </button>
-            </div>
-
           </div>
         </nav>
       </div>
@@ -258,10 +92,48 @@ import SyncIcon from '@/icons/SyncIcon.vue'
 import LogsIcon from '@/icons/LogsIcon.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
 import RefreshIcon from '@/icons/RefreshIcon.vue'
+import BoxCubeIcon from '@/icons/BoxCubeIcon.vue'
+import GridIcon from '@/icons/GridIcon.vue'
+import CalenderIcon from '@/icons/CalenderIcon.vue'
+import ListIcon from '@/icons/ListIcon.vue'
 
 const route = useRoute()
 const { isExpanded, isMobileOpen } = useSidebar()
 const isHovered = ref(false)
+
+// Menu items configuration
+const menuItems = ref([
+  {
+    path: '/configuration/channel-manager',
+    title: 'configuration.channelManager.overview',
+    icon: DashboardIcon
+  },
+  {
+    path: '/configuration/channel-manager/inventory-channel-booking',
+    title: 'Inventory',
+    icon: BoxCubeIcon
+  },
+  {
+    path: '/configuration/channel-manager/channels-booking',
+    title: 'Booking',
+    icon: CalenderIcon
+  },
+  {
+    path: '/configuration/channel-manager/rooms-rates',
+    title: 'Room & Rates',
+    icon: RatesIcon
+  },
+  {
+    path: '/configuration/channel-manager/channel-manager',
+    title: 'Channels',
+    icon: ConnectionIcon
+  },
+  {
+    path: '/configuration/channel-manager/properties',
+    title: 'Properties',
+    icon: GridIcon
+  }
+])
 
 // Emits for parent component actions
 const emit = defineEmits(['add-connection', 'sync-all'])

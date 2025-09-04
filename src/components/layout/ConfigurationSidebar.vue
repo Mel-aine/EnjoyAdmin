@@ -418,11 +418,11 @@ const settingsConfig = ref([
 
 // Channel Manager Configuration
 const channelManagerConfig = ref([
-  { name: 'overview', path: '/configuration/channel-manager', label: 'configuration.channelManager.title' },
-  { name: 'connections', path: '/configuration/channel-manager/connections', label: 'configuration.channelManager.connections.title' },
-  { name: 'mapping', path: '/configuration/channel-manager/mapping', label: 'configuration.channelManager.mapping.title' },
-  { name: 'rates-inventory', path: '/configuration/channel-manager/rates-inventory', label: 'configuration.channelManager.ratesInventory.title' },
-  { name: 'sync-settings', path: '/configuration/channel-manager/sync-settings', label: 'configuration.channelManager.syncSettings.title' },
+  { name: 'overview', path: '/configuration/channel-manager', label: 'Overview' },
+  { name: 'channels', path: '/configuration/channel-manager/channels', label: 'Channels' },
+  { name: 'channels-booking', path: '/configuration/channel-manager/channels-booking', label: 'Booking' },
+  { name: 'channel-inventory', path: '/configuration/channel-manager/channel-inventory', label: 'Channel Inventory' },
+  { name: 'rates-inventory', path: '/configuration/channel-manager/rates-inventory', label: 'Rates Inventory' },
   { name: 'logs', path: '/configuration/channel-manager/logs', label: 'configuration.channelManager.logs.title' }
 ])
 

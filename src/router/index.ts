@@ -1101,6 +1101,23 @@ const router = createRouter({
     {
       path: '/configuration/channel-manager',
       name: 'ChannelManager',
+       component: () => import('../views/Configuration/ChannelManager/Overview.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/inventory-channel-booking',
+      name: 'ChannelManagerInventoryChannelBooking',
+      component: () => import('../views/Configuration/ChannelManager/InventoryChannelBooking.vue'),
+      meta: {
+        title: 'Inventory Channel Booking',
+        requiresAuth: true,
+      },
+    },{
+      path: '/configuration/channel-manager/channel-manager',
+      name: 'channel',
       component: () => import('../views/Configuration/ChannelManager/ChannelManager.vue'),
       meta: {
         title: 'Channel Manager',
@@ -1108,47 +1125,38 @@ const router = createRouter({
       },
     },
     {
-      path: '/configuration/channel-manager/connections',
-      name: 'ChannelManagerConnections',
-      component: () => import('../views/Configuration/ChannelManager/Connections.vue'),
+      path: '/configuration/channel-manager/channels-booking',
+      name: 'ChannelManagerChannelsBooking',
+      component: () => import('../views/Configuration/ChannelManager/ChannelsBooking.vue'),
       meta: {
-        title: 'Channel Manager Connections',
+        title: 'Channels Booking',
         requiresAuth: true,
       },
     },
     {
-      path: '/configuration/channel-manager/mapping',
-      name: 'ChannelManagerMapping',
-      component: () => import('../views/Configuration/ChannelManager/Mapping.vue'),
+      path: '/configuration/channel-manager/rooms-rates',
+      name: 'ChannelManagerRoomsRates',
+      component: () => import('../views/Configuration/ChannelManager/RoomsRates.vue'),
       meta: {
-        title: 'Channel Manager Mapping',
+        title: 'Rooms & Rates',
         requiresAuth: true,
       },
     },
     {
-      path: '/configuration/channel-manager/rates-inventory',
-      name: 'ChannelManagerRatesInventory',
-      component: () => import('../views/Configuration/ChannelManager/RatesInventory.vue'),
+      path: '/configuration/channel-manager/properties',
+      name: 'ChannelManagerProperties',
+      component: () => import('../views/Configuration/ChannelManager/Properties.vue'),
       meta: {
-        title: 'Rates & Inventory',
+        title: 'Properties',
         requiresAuth: true,
       },
     },
     {
-      path: '/configuration/channel-manager/sync-settings',
-      name: 'ChannelManagerSyncSettings',
-      component: () => import('../views/Configuration/ChannelManager/SyncSettings.vue'),
+      path: '/configuration/channel-manager/iframe',
+      name: 'ChannelManagerIframe',
+      component: () => import('../views/Configuration/ChannelManager/IframeView.vue'),
       meta: {
-        title: 'Sync Settings',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/configuration/channel-manager/logs',
-      name: 'ChannelManagerLogs',
-      component: () => import('../views/Configuration/ChannelManager/Logs.vue'),
-      meta: {
-        title: 'Channel Manager Logs',
+        title: 'Channel Manager Iframe',
         requiresAuth: true,
       },
     },
