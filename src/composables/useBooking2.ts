@@ -1279,11 +1279,14 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     // console.log('room', room)
     roomC.taxes = rooms.find((r: any) => r.id === roomC.roomNumber)?.taxRates || [];
     console.log("roomC", roomC);
+
+  const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1);
     roomC.taxes.forEach((tax: any) => {
       if (tax.postingType === "flat_amount") {
-        tax.taxAmount = parseFloat(tax.amount) * numberOfNights.value;
+        // tax.taxAmount = parseFloat(tax.amount) * numberOfNights.value;
+        tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation;
       } else if (tax.postingType === "flat_percentage") {
-        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * numberOfNights.value
+        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
       } else {
         tax = 0
       }
