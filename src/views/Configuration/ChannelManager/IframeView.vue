@@ -29,7 +29,7 @@
         </div>
 
         <!-- Iframe Loading State -->
-        <div v-else-if="iframeUrl && isIframeLoading" class="flex items-center justify-center min-h-screen">
+        <div v-else-if="isIframeLoading" class="flex items-center justify-center min-h-screen">
           <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p class="text-gray-600">{{ t('Loading iframe content...') }}</p>
@@ -37,10 +37,10 @@
         </div>
 
         <!-- Iframe Content -->
-        <div v-else-if="iframeUrl && !isIframeLoading" class="h-screen">
-          <iframe :src="iframeUrl" class="w-full h-full border-0" :title="t('Title')"
-            @load="onIframeLoad" @error="onIframeError"
-            allowfullscreen sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        <div v-if="iframeUrl" class="h-screen">
+          <iframe :src="iframeUrl" class="w-full h-full border-0" :title="t('Title')" @load="onIframeLoad"
+            @error="onIframeError" allowfullscreen
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
         </div>
       </div>
     </div>
