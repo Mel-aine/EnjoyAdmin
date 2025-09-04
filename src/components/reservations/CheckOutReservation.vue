@@ -24,7 +24,7 @@
       <!-- Perform Check-out on -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ $t('Perform Check-out on') }}
+          {{ $t('PerformCheck-outon') }}
         </label>
         <div class="flex space-x-4">
           <label class="flex items-center">
@@ -43,7 +43,7 @@
               value="individual"
               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
             />
-            <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
+            <span class="ml-2 text-sm text-gray-700">{{ $t('IndividualReservation') }}</span>
           </label>
         </div>
       </div>
@@ -57,19 +57,78 @@
           <label
             v-for="room in reservationRooms"
             :key="room.id"
-            class="flex items-center p-2 border rounded hover:bg-gray-50"
+            class="flex items-center p-2 border rounded transition-colors"
+            :class="{
+              'bg-gray-50 opacity-60 cursor-not-allowed': isRoomCheckedOut(room),
+              'hover:bg-gray-50 cursor-pointer': !isRoomCheckedOut(room)
+            }"
           >
             <input
               v-model="formData.selectedRooms"
               type="checkbox"
               :value="room.id"
-              :disabled="reservationRooms.length === 1 && formData.checkOutType === 'group'"
-              class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              :disabled="
+                isRoomCheckedOut(room) ||
+                (reservationRooms.length === 1 && formData.checkOutType === 'group')
+              "
+              class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50"
             />
-            <span class="ml-2 text-sm text-gray-700">
-              {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
-            </span>
+            <div class="ml-2 flex-1">
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-sm"
+                  :class="{
+                    'text-gray-500': isRoomCheckedOut(room),
+                    'text-gray-700': !isRoomCheckedOut(room)
+                  }"
+                >
+                  {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
+                </span>
+                <span
+                  v-if="isRoomCheckedOut(room)"
+                  class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium"
+                >
+                  {{ $t('reservationStatus.Checked-out') }}
+                </span>
+              </div>
+              <div
+                v-if="isRoomCheckedOut(room) && room.actualCheckOutTime"
+                class="text-xs text-gray-500 mt-1"
+              >
+                {{ $t('Check-out') }}: {{ formatCheckOutDateTime(room.actualCheckOutTime) }}
+              </div>
+            </div>
           </label>
+        </div>
+
+        <!-- Info message if all rooms are checked out -->
+        <div
+          v-if="allRoomsCheckedOut"
+          class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md"
+        >
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-sm text-blue-800">
+              {{ $t('Allroomsinthisreservationhavealreadybeencheckedout') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Warning if some rooms are checked out -->
+        <div
+          v-else-if="hasCheckedOutRooms && !allRoomsCheckedOut"
+          class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md"
+        >
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-sm text-yellow-800">
+              {{ $t('Someroomshavealreadybeencheckedoutandcannotbeselected') }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -86,7 +145,7 @@
         <BasicButton
           variant="primary"
           @click="performCheckOut"
-          :label="formData.checkOutType === 'group' ? $t('Group Check-out') : $t('Check-out')"
+          :label="formData.checkOutType === 'group' ? $t('GroupCheck-out') : $t('Check-out')"
           :loading="isLoading"
           :disabled="isLoading || !canCheckOut"
         />
@@ -112,6 +171,8 @@ interface ReservationRoom {
   roomNumber: string
   guestName: string
   folioBalance?: number
+  actualCheckOutTime?: string
+  status?: string
 }
 
 interface Props {
@@ -152,33 +213,75 @@ const reservationRooms = ref<any>([])
 // Computed properties
 const canCheckOut = computed(() => {
   const hasRoomsSelected = formData.checkOutType === 'group'
-    ? reservationRooms.value.length > 0
+    ? availableRooms.value.length > 0
     : formData.selectedRooms.length > 0
 
   // Can check out if rooms are selected and no outstanding balance
-  return hasRoomsSelected && formData.outstandingBalance <= 0
+  return hasRoomsSelected && formData.outstandingBalance <= 0 && !allRoomsCheckedOut.value
 })
+
+// Check if room is already checked out
+const isRoomCheckedOut = (room: any) => {
+  // You can customize this logic based on your data structure
+  // Common indicators: actualCheckOutTime exists, status is 'checked_out', etc.
+  return room.actualCheckOutTime ||
+         room.status === 'checked_out' ||
+         room.status === 'departed' ||
+         room.checkedOut === true
+}
+
+// Get available rooms (not checked out)
+const availableRooms = computed(() => {
+  return reservationRooms.value.filter((room: any) => !isRoomCheckedOut(room))
+})
+
+// Check if any rooms are checked out
+const hasCheckedOutRooms = computed(() => {
+  return reservationRooms.value.some((room: any) => isRoomCheckedOut(room))
+})
+
+// Check if all rooms are checked out
+const allRoomsCheckedOut = computed(() => {
+  return reservationRooms.value.length > 0 &&
+         reservationRooms.value.every((room: any) => isRoomCheckedOut(room))
+})
+
+// Format check-out date time for display
+const formatCheckOutDateTime = (dateTime: string) => {
+  if (!dateTime) return ''
+
+  const date = new Date(dateTime)
+  return date.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
 
 // Watch for check-out type changes
 watch(() => formData.checkOutType, (newType) => {
   if (newType === 'group') {
-    formData.selectedRooms = reservationRooms.value.map((room:any) => room.id)
+    formData.selectedRooms = availableRooms.value.map((room:any) => room.id)
   } else {
     formData.selectedRooms = []
   }
 })
+
+// Remove checked out rooms from selected rooms automatically
+watch(() => reservationRooms.value, () => {
+  const availableRoomIds = availableRooms.value.map((room: any) => room.id)
+  formData.selectedRooms = formData.selectedRooms.filter(roomId =>
+    availableRoomIds.includes(roomId)
+  )
+}, { deep: true })
 
 // Watch for modal open/close
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     // Reset form when modal opens
     resetForm()
-    // Auto-select all rooms for group check-out
-    if (formData.checkOutType === 'group') {
-      formData.selectedRooms = reservationRooms.value.map((room:any) => room.id)
-    }
-    // Calculate initial bill
-    calculateFinalBill()
     // Load booking details if needed
     getBookingDetailsById()
   }
@@ -209,17 +312,23 @@ const getBookingDetailsById = async () => {
     reservationRooms.value = response.reservationRooms.map((e: any) => {
         return { ...e, guest: reservation.value.guest }
     })
-    // Auto-select rooms based on type and count
-    if (reservationRooms.value.length === 1) {
-      // If only one room, auto-select it and disable checkbox for group checkout
-      formData.selectedRooms = [reservationRooms.value[0].id]
-    } else if (formData.checkOutType === 'group') {
-      // For group checkout with multiple rooms, select all
-      formData.selectedRooms = reservationRooms.value.map((room:any) => room.id)
+
+    // Auto-select available rooms based on type and count
+    const availableRoomsList = availableRooms.value
+
+    if (availableRoomsList.length === 1) {
+      // If only one available room, auto-select it
+      formData.selectedRooms = [availableRoomsList[0].id]
+    } else if (formData.checkOutType === 'group' && availableRoomsList.length > 0) {
+      // For group checkout with multiple available rooms, select all available
+      formData.selectedRooms = availableRoomsList.map((room:any) => room.id)
     }
 
+    // Calculate initial bill for available rooms
+    calculateFinalBill()
 
     console.log('Reservation rooms loaded:', reservationRooms.value)
+    console.log('Available rooms:', availableRoomsList)
   } catch (error) {
     console.error('Error fetching reservation details:', error)
     toast.error(t('Failed to load reservation details'))
@@ -237,10 +346,8 @@ const calculateFinalBill = async () => {
   try {
     isCalculating.value = true
 
-    // TODO: Implement API call to calculate final bill
-    // This would typically call a folio API to get the current balance
-    // For now, we'll simulate with room folio balances
-    const totalBalance = reservationRooms.value.reduce((sum:number, room:any) => {
+    // Only calculate for available rooms
+    const totalBalance = availableRooms.value.reduce((sum:number, room:any) => {
       return sum + (room.folioBalance || 0)
     }, 0)
 
@@ -261,12 +368,18 @@ const calculateFinalBill = async () => {
 }
 
 const performCheckOut = async () => {
+  // Validate if all rooms are already checked out
+  if (allRoomsCheckedOut.value) {
+    toast.info(t('All rooms have already been checked out'))
+    return
+  }
+
   // Validate required fields
   if (!canCheckOut.value) {
     if (formData.outstandingBalance > 0) {
       toast.error(t('Please settle the outstanding balance before check-out'))
     } else {
-      toast.error(t('Please select at least one room for check-out'))
+      toast.error(t('Please select at least one available room for check-out'))
     }
     return
   }
@@ -279,12 +392,16 @@ const performCheckOut = async () => {
   try {
     isLoading.value = true
 
-    // Prepare check-out payload
+    // Prepare check-out payload - only include available rooms
     const checkOutDateTime = `${formData.checkOutDate}T${formData.checkOutTime}:00`
+    const selectedAvailableRooms = formData.checkOutType === 'group'
+      ? availableRooms.value.map((room:any) => room.id)
+      : formData.selectedRooms.filter(roomId =>
+          availableRooms.value.some((room: any) => room.id === roomId)
+        )
+
     const payload: CheckOutReservationPayload = {
-      reservationRooms: formData.checkOutType === 'group'
-        ? reservationRooms.value.map((room:any) => room.id)
-        : formData.selectedRooms,
+      reservationRooms: selectedAvailableRooms,
       actualCheckOutTime: checkOutDateTime
     }
 
@@ -293,14 +410,24 @@ const performCheckOut = async () => {
     // Perform check-out
     const response = await checkOutReservation(props.reservationId, payload)
 
+    // Show success message
+    const checkedOutCount = selectedAvailableRooms.length
+    toast.success(t('Successfully checked out {count} room(s)', { count: checkedOutCount }))
+
     // Emit success event
     emit('success', { ...payload, response })
 
     // Close modal
     closeModal()
-  } catch (error) {
+  } catch (error:any) {
     console.error('Check-out error:', error)
-    // Error handling is done in the composable
+     const errorMessage =
+      error.response?.data?.message ||
+      (error.response?.data?.errors?.join(', ') || '') ||
+      error.message ||
+      t('Failed to perform check-out')
+
+      toast.error(errorMessage)
   } finally {
     isLoading.value = false
   }
@@ -324,5 +451,10 @@ onMounted(() => {
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+}
+
+/* Custom styles for disabled rooms */
+.cursor-not-allowed {
+  cursor: not-allowed !important;
 }
 </style>

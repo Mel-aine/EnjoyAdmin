@@ -26,7 +26,7 @@
         @keydown.enter.prevent="onEnter"
       />
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
-      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">▼</span>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs">▼</span>
 
       <ul
         v-if="isDropdownOpen && filteredOptions.length"
