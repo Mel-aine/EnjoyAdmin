@@ -43,19 +43,19 @@
                         </label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input 
-                                    v-model="formData.amendType" 
-                                    type="radio" 
-                                    value="group" 
+                                <input
+                                    v-model="formData.amendType"
+                                    type="radio"
+                                    value="group"
                                     class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">{{ $t('Group') }}</span>
                             </label>
                             <label class="flex items-center">
-                                <input 
-                                    v-model="formData.amendType" 
-                                    type="radio" 
-                                    value="individual" 
+                                <input
+                                    v-model="formData.amendType"
+                                    type="radio"
+                                    value="individual"
                                     class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
@@ -70,14 +70,14 @@
                         </label>
                         <div class="space-y-2 max-h-32 overflow-y-auto">
                             <label v-for="room in reservationRooms" :key="room.id" class="flex items-center">
-                                <input 
-                                    v-model="formData.selectedRooms" 
-                                    type="checkbox" 
-                                    :value="room.id" 
+                                <input
+                                    v-model="formData.selectedRooms"
+                                    type="checkbox"
+                                    :value="room.room.id"
                                     class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">
-                                    {{ room.roomNumber }} - {{ room.roomType?.name }}
+                                    {{ room.room.roomNumber }} - {{ room.roomType?.roomTypeName }}
                                 </span>
                             </label>
                         </div>
@@ -181,27 +181,27 @@ const closeModal = () => {
 // Fetch booking details using getReservationDetailsById
 const getBookingDetailsById = async () => {
     if (!props.reservationId) return
-    
+
     isLoading.value = true
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
         console.log('Reservation details:', response)
         reservation.value = response
         reservationRooms.value = response.reservationRooms || []
-        
+
         // Populate form data with reservation details
         if (response) {
             formData.value.newArrivalDate = new Date(response.arrivedDate).toISOString().split('T')[0]
             formData.value.newDepartureDate = new Date(response.departDate).toISOString().split('T')[0]
             formData.value.nights = response.nights ?? response.numberOfNights
-            
+
             // Set amend type based on number of rooms
             if (reservationRooms.value.length > 1) {
                 formData.value.amendType = 'group'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
             } else {
                 formData.value.amendType = 'individual'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
             }
         }
     } catch (error) {
@@ -240,6 +240,7 @@ const handleSubmit = async () => {
         console.log('amendData', amendData)
 
         const resp = await amendReservation(amendData);
+        console.log("resp",resp)
         // Emit the cancel confirmation event
         emit('amend-confirmed', amendData)
 
@@ -274,9 +275,7 @@ watch(() => props.reservationId, (newVal) => {
 // Watch for amend type changes
 watch(() => formData.value.amendType, (newType) => {
     if (newType === 'group') {
-        formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
-    } else {
-        formData.value.selectedRooms = []
+        formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
     }
 })
 
@@ -285,11 +284,11 @@ watch(() => reservationRooms.value, (newRooms) => {
     if (newRooms.length === 1) {
         // Auto-select the single room and set to individual amend
         formData.value.amendType = 'individual'
-        formData.value.selectedRooms = [newRooms[0].id]
+        formData.value.selectedRooms = [newRooms[0].room.id]
     } else if (newRooms.length > 1) {
         // Auto-select all rooms for group amend
         if (formData.value.amendType === 'group') {
-            formData.value.selectedRooms = newRooms.map((room: any) => room.id)
+            formData.value.selectedRooms = newRooms.map((room: any) => room.room.id)
         }
     }
 }, { deep: true })
@@ -301,7 +300,7 @@ watch([() => formData.value.newArrivalDate, () => formData.value.newDepartureDat
         const departureDate = new Date(newDeparture)
         const timeDiff = departureDate.getTime() - arrivalDate.getTime()
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
-        
+
         if (daysDiff > 0) {
             formData.value.nights = daysDiff
         }
@@ -314,7 +313,7 @@ watch([() => formData.value.newArrivalDate, () => formData.value.nights], ([newA
         const arrivalDate = new Date(newArrival)
         const departureDate = new Date(arrivalDate)
         departureDate.setDate(arrivalDate.getDate() + nights)
-        
+
         formData.value.newDepartureDate = departureDate.toISOString().split('T')[0]
     }
 })

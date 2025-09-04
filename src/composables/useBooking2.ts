@@ -10,7 +10,7 @@ import { createReservation, getReservationDetailsById } from '@/services/reserva
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getBusinessSources } from '../services/configrationApi'
+import { getBusinessSourcesByHotelId } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -35,6 +35,7 @@ interface Reservation {
   bookingSource: string
   businessSource: string
   isComplementary: boolean
+  complimentaryRoom?: boolean
 }
 
 interface Guest {
@@ -145,6 +146,8 @@ export function useBooking() {
   const isPaymentButtonShow = ref(false)
   const confirmReservation = ref(false)
   const PaymentMethods = ref<any[]>([])
+  const pendingUploads = ref<Set<string>>(new Set())
+  const uploadErrors = ref<string[]>([])
   const isCustomPrize = ref(false);
   const roomTypeBaseInfo = ref<
     Map<
@@ -189,6 +192,7 @@ export function useBooking() {
     bookingSource: '',
     businessSource: '',
     isComplementary: false,
+    complimentaryRoom: false,
   })
 
   const guest = ref<Guest>({
@@ -209,6 +213,18 @@ export function useBooking() {
     groupName: '',
     title: '',
     id: 0,
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zipcode: '',
+    idPhoto: '',
+    idType: '',
+    idNumber: '',
+    idExpiryDate: '',
+    issuingCountry: '',
+    issuingCity: '',
+    profilePhoto:''
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -264,7 +280,8 @@ export function useBooking() {
   ])
 
   const getBusinessSource = async () => {
-    const resp = await getBusinessSources();
+    const hotelId = serviceStore.serviceId
+    const resp = await getBusinessSourcesByHotelId(hotelId!);
     console.log('response',resp)
     businessSourcesLo.value = resp.data?.data?.data.map((s:any) => ({
         value: s.name,
@@ -273,7 +290,32 @@ export function useBooking() {
   }
   getBusinessSource();
   // Watchers
-  watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
+  // watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
+  //   const arrivalDate = reservation.value.checkinDate
+  //   const departureDate = reservation.value.checkoutDate
+
+  //   if (!arrivalDate || !departureDate) {
+  //     dateError.value = null
+  //     return
+  //   }
+
+  //   const arrival = new Date(arrivalDate)
+  //   const departure = new Date(departureDate)
+
+  //   if (departure <= arrival) {
+  //     dateError.value = 'validation.departureAfterArrival'
+  //   } else {
+  //     dateError.value = null
+  //   }
+  //   roomConfigurations.value.forEach((room) => {
+  //     onRoomNumberChange(room)
+  //   })
+  //   updateBilling()
+  // })
+
+  watch(
+  [() => reservation.value.checkinDate, () => reservation.value.checkoutDate],
+  () => {
     const arrivalDate = reservation.value.checkinDate
     const departureDate = reservation.value.checkoutDate
 
@@ -282,19 +324,29 @@ export function useBooking() {
       return
     }
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // pour comparer uniquement la date (pas l'heure)
+
     const arrival = new Date(arrivalDate)
     const departure = new Date(departureDate)
+    arrival.setHours(0, 0, 0, 0)
+    departure.setHours(0, 0, 0, 0)
 
-    if (departure <= arrival) {
+    if (arrival < today) {
+      dateError.value = 'validation.arrivalInPast'
+    } else if (departure < arrival) {
       dateError.value = 'validation.departureAfterArrival'
     } else {
       dateError.value = null
     }
+
     roomConfigurations.value.forEach((room) => {
       onRoomNumberChange(room)
     })
     updateBilling()
-  })
+  }
+)
+
 
   // Watch pour la synchronisation du nombre de chambres
   watch(
@@ -537,6 +589,23 @@ export function useBooking() {
         title: customer.title || '',
         id: customer.id || 0,
         roleId: customer.roleId || null,
+        address: customer.address || '',
+        country: customer.country || '',
+        state: customer.state || '',
+        city: customer.city || '',
+        zipcode: customer.zipcode || '',
+        idPhoto: customer.idPhoto || null,
+        idType: customer.idType,
+        idNumber: customer.idNumber,
+        idExpiryDate: customer.idExpiryDate,
+        issuingCountry: customer.issuingCountry,
+        issuingCity: customer.issuingCity,
+        profilePhoto:customer.profilePhoto || null,
+        passportNumber: null,
+        passportExpiry: null,
+        visaNumber: null,
+        visaExpiry: null
+
       }
 
       // Mettre à jour le nom sur la carte
@@ -552,25 +621,115 @@ export function useBooking() {
         groupName: '',
         title: '',
         id: 0,
+        address: '',
+        country: '',
+        state: '',
+        city: '',
+        zipcode: '',
       }
       paymentData.value.cardHolderName = ''
     }
   }
+
+
+
+// Fonction pour attendre que tous les uploads soient terminés
+const waitForPendingUploads = async (): Promise<boolean> => {
+  const maxWaitTime = 30000
+  const checkInterval = 500
+  let waitTime = 0
+
+  while (pendingUploads.value.size > 0 && waitTime < maxWaitTime) {
+    await new Promise(resolve => setTimeout(resolve, checkInterval))
+    waitTime += checkInterval
+  }
+
+  if (pendingUploads.value.size > 0) {
+    throw new Error('Upload timeout: Some images are still being uploaded')
+  }
+
+  if (uploadErrors.value.length > 0) {
+    throw new Error(`Upload errors: ${uploadErrors.value.join(', ')}`)
+  }
+
+  return true
+}
+
+// Fonction pour suivre l'état des uploads
+const trackUpload = (uploadId: string) => {
+  pendingUploads.value.add(uploadId)
+}
+
+const completeUpload = (uploadId: string, success: boolean, error?: string) => {
+  pendingUploads.value.delete(uploadId)
+  if (!success && error) {
+    uploadErrors.value.push(error)
+  }
+}
+
   //save reservation
   const saveReservation = async () => {
-    isLoading.value = true 
+    isLoading.value = true
     try {
       // Validation
       if (!formData.value.firstName || !formData.value.email) {
         throw new Error('Guest information is incomplete')
       }
 
-      if (roomConfigurations.value.some((room) => !room.roomType)) {
-        throw new Error('Room configuration is incomplete')
-      }
+      // if (roomConfigurations.value.some((room) => !room.roomType)) {
+      //   throw new Error('Room configuration is incomplete')
+      // }
 
       if (!serviceStore.serviceId) {
         throw new Error('Service ID is missing')
+      }
+
+      await waitForPendingUploads()
+
+
+      uploadErrors.value = []
+
+      if (formData.value.profilePhoto && !formData.value.profilePhoto.startsWith('http')) {
+        throw new Error('Profile photo upload incomplete')
+      }
+
+      if (formData.value.idPhoto && !formData.value.idPhoto.startsWith('http')) {
+        throw new Error('ID photo upload incomplete')
+      }
+
+      let identityPayload = {
+        idPhoto: formData.value.idPhoto || null,
+        idType: formData.value.idType,
+        idNumber: formData.value.idNumber,
+        idExpiryDate: formData.value.idExpiryDate,
+        issuingCountry: formData.value.issuingCountry,
+        issuingCity: formData.value.issuingCity,
+        profilePhoto:formData.value.profilePhoto || null,
+        passportNumber: null,
+        passportExpiry: null,
+        visaNumber: null,
+        visaExpiry: null
+      }
+
+      // Appliquer la même logique que dans selectCustomer pour les types d'identité
+      if (formData.value.idType) {
+        const normalizedIdType = formData.value.idType.toLowerCase().replace(/ /g, '')
+
+        switch (normalizedIdType) {
+          case 'passport':
+          case 'passeport':
+            identityPayload.passportNumber = formData.value.idNumber
+            identityPayload.passportExpiry = formData.value.idExpiryDate
+            break
+          case 'visa':
+            identityPayload.visaNumber = formData.value.idNumber
+            identityPayload.visaExpiry = formData.value.idExpiryDate
+            break
+          default:
+            identityPayload.idNumber = formData.value.idNumber
+            identityPayload.idExpiryDate = formData.value.idExpiryDate
+            break
+        }
       }
 
       const reservationPayload = {
@@ -582,13 +741,15 @@ export function useBooking() {
         title: formData.value.title || 'Mr',
         company_name: formData.value.companyName || '',
         group_name: formData.value.groupName || '',
-        address_line: guest.value.address,
-        country: guest.value.country,
-        state: guest.value.state,
-        city: guest.value.city,
-        zipcode: guest.value.zipcode,
-        status: 'confirmed',
+        address_line: formData.value.address,
+        country: formData.value.country,
+        state: formData.value.state,
+        city: formData.value.city,
+        zipcode: formData.value.zipcode,
+        ...identityPayload,
         reservation_status: 'confirmed',
+        status: 'confirmed',
+
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
@@ -598,9 +759,9 @@ export function useBooking() {
 
         // Dates and guests
         arrived_date: reservation.value.checkinDate,
-        arrived_time: reservation.value.checkinTime,
+        check_in_time: reservation.value.checkinTime,
         depart_date: reservation.value.checkoutDate,
-        depart_time: reservation.value.checkoutTime,
+        check_out_time: reservation.value.checkoutTime,
         number_of_nights: numberOfNights.value,
         nights: numberOfNights.value,
 
@@ -630,6 +791,8 @@ export function useBooking() {
         // Additional info
         is_complementary: Boolean(reservation.value.isComplementary),
 
+        complimentary_room: Boolean(reservation.value.isComplementary),
+
         // Payment info
         bill_to: billing.value.billTo,
         payment_mode: billing.value.paymentMode,
@@ -646,10 +809,10 @@ export function useBooking() {
         created_by: Number(authStore.UserId),
       }
 
-      // Validation finale
-      if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
-        throw new Error('At least one valid room configuration is required')
-      }
+      //Validation finale
+      // if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
+      //   throw new Error('At least one valid room configuration is required')
+      // }
 
       console.log('Final reservation payload:', reservationPayload)
 
@@ -661,10 +824,10 @@ export function useBooking() {
         isPaymentButtonShow.value = true
         confirmReservation.value = true
       }
-      // resetForm()
+
       toast.success(t('reservationCreated'))
 
-      return response
+       return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
@@ -814,7 +977,7 @@ export function useBooking() {
 
     const roomCharges = roomConfigurations.value.reduce((total, room) => {
       const roomRate = prepareFolioAmount(room.rate)
-      const nights = Number(numberOfNights.value) || 0
+      const nights = Math.max(1, Number(numberOfNights.value) || 1)
       return Number(total) + (roomRate * nights)
     }, 0)
     const defaultaxes = roomConfigurations.value.reduce((total, room) => {
@@ -830,7 +993,7 @@ export function useBooking() {
     // Assigner avec conversion explicite et arrondi
     billing.value.roomCharges = Number(roomCharges.toFixed(2))
     billing.value.taxes = Number(taxes.toFixed(2))
-    billing.value.totalAmount = Number((roomCharges + taxes).toFixed(2))
+    billing.value.totalAmount = Number((roomCharges).toFixed(2))
   }
 
   // Ajouter un watcher pour recalculer quand taxExempt change
@@ -1040,6 +1203,7 @@ export function useBooking() {
       bookingSource: '',
       businessSource: '',
       isComplementary: false,
+      complimentaryRoom: false,
     })
 
     roomConfigurations.value = [
@@ -1074,6 +1238,12 @@ export function useBooking() {
       groupName: '',
       title: '',
       id: 0,
+      idPhoto: '',
+      idType: '',
+      idNumber: '',
+      idExpiryDate: '',
+      issuingCountry: '',
+      issuingCity: ''
     })
 
 
@@ -1109,11 +1279,14 @@ export function useBooking() {
     // console.log('room', room)
     roomC.taxes = rooms.find((r: any) => r.id === roomC.roomNumber)?.taxRates || [];
     console.log("roomC", roomC);
+
+  const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1);
     roomC.taxes.forEach((tax: any) => {
       if (tax.postingType === "flat_amount") {
-        tax.taxAmount = parseFloat(tax.amount) * numberOfNights.value;
+        // tax.taxAmount = parseFloat(tax.amount) * numberOfNights.value;
+        tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation;
       } else if (tax.postingType === "flat_percentage") {
-        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * numberOfNights.value
+        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
       } else {
         tax = 0
       }
@@ -1130,16 +1303,33 @@ export function useBooking() {
 
   }
 
+const isCheckedIn = ref(false)
 
-  const showCheckinButton = computed(() => {
+// Updated computed property for showing check-in button
+const showCheckinButton = computed(() => {
+  // Don't show if reservation isn't confirmed
+  if (!confirmReservation.value) {
+    return false
+  }
 
-    if (!confirmReservation.value) {
-      return false
-    }
+  if (isCheckedIn.value) {
+    return false
+  }
 
-    const today = new Date().toISOString().split('T')[0]
-    return reservation.value.checkinDate === today
-  })
+  const hasValidRooms = roomConfigurations.value.some(room =>
+    room.roomType && room.roomNumber
+  )
+
+  if (!hasValidRooms) {
+    return false
+  }
+
+  // Only show on check-in date
+  const today = new Date().toISOString().split('T')[0]
+  return reservation.value.checkinDate === today
+})
+
+
 
   return {
     // Data
@@ -1165,6 +1355,7 @@ export function useBooking() {
     dateError,
     confirmReservation,
     isCustomPrize,
+    isCheckedIn,
 
     // Computed
     numberOfNights,
@@ -1205,6 +1396,11 @@ export function useBooking() {
     resetForm,
     isPaymentButtonShow,
     selectBooking,
-    reservationId
+    reservationId,
+     pendingUploads,
+    uploadErrors,
+    trackUpload,
+    completeUpload,
+    waitForPendingUploads,
   }
 }

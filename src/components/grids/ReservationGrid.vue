@@ -249,7 +249,7 @@ const modalShow = ref(false)
 const selectedReservationId = ref<number | null>(null)
 const loadingDelete = ref(false)
 const loading = ref(true)
-const reservations = ref<ReservationType[]>([])
+
 const viewMode = ref<'grid' | 'list'>('grid')
 const reservationMode = ref<'all' | 'single' | 'group'>('all')
 const sortBy = ref('date')
@@ -338,7 +338,28 @@ const tableActions = [
 
 // Computed properties
 const filteredReservations = computed(() => {
-  let filtered = [...reservations.value]
+  let filtered = [...allReservations.value]
+
+  // Filter based on activeFilter
+  switch (activeFilter.value) {
+    case 'arrivals':
+      filtered = filtered.filter(reservation => isToday(reservation.arrivedDate) && reservation.status === 'confirmed'  )
+      break
+    case 'departures':
+      filtered = filtered.filter(
+        reservation =>
+          isToday(reservation.departDate) &&
+          (reservation.status === 'checked_in' || reservation.status === 'checked_in'),
+      )
+      break
+    case 'inHouse':
+      filtered = filtered.filter(reservation => isInHouse(reservation))
+      break
+    case 'totalReservations':
+    default:
+      // No filtering needed for 'totalReservations', use the full 'filtered' array
+      break
+  }
 
   // Filter based on reservation mode
   if (reservationMode.value === 'single') {
@@ -412,7 +433,6 @@ const applyFilter = async (filter: FitlterItem) => {
   try {
     const res = await filterReservation(serviceStore.serviceId!, filter)
 
-    reservations.value = []
     if (res.status === 200 || res.status === 201) {
       console.log(res.data)
 
@@ -429,7 +449,6 @@ const applyFilter = async (filter: FitlterItem) => {
         }
       });
 
-      reservations.value = mappedReservations;
       allReservations.value = mappedReservations;
       statistics.value = res.data.statistics
     }
@@ -474,7 +493,7 @@ const confirmDelete = async () => {
     try {
       //await deleteReservation(selectedReservationId.value)
       toast.success(t('toast.reservationDelete'))
-      reservations.value = reservations.value.filter(
+      allReservations.value = allReservations.value.filter(
         (r: any) => r.id !== selectedReservationId.value,
       )
     } catch (error) {
@@ -526,73 +545,44 @@ const getActiveFilterLabel = () => {
       return t('AllReservations')
   }
 }
-const getTodayDate = () => {
-  return new Date().toISOString().split('T')[0]
-}
-
 // Check if a date is today
 const isToday = (dateString: string) => {
-  const date = new Date(dateString).toISOString().split('T')[0]
-  const today = getTodayDate()
-  return date === today
+  if (!dateString) return false
+  const today = new Date()
+  const date = new Date(dateString)
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  )
 }
 
 // Check if guest is currently in house
 const isInHouse = (reservation: any) => {
   const today = new Date()
-  const checkInDate = new Date(reservation.checkInDate)
-  const checkOutDate = new Date(reservation.checkOutDate)
+  today.setHours(0, 0, 0, 0)
+
+  const checkInDate = new Date(reservation.arrivedDate)
+  checkInDate.setHours(0, 0, 0, 0)
+
+  const checkOutDate = new Date(reservation.departDate)
+  checkOutDate.setHours(0, 0, 0, 0)
 
   return (
     (reservation.status === 'checked-in' || reservation.status === 'checked_in') &&
-    checkInDate <= today &&
-    checkOutDate > today
+    checkInDate.getTime() <= today.getTime() &&
+    checkOutDate.getTime() >= today.getTime()
   )
 }
 
 
-const handleFilterClick = async (filterType: string) => {
+const handleFilterClick = (filterType: string) => {
   activeFilter.value = filterType
   currentPage.value = 1
-
-  switch (filterType) {
-    case 'totalReservations':
-      // Show all reservations
-      reservations.value = [...allReservations.value]
-      break
-
-    case 'arrivals':
-      // Filter for today's arrivals
-      reservations.value = allReservations.value.filter(reservation =>
-        isToday(reservation.arrivedDate)
-      )
-      break
-
-    case 'departures':
-      // Filter for today's departures
-      reservations.value = allReservations.value.filter(reservation =>
-        isToday(reservation.departDate)
-      )
-      break
-
-    case 'inHouse':
-      // Filter for guests currently in house
-      reservations.value = allReservations.value.filter(reservation =>
-        isInHouse(reservation)
-      )
-      break
-
-    default:
-      reservations.value = [...allReservations.value]
-      break
-  }
-
-  console.log(`Filtered ${filterType}:`, reservations.value.length, 'reservations')
 }
 
 const clearFilter = () => {
   activeFilter.value = 'totalReservations'
-  reservations.value = [...allReservations.value]
   currentPage.value = 1
 }
 </script>

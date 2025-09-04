@@ -40,20 +40,20 @@
                         </label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input 
-                                    v-model="formData.noShowType" 
-                                    type="radio" 
-                                    value="group" 
+                                <input
+                                    v-model="formData.noShowType"
+                                    type="radio"
+                                    value="group"
                                     :disabled="reservationRooms.length === 1"
                                     class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                                 <span class="ml-2 text-sm" :class="reservationRooms.length === 1 ? 'text-gray-400' : 'text-gray-700'">{{ $t('Group') }}</span>
                             </label>
                             <label class="flex items-center">
-                                <input 
-                                    v-model="formData.noShowType" 
-                                    type="radio" 
-                                    value="individual" 
+                                <input
+                                    v-model="formData.noShowType"
+                                    type="radio"
+                                    value="individual"
                                     class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
@@ -67,15 +67,15 @@
                             {{ $t('Select Rooms') }}
                         </label>
                         <div class="space-y-2 max-h-40 overflow-y-auto">
-                            <label 
-                                v-for="room in reservationRooms" 
-                                :key="room.id" 
+                            <label
+                                v-for="room in reservationRooms"
+                                :key="room.id"
                                 class="flex items-center p-2 border rounded hover:bg-gray-50"
                             >
-                                <input 
-                                    v-model="formData.selectedRooms" 
-                                    type="checkbox" 
-                                    :value="room.id" 
+                                <input
+                                    v-model="formData.selectedRooms"
+                                    type="checkbox"
+                                    :value="room.id"
                                     class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">
@@ -207,7 +207,7 @@ watch(() => reservationRooms.value, (newRooms) => {
 
 const getBookingDetailsById = async () => {
     if (!props.reservationId) return
-    
+
     isLoading.value = true
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
@@ -289,13 +289,14 @@ const handleSubmit = async () => {
             reservationId: props.reservationId,
             reservationNumber: props.reservationNumber,
             noShowType: formData.value.noShowType,
-            selectedRooms: formData.value.noShowType === 'group' 
+            selectedRooms: formData.value.noShowType === 'group'
                 ? reservationRooms.value.map((room: any) => room.id)
                 : formData.value.selectedRooms
         }
         console.log('noShowData', noShowData)
 
         const resp = await markNoShow(noShowData);
+        console.log("resp no show",resp)
         // Emit the cancel confirmation event
         emit('noshow-confirmed', noShowData)
 

@@ -385,8 +385,8 @@
           <div class="capitalize"><strong>{{ $t('to') }}:</strong></div>
           <div>{{ formatDate(getSelectionInfo()?.endDate ?? new Date()) }}</div>
 
-          <div><strong>{{ $t('Nights') }}:</strong></div>
-          <div>{{ getSelectionInfo()?.totalNights }}</div>
+          <!-- <div><strong>{{ $t('Nights') }}:</strong></div>
+          <div>{{ getSelectionInfo()?.totalNights }}</div> -->
         </div>
       </div>
 
@@ -1279,7 +1279,7 @@ function getSelectionInfo() {
     startDate: dates[0],
     endDate: dates[dates.length - 1],
     totalNights: dates.length,
-    cellCount: cells.length,
+    cellCount: cells.length -1,
   }
 }
 
