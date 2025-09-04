@@ -15,6 +15,12 @@ const router = createRouter({
       component: () => import('../views/Edashboard.vue'),
       meta: { requiresAuth: true },
     },
+     {
+      path: '/insert_transaction',
+      name: 'inserttransaction',
+      component: () => import('../components/inserttransaction.vue'),
+      meta: { requiresAuth: true },
+    },
     {
       path: '/front-office/dashboard',
       name: 'FrontOfficeDashboard',
