@@ -3,7 +3,7 @@
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">{{ $t('Check-in') }}</h3>
     </template>
-    
+
     <!-- Loading Skeleton -->
     <div v-if="loading" class="px-2 space-y-4">
       <div class="animate-pulse">
@@ -22,9 +22,9 @@
         <div class="h-10 bg-gray-200 rounded mb-4"></div>
       </div>
     </div>
-    
+
     <!-- Form -->
-    <div v-else class="px-2 space-y-4">
+    <div v-else class="px-2 space-y-4 ">
       <!-- Perform Check-in on -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -32,20 +32,20 @@
         </label>
         <div class="flex space-x-4">
           <label class="flex items-center">
-            <input 
-              v-model="formData.checkInType" 
-              type="radio" 
-              value="group" 
+            <input
+              v-model="formData.checkInType"
+              type="radio"
+              value="group"
               :disabled="reservationRooms.length === 1"
               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <span class="ml-2 text-sm" :class="reservationRooms.length === 1 ? 'text-gray-400' : 'text-gray-700'">{{ $t('Group') }}</span>
           </label>
           <label class="flex items-center">
-            <input 
-              v-model="formData.checkInType" 
-              type="radio" 
-              value="individual" 
+            <input
+              v-model="formData.checkInType"
+              type="radio"
+              value="individual"
               :disabled="reservationRooms.length === 1"
               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             />
@@ -60,15 +60,15 @@
           {{ $t('Select Rooms') }}
         </label>
         <div class="space-y-2 max-h-40 overflow-y-auto">
-          <label 
-            v-for="room in reservationRooms" 
-            :key="room.id" 
+          <label
+            v-for="room in reservationRooms"
+            :key="room.id"
             class="flex items-center p-2 border rounded hover:bg-gray-50"
           >
-            <input 
-              v-model="formData.selectedRooms" 
-              type="checkbox" 
-              :value="room.id" 
+            <input
+              v-model="formData.selectedRooms"
+              type="checkbox"
+              :value="room.id"
               class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
             <span class="ml-2 text-sm text-gray-700">
@@ -90,19 +90,19 @@
           <div class="h-10 bg-gray-200 rounded w-32"></div>
         </div>
       </div>
-      
+
       <!-- Normal Footer -->
       <div v-else class="flex justify-end space-x-2">
-        <BasicButton 
-          variant="secondary" 
-          @click="closeModal" 
+        <BasicButton
+          variant="secondary"
+          @click="closeModal"
           :label="$t('Cancel')"
           :disabled="isLoading"
         />
-        <BasicButton 
-          variant="primary" 
-          @click="performCheckIn" 
-          :label="formData.checkInType === 'group' ? $t('Group Check-in') : $t('Check-in')" 
+        <BasicButton
+          variant="primary"
+          @click="performCheckIn"
+          :label="formData.checkInType === 'group' ? $t('Group Check-in') : $t('Check-in')"
           :loading="isLoading"
           :disabled="isLoading || !canCheckIn"
         />
@@ -128,6 +128,7 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
+  (e: 'check-in-complete'): void
   (e: 'success', data: any): void
 }
 
@@ -245,7 +246,7 @@ const performCheckIn = async () => {
     // Prepare check-in payload
     const checkInDateTime = `${formData.checkInDate}T${formData.checkInTime}:00`
     const payload: CheckInReservationPayload = {
-      reservationRooms: formData.checkInType === 'group' 
+      reservationRooms: formData.checkInType === 'group'
         ? reservationRooms.value.map((room:any) => room.id)
         : formData.selectedRooms,
       actualCheckInTime: checkInDateTime,
@@ -261,7 +262,8 @@ const performCheckIn = async () => {
 
     // Emit success event
     emit('success', { ...payload, response })
-    
+    emit('check-in-complete')
+
     // Close modal
     closeModal()
   } catch (error) {
@@ -276,6 +278,8 @@ onMounted(()=>{
     getBookingDetailsById()
   }
 })
+
+
 </script>
 
 <style scoped>

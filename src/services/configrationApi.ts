@@ -1061,6 +1061,14 @@ export const getBusinessSources = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
+ * Get all business sources by hotel
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBusinessSourcesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/business_sources?hotelId=${hotelId}`, headers)
+}
+
+/**
  * Post a new business source
  * @param data
  * @returns {Promise<AxiosResponse<any>>}
@@ -1313,7 +1321,7 @@ export const vipStatusApi = {
  * @param params.createdBy - Created by user filter
  * @param params.page - Page number for pagination
  * @param params.limit - Number of items per page
- * @returns {Promise<AxiosResponse<any>>} incidental_invoices 
+ * @returns {Promise<AxiosResponse<any>>} incidental_invoices
  */
 export const getIncidentalInvoices = (params?: {
   hotelId?: string | number;
@@ -1340,7 +1348,7 @@ export const getIncidentalInvoices = (params?: {
 }
 
 /**
- * 
+ *
  * post incidental invoices
  */
 export const postIncidentalInvoices = (data: any): Promise<AxiosResponse<any>> => {

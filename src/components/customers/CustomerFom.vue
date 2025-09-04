@@ -394,6 +394,7 @@ const titleOptions = computed(() => [
   { label: t('Mrs'), value: 'Mrs' },
   { label: t('Ms'), value: 'Ms' },
   { label: t('Dr'), value: 'Dr' },
+  { label: t('Miss'), value: 'Miss' }
 ])
 
 const genderOptions = computed(() => [

@@ -8,11 +8,11 @@
 
       <!-- État de chargement (seulement pendant l'upload) -->
       <div v-if="isUploading" class="space-y-2 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
         <p class="text-sm text-gray-600">{{ $t('uploadInProgress') }}</p>
         <div class="w-full bg-gray-200 rounded-full h-2">
           <div
-            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            class="bg-orange-600 h-2 rounded-full transition-all duration-300"
             :style="{ width: uploadProgress + '%' }"
           ></div>
         </div>
@@ -21,19 +21,19 @@
       <!-- Zone de drop/upload -->
       <div
         v-else-if="!previewUrl && !modelValue"
-        class="space-y-1 text-center w-full"
+        class="space-y-1 text-center w-full flex flex-col items-center justify-center"
         @dragover.prevent="!props.disabled && (dragOver = true)"
         @dragleave.prevent="!props.disabled && (dragOver = false)"
         @drop.prevent="!props.disabled && handleDrop"
 
-        :class="{ 'bg-blue-50 border-blue-300': dragOver }"
+        :class="{ 'bg-orange-50 border-orange-300': dragOver }"
       >
         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
           <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <div class="flex text-sm text-gray-600">
-          <label :for="`file-upload-${uniqueId}`" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-            <span class="font-normal text-xs">{{ dragOver ? $t('upload.drop_file') : $t('upload.select_file') }}</span>
+          <label :for="`file-upload-${uniqueId}`" class="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none">
+            <span class="font-normal text-sm">{{ dragOver ? $t('upload.drop_file') : $t('upload.select_file') }}</span>
             <input
               :id="`file-upload-${uniqueId}`"
               name="file-upload"
