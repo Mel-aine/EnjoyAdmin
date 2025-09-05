@@ -231,6 +231,11 @@
           <CheckInReservation :reservation-id="reservationId" :is-open="isCheckInReservationModalOpen"
             @close="closeCheckInReservationModal" />
         </template>
+
+        <template v-if="isUnAssignReservationModalOpen">
+          <UnAssignRoomReservation :reservation-id="reservationId" :is-open="isUnAssignReservationModalOpen"
+            @close="closeUnAssignReservationModal" />
+        </template>
     </div>
 
     <!-- Apply Discount Modal -->
@@ -259,6 +264,7 @@ import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
 import CheckInReservation from '../CheckInReservation.vue'
+import UnAssignRoomReservation from '../UnAssignRoomReservation.vue'
 
 const { t } = useI18n()
 
@@ -306,6 +312,7 @@ const isVoidReservationModalOpen = ref(false)
 const selectedTableItems = ref<any[]>([])
 const toast = useToast()
 const isCheckInReservationModalOpen = ref(false)
+const isUnAssignReservationModalOpen = ref(false)
 
 // Computed Properties
 const isGroupReservation = computed(() => props.isGroup || groupRooms.value.length > 1)
@@ -541,7 +548,15 @@ const openCheckInReservationModal = () =>{
 }
 
 const closeCheckInReservationModal = () =>{
-   isCheckInReservationModalOpen.value = false
+    isCheckInReservationModalOpen.value = false
+}
+
+const openUnAssignReservationModal = () =>{
+    isUnAssignReservationModalOpen.value = true
+}
+
+const closeUnAssignReservationModal = () =>{
+    isUnAssignReservationModalOpen.value = false
 }
 
 const handleApplyRate = (rateData: any) => {

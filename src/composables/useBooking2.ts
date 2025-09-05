@@ -1285,6 +1285,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
         tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation;
       } else if (tax.postingType === "flat_percentage") {
         tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
+        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
       } else {
         tax = 0
       }

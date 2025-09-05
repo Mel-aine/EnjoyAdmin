@@ -1097,6 +1097,78 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Channel Manager Configuration Routes
+    {
+      path: '/configuration/channel-manager',
+      name: 'ChannelManager',
+       component: () => import('../views/Configuration/ChannelManager/Overview.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/inventory-channel-booking',
+      name: 'ChannelManagerInventoryChannelBooking',
+      component: () => import('../views/Configuration/ChannelManager/InventoryChannelBooking.vue'),
+      meta: {
+        title: 'Inventory Channel Booking',
+        requiresAuth: true,
+      },
+    },{
+      path: '/configuration/channel-manager/channel-manager',
+      name: 'channel',
+      component: () => import('../views/Configuration/ChannelManager/ChannelManager.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/channels-booking',
+      name: 'ChannelManagerChannelsBooking',
+      component: () => import('../views/Configuration/ChannelManager/ChannelsBooking.vue'),
+      meta: {
+        title: 'Channels Booking',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/rooms-rates',
+      name: 'ChannelManagerRoomsRates',
+      component: () => import('../views/Configuration/ChannelManager/RoomsRates.vue'),
+      meta: {
+        title: 'Rooms & Rates',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/properties',
+      name: 'ChannelManagerProperties',
+      component: () => import('../views/Configuration/ChannelManager/Properties.vue'),
+      meta: {
+        title: 'Properties',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/iframe',
+      name: 'ChannelManagerIframe',
+      component: () => import('../views/Configuration/ChannelManager/IframeView.vue'),
+      meta: {
+        title: 'Channel Manager Iframe',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/channex/booking-revisions',
+      name: 'ChannexBookingRevisions',
+      component: () => import('../views/Configuration/ChannelManager/ChannexBookingRevisions.vue'),
+      meta: {
+        title: 'Channex Booking Revisions',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/department',
       name: 'department',

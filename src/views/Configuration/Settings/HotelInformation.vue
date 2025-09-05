@@ -230,6 +230,61 @@
                    ></textarea>
                  </div>
               </div>
+              
+              <!-- Channel Manager Section -->
+              <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-6">Channel Manager Configuration</h3>
+                
+                <!-- Migration Status -->
+                <div class="mb-6">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Migration Status
+                  </label>
+                  <div class="flex items-center space-x-3">
+                    <input
+                      v-model="hotelInfo.migrated"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                      Migration completed successfully
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Channel Manager Enable -->
+                <div class="mb-6">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Channel Manager
+                  </label>
+                  <div class="flex items-center space-x-3">
+                    <input
+                      v-model="hotelInfo.channelEnable"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                      Enable channel manager integration
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Last Migration Date -->
+                <div class="mb-6">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Last Migration Date
+                  </label>
+                  <input
+                    v-model="hotelInfo.lastMigrationDate"
+                    type="datetime-local"
+                    class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                    readonly
+                  />
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    This field is automatically updated when migration is performed
+                  </p>
+                </div>
+              </div>
             </div>
           </form>
         </div>
@@ -281,6 +336,10 @@ const hotelInfo = ref({
   "registrationNo3": "",
   "cancellationPolicy": "",
   "hotelPolicy": "",
+  // New fields for channel manager integration
+  "migrated": false,
+  "channelEnable": false,
+  "lastMigrationDate": "",
   logoFile: null
 })
 
@@ -350,7 +409,11 @@ const loadHotelInfo = async () => {
       registrationNo2:  currentService.registrationNo2 || '',
       registrationNo3:  currentService.registrationNo3 || '',
       cancellationPolicy: currentService.cancellationPolicy || '',
-      hotelPolicy: currentService.hotelPolicy || ''
+      hotelPolicy: currentService.hotelPolicy || '',
+      // New fields for channel manager integration
+      migrated: currentService.migrated || false,
+      channelEnable: currentService.channelEnable || false,
+      lastMigrationDate: currentService.lastMigrationDate || ''
     }
   }
 }
