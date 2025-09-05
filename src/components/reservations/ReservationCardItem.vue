@@ -254,6 +254,7 @@ const handleOptionSelected = async (option: any) => {
     case 'stop_room_move':
       break;
     case 'unassign_room':
+      openUnAssignReservationModal()
       break;
     case 'inclusion_list':
       break;

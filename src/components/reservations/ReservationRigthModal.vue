@@ -735,6 +735,7 @@ const handleOptionSelected = async (option: any) => {
             showVoidModal.value = true;
             break;
         case 'unassign_room':
+          openUnAssignReservationModal()
             break;
         case 'inclusion_list':
             break;

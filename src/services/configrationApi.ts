@@ -932,6 +932,14 @@ export const getReservationTypes = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
+ * Get all reservation types by hotel Id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getReservationTypesByHotelId = (hotelId:any): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservation_types?hotelId=${hotelId}`, headers)
+}
+
+/**
  * Post a new reservation type
  * @param data
  * @returns {Promise<AxiosResponse<any>>}

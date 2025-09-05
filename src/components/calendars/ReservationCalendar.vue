@@ -432,9 +432,9 @@
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
     </template>
-    
+
     <!-- Unassigned Reservations Modal -->
-    <UnassignedReservationsModal 
+    <UnassignedReservationsModal
       v-if="showUnassignedModal"
       :is-open="showUnassignedModal"
       :date="selectedUnassignedDate"
@@ -752,6 +752,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   let i = 0
 
   // --- Récupération des réservations ---
+  console.log("group",group)
   const allReservations = group.reservations || []
   const reservations = allReservations.filter((r: any) => {
     return (
@@ -810,6 +811,7 @@ function getRoomRowCellsApi(group: any, room: any) {
     }
 
     if (reservation) {
+          console.log('Reservation cell:', reservation)
       // const start = new Date(reservation.check_in_date)
       const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
@@ -885,24 +887,24 @@ function getAvailableRoomsApi(date: Date) {
 function getAvailableRoomsByType(date: Date, roomTypeId: number) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  
+
   if (metric && metric.available_rooms_by_type) {
     const roomTypeData = metric.available_rooms_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
     return roomTypeData ? roomTypeData.available_count : '0'
   }
-  
+
   return '0'
 }
 
 function getUnassignedRoomsByType(date: Date, roomTypeId: number) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  
+
   if (metric && metric.unassigned_room_reservations_by_type) {
     const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
     return roomTypeData ? roomTypeData.unassigned_count : '0'
   }
-  
+
   return '0'
 }
 
