@@ -5,34 +5,13 @@
     :title="$t('Unassign Room Reservation')"
     size="lg"
   >
-    <template #content>
+
       <div v-if="loading" class="flex justify-center items-center py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
       </div>
 
       <div v-else class="space-y-6">
-        <!-- Reservation Info -->
-        <div v-if="reservation" class="bg-gray-50 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold mb-2">{{ $t('Reservation Details') }}</h3>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span class="font-medium">{{ $t('Guest') }}:</span>
-              {{ reservation.guest?.firstName }} {{ reservation.guest?.lastName }}
-            </div>
-            <div>
-              <span class="font-medium">{{ $t('Reservation ID') }}:</span>
-              {{ reservation.id }}
-            </div>
-            <div>
-              <span class="font-medium">{{ $t('Check-in Date') }}:</span>
-              {{ reservation.checkInDate }}
-            </div>
-            <div>
-              <span class="font-medium">{{ $t('Check-out Date') }}:</span>
-              {{ reservation.checkOutDate }}
-            </div>
-          </div>
-        </div>
+
 
         <!-- Unassign Type Selection -->
         <div class="space-y-4">
@@ -80,7 +59,7 @@
                   class="mr-3"
                 />
                 <div class="flex-1">
-                  <div class="font-medium">{{ room.roomNumber || room.roomType?.name }}</div>
+                  <div class="font-medium">{{ room.room.roomNumber || room.roomType?.roomTypeName }}</div>
                   <div class="text-sm text-gray-500">
                     {{ room.guest?.firstName }} {{ room.guest?.lastName }}
                   </div>
@@ -97,46 +76,8 @@
           </div>
         </div>
 
-        <!-- Unassign Date and Time -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ $t('Unassign Date') }}
-            </label>
-            <input
-              type="date"
-              v-model="formData.avheDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ $t('Unassign Time') }}
-            </label>
-            <input
-              type="time"
-              v-model="formData.avheTime"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
-          </div>
-        </div>
-
-        <!-- Notes -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            {{ $t('Notes') }} ({{ $t('Optional') }})
-          </label>
-          <textarea
-            v-model="formData.notes"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            :placeholder="$t('Add any notes about the room unassignment...')"
-          ></textarea>
-        </div>
       </div>
-    </template>
+
 
     <template #footer>
       <div class="flex justify-end space-x-3">

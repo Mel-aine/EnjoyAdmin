@@ -349,7 +349,7 @@ const filteredReservations = computed(() => {
       filtered = filtered.filter(
         reservation =>
           isToday(reservation.departDate) &&
-          (reservation.status === 'checked_in' || reservation.status === 'checked_in'),
+          (reservation.status === 'checked_in' || reservation.status === 'checked_out'),
       )
       break
     case 'inHouse':
