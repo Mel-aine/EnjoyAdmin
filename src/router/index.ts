@@ -1161,6 +1161,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/channex/booking-revisions',
+      name: 'ChannexBookingRevisions',
+      component: () => import('../views/Configuration/ChannelManager/ChannexBookingRevisions.vue'),
+      meta: {
+        title: 'Channex Booking Revisions',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/department',
       name: 'department',
       component: () => import('../views/DepartmentView.vue'),

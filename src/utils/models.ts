@@ -257,6 +257,38 @@ export interface CancellationPolicy {
   createdAt?: string // DATETIME
 }
 
+/**
+ * Interface representing hotel information and configuration
+ */
+export interface Hotel {
+  id?: number
+  hotelName: string
+  email: string
+  phoneNumber: string
+  fax?: string
+  website?: string
+  country: string
+  address: string
+  address2?: string
+  city: string
+  stateProvince: string
+  postalCode: string
+  propertyType: string
+  grade?: number
+  logoUrl?: string
+  registrationNo1?: string
+  registrationNo2?: string
+  registrationNo3?: string
+  cancellationPolicy?: string
+  hotelPolicy?: string
+  // New fields for channel manager integration
+  migrated: boolean // Set to true when migration is done successfully
+  channelEnable: boolean // Set to true if user activates channel manager
+  lastMigrationDate?: string // ISO 8601 datetime string - last time migration was done
+  createdAt?: string
+  updatedAt?: string
+}
+
 export interface FitlterItem {
   searchText: string
   status: string

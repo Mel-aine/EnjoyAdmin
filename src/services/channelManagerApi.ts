@@ -61,6 +61,90 @@ export interface RoomMapping {
   cancellationPolicy: string
 }
 
+// --- Channex Booking Revision Types ---
+export interface ChannexBookingRevision {
+  type: string
+  id: string
+  attributes: {
+    id: string
+    property_id: string
+    booking_id: string
+    unique_id: string
+    system_id: string
+    ota_reservation_code: string
+    ota_name: string
+    status: string
+    rooms: {
+      amount: string
+      checkin_date: string
+      checkout_date: string
+      rate_plan_id: string
+      room_type_id: string
+      ota_unique_id: string
+      days: Record<string, string>
+      occupancy: {
+        adults: number
+        children: number
+        infants: number
+      }
+    }[]
+    services: {
+      type: string
+      total_price: string
+      price_per_unit: string
+      price_mode: string
+      persons: number
+      nights: number
+      name: string
+    }[]
+    guarantee: {
+      expiration_date: string
+      cvv: string
+      cardholder_name: string
+      card_type: string
+      card_number: string
+    }
+    customer: {
+      zip: string
+      surname: string
+      phone: string
+      name: string
+      mail: string
+      language: string
+      country: string
+      city: string
+      address: string
+      company?: {
+        title: string
+        number: string
+        number_type: string
+        type: string
+      }
+    }
+    occupancy: {
+      adults: number
+      children: number
+      infants: number
+    }
+    arrival_date: string
+    departure_date: string
+    arrival_hour: string
+    amount: string
+    currency: string
+    notes: string
+    inserted_at: string
+  }
+}
+
+export interface ChannexBookingRevisionsResponse {
+  meta: {
+    total: number
+    page: number
+    limit: number
+  }
+  data: ChannexBookingRevision[]
+}
+
 export interface RateMapping {
   id: number
   pmsRatePlanId: number
@@ -539,6 +623,22 @@ export const getChannelRatePlans = (channelId: number): Promise<AxiosResponse<Ap
 }
 
 
+
+/**
+ * Get Channex booking revisions feed
+ * This endpoint retrieves booking revisions from Channex API
+ */
+export const getChannexBookingRevisions = (params?: {
+  page?: number
+  limit?: number
+}): Promise<AxiosResponse<ChannexBookingRevisionsResponse>> => {
+  const queryParams = new URLSearchParams()
+  if (params?.page) queryParams.append('page', params.page.toString())
+  if (params?.limit) queryParams.append('limit', params.limit.toString())
+  
+  const url = `${CHANNEX_API_URL}/booking-revisions/feed${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+  return axios.get(url, headers)
+}
 
 /**
  * Get iframe URL for channel
