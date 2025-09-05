@@ -18,6 +18,7 @@ import ReservationStatus from '../common/ReservationStatus.vue';
 import CheckOutReservation from './CheckOutReservation.vue';
 import CheckInReservation from './CheckInReservation.vue';
 import UnAssignRoomReservation from './UnAssignRoomReservation.vue';
+import AssignRoomReservation from './AssignRoomReservation.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -118,6 +119,13 @@ const openUnAssignReservationModal = () => {
 const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
 }
+
+const handleRoomAssigned = (data: any) => {
+  console.log('Room assigned:', data)
+  // Emit save event to notify parent components to refresh
+  emit('save', { action: 'roomAssigned', reservationId: props.reservation.id, data })
+}
+
 const handleSavePayment = (data: any) => {
   console.log('Add payment data:', data)
   // Emit save event to notify parent components
@@ -140,7 +148,7 @@ const roomRateTypeSummary = computed(() => {
   }
   const filterReservationRoom = props.reservation.reservationRooms.filter((room: any) => room.isOwner)
   const reservationRoom = filterReservationRoom &&filterReservationRoom.length >0  ? filterReservationRoom[0] : props.reservation.reservationRooms[0];
-  return `${reservationRoom.room?.roomNumber}`
+  return  reservationRoom.room?.roomNumber?`${reservationRoom.room?.roomNumber}`:null
 });
 // Icon mapping for different actions
 const actionIconMap = {
@@ -339,9 +347,15 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
-            <span>
+            <span v-if="roomRateTypeSummary">
               {{ roomRateTypeSummary }}
             </span>
+            <AssignRoomReservation 
+              v-else 
+              :reservation="reservation" 
+              @refresh="$emit('save')" 
+              @assigned="handleRoomAssigned" 
+            />
           </div>
           <div class="flex gap-1">
             <ReservationStatus :status="reservation.status" />

@@ -138,6 +138,18 @@ export const unAssignRoomReservation = async (reservationId: number, datas: any)
   }
 }
 
+export const assignRoomReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/assign-room`, datas, headers
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 
 /**
  * create Reservation

@@ -443,10 +443,8 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-vue-next'
-import { 
-  getChannexBookingRevisions, 
-  type ChannexBookingRevision 
-} from '@/services/channelManagerApi'
+import { getChannexBookingRevisions } from '@/services/channelManagerApi'
+import type { ChannexBookingRevision } from '@/services/channelManagerApi'
 import { 
   fetchAndProcessBookingRevisions, 
   processBookingRevision 

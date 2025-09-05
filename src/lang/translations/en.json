@@ -5794,6 +5794,7 @@
   "Miss" : "Miss", 
   "SelectRateType" : "Select Rate Type",
   "SelectBusinessSource" : "Select Business Source",
-  "SelectBookingSource" : "Select Booking Source"
+  "SelectBookingSource" : "Select Booking Source",
+  "assignRoom":"Assign Room"
 
 }

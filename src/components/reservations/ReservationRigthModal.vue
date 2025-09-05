@@ -223,9 +223,11 @@
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
-                                            <div v-else>
-                                                <button>assign room</button>
-                                            </div>
+                                            <AssignRoomReservation 
+                                                v-else 
+                                                :reservationRoom="reservation.reservationRooms?.[0]" 
+                                                @assigned="handleRoomAssigned" 
+                                            />
                                         </div>
 
                                         <div
@@ -378,6 +380,7 @@ import GroupReservationRoomList from './GroupReservationRoomList.vue'
 import CheckOutReservation from './CheckOutReservation.vue'
 import CheckInReservation from './CheckInReservation.vue'
 import UnAssignRoomReservation from './UnAssignRoomReservation.vue'
+import AssignRoomReservation from './AssignRoomReservation.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -497,6 +500,11 @@ const openUnAssignReservationModal = () => {
 
 const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
+}
+
+const handleRoomAssigned = (data: any) => {
+    console.log('Room assigned:', data)
+    getBookingDetailsById();
 }
 
 const closeAddPaymentModal = () => {
