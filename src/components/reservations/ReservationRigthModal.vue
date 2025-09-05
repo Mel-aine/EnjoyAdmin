@@ -338,6 +338,12 @@
             <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
                 @close="closeCheckInReservationModal" />
         </template>
+
+        <!--unassign template-->
+          <template v-if="isUnAssignModalOpen">
+            <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
+                @close="closeUnAssignReservationModal" />
+        </template>
     </template>
 
 
@@ -371,6 +377,7 @@ import NoShowReservation from './foglio/NoShowReservation.vue'
 import GroupReservationRoomList from './GroupReservationRoomList.vue'
 import CheckOutReservation from './CheckOutReservation.vue'
 import CheckInReservation from './CheckInReservation.vue'
+import UnAssignRoomReservation from './UnAssignRoomReservation.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -430,6 +437,7 @@ const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
+const isUnAssignModalOpen = ref(false)
 const reservationId = ref(props.reservationData?.reservation_id || 0)
 
 
@@ -481,6 +489,14 @@ const openCheckInReservationModal = () => {
 
 const closeCheckInReservationModal = () => {
     isCkeckInModalOpen.value = false
+}
+
+const openUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = true
+}
+
+const closeUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = false
 }
 
 const closeAddPaymentModal = () => {

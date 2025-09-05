@@ -17,6 +17,7 @@ import NoShowReservation from './foglio/NoShowReservation.vue';
 import ReservationStatus from '../common/ReservationStatus.vue';
 import CheckOutReservation from './CheckOutReservation.vue';
 import CheckInReservation from './CheckInReservation.vue';
+import UnAssignRoomReservation from './UnAssignRoomReservation.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -106,6 +107,16 @@ const openCheckInReservationModal = () => {
 
 const closeCheckInReservationModal = () => {
     isCkeckInModalOpen.value = false
+}
+
+const isUnAssignModalOpen = ref(false)
+
+const openUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = true
+}
+
+const closeUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = false
 }
 const handleSavePayment = (data: any) => {
   console.log('Add payment data:', data)
@@ -391,6 +402,12 @@ const formatDate = (dateString: string) => {
   <template v-if="isCkeckInModalOpen">
             <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
                 @close="closeCheckInReservationModal" />
+  </template>
+
+   <!--unassign template-->
+  <template v-if="isUnAssignModalOpen">
+            <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
+                @close="closeUnAssignReservationModal" />
   </template>
 
   <!-- Print Modal -->

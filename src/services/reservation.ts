@@ -125,6 +125,18 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
 }
 
 
+// Check-in d'une réservation
+export const unAssignRoomReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/unassign`, datas, headers
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 
 
 /**
