@@ -559,6 +559,7 @@ const isToday = (dateString: string) => {
 
 // Check if guest is currently in house
 const isInHouse = (reservation: any) => {
+  if (!reservation.arrivedDate || !reservation.departDate) return false
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -569,9 +570,9 @@ const isInHouse = (reservation: any) => {
   checkOutDate.setHours(0, 0, 0, 0)
 
   return (
-    (reservation.status === 'checked-in' || reservation.status === 'checked_in') &&
+    (reservation.status === 'checked_in' || reservation.status === 'checked-in') &&
     checkInDate.getTime() <= today.getTime() &&
-    checkOutDate.getTime() >= today.getTime()
+    checkOutDate.getTime() > today.getTime()
   )
 }
 
