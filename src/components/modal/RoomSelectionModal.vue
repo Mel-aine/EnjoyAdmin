@@ -133,33 +133,6 @@
               </select>
             </div>
 
-            <!-- Available Rooms Section -->
-            <div class="mb-6" v-if="availableRoomsByReservation[ind]?.length > 0">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Available Rooms</label>
-              <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-                <button
-                  v-for="room in availableRoomsByReservation[ind]"
-                  :key="room.id"
-                  @click="selectRoom(room, ind)"
-                  :class="{
-                    'bg-blue-100 border-blue-500 text-blue-700': selectedRoomsByReservation[ind]?.id === room.id,
-                    'bg-white border-gray-300 text-gray-700 hover:bg-gray-50': selectedRoomsByReservation[ind]?.id !== room.id
-                  }"
-                  class="p-3 border rounded-lg text-left transition-colors focus:ring-2 focus:ring-blue-500"
-                >
-                  <div class="font-medium">{{ room.roomNumber }}</div>
-                  <div class="text-xs text-gray-500">{{ room.roomName }}</div>
-                  <div class="text-xs" :class="{
-                    'text-green-600': room.status === 'available',
-                    'text-yellow-600': room.status === 'occupied',
-                    'text-red-600': room.status === 'maintenance'
-                  }">
-                    {{ room.status }}
-                  </div>
-                </button>
-              </div>
-            </div>
-
             <!-- Room Number Input -->
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('Room') }}</label>
