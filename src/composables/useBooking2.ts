@@ -262,10 +262,12 @@ export function useBooking() {
   })
 
   const businessSourcesLo = ref<any>([])
+  const marketCodesLo = ref<any>([])
   // Options depuis le store
   const BookingSource = computed(() => serviceStore.bookingSources || [])
   const BusinessSource = computed(() => businessSourcesLo.value || [])
   const BookingType = computed(() => serviceStore.reservationType || [])
+  const MarketCode = computed(() => marketCodesLo.value || [])
 
   const creditTypes = computed(() => [
     { label: 'Visa', value: 'visa' },
@@ -289,6 +291,20 @@ export function useBooking() {
       }))
   }
   getBusinessSource();
+
+  const getMarketCode = async () => {
+    try {
+      const resp = await getMarketCodes();
+      console.log('Market Codes response:', resp);
+      marketCodesLo.value = resp.data?.data?.data.map((s: any) => ({
+        value: s.code,
+        label: s.name
+      }));
+    } catch (error) {
+      console.error('Error fetching market codes:', error);
+    }
+  }
+  getMarketCode();
   // Watchers
   // watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
   //   const arrivalDate = reservation.value.checkinDate
@@ -1367,6 +1383,7 @@ const showCheckinButton = computed(() => {
     // Options
     BookingSource,
     BusinessSource,
+    MarketCode,
     BookingType,
     creditTypes,
     billToOptions,

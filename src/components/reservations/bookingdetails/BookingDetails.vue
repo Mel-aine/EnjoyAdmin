@@ -4,11 +4,11 @@
     <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
       <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
       <span class="text-gray-600">{{ $t('Reserved') }} {{ statusCounts.reserved }}</span>
-      <span class="text-gray-600">{{ $t('Due Out') }} {{ statusCounts.dueOut }}</span>
+      <span class="text-gray-600">{{ $t('DueOut') }} {{ statusCounts.dueOut }}</span>
       <span class="text-gray-600">{{ $t('Departed') }} {{ statusCounts.departed }}</span>
       <span class="text-gray-600">{{ $t('Void') }} {{ statusCounts.void }}</span>
-      <span class="text-gray-600">{{ $t('No Show') }} {{ statusCounts.noShow }}</span>
-      <span class="text-gray-600">{{ $t('In House') }} {{ statusCounts.inHouse }}</span>
+      <span class="text-gray-600">{{ $t('NoShow') }} {{ statusCounts.noShow }}</span>
+      <span class="text-gray-600">{{ $t('InHouse') }} {{ statusCounts.inHouse }}</span>
       <span class="text-gray-600">{{ $t('Cancel') }} {{ statusCounts.cancel }}</span>
       <div class="ml-auto flex flex-wrap gap-3 md:gap-6">
         <span class="text-gray-600">{{ $t('Remark') }} {{ remarkCount }}</span>
@@ -54,7 +54,7 @@
         <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl">
-              {{ $t('Billing Information') }}
+              {{ $t('BillingInformation') }}
             </h3>
           </div>
           
@@ -63,7 +63,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
-                  :lb="$t('Bill To')"
+                  :lb="$t('BillTo')"
                   v-model="billingData.billTo"
                   :options="billToOptions"
                   :placeholder="$t('Company')"
@@ -74,15 +74,15 @@
               <!-- Type Section -->
               <div>
                 <div class="flex flex-col md:flex-row md:space-x-4">
-                    <Radio
-                      :label="$t('type')"
-                      :options="[
-                        { value: 'cash', label: $t('Cash') },
-                        { value: 'credit', label: $t('Credit') }
-                      ]"
-                      v-model="billingData.type"
-                      :disabled="!editMode"
-                    />
+                  <Radio
+                    :label="$t('type')"
+                    :options="[
+                      { value: 'cash', label: $t('Cash') },
+                      { value: 'credit', label: $t('Credit') }
+                    ]"
+                    v-model="billingData.type"
+                    :disabled="!editMode"
+                  />
                 </div>
               </div>
             </div>
@@ -91,7 +91,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
-                  :lb="$t('Payment Mode')"
+                  :lb="$t('PaymentMode')"
                   v-model="billingData.paymentMode"
                   :options="paymentModeOptions"
                   :placeholder="$t('Cash')"
@@ -101,10 +101,10 @@
               
               <div>
                 <Input
-                  :lb="$t('GSTIN No')"
+                  :lb="$t('GSTINNo')"
                   v-model="billingData.gstinNo"
                   type="text"
-                  :placeholder="$t('GST Number')"
+                  :placeholder="$t('GSTNumber')"
                   :disabled="!editMode"
                 />
               </div>
@@ -113,10 +113,10 @@
             <!-- Reservation Type -->
             <div>
               <Select
-                :lb="$t('Reservation Type')"
+                :lb="$t('ReservationType')"
                 v-model="billingData.reservationType"
                 :options="reservationTypeOptions"
-                :placeholder="$t('Confirm Booking')"
+                :placeholder="$t('ConfirmBooking')"
                 :disabled="!editMode"
               />
             </div>
@@ -128,7 +128,7 @@
       <div class="lg:col-span-5">
         <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
-          <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('Source Information') }}</h3>
+            <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('SourceInformation') }}</h3>
             <button
               class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
               @click="toggleEditMode"
@@ -163,9 +163,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Select
-                  :lb="$t('Market Code')"
+                  :lb="$t('MarketCode')"
                   v-model="sourceData.marketCode"
-                  :options="marketCodeOptions"
+                  :options="MarketCode"
                   :placeholder="$t('-Select-')"
                   :disabled="!editMode"
                 />
@@ -173,9 +173,9 @@
               
               <div>
                 <Select
-                  :lb="$t('Business Source')"
-                  v-model="sourceData.businessSource"
-                  :options="businessSourceOptions"
+                  :lb="$t('BusinessSource')"
+                  v-model="sourceData.sourceOfBusiness"
+                  :options="BusinessSource"
                   :placeholder="$t('-Select-')"
                   :disabled="!editMode"
                 />
@@ -186,65 +186,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Input
-                  :lb="$t('Voucher No.')"
+                  :lb="$t('VoucherNo')"
                   v-model="sourceData.voucherNo"
                   type="text"
-                  :placeholder="$t('Voucher No')"
+                  :placeholder="$t('VoucherNo')"
                   :disabled="!editMode"
                 />
               </div>
-              <!-- travel agent -->
-<!--               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Travelagent') }}</label>
-                <div class="flex">
-                  <div class="flex-1">
-                    <Select
-                      v-model="sourceData.travelAgent"
-                      :options="travelAgentOptions"
-                      :placeholder="$t('-Select-')"
-                      :disabled="!editMode"
-                      customClass="rounded-r-none"
-                    />
-                  </div>
-                  <button 
-                    class="px-3 py-2 bg-gray-200 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-300 transition-colors"
-                    :disabled="!editMode"
-                  >
-                    <UserCircleIcon class="w-4 h-4" />
-                  </button>
-                </div>
-              </div> -->
-              <div>
-                <div class="flex">
-                <InputCurrency
-                  v-model="sourceData.planValue"
-                  :lb="$t('Plan Value')"
-                  id="plan-value"
-                  :disabled="!editMode"
-                  :show-currency-selector="true"
-                  placeholder="Entrez la valeur du plan"
-                  input-type="number"
-                  :is-required="false"
-                  :min="0"
-                  currency="XAF"/>
-                </div>
-              </div>
-              
-              <!-- Commission -->
-
-<!--               <div>
-                <Select
-                  :lb="$t('Commission Plan')"
-                  v-model="sourceData.commissionPlan"
-                  :options="commissionPlanOptions"
-                  :placeholder="$t('--Select--')"
-                  :disabled="!editMode"
-                />
-              </div> -->
-            </div>
-
-            <!-- Company and Sales Person -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
                 <div class="flex">
@@ -258,22 +206,12 @@
                     />
                   </div>
                   <button 
-                    class=" w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
+                    class="w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
                     :disabled="!editMode"
                   >
                     <Building class="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-              
-              <div>
-                <Select
-                  :lb="$t('Sales Person')"
-                  v-model="sourceData.salesPerson"
-                  :options="salesPersonOptions"
-                  :placeholder="$t('-Select-')"
-                  :disabled="!editMode"
-                />
               </div>
             </div>
           </div>
@@ -296,62 +234,72 @@
           </div>
         </div>
 
-        <!-- Center - Checkboxes -->
+        <!-- Center - Checkboxes with unique keys -->
         <div class="flex flex-col md:flex-row md:items-center md:space-x-6 gap-2 md:gap-0 text-sm">
           <label class="flex items-center">
             <InputCheckbox
+              :key="`sendMail-${selectedRoom?.id}-${roomOptions.sendMail}`"
               type="checkbox" 
-              v-model="options.sendMail" 
+              v-model="roomOptions.sendMail" 
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Send Mail') }}
+            {{ $t('SendMail') }}
+            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.sendMail ? 'true' : 'false' }})</span>
           </label>
           <label class="flex items-center">
             <InputCheckbox
+              :key="`checkOutMail-${selectedRoom?.id}-${roomOptions.checkOutMail}`"
               type="checkbox" 
-              v-model="options.checkOutMail" 
+              v-model="roomOptions.checkOutMail" 
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Check Out Mail') }}
+            {{ $t('CheckOutMail') }}
+            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.checkOutMail ? 'true' : 'false' }})</span>
           </label>
           <label class="flex items-center">
             <InputCheckbox
+              :key="`thankYouEmail-${selectedRoom?.id}-${roomOptions.thankYouEmail}`"
               type="checkbox" 
-              v-model="options.thankYouEmail" 
+              v-model="roomOptions.thankYouEmail" 
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Thank You email to Guest') }}
+            {{ $t('thankYouEmail') }}
+            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.thankYouEmail ? 'true' : 'false' }})</span>
           </label>
           <label class="flex items-center">
             <InputCheckbox
+              :key="`suppressRate-${selectedRoom?.id}-${roomOptions.suppressRate}`"
               type="checkbox" 
-              v-model="options.suppressRate" 
+              v-model="roomOptions.suppressRate" 
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Supress Rate on GR Card') }}
+            {{ $t('SupressRateOnGRCard') }}
+            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.suppressRate ? 'true' : 'false' }})</span>
           </label>
           <label class="flex items-center">
-            <InputCheckbox 
+            <InputCheckbox
+              :key="`accessGuestPortal-${selectedRoom?.id}-${roomOptions.accessGuestPortal}`"
               type="checkbox" 
-              v-model="options.accessGuestPortal" 
+              v-model="roomOptions.accessGuestPortal" 
               :disabled="!editMode" 
               class="mr-2"
             />
-            {{ $t('Access Guest Portal') }}
+            {{ $t('AccessGuestPortal') }}
+            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.accessGuestPortal ? 'true' : 'false' }})</span>
           </label>
         </div>
         
         <!-- Right side - Action Buttons -->
         <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
-          <BasicButton variant="secondary" :label="$t('Apply To Group')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
+          <BasicButton variant="secondary" :label="$t('ApplyToGroup')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
           <BasicButton 
             v-if="editMode"
             variant="primary" 
-            :label="$t('Save Changes')" 
+            :label="$t('SaveChanges')" 
             @click="saveChanges"
             :disabled="isSaving"
             :loading="isSaving" 
@@ -364,7 +312,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../../buttons/BasicButton.vue'
@@ -373,8 +321,10 @@ import InputCheckbox from '../../forms/FormElements/InputCheckBox.vue'
 import Radio from '@/components/forms/FormElements/RadioGroup .vue'
 import Select from '../../forms/FormElements/Select.vue'
 import { ChevronRight, Building } from 'lucide-vue-next'
-import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
+import { useBooking } from '@/composables/useBooking2'
+import { getCompanies } from '@/services/companyApi'
+import { updateReservationRoomById } from '@/services/configrationApi'
 
 interface Props {
   booking?: any
@@ -391,7 +341,7 @@ interface BillingData {
 
 interface SourceData {
   marketCode: string
-  businessSource: string
+  sourceOfBusiness:string
   travelAgent: string
   voucherNo: string
   commissionPlan: string
@@ -400,7 +350,7 @@ interface SourceData {
   salesPerson: string
 }
 
-interface Options {
+interface RoomOptions {
   sendMail: boolean
   checkOutMail: boolean
   thankYouEmail: boolean
@@ -418,12 +368,35 @@ const toast = useToast()
 const editMode = ref(false)
 const isSaving = ref(false)
 const selectedRoom = ref<any>(null)
+const companyOptions = ref<Array<{ label: string; value: string }>>([])
+
+// CHANGEMENT PRINCIPAL : Utiliser ref au lieu de reactive pour roomOptions
+const roomOptions = ref<RoomOptions>({
+  sendMail: false,
+  checkOutMail: false,
+  thankYouEmail: false,
+  suppressRate: false,
+  accessGuestPortal: false
+})
 
 // Computed properties for booking data
 const bookingData = computed(() => props.booking || {})
 const guestData = computed(() => props.guest || {})
 
 // Computed properties for room data
+const getCompaniesList = async () => {
+  try {
+    const resp = await getCompanies()
+    console.log('Companies response:', resp)
+    companyOptions.value = resp.map((c: any) => ({
+      label: c.companyName,
+      value: c.companyCode
+    }))
+  } catch (error) {
+    console.error('Error fetching companies:', error)
+  }
+}
+
 const reservationRooms = computed(() => {
   return bookingData.value.reservationRooms || []
 })
@@ -431,6 +404,39 @@ const reservationRooms = computed(() => {
 const selectedRoomId = computed(() => {
   return selectedRoom.value?.id || ''
 })
+
+const UpdateReservationRoom = async () => {
+  try {
+    if (!selectedRoomId.value) {
+      throw new Error('No room selected')
+    }
+    
+    // Créer l'objet de mise à jour avec les options actuelles
+    const updateData = {
+      sendMail: roomOptions.value.sendMail,
+      checkOutMail: roomOptions.value.checkOutMail,
+      thankYouEmail: roomOptions.value.thankYouEmail,
+      supressRate: roomOptions.value.suppressRate,
+      accessGuestPortal: roomOptions.value.accessGuestPortal
+    }
+    
+    console.log('Updating reservation room with ID:', selectedRoomId.value)
+    console.log('Update data:', updateData)
+    
+    const response = await updateReservationRoomById(selectedRoomId.value, updateData)
+    console.log('Reservation room updated:', response.data)
+    
+    // Mettre à jour l'objet selectedRoom avec les nouvelles valeurs
+    if (selectedRoom.value) {
+      Object.assign(selectedRoom.value, updateData)
+    }
+    
+    return response.data
+  } catch (error) {
+    console.error('Error updating reservation room:', error)
+    throw error
+  }
+}
 
 const totalRooms = computed(() => reservationRooms.value.length)
 
@@ -486,8 +492,8 @@ const billingData = reactive<BillingData>({
 })
 
 const sourceData = reactive<SourceData>({
-  marketCode: '',
-  businessSource: '',
+  marketCode: '',  
+  sourceOfBusiness: '',
   travelAgent: '',
   voucherNo: '',
   commissionPlan: '',
@@ -496,21 +502,7 @@ const sourceData = reactive<SourceData>({
   salesPerson: ''
 })
 
-const options = reactive<Options>({
-  sendMail: false,
-  checkOutMail: false,
-  thankYouEmail: false,
-  suppressRate: false,
-  accessGuestPortal: false
-})
-
 // Options for select fields
-const billToOptions = computed(() => [
-  { label: t('Company'), value: 'company' },
-  { label: t('Individual'), value: 'individual' },
-  { label: t('Agent'), value: 'agent' }
-])
-
 const paymentModeOptions = computed(() => [
   { label: t('Cash'), value: 'cash' },
   { label: t('Credit Card'), value: 'credit_card' },
@@ -518,51 +510,23 @@ const paymentModeOptions = computed(() => [
   { label: t('Check'), value: 'check' }
 ])
 
+const {
+  // Options
+  BookingSource,
+  BusinessSource,
+  BookingType,
+  creditTypes,
+  billToOptions,
+  MarketCode,
+  emailTemplates,
+  reservationId,
+} = useBooking()
+
 const reservationTypeOptions = computed(() => [
   { label: t('Confirm Booking'), value: 'confirm_booking' },
   { label: t('Tentative Booking'), value: 'tentative_booking' },
   { label: t('Waitlist'), value: 'waitlist' },
   { label: t('Booking inquiry'), value: 'Booking inquiry' }
-])
-
-const marketCodeOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Corporate'), value: 'corporate' },
-  { label: t('Leisure'), value: 'leisure' },
-  { label: t('Group'), value: 'group' }
-])
-
-const businessSourceOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Walk-in'), value: 'walk_in' },
-  { label: t('Online'), value: 'online' },
-  { label: t('Phone'), value: 'phone' },
-  { label: t('Agent'), value: 'agent' },
-  { label: t('Indirect Bookings'), value: 'Indirect Bookings' }
-])
-
-const travelAgentOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Agent 1'), value: 'agent_1' },
-  { label: t('Agent 2'), value: 'agent_2' }
-])
-
-const commissionPlanOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Standard 10%'), value: 'standard_10' },
-  { label: t('Premium 15%'), value: 'premium_15' }
-])
-
-const companyOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Company A'), value: 'company_a' },
-  { label: t('Company B'), value: 'company_b' }
-])
-
-const salesPersonOptions = computed(() => [
-  { label: t('-Select-'), value: '' },
-  { label: t('Sales Rep 1'), value: 'sales_1' },
-  { label: t('Sales Rep 2'), value: 'sales_2' }
 ])
 
 // Methods
@@ -573,20 +537,48 @@ const getGuestName = (room: any) => {
   return guestData.value.displayName || `${guestData.value.firstName} ${guestData.value.lastName}` || t('Guest')
 }
 
+// CHANGEMENT PRINCIPAL : Fonction modifiée pour utiliser ref
+const updateRoomOptions = (room: any) => {
+  // Créer un nouvel objet pour forcer la réactivité
+  roomOptions.value = {
+    sendMail: room?.sendMail || false,
+    checkOutMail: room?.checkOutMail || false,
+    thankYouEmail: room?.thankYouEmail || false,
+    suppressRate: room?.supressRate || false,
+    accessGuestPortal: room?.accessGuestPortal || false
+  }
+  
+  console.log('Room options updated:', roomOptions.value)
+  console.log('Room data received:', {
+    sendMail: room?.sendMail,
+    checkOutMail: room?.checkOutMail,
+    thankYouEmail: room?.thankYouEmail,
+    supressRate: room?.supressRate,
+    accessGuestPortal: room?.accessGuestPortal
+  })
+}
+
 const selectRoom = (room: any) => {
+  console.log('Selecting room:', room)
   selectedRoom.value = room
+  
+  // Forcer la mise à jour des options de la chambre
+  nextTick(() => {
+    updateRoomOptions(room)
+  })
+  
   // Mettre à jour les données de source avec les informations de la chambre sélectionnée
   if (room) {
     sourceData.voucherNo = bookingData.value.reservationNumber || ''
     sourceData.planValue = room.roomRate || ''
-    // Autres mises à jour si nécessaire
   }
 }
 
 const toggleEditMode = () => {
   editMode.value = !editMode.value
   if (!editMode.value) {
-    // Reset data when canceling edit
+    // Reset data when canceling edit - remettre les valeurs originales de la chambre
+    updateRoomOptions(selectedRoom.value)
     initBillingData()
     initSourceData()
   }
@@ -596,10 +588,10 @@ const saveChanges = async () => {
   isSaving.value = true
   try {
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    await UpdateReservationRoom()
     console.log('Saving billing data:', billingData)
     console.log('Saving source data:', sourceData)
-    console.log('Saving options:', options)
+    console.log('Saving options:', roomOptions.value)
     
     toast.success(t('Changes saved successfully'))
     editMode.value = false
@@ -648,10 +640,10 @@ const initSourceData = () => {
   if (bookingData.value) {
     // Set market code and business source if available in booking data
     if (bookingData.value.sourceOfBusiness) {
-      sourceData.businessSource = bookingData.value.sourceOfBusiness
+      sourceData.sourceOfBusiness = bookingData.value.sourceOfBusiness
     }
     
-    // Set voucher number from booking data - CORRECTION ICI
+    // Set voucher number from booking data
     if (bookingData.value.reservationNumber) {
       sourceData.voucherNo = bookingData.value.reservationNumber
     }
@@ -671,15 +663,20 @@ const initSourceData = () => {
 }
 
 // Initialize data when component is mounted or props change
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
+  
   // Sélectionner la première chambre par défaut
   if (reservationRooms.value.length > 0) {
     selectedRoom.value = reservationRooms.value[0]
+    updateRoomOptions(selectedRoom.value)
+    console.log('Initial room selected:', selectedRoom.value)
   }
   
   // Initialiser les données après avoir sélectionné la chambre
   initBillingData()
   initSourceData()
+  getCompaniesList()
   
   console.log('BookingDetails mounted with booking:', bookingData.value)
 })
@@ -690,12 +687,29 @@ watch(() => props.booking, (newBooking) => {
     // Sélectionner la première chambre si aucune n'est sélectionnée
     if (!selectedRoom.value && reservationRooms.value.length > 0) {
       selectedRoom.value = reservationRooms.value[0]
+      updateRoomOptions(selectedRoom.value)
     }
     
     initBillingData()
     initSourceData()
   }
-}, { deep: true })
+}, { deep: true, immediate: true })
+
+// NOUVEAU WATCHER : Watch for changes in selected room avec deep watching
+watch(selectedRoom, (newRoom, oldRoom) => {
+  console.log('Room changed from:', oldRoom?.id, 'to:', newRoom?.id)
+  if (newRoom && newRoom.id !== oldRoom?.id) {
+    // Forcer la mise à jour des options avec les valeurs de la nouvelle chambre
+    nextTick(() => {
+      updateRoomOptions(newRoom)
+    })
+    
+    // Mettre à jour les données spécifiques à la chambre
+    if (newRoom.roomRate) {
+      sourceData.planValue = newRoom.roomRate
+    }
+  }
+}, { deep: true, immediate: false })
 
 // Watch for changes in guest data
 watch(() => props.guest, (newGuest) => {
@@ -703,16 +717,6 @@ watch(() => props.guest, (newGuest) => {
     initBillingData()
   }
 }, { deep: true })
-
-// Watch for changes in selected room
-watch(selectedRoom, (newRoom) => {
-  if (newRoom) {
-    // Mettre à jour les données spécifiques à la chambre
-    if (newRoom.roomRate) {
-      sourceData.planValue = newRoom.roomRate
-    }
-  }
-})
 </script>
 
 <style scoped>
