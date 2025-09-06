@@ -519,6 +519,25 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Custom Reports
+    {
+      path: '/reports/custom/monthly-occupancy',
+      name: 'OccupancyMonth',
+      component: () => import('../views/Reports/Custom/OccupancyMonthly.vue'),
+      meta: {
+        title: 'Occupancy Month',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/pdf-viewer',
+      name: 'PDFViewer',
+      component: () => import('@/views/PDFViewer.vue'),
+      meta: {
+        title: 'PDF Viewer',
+        requiresAuth: true
+      }
+    },
     // Additional Front Office Reports
     {
       path: '/reports/front-office/guest-list',
