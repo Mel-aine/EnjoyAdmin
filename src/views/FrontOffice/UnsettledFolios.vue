@@ -3,8 +3,6 @@
     <PageBreadcrumb :pageTitle="$t('unsettledFolios.title')" :breadcrumb="breadcrumb" />
     
     <div class="space-y-6">
-      <!-- Filter Component -->
-      <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
       
       <!-- Unsettled Folios Table -->
       <ReusableTable
@@ -20,11 +18,15 @@
         @selection-change="onSelectionChange"
         @action="onAction"
       >
+        <!-- Custom header slot for filters -->
+        <template #header-actions>
+          <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
+        </template>
         <!-- Custom column templates -->
         
         <template #column-balance="{ item }">
           <span :class="getBalanceClass(item.balance)" class="text-sm font-semibold">
-            Rs {{ item.balance.toFixed(2) }}
+          {{ formatBalance(item.balance) }}
           </span>
         </template>
         
@@ -52,7 +54,10 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import UnsettledFoliosFilter from '@/components/filters/UnsettledFoliosFilter.vue'
 import { FileTextIcon, DollarSignIcon, TrendingUpIcon, ClockIcon, EyeIcon, PrinterIcon, MailIcon } from 'lucide-vue-next'
+import { getUnsetteledFolio } from '@/services/foglioApi.ts' // Assume this API exists
+import { useServiceStore } from '@/composables/serviceStore'
 
+const serviceStore = useServiceStore()  
 const { t } = useI18n()
 
 // Define interfaces
@@ -190,7 +195,11 @@ const summary = computed(() => {
     oldestFolioDays: oldestFolio
   }
 })
-
+const formatBalance = (balance: string | number) => {
+  // Convertir en nombre si c'est une string
+  const balanceValue = typeof balance === 'string' ? parseFloat(balance) : balance
+  return balanceValue.toFixed(2)
+}
 // Methods
 const handleFilter = (filters: FolioFilterItem) => {
   currentFilters.value = { ...filters }
@@ -216,6 +225,24 @@ const onAction = (action: any, folio: UnsettledFolio) => {
       break
   }
 }
+const fetchUnsettledFolios = async () => {
+  const serviceId = serviceStore.serviceId
+  loading.value = true
+  try {
+    const data = await getUnsetteledFolio(serviceId!)
+    folios.value = data.data.data.map((folio: any) => ({
+      ...folio,
+      guestName: folio.folioName,
+      reservationNumber: folio.reservationId
+    }))
+    console.log('Fetched unsettled folios:', folios.value)
+  } catch (error) {
+    console.error('Error fetching unsettled folios:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 
 // Utility methods for styling
 const getBalanceClass = (balance: number) => {
@@ -253,6 +280,7 @@ const getDaysClass = (days: number) => {
 onMounted(() => {
   // Load initial data
   loading.value = false
+  fetchUnsettledFolios()
 })
 </script>
 

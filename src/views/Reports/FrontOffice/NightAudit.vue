@@ -379,23 +379,23 @@ const roomChargesHeaders = ref<TableHeader[]>([
   { key: 'company', label: 'Company', align: 'left' },
   { key: 'rentDate', label: 'Rent Date', align: 'left' },
   { key: 'rateType', label: 'Rate Type', align: 'left' },
-  { key: 'normalTariff', label: 'Ntml. Tariff (Rs)', align: 'right' },
-  { key: 'offeredTariff', label: 'Ofrd.Tariff (Rs)', align: 'right' },
-  { key: 'totalTax', label: 'Total Tax (Rs)', align: 'right' },
-  { key: 'totalRent', label: 'Total Rent (Rs)', align: 'right' },
+  { key: 'normalTariff', label: 'Ntml. Tariff ', align: 'right' },
+  { key: 'offeredTariff', label: 'Ofrd.Tariff ', align: 'right' },
+  { key: 'totalTax', label: 'Total Tax ', align: 'right' },
+  { key: 'totalRent', label: 'Total Rent ', align: 'right' },
   { key: 'variation', label: 'Var %', align: 'right' },
   { key: 'checkinBy', label: 'Checkin By', align: 'left' }
 ])
 
 const dailySalesHeaders = ref<TableHeader[]>([
   { key: 'salesType', label: 'Sales Type', align: 'left' },
-  { key: 'roomCharges', label: 'Room Charges (Rs)', align: 'right' },
-  { key: 'extraCharges', label: 'Extra Charges (Rs)', align: 'right' },
-  { key: 'roomTax', label: 'Room Tax (Rs)', align: 'right' },
-  { key: 'extraTax', label: 'Extra Tax (Rs)', align: 'right' },
-  { key: 'discount', label: 'Discount (Rs)', align: 'right' },
-  { key: 'adjustment', label: 'Adjustment (Rs)', align: 'right' },
-  { key: 'totalSales', label: 'Total Sales (Rs)', align: 'right' }
+  { key: 'roomCharges', label: 'Room Charges ', align: 'right' },
+  { key: 'extraCharges', label: 'Extra Charges ', align: 'right' },
+  { key: 'roomTax', label: 'Room Tax ', align: 'right' },
+  { key: 'extraTax', label: 'Extra Tax ', align: 'right' },
+  { key: 'discount', label: 'Discount ', align: 'right' },
+  { key: 'adjustment', label: 'Adjustment ', align: 'right' },
+  { key: 'totalSales', label: 'Total Sales ', align: 'right' }
 ])
 
 // Data for tables

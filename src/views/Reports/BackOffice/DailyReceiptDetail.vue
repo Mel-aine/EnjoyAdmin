@@ -182,7 +182,7 @@
                     Payment Mode
                   </td>
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    Cash (Rs)
+                    Cash 
                   </td>
                   <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
                     {{ paymentModeTotal }}
@@ -211,7 +211,7 @@
                 <!-- Grand Total Row -->
                 <tr class="bg-gray-100 dark:bg-gray-700 font-bold border-t-2 border-gray-400 dark:border-gray-500">
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="3">
-                    Grand Total (Rs)
+                    Grand Total 
                   </td>
                   <td class="px-4 py-3 text-sm text-right font-bold text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-600">
                     {{ grandTotal }}

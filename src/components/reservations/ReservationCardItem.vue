@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import ButtomDropdownAction from '../common/ButtomDropdownAction.vue';
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next';
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, Users, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { formatCurrency, formatTime } from '../utilities/UtilitiesFunction';
 import router from '../../router';
@@ -14,6 +14,11 @@ import VoidReservation from './foglio/VoidReservation.vue';
 import AmendStay from './foglio/AmendStay.vue';
 import AddPaymentModal from './foglio/AddPaymentModal.vue';
 import NoShowReservation from './foglio/NoShowReservation.vue';
+import ReservationStatus from '../common/ReservationStatus.vue';
+import CheckOutReservation from './CheckOutReservation.vue';
+import CheckInReservation from './CheckInReservation.vue';
+import UnAssignRoomReservation from './UnAssignRoomReservation.vue';
+import AssignRoomReservation from './AssignRoomReservation.vue';
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -55,6 +60,8 @@ const showPrintModal = ref(false)
 const showVoidModal = ref(false)
 const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
+const isCkeckOutModalOpen = ref(false)
+const isCkeckInModalOpen = ref(false)
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
 }
@@ -86,6 +93,39 @@ const openAddPaymentModal = () => {
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
+
+const openCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = true
+}
+
+const closeCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = false
+}
+
+const openCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = true
+}
+
+const closeCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = false
+}
+
+const isUnAssignModalOpen = ref(false)
+
+const openUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = true
+}
+
+const closeUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = false
+}
+
+const handleRoomAssigned = (data: any) => {
+  console.log('Room assigned:', data)
+  // Emit save event to notify parent components to refresh
+  emit('save', { action: 'roomAssigned', reservationId: props.reservation.id, data })
+}
+
 const handleSavePayment = (data: any) => {
   console.log('Add payment data:', data)
   // Emit save event to notify parent components
@@ -103,17 +143,12 @@ const printDocumentData = computed(() => ({
 }))
 
 const roomRateTypeSummary = computed(() => {
-    if (!props.reservation?.reservationRooms || props.reservation.reservationRooms.length === 0) {
-        return 'N/A';
-    }
-    const reservationRooms = props.reservation.reservationRooms;
-    const totalRooms = reservationRooms.length;
-
-    // Get room numbers and create summary
-    const roomNumbers = reservationRooms.map((room: any) => {
-        return `${room.room?.roomNumber}`
-    })
-    return roomNumbers;
+  if (!props.reservation?.reservationRooms || props.reservation.reservationRooms.length === 0) {
+    return 'N/A';
+  }
+  const filterReservationRoom = props.reservation.reservationRooms.filter((room: any) => room.isOwner)
+  const reservationRoom = filterReservationRoom &&filterReservationRoom.length >0  ? filterReservationRoom[0] : props.reservation.reservationRooms[0];
+  return  reservationRoom.room?.roomNumber?`${reservationRoom.room?.roomNumber}`:null
 });
 // Icon mapping for different actions
 const actionIconMap = {
@@ -207,8 +242,10 @@ const handleOptionSelected = async (option: any) => {
       showVoidModal.value = true;
       break;
     case 'check_in':
+      openCheckInReservationModal()
       break;
     case 'check_out':
+      openCheckOutReservationModal()
       break
     case 'room_move':
       break;
@@ -217,6 +254,7 @@ const handleOptionSelected = async (option: any) => {
     case 'stop_room_move':
       break;
     case 'unassign_room':
+      openUnAssignReservationModal()
       break;
     case 'inclusion_list':
       break;
@@ -249,9 +287,10 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-start mb-2">
           <div class="flex items-center align-middle self-center gap-2">
             <HouseIcon class="w-8 h-8 text-primary" />
+            <Users v-if="reservation.reservationRooms.length > 1" />
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize">
-                {{ reservation.guest.displayName }}
+                {{ reservation.guest?.displayName }}
               </h3>
               <p class="text-xs text-gray-600 dark:text-gray-400 font-mono">
                 #{{ reservation.reservationNumber }}
@@ -259,7 +298,7 @@ const formatDate = (dateString: string) => {
             </div>
           </div>
           <div class="flex gap-1">
-            <ButtomDropdownAction :id="reservation.id" :options="dropdownOptions"
+            <ButtomDropdownAction :id="`${reservation.id}`" :options="dropdownOptions"
               @option-selected="handleOptionSelected" />
 
           </div>
@@ -309,18 +348,18 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
-            <span v-for="(value,ind) in roomRateTypeSummary" :key="ind">
-              {{ value }}
+            <span v-if="roomRateTypeSummary">
+              {{ roomRateTypeSummary }}
             </span>
+            <AssignRoomReservation 
+              v-else 
+              :reservation="reservation" 
+              @refresh="$emit('save')" 
+              @assigned="handleRoomAssigned" 
+            />
           </div>
           <div class="flex gap-1">
-            <span :class="[
-              'px-2 py-1 rounded-full text-xs font-medium',
-              reservation.statusColor.bg,
-              reservation.statusColor.text
-            ]">
-              {{ reservation.statusColor.label }}
-            </span>
+            <ReservationStatus :status="reservation.status" />
           </div>
         </div>
 
@@ -344,27 +383,53 @@ const formatDate = (dateString: string) => {
   </div>
 
   <!-- Cancel Reservation Modal -->
-  <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
-    @cancel-confirmed="handleCancelConfirmed" />
-
-  <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
-    :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-    @void-confirmed="handleVoidConfirmed" />
-  <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
-    :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-    @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+  <template v-if="showCancelModal">
+    <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+      @cancel-confirmed="handleCancelConfirmed" />
+  </template>
+  <template v-if="showVoidModal">
+    <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
+      :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+      @void-confirmed="handleVoidConfirmed" />
+  </template>
+  <template v-if="showAmendModal">
+    <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+      :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+      @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+  </template>
   <!-- NoShow Reservation Modal -->
-  <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
-    @noshow-confirmed="handleNoShowConfirmed" />
+  <template v-if="showNoShowModal">
+    <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
+      @noshow-confirmed="handleNoShowConfirmed" />
+  </template>
   <!-- Add Payment Modal -->
   <template v-if="isAddPaymentModalOpen">
     <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
       @save="handleSavePayment" />
   </template>
+  <!--check out template-->
+  <template v-if="isCkeckOutModalOpen">
+    <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
+       @close="closeCheckOutReservationModal" />
+  </template>
+
+   <!--check in template-->
+  <template v-if="isCkeckInModalOpen">
+            <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
+                @close="closeCheckInReservationModal" />
+  </template>
+
+   <!--unassign template-->
+  <template v-if="isUnAssignModalOpen">
+            <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
+                @close="closeUnAssignReservationModal" />
+  </template>
 
   <!-- Print Modal -->
-  <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-    @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservation.id"/>
+  <template v-if="showPrintModal">
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+      @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservation.id" />
+  </template>
 </template>
 
 <style></style>

@@ -27,7 +27,7 @@
                     {{ $t('check_in') }}
                   </label>
                   <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none"
+                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "false"
                       :placeholder="$t('Selectdate')" />
                     <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                   </div>
@@ -61,16 +61,25 @@
                 </div>
 
                 <div>
-                  <Select :lb="$t('booking_type')" v-model="reservation.bookingType" :options="BookingType" />
+                  <Select :lb="$t('ReservationType')" v-model="reservation.bookingType" :options="BookingType" :placeholder="$t('SelectReservationType')" />
                 </div>
 
                 <!-- Booking Source -->
                 <div>
-                  <Select :lb="$t('booking_source')" v-model="reservation.bookingSource" :options="BookingSource" />
+                  <Select :lb="$t('booking_source')" v-model="reservation.bookingSource" :options="BookingSource" :placeholder="$t('SelectBookingSource')" />
                 </div>
 
                 <div>
-                  <Select :lb="$t('business_source')" v-model="reservation.businessSource" :options="BusinessSource" />
+                   <AutoCompleteSelect
+                             v-model="reservation.businessSource"
+                            :options="BusinessSource"
+                            :defaultValue="$t('SelectBusinessSource')"
+                            :lb="$t('business_source')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownBooking"
+                            @clear-error="emit('clear-error')"
+                          />
+
                 </div>
               </div>
 
@@ -81,22 +90,22 @@
                   <div>
                     <span class="font-normal">{{ $t('RateOffered') }} : </span>
                     <label class="inline-flex items-center cursor-pointer text-sm ml-2">
-                      <input type="checkbox" v-model="reservation.isComplementary" class="form-checkbox" />
+                      <input type="checkbox" v-model="reservation.isComplementary" class="form-checkbox" :disabled="true" />
                       <span class="ml-2">{{ $t('Contract') }}</span>
                     </label>
                   </div>
 
                   <div class="space-x-2">
                     <label class="inline-flex items-center cursor-pointer text-sm">
-                      <input type="checkbox" class="form-checkbox" />
+                      <input type="checkbox" class="form-checkbox" :disabled="true" />
                       <span class="ml-2">{{ $t('BookAllAvailableRooms') }}</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer text-sm">
-                      <input type="checkbox" class="form-checkbox" />
+                      <input type="checkbox" class="form-checkbox"  v-model="quickGroupBooking" @change="onQuickGroupBookingChange" />
                       <span class="ml-2">{{ $t('QuickGroupBooking') }}</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer text-sm">
-                      <input type="checkbox" class="form-checkbox" />
+                      <input type="checkbox" class="form-checkbox"  v-model="reservation.isComplementary"/>
                       <span class="ml-2">{{ $t('ComplimentaryRoom') }}</span>
                     </label>
                   </div>
@@ -132,19 +141,52 @@
                     <!-- Room Configuration Fields -->
                     <div class="grid md:grid-cols-6 grid-cols-1 gap-4 items-end">
                       <div class="relative">
-                        <Select :lb="$t('roomType')" :options="RoomTypes" v-model="room.roomType"
-                          @update:modelValue="onRoomTypeChange(room.id, $event)" :disabled="isLoadingRoom" />
+                         <AutoCompleteSelect
+                            v-model="room.roomType"
+                            :options="RoomTypes"
+                            :defaultValue="$t('SelectRoomType')"
+                            :lb="$t('roomType')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownRoomType"
+                            :disabled="isLoadingRoom"
+                            @update:modelValue="onRoomTypeChange(room.id, $event)"
+                            @clear-error="emit('clear-error')"
+                          />
+                        <!-- <Select :lb="$t('roomType')" :options="RoomTypes" v-model="room.roomType"
+                          @update:modelValue="onRoomTypeChange(room.id, $event)" :disabled="isLoadingRoom" /> -->
                       </div>
 
                       <div class="relative">
-                        <Select :lb="$t('configuration.rates.rateType')" :options="getRateTypesForRoom(room.id)"
+                         <AutoCompleteSelect
+                            v-model="room.rateType"
+                            :options="getRateTypesForRoom(room.id)"
+                            :defaultValue="$t('SelectRateType')"
+                            :lb="$t('configuration.rates.rateType')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownRateType"
+                            :disabled="!room.roomType"
+                            @update:modelValue="onRateTypeChange(room.id, $event)"
+                            @clear-error="emit('clear-error')"
+                          />
+                        <!-- <Select :lb="$t('configuration.rates.rateType')" :options="getRateTypesForRoom(room.id)"
                           v-model="room.rateType" @update:modelValue="onRateTypeChange(room.id, $event)"
-                          :disabled="!room.roomType" />
+                          :disabled="!room.roomType" /> -->
                       </div>
 
                       <div class="relative">
-                        <Select :lb="$t('Room')" :options="getRoomsForRoom(room.id)" v-model="room.roomNumber"
-                          :disabled="!room.roomType" @update:modelValue="onRoomNumberChange(room)" />
+                         <AutoCompleteSelect
+                             v-model="room.roomNumber"
+                            :options="getRoomsForRoom(room.id)"
+                            :defaultValue="$t('SelectRoom')"
+                            :lb="$t('Room')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownRoom"
+                            :disabled="!room.roomType"
+                            @update:modelValue="onRoomNumberChange(room)"
+                            @clear-error="emit('clear-error')"
+                          />
+                        <!-- <Select :lb="$t('Room')" :options="getRoomsForRoom(room.id)" v-model="room.roomNumber"
+                          :disabled="!room.roomType" @update:modelValue="onRoomNumberChange(room)" /> -->
                       </div>
 
                       <!-- Adult Count avec gestion des changements -->
@@ -153,7 +195,7 @@
                           {{ $t('Adult') }}
                         </label>
                         <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
-                          @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
+                          @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"  :disabled="!room.roomType"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
@@ -163,18 +205,20 @@
                           {{ $t('Children') }}
                         </label>
                         <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
-                          @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
+                          @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"  :disabled="!room.roomType"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Rate Display avec détails -->
                       <div class="relative inline-block">
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          {{ $t('rate') }} (XAF)
+                          {{ $t('rate') }}
                         </label>
-                        <div v-if="!isCustomPrize" class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
+                        <div v-if="!isCustomPrize"
+                          class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': isLoadingRate }">
-                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3" @click="isCustomPrize =true">
+                          <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
+                            @click="isCustomPrize = true">
                             <PencilLine :size="18" />
                           </span>
 
@@ -209,7 +253,7 @@
                                 <div class="flex flex-col">
                                   <span class="font-medium text-gray-500 dark:text-gray-200">{{
                                     option.label
-                                  }}</span>
+                                    }}</span>
                                 </div>
                               </li>
                             </ul>
@@ -248,33 +292,14 @@
                 <div>
                   <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
                 </div>
-                <div>
-                  <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" forLabel="'address'"
-                    v-model="guest.address" />
-                </div>
-                <div class="grid md:grid-cols-4 grid-cols-1 gap-6">
-                  <div>
-                    <InputCountries :lb="'Country'" v-model="guest.country" />
-                  </div>
-                  <div>
-                    <Input :inputType="'text'" :lb="$t('State')" :id="'State'" forLabel="'State'"
-                      v-model="guest.state" />
-                  </div>
-                  <div>
-                    <Input :inputType="'text'" :lb="$t('City')" :id="'city'" forLabel="'city'" v-model="guest.city" />
-                  </div>
-                  <div>
-                    <Input :inputType="'text'" :lb="$t('Zipcode')" :id="'zipcode'" forLabel="'zipcode'"
-                      v-model="guest.zipcode" />
-                  </div>
-                </div>
 
-                <div class="pt-1">
+
+                <!-- <div class="pt-1">
                   <button type="button"
                     class="px-4 py-2 text-sm border border-orange-600 text-orange-600 rounded hover:bg-orange-600 hover:text-white transition font-normal">
                     {{ $t('C_Form') }}
                   </button>
-                </div>
+                </div>-->
               </section>
 
               <!-- Other Information -->
@@ -290,17 +315,16 @@
                       <span>{{ $t('otherInfo.emailBookingVouchers') }}</span>
                     </label>
 
-                    <div v-if="otherInfo.emailBookingVouchers" class="flex space-x-2 items-center pl-6">
+                    <div v-if="otherInfo.emailBookingVouchers" class="flex space-x-2 pl-6">
                       <div class="w-[900px]">
                         <InputEmail placeholder="info@gmail.com" v-model="otherInfo.voucherEmail" />
                       </div>
-                      <button type="button"
-                        class="px-3 py-1 border border-purple-600 text-purple-600 rounded text-sm hover:bg-purple-600 hover:text-white transition font-normal">
-                        {{ $t('otherInfo.previewVoucher') }}
-                      </button>
+                     <div class="flex flex-col  h-full justify-center align-middle self-center mt-2 ">
+                       <BasicButton :label="$t('otherInfo.previewVoucher')" variant="dark"></BasicButton>
+                     </div>
                     </div>
                   </div>
-
+ <!--
                   <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.sendEmailAtCheckout" class="form-checkbox" />
@@ -317,43 +341,39 @@
                       <input type="checkbox" v-model="otherInfo.accessToGuestPortal" class="form-checkbox" />
                       <span>{{ $t('otherInfo.accessToGuestPortal') }}</span>
                     </label>
-                  </div>
+                  </div> -->
 
-                  <div>
+                  <!--  <div>
                     <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
                       <input type="checkbox" v-model="otherInfo.successRateOnRegistrationCard" class="form-checkbox" />
                       <span>{{ $t('otherInfo.successRateOnRegistrationCard') }}</span>
                     </label>
-                  </div>
+                  </div>-->
                 </div>
               </section>
             </div>
           </form>
 
           <!-- Form actions -->
-          <div class="flex flex-col sm:flex-row justify-between items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <button type="button" @click.prevent="goBack"
-              class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition" :disabled="isLoading">
-              {{ $t('Cancel') }}
-            </button>
+          <div class="flex flex-col sm:flex-row  justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
+            <BasicButton type="button" @click.prevent="goBack" :disabled="isLoading" :label="$t('Cancel')">
+            </BasicButton>
 
             <div class="flex space-x-3">
-              <button v-if="showCheckinButton" type="button" @click.prevent="performChecking"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                {{ $t('Check-In') }}
-              </button>
-              <button v-if="!confirmReservation" type="button" @click.prevent="handleSubmit()" :disabled="isLoading"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                {{ $t('Reserve') }}
-              </button>
+              <BasicButton v-if="showCheckinButton" type="button" @click="openCheckInReservationModal" :label="$t('Check-In')">
+              </BasicButton>
+              <BasicButton v-if="!confirmReservation"  variant="info" :loading="isLoading" type="submit" @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
+                :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
+              </BasicButton>
             </div>
           </div>
         </div>
       </div>
 
+
+
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky lg:top-20 self-start">
+      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky ">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
           <span v-if="confirmReservation"
@@ -466,12 +486,30 @@
 
             </div>
             <!-- taxes-->
-            <div v-if="room.taxes && room.taxes.length > 0" class="flex flex-col mt-3">
-              <div v-for="tax in room.taxes" :key="tax.id"
-                class="flex justify-between font-medium text-gray-800 text-sm">
-                <span class="font-medium text-gray-500">{{ tax.taxName }}({{ tax.postingType == "flat_amount" ?
-                  formatCurrency(parseFloat(tax.amount)) : `${tax.percentage}%` }})</span>
-                <span>{{ formatCurrency(tax.taxAmount) }}</span>
+           <div v-if="room.taxes && room.taxes.length > 0" class="flex flex-col mt-3">
+              <div class="flex items-center justify-between mb-2 cursor-pointer"
+                  @click="toggleTaxDetails(room.id)">
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-700">{{ $t('detailsOfTaxes') }}</span>
+                  <svg class="w-4 h-4 ml-2 transform transition-transform duration-200"
+                      :class="{ 'rotate-180': showTaxDetails[room.id]  }"
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                  {{ $t('Included') }}
+                </span>
+              </div>
+
+              <div v-show="showTaxDetails[room.id] " class="transition-all duration-200">
+                <div v-for="tax in room.taxes" :key="tax.id"
+                    class="flex justify-between font-medium text-gray-800 text-sm mb-1">
+                  <span class="font-medium text-gray-500">{{ tax.taxName }}({{ tax.postingType == "flat_amount" ?
+                    formatCurrency(parseFloat(tax.amount)) : `${tax.percentage}%` }})</span>
+                  <span class="text-gray-500">{{ formatCurrency(tax.taxAmount) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -484,14 +522,14 @@
               <span>{{ formatCurrency(totalRoomCharges) }}</span>
             </div>
 
-            <div v-if="!billing.taxExempt" class="flex justify-between text-gray-700">
+            <!-- <div v-if="!billing.taxExempt" class="flex justify-between text-gray-700">
               <span>{{ $t('Taxes') }}</span>
               <span>{{ formatCurrency(billing.taxes) }}</span>
             </div>
             <div v-else class="flex justify-between text-green-600 text-sm">
               <span>{{ $t('TaxExempt') }}</span>
               <span>{{ $t('Applied') }}</span>
-            </div>
+            </div> -->
 
             <div class="flex justify-between font-semibold text-gray-900 border-t border-gray-300 pt-3 text-lg">
               <span>{{ $t('DueAmount') }}</span>
@@ -504,22 +542,33 @@
           <Select :lb="$t('BillTo')" :options="billToOptions" v-model="billing.billTo" />
         </div>
 
-        <label class="inline-flex items-center mt-4 cursor-pointer text-sm">
+        <!-- <label class="inline-flex items-center mt-4 cursor-pointer text-sm">
           <input type="checkbox" v-model="billing.taxExempt" class="form-checkbox" />
           <span class="ml-2">{{ $t('TaxExempt') }}</span>
-        </label>
+        </label> -->
 
         <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-700">{{ $t('PaymentMode') }}</h3>
+                <!-- payment -->
+        <div class="grid grid-cols-2  gap-6 mt-5">
 
-        <div v-for="payment in PaymentMethods" :key="payment.id" class="space-y-2 space-x-2">
-          <label class="inline-flex items-center cursor-pointer text-sm space-x-2">
-            <input type="radio" name="paymentMode" :value="payment.value" v-model="billing.paymentMode"
-              class="form-radio" />
-            <span>{{ payment.label }}</span>
-          </label>
+          <!-- Payment Information -->
+          <div class="space-y-4">
 
-          <div v-if="payment.type === 'BANK' && billing.paymentMode === payment.value" class="ml-6 mt-1">
-            <Select :options="creditTypes" v-model="billing.creditType" placeholder="Sélectionner le type de carte" />
+            <div class="flex space-x-4">
+              <label class="flex items-center">
+                <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" />
+                {{ $t('cash') }}
+              </label>
+              <label class="flex items-center">
+                <input type="radio" v-model="billing.paymentType" value="bank" class="mr-2" />
+                {{ $t('bank') }}
+              </label>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <InputPaymentMethodSelect  :paymentType="billing.paymentType" v-model="billing.paymentMode" :hide-label="true"
+              />
           </div>
         </div>
 
@@ -536,6 +585,12 @@
   <template v-if="isAddPaymentModalOpen && reservationId">
     <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
       @save="handleSavePayment" />
+  </template>
+
+   <!--check in template-->
+  <template v-if="isCkeckInModalOpen && reservationId">
+            <CheckInReservation :reservation-id="reservationId" :is-open="isCkeckInModalOpen" :check-in-complete = "handleCheckInComplete"
+                @close="closeCheckInReservationModal" />
   </template>
 </template>
 
@@ -561,6 +616,13 @@ import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'
 import AddPaymentModal from '../../components/reservations/foglio/AddPaymentModal.vue'
 import router from '../../router'
+import { useRoute } from 'vue-router'
+import BasicButton from '../../components/buttons/BasicButton.vue'
+import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
+import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
+import CheckInReservation from '@/components/reservations/CheckInReservation.vue'
+const route = useRoute()
+const isCkeckInModalOpen = ref(false)
 
 const isAddPaymentModalOpen = ref(false)
 const performChecking = () => {
@@ -570,16 +632,44 @@ const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
 
+const showTaxDetails = ref<Record<string, boolean>>({})
+
+const toggleTaxDetails = (roomId: string) => {
+  showTaxDetails.value[roomId] = !showTaxDetails.value[roomId]
+}
+
 const handleSavePayment = (payment: any) => {
- router.push({
-        name: 'ReservationDetails',
-        params: { id: reservationId.value }
-    });
+  router.push({
+    name: 'ReservationDetails',
+    params: { id: reservationId.value }
+  });
 }
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
 }
+
+const openCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = true
+}
+
+const closeCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = false
+}
+
+const handleCheckInComplete = () => {
+  isCheckedIn.value = true
+}
 const { t } = useI18n()
+const useDropdownRoomType = ref(true)
+const useDropdownRateType = ref(true)
+const useDropdownRoom = ref(true)
+const useDropdownBooking = ref(true)
+interface Emits {
+
+  (e: 'clear-error'): void
+}
+
+const emit = defineEmits<Emits>()
 
 const {
   // Data
@@ -601,6 +691,7 @@ const {
   isPaymentButtonShow,
   confirmReservation,
   isCustomPrize,
+  isCheckedIn,
 
   // Computed
   numberOfNights,
@@ -615,7 +706,6 @@ const {
   BookingType,
   creditTypes,
   billToOptions,
-  emailTemplates,
   reservationId,
   // Methods
   initialize,
@@ -638,7 +728,36 @@ const {
   onOccupancyChange,
   getRoomExtraInfo,
   onRoomNumberChange,
+  pendingUploads,
+  uploadErrors,
+
+
+
+
 } = useBooking()
+
+// Computed pour vérifier s'il y a des uploads en cours
+const hasPendingUploads = computed(() => {
+  return pendingUploads.value.size > 0
+})
+
+
+
+const initializeForm = () => {
+  // Call the original initialize from useBooking if it sets default values
+  initialize()
+
+  // Check for query parameters and update reservation object
+  if (route.query.checkin) {
+    reservation.value.checkinDate = route.query.checkin as string
+  }
+  if (route.query.checkout) {
+    reservation.value.checkoutDate = route.query.checkout as string
+  }
+
+}
+
+
 
 // Dropdown options pour les actions de chambre
 const dropdownOptions = computed(() => [
@@ -667,8 +786,39 @@ const handleSubmit = async () => {
   }
 }
 
+const quickGroupBooking = ref(false)
+
+// Méthode pour gérer le changement de Quick Group Booking
+const onQuickGroupBookingChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    // Mettre le nombre de chambres à 2
+    reservation.value.rooms = 2
+
+    // S'assurer qu'on a exactement 2 chambres dans la configuration
+    while (roomConfigurations.value.length < 2) {
+      addRoom()
+    }
+    while (roomConfigurations.value.length > 2) {
+      removeRoom(roomConfigurations.value[roomConfigurations.value.length - 1].id)
+    }
+  }else {
+
+    reservation.value.rooms = 1;
+
+    while (roomConfigurations.value.length < 1) {
+      addRoom();
+    }
+    while (roomConfigurations.value.length > 1) {
+      removeRoom(roomConfigurations.value[roomConfigurations.value.length - 1].id);
+    }
+  }
+
+}
+
 onMounted(() => {
   initialize()
+  initializeForm()
 })
 </script>
 <style scoped>
@@ -683,4 +833,5 @@ onMounted(() => {
   display: none;
   /* Safari and Chrome */
 }
+
 </style>

@@ -4,25 +4,65 @@
     <div class="bg-gray-50 mt-2 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div class="flex items-center gap-4">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ $t('Reservations') }}</h2>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+                <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('totalReservations')"
           @click="handleFilterClick('totalReservations')">
           {{ statistics.totalReservations }} {{ $t('reservations') }}
         </span>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+
+        <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('arrivals')"
           @click="handleFilterClick('arrivals')">
           {{ statistics.arrivals }} {{ $t('arrivals') }}
         </span>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+
+        <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('departures')"
           @click="handleFilterClick('departures')">
           {{ statistics.departures }} {{ $t('departures') }}
         </span>
-        <span class="cursor-pointer text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full"
+
+        <span
+          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('inHouse')"
           @click="handleFilterClick('inHouse')">
           {{ statistics.inHouse }} {{ $t('in house') }}
         </span>
+
       </div>
 
       <div class="flex items-center gap-3">
+        <!-- Reservation Mode Toggle -->
+        <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+          <button @click="reservationMode = 'all'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'all'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+          ]">
+            {{ $t('All') }}
+          </button>
+          <button @click="reservationMode = 'single'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'single'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+          ]">
+            <User class="w-4 h-4" />
+          </button>
+          <button @click="reservationMode = 'group'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'group'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+          ]">
+            <Users class="w-4 h-4" />
+          </button>
+        </div>
+
         <!-- View Toggle -->
         <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
           <button @click="viewMode = 'grid'" :class="[
@@ -56,6 +96,20 @@
         </BasicButton>
         <BookingFilter @filter="applyFilter" />
       </div>
+    </div>
+
+    <div v-if="activeFilter !== 'totalReservations'" class="mb-4 flex items-center gap-2">
+      <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Active filter') }}:</span>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+        {{ getActiveFilterLabel() }}
+        <button
+          @click="clearFilter"
+          class="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </span>
     </div>
 
     <!-- Loading State -->
@@ -113,20 +167,7 @@
         <!-- Custom column for status -->
         <template #column-status="{ item }">
           <div class="flex flex-col gap-1">
-            <span :class="[
-              'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.statusColor.bg,
-              item.statusColor.text
-            ]">
-              {{ item.statusColor.label }}
-            </span>
-            <span :class="[
-              'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.paymentStatusColor.bg,
-              item.paymentStatusColor.text
-            ]">
-              {{ item.paymentStatusColor.label }}
-            </span>
+            <ReservationStatus :status="item.status" />
           </div>
         </template>
       </ReusableTable>
@@ -138,13 +179,16 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ $t('No reservations') }}</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('Get started by creating a new reservation.') }}
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+        {{ getEmptyStateTitle() }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {{ getEmptyStateMessage() }}
       </p>
     </div>
 
     <!-- Pagination -->
-    <div v-if="!loading && filteredReservations.length > 0" class="mt-6 flex items-center justify-between">
+    <div v-if="!loading && filteredReservations.length > 0 && totalPages > 1" class="mt-6 flex items-center justify-between">
       <div class="text-sm text-gray-700 dark:text-gray-300">
         {{ $t('Showing') }} {{ (currentPage - 1) * pageSize + 1 }} {{ $t('to') }}
         {{ Math.min(currentPage * pageSize, filteredReservations.length) }} {{ $t('of') }}
@@ -188,14 +232,10 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { FitlterItem } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import AddBookingModal from '../modal/AddBookingModal.vue'
-import BookingForm from '@/views/Bookings/BookingForm.vue'
 import { filterReservation } from '../../services/hotelApi'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, User2Icon, UserCircle2Icon, UserMinus, X } from 'lucide-vue-next'
-import { formatTime } from '../utilities/UtilitiesFunction'
-import Adult from '../../icons/Adult.vue'
-import Child from '../../icons/Child.vue'
-import ButtomDropdownAction from '../common/ButtomDropdownAction.vue'
 import ReservationCardItem from '../reservations/ReservationCardItem.vue'
+import ReservationStatus from '@/components/common/ReservationStatus.vue'
+import { Users, User } from 'lucide-vue-next'
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -209,12 +249,14 @@ const modalShow = ref(false)
 const selectedReservationId = ref<number | null>(null)
 const loadingDelete = ref(false)
 const loading = ref(true)
-const reservations = ref<ReservationType[]>([])
+
 const viewMode = ref<'grid' | 'list'>('grid')
+const reservationMode = ref<'all' | 'single' | 'group'>('all')
 const sortBy = ref('date')
 const currentPage = ref(1)
 const pageSize = ref(12)
 const filter =ref<FitlterItem>()
+const allReservations = ref<ReservationType[]>([])
 
 // Utility functions
 const safeTranslate = (key: string) => {
@@ -296,7 +338,40 @@ const tableActions = [
 
 // Computed properties
 const filteredReservations = computed(() => {
-  let filtered = [...reservations.value]
+  let filtered = [...allReservations.value]
+
+  // Filter based on activeFilter
+  switch (activeFilter.value) {
+    case 'arrivals':
+      filtered = filtered.filter(reservation => isToday(reservation.arrivedDate) && reservation.status === 'confirmed'  )
+      break
+    case 'departures':
+      filtered = filtered.filter(
+        reservation =>
+          isToday(reservation.departDate) &&
+          (reservation.status === 'checked_in' || reservation.status === 'checked_out'),
+      )
+      break
+    case 'inHouse':
+      filtered = filtered.filter(reservation => isInHouse(reservation))
+      break
+    case 'totalReservations':
+    default:
+      // No filtering needed for 'totalReservations', use the full 'filtered' array
+      break
+  }
+
+  // Filter based on reservation mode
+  if (reservationMode.value === 'single') {
+    filtered = filtered.filter((reservation: any) => {
+      return !reservation.reservationRooms || reservation.reservationRooms.length === 1
+    })
+  } else if (reservationMode.value === 'group') {
+    filtered = filtered.filter((reservation:any) => {
+      return reservation.reservationRooms && reservation.reservationRooms.length > 1
+    })
+  }
+  // 'all' mode shows all reservations, no filtering needed
 
   // Sort reservations
   filtered.sort((a, b) => {
@@ -331,6 +406,25 @@ const paginatedReservations = computed(() => {
   return filteredReservations.value.slice(start, end)
 })
 
+// Helper functions for empty state
+const getEmptyStateTitle = () => {
+  if (reservationMode.value === 'single') {
+    return safeTranslate('No single room reservations')
+  } else if (reservationMode.value === 'group') {
+    return safeTranslate('No group reservations')
+  }
+  return safeTranslate('No reservations')
+}
+
+const getEmptyStateMessage = () => {
+  if (reservationMode.value === 'single') {
+    return safeTranslate('No reservations with single room found in the current filter range.')
+  } else if (reservationMode.value === 'group') {
+    return safeTranslate('No reservations with multiple rooms found in the current filter range.')
+  }
+  return safeTranslate('Get started by creating a new reservation.')
+}
+
 // Methods
 const applyFilter = async (filter: FitlterItem) => {
   loading.value = true
@@ -339,14 +433,11 @@ const applyFilter = async (filter: FitlterItem) => {
   try {
     const res = await filterReservation(serviceStore.serviceId!, filter)
 
-    reservations.value = []
     if (res.status === 200 || res.status === 201) {
       console.log(res.data)
 
-      reservations.value = res.data?.reservations.map((res: any) => {
+      const mappedReservations = res.data?.reservations.map((res: any) => {
         const user = res.guest
-        const statusClasses = getStatusColor(res.status).split(' ')
-        const paymentClasses = getPaymentColor(res.paymentStatus).split(' ')
 
         return {
           ...res,
@@ -355,19 +446,10 @@ const applyFilter = async (filter: FitlterItem) => {
           email: user?.email || '',
           phone: user?.phoneNumber || '',
           userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
-          statusColor: {
-            label: safeTranslate(res.status),
-            bg: statusClasses[0],
-            text: statusClasses[1],
-          },
-          paymentStatusColor: {
-            label: safeTranslate(res.paymentStatus),
-            bg: paymentClasses[0],
-            text: paymentClasses[1],
-          },
         }
       });
 
+      allReservations.value = mappedReservations;
       statistics.value = res.data.statistics
     }
   } catch (error) {
@@ -379,35 +461,13 @@ const applyFilter = async (filter: FitlterItem) => {
   }
 }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'confirmed':
-      return 'bg-green-100 text-green-700'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-700'
-    case 'cancelled':
-      return 'bg-red-100 text-red-700'
-    case 'checked-in':
-      return 'bg-purple-100 text-purple-700'
-    case 'checked-out':
-      return 'bg-blue-100 text-blue-700'
-    default:
-      return 'bg-gray-100 text-gray-700'
-  }
-}
+const getFilterBadgeClass = (filterType: string) => {
+  const isActive = activeFilter.value === filterType
 
-const getPaymentColor = (status: string) => {
-  switch (status) {
-    case 'paid':
-      return 'bg-green-100 text-green-700'
-    case 'unpaid':
-      return 'bg-red-100 text-red-700'
-    case 'refunded':
-      return 'bg-blue-100 text-blue-700'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-700'
-    default:
-      return 'bg-gray-100 text-gray-700'
+  if (isActive) {
+    return 'bg-gray-500 text-white shadow-lg transform scale-105'
+  } else {
+    return 'text-gray-500 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
   }
 }
 
@@ -418,7 +478,7 @@ const handleBookingAction = (action: string, booking: any) => {
     selectedReservationId.value = booking.id
     modalShow.value = true
   } else if (action === 'view') {
-    router.push({ name: 'reservationDetails', params: { id: booking.id } })
+    router.push({ name: 'ReservationDetails', params: { id: booking.id } })
     store.setBooking(booking)
   }
 }
@@ -433,7 +493,7 @@ const confirmDelete = async () => {
     try {
       //await deleteReservation(selectedReservationId.value)
       toast.success(t('toast.reservationDelete'))
-      reservations.value = reservations.value.filter(
+      allReservations.value = allReservations.value.filter(
         (r: any) => r.id !== selectedReservationId.value,
       )
     } catch (error) {
@@ -456,13 +516,7 @@ onMounted(async () => {
     searchText: '',
     status: '',
   };
-  await applyFilter({
-    checkInDate: '',
-    checkOutDate: '',
-    roomType: '',
-    searchText: '',
-    status: '',
-  })
+  //await applyFilter(filter.value)
 })
 
 const openBookingModal = () => {
@@ -474,40 +528,64 @@ const refresh = () => {
   applyFilter(filter.value)
 }
 
-const handleFilterClick = (filter: string) => {
-  // Create filter object based on the clicked statistic
-  const filterObj: FitlterItem = {
-    checkInDate: '',
-    checkOutDate: '',
-    roomType: '',
-    searchText: '',
-    status: '',
-  }
+const activeFilter = ref<string>('totalReservations')
 
-  // Set specific filter based on the clicked statistic
-  switch (filter) {
+
+
+const getActiveFilterLabel = () => {
+  switch (activeFilter.value) {
     case 'arrivals':
-      // Filter for today's arrivals
-      const today = new Date().toISOString().split('T')[0]
-      filterObj.checkInDate = today
-      break
+      return t('TodaysArrivals')
     case 'departures':
-      // Filter for today's departures
-      const todayDeparture = new Date().toISOString().split('T')[0]
-      filterObj.checkOutDate = todayDeparture
-      break
+      return t('TodaysDepartures')
     case 'inHouse':
-      // Filter for checked-in guests
-      filterObj.status = 'checked_in'
-      break
+      return t('InHouseGuests')
     case 'totalReservations':
     default:
-      // Show all reservations (no specific filter)
-      break
+      return t('AllReservations')
   }
-
+}
+// Check if a date is today
+const isToday = (dateString: string) => {
+  if (!dateString) return false
+  const today = new Date()
+  const date = new Date(dateString)
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  )
 }
 
+// Check if guest is currently in house
+const isInHouse = (reservation: any) => {
+  if (!reservation.arrivedDate || !reservation.departDate) return false
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const checkInDate = new Date(reservation.arrivedDate)
+  checkInDate.setHours(0, 0, 0, 0)
+
+  const checkOutDate = new Date(reservation.departDate)
+  checkOutDate.setHours(0, 0, 0, 0)
+
+  return (
+    (reservation.status === 'checked_in' || reservation.status === 'checked-in') &&
+    checkInDate.getTime() <= today.getTime() &&
+    checkOutDate.getTime() > today.getTime()
+  )
+}
+
+
+const handleFilterClick = (filterType: string) => {
+  activeFilter.value = filterType
+  currentPage.value = 1
+}
+
+const clearFilter = () => {
+  activeFilter.value = 'totalReservations'
+  currentPage.value = 1
+}
 </script>
 
 <style scoped>

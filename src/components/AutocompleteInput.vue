@@ -13,9 +13,9 @@
         :placeholder="placeholder"
         :disabled="disabled"
         :class="[
-          'block w-full pl-3 pr-10 py-2 text-base border rounded-md leading-5 focus:outline-none focus:ring-1 sm:text-sm',
+          'block w-full pl-3 pr-10 py-2 text-base border rounded-md leading-5 focus:outline-none focus:ring-1 sm:text-sm   text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
           disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white',
-          error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+          error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
           'dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400',
           'transition duration-150 ease-in-out'
         ]"
@@ -72,7 +72,7 @@
           :id="`${id}-option-${index}`"
           :class="[
             'cursor-pointer select-none relative py-2 pl-3 pr-9',
-            activeIndex === index ? 'text-white bg-blue-600 dark:bg-blue-700' : 'text-gray-900 dark:text-white',
+            activeIndex === index ? 'text-white bg-purple-600 dark:bg-purple-700' : 'text-gray-900 dark:text-white',
           ]"
           @mousedown.prevent="selectSuggestion(suggestion)"
           @mouseover="activeIndex = index"
@@ -281,8 +281,8 @@ function handleInput(event:any) {
 
 function handleFocus() {
   emit('focus')
-  if (displayValue.value && !isOpen.value) {
-    fetchData(displayValue.value)
+  if (!isOpen.value) {
+    fetchData(displayValue.value || '')
     isOpen.value = true
   }
 }

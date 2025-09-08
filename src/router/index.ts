@@ -33,6 +33,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/front-office/night-audit',
+      name: 'NightAudit_Office',
+      component: () => import('../views/FrontOffice/NightAudit.vue'),
+      meta: {
+        title: 'Night Audit',
+        requiresAuth: false,
+      },
+    },
 
     {
       path: '/welcome',
@@ -510,16 +519,27 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+<<<<<<< HEAD
     {
       path: '/reports/statistical/business-analysis',
       name: 'buisnessAnalysis',
       component: () => import('../views/Reports/Statistical/BusinessAnalysis.vue'),
       meta: {
         title: 'Business Analysis',
+=======
+    // Custom Reports
+    {
+      path: '/reports/custom/monthly-occupancy',
+      name: 'OccupancyMonth',
+      component: () => import('../views/Reports/Custom/OccupancyMonthly.vue'),
+      meta: {
+        title: 'Occupancy Month',
+>>>>>>> d0901cc866233fd592f91eeaf6221dfc6612ebe9
         requiresAuth: true,
       },
     },
     {
+<<<<<<< HEAD
       path: '/reports/statistical/monthly-statistics',
       name: 'MonthlyStatistics',
       component: () => import('../views/Reports/Statistical/MonthlyStatistics.vue'),
@@ -536,6 +556,15 @@ const router = createRouter({
         title: 'Room Sale Statistics',
         requiresAuth: true,
       },
+=======
+      path: '/pdf-viewer',
+      name: 'PDFViewer',
+      component: () => import('@/views/PDFViewer.vue'),
+      meta: {
+        title: 'PDF Viewer',
+        requiresAuth: true
+      }
+>>>>>>> d0901cc866233fd592f91eeaf6221dfc6612ebe9
     },
     // Additional Front Office Reports
     {
@@ -1115,6 +1144,78 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Channel Manager Configuration Routes
+    {
+      path: '/configuration/channel-manager',
+      name: 'ChannelManager',
+       component: () => import('../views/Configuration/ChannelManager/Overview.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/inventory-channel-booking',
+      name: 'ChannelManagerInventoryChannelBooking',
+      component: () => import('../views/Configuration/ChannelManager/InventoryChannelBooking.vue'),
+      meta: {
+        title: 'Inventory Channel Booking',
+        requiresAuth: true,
+      },
+    },{
+      path: '/configuration/channel-manager/channel-manager',
+      name: 'channel',
+      component: () => import('../views/Configuration/ChannelManager/ChannelManager.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/channels-booking',
+      name: 'ChannelManagerChannelsBooking',
+      component: () => import('../views/Configuration/ChannelManager/ChannelsBooking.vue'),
+      meta: {
+        title: 'Channels Booking',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/rooms-rates',
+      name: 'ChannelManagerRoomsRates',
+      component: () => import('../views/Configuration/ChannelManager/RoomsRates.vue'),
+      meta: {
+        title: 'Rooms & Rates',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/properties',
+      name: 'ChannelManagerProperties',
+      component: () => import('../views/Configuration/ChannelManager/Properties.vue'),
+      meta: {
+        title: 'Properties',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/iframe',
+      name: 'ChannelManagerIframe',
+      component: () => import('../views/Configuration/ChannelManager/IframeView.vue'),
+      meta: {
+        title: 'Channel Manager Iframe',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/channex/booking-revisions',
+      name: 'ChannexBookingRevisions',
+      component: () => import('../views/Configuration/ChannelManager/ChannexBookingRevisions.vue'),
+      meta: {
+        title: 'Channex Booking Revisions',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/department',
       name: 'department',
@@ -1230,6 +1331,15 @@ const router = createRouter({
       component: () => import('../components/calendars/ReservationCalendarInterface.vue'),
       meta: {
         title: 'Reservation Calendar',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/demo/apply-discount',
+      name: 'ApplyDiscountDemo',
+      component: () => import('../components/demo/ApplyDiscountDemo.vue'),
+      meta: {
+        title: 'Apply Discount Demo',
         requiresAuth: true,
       },
     },

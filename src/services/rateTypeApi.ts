@@ -20,5 +20,9 @@ const headers = {
  */
 
 export const getRateTypes = (id:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}/hotel`, headers)
+  return axios.get(`${API_URL}/hotel/${id}`, headers)
+}
+
+export const getRateTypesByRoomTypes = (id:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/roomType/${id}`, headers)
 }

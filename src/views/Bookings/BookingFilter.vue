@@ -10,6 +10,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
         <!-- Search by Name/Number -->
         <div class="lg:col-span-2">
+          
           <Input :lb="$t('reservationsList.searchByNameOrNumber')" :inputType="'text'"
             :placeholder="$t('reservationsList.searchPlaceholder')" :id="'searchText'"
             :forLabel="'reservationsList.searchByNameOrNumber'" v-model="filters.searchText" />
@@ -33,12 +34,15 @@
         <div>
           <label for="roomType" class="block text-gray-700 text-sm font-bold mb-2">{{
             $t('reservationsList.filterRoomType') }}:</label>
-          <select id="roomType" v-model="filters.roomType"
-            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-            >
-            <option value="">{{ $t('reservationsList.filterAll') }}</option>
-            <option v-for="type in activeRoomTypes" :key="type.id" :value="type.label">{{ type.label }}</option>
-          </select>
+          <AutocompleteInput
+            v-model="selectedRoomType"
+            :fetch-suggestions="fetchRoomTypeSuggestions"
+            :placeholder="$t('reservationsList.filterAll')"
+            label-key="label"
+            value-key="value"
+            :min-chars="0"
+            :debounce-ms="300"
+          />
         </div>
 
         <!-- Check-in Date Filter -->
@@ -82,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import {
   Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon, List as ListIcon
 } from 'lucide-vue-next';
@@ -94,33 +98,33 @@ import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
 import CalendarIcon from '@/icons/CalendarIcon.vue';
 import type { FitlterItem } from '@/utils/models';
-import { getTypeProductByServiceId } from '@/services/api';
+import { getRoomTypes } from '@/services/configrationApi';
 import type { RoomTypeData } from '@/types/option';
-import { useServiceStore } from '@/composables/serviceStore';
+import {  getReservationStatusOptions } from '@/types/reservation';
+import AutocompleteInput from '@/components/AutocompleteInput.vue';
 
 const emits = defineEmits(['filter']);
+// Get today's date and 7 days later
+const today = new Date();
+const sevenDaysLater = new Date(today);
+sevenDaysLater.setDate(today.getDate() + 7);
+const selectedRoomType = ref<any>(null)
+const formatDate = (date: Date) => {
+  return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+};
+
 // Filter state
 const filters = ref<FitlterItem>({
   searchText: '', // For guest name or reservation number
   status: '',
   roomType: '',
-  checkInDate: '',
-  checkOutDate: '',
+  checkInDate: formatDate(today),
+  checkOutDate: formatDate(sevenDaysLater),
 });
 const showFilter = ref(false);
-const serviceStore = useServiceStore()
-// Options for status dropdown
-// const statusOptions = ref([
-//   'Confirmed', 'Cancelled', 'Checked-in', 'Checked-out', 'Pending', 'No-show'
-// ]);
-const rawStatuses = ['Confirmed', 'Cancelled', 'Checked-in', 'Checked-out', 'Pending', 'No-show']
 
-const statusOptions = ref(
-  rawStatuses.map(label => ({
-    label,
-    value: label.toLowerCase().replace(/-/g, '_').replace(/\s/g, '_')
-  }))
-)
+// Options for status dropdown using enum
+const statusOptions = ref(getReservationStatusOptions())
 
 const flatpickrConfig = {
   dateFormat: 'Y-m-d',
@@ -146,18 +150,34 @@ const clearFilters = () => {
 };
 const fetchRoomType = async () => {
   try {
-    const serviceId = serviceStore.serviceId
-    const response = await getTypeProductByServiceId(serviceId)
-
-    activeRoomTypes.value = response.data
-      .filter((type: RoomTypeData) => type.status === 'active')
+    const response = await getRoomTypes()
+    console.log('response',response)
+    activeRoomTypes.value = response.data?.data?.data
       .map((item: RoomTypeData) => ({
         ...item,
         value: item.id,
-        label: item.name,
+        label: item.roomTypeName,
       }))
   } catch (error) {
-    console.error('Erreur lors de la récupération des roomtypes:', error)
+    console.error('Error fetching room types:', error)
+  }
+}
+watch(()=>selectedRoomType.value,(newVal)=>{
+  filters.value.roomType = selectedRoomType.value.id;
+})
+const fetchRoomTypeSuggestions = async (query: string) => {
+  try {
+    const allRoomTypes = activeRoomTypes.value
+    
+    if (!query) {
+      return allRoomTypes
+    }
+    
+    return allRoomTypes.filter((type: RoomTypeData) => 
+      type.label.toLowerCase().includes(query.toLowerCase())    )
+  } catch (error) {
+    console.error('Error fetching room type suggestions:', error)
+    return []
   }
 }
 

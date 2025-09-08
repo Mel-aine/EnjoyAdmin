@@ -220,7 +220,7 @@ const voidChargeColumns = computed(() => [
   { key: 'voucher', label: 'Voucher' },
   { key: 'charge', label: 'Charge' },
   { key: 'reference', label: 'Reference' },
-  { key: 'amount', label: 'Amount (Rs)' },
+  { key: 'amount', label: 'Amount ' },
   { key: 'voidByDateTime', label: 'Void By/Date/Time' }
 ])
 

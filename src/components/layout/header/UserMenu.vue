@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
+import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon } from '@/icons'
 import ServiceSwitcher from '@/views/Services/ServiceSwitcher.vue'
 import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
@@ -95,6 +95,7 @@ const { t } = useI18n();
 const menuItems = [
   { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
   { href: '/configuration', icon: SettingsIcon, text: t('Configuration') },
+  { href: '/configuration/channel-manager/', icon: PlugInIcon, text: t('configuration.channelManager.title') },
 ]
 
 

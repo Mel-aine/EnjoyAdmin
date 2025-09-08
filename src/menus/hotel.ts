@@ -143,7 +143,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
               icon: ClipboardList,
               name: t('night_audit'),
-              path: '/night_audit',
+              path: '/front-office/night-audit',
               permission: 'dashboard_view',
         },
         //Reports
@@ -154,12 +154,12 @@ export const getHotelMenu = (t: (key: string) => string) => {
               permission: 'dashboard_view',
         },
         //Net Locks
-        {
+        /*{
               icon: Lock,
               name: t('net_locks'),
               path: '/net_locks',
               permission: 'dashboard_view',
-        },
+        },*/
         //Configuration
         // {
         //   icon: Settings,

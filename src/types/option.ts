@@ -46,7 +46,7 @@ export interface ProductOptionType {
   [key: string]: string | number;
 }
 export interface RoomTypeData{
-  name:string
+  roomTypeName:string
   description : string
   status : string
   price:number,
@@ -92,6 +92,8 @@ export interface  ReservationType{
   created_by: number
   lastModified_by: number
   payment:string
+  arrivedDate : any
+  departDate : any
 }
 
 // export interface userDataType {

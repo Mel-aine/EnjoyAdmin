@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import {
   checkInReservation,
   checkOutReservation,
-  getReservationDetailsById
+  getReservationDetailsById,
+  unAssignRoomReservation
 } from '@/services/reservation'
 
 export interface CheckInReservationPayload {
@@ -53,6 +54,12 @@ export interface CancelReservationPayload {
   notes?: string
 }
 
+export interface AvheReservationPayload {
+  reservationRooms: number[]
+  actualCheckInTime: string
+  notes?: string
+}
+
 export function useReservation() {
   const toast = useToast()
   const { t } = useI18n()
@@ -69,7 +76,7 @@ export function useReservation() {
   const isCancellingReservation = ref(false)
   const isMarkingNoShow = ref(false)
   const isVoidingReservation = ref(false)
-  const isUnassigningRoom = ref(false)
+  const isAvhe = ref(false)
   const isExchangingRoom = ref(false)
 
   // Check-in reservation
@@ -345,28 +352,27 @@ export function useReservation() {
     }
   }
 
-  // Unassign room
-  const unassignRoom = async (reservationId: number, roomId: number, refreshCallback?: () => Promise<void>) => {
-    isUnassigningRoom.value = true
+  // Avhe (Unassign) room reservation
+  const performAvhe = async (reservationId: number, payload: AvheReservationPayload, refreshCallback?: () => Promise<void>) => {
+    isAvhe.value = true
 
     try {
-      // TODO: Implement unassign room API call
-      // const response = await unassignReservationRoom(reservationId, roomId)
-      console.log('Unassigning room for reservation:', reservationId, roomId)
+      const response = await unAssignRoomReservation(reservationId, payload)
+      console.log('Avhe response:', response)
 
-      toast.success(t('toast.unassignRoomSuccess') || 'Room unassigned successfully!')
+      toast.success(t('toast.avheSuccess') || 'Room unassignment completed successfully!')
 
       if (refreshCallback) {
         await refreshCallback()
       }
 
-      // return response
+      return response
     } catch (error) {
-      console.error('Unassign room error:', error)
-      toast.error(t('toast.unassignRoomError') || 'Failed to unassign room. Please try again.')
+      console.error('Avhe error:', error)
+      toast.error(t('toast.avheError') || 'Failed to unassign room. Please try again.')
       throw error
     } finally {
-      isUnassigningRoom.value = false
+      isAvhe.value = false
     }
   }
 
@@ -386,7 +392,7 @@ export function useReservation() {
     isCancellingReservation,
     isMarkingNoShow,
     isVoidingReservation,
-    isUnassigningRoom,
+    isAvhe,
     isExchangingRoom,
     showNoShowModal,
     // Methods
@@ -401,7 +407,7 @@ export function useReservation() {
     cancelReservation,
     markNoShow,
     voidReservation,
-    unassignRoom,
+    performAvhe,
     handleNoShowConfirmed,
 
   }

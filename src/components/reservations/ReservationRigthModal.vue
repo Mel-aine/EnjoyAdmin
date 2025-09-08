@@ -136,8 +136,8 @@
                     </div>
 
                     <!-- Content -->
-                    <div class="flex-1 overflow-y-auto">
-                        <div class="px-6 py-6">
+                    <div class="flex-1 overflow-y-auto flex">
+                        <div class="px-6 py-6 col-span-2">
                             <slot>
                                 <!-- Default content -->
                                 <div class="space-y-6 ">
@@ -171,10 +171,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('status') }}
                                             </label>
-                                            <span
-                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-10">
-                                                {{ $t(reservation.status) }}
-                                            </span>
+                                            <ReservationStatus :status="reservation.status" />
                                         </div>
 
                                         <div>
@@ -203,39 +200,43 @@
                                             <p class="text-sm text-gray-900 dark:text-white">{{
                                                 formatDate(reservation.createdAt) }}</p>
                                         </div>
-                                        <div>
+                                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('roomType') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white">
+                                            <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(rm, ind) in roomTypeSumarry" :key="ind">{{ rm
                                                     }}</span>
                                             </p>
                                         </div>
 
-                                        <div>
+                                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ t('roomNumber') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white"
-                                                v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0">
+
+                                            <!-- Show simple list for single room -->
+                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1"
+                                                class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
-                                            <div v-else>
-                                                <button>assign room</button>
-                                            </div>
+                                            <AssignRoomReservation 
+                                                v-else 
+                                                :reservationRoom="reservation.reservationRooms?.[0]" 
+                                                @assigned="handleRoomAssigned" 
+                                            />
                                         </div>
 
-                                        <div>
+                                        <div
+                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('ratePlan') }}
                                             </label>
-                                            <p class="text-sm text-gray-900 dark:text-white"
-                                                v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0">
+                                            <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in ratePlan" :key="ind">{{ res
                                                     }}</span>
                                             </p>
@@ -268,6 +269,11 @@
                                 </div>
                             </slot>
                         </div>
+                        <!-- Show room list for multiple rooms -->
+                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
+                            <GroupReservationRoomList :rooms="reservation.reservationRooms"
+                                @room-selected="handleRoomSelected" />
+                        </div>
                     </div>
 
                     <!-- Footer -->
@@ -279,17 +285,20 @@
                                     class=" w-full flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.totalChargesWithTaxes ?? 0)
+                                        <span class="text-sm">{{
+                                            formatCurrency(reservation.balanceSummary?.totalChargesWithTaxes ?? 0)
                                         }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.totalPayments ?? 0)
-                                            }}</span>
+                                        <span class="text-sm">{{
+                                            formatCurrency(reservation.balanceSummary?.totalPayments ?? 0)
+                                        }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
-                                        <span class="text-sm">{{ formatCurrency(reservation.balanceSummary?.outstandingBalance ?? 0)
+                                        <span class="text-sm">{{
+                                            formatCurrency(reservation.balanceSummary?.outstandingBalance ?? 0)
                                         }}</span>
                                     </div>
                                 </div>
@@ -321,12 +330,28 @@
             <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen"
                 @close="closeAddPaymentModal" @save="handleSavePayment" />
         </template>
+        <!--check out template-->
+          <template v-if="isCkeckOutModalOpen">
+            <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
+                @close="closeCheckOutReservationModal" />
+        </template>
+        <!--check in template-->
+          <template v-if="isCkeckInModalOpen">
+            <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
+                @close="closeCheckInReservationModal" />
+        </template>
+
+        <!--unassign template-->
+          <template v-if="isUnAssignModalOpen">
+            <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
+                @close="closeUnAssignReservationModal" />
+        </template>
     </template>
 
 
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-        @print-success="handlePrintSuccess"  @print-error="handlePrintError" :reservation-id="reservationId"/>
+        @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservationId" />
 
 </template>
 
@@ -338,6 +363,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
+import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
 import CancelReservation from './foglio/CancelReseravtion.vue'
 import PrintModal from '../common/PrintModal.vue'
@@ -350,6 +376,11 @@ import AmendStay from './foglio/AmendStay.vue'
 import AddPaymentModal from './foglio/AddPaymentModal.vue'
 import BookingInvoice from '../common/templates/BookingInvoice.vue'
 import NoShowReservation from './foglio/NoShowReservation.vue'
+import GroupReservationRoomList from './GroupReservationRoomList.vue'
+import CheckOutReservation from './CheckOutReservation.vue'
+import CheckInReservation from './CheckInReservation.vue'
+import UnAssignRoomReservation from './UnAssignRoomReservation.vue'
+import AssignRoomReservation from './AssignRoomReservation.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -392,11 +423,11 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 interface PrintTemplate {
-  id: string
-  name: string
-  description?: string
-  type: 'confirmation' | 'invoice' | 'receipt' // Le type suffit
-  // Plus besoin de la propriété component
+    id: string
+    name: string
+    description?: string
+    type: 'confirmation' | 'invoice' | 'receipt' // Le type suffit
+    // Plus besoin de la propriété component
 }
 
 const emit = defineEmits<Emits>()
@@ -407,6 +438,9 @@ const showPrintModal = ref(false)
 const showVoidModal = ref(false)
 const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
+const isCkeckOutModalOpen = ref(false)
+const isCkeckInModalOpen = ref(false)
+const isUnAssignModalOpen = ref(false)
 const reservationId = ref(props.reservationData?.reservation_id || 0)
 
 
@@ -439,6 +473,38 @@ const handleNoShowConfirmed = () => {
 }
 const openAddPaymentModal = () => {
     isAddPaymentModalOpen.value = true
+}
+
+const openCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = true
+
+}
+
+const closeCheckOutReservationModal = () => {
+    isCkeckOutModalOpen.value = false
+}
+
+const openCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = true
+
+
+}
+
+const closeCheckInReservationModal = () => {
+    isCkeckInModalOpen.value = false
+}
+
+const openUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = true
+}
+
+const closeUnAssignReservationModal = () => {
+    isUnAssignModalOpen.value = false
+}
+
+const handleRoomAssigned = (data: any) => {
+    console.log('Room assigned:', data)
+    getBookingDetailsById();
 }
 
 const closeAddPaymentModal = () => {
@@ -511,14 +577,14 @@ const handlePrintSuccess = (data: any) => {
     console.log('Print successful:', data)
     showPrintModal.value = false
 }
-const avgDailyRate =computed(()=>{
+const avgDailyRate = computed(() => {
     if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
         return 0;
     }
     const reservationRooms = reservation.value.reservationRooms;
     let total = 0;
     reservationRooms.forEach((room: any) => {
-        total += parseFloat(room.roomRate??0);
+        total += parseFloat(room.roomRate ?? 0);
     })
     return total;
 
@@ -540,7 +606,7 @@ const templates = ref<PrintTemplate[]>([
         type: 'invoice'
     },
     {
-        id: '3', 
+        id: '3',
         name: 'Reçu',
         description: 'Reçu de paiement',
         type: 'receipt'
@@ -573,6 +639,9 @@ const getBookingDetailsById = async () => {
     const response = await getReservationDetailsById(Number(id));
     console.log(response)
     reservation.value = response
+    reservation.value.reservationRooms = response.reservationRooms.map((e: any) => {
+        return { ...e, guest: reservation.value.guest }
+    })
 
     isLoading.value = false;
     console.log('Reservation data fetched:', reservation.value)
@@ -642,6 +711,12 @@ const dropdownOptions = computed(() => {
         }));
 });
 
+const handleRoomSelected = (room: any) => {
+    console.log('Room selected:', room)
+    // You can add logic here to handle room selection
+    // For example, navigate to room details or show room-specific actions
+}
+
 const handleOptionSelected = async (option: any) => {
 
 
@@ -660,12 +735,15 @@ const handleOptionSelected = async (option: any) => {
             showVoidModal.value = true;
             break;
         case 'unassign_room':
+          openUnAssignReservationModal()
             break;
         case 'inclusion_list':
             break;
         case 'check_in':
+          openCheckInReservationModal()
             break;
         case 'check_out':
+          openCheckOutReservationModal()
             break;
         case 'room_move':
             break;

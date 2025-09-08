@@ -7,7 +7,7 @@ import type {
 } from '@/types/option'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration`
-
+const URL = `${import.meta.env.VITE_API_URL as string}`
 
 const authStore = useAuthStore()
 const headers = {
@@ -152,6 +152,15 @@ export const updateRoomById = (id: number, data: any): Promise<AxiosResponse<any
   return axios.put(`${API_URL}/rooms/${id}`, data, headers)
 }
 /**
+ * Update a reservation-room
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateReservationRoomById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${URL}/reservation-rooms/${id}`, data, headers)
+}
+/**
  * Delete a room
  * @param id
  * @returns {Promise<AxiosResponse<any>>}
@@ -165,6 +174,28 @@ export const deleteRoomById = (id: number): Promise<AxiosResponse<any>> => {
  */
 export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/rooms/${hotelId}/details`, headers)
+}
+
+/*** 
+ * get availiabele room by typeId
+ */
+export const getAvailableRoomsByTypeId = (
+  roomTypeId: number,
+  startDate?: string,
+  endDate?: string
+): Promise<AxiosResponse<any>> => {
+  const params = {
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate })
+  }
+
+  return axios.get(
+    `${API_URL}/rooms/available-by-room-type/${roomTypeId}`,
+    {
+      ...headers,
+      params
+    }
+  )
 }
 
 /**
@@ -332,7 +363,14 @@ export const updateRateTypeById = (id: number, data: any): Promise<AxiosResponse
 export const getRateTypeByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/rate_types/hotel/${hotelId}`, headers)
 }
-
+/***
+ * get rate type by hotel id
+ * @param hotelId
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRateStayViewTypeByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rate_types/hotel/${hotelId}/stay_view`, headers)
+}
 /**
  * Delete a rate type
  * @param id
@@ -903,6 +941,14 @@ export const getReservationTypes = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
+ * Get all reservation types by hotel Id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getReservationTypesByHotelId = (hotelId:any): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservation_types?hotelId=${hotelId}`, headers)
+}
+
+/**
  * Post a new reservation type
  * @param data
  * @returns {Promise<AxiosResponse<any>>}
@@ -1051,6 +1097,14 @@ export const getPreferencesByHotelId = (hotelId: number): Promise<AxiosResponse<
  */
 export const getBusinessSources = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/business_sources`, headers)
+}
+
+/**
+ * Get all business sources by hotel
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBusinessSourcesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/business_sources?hotelId=${hotelId}`, headers)
 }
 
 /**
@@ -1289,17 +1343,64 @@ export const vipStatusApi = {
 }
 
 /**
- * incidental_invoices
- * @returns {Promise<AxiosResponse<any>>} incidental_invoices 
+ * Get incidental invoices with filter support
+ * @param params - Filter parameters
+ * @param params.hotelId - Hotel ID filter
+ * @param params.guestId - Guest ID filter
+ * @param params.folioId - Folio ID filter
+ * @param params.invoiceNumber - Invoice number filter
+ * @param params.status - Invoice status filter
+ * @param params.dateFrom - Start date filter (YYYY-MM-DD)
+ * @param params.dateTo - End date filter (YYYY-MM-DD)
+ * @param params.guestName - Guest name filter
+ * @param params.folioNumber - Folio number filter
+ * @param params.type - Invoice type filter
+ * @param params.amountMin - Minimum amount filter
+ * @param params.amountMax - Maximum amount filter
+ * @param params.createdBy - Created by user filter
+ * @param params.page - Page number for pagination
+ * @param params.limit - Number of items per page
+ * @returns {Promise<AxiosResponse<any>>} incidental_invoices
  */
-export const incidental_invoices = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/incidental_invoices`, headers)
+export const getIncidentalInvoices = (params?: {
+  hotelId?: string | number;
+  guestId?: string | number;
+  folioId?: string | number;
+  invoiceNumber?: string;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  guestName?: string;
+  folioNumber?: string;
+  type?: string;
+  amountMin?: number;
+  amountMax?: number;
+  createdBy?: string | number;
+  page?: number;
+  limit?: number;
+  hideVoided?: boolean;
+}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/incidental_invoices`, {
+    params,
+    ...headers
+  })
 }
 
 /**
- * 
+ *
  * post incidental invoices
  */
 export const postIncidentalInvoices = (data: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/incidental_invoices`, data, headers)
+}
+
+
+/**
+ * void incidental invoices
+ * @param id - incidental invoice id
+ * @param data - incidental invoice data
+ */
+
+export const voidIncidentalInvoices = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/incidental_invoices/${id}/void`, data, headers)
 }

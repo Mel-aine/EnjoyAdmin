@@ -40,7 +40,7 @@
 
           <img
             class="rounded-full w-10"
-           :src=" '/src/assets/images/header/logo2.png'"
+           src="/src/assets/images/header/logo2.png"
             alt="Logo" />
           <span
             class="inline-flex text-xl text-gray-900 font-bold flex-wrap">

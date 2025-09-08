@@ -146,6 +146,7 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import type { Column } from '../../../utils/models'
 
 interface FilterOptions {
   value: string;
@@ -290,19 +291,19 @@ const revenueData = ref<RevenueData[]>([
 ])
 
 // Table columns
-const tableColumns = ref([
+const tableColumns = ref<Column[]>([
   { key: 'revenueAccount', label: 'Revenue Account' },
   { key: 'description', label: 'Description' },
-  { key: 'roomCharges', label: 'Room Charges (Rs)', type: 'currency' },
-  { key: 'foodBeverage', label: 'Food & Beverage (Rs)', type: 'currency' },
-  { key: 'telephone', label: 'Telephone (Rs)', type: 'currency' },
-  { key: 'laundry', label: 'Laundry (Rs)', type: 'currency' },
-  { key: 'miscellaneous', label: 'Miscellaneous (Rs)', type: 'currency' },
-  { key: 'extraBed', label: 'Extra Bed (Rs)', type: 'currency' },
-  { key: 'discount', label: 'Discount (Rs)', type: 'currency' },
-  { key: 'roundOff', label: 'Round Off (Rs)', type: 'currency' },
-  { key: 'total', label: 'Total (Rs)', type: 'currency', highlight: true },
-  { key: 'percentage', label: 'Percentage (%)', type: 'percentage' }
+  { key: 'roomCharges', label: 'Room Charges ', type: 'text' },
+  { key: 'foodBeverage', label: 'Food & Beverage ', type: 'text' },
+  { key: 'telephone', label: 'Telephone ', type: 'text' },
+  { key: 'laundry', label: 'Laundry ', type: 'text' },
+  { key: 'miscellaneous', label: 'Miscellaneous ', type: 'text' },
+  { key: 'extraBed', label: 'Extra Bed ', type: 'text' },
+  { key: 'discount', label: 'Discount ', type: 'text' },
+  { key: 'roundOff', label: 'Round Off ', type: 'text' },
+  { key: 'total', label: 'Total ', type: 'text',   },
+  { key: 'percentage', label: 'Percentage (%)', type: 'text' }
 ])
 
 // Computed properties

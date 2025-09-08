@@ -24,7 +24,7 @@ export interface UpdateFolioData {
 
 export interface TransactionData {
   folioId: number
-  transactionType: 'charge' | 'payment' | 'adjustment'
+  transactionType: string
   category: string
   description: string
   amount: number
@@ -874,6 +874,17 @@ export const printHotelPdf = async (data: {
     return response.data
   } catch (error) {
     console.error('Error printing confirmBooking:', error)
+    throw error
+  }
+}
+
+export const getUnsetteledFolio = async (hotelId: number): Promise<any> => {
+  
+  try { 
+    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, headers)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching folio:', error)
     throw error
   }
 }

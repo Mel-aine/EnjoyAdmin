@@ -213,7 +213,7 @@ const fetchRoomType = async () => {
       .map((item: RoomTypeData) => ({
         ...item,
         value: item.id,
-        label: item.name,
+        label: item.roomTypeName,
       }))
   } catch (error) {
     console.error('Erreur lors de la récupération des types de chambre:', error)
@@ -229,6 +229,7 @@ const fetchEquipments = async () => {
     // .filter((equipment: EquipmentData) => equipment.status === 'active')
     // .map((item: EquipmentData) => ({
     //   ...item,
+    //   roomType: item.roomType?.roomTypeName,
     //   value: item.id,
     //   label: item.name,
     // }));

@@ -457,7 +457,6 @@ const statisticalReports = ref([
 
 // Custom Reports
 const customReports = ref([
-  // { name: 'custom-report-builder', path: '/reports/custom/custom-report-builder', label: 'reports.custom.customReportBuilder' },
   { name: 'monthly-occupancy', path: '/reports/custom/monthly-occupancy', label: 'reports.custom.monthlyOccupancy' },
   { name: 'monthly-revenue', path: '/reports/custom/monthly-revenue', label: 'reports.custom.monthlyRevenue' },
   { name: 'payment-summary', path: '/reports/custom/payment-summary', label: 'reports.custom.paymentSummary' },

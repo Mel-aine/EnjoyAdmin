@@ -617,7 +617,7 @@ export function useBooking() {
         .map((item: RoomTypeData) => ({
           ...item,
           value: item.id,
-          label: item.name,
+          label: item.roomTypeName,
         }))
     } catch (error) {
       console.error('Erreur lors de la récupération des roomtypes:', error)
@@ -625,7 +625,7 @@ export function useBooking() {
   }
 
   watch(selectedRoomType, (newType: RoomTypeData | null) => {
-    reservationType.value = newType?.name || 'Hotels & Stays'
+    reservationType.value = newType?.roomTypeName || 'Hotels & Stays'
     form.value.default_guest = Number(newType?.defaultGuest) || 1
     form.value.default_deposit = newType?.defaultDeposit || 0
   })
