@@ -11,7 +11,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 class="text-xl font-semibold">{{ $t('AddBooking') }}</h1>
+          <h1 class="text-xl font-semibold">{{ $t(title) }}</h1>
         </div>
 
         <!-- Form -->
@@ -26,12 +26,16 @@
                   <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     {{ $t('check_in') }}
                   </label>
+
+
+
                   <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "false"
+                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates = "inserTransaction"
                       :placeholder="$t('Selectdate')" />
                     <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                   </div>
                 </div>
+
 
                 <!-- Nights -->
                 <div class="flex flex-col w-full">
@@ -595,7 +599,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, DefineProps } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
@@ -609,6 +613,7 @@ import {
   CarFront,
   ClipboardCheck,
   ClipboardList,
+  PoundSterlingIcon,
 } from 'lucide-vue-next'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
@@ -623,8 +628,23 @@ import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSele
 import CheckInReservation from '@/components/reservations/CheckInReservation.vue'
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
-
 const isAddPaymentModalOpen = ref(false)
+
+const props =defineProps(
+  {
+    title:{
+      type:String,
+      default: 'Addbooking'
+    },
+      insertTransaction:{
+      type:Boolean,
+      default: false
+    }
+  }
+  
+
+)
+
 const performChecking = () => {
 
 }
@@ -817,6 +837,7 @@ const onQuickGroupBookingChange = (event: Event) => {
 }
 
 onMounted(() => {
+  console.log('props>>>>', props.Inserttransaction, props.title)
   initialize()
   initializeForm()
 })
