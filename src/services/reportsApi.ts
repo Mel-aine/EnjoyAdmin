@@ -3,7 +3,6 @@ import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`
-
 const authStore = useAuthStore()
 const headers = {
   headers: {
@@ -86,6 +85,91 @@ export const generateArrivalList = async (filters: ReportFilters = {}): Promise<
   }
 }
 
+// Correction dans services/reportsApi.ts
+export const exportArrivalList = async (
+  format: 'csv' | 'pdf' | 'excel' = 'csv',
+  filters: ReportFilters = {}
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.post(
+      `${API_URL}/exports/arrival-list`,
+      { 
+        reportType: 'arrivalList', 
+        format, 
+        filters 
+      },
+      {
+        ...headers,
+        responseType: 'blob' // Toujours utiliser blob pour tous les formats
+      }
+    )
+
+    // Créer le blob à partir de la réponse
+    const blob = new Blob([response.data])
+    
+    // Déterminer le type MIME et l'extension en fonction du format
+    let mimeType, fileExtension
+    switch (format) {
+      case 'csv':
+        mimeType = 'text/csv'
+        fileExtension = 'csv'
+        break
+      case 'pdf':
+        mimeType = 'application/pdf'
+        fileExtension = 'pdf'
+        break
+      case 'excel':
+        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        fileExtension = 'xlsx'
+        break
+      default:
+        mimeType = 'text/csv'
+        fileExtension = 'csv'
+    }
+
+    // Créer le blob avec le bon type MIME
+    const formattedBlob = new Blob([response.data], { type: mimeType })
+    const url = window.URL.createObjectURL(formattedBlob)
+    const link = document.createElement('a')
+    
+    // Générer un nom de fichier avec timestamp
+    const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '')
+    link.setAttribute('download', `arrival_list_${timestamp}.${fileExtension}`)
+    
+    link.href = url
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+    
+    return { 
+      success: true, 
+      message: `Fichier ${format.toUpperCase()} téléchargé avec succès` 
+    }
+  } catch (error) {
+    console.error('Erreur détaillée lors de l\'export:', error)
+    
+    // Gestion spécifique des erreurs 400
+    if (error.response?.status === 400) {
+      // Essayer de lire le message d'erreur du blob
+      try {
+        const errorData = await error.response.data.text()
+        const errorJson = JSON.parse(errorData)
+        throw {
+          message: errorJson.message || 'Erreur de validation des paramètres',
+          error: errorJson.error || 'Bad Request'
+        }
+      } catch (parseError) {
+        throw {
+          message: 'Erreur de format de réponse du serveur',
+          error: 'Invalid server response format'
+        }
+      }
+    }
+    
+    handleApiError(error)
+  }
+}
 export const generateDepartureList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
