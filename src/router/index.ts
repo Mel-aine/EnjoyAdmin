@@ -1116,6 +1116,43 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    //configuration staff
+    {
+      path: '/configuration/staff/department',
+      name: 'department',
+      component: () => import('../views/Configuration/Staff/DepartmentView.vue'),
+      meta: {
+        title: 'Department',
+        requiresAuth: true,
+      },
+    },
+      {
+      path: '/configuration/staff/staff_management',
+      name: 'Staff Management',
+      component: () => import('../views/Configuration/Staff/EStaffStaffManager.vue'),
+      meta: {
+        title: 'Staff Management',
+        requiresAuth: true,
+      },
+    },
+      {
+      path: '/users/new',
+      name: 'newUser',
+      component: () => import('../views/Configuration/Staff/UserUpsertForm.vue'),
+      meta: {
+        title: 'new User',
+        requiresAuth: true,
+      },
+    },
+     {
+      path: '/configuration/staff/user_role',
+      name: 'User Role',
+      component: () => import('../views/Configuration/Staff/UserRoleView.vue'),
+      meta: {
+        title: 'User Role',
+        requiresAuth: true,
+      },
+    },
     // Channel Manager Configuration Routes
     {
       path: '/configuration/channel-manager',
@@ -1188,15 +1225,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/department',
-      name: 'department',
-      component: () => import('../views/DepartmentView.vue'),
-      meta: {
-        title: 'Department',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/departments/:id',
       name: 'departmentDetails',
@@ -1279,15 +1308,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/permission',
-      name: 'Permission',
-      component: () => import('../views/Users/Permission.vue'),
-      meta: {
-        title: 'Permission',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/service',
       name: 'Service',
@@ -1439,15 +1460,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/staff_management/staff_management',
-      name: 'Staff Management',
-      component: () => import('../views/StaffManagement/EStaffStaffManager.vue'),
-      meta: {
-        title: 'Staff Management',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/staff_management/action_history',
       name: 'Action History',

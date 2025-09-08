@@ -172,7 +172,7 @@
           <router-link v-for="item in filteredStaffItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
             active-class="text-blue-600 bg-blue-50">
-            {{ item.name }}
+            {{ item.label }}
           </router-link>
         </div>
       </div>
@@ -274,9 +274,9 @@ const settingsItems = [
 
 const staffItems = [
   // { path: '/staff_management/dashboard', name: 'Dashboard Overview' },
-  { path: '/department', name: 'Department' },
-  { path: '/staff_management/staff_management', name: 'Staff Management' },
-  { path: '/permission', name: 'Permission' },
+  { path: '/configuration/staff/department', label: 'Department' },
+  { path: '/configuration/staff/staff_management', label: 'Staff Management' },
+  { path: '/configuration/staff/user_role', label: 'User Role' },
   // { path: '/staff_management/task_management', name: 'Task Management' },
   //{ path: '/staff_management/staff_schedule', name: 'Staff Schedule' },
   //{ path: '/staff_management/action_history', name: 'Action History' }

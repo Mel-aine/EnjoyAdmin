@@ -1,5 +1,5 @@
 <template>
-  <ConfigurationLayout> 
+  <ConfigurationLayout>
     <div class="min-h-screen bg-gray-50 p-6">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->

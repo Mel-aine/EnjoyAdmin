@@ -1411,3 +1411,10 @@ export const postIncidentalInvoices = (data: any): Promise<AxiosResponse<any>> =
 export const voidIncidentalInvoices = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/incidental_invoices/${id}/void`, data, headers)
 }
+
+/**
+ * Permission
+ */
+export const getConfiguration = (hotelId:number) :Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/permissions?hotelId=${hotelId}`, headers)
+}
