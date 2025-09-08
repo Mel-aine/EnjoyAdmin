@@ -230,7 +230,7 @@
             </ButtonComponent>
             
             <ButtonComponent 
-              @click="generateReport"
+              @click="generateArrivalReport"
               variant="primary"
               class="min-w-24"
             >
@@ -287,6 +287,8 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { generateArrivalList, type ReportFilters } from '@/services/reportsApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
 interface FilterOptions {
   value: string;
@@ -328,6 +330,17 @@ interface Filters {
 
 const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
+const reportData = ref<any>(null)
+const loading = ref<boolean>(false)
+const serviceStore = useServiceStore()
+const idHotel = serviceStore.serviceId
+
+const filter = ref<ReportFilters>({
+  startDate: '2025-09-07',
+  endDate: '2025-09-10',
+  hotelId: idHotel !== null ? idHotel : undefined
+}
+)
 
 const filters = ref<Filters>({
   arrivalFrom: '27/04/2019',
@@ -465,10 +478,20 @@ const totalPax = computed(() => {
 })
 
 // Methods
-const generateReport = (): void => {
-  showResults.value = true
-  // Here you could make an API call to fetch data
-  console.log('Generating report with filters:', filters.value)
+const generateArrivalReport = async () => {
+  loading.value = true
+  try {
+    console.log('Generating report with filters:', filter.value)
+    const response = await generateArrivalList( filter.value)
+    console.log('Report Data:', response)
+    if (response.success && response.data) {
+      reportData.value = response.data
+    }
+  } catch (error) {
+    console.error('Erreur:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 const exportData = (): void => {
