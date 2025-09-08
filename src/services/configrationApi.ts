@@ -176,7 +176,7 @@ export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>
   return axios.get(`${API_URL}/rooms/${hotelId}/details`, headers)
 }
 
-/*** 
+/***
  * get availiabele room by typeId
  */
 export const getAvailableRoomsByTypeId = (
@@ -890,6 +890,13 @@ export const deleteBlackListReasonById = (id: number): Promise<AxiosResponse<any
  */
 export const getMarketCodes = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/market_codes`, headers)
+}
+
+/**
+ * get code by hotelId
+ */
+export const getMarketCodesByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/market_codes?hotelId=${hotelId}`, headers)
 }
 
 /**
