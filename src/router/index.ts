@@ -519,14 +519,6 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-<<<<<<< HEAD
-    {
-      path: '/reports/statistical/business-analysis',
-      name: 'buisnessAnalysis',
-      component: () => import('../views/Reports/Statistical/BusinessAnalysis.vue'),
-      meta: {
-        title: 'Business Analysis',
-=======
     // Custom Reports
     {
       path: '/reports/custom/monthly-occupancy',
@@ -534,29 +526,10 @@ const router = createRouter({
       component: () => import('../views/Reports/Custom/OccupancyMonthly.vue'),
       meta: {
         title: 'Occupancy Month',
->>>>>>> d0901cc866233fd592f91eeaf6221dfc6612ebe9
         requiresAuth: true,
       },
     },
     {
-<<<<<<< HEAD
-      path: '/reports/statistical/monthly-statistics',
-      name: 'MonthlyStatistics',
-      component: () => import('../views/Reports/Statistical/MonthlyStatistics.vue'),
-      meta: {
-        title: 'Monthly Statistics',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/reports/statistical/room-sale-statistics',
-      name: 'RoomSaleStatistics',
-      component: () => import('../views/Reports/Statistical/RoomSaleStatistics.vue'),
-      meta: {
-        title: 'Room Sale Statistics',
-        requiresAuth: true,
-      },
-=======
       path: '/pdf-viewer',
       name: 'PDFViewer',
       component: () => import('@/views/PDFViewer.vue'),
@@ -564,7 +537,6 @@ const router = createRouter({
         title: 'PDF Viewer',
         requiresAuth: true
       }
->>>>>>> d0901cc866233fd592f91eeaf6221dfc6612ebe9
     },
     // Additional Front Office Reports
     {
