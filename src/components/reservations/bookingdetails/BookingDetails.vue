@@ -386,7 +386,7 @@ const guestData = computed(() => props.guest || {})
 // Computed properties for room data
 const getCompaniesList = async () => {
   try {
-    const resp = await getCompanies()
+    const resp:any = await getCompanies()
     console.log('Companies response:', resp)
     companyOptions.value = resp.map((c: any) => ({
       label: c.companyName,
@@ -518,7 +518,6 @@ const {
   creditTypes,
   billToOptions,
   MarketCode,
-  emailTemplates,
   reservationId,
 } = useBooking()
 

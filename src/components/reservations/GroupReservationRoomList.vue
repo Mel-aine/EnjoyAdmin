@@ -99,12 +99,12 @@
     </div>
 
     <!-- Room Selection Modal -->
-    <RoomSelectionModal
+    <RoomSelectionModal v-if="selectedReservationRoom?.id"
       :is-open="showRoomSelectionModal"
       :reservation="selectedReservationRoom"
       :available-rooms="availableRooms"
+      :reservation-id="selectedReservationRoom?.id"
       @close="closeRoomSelection"
-      @room-selected="handleRoomSelected"
     />
   </div>
 </template>
@@ -214,14 +214,4 @@ const closeRoomSelection = () => {
   availableRooms.value = []
 }
 
-const handleRoomSelected = (roomData: { roomId: number; roomNumber: string }) => {
-  if (selectedReservationRoom.value) {
-    emit('room-assigned', {
-      roomId: roomData.roomId,
-      roomNumber: roomData.roomNumber,
-      reservationRoom: selectedReservationRoom.value
-    })
-  }
-  closeRoomSelection()
-}
 </script>

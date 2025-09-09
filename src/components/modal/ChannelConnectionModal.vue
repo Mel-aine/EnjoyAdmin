@@ -481,16 +481,7 @@ const testConnection = async () => {
 
   testingConnection.value = true
   try {
-    const result = await channelManagerApi.testConnection({
-      channelType: connectionForm.channelType,
-      config: connectionForm.config
-    })
-    
-    if (result.success) {
-      toast.success('Connection test successful!')
-    } else {
-      toast.error(`Connection test failed: ${result.message}`)
-    }
+   
   } catch (error: any) {
     toast.error(`Connection test failed: ${error.message}`)
   } finally {
@@ -513,11 +504,9 @@ const handleSubmit = async () => {
 
     let result
     if (props.isEditMode && props.connection?.id) {
-      result = await channelManagerApi.updateConnection(props.connection.id, connectionData)
-      toast.success('Connection updated successfully!')
+      
     } else {
-      result = await channelManagerApi.createConnection(connectionData)
-      toast.success('Connection created successfully!')
+       
     }
 
     emit('save', result)
