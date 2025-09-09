@@ -32,7 +32,6 @@ const {
   isUpdatingInclusionList,
   isMarkingNoShow,
   isVoidingReservation,
-  isUnassigningRoom,
   performCheckIn,
   performCheckOut,
   showNoShowModal,

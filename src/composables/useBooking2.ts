@@ -5,12 +5,12 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { getRoomTypes } from '@/services/roomTypeApi'
-import { getRateTypes ,getRateTypesByRoomTypes} from '@/services/rateTypeApi'
+import { getRateTypes, getRateTypesByRoomTypes } from '@/services/rateTypeApi'
 import { createReservation, getReservationDetailsById } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getBusinessSourcesByHotelId, getMarketCodeById,getMarketCodes } from '../services/configrationApi'
+import { getBusinessSourcesByHotelId, getAvailableRoomsByTypeId,getMarketCodesByHotelId } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -62,8 +62,8 @@ interface Billing {
   billTo: string
   taxExempt: boolean
   paymentMode?: number
-  creditType: string,
-  paymentType:string
+  creditType: string
+  paymentType: string
 }
 
 interface PaymentData {
@@ -134,6 +134,7 @@ export function useBooking() {
   const isLoadingRoom = ref(false)
   const isLoadingRate = ref(false)
   const isPaymentLoading = ref(false)
+  const isLoadingAvailableRooms = ref(false)
 
   // Data refs
   const RoomTypes = ref<Option[]>([])
@@ -148,7 +149,7 @@ export function useBooking() {
   const PaymentMethods = ref<any[]>([])
   const pendingUploads = ref<Set<string>>(new Set())
   const uploadErrors = ref<string[]>([])
-  const isCustomPrize = ref(false);
+  const isCustomPrize = ref(false)
   const roomTypeBaseInfo = ref<
     Map<
       string,
@@ -177,7 +178,7 @@ export function useBooking() {
       childCount: 0,
       rate: 0,
       isOpen: false,
-      taxes: []
+      taxes: [],
     },
   ])
 
@@ -224,7 +225,7 @@ export function useBooking() {
     idExpiryDate: '',
     issuingCountry: '',
     issuingCity: '',
-    profilePhoto:''
+    profilePhoto: '',
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -243,7 +244,7 @@ export function useBooking() {
     billTo: 'guest',
     taxExempt: false,
     creditType: '',
-    paymentType:'cash'
+    paymentType: 'cash',
   })
 
   const dateError = ref<string | null>(null)
@@ -283,57 +284,32 @@ export function useBooking() {
 
   const getBusinessSource = async () => {
     const hotelId = serviceStore.serviceId
-    const resp = await getBusinessSourcesByHotelId(hotelId!);
-    console.log('response',resp)
-    businessSourcesLo.value = resp.data?.data?.data.map((s:any) => ({
-        value: s.name,
-        label: s.name
-      }))
+    const resp = await getBusinessSourcesByHotelId(hotelId!)
+    console.log('response', resp)
+    businessSourcesLo.value = resp.data?.data?.data.map((s: any) => ({
+      value: s.name,
+      label: s.name,
+    }))
   }
-  getBusinessSource();
+  getBusinessSource()
 
   const getMarketCode = async () => {
     try {
-      
       const hotelId = serviceStore.serviceId
-      const resp = await getMarketCodes();
-      console.log('Market Codes response:', resp);
+      const resp = await getMarketCodesByHotelId(hotelId!)
+      console.log('Market Codes response:', resp)
       marketCodesLo.value = resp.data?.data?.data.map((s: any) => ({
         value: s.code,
-        label: s.name
-      }));
+        label: s.name,
+      }))
     } catch (error) {
-      console.error('Error fetching market codes:', error);
+      console.error('Error fetching market codes:', error)
     }
   }
-  getMarketCode();
+  getMarketCode()
   // Watchers
-  // watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], () => {
-  //   const arrivalDate = reservation.value.checkinDate
-  //   const departureDate = reservation.value.checkoutDate
 
-  //   if (!arrivalDate || !departureDate) {
-  //     dateError.value = null
-  //     return
-  //   }
-
-  //   const arrival = new Date(arrivalDate)
-  //   const departure = new Date(departureDate)
-
-  //   if (departure <= arrival) {
-  //     dateError.value = 'validation.departureAfterArrival'
-  //   } else {
-  //     dateError.value = null
-  //   }
-  //   roomConfigurations.value.forEach((room) => {
-  //     onRoomNumberChange(room)
-  //   })
-  //   updateBilling()
-  // })
-
-  watch(
-  [() => reservation.value.checkinDate, () => reservation.value.checkoutDate],
-  () => {
+  watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], async () => {
     const arrivalDate = reservation.value.checkinDate
     const departureDate = reservation.value.checkoutDate
 
@@ -343,7 +319,7 @@ export function useBooking() {
     }
 
     const today = new Date()
-    today.setHours(0, 0, 0, 0) // pour comparer uniquement la date (pas l'heure)
+    today.setHours(0, 0, 0, 0)
 
     const arrival = new Date(arrivalDate)
     const departure = new Date(departureDate)
@@ -358,13 +334,17 @@ export function useBooking() {
       dateError.value = null
     }
 
-    roomConfigurations.value.forEach((room) => {
-      onRoomNumberChange(room)
-    })
-    updateBilling()
-  }
-)
+    // Recharger les chambres disponibles pour chaque configuration de chambre
+    for (const room of roomConfigurations.value) {
+      if (room.roomType) {
+        // Reset la sélection de chambre car les chambres disponibles peuvent avoir changé
+        room.roomNumber = ''
+        await loadRoomsForRoomType(room.roomType)
+      }
+    }
 
+    updateBilling()
+  })
 
   // Watch pour la synchronisation du nombre de chambres
   watch(
@@ -397,7 +377,7 @@ export function useBooking() {
   watch(
     () => billing.value.paymentMode,
     (newMode) => {
-      paymentData.value.paymentMethod = `${newMode??''}`
+      paymentData.value.paymentMethod = `${newMode ?? ''}`
     },
   )
 
@@ -423,7 +403,6 @@ export function useBooking() {
 
     return roomTypeRooms.value.get(room.roomType) || []
   }
-
 
   // Fonction pour charger les rate types pour un room type spécifique
   const loadRateTypesForRoomType = async (roomTypeId: string, forceReload = false) => {
@@ -454,29 +433,42 @@ export function useBooking() {
   }
 
   const loadRoomsForRoomType = async (roomTypeId: string) => {
-    if (!roomTypeId || RoomTypesData.value.length === 0) return
+    if (!roomTypeId) return
 
     const roomTypeIdNumber = Number(roomTypeId)
 
     try {
-      const selectedRoomTypeData = RoomTypesData.value.find(
-        (roomType: RoomTypeData) => roomType.id === roomTypeIdNumber,
+      isLoadingAvailableRooms.value = true
+      const response = await getAvailableRoomsByTypeId(
+        roomTypeIdNumber,
+        reservation.value.checkinDate,
+        reservation.value.checkoutDate,
       )
 
-      if (!selectedRoomTypeData || !selectedRoomTypeData.rooms) return
+      console.log('Available rooms response:', response)
 
-      const availableRooms = selectedRoomTypeData.rooms.filter((room: RoomData) => {
-        return room.status !== 'maintenance' && room.status !== 'out_of_order'
-      })
+      if (response?.data?.data?.rooms) {
+        // Filtrer seulement les chambres disponibles
+        const availableRooms = response.data.data.rooms.filter(
+          (room: any) => room.status === 'available',
+        )
 
-      const roomOptions: Option[] = availableRooms.map((room: RoomData) => ({
-        label: room.roomNumber,
-        value: room.id,
-      }))
+        const roomOptions: Option[] = availableRooms.map((room: any) => ({
+          label: room.roomNumber,
+          value: room.id,
+        }))
 
-      roomTypeRooms.value.set(roomTypeId, roomOptions)
+        roomTypeRooms.value.set(roomTypeId, roomOptions)
+      } else {
+        // Aucune chambre disponible
+        roomTypeRooms.value.set(roomTypeId, [])
+      }
     } catch (error) {
-      console.error('Error loading rooms for room type:', error)
+      console.error('Error loading available rooms for room type:', error)
+      toast.error(t('toast.errorLoadingAvailableRooms'))
+      roomTypeRooms.value.set(roomTypeId, [])
+    } finally {
+      isLoadingAvailableRooms.value = false
     }
   }
 
@@ -518,7 +510,7 @@ export function useBooking() {
       childCount: 0,
       rate: 0,
       isOpen: false,
-      taxes: []
+      taxes: [],
     }
     roomConfigurations.value.push(newRoom)
     reservation.value.rooms = roomConfigurations.value.length
@@ -550,7 +542,7 @@ export function useBooking() {
       }
 
       const response = await getRoomTypes(hotelId)
-      console.log("fetchRoomtype",response)
+      console.log('fetchRoomtype', response)
 
       if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
         throw new Error('Invalid room types data structure')
@@ -618,12 +610,11 @@ export function useBooking() {
         idExpiryDate: customer.idExpiryDate,
         issuingCountry: customer.issuingCountry,
         issuingCity: customer.issuingCity,
-        profilePhoto:customer.profilePhoto || null,
+        profilePhoto: customer.profilePhoto || null,
         passportNumber: null,
         passportExpiry: null,
         visaNumber: null,
-        visaExpiry: null
-
+        visaExpiry: null,
       }
 
       // Mettre à jour le nom sur la carte
@@ -649,41 +640,39 @@ export function useBooking() {
     }
   }
 
+  // Fonction pour attendre que tous les uploads soient terminés
+  const waitForPendingUploads = async (): Promise<boolean> => {
+    const maxWaitTime = 30000
+    const checkInterval = 500
+    let waitTime = 0
 
+    while (pendingUploads.value.size > 0 && waitTime < maxWaitTime) {
+      await new Promise((resolve) => setTimeout(resolve, checkInterval))
+      waitTime += checkInterval
+    }
 
-// Fonction pour attendre que tous les uploads soient terminés
-const waitForPendingUploads = async (): Promise<boolean> => {
-  const maxWaitTime = 30000
-  const checkInterval = 500
-  let waitTime = 0
+    if (pendingUploads.value.size > 0) {
+      throw new Error('Upload timeout: Some images are still being uploaded')
+    }
 
-  while (pendingUploads.value.size > 0 && waitTime < maxWaitTime) {
-    await new Promise(resolve => setTimeout(resolve, checkInterval))
-    waitTime += checkInterval
+    if (uploadErrors.value.length > 0) {
+      throw new Error(`Upload errors: ${uploadErrors.value.join(', ')}`)
+    }
+
+    return true
   }
 
-  if (pendingUploads.value.size > 0) {
-    throw new Error('Upload timeout: Some images are still being uploaded')
+  // Fonction pour suivre l'état des uploads
+  const trackUpload = (uploadId: string) => {
+    pendingUploads.value.add(uploadId)
   }
 
-  if (uploadErrors.value.length > 0) {
-    throw new Error(`Upload errors: ${uploadErrors.value.join(', ')}`)
+  const completeUpload = (uploadId: string, success: boolean, error?: string) => {
+    pendingUploads.value.delete(uploadId)
+    if (!success && error) {
+      uploadErrors.value.push(error)
+    }
   }
-
-  return true
-}
-
-// Fonction pour suivre l'état des uploads
-const trackUpload = (uploadId: string) => {
-  pendingUploads.value.add(uploadId)
-}
-
-const completeUpload = (uploadId: string, success: boolean, error?: string) => {
-  pendingUploads.value.delete(uploadId)
-  if (!success && error) {
-    uploadErrors.value.push(error)
-  }
-}
 
   //save reservation
   const saveReservation = async () => {
@@ -704,7 +693,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
 
       await waitForPendingUploads()
 
-
       uploadErrors.value = []
 
       if (formData.value.profilePhoto && !formData.value.profilePhoto.startsWith('http')) {
@@ -722,11 +710,11 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
         idExpiryDate: formData.value.idExpiryDate,
         issuingCountry: formData.value.issuingCountry,
         issuingCity: formData.value.issuingCity,
-        profilePhoto:formData.value.profilePhoto || null,
+        profilePhoto: formData.value.profilePhoto || null,
         passportNumber: null,
         passportExpiry: null,
         visaNumber: null,
-        visaExpiry: null
+        visaExpiry: null,
       }
 
       // Appliquer la même logique que dans selectCustomer pour les types d'identité
@@ -768,7 +756,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
         reservation_status: 'confirmed',
         status: 'confirmed',
 
-
         // Reservation details
         hotel_id: serviceStore.serviceId,
         reservation_type: reservation.value.bookingType,
@@ -794,9 +781,12 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
             adult_count: safeParseInt(room.adultCount, 1),
             child_count: safeParseInt(room.childCount, 0),
             room_rate_id: RoomRateById.value,
-            taxes:( (!billing.value.taxExempt && room.taxes?.length) ? room.taxes.reduce((total, tax: any) => {
-              return Number(total) + Number(tax.taxAmount)
-            }, 0) : 0)/Number(numberOfNights.value)
+            taxes:
+              (!billing.value.taxExempt && room.taxes?.length
+                ? room.taxes.reduce((total, tax: any) => {
+                    return Number(total) + Number(tax.taxAmount)
+                  }, 0)
+                : 0) / Number(numberOfNights.value),
           })),
 
         // Financial
@@ -827,10 +817,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
         created_by: Number(authStore.UserId),
       }
 
-      //Validation finale
-      // if (!reservationPayload.rooms || reservationPayload.rooms.length === 0) {
-      //   throw new Error('At least one valid room configuration is required')
-      // }
+
 
       console.log('Final reservation payload:', reservationPayload)
 
@@ -845,7 +832,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
 
       toast.success(t('reservationCreated'))
 
-       return response
+      return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
@@ -875,7 +862,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     router.back()
   }
 
-
   // Fonction calculateRoomRate
   const calculateRoomRate = (
     roomTypeId: string,
@@ -892,13 +878,13 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     // Calculer les adultes supplémentaires
     const extraAdults = Math.max(0, Number(adultCount) - Number(baseInfo.baseAdult))
     if (extraAdults > 0 && Number(baseInfo.extraAdultRate) > 0) {
-      totalRate = totalRate + (extraAdults * Number(baseInfo.extraAdultRate))
+      totalRate = totalRate + extraAdults * Number(baseInfo.extraAdultRate)
     }
 
     // Calculer les enfants supplémentaires
     const extraChildren = Math.max(0, Number(childCount) - Number(baseInfo.baseChild))
     if (extraChildren > 0 && Number(baseInfo.extraChildRate) > 0) {
-      totalRate = totalRate + (extraChildren * Number(baseInfo.extraChildRate))
+      totalRate = totalRate + extraChildren * Number(baseInfo.extraChildRate)
     }
 
     return Number(totalRate.toFixed(2)) // Arrondir à 2 décimales
@@ -941,7 +927,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
           Number(rateInfo.baseRate) || 0,
         )
 
-
         updateBilling()
       }
     } catch (error) {
@@ -965,6 +950,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     if (!newRoomTypeId) return
 
     try {
+      // Charger les rate types et les chambres disponibles en parallèle
       await Promise.all([
         loadRateTypesForRoomType(newRoomTypeId),
         loadRoomsForRoomType(newRoomTypeId),
@@ -976,7 +962,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
         room.childCount = Number(selectedRoomTypeData.baseChild) || 0
         room.rate = Number(selectedRoomTypeData.default_price) || 0
 
-        // Stocker les informations avec conversion en nombres
         roomTypeBaseInfo.value.set(newRoomTypeId, {
           baseAdult: Number(selectedRoomTypeData.baseAdult) || 1,
           baseChild: Number(selectedRoomTypeData.baseChild) || 0,
@@ -992,16 +977,17 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
 
   // Fonction updateBilling
   const updateBilling = () => {
-
     const roomCharges = roomConfigurations.value.reduce((total, room) => {
       const roomRate = prepareFolioAmount(room.rate)
       const nights = Math.max(1, Number(numberOfNights.value) || 1)
-      return Number(total) + (roomRate * nights)
+      return Number(total) + roomRate * nights
     }, 0)
     const defaultaxes = roomConfigurations.value.reduce((total, room) => {
-      const taxs = room.taxes?.length ? room.taxes?.reduce((total, tax: any) => {
-        return Number(total) + Number(tax.taxAmount)
-      }, 0) : 0
+      const taxs = room.taxes?.length
+        ? room.taxes?.reduce((total, tax: any) => {
+            return Number(total) + Number(tax.taxAmount)
+          }, 0)
+        : 0
       return Number(total) + taxs
     }, 0)
 
@@ -1011,7 +997,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     // Assigner avec conversion explicite et arrondi
     billing.value.roomCharges = Number(roomCharges.toFixed(2))
     billing.value.taxes = Number(taxes.toFixed(2))
-    billing.value.totalAmount = Number((roomCharges).toFixed(2))
+    billing.value.totalAmount = Number(roomCharges.toFixed(2))
   }
 
   // Ajouter un watcher pour recalculer quand taxExempt change
@@ -1019,7 +1005,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     () => billing.value.taxExempt,
     () => {
       updateBilling()
-    }
+    },
   )
 
   // Fonction onOccupancyChange
@@ -1136,7 +1122,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     }
   }
 
-
   //  watch recalculer automatiquement quand les comptes changent
   watch(
     roomConfigurations,
@@ -1157,8 +1142,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     },
     { deep: true },
   )
-
-
 
   // Fonction pour recalculer le tarif d'une chambre spécifique
 
@@ -1199,8 +1182,6 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
     }
   }
 
-
-
   // afficher les détails des extras dans le résumé
   const roomExtraDetails = computed(() => {
     return roomConfigurations.value.map((room) => ({
@@ -1234,7 +1215,7 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
         childCount: 0,
         rate: 0,
         isOpen: false,
-        taxes: []
+        taxes: [],
       },
     ]
 
@@ -1261,9 +1242,8 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
       idNumber: '',
       idExpiryDate: '',
       issuingCountry: '',
-      issuingCity: ''
+      issuingCity: '',
     })
-
 
     roomTypeRateTypes.value.clear()
     roomTypeRooms.value.clear()
@@ -1280,73 +1260,154 @@ const completeUpload = (uploadId: string, success: boolean, error?: string) => {
       toast.error(t('toast.errorInitializing'))
     }
   }
-  const onRoomNumberChange = (roomC: any) => {
-    console.log('roomTypeRooms.value', RoomTypesData.value);
-    console.log("roomC", roomC)
-    if(!roomC.roomType){
+  // const onRoomNumberChange = (roomC: any) => {
+  //   console.log('roomTypeRooms.value', RoomTypesData.value);
+  //   console.log("roomC", roomC)
+  //   if(!roomC.roomType){
+  //     return
+  //   }
+
+  //   const rooms = RoomTypesData.value.filter((e: any) => {
+  //     return e.id === roomC.roomType
+  //   })[0].rooms;
+
+  //   console.log('rooms', rooms)
+  //   //  const room = rooms.find((r:any) => r.id === roomId)
+  //   // console.log('room', room)
+  //   roomC.taxes = rooms.find((r: any) => r.id === roomC.roomNumber)?.taxRates || [];
+  //   console.log("roomC", roomC);
+  //   const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1);
+  //   roomC.taxes.forEach((tax: any) => {
+  //     if (tax.postingType === "flat_amount") {
+  //       tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation;
+  //     } else if (tax.postingType === "flat_percentage") {
+  //       tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
+  //       tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
+  //     } else {
+  //       tax = 0
+  //     }
+  //   })
+
+  //   roomConfigurations.value.forEach((room: any) => {
+  //     if (room.id === roomC.id) {
+  //       room.taxes = roomC.taxes
+  //     }
+  //   });
+  //   roomConfigurations.value = [...roomConfigurations.value]
+  //   console.log('roomConfigurations.value', roomConfigurations.value)
+
+  // }
+
+  const onRoomNumberChange = async (roomC: any) => {
+    console.log('onRoomNumberChange called with:', roomC)
+
+    if (!roomC.roomType || !roomC.roomNumber) {
       return
     }
 
-    const rooms = RoomTypesData.value.filter((e: any) => {
-      return e.id === roomC.roomType
-    })[0].rooms;
+    try {
+      // Récupérer les détails de la chambre depuis l'API des chambres disponibles
+      const response = await getAvailableRoomsByTypeId(
+        roomC.roomType,
+        reservation.value.checkinDate,
+        reservation.value.checkoutDate,
+      )
 
+      if (response?.data?.rooms) {
+        const selectedRoom = response.data.rooms.find((r: any) => r.id == roomC.roomNumber)
 
-    console.log('rooms', rooms)
-    //  const room = rooms.find((r:any) => r.id === roomId)
-    // console.log('room', room)
-    roomC.taxes = rooms.find((r: any) => r.id === roomC.roomNumber)?.taxRates || [];
-    console.log("roomC", roomC);
-    const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1);
-    roomC.taxes.forEach((tax: any) => {
-      if (tax.postingType === "flat_amount") {
-        tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation;
-      } else if (tax.postingType === "flat_percentage") {
-        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
-        tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
-      } else {
-        tax = 0
+        if (selectedRoom) {
+          // Si la chambre a des taxRates dans la réponse, les utiliser
+          // Sinon, récupérer depuis RoomTypesData comme fallback
+          let roomTaxes = []
+
+          if (selectedRoom.taxRates) {
+            roomTaxes = selectedRoom.taxRates
+          } else {
+            // Fallback vers les données existantes
+            const rooms =
+              RoomTypesData.value.filter((e: any) => e.id === roomC.roomType)[0]?.rooms || []
+            const fallbackRoom = rooms.find((r: any) => r.id === roomC.roomNumber)
+            roomTaxes = fallbackRoom?.taxRates || []
+          }
+
+          roomC.taxes = roomTaxes
+          console.log('Room taxes:', roomTaxes)
+
+          // Calculer les montants des taxes
+          const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1)
+          roomC.taxes.forEach((tax: any) => {
+            if (tax.postingType === 'flat_amount') {
+              tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation
+            } else if (tax.postingType === 'flat_percentage') {
+              tax.taxAmount =
+                ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
+            } else {
+              tax.taxAmount = 0
+            }
+          })
+
+          // Mettre à jour la configuration des chambres
+          roomConfigurations.value.forEach((room: any) => {
+            if (room.id === roomC.id) {
+              room.taxes = roomC.taxes
+            }
+          })
+
+          roomConfigurations.value = [...roomConfigurations.value]
+          console.log('Updated roomConfigurations:', roomConfigurations.value)
+        }
       }
-    })
+    } catch (error) {
+      console.error('Error in onRoomNumberChange:', error)
+      // En cas d'erreur, utiliser l'ancienne méthode comme fallback
+      const rooms = RoomTypesData.value.filter((e: any) => e.id === roomC.roomType)[0]?.rooms || []
+      const fallbackRoom = rooms.find((r: any) => r.id === roomC.roomNumber)
+      roomC.taxes = fallbackRoom?.taxRates || []
 
-    roomConfigurations.value.forEach((room: any) => {
-      if (room.id === roomC.id) {
-        room.taxes = roomC.taxes
-      }
-    });
-    roomConfigurations.value = [...roomConfigurations.value]
-    console.log('roomConfigurations.value', roomConfigurations.value)
+      const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1)
+      roomC.taxes.forEach((tax: any) => {
+        if (tax.postingType === 'flat_amount') {
+          tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation
+        } else if (tax.postingType === 'flat_percentage') {
+          tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
+        } else {
+          tax.taxAmount = 0
+        }
+      })
 
-
+      roomConfigurations.value.forEach((room: any) => {
+        if (room.id === roomC.id) {
+          room.taxes = roomC.taxes
+        }
+      })
+      roomConfigurations.value = [...roomConfigurations.value]
+    }
   }
 
-const isCheckedIn = ref(false)
+  const isCheckedIn = ref(false)
 
-// Updated computed property for showing check-in button
-const showCheckinButton = computed(() => {
-  // Don't show if reservation isn't confirmed
-  if (!confirmReservation.value) {
-    return false
-  }
+  // Updated computed property for showing check-in button
+  const showCheckinButton = computed(() => {
+    // Don't show if reservation isn't confirmed
+    if (!confirmReservation.value) {
+      return false
+    }
 
-  if (isCheckedIn.value) {
-    return false
-  }
+    if (isCheckedIn.value) {
+      return false
+    }
 
-  const hasValidRooms = roomConfigurations.value.some(room =>
-    room.roomType && room.roomNumber
-  )
+    const hasValidRooms = roomConfigurations.value.some((room) => room.roomType && room.roomNumber)
 
-  if (!hasValidRooms) {
-    return false
-  }
+    if (!hasValidRooms) {
+      return false
+    }
 
-  // Only show on check-in date
-  const today = new Date().toISOString().split('T')[0]
-  return reservation.value.checkinDate === today
-})
-
-
+    // Only show on check-in date
+    const today = new Date().toISOString().split('T')[0]
+    return reservation.value.checkinDate === today
+  })
 
   return {
     // Data
@@ -1373,6 +1434,7 @@ const showCheckinButton = computed(() => {
     confirmReservation,
     isCustomPrize,
     isCheckedIn,
+    isLoadingAvailableRooms,
 
     // Computed
     numberOfNights,
@@ -1415,7 +1477,7 @@ const showCheckinButton = computed(() => {
     isPaymentButtonShow,
     selectBooking,
     reservationId,
-     pendingUploads,
+    pendingUploads,
     uploadErrors,
     trackUpload,
     completeUpload,

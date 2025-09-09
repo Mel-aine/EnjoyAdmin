@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  <ConfigurationLayout>
     <div class="min-h-screen bg-gray-50 p-6">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
@@ -186,7 +186,6 @@
         </div>
       </div>
     </div>
-
     <Modal v-if="modalOpen" @close="closeModal()">
       <template #body>
         <div
@@ -241,11 +240,10 @@
         </div>
       </template>
     </Modal>
-  </AdminLayout>
+  </ConfigurationLayout>
 </template>
 
 <script lang="ts" setup>
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { ref, computed, onMounted } from 'vue'
@@ -261,6 +259,7 @@ import { useAuthStore } from '@/composables/user'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useI18n } from 'vue-i18n'
 import DotSpinner from '@/components/spinner/DotSpinner.vue'
+import ConfigurationLayout from '../Configuration/ConfigurationLayout.vue'
 const isloadingRole = ref(false);
 const { t } = useI18n()
 

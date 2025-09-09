@@ -41,7 +41,9 @@ import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 
 import type { FitlterItem } from '@/utils/models';
-import { getDepartment, getRole } from '@/services/api';
+
+import { getRoles} from '@/services/userApi'
+import {  getDepartment } from '@/services/departmentApi'
 import { useServiceStore } from '@/composables/serviceStore';
 import Select from '../forms/FormElements/Select.vue';
 import BasicButton from '../buttons/BasicButton.vue';
@@ -92,8 +94,8 @@ const clearFilters = () => {
 const fetchRole = async () => {
     isLoadingRole.value = true
     try {
-        const serviceId = serviceStore.serviceId
-        const response = await getRole(serviceId)
+        const hotelId = serviceStore.serviceId
+        const response = await getRoles(hotelId)
         console.log('role', response.data)
         roles.value = [{ label: 'All', value: '' }].concat(response.data.map((r: any) => {
             return {
@@ -111,11 +113,11 @@ const fetchRole = async () => {
 const fetchDepartment = async () => {
     isLoadingDepartment.value = true
     try {
-        const serviceId = serviceStore.serviceId;
-        console.log('Service ID:', serviceId);
+        const hotelId = serviceStore.serviceId;
+        console.log('hotelId :', hotelId);
 
-        const departmentsResponse = await getDepartment(serviceId);
-        departments.value = [{ label: 'All', value: '' }].concat(departmentsResponse.data.map((d: any) => {
+        const departmentsResponse = await getDepartment(hotelId);
+        departments.value = [{ label: 'All', value: '' }].concat(departmentsResponse.data.data.data.map((d: any) => {
             return {
                 ...d,
                 label: d.name,

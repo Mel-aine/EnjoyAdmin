@@ -27,7 +27,7 @@
 
 <script setup>
 import { useSidebar } from '../../composables/useSidebar'
-import ConfigurationSidebar from '../../components/ConfigurationSidebar.vue'
+import ConfigurationSidebar from '../../components/layout/ConfigurationSidebar.vue'
 import Backdrop from '../../components/layout/Backdrop.vue'
 import AppHeader from '../../components/layout/AppHeader.vue'
 import AppFooter from '../../components/layout/AppFooter.vue'

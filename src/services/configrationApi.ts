@@ -176,7 +176,7 @@ export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>
   return axios.get(`${API_URL}/rooms/${hotelId}/details`, headers)
 }
 
-/*** 
+/***
  * get availiabele room by typeId
  */
 export const getAvailableRoomsByTypeId = (
@@ -893,6 +893,13 @@ export const getMarketCodes = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
+ * get code by hotelId
+ */
+export const getMarketCodesByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/market_codes?hotelId=${hotelId}`, headers)
+}
+
+/**
  * Post a new market code
  * @param data
  * @returns {Promise<AxiosResponse<any>>}
@@ -1403,4 +1410,11 @@ export const postIncidentalInvoices = (data: any): Promise<AxiosResponse<any>> =
 
 export const voidIncidentalInvoices = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/incidental_invoices/${id}/void`, data, headers)
+}
+
+/**
+ * Permission
+ */
+export const getConfiguration = (hotelId:number) :Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/permissions?hotelId=${hotelId}`, headers)
 }
