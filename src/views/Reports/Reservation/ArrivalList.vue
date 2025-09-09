@@ -47,7 +47,7 @@
             <SelectComponent 
               v-model="filters.company"
               :options="companyOptions"
-              placeholder="All Companies"
+              placeholder="-- select Company --"
               class="w-full"
             />
           </div>
@@ -62,7 +62,7 @@
             <SelectComponent 
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              placeholder="All Room Types"
+              placeholder="-- select Room Types --"
               class="w-full"
             />
           </div>
@@ -75,7 +75,7 @@
             <SelectComponent 
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
-              placeholder="All Travel Agents"
+              placeholder="-- select Travel Agent --"
               class="w-full"
             />
           </div>
@@ -88,7 +88,7 @@
             <SelectComponent 
               v-model="filters.rateType"
               :options="rateTypeOptions"
-              placeholder="All Rate Types"
+              placeholder="-- select Rate Types --"
               class="w-full"
             />
           </div>
@@ -102,8 +102,8 @@
             </label>
             <SelectComponent 
               v-model="filters.businessSource"
-              :options="businessSourceOptions"
-              placeholder="All Sources"
+              :options="BusinessSource"
+              placeholder="-- Select Business Source --"
               class="w-full"
             />
           </div>
@@ -115,8 +115,8 @@
             </label>
             <SelectComponent 
               v-model="filters.market"
-              :options="marketOptions"
-              placeholder="All Markets"
+              :options="MarketCode"
+              placeholder="--Select Market --"
               class="w-full"
             />
           </div>
@@ -129,7 +129,7 @@
             <SelectComponent 
               v-model="filters.user"
               :options="userOptions"
-              placeholder="All Users"
+              placeholder="-- select User --"
               class="w-full"
             />
           </div>
@@ -169,7 +169,7 @@
             <SelectComponent 
               v-model="filters.showAmount"
               :options="showAmountOptions"
-              placeholder="Rent Per Night"
+              placeholder=" -- Select Amount Type --"
               class="w-full"
             />
           </div>
@@ -181,8 +181,8 @@
             <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
             <SelectComponent 
               v-model="filters.reservationType"
-              :options="reservationTypeOptions"
-              placeholder="--Select--"
+              :options="BookingType"
+              placeholder="--Select Reservation Type --"
             />
           </div>
           <!-- Tax Inclusive -->
@@ -232,75 +232,77 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200">
-          <!-- Boutons d'export avec icônes et couleurs distinctes -->
-          <ButtonComponent 
-            @click="exportCSV"
-            variant="secondary"
-            class="min-w-24 bg-green-600 hover:bg-green-700 border-green-600"
-            :loading="loading"
-          >
-            <template #icon>
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          <!-- Bouton d'export avec menu déroulant - Style modifié pour correspondre à l'exemple -->
+          <div class="relative">
+            <button
+              @click="toggleExportMenu"
+              :disabled="exportLoading"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+              >
+              <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-            </template>
-            CSV
-          </ButtonComponent>
-          
-          <ButtonComponent 
-            @click="exportPDF"
-            variant="secondary"
-            class="min-w-24 bg-red-600 hover:bg-red-700 border-red-600"
-            :loading="loading"
-          >
-            <template #icon>
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              <span v-if="!exportLoading">Export</span>
+              <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
-            </template>
-            PDF
-          </ButtonComponent>
+            </button>
+            
+            <!-- Menu déroulant Export -->
+            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+              <button 
+                @click="exportCSV" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                CSV
+              </button>
+              <button 
+                @click="exportPDF" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF
+              </button>
+              <button 
+                @click="exportExcel" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+              </button>
+            </div>
+          </div>
           
-          <ButtonComponent 
-            @click="exportExcel"
-            variant="secondary"
-            class="min-w-24 bg-blue-600 hover:bg-blue-700 border-blue-600"
-            :loading="loading"
-          >
-            <template #icon>
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </template>
-            Excel
-          </ButtonComponent>
-          
-          <ButtonComponent 
+          <!-- Bouton Report avec le style de l'exemple -->
+          <button 
             @click="generateArrivalReport"
-            variant="primary"
-            class="min-w-24"
-            :loading="loading"
+            :disabled="loading"
+            class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
-            <template #icon>
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </template>
             Report
-          </ButtonComponent>
+          </button>
           
-          <ButtonComponent 
+          <!-- Bouton Reset avec style secondaire -->
+          <button 
             @click="resetForm"
-            variant="outline"
-            class="min-w-24"
+            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
-            <template #icon>
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </template>
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             Reset
-          </ButtonComponent>
+          </button>
         </div>
       </div>
 
@@ -336,27 +338,20 @@
           </div>
         </div>
       </div>
-
-      <!-- Indicateur de chargement -->
-      <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p class="text-center mt-2 text-gray-700 dark:text-gray-300">Generating report...</p>
-        </div>
-      </div>
     </div>
   </ReportsLayout>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { generateArrivalList, type ReportFilters, exportArrivalList } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useBooking } from '@/composables/useBooking2'
+import { getCompanies } from '@/services/companyApi'
 
 interface FilterOptions {
   value: string;
@@ -408,7 +403,10 @@ const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
 const reportData = ref<ReportData | null>(null)
 const loading = ref<boolean>(false)
+const exportMenuOpen = ref<boolean>(false)
+const exportLoading = ref<boolean>(false)
 const serviceStore = useServiceStore()
+const companyOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
 
 // Filtres pour l'API
@@ -438,10 +436,19 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const companyOptions = ref<FilterOptions[]>([
-  { value: 'company1', label: 'Company 1' },
-  { value: 'company2', label: 'Company 2' }
-])
+const getCompaniesList = async () => {
+  try {
+    const resp = await getCompanies()
+    console.log('Companies response:', resp)
+    companyOptions.value = resp.map((c: any) => ({
+      label: c.companyName,
+      value: c.companyCode
+    }))
+  } catch (error) {
+    console.error('Error fetching companies:', error)
+  }
+}
+
 
 const roomTypeOptions = ref<FilterOptions[]>([
   { value: '1', label: 'Suite Room' },
@@ -465,16 +472,18 @@ const travelAgentOptions = ref<FilterOptions[]>([
   { value: 'agent2', label: 'Travel Agent 2' }
 ])
 
-const businessSourceOptions = ref<FilterOptions[]>([
-  { value: '1', label: 'Online' },
-  { value: '2', label: 'Phone' },
-  { value: '3', label: 'Walk-in' }
-])
+const {
+  // Options
+  BookingSource,
+  BusinessSource,
+  BookingType,
+  creditTypes,
+  billToOptions,
+  MarketCode,
+  emailTemplates,
+  reservationId,
+} = useBooking()
 
-const marketOptions = ref<FilterOptions[]>([
-  { value: 'domestic', label: 'Domestic' },
-  { value: 'international', label: 'International' }
-])
 
 const userOptions = ref<FilterOptions[]>([
   { value: 'helpdesksupport', label: 'helpdesksupport' },
@@ -607,40 +616,43 @@ const generateArrivalReport = async () => {
 
 const exportCSV = async (): Promise<void> => {
   try {
-    loading.value = true
+    exportLoading.value = true
+    exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', apiFilters.value)
     const result = await exportArrivalList('csv', apiFilters.value)
     console.log('Résultat export CSV:', result)
   } catch (error) {
     console.error('Erreur détaillée CSV:', error)
   } finally {
-    loading.value = false
+    exportLoading.value = false
   }
 }
 
 const exportPDF = async (): Promise<void> => {
   try {
-    loading.value = true
+    exportLoading.value = true
+    exportMenuOpen.value = false
     console.log('Export PDF avec filtres:', apiFilters.value)
     const result = await exportArrivalList('pdf', apiFilters.value)
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
   } finally {
-    loading.value = false
+    exportLoading.value = false
   }
 }
 
 const exportExcel = async (): Promise<void> => {
   try {
-    loading.value = true
+    exportLoading.value = true
+    exportMenuOpen.value = false
     console.log('Export Excel avec filtres:', apiFilters.value)
     const result = await exportArrivalList('excel', apiFilters.value)
     console.log('Résultat export Excel:', result)
   } catch (error) {
     console.error('Erreur détaillée Excel:', error)
   } finally {
-    loading.value = false
+    exportLoading.value = false
   }
 }
 
@@ -691,6 +703,28 @@ const resetForm = (): void => {
   showResults.value = false
   reportData.value = null
 }
+
+const toggleExportMenu = () => {
+  exportMenuOpen.value = !exportMenuOpen.value
+}
+
+// Fermer le menu d'export en cliquant à l'extérieur
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.relative')) {
+    exportMenuOpen.value = false
+  }
+}
+
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  getCompaniesList()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
@@ -758,5 +792,15 @@ const resetForm = (): void => {
 
 .export-button:active {
   transform: translateY(0);
+}
+
+/* Animation pour le menu déroulant */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

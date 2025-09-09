@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
@@ -10,7 +10,7 @@ import { createReservation, getReservationDetailsById } from '@/services/reserva
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getBusinessSourcesByHotelId } from '../services/configrationApi'
+import { getBusinessSourcesByHotelId, getMarketCodeById,getMarketCodes } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -268,7 +268,7 @@ export function useBooking() {
   const BusinessSource = computed(() => businessSourcesLo.value || [])
   const BookingType = computed(() => serviceStore.reservationType || [])
   const MarketCode = computed(() => marketCodesLo.value || [])
-
+  console.log('BookingType',BookingType.value )
   const creditTypes = computed(() => [
     { label: 'Visa', value: 'visa' },
     { label: 'MasterCard', value: 'mastercard' },
@@ -294,6 +294,8 @@ export function useBooking() {
 
   const getMarketCode = async () => {
     try {
+      
+      const hotelId = serviceStore.serviceId
       const resp = await getMarketCodes();
       console.log('Market Codes response:', resp);
       marketCodesLo.value = resp.data?.data?.data.map((s: any) => ({
