@@ -179,7 +179,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed, nextTick, onUnmounted, watch } from 'vue'
-import * as echarts from 'echarts'
+import { loadECharts, preloadECharts } from '@/utils/chartLoader'
 import { useI18n } from 'vue-i18n'
 import Spinner from '../spinner/Spinner.vue'
 
@@ -225,7 +225,8 @@ const handleViewChange = (view: 'yearly' | 'semester' | 'quarterly' | 'monthly')
   emit('changeViews', view)
 }
 
-let chartInstance: echarts.ECharts | null = null
+let chartInstance: any = null
+let echarts: any = null
 
 // Fonction pour détruire l'instance précédente
 const destroyChart = () => {
@@ -252,6 +253,10 @@ const initChart = async () => {
   destroyChart()
 
   try {
+    // Load ECharts dynamically
+    if (!echarts) {
+      echarts = await loadECharts()
+    }
 
     chartInstance = echarts.init(revenueChart.value)
 
@@ -467,6 +472,14 @@ const handleResize = () => {
     chartInstance.resize()
   }
 }
+onMounted(async () => {
+  console.log('Composant monté')
+  // Preload ECharts on component mount
+  preloadECharts()
+  await nextTick()
+  await initChart()
+})
+
 onUnmounted(() => {
   console.log('Nettoyage du composant')
   destroyChart()

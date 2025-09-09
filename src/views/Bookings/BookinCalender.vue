@@ -3,5 +3,5 @@
   </template>
 <script setup lang="ts">
 
-import ReservationCalendar from '@/components/calendars/ReservationCalendar.vue';
+import { LazyReservationCalendar as ReservationCalendar } from '@/utils/lazyLoader';
 </script>
