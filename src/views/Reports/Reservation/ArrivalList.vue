@@ -352,6 +352,9 @@ import { generateArrivalList, type ReportFilters, exportArrivalList } from '@/se
 import { useServiceStore } from '@/composables/serviceStore'
 import { useBooking } from '@/composables/useBooking2'
 import { getCompanies } from '@/services/companyApi'
+import { getRoomTypes } from '@/services/roomTypeApi'
+import { getRateTypes } from '@/services/rateTypeApi'
+import { getEmployeesForService } from '@/services/userApi'
 
 interface FilterOptions {
   value: string;
@@ -407,6 +410,9 @@ const exportMenuOpen = ref<boolean>(false)
 const exportLoading = ref<boolean>(false)
 const serviceStore = useServiceStore()
 const companyOptions = ref<FilterOptions[]>([])
+const roomTypeOptions = ref<FilterOptions[]>([])
+const rateTypeOptions = ref<FilterOptions[]>([])
+const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
 
 // Filtres pour l'API
@@ -448,19 +454,43 @@ const getCompaniesList = async () => {
     console.error('Error fetching companies:', error)
   }
 }
+const fetchRoomtype = async () => {
+  try {
+    const resp = await getRoomTypes(idHotel!)
+    console.log('Room Type:', resp)
+    roomTypeOptions.value = resp.data.data.data.map((c: any) => ({
+      label: c.roomTypeName,
+      value: c.id
+    }))
+  } catch (error) {
+    console.error('Error fetching roomType:', error)
+  }
+}
+const fetchRatetype = async () => {
+  try {
+    const resp = await getRateTypes(idHotel!)
+    console.log('Rate Type:', resp)
+    rateTypeOptions.value = resp.data.data.map((c: any) => ({
+      label: c.rateTypeName,
+      value: c.id
+    }))
+  } catch (error) {
+    console.error('Error fetching roomType:', error)
+  }
+}
 
-
-const roomTypeOptions = ref<FilterOptions[]>([
-  { value: '1', label: 'Suite Room' },
-  { value: '2', label: 'Standard Room' },
-  { value: '3', label: 'Deluxe Room' }
-])
-
-const rateTypeOptions = ref<FilterOptions[]>([
-  { value: '1', label: 'Standard Rate' },
-  { value: '2', label: 'Corporate Rate' },
-  { value: '3', label: 'Promotional Rate' }
-])
+const fetchUsers = async () => {
+  try {
+    const resp = await getEmployeesForService(idHotel!)
+    console.log('Users:', resp)
+    userOptions.value = resp.data.data.map((u: any) => ({
+      label: `${u.firstName} ${u.lastName}`,
+      value: u.user_id
+    }))
+  } catch (error) {
+    console.error('Error fetching users:', error)
+  }
+} 
 
 const showAmountOptions = ref<FilterOptions[]>([
   { value: 'rent_per_night', label: 'Rent Per Night' },
@@ -484,17 +514,6 @@ const {
   reservationId,
 } = useBooking()
 
-
-const userOptions = ref<FilterOptions[]>([
-  { value: 'helpdesksupport', label: 'helpdesksupport' },
-  { value: 'admin', label: 'Admin' }
-])
-
-const reservationTypeOptions = ref<FilterOptions[]>([
-  { value: 'Confirmed', label: 'Confirmed' },
-  { value: 'Tentative', label: 'Tentative' },
-  { value: 'Cancelled', label: 'Cancelled' }
-])
 
 const availableColumns = ref<FilterOptions[]>([
   { value: 'pickUp', label: 'Pick Up' },
@@ -720,6 +739,9 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   getCompaniesList()
+  fetchRoomtype()
+  fetchRatetype()
+  fetchUsers()
 })
 
 onUnmounted(() => {
