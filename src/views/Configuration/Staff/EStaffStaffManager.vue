@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+
 import { Building2, Wrench, UserCog, User, Edit, Trash2, Eye } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
-// import {
-//   deleteUser,
-//   getEmployeesForService,
-// } from '@/services/api'
 import { getEmployeesForService } from '@/services/userApi'
 import { useI18n } from 'vue-i18n'
 import type { userDataType } from '@/types/option'
-import TableComponent from '@/components/tables/TableComponent.vue'
 import router from '@/router'
 
 import UserFilters from '@/components/filters/UserFilters.vue'
@@ -20,7 +15,9 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import PlusIcon from '../../../icons/PlusIcon.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import ModalDelete from '@/components/modal/ModalDelete.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import type { Column } from '@/utils/models'
+import {deleteUser} from '@/services/userApi'
 
 // Types
 interface Department {
@@ -95,7 +92,7 @@ onMounted(async () => {
 })
 
 // Computed properties
-const columns = computed(() => [
+const columns = computed<Column[]>(() => [
   {
     key: 'id',
     label: t('ID'),
@@ -159,19 +156,8 @@ const handleUserAction = (action: string, user: any) => {
   console.log('user action:', action, user)
   if (action === 'edit') {
     selectedUser.value = user
-    form.value.firstName = user.first_name
-    form.value.lastName = user.last_name
-    form.value.phoneNumber = user.phone_number
-    form.value.email = user.email
-    form.value.roleId = user.role_id
-    form.value.department = user.department?.id
-
-    if (user.hire_date) {
-      const hireDate = new Date(user.hire_date)
-      form.value.hire_date = hireDate.toISOString().split('T')[0]
-    }
     isEditMode.value = true
-    modalOpen.value = true
+    router.push({ name: "editUser", params: { id: user.id } })
   } else if (action === 'delete') {
     selectedUserId.value = user.id
     show.value = true
@@ -181,17 +167,28 @@ const handleUserAction = (action: string, user: any) => {
   }
 }
 
+
 const confirmDelete = async () => {
   if (selectedUserId.value !== null) {
     loadingDelete.value = true
     try {
-      await deleteUser(selectedUserId.value)
+
+       await deleteUser(selectedUserId.value)
+
       toast.success(t('toast.userDeleted'))
-      users.value = users.value.filter((r: any) => r.id !== selectedUserId.value)
+        users.value = users.value.filter((r: any) => r.id !== selectedUserId.value)
+
+
       console.log(`User deleted with ID: ${selectedUserId.value}`)
-    } catch (error) {
+    } catch (error:any) {
       console.error('Delete error:', error)
-      toast.error(t('toast.userDeleteError'))
+
+      // Gestion des différents types d'erreurs
+      if (error.response?.status === 409) {
+        toast.error(t('toast.userDeleteConstraintError'))
+      } else {
+        toast.error(t('toast.userDeleteError'))
+      }
     } finally {
       loadingDelete.value = false
       show.value = false
@@ -200,15 +197,6 @@ const confirmDelete = async () => {
   }
 }
 
-const editDepartment = (item: Department) => {
-  // Implementation for editing department
-  console.log('Edit department:', item)
-}
-
-const deleteDepartmentAction = (item: Department) => {
-  // Implementation for deleting department
-  console.log('Delete department:', item)
-}
 
 const actions = computed(() => [
   {
@@ -324,14 +312,18 @@ const applyFilters = (filterOp: FitlterItem) => {
 
 
     </div>
+   <ConfirmationModal
+    v-model:show="show"
+    :title="$t('confirmDelete')"
+    :message="$t('deleteUserConfirmMessage')"
+    :confirm-text="$t('delete')"
+    :cancel-text="$t('cancel')"
+    variant="danger"
+    :loading="loadingDelete"
+    @confirm="confirmDelete"
+    @cancel="show = false"
+  />
 
-
-      <ModalDelete
-        v-if="show"
-        @close="show = false"
-        @delete="confirmDelete"
-        :isLoading="loadingDelete"
-      />
   </ConfigurationLayout>
 
 

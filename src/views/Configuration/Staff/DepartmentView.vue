@@ -115,11 +115,9 @@
             </span>
           </template>
           <!--custom column for responsible-->
-            <template #column-responsibleUser="{ item }">
-            <span
-              class=" capitalize font-medium"
-            >
-               {{ item.responsibleUser?.firstName }} {{ item.responsibleUser?.lastName }}
+          <template #column-responsibleUser="{ item }">
+            <span class="capitalize font-medium">
+              {{ item.responsibleUser?.firstName }} {{ item.responsibleUser?.lastName }}
             </span>
           </template>
         </ReusableTable>
@@ -152,6 +150,8 @@ import PlusIcon from '../../../icons/PlusIcon.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import { Edit, Trash2 } from 'lucide-vue-next'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import { getEmployeesForService } from '@/services/userApi'
+import type { Column } from '@/utils/models'
 
 // Types
 interface Department {
@@ -160,12 +160,13 @@ interface Department {
   description: string
   responsibleUserId?: number
   responsibleUserName?: string
-  numberEmployees: number
+  numberEmployees?: number
   status: string
   createdAt?: string
   updatedAt?: string
   createdByUser?: { firstName: string }
   updatedByUser?: { firstName: string }
+  manager: number | null
   statusColor?: {
     label: string
     bg: string
@@ -173,9 +174,12 @@ interface Department {
   }
 }
 
-interface User {
-  label: string
-  value: number
+interface department {
+ name: string
+  description: string
+  manager: number | null  // peut être null si pas de responsable
+  employeeCount: number
+  status: 'active' | 'inactive' | 'archived'
 }
 
 // Async Components
@@ -183,7 +187,6 @@ const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'))
-
 
 // Reactive data
 const isAddModalOpen = ref(false)
@@ -194,7 +197,7 @@ const toast = useToast()
 const serviceStore = useServiceStore()
 const isEditing = ref(false)
 const departmentsData = ref<Department[]>([])
-const Users = ref<User[]>([])
+const Users = ref<any[]>([])
 const show = ref(false)
 const loadingDelete = ref(false)
 const selectedId = ref<number | null>(null)
@@ -202,16 +205,16 @@ const showModal = ref(false)
 const selectedDepartment = ref<Department | null>(null)
 const selected = ref<Department | null>(null)
 
-const newDepartment = ref({
+
+const newDepartment =  ref<any>({
   name: '',
   description: '',
-  manager: '',
-  employeeCount: 0,
+  manager: null,
   status: 'active',
 })
 
 // Computed
-const columns = computed(() => [
+const columns = computed<Column[]>(() => [
   { key: 'id', label: t('common.id'), type: 'text', sortable: true },
   { key: 'name', label: t('departments.name'), type: 'text', sortable: true },
   { key: 'description', label: t('departments.description'), type: 'text', sortable: true },
@@ -238,7 +241,6 @@ const actions = computed(() => [
 
 // Methods
 
-
 const openAddDepartmentModal = () => {
   isAddModalOpen.value = true
 }
@@ -250,7 +252,7 @@ const closeAddDepartmentModal = () => {
   newDepartment.value = {
     name: '',
     description: '',
-    manager: '',
+    manager: null,
     employeeCount: 0,
     status: 'active',
   }
@@ -265,13 +267,12 @@ const updateData = async () => {
   isLoading.value = true
 
   try {
-    const serviceId = serviceStore.serviceId
+    const hotelId = serviceStore.serviceId
     const payload = {
-      service_id: serviceId,
+      hotel_id: hotelId,
       name: newDepartment.value.name,
       description: newDepartment.value.description,
       responsible_user_id: newDepartment.value.manager || null,
-      number_employees: newDepartment.value.employeeCount,
     }
 
     await updateDpt(selected.value.id, payload)
@@ -279,15 +280,24 @@ const updateData = async () => {
     await fetchDepartment()
     closeAddDepartmentModal()
     toast.success(t('toast.SucessUpdate'))
-  } catch (error) {
-    console.error('Update error:', error)
-    toast.error(t('toast.updateError'))
+  } catch (error: any) {
+    console.error('Save error:', error)
+
+    if (error.response) {
+      const code = error.response.data?.code
+      if (code === 'DEPARTMENT_ALREADY_EXISTS') {
+        toast.error(t('departments.errors.already_exists'))
+      } else {
+        const message = error.response.data?.message || t('toast.updateError')
+        toast.error(message)
+      }
+    } else {
+      toast.error(t('toast.updateError'))
+    }
   } finally {
     isLoading.value = false
   }
 }
-
-
 
 const addDepartment = async () => {
   if (!newDepartment.value.name.trim()) {
@@ -301,14 +311,13 @@ const addDepartment = async () => {
     if (isEditing.value) {
       await updateData()
     } else {
-      const serviceId = serviceStore.serviceId
+      const hotelId = serviceStore.serviceId
       const payload = {
         name: newDepartment.value.name,
         description: newDepartment.value.description,
         responsible_user_id: newDepartment.value.manager || null,
-        number_employees: newDepartment.value.employeeCount,
         status: 'active',
-        hotel_id: serviceId,
+        hotel_id: hotelId,
       }
 
       await createDepartment(payload)
@@ -316,9 +325,20 @@ const addDepartment = async () => {
       toast.success(t('toast.Sucess'))
       closeAddDepartmentModal()
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Save error:', error)
-    toast.error(t('toast.error'))
+
+    if (error.response) {
+      const code = error.response.data?.code
+      if (code === 'DEPARTMENT_ALREADY_EXISTS_NAME') {
+        toast.error(t('departments.errors.already_exists_name'))
+      } else {
+        const message = error.response.data?.message || t('toast.error')
+        toast.error(message)
+      }
+    } else {
+      toast.error(t('toast.error'))
+    }
   } finally {
     isLoading.value = false
   }
@@ -359,14 +379,33 @@ const fetchDepartment = async () => {
   }
 }
 
-
+const fetchUser = async () => {
+  loading.value = true
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId) throw new Error('hotelId is not defined')
+    const response = await getEmployeesForService(hotelId)
+    console.log('response', response)
+    ;(Users.value = response.data.data.map((user: any) => {
+      return {
+        value: user.id,
+        label: user.firstName + ' ' + user.lastName,
+      }
+    })),
+      console.log('Filtered users with user info:', Users.value)
+  } catch (error) {
+    console.error('fetch failed:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
 const editDepartment = (dept: Department) => {
   selected.value = dept
   newDepartment.value = {
     name: dept.name,
     description: dept.description,
-    manager: dept.responsibleUserId?.toString() || '',
+    manager: dept.responsibleUserId ?? null,
     employeeCount: dept.numberEmployees,
     status: dept.status,
   }
@@ -403,7 +442,7 @@ const confirmDelete = async () => {
     toast.success(t('toast.DeletedSuccess'))
   } catch (error) {
     console.error('Delete error:', error)
-    toast.error(t('toast.DeleteError'))
+    toast.error(t('toast.deleteErrors'))
   } finally {
     loadingDelete.value = false
     show.value = false
@@ -424,7 +463,7 @@ const onAction = (action: string, item: Department) => {
 
 // // Lifecycle
 onMounted(async () => {
-  // await fetchUser();
+  await fetchUser()
   await fetchDepartment()
 })
 </script>

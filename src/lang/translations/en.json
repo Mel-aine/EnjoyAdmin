@@ -367,6 +367,7 @@
     "updateError": "An error occurred while updating ❌",
     "userDeleted": "User successfully deleted ✅",
     "userDeleteError": "Error while deleting user ❌",
+    "userDeleteConstraintError": "Cannot delete this user because it is linked to other records",
     "userCreated": "User successfully registered ✅",
     "userErrorCreated": "Error saving user ❌",
     "reservationCreated": "✅ Reservation created successfully!",
@@ -386,6 +387,7 @@
     "roomtypesuccess": "Room Type created successfully ✅",
     "Sucess": "created successfully ✅",
     "error": "Error saving  ❌",
+    "deleteErrors" :"Error during deletion",
     "SucessUpdate": "successfully updated ✅",
     "DeletedSuccess": "Delete with success",
     "invalidEmail": "Please enter a valid email address.",
@@ -5139,7 +5141,14 @@
     "search_placeholder": "Search users by name, email, or department...",
     "empty_state_title": "No users found",
     "empty_state_message": "No users match your current search criteria. Try adjusting your filters or add a new user."
-  }
+  },
+    "roles": {
+      "description": "Manage the roles assigned to users",
+      "search_placeholder": "Search roles...",
+      "empty_state_title": "No roles found",
+      "empty_state_message": "You haven’t created any roles yet",
+      "add": "Add Role"
+    }
 
 
   },
@@ -5912,9 +5921,28 @@
     "status": {
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "errors" :{
+      "already_exists_name" : "A department with this name already exists in this service",
+      "already_exists" : "A department with this name already exists in this service"
     }
     
   },
-  "deleteDepartmentConfirmMessage" : "Are you sure you want to delete this Department ?"
+  "deleteDepartmentConfirmMessage" : "Are you sure you want to delete this Department ?",
+  "deleteRoleConfirmMessage": "Are you sure you want to delete this role?",
+  "role": {
+    "name": "Role Name",
+    "description": "Description",
+    "add" : "Add Role",
+    "edit" : "Edit Role",
+    "update" :"Update",
+     "errors": {
+      "name_required": "The name field is required",
+      "already_exists": "This role already exists for the selected hotel"
+    }
+
+  },
+  "deleteUserConfirmMessage": "Are you sure you want to delete this user?"
+
 
 }

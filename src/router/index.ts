@@ -1144,6 +1144,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+      {
+      path: '/users/new/:id',
+      name: 'editUser',
+      component: () => import('../views/Configuration/Staff/UserUpsertForm.vue'),
+      meta: {
+        title: 'new User',
+        requiresAuth: true,
+      },
+      props : true
+    },
      {
       path: '/configuration/staff/user_role',
       name: 'User Role',

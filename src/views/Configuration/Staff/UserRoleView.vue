@@ -24,7 +24,7 @@
           </button>
           <div class="px-2 pr-14">
             <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              {{ $t('new_role') }}
+              {{ isEditing ? $t('role.edit') : $t('new_role') }}
             </h4>
           </div>
           <form @submit.prevent="addRoles" class="flex flex-col">
@@ -52,7 +52,7 @@
               </button>
               <button type="submit" :disabled="isLoading"
                 class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto">
-                <span v-if="!isLoading"> {{ $t('Save') }}</span>
+                <span v-if="!isLoading"> {{ isEditing? $t('role.update') : $t('Save') }}</span>
                 <span v-else class="flex items-center gap-2">
                   <Spinner class="w-4 h-4" />
                   {{ $t('Processing') }}...
@@ -83,7 +83,7 @@
             <BasicButton
               variant="primary"
               :icon="PlusIcon"
-              :label="$t('roles.add')"
+              :label="$t('role.add')"
               @click="openAddModal()"
             />
           </template>
@@ -96,7 +96,7 @@
   <ConfirmationModal
     v-model:show="show"
     :title="$t('confirmDelete')"
-    :message="$t('deleteDepartmentConfirmMessage')"
+    :message="$t('deleteRoleConfirmMessage')"
     :confirm-text="$t('delete')"
     :cancel-text="$t('cancel')"
     variant="danger"
@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue'
-import { createDepartment, getDepartment, updateDpt, deleteDpt } from '@/services/departmentApi'
+import {deleteRoles,updateRoles,createRoles,getRoles} from '@/services/userApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
@@ -120,12 +120,14 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import { Edit, Trash2 } from 'lucide-vue-next'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useAuthStore } from '@/composables/user'
+import type { Column } from '@/utils/models'
 
 // Types
 interface Role {
   id: number
   name: string
   description: string
+  roleName:string
 }
 
 // Async Components
@@ -156,9 +158,9 @@ const newRole = ref({
 })
 
 // Computed
-const columns = computed(() => [
+const columns = computed<Column[]>(() => [
   { key: 'id', label: t('common.id'), type: 'text', sortable: true },
-  { key: 'name', label: t('role.name'), type: 'text', sortable: true },
+  { key: 'roleName', label: t('role.name'), type: 'text', sortable: true },
   { key: 'description', label: t('role.description'), type: 'text', sortable: true },
 ])
 
@@ -217,9 +219,21 @@ const updateData = async () => {
     await fetchRoles()
     closeModal()
     toast.success(t('toast.SucessUpdate'))
-  } catch (error) {
-    console.error('Update error:', error)
+  } catch (error:any) {
+
+    if (error.response) {
+    const code = error.response.data?.code
+    if (code === 'ROLE_ALREADY_EXISTS') {
+      toast.error(t('role.errors.already_exists'))
+    } else {
+      const message = error.response.data?.message || t('toast.updateError')
+      toast.error(message)
+    }
+  } else {
     toast.error(t('toast.updateError'))
+  }
+    console.error('Update error:', error)
+
   } finally {
     isLoading.value = false
   }
@@ -228,9 +242,8 @@ const updateData = async () => {
 
 
 const addRoles = async () => {
-
-if (!newRole.value.name.trim()) {
-    toast.error(t('departments.errors.name_required'))
+  if (!newRole.value.name.trim()) {
+    toast.error(t('role.errors.name_required'))
     return
   }
   isLoading.value = true
@@ -239,26 +252,38 @@ if (!newRole.value.name.trim()) {
     if (isEditing.value) {
       await updateData()
     } else {
-      const serviceId = serviceStore.serviceId
+      const hotelId = serviceStore.serviceId
       const payload = {
         name: newRole.value.name,
         description: newRole.value.description,
-        hotel_id: serviceId,
-        created_by: authStore.UserId
+        hotelId: hotelId,
+        createdBy: authStore.UserId,
       }
 
-      await createNewRole(payload)
+      await createRoles(payload)
       await fetchRoles()
       toast.success(t('toast.Sucess'))
       closeModal()
     }
-  } catch (error) {
-    console.error('Save error:', error)
+  } catch (error: any) {
+  console.error('Save error:', error)
+
+  if (error.response) {
+    const code = error.response.data?.code
+    if (code === 'ROLE_ALREADY_EXISTS') {
+      toast.error(t('role.errors.already_exists'))
+    } else {
+      const message = error.response.data?.message || t('toast.error')
+      toast.error(message)
+    }
+  } else {
     toast.error(t('toast.error'))
+  }
   } finally {
     isLoading.value = false
   }
 }
+
 const fetchRoles = async () => {
   loading.value = true
 
@@ -266,18 +291,20 @@ const fetchRoles = async () => {
     const hotelId = serviceStore.serviceId
 
     if (!hotelId) {
-      throw new Error('Service ID is not defined')
+      throw new Error('Hotel ID is not defined')
     }
 
-    const rolesResponse = await getDepartment(hotelId)
+    const rolesResponse = await getRoles(hotelId)
+    console.log("rolesResponse",rolesResponse)
 
     // accès au tableau de départements
-    const Roles = rolesResponse.data?.data.data || []
+    const Roles = rolesResponse.data || []
     console.log('Roles', Roles)
+    roles.value = Roles
 
-    Roles.sort((a: any, b: any) => a.name.localeCompare(b.name))
+    Roles.sort((a: any, b: any) => a.roleName.localeCompare(b.roleName))
   } catch (error) {
-    console.error('Fetch departments error:', error)
+    console.error('Fetch roles error:', error)
   } finally {
     loading.value = false
   }
@@ -288,7 +315,7 @@ const fetchRoles = async () => {
 const editRole = (role: Role) => {
   selected.value = role
   newRole.value = {
-    name: role.name,
+    name: role.roleName,
     description: role.description,
 
   }
@@ -309,14 +336,14 @@ const confirmDelete = async () => {
   loadingDelete.value = true
 
   try {
-    await deleteRole(selectedId.value)
+    await deleteRoles(selectedId.value)
     roles.value = roles.value.filter(
       (d: Role) => d.id !== selectedId.value,
     )
     toast.success(t('toast.DeletedSuccess'))
   } catch (error) {
     console.error('Delete error:', error)
-    toast.error(t('toast.DeleteError'))
+    toast.error(t('toast.deleteErrors'))
   } finally {
     loadingDelete.value = false
     show.value = false

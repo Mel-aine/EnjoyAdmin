@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 // import { createUser, updateUser, getRole, getDepartment } from '@/services/api'
-import { createUser ,getRoles} from '@/services/userApi'
+import { createUser ,getRoles ,getUserById ,updateUser} from '@/services/userApi'
 import {  getDepartment } from '@/services/departmentApi'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/composables/user'
@@ -18,6 +18,7 @@ import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import { getConfiguration } from '@/services/configrationApi'
 import { ChevronDown } from 'lucide-vue-next'
+import OverLoading from '@/components/spinner/OverLoading.vue'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -270,38 +271,93 @@ const fetchUserData = async (id: string) => {
   isLoadingUser.value = true
   try {
     const response = await getUserById(id)
-    const userData = response.data
+    console.log("fetchUserData", response.data.data)
+    const userData = response.data.data
+
+    // Get department ID from serviceAssignments if available
+    const departmentId = userData.serviceAssignments && userData.serviceAssignments.length > 0
+      ? userData.serviceAssignments[0].departmentId
+      : null
+
+    // Parse JSON strings for permissions, reports, and discounts
+    let selectedPrivileges = []
+    let selectedReports = []
+    let selectedDiscounts = []
+
+    // Parse permisPrivileges
+    if (userData.permisPrivileges) {
+      try {
+        selectedPrivileges = typeof userData.permisPrivileges === 'string'
+          ? JSON.parse(userData.permisPrivileges)
+          : userData.permisPrivileges
+      } catch (error) {
+        console.error('Error parsing permisPrivileges:', error)
+        selectedPrivileges = []
+      }
+    }
+
+    // Parse permisReports
+    if (userData.permisReports) {
+      try {
+        selectedReports = typeof userData.permisReports === 'string'
+          ? JSON.parse(userData.permisReports)
+          : userData.permisReports
+      } catch (error) {
+        console.error('Error parsing permisReports:', error)
+        selectedReports = []
+      }
+    }
+
+    // Parse permisDiscounts
+    if (userData.permisDiscounts) {
+      try {
+        selectedDiscounts = typeof userData.permisDiscounts === 'string'
+          ? JSON.parse(userData.permisDiscounts)
+          : userData.permisDiscounts
+      } catch (error) {
+        console.error('Error parsing permisDiscounts:', error)
+        selectedDiscounts = []
+      }
+    }
 
     // Populate form with existing user data
     form.value = {
       ...form.value,
-      firstName: userData.first_name || '',
-      lastName: userData.last_name || '',
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
       email: userData.email || '',
-      phoneNumber: userData.phone_number || '',
-      roleId: userData.role_id || '',
-      department: userData.department_id || '',
-      dateOfBirth: userData.date_of_birth || '',
-      placeOfBirth: userData.place_of_birth || '',
+      phoneNumber: userData.phoneNumber || '',
+      roleId: userData.roleId || '',
+      department: departmentId || '',
+      dateOfBirth: userData.dateOfBirth || '',
+      placeOfBirth: userData.placeOfBirth || '',
       gender: userData.gender || '',
       city: userData.city || '',
       country: userData.country || '',
-      nationalIdNumber: userData.national_id_number || '',
-      dataProcessingConsent: userData.data_processing_consent || false,
-      consentDate: userData.consent_date || '',
-      // Address fields
-      addressLine: userData.address_line || '',
-      stateProvince: userData.state_province || '',
-      postalCode: userData.postal_code || '',
+      nationalIdNumber: userData.nationalIdNumber || '',
+      dataProcessingConsent: userData.dataProcessingConsent || false,
+      consentDate: userData.consentDate || '',
+
+      addressLine: userData.address || '',
+      stateProvince: userData.stateProvince || '',
+      postalCode: userData.postalCode || '',
       nationality: userData.nationality || '',
-      companyName: userData.company_name || '',
+      companyName: userData.companyName || '',
       fax: userData.fax || '',
-      registrationNumber: userData.registration_number || '',
-      // Permissions
-      selectedPrivileges: userData.privileges || [],
-      selectedReports: userData.reports || [],
-      selectedDiscounts: userData.discounts || [],
+      registrationNumber: userData.registrationNumber || '',
+
+      // Permissions - use parsed arrays
+      selectedPrivileges: selectedPrivileges,
+      selectedReports: selectedReports,
+      selectedDiscounts: selectedDiscounts,
     }
+
+    console.log('Parsed permissions:', {
+      selectedPrivileges,
+      selectedReports,
+      selectedDiscounts
+    })
+
   } catch (error) {
     console.error('Error fetching user data:', error)
     toast.error(t('toast.errorFetchingUser'))
@@ -309,7 +365,6 @@ const fetchUserData = async (id: string) => {
     isLoadingUser.value = false
   }
 }
-
 const saveUser = async () => {
   isLoading.value = true
   try {
@@ -369,7 +424,7 @@ const saveUser = async () => {
 const updateFormData = async () => {
   isLoading.value = true
   try {
-    const serviceId = serviceStore.serviceId
+    const hotelId = serviceStore.serviceId
     const selectedRole = roles.value.find((r: any) => r.value === form.value.roleId)
     const roleLabel = selectedRole ? selectedRole.label : ''
 
@@ -379,7 +434,7 @@ const updateFormData = async () => {
     }
 
     const userPayload = {
-      service_id: serviceId,
+      hotel_id: hotelId,
       first_name: form.value.firstName,
       last_name: form.value.lastName,
       email: form.value.email,
@@ -413,7 +468,7 @@ const updateFormData = async () => {
 
     await updateUser(userId.value, userPayload)
     toast.success(t('toast.userUpdatedSuccess'))
-    router.push({ name: 'staffManager' })
+    router.push({ name: 'Staff Management' })
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error)
     toast.error(t('toast.updateError'))
@@ -490,14 +545,9 @@ onMounted(async () => {
 
 
       <!-- Loading overlay for user data -->
-      <div
-        v-if="isLoadingUser"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      >
-        <div class="bg-white p-6 rounded-lg flex items-center space-x-3">
-          <Spinner class="w-6 h-6" />
-          <span class="text-lg">{{ t('Loading user data') }}...</span>
-        </div>
+      <div v-if="isLoadingUser"  >
+      <OverLoading/>
+
       </div>
 
       <div class="max-w-full px-4 sm:px-6 lg:px-8 py-4">

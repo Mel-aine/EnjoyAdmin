@@ -1,8 +1,8 @@
 <template>
-    <admin-layout>
-        <PageBreadcrumb :pageTitle="$t('userProfile')" />
+    <ConfigurationLayout>
+
         <FullScreenLayout>
-        <div class="" v-if="user && user.id"> 
+        <div class="p-6" v-if="user && user.id">
             <ModalConfirmation v-if="showTerminationModal" @close="showTerminationModal = false" @confirm="handleConfirmTermination" :isLoading="isTerminating" :action="'DANGER'" :title="$t('contract.break')" :message="$t('contract.break_confirmation') + ' ' + user.firstName + user.firstName + ' '  + ' ?'" />
             <Modal v-if="isCreateContractModalOpen" @close="isCreateContractModalOpen = false">
                 <template #body>
@@ -81,7 +81,7 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 {{ $t('contract_file_path') }}
                             </label>
-                            
+
                             <FileInput @change="handleFileUpload"/>
                             <div
                                 v-if="contractInfoFormData.contract_file_path_error"
@@ -276,20 +276,20 @@
             <div
                 class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
                 <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
-                    {{ $t('profile') }}
+                    {{ $t('userProfile') }}
                 </h3>
                 <profile-card :full-name="fullName" :email="email">
                     <template v-slot:Setting>
                         <div class="flex items-center gap-2">
                             <span>{{ $t('status') }}: <span
                                     :class="`${getStatusColor(user.status)} px-1 rounded-2xl text-sm py-1`">{{
-                                        $t(user.status ?? '') }}</span></span>
+                                      t(user.status ?? '') }}</span></span>
                             <span>{{ $t('roles') }}: <span
                                     :class="`${getRoleBadge(user.role).bg} ${getRoleBadge(user.role).text} px-1 text-sm rounded-2xl py-1`">{{
-                                        $t(user.role) }}</span></span>
+                                        (user.role) }}</span></span>
                             <span>{{ $t('department') }}: <span
                                     :class="`${getRoleBadge(user.department?.name ?? '').bg} ${getRoleBadge(user.department?.name ?? '').text} px-1 text-sm rounded-2xl py-1`">{{
-                                        $t(user.department?.name ?? '') }}</span></span>
+                                        (user.department?.name ?? '') }}</span></span>
 
                         </div>
 
@@ -499,11 +499,11 @@
 
                     <!-- Payroll Tab -->
                     <div v-if="activeTab === 'payroll'">
-                         <TableComponent 
-                            :items="payrollTitles" 
-                            :datas="payrollsForTable" 
+                         <TableComponent
+                            :items="payrollTitles"
+                            :datas="payrollsForTable"
                             :loading="payrollLoading"
-                            :title="$t('payrolls')" 
+                            :title="$t('payrolls')"
                             :pagination="true"
                             @downloadPayslip="downloadPayslip"
                             :showButtonAllElement="true"
@@ -529,7 +529,7 @@
             </div>
         </div>
         </FullScreenLayout>
-    </admin-layout>
+    </ConfigurationLayout>
     <template v-if="modalOpen">
         <UserUpsertModal :is-edit-mode="true" :selected-user="selectedUser" :modal-open="modalOpen" @close="closeModal"
             @refresh="refresh()" />
@@ -538,13 +538,14 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, computed, ref, onMounted, watch } from 'vue'
-import { createContract, getEmployeesDetails, terminateContract, updateContract, getPayrollsByContractId, createPayroll } from '@/services/api'
+import { createContract, terminateContract, updateContract, getPayrollsByContractId, createPayroll } from '@/services/api'
+import { getEmployeesDetails } from '@/services/userApi'
 import { useI18n } from 'vue-i18n'
 import router from '@/router'
 import InfoIcon from '@/icons/InfoIcon.vue'
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import { Bookmark, ClockIcon, CreditCard, FileSearch } from 'lucide-vue-next'
-import UserUpsertModal from '@/components/modal/UserUpsertModal.vue'
+// import UserUpsertModal from '@/components/modal/UserUpsertModal.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
 import ActivitiesLogs from '../Setting/ActivitiesLogs.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
@@ -559,8 +560,7 @@ import FileInput from '@/components/forms/FormElements/FileInput.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import TableComponent from '@/components/tables/TableComponent.vue'
-
-const AdminLayout = defineAsyncComponent(() => import('../../components/layout/AdminLayout.vue'))
+import ConfigurationLayout from '../Configuration/ConfigurationLayout.vue'
 const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
 const ProfileCard = defineAsyncComponent(() => import('../../components/profile/ProfileCard.vue'))
 const PersonalInfoCard = defineAsyncComponent(() => import('../../components/profile/PersonalInfoCard.vue'))
@@ -837,8 +837,8 @@ const payrollTitles = computed(() => [
       {
         name: 'Download Payslip',
         event: 'downloadPayslip',
-        icone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+        icone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download">
         <path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <path d="m7 10 5 5 5-5"/></svg>`,
@@ -889,7 +889,7 @@ const handleConfirmTermination = async () => {
             showTerminationModal.value = false;
             toast.info(t('contract.terminateSuccessfullyMessage'));
         }
-        
+
     } catch (error) {
         console.log('StaffDetail.handleAssignContract.error', error);
         toast.error(t('contract.terminateFailedessage'))
@@ -1009,7 +1009,7 @@ const contractUpdateCheckDataValidity = (
 
 
 const handleAssignContract = async () => {
-  
+
     const payload: IContract = {
         employee_id: Number.parseInt(user_id),
         base_salary: contractInfoFormData.value.base_salary,
@@ -1031,12 +1031,12 @@ const handleAssignContract = async () => {
                 console.log("CREATE : validation error", contractCreationCheckDataValidity(contractInfoFormData.value));
             } else {
                 let imageUrl = " "
-                isLoading.value = true 
+                isLoading.value = true
                 if(contractInfoFormData.value.contract_file_path){
                     imageUrl = await uploadToCloudinary(contractInfoFormData.value.contract_file_path);
                     payload.contract_file_path = imageUrl;
                 }
-                
+
                 const result = await createContract(payload);
                 console.log('-->result', result)
                 isLoading.value = false;
@@ -1044,16 +1044,16 @@ const handleAssignContract = async () => {
                 refresh()
                 toast.success(t('contract_creation_success'));
             }
-            
+
         } else {
             //!contractUpdateCheckDataValidity(contractInfoFormData.value, contractInfo.value)
             if (!contractUpdateCheckDataValidity(contractInfoFormData.value, contractInfo.value)) {
                 console.log("UPDATE : validation error", contractUpdateCheckDataValidity(contractInfoFormData.value, contractInfo.value))
-                
+
             } else {
                 isLoading.value = true
                 let imageUrl = " ";
-                
+
                 if(contractInfoFormData.value.contract_file_path){
                     imageUrl = await uploadToCloudinary(contractInfoFormData.value.contract_file_path);
                     payload.contract_file_path = imageUrl;
