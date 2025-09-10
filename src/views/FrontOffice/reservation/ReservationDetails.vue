@@ -80,7 +80,6 @@ const {
   isCancellingReservation,
   isMarkingNoShow,
   isVoidingReservation,
-  isUnassigningRoom,
   performCheckIn,
   performCheckOut,
   addPayment,
@@ -92,7 +91,6 @@ const {
   cancelReservation,
   markNoShow,
   voidReservation,
-  unassignRoom,
 } = useReservation()
 const tabs = computed(() => [
   { id: 'folio_operations', label: t('Folio Operations') },

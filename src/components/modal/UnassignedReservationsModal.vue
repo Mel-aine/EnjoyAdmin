@@ -83,6 +83,7 @@
       v-if="showRoomSelection"
       :is-open="showRoomSelection"
       :reservation="selectedReservation"
+      :reservation-id="selectedReservation?.id"
       :available-rooms="availableRooms"
       @close="closeRoomSelection"
       @room-selected="handleRoomSelection"

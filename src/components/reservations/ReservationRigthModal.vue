@@ -225,7 +225,7 @@
                                             </p>
                                             <AssignRoomReservation 
                                                 v-else 
-                                                :reservationRoom="reservation.reservationRooms?.[0]" 
+                                                :reservation="reservation" 
                                                 @assigned="handleRoomAssigned" 
                                             />
                                         </div>
@@ -399,7 +399,6 @@ const {
     isUpdatingInclusionList,
     isMarkingNoShow,
     isVoidingReservation,
-    isUnassigningRoom,
     performCheckIn,
     performCheckOut,
     showNoShowModal,

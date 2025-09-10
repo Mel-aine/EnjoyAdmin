@@ -178,7 +178,7 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'room-selected', data: { roomId: number; roomNumber: string }): void
+  (e: 'room-selected', data: {reservationId: number }): void
 }
 
 const props = defineProps<Props>()
@@ -340,7 +340,6 @@ const confirmRoomSelection = () => {
   
   emit('room-selected', {
     reservationId: props.reservationId,
-    roomSelections: roomSelections
   })
 }
 
