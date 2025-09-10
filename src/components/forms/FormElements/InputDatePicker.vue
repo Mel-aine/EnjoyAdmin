@@ -96,7 +96,7 @@ const flatpickrConfig = computed(() => {
 
   if (props.maxDate) config.maxDate = props.maxDate
   if (props.minDate) config.minDate = props.minDate
-  if (props.disabled) config.clickOpens = false
+    config.clickOpens = !props.disabled
 
   return config
 })

@@ -630,7 +630,7 @@ onMounted(() => {
         <BookingDetails :booking="reservation" :guest="reservation.guest"></BookingDetails>
       </div>
       <div v-if="activeTab === 'guest_details'">
-        <GuestDetails :reservation="reservation" :guest="reservation.guest" />
+        <GuestDetails :reservation="reservation" :guest="reservation.guest" :reservationId="reservation.id" />
       </div>
       <div v-if="activeTab === 'audit_trial'">
         <AuditTrail :entity-ids="[reservation.id]" />

@@ -1694,6 +1694,7 @@
     "start": "Start",
     "pickup": "Pickup",
     "dropoff": "Dropoff",
+    "pickup/dropoff" : "Pickup/Dropoff",
     "scheduled": "Scheduled",
     "completed": "Completed",
     "cancelled": "Cancelled",
