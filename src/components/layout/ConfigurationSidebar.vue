@@ -328,6 +328,8 @@ const filteredStaffItems = computed(() => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
+
 /* Prevent scrolling when active item is clicked */
 .router-link-active {
   scroll-behavior: auto;

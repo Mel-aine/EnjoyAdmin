@@ -1403,6 +1403,8 @@ onUnmounted(() => {
 })
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 /* Style pour les cellules sélectionnées individuellement */
 .cell-selected {
   background-color: #3b82f6 !important;

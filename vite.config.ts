@@ -72,7 +72,6 @@ export default defineConfig({
     target: 'esnext',
     cssMinify: true,
     reportCompressedSize: true,
-    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -417,10 +416,10 @@ export default defineConfig({
           }
         },
         chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop().replace('.vue', '') : 'chunk'
+          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop()?.replace('.vue', '') : 'chunk'
           return `js/[name]-[hash].js`
         },
-        assetFileNames: (assetInfo) => {
+        assetFileNames: (assetInfo:any) => {
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
           if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
@@ -442,6 +441,6 @@ export default defineConfig({
     emptyOutDir: true,
     assetsDir: 'assets',
     // Enable source maps for debugging but exclude from production
-    sourcemap: process.env.NODE_ENV === 'development'
+    sourcemap: process.env.NODE_ENV === 'development',
   }
 })

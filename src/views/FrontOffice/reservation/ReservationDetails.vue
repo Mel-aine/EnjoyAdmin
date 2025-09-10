@@ -17,7 +17,7 @@ import {
   ChevronDown,
   Users,
 } from 'lucide-vue-next'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue'
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue'
@@ -37,19 +37,20 @@ import {
   type CheckInReservationPayload,
   type CheckOutReservationPayload,
 } from '../../../composables/useReservation'
-import AddPaymentModal from '../../../components/reservations/foglio/AddPaymentModal.vue'
-import CancelReservation from '../../../components/reservations/foglio/CancelReseravtion.vue'
+// Lazy load modal components for better code splitting
+const AddPaymentModal = defineAsyncComponent(() => import('../../../components/reservations/foglio/AddPaymentModal.vue'))
+const CancelReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/CancelReseravtion.vue'))
 import PrintModal from '../../../components/common/PrintModal.vue'
-import BookingConfirmationTemplate from '../../../components/common/templates/BookingConfirmationTemplate.vue'
+const BookingConfirmationTemplate = defineAsyncComponent(() => import('../../../components/common/templates/BookingConfirmationTemplate.vue'))
 import { useServiceStore } from '../../../composables/serviceStore'
-import NoShowReservation from '../../../components/reservations/foglio/NoShowReservation.vue'
+const NoShowReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/NoShowReservation.vue'))
 import AuditTrail from '../../../components/audit/AuditTrail.vue'
 import ReservationStatus from '../../../components/common/ReservationStatus.vue'
-import VoidReservation from '@/components/reservations/foglio/VoidReservation.vue'
-import AmendStay from '@/components/reservations/foglio/AmendStay.vue'
-import CheckInReservation from '@/components/reservations/CheckInReservation.vue'
-import CheckOutReservation from '@/components/reservations/CheckOutReservation.vue'
-import UnAssignRoomReservation from '@/components/reservations/UnAssignRoomReservation.vue'
+const VoidReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/VoidReservation.vue'))
+const AmendStay = defineAsyncComponent(() => import('@/components/reservations/foglio/AmendStay.vue'))
+const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+const CheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/CheckOutReservation.vue'))
+const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/reservations/UnAssignRoomReservation.vue'))
 
 // Simple Button component
 const Button = {

@@ -725,7 +725,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, defineAsyncComponent } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
@@ -744,13 +744,13 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'
-import AddPaymentModal from '../../components/reservations/foglio/AddPaymentModal.vue'
+const AddPaymentModal = defineAsyncComponent(() => import('../../components/reservations/foglio/AddPaymentModal.vue'))
 import router from '../../router'
 import { useRoute } from 'vue-router'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
-import CheckInReservation from '@/components/reservations/CheckInReservation.vue'
+const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
 

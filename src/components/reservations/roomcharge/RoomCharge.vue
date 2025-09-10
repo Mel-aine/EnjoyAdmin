@@ -251,7 +251,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { PencilIcon, TrashIcon, RefreshCcw , SettingsIcon, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
@@ -263,8 +263,8 @@ import { getRoomCharges } from '../../../services/reservation'
 import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
-import CheckInReservation from '../CheckInReservation.vue'
-import UnAssignRoomReservation from '../UnAssignRoomReservation.vue'
+const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
+const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
 
 const { t } = useI18n()
 
