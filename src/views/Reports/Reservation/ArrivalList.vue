@@ -256,6 +256,7 @@
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
+
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
@@ -290,7 +291,11 @@
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
-            Report
+                   <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Report
           </button>
           
           <!-- Bouton Reset avec style secondaire -->
@@ -348,7 +353,7 @@ import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { generateArrivalList, type ReportFilters, exportArrivalList } from '@/services/reportsApi'
+import { generateArrivalList, type ReportFilters, exportData } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useBooking } from '@/composables/useBooking2'
 import { getCompanies } from '@/services/companyApi'
@@ -638,7 +643,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', apiFilters.value)
-    const result = await exportArrivalList('csv', apiFilters.value)
+    const result = await exportData('csv','arrivalList','arrival-list', apiFilters.value)
     console.log('Résultat export CSV:', result)
   } catch (error) {
     console.error('Erreur détaillée CSV:', error)
@@ -652,7 +657,7 @@ const exportPDF = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export PDF avec filtres:', apiFilters.value)
-    const result = await exportArrivalList('pdf', apiFilters.value)
+    const result = await exportData('pdf', 'arrivalList','arrival-list',apiFilters.value)
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
@@ -666,7 +671,7 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export Excel avec filtres:', apiFilters.value)
-    const result = await exportArrivalList('excel', apiFilters.value)
+    const result = await exportData('excel', 'arrivalList','arrival-list', apiFilters.value)
     console.log('Résultat export Excel:', result)
   } catch (error) {
     console.error('Erreur détaillée Excel:', error)
