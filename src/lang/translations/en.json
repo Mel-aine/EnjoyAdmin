@@ -5943,5 +5943,7 @@
   "release_term": "Release Term(%)",
   "remind_guest_before": "Remind Guest before",
   "hold_release_date": "Hold Release Date",
-  "arrival_date": "Arrival Date"
+  "arrival_date": "Arrival Date",
+  "housekeepingStatus":"Housekeeping Status",
+  "housekeepingStatusColors":"Housekeeping Status Colors"
 }

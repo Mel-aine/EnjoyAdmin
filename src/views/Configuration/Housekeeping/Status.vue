@@ -1,257 +1,308 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
+      <!-- Header -->
       <div class="mb-6">
-        <p class="text-gray-600">
+        <h1 class="text-2xl font-bold text-gray-900">{{ t('housekeepingStatus') }}</h1>
+        <p class="text-gray-600 mt-1">
           Define all the housekeeping status for the rooms from here. You can assign colors to each status for easy identification.
         </p>
       </div>
-      
-      <ReusableTable
-        title="Housekeeping Status Management"
-        :columns="columns"
-        :data="statuses"
-        :actions="actions"
-        search-placeholder="Search housekeeping status..."
-        :selectable="false"
-        empty-state-title="No housekeeping status found"
-        empty-state-message="Get started by adding a new housekeeping status."
-        @action="onAction"
-      >
-        <template #header-actions>
-          <BasicButton 
-            variant="primary" 
-            :label="'Add Housekeeping Status'"
-            :icon="'Plus'"
-            @click="openAddModal"
-          />
-        </template>
-        
-        <template #column-color="{ item }">
-          <div class="flex items-center">
-            <div class="w-6 h-6 rounded-full border border-gray-300" :style="{ backgroundColor: item.color }"></div>
-            <span class="text-sm text-gray-600">{{ item.color }}</span>
-          </div>
-        </template>
-        
 
-        <template #column-status="{ item }">
-          <span 
-            :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          >
-            {{ item.status }}
-          </span>
-        </template>
-      </ReusableTable>
+      <!-- Housekeeping Status Configuration -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ t('housekeepingStatusColors') }}</h3>
 
-      <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Housekeeping Status' : 'Add New Housekeeping Status' }}
-          </h3>
-          
-          <form @submit.prevent="saveStatus" class="space-y-4">
-            <Input 
-              :lb="'Status Name'"
-              :inputType="'text'"
-              :isRequired="true"
-              v-model="formData.name"
-              :placeholder="'Enter status name'"
-            />
-            
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Color *
-              </label>
-              <div class="flex items-center space-x-3">
-                <input 
-                  v-model="formData.color" 
-                  type="color" 
-                  required
-                  class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-                />
-                <Input 
-                  :lb="''"
-                  :inputType="'text'"
-                  :isRequired="true"
-                  v-model="formData.color"
-                  :placeholder="'#000000'"
-                  class="flex-1"
-                />
+        <div class="space-y-4">
+          <div v-for="status in housekeepingStatuses" :key="status.key"
+            class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center space-x-4">
+              <!-- Color Preview -->
+              <div
+                class="w-8 h-8 rounded-full border-2 border-gray-300 cursor-pointer transition-transform hover:scale-110"
+                :style="{ backgroundColor: status.color }" @click="openColorPicker(status)"
+                :title="t('clickToChangeColorFor', { status: status.name })"></div>
+
+              <!-- Status Info -->
+              <div>
+                <h4 class="text-sm font-medium text-gray-900">{{ status.name }}</h4>
+                <p class="text-xs text-gray-500">{{ status.description }}</p>
               </div>
             </div>
-            
-            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                :label="'Cancel'"
-                variant="secondary" 
-                @click="closeModal"
-                type="button"
-              />
-              <BasicButton 
-                :label="isEditing ? 'Update' : 'Save'"
-                variant="primary" 
-                type="submit"
-              />
+
+            <!-- Color Code Display -->
+            <div class="flex items-center space-x-3">
+              <span class="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">{{ status.color }}</span>
+              <BasicButton @click="openColorPicker(status)" :label="t('changeColor')" :icon="Palette" />
             </div>
-          </form>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="mt-8 flex justify-end space-x-3">
+          <BasicButton @click="resetToDefaults" :label="t('resetToDefaults')">
+          </BasicButton>
+          <BasicButton 
+             @click="saveStatusColors" 
+             :disabled="!hasChanges || isLoading"
+             :label="isLoading ? t('saving') : t('saveChanges')" 
+             :icon="Save"
+             class="disabled:bg-gray-400 disabled:cursor-not-allowed"
+           >
+             <template v-if="isLoading" #icon>
+               <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+             </template>
+           </BasicButton>
         </div>
       </div>
-    </div>
-  </ConfigurationLayout>
+
+      <!-- Color Picker Modal -->
+      <div v-if="showColorPicker" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+          <h3 class="text-lg font-semibold mb-4">
+            {{ t('selectColorFor', { status: selectedStatus?.name }) }}
+          </h3>
+
+          <!-- Color Input -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Color Code
+            </label>
+            <div class="flex items-center space-x-3">
+              <input v-model="tempColor" type="color" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+              <input v-model="tempColor" type="text"
+                class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="#000000">
+            </div>
+          </div>
+
+          <!-- Predefined Colors -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Quick Colors
+            </label>
+            <div class="grid grid-cols-8 gap-2">
+              <div v-for="color in predefinedColors" :key="color"
+                class="w-8 h-8 rounded cursor-pointer border-2 transition-transform hover:scale-110"
+                :class="tempColor === color ? 'border-gray-800' : 'border-gray-300'" :style="{ backgroundColor: color }"
+                @click="tempColor = color"></div>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Preview
+            </label>
+            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+               <div class="w-6 h-6 rounded-full" :style="{ backgroundColor: tempColor }"></div>
+               <span class="text-sm text-gray-900">{{ selectedStatus?.name }}</span>
+               <span class="text-xs text-gray-500 font-mono">{{ tempColor }}</span>
+             </div>
+           </div>
+
+           <div class="flex justify-end space-x-3">
+             <button type="button" @click="closeColorPicker"
+               class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+               Cancel
+             </button>
+             <button type="button" @click="applyColor"
+               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+               Apply Color
+             </button>
+           </div>
+         </div>
+       </div>
+     </div>
+   </ConfigurationLayout>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive } from 'vue'
+<script setup>
+import { onMounted, ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
-import Input from '@/components/forms/FormElements/Input.vue'
-import { Plus } from 'lucide-vue-next'
-import type { Action, Column } from '../../../utils/models'
+import { Palette, Save } from 'lucide-vue-next'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelHousekeepingStatusColors } from '../../../services/hotelApi'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+const toast = useToast()
 
 // Reactive data
-const showModal = ref(false)
-const isEditing = ref(false)
-const editingId = ref<number | null>(null)
+const showColorPicker = ref(false)
+const selectedStatus = ref(null)
+const tempColor = ref('#000000')
+const originalHousekeepingStatuses = ref([])
+const isLoading = ref(false)
 
-const formData = reactive({
-  name: '',
-  color: '#3B82F6'
-})
-
-// Table configuration
-const columns:Column[] = [
-  { key: 'name', label: 'Status Name', type: 'text' },
-  { key: 'color', label: 'Color', type: 'custom' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
-
-const actions: Action[] = [
+// Housekeeping statuses with default colors
+const housekeepingStatuses = ref([
   {
-    label: 'Edit',
-    handler: (item: any) => editStatus(item),
-    variant: 'primary'
+    key: 'clean',
+    name: 'Clean',
+    description: 'Room is clean and ready for occupancy',
+    color: '#10B981' // Green
   },
   {
-    label: 'Delete',
-    handler: (item: any) => deleteStatus(item.id),
-    variant: 'danger'
-  }
-]
-
-const statuses = ref([
-  { 
-    id: 1, 
-    name: 'Clean', 
-    color: '#10B981', 
-    createdBy: 'admin', 
-    createdDate: '2013-05-13', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
+    key: 'dirty',
+    name: 'Dirty',
+    description: 'Room needs cleaning after guest checkout',
+    color: '#EF4444' // Red
   },
-  { 
-    id: 2, 
-    name: 'Dirty', 
-    color: '#EF4444', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
+  {
+    key: 'out_of_order',
+    name: 'Out of Order',
+    description: 'Room is temporarily unavailable due to issues',
+    color: '#F59E0B' // Amber
   },
-  { 
-    id: 3, 
-    name: 'Out of Order', 
-    color: '#F59E0B', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
+  {
+    key: 'maintenance',
+    name: 'Maintenance',
+    description: 'Room is under maintenance or repair',
+    color: '#8B5CF6' // Purple
   },
-  { 
-    id: 4, 
-    name: 'Maintenance', 
-    color: '#8B5CF6', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  }
+ /** {
+    key: 'inspected',
+    name: 'Inspected',
+    description: 'Room has been cleaned and inspected',
+    color: '#3B82F6' // Blue
+  },
+  {
+    key: 'vacant_dirty',
+    name: 'Vacant Dirty',
+    description: 'Room is vacant but needs cleaning',
+    color: '#DC2626' // Dark Red
+  },
+  {
+    key: 'vacant_clean',
+    name: 'Vacant Clean',
+    description: 'Room is vacant and clean, ready for next guest',
+    color: '#059669' // Dark Green
+  } */
 ])
 
-// Functions
-const openAddModal = () => {
-  isEditing.value = false
-  editingId.value = null
-  formData.name = ''
-  formData.color = '#3B82F6'
-  showModal.value = true
+// Predefined color palette
+const predefinedColors = ref([
+  '#EF4444', '#F59E0B', '#10B981', '#3B82F6',
+  '#8B5CF6', '#EC4899', '#6B7280', '#DC2626',
+  '#D97706', '#059669', '#2563EB', '#7C3AED',
+  '#DB2777', '#374151', '#991B1B', '#92400E',
+  '#047857', '#1D4ED8', '#6D28D9', '#BE185D'
+])
+const serviceStore = useServiceStore()
+
+// Computed property to check if colors have changed
+const hasChanges = ref(false)
+
+// Methods
+const openColorPicker = (status) => {
+  selectedStatus.value = status
+  tempColor.value = status.color
+  showColorPicker.value = true
 }
 
-const editStatus = (status: any) => {
-  isEditing.value = true
-  editingId.value = status.id
-  formData.name = status.name
-  formData.color = status.color
-  showModal.value = true
+const closeColorPicker = () => {
+  showColorPicker.value = false
+  selectedStatus.value = null
+  tempColor.value = '#000000'
 }
 
-const closeModal = () => {
-  showModal.value = false
-  isEditing.value = false
-  editingId.value = null
-  formData.name = ''
-  formData.color = '#3B82F6'
-}
-
-const saveStatus = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing status
-    const index = statuses.value.findIndex(s => s.id === editingId.value)
+const applyColor = () => {
+  if (selectedStatus.value) {
+    // Find the index of the status in the array and update it to ensure reactivity
+    const index = housekeepingStatuses.value.findIndex(status => status.key === selectedStatus.value.key)
     if (index !== -1) {
-      statuses.value[index] = {
-        ...statuses.value[index],
-        name: formData.name,
-        color: formData.color,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
+      housekeepingStatuses.value[index] = {
+        ...housekeepingStatuses.value[index],
+        color: tempColor.value
       }
     }
-  } else {
-    // Add new status
-    const newStatus = {
-      id: Math.max(...statuses.value.map(s => s.id)) + 1,
-      name: formData.name,
-      color: formData.color,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
-    }
-    statuses.value.push(newStatus)
   }
-  closeModal()
+  hasChanges.value = true
+  closeColorPicker()
 }
 
-const deleteStatus = (id: number) => {
-  if (confirm('Are you sure you want to delete this housekeeping status?')) {
-    const index = statuses.value.findIndex(s => s.id === id)
-    if (index !== -1) {
-      statuses.value.splice(index, 1)
-    }
+const resetToDefaults = () => {
+  if (confirm('Are you sure you want to reset all colors to their default values?')) {
+    housekeepingStatuses.value = [
+      {
+        key: 'clean',
+        name: 'Clean',
+        description: 'Room is clean and ready for occupancy',
+        color: '#10B981'
+      },
+      {
+        key: 'dirty',
+        name: 'Dirty',
+        description: 'Room needs cleaning after guest checkout',
+        color: '#EF4444'
+      },
+      {
+        key: 'out_of_order',
+        name: 'Out of Order',
+        description: 'Room is temporarily unavailable due to issues',
+        color: '#F59E0B'
+      },
+      {
+        key: 'maintenance',
+        name: 'Maintenance',
+        description: 'Room is under maintenance or repair',
+        color: '#8B5CF6'
+      },
+      {
+        key: 'inspected',
+        name: 'Inspected',
+        description: 'Room has been cleaned and inspected',
+        color: '#3B82F6'
+      },
+      {
+        key: 'vacant_dirty',
+        name: 'Vacant Dirty',
+        description: 'Room is vacant but needs cleaning',
+        color: '#DC2626'
+      },
+      {
+        key: 'vacant_clean',
+        name: 'Vacant Clean',
+        description: 'Room is vacant and clean, ready for next guest',
+        color: '#059669'
+      }
+    ]
+    hasChanges.value = true
   }
 }
 
-const onAction = (action: string, item: any) => {
-  console.log('Action:', action, 'Item:', item)
+const saveStatusColors = async () => {
+  if (!hasChanges.value) {
+    toast.warning(t('noChangesToSave'))
+    return
+  }
+  
+  isLoading.value = true
+  try {
+    const resp = await updateHotelHousekeepingStatusColors(serviceStore.serviceId, { statusColors: housekeepingStatuses.value })
+    console.log('housekeeping status colors', resp)
+    if (resp.status === 200) {
+      // Update original colors to reflect saved state
+      originalHousekeepingStatuses.value = JSON.parse(JSON.stringify(housekeepingStatuses.value))
+      toast.success(t('housekeepingStatusColorsUpdatedSuccess'))
+      hasChanges.value = false
+    }
+  } catch (error) {
+    console.error('Error saving housekeeping status colors:', error)
+    toast.error(t('errorSavingHousekeepingStatusColors'))
+  } finally {
+    isLoading.value = false
+  }
 }
+
+onMounted(() => {
+  if (serviceStore.currentService && serviceStore.currentService.housekeepingStatusColors) {
+    housekeepingStatuses.value = serviceStore.currentService.housekeepingStatusColors
+    // Store original colors for change detection
+    originalHousekeepingStatuses.value = JSON.parse(JSON.stringify(serviceStore.currentService.housekeepingStatusColors))
+  }
+})
 </script>

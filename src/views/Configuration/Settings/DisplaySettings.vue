@@ -8,7 +8,7 @@
             Manage different display settings that you want to set by default for various fields in Front Desk operations.
           </p>
         </div>
-        <BasicButton variant="primary" icon="Save" label="Save Changes" @click="saveDisplaySettings" />
+        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveDisplaySettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
@@ -243,11 +243,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelDisplaySettings } from '../../../services/hotelApi'
+import { Save } from 'lucide-vue-next'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+const isLoading = ref(false)
+
+// Get current service from store
+const currentService = computed(() => serviceStore.getCurrentService)
 
 const formatSettings = ref({
   timeFormat: '24-hour',
@@ -384,17 +397,68 @@ const getWebInventoryModeDescription = (mode) => {
   return descriptions[mode] || ''
 }
 
-const saveDisplaySettings = () => {
-  const settings = {
-    formatSettings: formatSettings.value,
-    captionSettings: captionSettings.value,
-    defaultValues: defaultValues.value,
-    roundOffSettings: roundOffSettings.value,
-    webSettings: webSettings.value
+// Load display settings from current service
+const loadDisplaySettingsFromService = () => {
+  if (currentService.value && currentService.value.displaySettings) {
+    const serviceDisplaySettings = currentService.value.displaySettings
+    
+    if (serviceDisplaySettings.formatSettings) {
+      formatSettings.value = { ...formatSettings.value, ...serviceDisplaySettings.formatSettings }
+    }
+    if (serviceDisplaySettings.captionSettings) {
+      captionSettings.value = { ...captionSettings.value, ...serviceDisplaySettings.captionSettings }
+    }
+    if (serviceDisplaySettings.defaultValues) {
+      defaultValues.value = { ...defaultValues.value, ...serviceDisplaySettings.defaultValues }
+    }
+    if (serviceDisplaySettings.roundOffSettings) {
+      roundOffSettings.value = { ...roundOffSettings.value, ...serviceDisplaySettings.roundOffSettings }
+    }
+    if (serviceDisplaySettings.webSettings) {
+      webSettings.value = { ...webSettings.value, ...serviceDisplaySettings.webSettings }
+    }
   }
-  
-  // TODO: Implement save functionality
-  console.log('Save display settings:', settings)
-  alert('Display settings saved successfully!')
 }
+
+const saveDisplaySettings = async () => {
+  if (!currentService.value || !currentService.value.id) {
+    toast.error(t('toast.displaySettingsUpdateError'))
+    return
+  }
+
+  isLoading.value = true
+  
+  try {
+    const settings = {
+      formatSettings: formatSettings.value,
+      captionSettings: captionSettings.value,
+      defaultValues: defaultValues.value,
+      roundOffSettings: roundOffSettings.value,
+      webSettings: webSettings.value
+    }
+    
+    // Call API to update display settings
+    await updateHotelDisplaySettings(currentService.value.id, { displaySettings: settings })
+    
+    // Update the service store with new display settings
+    const updatedService = {
+      ...currentService.value,
+      displaySettings: settings
+    }
+    serviceStore.setCurrentService(updatedService)
+    
+    // Show success toast
+    toast.success(t('toast.displaySettingsUpdated'))
+  } catch (error) {
+    console.error('Error saving display settings:', error)
+    toast.error(t('toast.displaySettingsUpdateError'))
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Load display settings when component mounts
+onMounted(() => {
+  loadDisplaySettingsFromService()
+})
 </script>

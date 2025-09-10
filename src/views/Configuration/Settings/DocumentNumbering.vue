@@ -8,7 +8,7 @@
             Manage the numbering of different documents generated in the hotel. Set prefixes and reset options for various document types.
           </p>
         </div>
-        <BasicButton variant="primary" icon="Save" label="Save Changes" @click="saveDocumentNumbering" />
+        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveDocumentNumbering" :loading="isLoading" />
       </div>
       
       <div class="bg-white rounded-lg shadow">
@@ -70,11 +70,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelDocumentNumberingSetting } from '../../../services/hotelApi'
+import { Save } from 'lucide-vue-next'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+const isLoading = ref(false)
+
+// Get current service from store
+const currentService = computed(() => serviceStore.getCurrentService)
 
 const documentTypes = ref([
   {
@@ -150,9 +163,47 @@ const resetFrequencyOptions = [
 ]
 
 
-const saveDocumentNumbering = () => {
-  // TODO: Implement save functionality
-  console.log('Save document numbering configuration:', documentTypes.value)
-  alert('Document numbering configuration saved successfully!')
+// Load document numbering from current service
+const loadDocumentNumberingFromService = () => {
+  if (currentService.value && currentService.value.documentNumberingSetting) {
+    const serviceDocumentNumbering = currentService.value.documentNumberingSetting
+    if (Array.isArray(serviceDocumentNumbering)) {
+      documentTypes.value = serviceDocumentNumbering
+    }
+  }
 }
+
+const saveDocumentNumbering = async () => {
+  if (!currentService.value || !currentService.value.id) {
+    toast.error(t('toast.documentNumberingUpdateError'))
+    return
+  }
+
+  isLoading.value = true
+  
+  try {
+    // Call API to update document numbering setting
+    await updateHotelDocumentNumberingSetting(currentService.value.id, { documentNumberingSetting: documentTypes.value })
+    
+    // Update the service store with new document numbering setting
+    const updatedService = {
+      ...currentService.value,
+      documentNumberingSetting: documentTypes.value
+    }
+    serviceStore.setCurrentService(updatedService)
+    
+    // Show success toast
+    toast.success(t('toast.documentNumberingUpdated'))
+  } catch (error) {
+    console.error('Error saving document numbering:', error)
+    toast.error(t('toast.documentNumberingUpdateError'))
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Load document numbering when component mounts
+onMounted(() => {
+  loadDocumentNumberingFromService()
+})
 </script>

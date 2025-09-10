@@ -8,7 +8,7 @@
             Configure print and email settings for Front Desk operations. Set templates and preferences for various documents and communications.
           </p>
         </div>
-        <BasicButton variant="primary" icon="Save" label="Save Changes" @click="savePrintEmailSettings" />
+        <BasicButton variant="primary" :icon="Save" :label="t('save')" @click="savePrintEmailSettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
@@ -211,11 +211,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelPrintEmailSettings } from '../../../services/hotelApi'
+import { Save } from 'lucide-vue-next'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+const isLoading = ref(false)
+
+// Get current service from store
+const currentService = computed(() => serviceStore.getCurrentService)
 
 const printSettings = ref({
   printCityLedgerOnInvoice: true
@@ -305,16 +318,64 @@ const reviewEmailTargetOptions = [
   { label: 'All Guests', value: 'all' }
 ]
 
-const savePrintEmailSettings = () => {
-  const settings = {
-    printSettings: printSettings.value,
-    printTemplates: printTemplates.value,
-    emailOptions: emailOptions.value,
-    additionalSettings: additionalSettings.value
+// Load print email settings from current service
+const loadPrintEmailSettingsFromService = () => {
+  if (currentService.value && currentService.value.printEmailSettings) {
+    const servicePrintEmailSettings = currentService.value.printEmailSettings
+    
+    if (servicePrintEmailSettings.printSettings) {
+      printSettings.value = { ...printSettings.value, ...servicePrintEmailSettings.printSettings }
+    }
+    if (servicePrintEmailSettings.printTemplates) {
+      printTemplates.value = servicePrintEmailSettings.printTemplates
+    }
+    if (servicePrintEmailSettings.emailOptions) {
+      emailOptions.value = servicePrintEmailSettings.emailOptions
+    }
+    if (servicePrintEmailSettings.additionalSettings) {
+      additionalSettings.value = { ...additionalSettings.value, ...servicePrintEmailSettings.additionalSettings }
+    }
   }
-  
-  // TODO: Implement save functionality
-  console.log('Save print and email settings:', settings)
-  alert('Print and email settings saved successfully!')
 }
+
+const savePrintEmailSettings = async () => {
+  if (!currentService.value || !currentService.value.id) {
+    toast.error(t('toast.printEmailSettingsUpdateError'))
+    return
+  }
+
+  isLoading.value = true
+  
+  try {
+    const settings = {
+      printSettings: printSettings.value,
+      printTemplates: printTemplates.value,
+      emailOptions: emailOptions.value,
+      additionalSettings: additionalSettings.value
+    }
+    
+    // Call API to update print email settings
+    await updateHotelPrintEmailSettings(currentService.value.id, { printEmailSettings: settings })
+    
+    // Update the service store with new print email settings
+    const updatedService = {
+      ...currentService.value,
+      printEmailSettings: settings
+    }
+    serviceStore.setCurrentService(updatedService)
+    
+    // Show success toast
+    toast.success(t('toast.printEmailSettingsUpdated'))
+  } catch (error) {
+    console.error('Error saving print email settings:', error)
+    toast.error(t('toast.printEmailSettingsUpdateError'))
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Load print email settings when component mounts
+onMounted(() => {
+  loadPrintEmailSettingsFromService()
+})
 </script>

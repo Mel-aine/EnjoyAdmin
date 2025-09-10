@@ -107,7 +107,15 @@ export const updateHotelRegistrationSettings = (id:number,data:any): Promise<Axi
   return axios.put(`${API_URL}/${id}/registration-settings`, data, headers)
 }
 
-
+/**
+ * update hotel housekeeping-status-colors
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelHousekeepingStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/housekeeping-status-colors`, data, headers)
+}
 
 // Find reservation
 export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
