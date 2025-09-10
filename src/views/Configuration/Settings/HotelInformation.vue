@@ -268,22 +268,6 @@
                     </span>
                   </div>
                 </div>
-                
-                <!-- Last Migration Date -->
-                <div class="mb-6">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Last Migration Date
-                  </label>
-                  <input
-                    v-model="hotelInfo.lastMigrationDate"
-                    type="datetime-local"
-                    class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                    readonly
-                  />
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    This field is automatically updated when migration is performed
-                  </p>
-                </div>
               </div>
             </div>
           </form>
@@ -410,10 +394,6 @@ const loadHotelInfo = async () => {
       registrationNo3:  currentService.registrationNo3 || '',
       cancellationPolicy: currentService.cancellationPolicy || '',
       hotelPolicy: currentService.hotelPolicy || '',
-      // New fields for channel manager integration
-      migrated: currentService.migrated || false,
-      channelEnable: currentService.channelEnable || false,
-      lastMigrationDate: currentService.lastMigrationDate || ''
     }
   }
 }

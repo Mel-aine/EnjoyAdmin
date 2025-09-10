@@ -325,7 +325,7 @@ const filteredSettingsItems = computed(() => {
 const filteredStaffItems = computed(() => {
   if (!searchQuery.value) return staffItems
   return staffItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 </script>
@@ -333,14 +333,23 @@ const filteredStaffItems = computed(() => {
 <style scoped>
 @reference "tailwindcss";
 
-/* Prevent scrolling when active item is clicked */
-.router-link-active {
+/* Smooth scrolling for navigation container */
+.overflow-y-auto {
   scroll-behavior: smooth;
 }
 
-/* Smooth scrolling for navigation */
-nav {
-  scroll-behavior: smooth;
+/* Ensure active state styling works properly with higher specificity */
+:deep(.router-link-active.router-link-active) {
+  color: #111827 !important;
+  background-color: #e5e7eb !important;
+  font-weight: 500 !important;
+}
+
+/* Alternative approach - target the active class directly */
+:deep(a.router-link-active) {
+  color: #111827 !important;
+  background-color: #e5e7eb !important;
+  font-weight: 500 !important;
 }
 
 /* Hide scrollbar but keep functionality */
