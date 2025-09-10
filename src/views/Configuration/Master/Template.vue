@@ -7,6 +7,7 @@
         :data="templates"
         :actions="actions"
         search-placeholder="Search templates..."
+        :loading="loading"
         :selectable="false"
         empty-state-title="No templates found"
         empty-state-message="Get started by adding a new email template."
@@ -32,7 +33,7 @@
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ isEditing ? 'Edit Template' : 'Add New Template' }}
@@ -117,12 +118,12 @@
                 :label="$t('cancel')"
                 :icon="ShieldCloseIcon"
               >
-                Cancel
               </BasicButton>
               <BasicButton 
                 variant="primary" 
                 type="submit"
-                :label="isEditing ? $t('Update') : $t('Save')"
+                :label="saving ? $t('Saving...') : (isEditing ? $t('Update') : $t('Save'))"
+                :disabled="saving"
               >
               </BasicButton>
             </div>
@@ -134,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
@@ -143,11 +144,17 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
 import { ShieldCloseIcon } from 'lucide-vue-next'
+import { getTemplateCategories, emailAccountsApi, emailTemplatesApi } from '@/services/configrationApi'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '../../../composables/serviceStore'
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
+const toast = useToast()
 
 const formData = reactive({
   name: '',
@@ -160,91 +167,57 @@ const formData = reactive({
   messageBody: ''
 })
 
-// Sample data
-const templates = ref([
-  {
-    id: 1,
-    name: 'Welcome Guest',
-    category: 'Welcome',
-    subject: 'Welcome to Our Hotel',
-    autoSend: 'Check-in',
-    attachment: 'None',
-    emailAccount: 'noreply@hotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active',
-    scheduleDate: '2024-01-15',
-    messageBody:""
-  },
-  {
-    id: 2,
-    name: 'Booking Confirmation',
-    category: 'Confirmation',
-    subject: 'Your Booking is Confirmed',
-    autoSend: 'Reservation Created',
-    attachment: 'Reservation Voucher',
-    emailAccount: 'reservations@hotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Cancellation Notice',
-    category: 'Cancellation',
-    subject: 'Booking Cancellation Confirmation',
-    autoSend: 'Reservation Cancelled',
-    attachment: 'Cancellation Voucher',
-    emailAccount: 'reservations@hotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Special Offer',
-    category: 'Marketing',
-    subject: 'Exclusive Offer Just for You!',
-    autoSend: 'Manual',
-    attachment: 'None',
-    emailAccount: 'marketing@hotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Active'
-  },
-  {
-    id: 5,
-    name: 'Invoice Template',
-    category: 'Business Partner',
-    subject: 'Invoice for Services',
-    autoSend: 'Invoice Generated',
-    attachment: 'Invoice',
-    emailAccount: 'billing@hotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-11',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-11',
-    status: 'Inactive'
-  }
-])
+// Templates data
+const templates = ref([])
 
-// Options
-const categoryOptions = [
-  { label: 'Welcome', value: 'Welcome' },
-  { label: 'Confirmation', value: 'Confirmation' },
-  { label: 'Cancellation', value: 'Cancellation' },
-  { label: 'Marketing', value: 'Marketing' },
-  { label: 'Business Partner', value: 'Business Partner' },
-  { label: 'Feedback', value: 'Feedback' }
-]
+// Fetch email templates
+const fetchEmailTemplates = async () => {
+  try {
+    loading.value = true
+    const response = await emailTemplatesApi.getEmailTemplates({hotelId:useServiceStore().serviceId!})
+    templates.value = response.data || []
+  } catch (error) {
+    console.error('Error fetching email templates:', error)
+    toast.error('Failed to load email templates')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Dynamic Options
+const categoryOptions = ref<Array<{ label: string; value: string }>>([])
+const emailAccountOptions = ref<Array<{ label: string; value: string }>>([])
+
+// Fetch template categories
+const fetchTemplateCategories = async () => {
+  try {
+    const response = await getTemplateCategories()
+    const categories = response.data.data.data || []
+    categoryOptions.value = categories.map((category: any) => ({
+      label: category.category,
+      value: category.category
+    }))
+  } catch (error) {
+    console.error('Error fetching template categories:', error)
+    toast.error('Failed to load template categories')
+  }
+}
+
+// Fetch email accounts
+const fetchEmailAccounts = async () => {
+  try {
+    const response = await emailAccountsApi.getActiveEmailAccounts(useServiceStore().serviceId!)
+    const accounts = response.data || []
+    console.log(accounts)
+    emailAccountOptions.value = accounts.map((account: any) => ({
+      label: account.displayName,
+      value: account.id
+    }))
+  } catch (error) {
+    console.error('Error fetching email accounts:', error)
+    toast.error('Failed to load email accounts')
+  }
+}
 
 const autoSendOptions = [
   { label: 'Manual', value: 'Manual' },
@@ -265,13 +238,12 @@ const attachmentOptions = [
   { label: 'Report', value: 'Report' }
 ]
 
-const emailAccountOptions = [
-  { label: 'noreply@hotel.com', value: 'noreply@hotel.com' },
-  { label: 'reservations@hotel.com', value: 'reservations@hotel.com' },
-  { label: 'marketing@hotel.com', value: 'marketing@hotel.com' },
-  { label: 'billing@hotel.com', value: 'billing@hotel.com' },
-  { label: 'support@hotel.com', value: 'support@hotel.com' }
-]
+// Load data on component mount
+onMounted(() => {
+  fetchTemplateCategories()
+  fetchEmailAccounts()
+  fetchEmailTemplates()
+})
 
 // Table configuration
 const columns: Column[] = [
@@ -339,53 +311,54 @@ const closeModal = () => {
   formData.messageBody = ''
 }
 
-const saveTemplate = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing template
-    const index = templates.value.findIndex(t => t.id === editingId.value)
-    if (index !== -1) {
-      templates.value[index] = {
-        ...templates.value[index],
-        name: formData.name,
-        category: formData.category,
-        autoSend: formData.autoSend,
-        attachment: formData.attachment,
-        emailAccount: formData.emailAccount,
-        scheduleDate: formData.scheduleDate,
-        subject: formData.subject,
-        messageBody: formData.messageBody,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
-    }
-  } else {
-    // Add new template
-    const newTemplate = {
-      id: Math.max(...templates.value.map(t => t.id)) + 1,
+const saveTemplate = async () => {
+  try {
+    saving.value = true
+    
+    const templateData = {
+      hotelId: useServiceStore().serviceId!,
       name: formData.name,
       category: formData.category,
+      subject: formData.subject,
+      messageBody: formData.messageBody,
       autoSend: formData.autoSend,
       attachment: formData.attachment,
       emailAccount: formData.emailAccount,
       scheduleDate: formData.scheduleDate,
-      subject: formData.subject,
-      messageBody: formData.messageBody,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+      isActive: true
     }
-    templates.value.push(newTemplate)
+
+    if (isEditing.value && editingId.value) {
+      // Update existing template
+      await emailTemplatesApi.updateEmailTemplate(editingId.value, templateData)
+      toast.success('Template updated successfully')
+    } else {
+      // Create new template
+      await emailTemplatesApi.createEmailTemplate(templateData)
+      toast.success('Template created successfully')
+    }
+    
+    // Refresh the templates list
+    await fetchEmailTemplates()
+    closeModal()
+  } catch (error) {
+    console.error('Error saving template:', error)
+    toast.error('Failed to save template')
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteTemplate = (id: number) => {
+const deleteTemplate = async (id: number) => {
   if (confirm('Are you sure you want to delete this template?')) {
-    const index = templates.value.findIndex(t => t.id === id)
-    if (index !== -1) {
-      templates.value.splice(index, 1)
+    try {
+      await emailTemplatesApi.deleteEmailTemplate(id)
+      toast.success('Template deleted successfully')
+      // Refresh the templates list
+      await fetchEmailTemplates()
+    } catch (error) {
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template')
     }
   }
 }

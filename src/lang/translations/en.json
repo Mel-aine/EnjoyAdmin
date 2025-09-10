@@ -4238,7 +4238,8 @@
       "businessSource": "Business Source",
       "marketCode": "Market Code",
       "reasonCode": "Reason Code",
-      "units": "Units"
+      "units": "Units",
+      "vipStatus": "VIP Status"
     },
     "settings": {
       "hotelInformation": "Hotel Information",
@@ -5945,5 +5946,41 @@
   "hold_release_date": "Hold Release Date",
   "arrival_date": "Arrival Date",
   "housekeepingStatus":"Housekeeping Status",
-  "housekeepingStatusColors":"Housekeeping Status Colors"
+  "housekeepingStatusColors":"Housekeeping Status Colors",
+  "vip_status": {
+      "title": "VIP Status",
+      "subtitle": "Manage VIP status levels for guests",
+      "add": "Add VIP Status",
+      "edit": "Edit VIP Status",
+      "update": "Update VIP Status",
+      "search": "Search VIP status...",
+      "noResults": "No VIP status found",
+      "noResultsMessage": "Click 'Add VIP Status' to create your first VIP status.",
+      "name": "Name",
+      "color": "Color",
+      "icon": "Icon",
+      "actions": "Actions",
+      "namePlaceholder": "Enter VIP status name",
+      "colorPlaceholder": "#RRGGBB",
+      "iconPlaceholder": "Select icon",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "loading": "Loading...",
+      "confirmDelete": "Are you sure you want to delete this VIP status?",
+      "deleteSuccess": "VIP status deleted successfully",
+      "deleteError": "Failed to delete VIP status",
+      "saveSuccess": "VIP status saved successfully",
+      "saveError": "Failed to save VIP status",
+      "loadError": "Failed to load VIP status",
+      "validation": {
+        "nameRequired": "Name is required",
+        "colorRequired": "Color is required",
+        "iconRequired": "Icon is required"
+      },
+      "chooseIcon": "Choose Icon",
+      "selectVipIcon": "Select VIP Icon",
+      "searchIcons": "Search icons...",
+      "noIconsFound": "No icons found matching your search"
+    }
 }

@@ -1271,13 +1271,360 @@ export const getByCategory = (hotelId: number | string, category: string): Promi
   return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, headers)
 }
 
+// this section is for email Account
+
+// Email Accounts CRUD Operations
+export const emailAccountsApi = {
+  // Get all email accounts with pagination
+  async getEmailAccounts(params = {}) {
+    try {
+      const response = await axios.get(`${API_URL}/email-accounts`, {
+        params,
+        ...headers
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email accounts:', error)
+      throw error
+    }
+  },
+
+  // Create new email account
+  async createEmailAccount(data: {
+    hotelId: number
+    title: string
+    emailAddress: string
+    displayName: string
+    signature?: string
+    isActive?: boolean
+  }) {
+    try {
+      // Input validation
+      if (!data.hotelId || data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (!data.title || data.title.trim().length === 0 || data.title.length > 255) {
+        throw new Error('Title is required and must be between 1-255 characters')
+      }
+      if (!data.emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.emailAddress) || data.emailAddress.length > 255) {
+        throw new Error('Valid email address is required (max 255 characters)')
+      }
+      if (!data.displayName || data.displayName.trim().length === 0 || data.displayName.length > 255) {
+        throw new Error('Display name is required and must be between 1-255 characters')
+      }
+
+      const response = await axios.post(`${API_URL}/email-accounts`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error creating email account:', error)
+      throw error
+    }
+  },
+
+  // Get active email accounts for a hotel
+  async getActiveEmailAccounts(hotelId: number) {
+    try {
+      if (!hotelId || hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-accounts/active/${hotelId}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching active email accounts:', error)
+      throw error
+    }
+  },
+
+  // Get single email account by ID
+  async getEmailAccount(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-accounts/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email account:', error)
+      throw error
+    }
+  },
+
+  // Update email account
+  async updateEmailAccount(id: number, data: {
+    hotelId?: number
+    title?: string
+    emailAddress?: string
+    displayName?: string
+    signature?: string
+    isActive?: boolean
+  }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      // Input validation for provided fields
+      if (data.hotelId !== undefined && data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (data.title !== undefined && (data.title.trim().length === 0 || data.title.length > 255)) {
+        throw new Error('Title must be between 1-255 characters')
+      }
+      if (data.emailAddress && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.emailAddress) || data.emailAddress.length > 255)) {
+        throw new Error('Valid email address is required (max 255 characters)')
+      }
+      if (data.displayName !== undefined && (data.displayName.trim().length === 0 || data.displayName.length > 255)) {
+        throw new Error('Display name must be between 1-255 characters')
+      }
+
+      const response = await axios.put(`${API_URL}/email-accounts/${id}`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error updating email account:', error)
+      throw error
+    }
+  },
+
+  // Delete email account
+  async deleteEmailAccount(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      const response = await axios.delete(`${API_URL}/email-accounts/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting email account:', error)
+      throw error
+    }
+  },
+
+  // Toggle active status
+  async toggleActiveStatus(id: number, data?: { isActive?: boolean }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      const response = await axios.patch(`${API_URL}/email-accounts/${id}/toggle-active`, data || {}, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error toggling email account status:', error)
+      throw error
+    }
+  }
+}
+
+// this section is for email Templates
+
+// Email Templates CRUD Operations
+export const emailTemplatesApi = {
+  // Get all email templates with pagination
+  async getEmailTemplates(params = {}) {
+    try {
+      const response = await axios.get(`${API_URL}/email-templates`, {
+        params,
+        ...headers
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email templates:', error)
+      throw error
+    }
+  },
+
+  // Create new email template
+  async createEmailTemplate(data: {
+    hotelId: number
+    name: string
+    category: string
+    subject: string
+    messageBody: string
+    autoSend?: string
+    attachment?: string
+    emailAccount?: string
+    scheduleDate?: string
+    isActive?: boolean
+  }) {
+    try {
+      // Input validation
+      if (!data.hotelId || data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (!data.name || data.name.trim().length === 0 || data.name.length > 255) {
+        throw new Error('Template name is required and must be between 1-255 characters')
+      }
+      if (!data.category || data.category.trim().length === 0) {
+        throw new Error('Category is required')
+      }
+      if (!data.subject || data.subject.trim().length === 0 || data.subject.length > 500) {
+        throw new Error('Subject is required and must be between 1-500 characters')
+      }
+      if (!data.messageBody || data.messageBody.trim().length === 0) {
+        throw new Error('Message body is required')
+      }
+
+      const response = await axios.post(`${API_URL}/email-templates`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error creating email template:', error)
+      throw error
+    }
+  },
+
+  // Get active email templates for a hotel
+  async getActiveEmailTemplates(hotelId: number) {
+    try {
+      if (!hotelId || hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-templates/active/${hotelId}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching active email templates:', error)
+      throw error
+    }
+  },
+
+  // Get email templates by category
+  async getEmailTemplatesByCategory(hotelId: number, category: string) {
+    try {
+      if (!hotelId || hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (!category || category.trim().length === 0) {
+        throw new Error('Category is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-templates/category/${hotelId}/${category}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email templates by category:', error)
+      throw error
+    }
+  },
+
+  // Get single email template by ID
+  async getEmailTemplate(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-templates/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email template:', error)
+      throw error
+    }
+  },
+
+  // Update email template
+  async updateEmailTemplate(id: number, data: {
+    hotelId?: number
+    name?: string
+    category?: string
+    subject?: string
+    messageBody?: string
+    autoSend?: string
+    attachment?: string
+    emailAccount?: string
+    scheduleDate?: string
+    isActive?: boolean
+  }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      // Input validation for provided fields
+      if (data.hotelId !== undefined && data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (data.name !== undefined && (data.name.trim().length === 0 || data.name.length > 255)) {
+        throw new Error('Template name must be between 1-255 characters')
+      }
+      if (data.category !== undefined && data.category.trim().length === 0) {
+        throw new Error('Category is required')
+      }
+      if (data.subject !== undefined && (data.subject.trim().length === 0 || data.subject.length > 500)) {
+        throw new Error('Subject must be between 1-500 characters')
+      }
+      if (data.messageBody !== undefined && data.messageBody.trim().length === 0) {
+        throw new Error('Message body is required')
+      }
+
+      const response = await axios.put(`${API_URL}/email-templates/${id}`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error updating email template:', error)
+      throw error
+    }
+  },
+
+  // Delete email template
+  async deleteEmailTemplate(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.delete(`${API_URL}/email-templates/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting email template:', error)
+      throw error
+    }
+  },
+
+  // Toggle active status
+  async toggleActiveStatus(id: number, data?: { isActive?: boolean }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.patch(`${API_URL}/email-templates/${id}/toggle-active`, data || {}, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error toggling email template status:', error)
+      throw error
+    }
+  },
+
+  // Duplicate email template
+  async duplicateEmailTemplate(id: number, newName?: string) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.post(`${API_URL}/email-templates/${id}/duplicate`, {
+        newName: newName || undefined
+      }, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error duplicating email template:', error)
+      throw error
+    }
+  }
+}
 
 // VIP Status CRUD Operations
 export const vipStatusApi = {
   // Get all VIP statuses for a hotel
   async getVipStatuses(hotelId: number, params = {}) {
     try {
-      const response = await axios.get(`${API_URL}/vip_statuses`, headers
+      const response = await axios.get(`${API_URL}/vip_statuses`, {
+        params: {
+          hotel_id:hotelId,
+          ...params
+        },
+        ...headers}
       )
       return response.data
     } catch (error) {
