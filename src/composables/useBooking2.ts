@@ -10,7 +10,7 @@ import { createReservation, getReservationDetailsById } from '@/services/reserva
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getBusinessSourcesByHotelId, getAvailableRoomsByTypeId,getMarketCodesByHotelId } from '../services/configrationApi'
+import { getBusinessSourcesByHotelId, getAvailableRoomsByTypeId, getMarketCodesByHotelId, getReservationTypesByHotelId, getBookingSourcesByHotelId } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -36,6 +36,8 @@ interface Reservation {
   businessSource: string
   isComplementary: boolean
   complimentaryRoom?: boolean
+  isHold: boolean
+  reservationStatus: string
 }
 
 interface Guest {
@@ -194,6 +196,8 @@ export function useBooking() {
     businessSource: '',
     isComplementary: false,
     complimentaryRoom: false,
+    isHold: false,
+    reservationStatus: 'confirmed',
   })
 
   const guest = ref<Guest>({
@@ -246,7 +250,14 @@ export function useBooking() {
     creditType: '',
     paymentType: 'cash',
   })
-
+  // Hold Release Date & Time data
+  const holdReleaseData = ref({
+    date: '',
+    time: '',
+    releaseTerm: '',
+    remindDays: 0,
+    dateType: 'hold_release_date'
+  })
   const dateError = ref<string | null>(null)
 
   // Computed properties
@@ -262,12 +273,15 @@ export function useBooking() {
     return `${formData.value.firstName} ${formData.value.lastName}`.trim()
   })
 
-  const businessSourcesLo = ref<any>([])
+  const businessSourcesLo = ref<any>([...serviceStore.businessSources])
+  const bookingTypeLo = ref<any>([...serviceStore.reservationType])
   const marketCodesLo = ref<any>([])
+  const bookingSourceLo = ref<any>([...serviceStore.bookingSources])
+  console.log('reservation details',serviceStore.currentService)
   // Options depuis le store
-  const BookingSource = computed(() => serviceStore.bookingSources || [])
+  const BookingSource = computed(() => bookingSourceLo.value || [])
   const BusinessSource = computed(() => businessSourcesLo.value || [])
-  const BookingType = computed(() => serviceStore.reservationType || [])
+  const BookingType = computed(() => bookingTypeLo.value || [])
   const MarketCode = computed(() => marketCodesLo.value || [])
 
   const creditTypes = computed(() => [
@@ -281,17 +295,6 @@ export function useBooking() {
     { label: t('Company'), value: 'company' },
     { label: t('Agent'), value: 'agent' },
   ])
-
-  const getBusinessSource = async () => {
-    const hotelId = serviceStore.serviceId
-    const resp = await getBusinessSourcesByHotelId(hotelId!)
-    console.log('response', resp)
-    businessSourcesLo.value = resp.data?.data?.data.map((s: any) => ({
-      value: s.name,
-      label: s.name,
-    }))
-  }
-  getBusinessSource()
 
   const getMarketCode = async () => {
     try {
@@ -334,6 +337,7 @@ export function useBooking() {
       dateError.value = null
     }
 
+    // Recalculate room rates when dates change
     // Recharger les chambres disponibles pour chaque configuration de chambre
     for (const room of roomConfigurations.value) {
       if (room.roomType) {
@@ -345,6 +349,31 @@ export function useBooking() {
 
     updateBilling()
   })
+
+  // Watch for bookingType changes to update isHold and reservationStatus
+  watch(() => reservation.value.bookingType, (newBookingType) => {
+    if (newBookingType) {
+      const bType = bookingTypeLo.value.filter((e: any) => e.id === newBookingType)
+      if (bType && bType.length > 0) {
+        reservation.value.isHold = bType[0].isHold;
+        reservation.value.reservationStatus = bType[0].reservationStatus;
+      }
+
+    }
+  })
+
+  // Watch for store data changes to set default values
+  watch([bookingTypeLo, bookingSourceLo], ([newBookingTypes, newBookingSources]) => {
+    // Set default bookingType if not already set and options are available
+    if (!reservation.value.bookingType && newBookingTypes.length > 0) {
+      reservation.value.bookingType = newBookingTypes[0].id
+    }
+    
+    // Set default bookingSource if not already set and options are available
+    if (!reservation.value.bookingSource && newBookingSources.length > 0) {
+      reservation.value.bookingSource = newBookingSources[0].id
+    }
+  }, { immediate: true })
 
   // Watch pour la synchronisation du nombre de chambres
   watch(
@@ -753,14 +782,23 @@ export function useBooking() {
         city: formData.value.city,
         zipcode: formData.value.zipcode,
         ...identityPayload,
-        reservation_status: 'confirmed',
-        status: 'confirmed',
+        reservation_status: reservation.value.reservationStatus,
+        status: reservation.value.reservationStatus,
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
         reservation_type: reservation.value.bookingType,
         booking_source: reservation.value.bookingSource,
         business_source: reservation.value.businessSource,
+
+        // Hold-specific fields (only included if isHold is true)
+        ...(reservation.value.isHold && {
+          isHold: reservation.value.isHold,
+          holdReleaseDate: new Date(`${holdReleaseData.value.date}T${holdReleaseData.value.time}`).toISOString(),
+          ReleaseTem: holdReleaseData.value.releaseTerm,
+          ReleaseRemindGuestbeforeDays: holdReleaseData.value.remindDays,
+          ReleaseRemindGuestbefore: holdReleaseData.value.dateType
+        }),
 
         // Dates and guests
         arrived_date: reservation.value.checkinDate,
@@ -784,8 +822,8 @@ export function useBooking() {
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
-                    return Number(total) + Number(tax.taxAmount)
-                  }, 0)
+                  return Number(total) + Number(tax.taxAmount)
+                }, 0)
                 : 0) / Number(numberOfNights.value),
           })),
 
@@ -985,8 +1023,8 @@ export function useBooking() {
     const defaultaxes = roomConfigurations.value.reduce((total, room) => {
       const taxs = room.taxes?.length
         ? room.taxes?.reduce((total, tax: any) => {
-            return Number(total) + Number(tax.taxAmount)
-          }, 0)
+          return Number(total) + Number(tax.taxAmount)
+        }, 0)
         : 0
       return Number(total) + taxs
     }, 0)
@@ -1482,5 +1520,6 @@ export function useBooking() {
     trackUpload,
     completeUpload,
     waitForPendingUploads,
+    holdReleaseData
   }
 }

@@ -240,12 +240,12 @@
     "taxes": "Taxes",
     "extraCharges": "Frais Supplémentaires",
     "Add Room Charge": "Ajouter Frais de Chambre",
-  "Add Adjustment": "Ajouter Ajustement",
-  "Adjustment Folio": "Folio d'Ajustement",
-  "Round Off": "Arrondir",
-  "Enter comment": "Entrez un commentaire",
-  "Adjustment added successfully": "Ajustement ajouté avec succès",
-  "Error adding adjustment": "Erreur lors de l'ajout de l'ajustement",
+    "Add Adjustment": "Ajouter Ajustement",
+    "Adjustment Folio": "Folio d'Ajustement",
+    "Round Off": "Arrondir",
+    "Enter comment": "Entrez un commentaire",
+    "Adjustment added successfully": "Ajustement ajouté avec succès",
+    "Error adding adjustment": "Erreur lors de l'ajout de l'ajustement",
     "Apply Rate": "Appliquer Tarif",
     "Bulk Update": "Mise à Jour en Lot",
     "Room Operations": "Opérations de Chambre",
@@ -4543,7 +4543,7 @@
   "navigation": {
     "frontOffice": "Réception"
   },
-  "new_activities" : "Les nouvelles activités apparaîtront ici",
+  "new_activities": "Les nouvelles activités apparaîtront ici",
   "Order#": "N° de commande",
   "Unit/Room": "Unité/Chambre",
   "Category": "Catégorie",
@@ -4553,7 +4553,7 @@
   "Updated": "Mis à jour",
   "Deadline": "Date limite",
   "AddWorkOrder": "Ajouter un ordre de travail",
-   "companyDatabase": {
+  "companyDatabase": {
     "title": "Base de Données des Entreprises",
     "addCompany": "Ajouter une Entreprise",
     "export": "Exporter",
@@ -4600,7 +4600,6 @@
     "emailPlaceholder": "Entrez l'adresse email",
     "applyFilters": "Appliquer les Filtres",
     "clearFilters": "Effacer les Filtres"
-    
   },
   "maintenance_block": "Blocs de Maintenance",
   "BlockRoom": "Bloquer une Chambre",
@@ -4669,5 +4668,12 @@
   "discountAppliedSuccessfully": "Remise appliquée avec succès",
   "errorApplyingDiscount": "Erreur lors de l'application de la remise",
   "errorFetchingReservationDetails": "Erreur lors de la récupération des détails de la réservation",
-  "errorLoadingTransactions": "Erreur lors du chargement des transactions"
+  "errorLoadingTransactions": "Erreur lors du chargement des transactions",
+  "hold_release_date_time": "Date et Heure de Libération de Réservation",
+  "select_date": "Sélectionner la Date",
+  "select_time": "Sélectionner l'Heure",
+  "release_term": "Terme de Libération(%)",
+  "remind_guest_before": "Rappeler le Client avant",
+  "hold_release_date": "Date de Libération de Réservation",
+  "arrival_date": "Date d'Arrivée"
 }

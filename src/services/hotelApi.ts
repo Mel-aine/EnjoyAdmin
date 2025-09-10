@@ -47,6 +47,67 @@ export const updateHotelNotices = (id:number,data:any): Promise<AxiosResponse<an
   return axios.put(`${API_URL}/${id}/notices`, data, headers)
 }
 
+/**
+ * update hotel formula setting
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelFormulaSetting = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/formula-setting`, data, headers)
+}
+
+/**
+ * update hotel document numbering setting
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelDocumentNumberingSetting = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/document-numbering-setting`, data, headers)
+}
+
+/**
+ * update hotel print email settings
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelPrintEmailSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/print-email-settings`, data, headers)
+}
+
+/**
+ * update hotel checkin reservation settings
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelCheckinReservationSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/checkin-reservation-settings`, data, headers)
+}
+
+/**
+ * update hotel display settings
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelDisplaySettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/display-settings`, data, headers)
+}
+
+/**
+ * update hotel registration settings
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelRegistrationSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/registration-settings`, data, headers)
+}
+
+
 
 // Find reservation
 export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {

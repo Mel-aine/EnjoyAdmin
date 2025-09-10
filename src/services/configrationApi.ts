@@ -1151,6 +1151,23 @@ export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>
   return axios.delete(`${API_URL}/business_sources/${id}`, headers)
 }
 
+// this section is for booking source
+
+/**
+ * Get all booking source
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBookingSources = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/booking_sources`, headers)
+}
+
+/**
+ * Get all booking source by hotel
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBookingSourcesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/booking_sources?hotelId=${hotelId}`, headers)
+}
 // this section is for Extra Charge
 
 /**
@@ -1418,3 +1435,4 @@ export const voidIncidentalInvoices = (id: number, data: any): Promise<AxiosResp
 export const getConfiguration = (hotelId:number) :Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/permissions?hotelId=${hotelId}`, headers)
 }
+

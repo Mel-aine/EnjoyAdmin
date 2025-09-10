@@ -231,44 +231,7 @@
                  </div>
               </div>
               
-              <!-- Channel Manager Section -->
-              <div class="mt-8">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-6">Channel Manager Configuration</h3>
-                
-                <!-- Migration Status -->
-                <div class="mb-6">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Migration Status
-                  </label>
-                  <div class="flex items-center space-x-3">
-                    <input
-                      v-model="hotelInfo.migrated"
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
-                      Migration completed successfully
-                    </span>
-                  </div>
-                </div>
-                
-                <!-- Channel Manager Enable -->
-                <div class="mb-6">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Channel Manager
-                  </label>
-                  <div class="flex items-center space-x-3">
-                    <input
-                      v-model="hotelInfo.channelEnable"
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
-                      Enable channel manager integration
-                    </span>
-                  </div>
-                </div>
-              </div>
+        
             </div>
           </form>
         </div>
@@ -320,10 +283,6 @@ const hotelInfo = ref({
   "registrationNo3": "",
   "cancellationPolicy": "",
   "hotelPolicy": "",
-  // New fields for channel manager integration
-  "migrated": false,
-  "channelEnable": false,
-  "lastMigrationDate": "",
   logoFile: null
 })
 
