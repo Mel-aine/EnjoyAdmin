@@ -489,6 +489,7 @@
         <PickupAndDropModal
           :isOpen="showPickupModal"
           :reservationId="reservationId"
+          :guestId="guest.id"
           @close="showPickupModal = false"
         />
       </template>

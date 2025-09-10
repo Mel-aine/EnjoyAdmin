@@ -1,91 +1,127 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="'Add Transportation Request'" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">Add Transportation Request</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ $t('Add Transportation Request') }}</h3>
     </template>
 
     <!-- Form -->
     <div class="px-2 space-y-4">
-
       <!--Type of service-->
-       <div class="">
-
-              <RadioButtonGroup
-                v-model="formData.serviceType"
-                :options="serviceType"
-                :label="$t('Service Type')"
-                :is-required="true"
-              />
-
-        </div>
+      <div class="">
+        <RadioButtonGroup
+          v-model="formData.serviceType"
+          :options="serviceType"
+          :label="$t('Service Type')"
+          :is-required="true"
+        />
+      </div>
       <!-- Date & Time -->
       <div class="grid grid-cols-2 gap-4">
         <div>
           <InputDatePicker v-model="formData.requestDate" :title="$t('Request Date')" />
         </div>
         <div>
-          <InputTimePicker v-model="formData.scheduledTime"  :title="$t('Scheduled Time')" />
-        </div>
-      </div>
-
-      <!-- Guest & Reservation -->
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <InputGuestSelect :title="$t('Guest')" v-model="formData.guestId" @select="guestSelected" :is-required="true" />
-        </div>
-        <div>
-          <InputReservationSelect :title="$t('Reservation')" v-model="formData.reservationId" :guest-id="formData.guestId" @select="reservationSelected" />
+          <InputTimePicker v-model="formData.scheduledTime" :title="$t('Scheduled Time')" />
         </div>
       </div>
 
       <!--  Location Type -->
 
-
-        <div>
-          <Select v-model="formData.locationType" :options="locationTypeOptions" :lb="$t('Location Type')" />
-        </div>
-        <!-- Flight/Train Info (conditional) -->
+      <div>
+        <Select
+          v-model="formData.locationType"
+          :options="locationTypeOptions"
+          :lb="$t('Location Type')"
+        />
+      </div>
+      <!-- Flight/Train Info (conditional) -->
       <div v-if="showFlightTrainInfo" class="grid grid-cols-2 gap-4">
         <div>
-          <Input v-model="formData.flightTrainNumber" type="text" :lb="getFlightTrainLabel()" placeholder="Enter number" />
+          <Input
+            v-model="formData.flightTrainNumber"
+            type="text"
+            :lb="getFlightTrainLabel()"
+            :placeholder="$t('Enter number')"
+          />
         </div>
         <div>
-          <Input v-model="formData.airlineTrainCompany" type="text" :lb="getCompanyLabel()" placeholder="Enter company name" />
+          <Input
+            v-model="formData.airlineTrainCompany"
+            type="text"
+            :lb="getCompanyLabel()"
+            :placeholder="$t('Enter company name')"
+          />
         </div>
       </div>
 
       <!-- Passengers & Luggage -->
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <Input v-model="formData.numberOfPassengers" type="number" :lb="$t('Number of Passengers')" min="1" />
+          <Input
+            v-model="formData.numberOfPassengers"
+            :input-type="'number'"
+            :lb="$t('Number of Passengers')"
+            min="1"
+          />
         </div>
         <div>
-          <Input v-model="formData.numberOfLuggage" type="number" :lb="$t('Number of Luggage')" min="0" />
+          <Input
+            v-model="formData.numberOfLuggage"
+            :input-type="'number'"
+            :lb="$t('Number of Luggage')"
+            min="0"
+          />
         </div>
       </div>
-
 
       <!-- Transportation Mode -->
       <div>
-        <InputTransportationModeSelect v-model="formData.transportationModeId" @select="transportationModeSelected" :is-required="true" />
+        <InputTransportationModeSelect
+          v-model="formData.transportationModeId"
+          @select="transportationModeSelected"
+          :is-required="true"
+        />
       </div>
-        <!-- External Service Details (conditional) -->
-      <div v-if="selectedTransportationMode && selectedTransportationMode.isExternal" class="space-y-4">
+      <!-- External Service Details (conditional) -->
+      <div
+        v-if="selectedTransportationMode && selectedTransportationMode.isExternal"
+        class="space-y-4"
+      >
         <h4 class="text-sm font-medium text-gray-700 border-b pb-2">External Service Details</h4>
 
         <div>
-          <Input v-model="formData.externalBookingReference" type="text" :lb="$t('Booking Reference')" placeholder="External booking reference (optional)" />
+          <Input
+            v-model="formData.externalBookingReference"
+            type="text"
+            :lb="$t('Booking Reference')"
+            :placeholder="$t('External booking reference (optional)')"
+          />
         </div>
 
         <div class="grid grid-cols-3 gap-4">
           <div>
-            <Input v-model="formData.externalVehicleMatriculation" type="text" :lb="$t('Vehicle Plate')" placeholder="License plate" />
+            <Input
+              v-model="formData.externalVehicleMatriculation"
+              type="text"
+              :lb="$t('Vehicle Plate')"
+              :placeholder="$t('License plate')"
+            />
           </div>
           <div>
-            <Input v-model="formData.externalDriverName" type="text" :lb="$t('Driver Name')" placeholder="Driver name" />
+            <Input
+              v-model="formData.externalDriverName"
+              type="text"
+              :lb="$t('Driver Name')"
+              :placeholder="$t('Driver name')"
+            />
           </div>
           <div>
-            <Input v-model="formData.externalVehicleColor" type="text" :lb="$t('Vehicle Color')" placeholder="Vehicle color" />
+            <Input
+              v-model="formData.externalVehicleColor"
+              type="text"
+              :lb="$t('Vehicle Color')"
+              :placeholder="$t('Vehicle color')"
+            />
           </div>
         </div>
       </div>
@@ -93,44 +129,70 @@
       <!-- Pickup & Dropoff Points -->
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <Input v-model="formData.pickupPoint" type="text" :lb="$t('Pickup Point')" placeholder="Enter pickup location" />
+          <Input
+            v-model="formData.pickupPoint"
+            type="text"
+            :lb="$t('Pickup Point')"
+            :placeholder="$t('Enter pickup location')"
+          />
         </div>
         <div>
-          <Input v-model="formData.dropoffPoint" type="text" :lb="$t('Dropoff Point')" placeholder="Enter dropoff location" />
+          <Input
+            v-model="formData.dropoffPoint"
+            type="text"
+            :lb="$t('Dropoff Point')"
+            :placeholder="$t('Enter dropoff location')"
+          />
         </div>
       </div>
-
-
 
       <!-- Service Fee & Folio -->
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Service Fee</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{
+            $t('Service Fee')
+          }}</label>
           <InputCurrency v-model="formData.serviceFee" :currency="formData.currency" />
         </div>
         <div v-if="formData.serviceFee > 0">
-          <InputFolioSelect :title="$t('Folio')" v-model="formData.folioId" @select="folioSelected"  :guest-id="guestId"  />
+          <InputFolioSelect
+            :title="$t('Folio')"
+            v-model="formData.folioId"
+            @select="folioSelected"
+            :reservation-id="formData.reservationId ?? undefined"
+          />
         </div>
       </div>
 
       <!-- Requested By -->
       <div>
-        <Select v-model="formData.requestedBy" :options="requestedByOptions" :lb="$t('Requested By')" />
+        <Input v-model="formData.requestedBy" :lb="$t('Requested By')" />
       </div>
 
       <!-- Special Requirements -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">Special Requirements</label>
-        <textarea v-model="formData.specialRequirements" rows="3"
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+          $t('Special Requirements')
+        }}</label>
+        <textarea
+          v-model="formData.specialRequirements"
+          rows="3"
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-300 resize-none"
-          placeholder="Enter any special requirements..."></textarea>
+          :placeholder="$t('Enter any special requirements...')"
+        ></textarea>
       </div>
     </div>
 
     <template #footer>
       <div class="flex justify-end space-x-2">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')"></BasicButton>
-        <BasicButton variant="primary" @click="saveRequest" :label="'Save Request'" :loading="isSaving" :disabled="isSaving"></BasicButton>
+        <BasicButton
+          variant="primary"
+          @click="saveRequest"
+          :label="'Save Request'"
+          :loading="isSaving"
+          :disabled="isSaving"
+        ></BasicButton>
       </div>
     </template>
   </RightSideModal>
@@ -155,6 +217,7 @@ import { useToast } from 'vue-toastification'
 import { safeParseInt, prepareFolioAmount } from '@/utils/numericUtils'
 import { useI18n } from 'vue-i18n'
 import RadioButtonGroup from '../forms/FormElements/RadioButtonGroup.vue'
+import { createTransportationRequest } from '@/services/transportationRequest'
 
 interface Props {
   isOpen: boolean
@@ -175,22 +238,22 @@ const toast = useToast()
 const { t } = useI18n()
 
 // Options
-const locationTypeOptions = ref([
+const locationTypeOptions = computed(()=>([
   { value: 'Airport', label: t('Airport') },
   { value: 'Train Station', label: t('Train Station') },
   { value: 'Hotel', label: t('Hotel') },
-  { value: 'Local Address', label: t('Local Address') }
-])
+  { value: 'Local Address', label: t('Local Address') },
+]))
 
 const requestedByOptions = ref([
   { value: 'Guest', label: t('Guest') },
-  { value: 'Front Desk Staff', label: t('Front Desk Staff') }
+  { value: 'Front Desk Staff', label: t('Front Desk Staff') },
 ])
 
-const serviceType = ref([
-   { value: 'Pickup', label: t('Pickup') },
-   { value: 'Dropoff', label: t('Dropoff')}
-])
+const serviceType = computed(()=>([
+  { value: 'Pickup', label: t('pickup') },
+  { value: 'Dropoff', label: t('dropoff') },
+]))
 
 // Form data
 const formData = reactive({
@@ -215,7 +278,7 @@ const formData = reactive({
   externalVehicleColor: '',
   serviceFee: 0,
   currency: 'XAF',
-  folioId: 0
+  folioId: 0,
 })
 
 // Selected items tracking
@@ -262,7 +325,7 @@ const closeModal = () => {
     externalVehicleColor: '',
     serviceFee: 0,
     currency: 'XAF',
-    folioId: null
+    folioId: null,
   })
 
   // Reset selected items
@@ -272,19 +335,6 @@ const closeModal = () => {
   selectedFolio.value = null
 
   emit('close')
-}
-
-const guestSelected = (item: any) => {
-  selectedGuest.value = item
-  // Reset reservation when guest changes
-  if (formData.guestId !== item.id) {
-    formData.reservationId = null
-    selectedReservation.value = null
-  }
-}
-
-const reservationSelected = (item: any) => {
-  selectedReservation.value = item
 }
 
 const transportationModeSelected = (item: any) => {
@@ -305,14 +355,23 @@ const folioSelected = (item: any) => {
 
 const saveRequest = async () => {
   // Validate required fields
-  if (!formData.guestId || !formData.transportationModeId || !formData.pickupPoint || !formData.dropoffPoint || !formData.scheduledTime) {
+  if (
+    !formData.transportationModeId ||
+    !formData.pickupPoint ||
+    !formData.dropoffPoint ||
+    !formData.scheduledTime
+  ) {
     toast.error('Please fill in all required fields')
     return
   }
 
   // Validate external service fields if external mode is selected
   if (selectedTransportationMode.value?.isExternal) {
-    if (!formData.externalVehicleMatriculation || !formData.externalDriverName || !formData.externalVehicleColor) {
+    if (
+      !formData.externalVehicleMatriculation ||
+      !formData.externalDriverName ||
+      !formData.externalVehicleColor
+    ) {
       toast.error('Please fill in all external service details')
       return
     }
@@ -329,7 +388,8 @@ const saveRequest = async () => {
 
     // Prepare request data
     const requestData = {
-      guestId: safeParseInt(formData.guestId),
+      hotelId: serviceStore.serviceId,
+      guestId: formData.guestId,
       reservationId: formData.reservationId ? safeParseInt(formData.reservationId) : null,
       transportationModeId: safeParseInt(formData.transportationModeId),
       scheduledDateTime: `${formData.requestDate}T${formData.scheduledTime}:00`,
@@ -348,7 +408,7 @@ const saveRequest = async () => {
       externalDriverName: formData.externalDriverName || null,
       externalVehicleColor: formData.externalVehicleColor || null,
       serviceFee: formData.serviceFee > 0 ? prepareFolioAmount(formData.serviceFee) : null,
-      folioId: formData.folioId ? safeParseInt(formData.folioId) : null
+      folioId: formData.folioId ? safeParseInt(formData.folioId) : null,
     }
 
     console.log('Transportation request data being sent:', requestData)
@@ -358,9 +418,10 @@ const saveRequest = async () => {
 
     // Show success message
     toast.success('Transportation request created successfully')
+    console.log('response', response)
 
-    // Emit the form data with API response
-    emit('save', { ...formData, requestId: response.id })
+    // // Emit the form data with API response
+    // emit('save', { ...formData, requestId: response.id })
     closeModal()
   } catch (error) {
     console.error('Error saving transportation request:', error)
@@ -371,28 +432,34 @@ const saveRequest = async () => {
 }
 
 // Close modal on escape key
-watch(() => props.isOpen, (newVal) => {
-  if (newVal) {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeModal()
+watch(
+  () => props.isOpen,
+  (newVal) => {
+    if (newVal) {
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          closeModal()
+        }
+      }
+      document.addEventListener('keydown', handleEscape)
+
+      return () => {
+        document.removeEventListener('keydown', handleEscape)
       }
     }
-    document.addEventListener('keydown', handleEscape)
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }
-})
+  },
+)
 
 // Clear flight/train info when location type changes
-watch(() => formData.locationType, () => {
-  if (!showFlightTrainInfo.value) {
-    formData.flightTrainNumber = ''
-    formData.airlineTrainCompany = ''
-  }
-})
+watch(
+  () => formData.locationType,
+  () => {
+    if (!showFlightTrainInfo.value) {
+      formData.flightTrainNumber = ''
+      formData.airlineTrainCompany = ''
+    }
+  },
+)
 </script>
 
 <style scoped>

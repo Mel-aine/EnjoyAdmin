@@ -5944,7 +5944,41 @@
     }
 
   },
-  "deleteUserConfirmMessage": "Are you sure you want to delete this user?"
+  "deleteUserConfirmMessage": "Are you sure you want to delete this user?",
+  "Add Transportation Request": "Add Transportation Request",
+  "Service Type": "Service Type",
+  "Request Date": "Request Date",
+  "Scheduled Time": "Scheduled Time",
+  "Location Type": "Location Type",
+  "Enter number": "Enter number",
+  "Enter company name": "Enter company name",
+  "Number of Passengers": "Number of Passengers",
+  "Number of Luggage": "Number of Luggage",
+  "External Service Details": "External Service Details",
+  "Booking Reference": "Booking Reference",
+  "External booking reference (optional)": "External booking reference (optional)",
+  "Vehicle Plate": "Vehicle Plate",
+  "License plate": "License plate",
+  "Driver Name": "Driver Name",
+  "Driver name": "Driver name",
+  "Vehicle Color": "Vehicle Color",
+  "Vehicle color": "Vehicle color",
+  "Pickup Point": "Pickup Point",
+  "Enter pickup location": "Enter pickup location",
+  "Dropoff Point": "Dropoff Point",
+  "Enter dropoff location": "Enter dropoff location",
+  "Service Fee": "Service Fee",
+  "Folio": "Folio",
+  "Requested By": "Requested By",
+  "Special Requirements": "Special Requirements",
+  "Enter any special requirements...": "Enter any special requirements...",
+  "Save Request": "Save Request",
+  "Airport": "Airport",
+  "Train Station": "Train Station",
+  "Hotel": "Hotel",
+  "Local Address": "Local Address",
+  "External Service" : "External Service",
+  "Internal Service" : "Internal Service"
 
 
 }

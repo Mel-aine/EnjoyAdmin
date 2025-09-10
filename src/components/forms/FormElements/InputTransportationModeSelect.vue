@@ -27,11 +27,11 @@
       <div v-if="selectedMode" class="mt-1">
         <span v-if="selectedMode.isInternal"
               class="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-          Internal Service
+          {{ $t('Internal Service') }}
         </span>
         <span v-if="selectedMode.isExternal"
               class="inline-flex items-center px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">
-          External Service
+          {{ $t('External Service') }}
         </span>
       </div>
     </div>
@@ -60,12 +60,12 @@ const emit = defineEmits<Emits>()
 const toast = useToast()
 const serviceStore = useServiceStore()
 const transportationModes = ref<any[]>([])
-const selectedValue = ref<string>('')
+const selectedValue = ref<any>(null)
 const isLoading = ref(false)
 
 // Computed selected mode
 const selectedMode = computed(() => {
-  return transportationModes.value.find(mode => mode.id === parseInt(selectedValue.value || '0'))
+  return transportationModes.value.find(mode => mode.id === selectedValue.value || null )
 })
 
 // Fetch transportation modes
@@ -94,7 +94,7 @@ const fetchTransportationModes = async () => {
 
 // Handle selection
 const handleSelect = () => {
-  const modeId = selectedValue.value ? parseInt(selectedValue.value) : null
+  const modeId = selectedValue.value ? selectedValue.value : null
   const mode = transportationModes.value.find(m => m.id === modeId)
 
   emit('update:modelValue', modeId)
@@ -105,7 +105,7 @@ const handleSelect = () => {
 
 // Watch external value changes
 watch(() => props.modelValue, (newValue) => {
-  selectedValue.value = newValue ? newValue.toString() : ''
+  selectedValue.value = newValue ? newValue : null
 })
 
 // Fetch modes on mount
