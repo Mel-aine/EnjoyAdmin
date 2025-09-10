@@ -16,6 +16,7 @@ const AmendStay = defineAsyncComponent(() => import('./foglio/AmendStay.vue'));
 const AddPaymentModal = defineAsyncComponent(() => import('./foglio/AddPaymentModal.vue'));
 const NoShowReservation = defineAsyncComponent(() => import('./foglio/NoShowReservation.vue'));
 import AssignRoomReservation from './AssignRoomReservation.vue';
+import ReservationStatus from '../common/ReservationStatus.vue';
 const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReservation.vue'));
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'));
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'));
@@ -347,11 +348,11 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
-            <span v-if="roomRateTypeSummary">
+            <span v-if="reservation.reservationRooms && reservation.reservationRooms.every((room:any) => room.room?.id)">
               {{ roomRateTypeSummary }}
             </span>
             <AssignRoomReservation 
-              v-else 
+              v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)" 
               :reservation="reservation" 
               @refresh="$emit('save')" 
               @assigned="handleRoomAssigned" 

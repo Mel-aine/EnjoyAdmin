@@ -432,16 +432,6 @@
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
     </template>
-
-    <!-- Unassigned Reservations Modal -->
-    <UnassignedReservationsModal
-      v-if="showUnassignedModal"
-      :is-open="showUnassignedModal"
-      :date="selectedUnassignedDate"
-      :reservations="unassignedReservations"
-      @close="closeUnassignedModal"
-      @room-assigned="handleRoomAssigned"
-    />
   </FullScreenLayout>
 </template>
 
@@ -869,7 +859,7 @@ function getUnassignedApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
   if (metric && metric.unassigned_reservations > 0) {
-    return `<span class='inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs cursor-pointer hover:bg-blue-600 transition-colors' onclick='handleUnassignedClick("${dStr}")'>${metric.unassigned_reservations}</span>`
+    return `<span class='inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs cursor-pointer hover:bg-blue-600 transition-colors'>${metric.unassigned_reservations}</span>`
   }
   return '0'
 }

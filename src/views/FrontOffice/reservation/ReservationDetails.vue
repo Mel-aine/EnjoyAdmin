@@ -46,6 +46,7 @@ import { useServiceStore } from '../../../composables/serviceStore'
 const NoShowReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/NoShowReservation.vue'))
 import AuditTrail from '../../../components/audit/AuditTrail.vue'
 import ReservationStatus from '../../../components/common/ReservationStatus.vue'
+import AssignRoomReservation from '../../../components/reservations/AssignRoomReservation.vue'
 const VoidReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/VoidReservation.vue'))
 const AmendStay = defineAsyncComponent(() => import('@/components/reservations/foglio/AmendStay.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
@@ -248,7 +249,7 @@ const roomRateTypeSummary = computed(() => {
 
   // Get room numbers and create summary
   const roomNumbers = reservationRooms.map((room: any) => {
-    return `${room.room?.roomNumber} / ${room.oomTypeId}`
+    return `${room.room?.roomNumber} / ${room.room?.roomType?.name}`
   })
 
   return roomNumbers[0]
@@ -546,9 +547,10 @@ onMounted(() => {
             <!--room/roomtype-->
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
-              <span class="text-xs flex gap-2 flex-col">
+              <span class="text-xs flex gap-2 flex-col" v-if="reservation.reservationRooms.length > 0 && reservation.reservationRooms.every((room:any) => room.room?.id)">
                 <span>{{ roomRateTypeSummary }}</span>
               </span>
+              <AssignRoomReservation :reservation="reservation" v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)"/>
             </div>
             <!--depature-->
             <div class="flex flex-col">

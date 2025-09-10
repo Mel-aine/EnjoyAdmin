@@ -15,7 +15,7 @@
               {{ $t('showAllTransactions') }}
             </button>
           </div>
-          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room.roomNumber">
+          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber || 'No Room Number'">
             <div v-for="(fo, index) in folioList" :key="index">
               <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
                 :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"

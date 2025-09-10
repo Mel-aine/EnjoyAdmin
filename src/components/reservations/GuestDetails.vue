@@ -11,7 +11,7 @@
           <Accordion
             v-for="(fo, index) in reservation.reservationRooms"
             :key="index"
-            :title="`${fo.room.roomNumber}`"
+            :title="`${fo.room?.roomNumber || 'No Room Number'}`"
             class="mb-2"
           >
             <div v-for="(guest, guestIndex) in guestList" :key="guestIndex">

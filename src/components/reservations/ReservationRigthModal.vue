@@ -218,13 +218,13 @@
                                             </label>
 
                                             <!-- Show simple list for single room -->
-                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1"
+                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room:any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
                                             <AssignRoomReservation 
-                                                v-else 
+                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)" 
                                                 :reservation="reservation" 
                                                 @assigned="handleRoomAssigned" 
                                             />

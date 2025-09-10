@@ -810,7 +810,7 @@ export function useBooking() {
 
         // Room configurations avec validation
         rooms: roomConfigurations.value
-          .filter((room) => room.roomType && room.roomNumber)
+          .filter((room) => room.roomType )
           .map((room) => ({
             room_type_id: safeParseInt(room.roomType, 0),
             rate_type_id: room.rateType ? safeParseInt(room.rateType, 0) : undefined,
