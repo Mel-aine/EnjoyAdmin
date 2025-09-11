@@ -79,6 +79,7 @@
               <Edit class="w-4 h-4" />
               {{ $t('EditProfile') }}
             </button>
+
           </div>
         </div>
 
@@ -417,15 +418,7 @@
         />
       </template>
 
-      <!-- Pickup/Dropoff Modal -->
-      <template v-if="showPickupModal">
-        <PickupDropoffModal
-          :isOpen="showPickupModal"
-          :guest="customer"
-          @close="showPickupModal = false"
-          @saved="handlePickupSaved"
-        />
-      </template>
+
       <BlackListGuestModal
         v-if="showBlacklistModal"
         :isOpen="showBlacklistModal"
@@ -469,6 +462,8 @@ import { BedDouble, CalendarClock, CalendarX ,FileSearch} from 'lucide-vue-next'
 import Spinner from '@/components/spinner/Spinner.vue'
 import {  ArrowLeft } from 'lucide-vue-next'
 import { useServiceStore } from '@/composables/serviceStore'
+import { CarTaxiFront } from 'lucide-vue-next';
+
 
 
 interface AuditLog {
@@ -506,7 +501,7 @@ const auditLogs = ref<AuditLog[]>([])
 const show = ref(false)
 const openPayment = ref(false)
 const showNewBookingModal = ref(false)
-const showPickupModal = ref(false)
+
 const selectBooking = ref(null)
 const selectedDate = ref(new Date())
 const showBlacklistModal = ref(false)
@@ -682,9 +677,7 @@ const blacklistHistory = computed(() => {
 
 // Event handlers
 
-const handlePickupDropoff = () => {
-  showPickupModal.value = true
-}
+
 
 
 
@@ -823,11 +816,7 @@ const handleDeleteReservation = (reservation: any) => {
   console.log('Supprimer la réservation:', reservation.id)
 }
 
-const handlePickupSaved = () => {
-  showPickupModal.value = false
-  toast.success(t('toast.pickupSaved'))
-  getCustomerProfileDetails()
-}
+
 
 const emitPayNow = () => {
   openPayment.value = true

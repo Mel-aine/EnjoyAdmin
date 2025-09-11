@@ -1695,6 +1695,7 @@
     "start": "Start",
     "pickup": "Pickup",
     "dropoff": "Dropoff",
+    "pickup/dropoff" : "Pickup/Dropoff",
     "scheduled": "Scheduled",
     "completed": "Completed",
     "cancelled": "Cancelled",
@@ -5689,6 +5690,7 @@
     "access": "Access",
     "BLACKLIST": "Added to Blacklist",
     "UNBLACKLIST": "Removed from Blacklist",
+    "FOLIOS_CREATED" : "Folio Created",
     "default": "Unknown Action"
   },
   "auditDescriptions": {

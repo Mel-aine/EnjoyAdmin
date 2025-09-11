@@ -700,8 +700,8 @@ export const deleteDiscountById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all transportation modes
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getTransportationModes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/transportation_modes`, headers)
+export const getTransportationModes = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/transportation_modes?hotelId=${hotelId}`, headers)
 }
 /**
  * Post a new transportation mode

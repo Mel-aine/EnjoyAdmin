@@ -49,7 +49,7 @@
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('configuration.transportation_mode.status') }}
-              </label> 
+              </label>
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
@@ -127,8 +127,9 @@ const actions = computed((): Action[] => [
 // API Functions
 const fetchTransportationModes = async () => {
   try {
+    const hotelId = serviceStore.serviceId
     loading.value = true
-    const response = await getTransportationModes()
+    const response = await getTransportationModes(hotelId!)
     transportationModes.value = response.data.data.data
     console.log('data',transportationModes)
   } catch (error) {

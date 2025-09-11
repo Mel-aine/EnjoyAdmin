@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)] mx-4">
+  <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
@@ -470,8 +470,29 @@
           </div>
         </div>
         <div class="px-4"></div>
+           <!-- Footer summary -->
+        <div class=" p-2 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end items-end ">
+            <BasicButton
+               variant="primary"
+              :label="$t('common.pickup/dropoff')"
+              @click="handlePickupDropoff()"
+            />
+
+          </div>
+        </div>
       </div>
+
     </div>
+      <!-- Pickup/Dropoff Modal -->
+      <template v-if="showPickupModal">
+        <PickupAndDropModal
+          :isOpen="showPickupModal"
+          :reservationId="reservationId"
+          :guestId="guest.id"
+          @close="showPickupModal = false"
+        />
+      </template>
   </div>
 </template>
 
@@ -494,6 +515,7 @@ import { PlusCircle, ChevronRight } from 'lucide-vue-next'
 import UserCircleIcon from '@/icons/UserCircleIcon.vue'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import { getPreferencesByHotelId ,getIdentityTypesByHotelId} from '@/services/configrationApi'
+import PickupAndDropModal from '../customers/PickupAndDropModal.vue'
 
 interface GuestData {
   title: string
@@ -554,7 +576,7 @@ const Preferences = ref<SelectOption[]>([])
 const isSaving = ref(false)
 const isEditing = ref(false)
 const resetKey = ref(0) // Clé pour forcer la réinitialisation des composants
-
+const showPickupModal = ref(false)
 // State pour les sections dépliantes
 const showIdentitySection = ref(false)
 const showOtherInfoSection = ref(false)
@@ -801,6 +823,11 @@ const onIdPhotoSuccess = async (result: any) => {
 const onUploadError = (error: any) => {
   console.error('Upload error:', error)
   toast.error(t('Image upload failed'))
+}
+
+
+const handlePickupDropoff = () => {
+  showPickupModal.value = true
 }
 
 // Fonction de préparation de la charge utile (payload) mise à jour
