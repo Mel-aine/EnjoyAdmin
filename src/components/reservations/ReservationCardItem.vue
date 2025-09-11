@@ -348,11 +348,10 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
-            <span v-if="reservation.reservationRooms && reservation.reservationRooms.every((room:any) => room.room?.id)">
+            <span v-if="reservation.reservationRooms && reservation.reservationRooms.length>0 && reservation.reservationRooms.every((room:any) => room.roomId)">
               {{ roomRateTypeSummary }}
             </span>
-            <AssignRoomReservation 
-              v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)" 
+            <AssignRoomReservation v-else
               :reservation="reservation" 
               @refresh="$emit('save')" 
               @assigned="handleRoomAssigned" 

@@ -31,10 +31,10 @@
       <div class="flex-1 flex flex-col min-h-0">
         <!-- Fixed Header -->
         <div class="border border-gray-300 border-b-0">
-          <table class="min-w-full text-sm table-fixed">
+          <table class="w-full text-sm table-fixed">
             <thead>
               <tr>
-                <th class="bg-gray-100 px-2 py-1 border-r border-gray-300  w-50 min-w-[6rem]">
+                <th class="bg-gray-100 px-2 py-1 border-r border-gray-300" :style="`width: calc(200px)`">
                   <div class="flex justify-between items-center">
                     <div class="max-w-md">
                       <SelectDropdown v-model="selectedRoomTypes" :options="roomTypeOptions"
@@ -46,7 +46,7 @@
                 </th>
                 <th v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['px-2 py-1 text-center border-r border-gray-300 relative', isWeekend(date) ? 'bg-orange-200/25' : 'bg-gray-50']"
-                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`">
                   <button v-if="idx === 0" @click="prevDay"
                     class="absolute left-1 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,12 +67,11 @@
           </table>
         </div>
         <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto border border-gray-300">
-          <table class="min-w-full text-sm table-fixed">
+        <div class="flex-1 overflow-y-auto border border-gray-300   scrollbar-hide">
+          <table class="w-full text-sm table-fixed">
             <colgroup>
-              <col class="w-24 min-w-[6rem]">
-              <col v-for="(date, ind) in visibleDates" :key="ind"
-                :style="`width: calc((100% - 6rem) / ${visibleDates.length})`">
+              <col :style="`width: 200px`">
+              <col v-for="(date, ind) in visibleDates" :key="ind" :style="`width: calc((100% - 200px) / ${visibleDates.length})`">
             </colgroup>
             <tbody>
               <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
@@ -104,8 +103,7 @@
                         </div>
                       </td>
                       <td v-for="(date, j) in visibleDates" :key="j"
-                        :style="`width: calc((100% - 6rem) / ${visibleDates.length})`"
-                        class=" bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 ">
+                        class="bg-green-100 px-2 py-1 border border-gray-300 cursor-pointer hover:bg-green-200 text-center">
                         <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
                           <div class="flex gap-1">
                             <span class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
@@ -223,31 +221,29 @@
           </table>
         </div>
         <div class="sticky bottom-0 bg-white shadow z-10">
-          <table class="min-w-full border-t border border-gray-300 text-xs table-fixed">
+          <table class="w-full border-t border border-gray-300 text-xs table-fixed">
 
             <tfoot> 
               <tr>
-                <td class="bg-gray-100 border w-50 h-7 border-gray-300">{{ $t('Unassigned reservations') }}</td>
+                <td class="bg-gray-100 border h-7 border-gray-300 text-center" :style="`width: 200px`">{{ $t('Unassigned reservations') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`min-width: calc((100% - 6rem) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`"
+                  v-html="getUnassignedApi(date)">
                 </td>
               </tr>
               <tr>
-                <td class="bg-gray-100  w-50 h-7 border border-gray-300">% {{ $t('Occupancy') }}</td>
+                <td class="bg-gray-100 h-7 border border-gray-300 text-center" :style="`width: 200px`">% {{ $t('Occupancy') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`min-width: calc((100% - 6rem) / ${visibleDates.length})`"
-                  >{{
-                    getOccupancyApi(date)
-                  }} %</td>
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`"
+                  >{{getOccupancyApi(date)}} %</td>
               </tr>
               <tr>
-                <td class="bg-gray-100 w-50 h-0 border border-gray-300">{{ $t('Available Rooms') }}</td>
+                <td class="bg-gray-100 h-7 border border-gray-300 text-center" :style="`width: 200px`">{{ $t('Available Rooms') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
-                :style="`min-width: calc((100% - 6rem) / ${visibleDates.length})`"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
-                    getAvailableRoomsApi(date) }}
+                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`">{{getAvailableRoomsApi(date)}}
                 </td>
               </tr>
             </tfoot>
@@ -1307,7 +1303,17 @@ onUnmounted(() => {
   background-color: #3b82f6 !important;
 }
 
-
+@layer utilities {
+      /* Chrome, Safari, Edge, Opera */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      /* IE, Edge, Firefox */
+      .scrollbar-hide {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+    }
 
 
 </style>
