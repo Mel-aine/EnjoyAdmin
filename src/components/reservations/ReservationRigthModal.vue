@@ -351,6 +351,7 @@
 
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+    :templates="templates"
         @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservationId" />
 
 </template>
