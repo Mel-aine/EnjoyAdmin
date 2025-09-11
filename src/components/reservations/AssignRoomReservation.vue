@@ -3,12 +3,14 @@
 
     <!-- Assign Room Button -->
     <button @click.stop="handleAssignRoom" :disabled="isAssigning"
-      class="px-3 py-1 bg-purple-900 hover:bg-purple-900 text-white text-xs rounded-md transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
-      {{ $t('assignRoom')}}
+      class=" underline hover:text-primary/25 text-primary text-xs rounded-md transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+      {{ $t('AssignRoom')}}
     </button>
   </div>
   <template v-if="isOpen">
-    <RoomSelectionModal :is-open="isOpen" ref="roomSelectionModal" :reservation-id="reservation.id" />
+    <RoomSelectionModal :is-open="isOpen" ref="roomSelectionModal" :reservation-id="reservation.id" @close="handleClose" 
+    @refresh="handleRefresh"
+    />
   </template>
 </template>
 
@@ -21,9 +23,10 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'refresh'): void
+  (e: 'close'): void
   (e: 'assigned', data: any): void
 }
+const emit = defineEmits<Emits>()
 
 const props = defineProps<Props>()
 
@@ -33,6 +36,17 @@ const isAssigning = ref(false)
 const handleAssignRoom = async () => {
   isOpen.value = true;
 }
+
+const handleClose = () => {
+  isOpen.value = false;
+  emit('close')
+}
+
+const handleRefresh =()=>{
+  isOpen.value = false;
+  emit('assigned',{})
+}
+
 </script>
 
 <style scoped>

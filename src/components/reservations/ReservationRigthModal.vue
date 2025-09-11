@@ -344,7 +344,7 @@
         <!--unassign template-->
           <template v-if="isUnAssignModalOpen">
             <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
-                @close="closeUnAssignReservationModal" />
+                @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
         </template>
     </template>
 
@@ -472,6 +472,12 @@ const handleNoShowConfirmed = () => {
     // Emit save event to notify parent components
     emit('save', { action: 'noshow', reservationId: reservation.value?.id })
 }
+const handleUnAssignConfirmed = () => {
+    isUnAssignModalOpen.value = false
+    getBookingDetailsById();
+    // Emit save event to notify parent components
+    emit('save', { action: 'unassign', reservationId: reservation.value?.id })
+}
 const openAddPaymentModal = () => {
     isAddPaymentModalOpen.value = true
 }
@@ -504,8 +510,8 @@ const closeUnAssignReservationModal = () => {
 }
 
 const handleRoomAssigned = (data: any) => {
-    console.log('Room assigned:', data)
     getBookingDetailsById();
+    emit('save', { action: 'RoomAssigned', reservationId: reservation.value?.id, data })
 }
 
 const closeAddPaymentModal = () => {

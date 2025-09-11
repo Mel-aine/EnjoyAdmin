@@ -6018,5 +6018,6 @@
   "Hotel": "Hotel",
   "Local Address": "Local Address",
   "External Service": "External Service",
-  "Internal Service": "Internal Service"
+  "Internal Service": "Internal Service",
+  "AssignRoom":"Assign Room"
 }

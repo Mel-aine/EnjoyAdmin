@@ -3,35 +3,6 @@
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">{{ $t('assignRooms') }}</h3>
     </template>
-
-    <!-- Mini Calendar Header -->
-    <div class="bg-white border-b mb-4 -mx-4 px-4 py-3">
-      <div class="flex items-center justify-between">
-        <!-- Left Arrow -->
-        <button @click="navigateCalendar(-1)" class="p-1 hover:bg-gray-100 rounded transition-colors">
-          <ChevronRight class="w-4 h-4 text-gray-600 transform rotate-180" />
-        </button>
-
-        <!-- Date Range Display -->
-        <div class="flex items-center gap-2 text-sm">
-          <div v-for="(date, index) in getCurrentWeekDates()" :key="index"
-            class="flex flex-col items-center px-3 py-2 rounded cursor-pointer transition-colors" :class="{
-              'bg-blue-100 text-blue-800': isSelectedDate(date.date),
-              'text-gray-600 hover:bg-gray-50': !isSelectedDate(date.date)
-            }" @click="selectDate(date.date)">
-            <span class="text-xs font-bold">{{ formatDateDisplay(new Date(date.date)).weekday }}</span>
-            <span class="text-xs font-medium">{{ formatDateDisplay(new Date(date.date)).day }}</span>
-            <span class="text-xs font-semibold">{{ formatDateDisplay(new Date(date.date)).month }}</span>
-          </div>
-        </div>
-
-        <!-- Right Arrow -->
-        <button @click="navigateCalendar(1)" class="p-1 hover:bg-gray-100 rounded transition-colors">
-          <ChevronRight class="w-4 h-4 text-gray-600" />
-        </button>
-      </div>
-    </div>
-
     <!-- Content -->
     <div class="space-y-6">
       <div v-if="loading">
@@ -126,18 +97,29 @@
 
             <!-- Room Type Selection -->
             <div class="mb-4 mt-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
-              <select :disabled="true"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option>{{ res.roomType?.roomTypeName || 'Deluxe Room' }}</option>
-              </select>
+              <Select
+                :lb="$t('Room Type')"
+                :options="[{ label: res.roomType?.roomTypeName || '', value: res.roomType?.id || '' }]"
+                :model-value="res.roomType?.id"
+                :disabled="true"
+                :placeholder="$t('Select Room Type')"
+              />
             </div>
 
             <!-- Room Number Input -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('Room') }}</label>
-              <input v-model="selectedRoomNumbersByReservation[ind]" type="text" placeholder="201"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <Select
+                :lb="$t('Room')"
+                :options="[
+                  { label: $t('-- none --'), value: '' },
+                  ...(availableRoomsByReservation[ind] || []).map(rs => ({
+                    label: rs.roomNumber,
+                    value: rs.id
+                  }))
+                ]"
+                v-model="res.roomId"
+                :placeholder="$t('Select Room')"
+              />
             </div>
           </div>
         </div>
@@ -146,16 +128,19 @@
 
     <template #footer>
       <div class="flex justify-between gap-3">
-        <button @click="$emit('close')"
-          class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
-          {{ $t('Cancel') }}
-        </button>
+        <BasicButton
+          :label="$t('Cancel')"
+          variant="secondary"
+          @click="$emit('close')"
+        />
         <div class="flex gap-3">
-
-          <button @click="confirmRoomSelection" :disabled="!Object.values(selectedRoomNumbersByReservation).some(roomNumber => roomNumber)"
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-            {{ $t('Assign Room') }}
-          </button>
+          <BasicButton
+            :label="$t('Assign Room')"
+            variant="primary"
+            :disabled="!isAssignButtonEnabled"
+            :loading="isLoading"
+            @click="confirmRoomSelection"
+          />
         </div>
       </div>
     </template>
@@ -165,9 +150,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ChevronRight, MoreHorizontal } from 'lucide-vue-next'
+import { useToast } from 'vue-toastification'
 import RightSideModal from './RightSideModal.vue'
-import { getReservationDetailsById } from '../../services/reservation'
+import Select from '../forms/FormElements/Select.vue'
+import BasicButton from '../buttons/BasicButton.vue'
+import { getReservationDetailsById, assignRoomReservation } from '../../services/reservation'
 import { getAvailableRoomsByTypeId } from '../../services/configrationApi'
 import { formatDateDisplay } from '@/utils/dateUtils'
 
@@ -178,109 +165,40 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'room-selected', data: {reservationId: number }): void
+  (e: 'refresh'): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
+const toast = useToast()
 
 const loading = ref(false)
+const isLoading = ref(false)
 const selectedRoom = ref<any>(null)
 const selectedRoomNumber = ref<string>('')
 const reservation = ref<any>(null)
 const currentWeekStart = ref<Date>(new Date())
 const selectedDate = ref<string>('')
-const availableRoomsByReservation = ref<{[key: number]: any[]}>({}) // Store available rooms per reservation room
-const selectedRoomsByReservation = ref<{[key: number]: any}>({}) // Store selected rooms per reservation room
-const selectedRoomNumbersByReservation = ref<{[key: number]: string}>({}) // Store room numbers per reservation room
+const availableRoomsByReservation = ref<{ [key: number]: any[] }>({}) // Store available rooms per reservation room
+const selectedRoomsByReservation = ref<{ [key: number]: any }>({}) // Store selected rooms per reservation room
+const selectedRoomNumbersByReservation = ref<{ [key: number]: string }>({}) // Store room numbers per reservation room
 
-const formatDateRange = (checkIn: string, checkOut: string) => {
-  if (!checkIn || !checkOut) return ''
-  const checkInDate = new Date(checkIn).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  })
-  const checkOutDate = new Date(checkOut).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  })
-  return `${checkInDate} - ${checkOutDate}`
-}
+// Computed property to check if at least one room is selected
+const isAssignButtonEnabled = computed(() => {
+  if (!reservation.value?.reservationRooms) return false
+  return reservation.value.reservationRooms.some((res: any) => res.roomId && res.roomId !== '')
+})
 
-// Generate current week dates for mini calendar
-const getCurrentWeekDates = () => {
-  const dates = []
-  const startDate = new Date(currentWeekStart.value)
 
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(startDate)
-    date.setDate(startDate.getDate() + i)
-    dates.push({
-      date: date.toISOString().split('T')[0]
-    })
-  }
-  return dates
-}
 
-// Navigate calendar by weeks
-const navigateCalendar = (direction: number) => {
-  const newDate = new Date(currentWeekStart.value)
-  newDate.setDate(newDate.getDate() + (direction * 7))
-  currentWeekStart.value = newDate
-}
-
-// Check if date is selected
-const isSelectedDate = (date: string) => {
-  return selectedDate.value === date
-}
-
-// Select a specific date
-const selectDate = (date: string) => {
-  selectedDate.value = date
-}
-
-// Initialize calendar with check-in date or current date
-const initializeCalendar = () => {
-  if (reservation.value?.reservationRooms?.length > 0) {
-    const checkInDate = new Date(reservation.value.reservationRooms[0].checkInDate)
-    // Set to start of week (Monday)
-    const dayOfWeek = checkInDate.getDay()
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-    checkInDate.setDate(checkInDate.getDate() + mondayOffset)
-    currentWeekStart.value = checkInDate
-    selectedDate.value = reservation.value.reservationRooms[0].checkInDate.split('T')[0]
-  } else {
-    // Default to current week
-    const today = new Date()
-    const dayOfWeek = today.getDay()
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-    today.setDate(today.getDate() + mondayOffset)
-    currentWeekStart.value = today
-    selectedDate.value = new Date().toISOString().split('T')[0]
-  }
-}
-
-const selectRoom = (room: any, reservationRoomIndex: number) => {
-  selectedRoomsByReservation.value[reservationRoomIndex] = room
-  selectedRoomNumbersByReservation.value[reservationRoomIndex] = room.roomNumber
-  
-  // Also update the legacy values for backward compatibility
-  selectedRoom.value = room
-  selectedRoomNumber.value = room.roomNumber
-}
-
-const checkIn = () => {
-  // Handle check-in logic
-  console.log('Check-in clicked')
-}
 
 const fetchAvailableRooms = async (reservationRoomIndex: number) => {
   if (!reservation.value || !reservation.value.reservationRooms[reservationRoomIndex]) return
-  
+
   const reservationRoom = reservation.value.reservationRooms[reservationRoomIndex]
-  
+
   try {
     loading.value = true
     const response = await getAvailableRoomsByTypeId(
@@ -288,7 +206,8 @@ const fetchAvailableRooms = async (reservationRoomIndex: number) => {
       reservationRoom.checkInDate,
       reservationRoom.checkOutDate
     )
-    availableRoomsByReservation.value[reservationRoomIndex] = response.data.rooms || []
+    console.log('response available rooms', response)
+    availableRoomsByReservation.value[reservationRoomIndex] = response.data.data.rooms || []
   } catch (error) {
     console.error('Error fetching available rooms:', error)
     availableRoomsByReservation.value[reservationRoomIndex] = []
@@ -303,8 +222,10 @@ const getBookingDetailsById = async () => {
     const id = props.reservationId
     const response = await getReservationDetailsById(Number(id))
     console.log(response)
+    const baseResponse = response.reservationRooms.filter((res: any) => res.roomTypeId && !res.roomId);
+    response.reservationRooms = baseResponse
     reservation.value = response
-    
+
     // Fetch available rooms for each reservation room
     if (response.reservationRooms?.length > 0) {
       for (let i = 0; i < response.reservationRooms.length; i++) {
@@ -318,53 +239,54 @@ const getBookingDetailsById = async () => {
   }
 }
 
-const confirmRoomSelection = () => {
+const confirmRoomSelection = async () => {
   // Emit room selection for each reservation room that has a selected room
   const roomSelections = []
-  
+
   if (reservation.value?.reservationRooms) {
     for (let i = 0; i < reservation.value.reservationRooms.length; i++) {
-      const selectedRoom = selectedRoomsByReservation.value[i]
-      const selectedRoomNumber = selectedRoomNumbersByReservation.value[i]
-      
-      if (selectedRoom || selectedRoomNumber) {
+      const res = reservation.value.reservationRooms[i]
+      if (res.roomId && res.roomId !== '' && res.roomId !== 0) {
         roomSelections.push({
-          reservationRoomIndex: i,
-          reservationRoomId: reservation.value.reservationRooms[i].id,
-          roomNumber: selectedRoomNumber || selectedRoom?.roomNumber,
-          roomId: selectedRoom?.id || null
+          reservationRoomId: res.id,
+          roomNumber: res.roomNumber,
+          roomId: res.roomId,
+          roomTypeId: res.roomTypeId,
+          reservationId: props.reservationId
         })
       }
     }
   }
-  
-  emit('room-selected', {
-    reservationId: props.reservationId,
-  })
+
+  // Call assignRoomReservation if roomSelections is not empty
+  if (roomSelections.length > 0) {
+    isLoading.value = true
+    try {
+      await assignRoomReservation(props.reservationId, {reservationRooms:roomSelections})
+      toast.success(t('Room assignment completed successfully'))
+      emit('refresh')
+    } catch (error) {
+      console.error('Error assigning rooms:', error)
+      toast.error(t('Failed to assign rooms. Please try again.'))
+    } finally {
+      isLoading.value = false
+    }
+  } 
 }
 
 // Watch for prop changes
 watch(() => props.reservationId, async (newId) => {
   if (newId) {
     await getBookingDetailsById()
-    initializeCalendar()
   }
 }, { immediate: true })
 
-// Watch for reservation changes to update calendar
-watch(() => reservation.value, () => {
-  if (reservation.value) {
-    initializeCalendar()
-  }
-})
 
 // Initialize when component mounts
 onMounted(() => {
   if (props.reservationId) {
     getBookingDetailsById()
-  } else {
-    initializeCalendar()
-  }
+  } 
 })
 
 

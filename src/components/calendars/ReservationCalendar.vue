@@ -111,7 +111,10 @@
                             <span class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
                             {{ getAvailableRoomsByType(date, group.room_type_id) }}
                           </span>
-                          <span class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded">
+                          <span 
+                            class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded cursor-pointer hover:bg-blue-50 transition-colors"
+                            @click="handleUnassignedRoomClick(date, group.room_type_id)"
+                          >
                             {{ getUnassignedRoomsByType(date, group.room_type_id) }}
                           </span>
                           </div>
@@ -212,92 +215,6 @@
                         </td>
                       </template>
 
-                      <!-- <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
-                        <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                          class="relative px-0 py-0 h-12 border border-gray-300">
-
-                          <div :class="[
-                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
-                            getReservationColor(cell.reservation.reservation_status),
-                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
-                            @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                            @mouseleave="hideReservationTooltip">
-                            <span class="truncate flex items-center gap-1">
-
-                              {{ cell.reservation.guest_name }}
-                              <br>
-                            </span>
-                            <div class="absolute -top-2 flex items-center gap-1">
-                               <Crown v-if="cell.reservation.is_master"
-                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0"
-                                :title="$t('Primary')" />
-                                <DollarSignIcon v-if="cell.reservation?.is_balance" class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
-                                <User2 v-if="cell.reservation?.isWomen" class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
-                            </div>
-                          </div>
-
-                        </td>
-                        <td v-else-if="cell.type === 'room_block'" :colspan="cell.colspan"
-                          class="relative px-0 py-0 h-12 border border-gray-300">
-
-                          <div :class="[
-                            'absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
-                            getRoomBlockColor(cell.roomBlock.status),
-                          ]" :style="getReservationStyle(cell)">
-                            <span class="truncate">
-                              🚫 {{ cell.roomBlock.reason || 'Room Blocked' }}
-                              <br>
-                              <small>{{ cell.roomBlock.status }}</small>
-                            </span>
-                          </div>
-
-                        </td>
-                        <td
-                          v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
-                          class="px-0 py-0 h-12 border border-gray-300">
-                          <div
-                            :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
-                            <component :is="getRoomStatusIcon(room.room_status)"
-                              :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
-                          </div>
-                        </td>
-                         <template v-if="cellSelection.isSelecting">
-                          <td
-                            :class="[
-                              'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
-                              isCellSelected(group.room_type, room.room_number, cell.date)
-                                ? 'bg-blue-400 cell-selected'
-                                : (isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
-                            ]"
-                            @mousedown="
-                              startCellSelection(group.room_type, room.room_number, cell.date, $event)
-                            "
-                            @mouseenter="
-                              updateCellSelection(group.room_type, room.room_number, cell.date)
-                            "
-                            @mouseup="endCellSelection"
-                          ></td>
-                        </template>
-                        <template v-else>
-                          <td
-                            v-if="!isInsideSelection(group.room_type, room.room_number, cell.date) || isStartOfSelection(group.room_type, room.room_number, cell.date)"
-                            :colspan="isStartOfSelection(group.room_type, room.room_number, cell.date) ? getSelectionColspan() : 1"
-                            :class="[
-                              'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
-                              isStartOfSelection(group.room_type, room.room_number, cell.date)
-                                ? 'bg-blue-400 cell-selected'
-                                : (isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
-                            ]"
-                            @mousedown="
-                              startCellSelection(group.room_type, room.room_number, cell.date, $event)
-                            "
-                            @mouseenter="
-                              updateCellSelection(group.room_type, room.room_number, cell.date)
-                            "
-                            @mouseup="endCellSelection"
-                          ></td>
-                        </template>
-                      </template> -->
                     </tr>
                   </template>
                 </template>
@@ -308,35 +225,27 @@
         <div class="sticky bottom-0 bg-white shadow z-10">
           <table class="min-w-full border-t border border-gray-300 text-xs table-fixed">
 
-            <tfoot>
-              <!--<tr class="text-md">
-                <td class="bg-gray-100 font-bold border border-gray-300  w-50 min-w-[6rem]">
-                  {{ $t('Room Legend') }}
-                </td>
-                <td :colspan="visibleDates.length" class="bg-gray-50 border border-gray-300 p-3">
-                  <span v-for="legend in legends" :key="legend.type" class="inline-flex items-center gap-1 mr-4">
-                    <span :class="['inline-block w-4 h-4 rounded', getReservationColor(legend.type)]"></span>
-                    <span class="text-xs">{{ $t(legend.label) }}</span>
-                  </span>
-                </td>
-              </tr> -->
+            <tfoot> 
               <tr>
                 <td class="bg-gray-100 border w-50 h-7 border-gray-300">{{ $t('Unassigned reservations') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 6rem) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
+                  :style="`min-width: calc((100% - 6rem) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
                 </td>
               </tr>
               <tr>
                 <td class="bg-gray-100  w-50 h-7 border border-gray-300">% {{ $t('Occupancy') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
+                  :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :style="`min-width: calc((100% - 6rem) / ${visibleDates.length})`"
+                  >{{
                     getOccupancyApi(date)
                   }} %</td>
               </tr>
               <tr>
-                <td class="bg-gray-100 w-50 h-7 border border-gray-300">{{ $t('Available Rooms') }}</td>
+                <td class="bg-gray-100 w-50 h-0 border border-gray-300">{{ $t('Available Rooms') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
+                :style="`min-width: calc((100% - 6rem) / ${visibleDates.length})`"
                   :class="['text-center border border-gray-300', isWeekend(date) ? 'bg-gray-100' : '']">{{
                     getAvailableRoomsApi(date) }}
                 </td>
@@ -432,6 +341,24 @@
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
     </template>
+    
+    <!-- Unassigned Reservations Modal -->
+    <UnassignedReservationsModal
+      v-if="showUnassignedModal"
+      :is-open="showUnassignedModal"
+      :date="selectedUnassignedDate"
+      :reservations="unassignedReservations"
+      @close="closeUnassignedModal"
+      @room-assigned="handleRoomAssigned"
+    />
+    
+    <!-- Assign Room Reservation Modal -->
+     <template v-if="selectedReservationForAssignment">
+          <RoomSelectionModal :is-open="showAssignRoomModal"  :reservation-id="selectedReservationForAssignment.id"
+          @close="closeAssignRoomModal"
+          @refresh="refresh"
+          />
+     </template>
   </FullScreenLayout>
 </template>
 
@@ -442,6 +369,7 @@ import { watch,onUnmounted } from 'vue'
 import { CheckCircle, X } from 'lucide-vue-next'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 import AddBookingModal from '../modal/AddBookingModal.vue';
+import AssignRoomReservation from '../reservations/AssignRoomReservation.vue';
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -476,6 +404,7 @@ import SelectDropdown from '../common/SelectDropdown.vue';
 import StatusLegend from '../common/StatusLegend.vue';
 import UnassignedReservationsModal from '../modal/UnassignedReservationsModal.vue';
 import { useRouter } from 'vue-router'
+import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
 
 
 
@@ -541,6 +470,8 @@ const showDetail = ref<boolean>(false)
 const showUnassignedModal = ref<boolean>(false)
 const selectedUnassignedDate = ref<string>('')
 const unassignedReservations = ref<any[]>([])
+const showAssignRoomModal = ref<boolean>(false)
+const selectedReservationForAssignment = ref<any>(null)
 const legends = [
   { type: 'confirmed', label: t('Confirmed reservation') },
   { type: 'request', label: t('Reservation Request') },
@@ -593,9 +524,47 @@ function handleRoomAssigned(data: any) {
   closeUnassignedModal()
 }
 
+// AssignRoomReservation modal handlers
+function closeAssignRoomModal() {
+  showAssignRoomModal.value = false
+  selectedReservationForAssignment.value = null
+}
+
+function handleRoomAssignmentComplete(data: any) {
+  console.log('Room assignment completed:', data)
+  // Refresh the calendar data when room is assigned
+  refresh()
+  closeAssignRoomModal()
+}
+
 // Global function for handling unassigned clicks (called from HTML)
 ;(window as any).handleUnassignedClick = (date: string) => {
   openUnassignedModal(date)
+}
+
+// Handle unassigned room click with room type filtering
+function handleUnassignedRoomClick(date: Date, roomTypeId: number) {
+  const dStr = date.toISOString().split('T')[0]
+  const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
+ 
+  if (metric && metric.unassigned_room_reservations_by_type) {
+    const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
+    
+    if (roomTypeData && roomTypeData.unassigned_reservations) {
+      const unassignedReservations = roomTypeData.unassigned_reservations
+      
+      if (unassignedReservations.length === 1) {
+        // Only one reservation - directly open AssignRoomReservation
+        selectedReservationForAssignment.value = unassignedReservations[0]
+        showAssignRoomModal.value = true
+      } else if (unassignedReservations.length > 1) {
+        // Multiple reservations - open selection modal
+        selectedUnassignedDate.value = dStr
+        unassignedReservations.value = unassignedReservations
+        showUnassignedModal.value = true
+      }
+    }
+  }
 }
 const selectedDate = ref((new Date()).toISOString().split('T')[0])
 const daysToShow = ref(15)
@@ -631,112 +600,6 @@ const apiRoomBlocks = computed(() => {
   return serviceResponse.value.room_blocks || []
 })
 
-
-
-// --- API TABLE ROWS ---
-// function getRoomRowCellsApi(group: any, room: any) {
-//   const cells = []
-//   let i = 0
-
-//   // Fixed filtering logic for multi-room reservations
-//   const allReservations = group.reservations || []
-//   const reservations = allReservations.filter((r: any) => {
-//     // Match by assigned room number, room number, or if room number is null (unassigned rooms)
-//     return r.assigned_room_number === room.room_number ||
-//            r.room_number === room.room_number ||
-//            (room.room_number === null && !r.assigned_room_number)
-//   })
-
-//   // Filter room blocks for this room
-//   const roomBlocks = apiRoomBlocks.value.filter(
-//     (b: any) => b.room && b.room.room_number === room.room_number
-//   )
-
-//   while (i < visibleDates.value.length) {
-//     const date = visibleDates.value[i]
-//     const dStr = date.toISOString().split('T')[0]
-
-//     // Check for room block first (higher priority)
-//     let roomBlock = roomBlocks.find((b: any) => {
-//       const startDate = new Date(b.block_from_date)
-//       const endDate = new Date(b.block_to_date)
-//       return startDate <= date && endDate >= date
-//     })
-
-//     if (roomBlock) {
-//       // Calculate colspan for room block
-//       const start = new Date(roomBlock.block_from_date)
-//       const end = new Date(roomBlock.block_to_date)
-//       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-//       const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
-
-//       cells.push({
-//         type: 'room_block',
-//         roomBlock,
-//         colspan,
-//         date,
-//         key: i
-//       })
-//       i += colspan
-//     } else {
-//       // Find reservation starting on this date
-//       let reservation = reservations.find((r: any) => {
-//         // If reservation starts today
-//         return r.check_in_date.startsWith(dStr)
-//       })
-
-//       // If no reservation starts today, check if a reservation started before and is still ongoing
-//       if (!reservation) {
-//         reservation = reservations.find((r: any) => {
-//           const start = new Date(r.check_in_date)
-//           const end = new Date(r.check_out_date)
-//           return start < date && end >= date
-//         })
-//       }
-
-//     if (reservation) {
-//       // Calculate colspan: from current date to min(end date, last visible date)
-//       const start = new Date(reservation.check_in_date)
-//       const end = new Date(reservation.check_out_date)
-//       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-//       const colspan = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible).length
-
-
-
-//       const is_check_in = reservation.check_in_date.startsWith(dStr);
-
-//       const reservationDates = visibleDates.value.filter(d => d >= date && d <= end && d <= lastVisible);
-//       const lastVisibleDateOfReservation = reservationDates.length > 0 ? reservationDates[reservationDates.length - 1] : null;
-//       const checkOutDate = new Date(reservation.check_out_date);
-
-//       const is_check_out = lastVisibleDateOfReservation && (lastVisibleDateOfReservation.getFullYear() === checkOutDate.getFullYear() && lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() && lastVisibleDateOfReservation.getDate() === checkOutDate.getDate());
-
-
-
-
-
-//         cells.push({
-//           type: 'reservation',
-//           reservation,
-//           middle: reservation.check_in_date.startsWith(dStr),
-//           colspan,
-//           is_check_in,
-//           is_check_out,
-//           date,
-//           key: i
-//         })
-//         i += colspan
-//       } else {
-//         cells.push({
-//           type: 'room',
-//           key: i
-//         })
-//         i += 1
-//       }
-//     }
-//   }
-//   return cells
-// }
 function getRoomRowCellsApi(group: any, room: any) {
   const cells: any[] = []
   let i = 0
@@ -859,7 +722,7 @@ function getUnassignedApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
   if (metric && metric.unassigned_reservations > 0) {
-    return `<span class='inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs cursor-pointer hover:bg-blue-600 transition-colors'>${metric.unassigned_reservations}</span>`
+    return `${metric.unassigned_reservations}`
   }
   return '0'
 }
@@ -975,6 +838,7 @@ const getLocaleDailyOccupancyAndReservations = async () => {
 }
 const refresh = async () => {
   showModalAddingModal.value = false;
+  closeAssignRoomModal();
   const serviceId = serviceStore.serviceId!
   const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
   serviceResponse.value = response.data

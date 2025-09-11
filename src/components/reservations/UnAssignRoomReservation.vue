@@ -6,8 +6,35 @@
     size="lg"
   >
 
-      <div v-if="loading" class="flex justify-center items-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div v-if="loading" class="space-y-6 animate-pulse">
+        <!-- Unassign Type Selection Skeleton -->
+        <div class="space-y-4">
+          <div class="h-4 bg-gray-200 rounded w-24"></div>
+          <div class="flex space-x-4">
+            <div class="flex items-center space-x-2">
+              <div class="w-4 h-4 bg-gray-200 rounded-full"></div>
+              <div class="h-4 bg-gray-200 rounded w-28"></div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-4 h-4 bg-gray-200 rounded-full"></div>
+              <div class="h-4 bg-gray-200 rounded w-32"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room Selection Skeleton -->
+        <div class="space-y-4">
+          <div class="h-4 bg-gray-200 rounded w-40"></div>
+          <div class="space-y-2 max-h-40">
+            <div v-for="i in 3" :key="i" class="flex items-center p-2 border rounded">
+              <div class="w-4 h-4 bg-gray-200 rounded mr-3"></div>
+              <div class="flex-1">
+                <div class="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                <div class="h-3 bg-gray-200 rounded w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div v-else class="space-y-6">
