@@ -22,6 +22,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/tax_operation',
+      name: 'Tax_Operation',
+      component: () => import('../components/reservations/foglio/TaxOperation.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/front-office/dashboard',
       name: 'FrontOfficeDashboard',
       component: () => import('../views/FrontOffice/FrontOfficeDashboard.vue'),

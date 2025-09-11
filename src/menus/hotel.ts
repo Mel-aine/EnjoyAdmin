@@ -46,6 +46,11 @@ export const getHotelMenu = (t: (key: string) => string) => {
               permission: 'dashboard_view',
             },
             {
+              name: t('Tax_Operation'),
+              path: '/tax_operation',
+              permission: 'dashboard_view',
+            },
+            {
               name: t('guest_database'),
               path: '/guest_database',
               permission: 'dashboard_view',
