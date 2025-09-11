@@ -34,7 +34,7 @@
                 </div>
 
                 <!-- Nights -->
-                <div class="flex flex-col w-full">
+                <div class="flex flex-col ">
                   <Input :lb="$t('nights')" :disabled="true" :modelValue="numberOfNights.toString()" />
                 </div>
 
@@ -186,7 +186,7 @@
                       <!-- Rate Display avec détails -->
                       <div class="relative inline-block">
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          {{ $t('rate')}} (XAF).{{ $t('tax includes') }}
+                          {{ $t('rate')}} (XAF)
                         </label>
                         <div v-if="!isCustomPrize"
                           class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
@@ -208,13 +208,13 @@
                             </div>
                           </div>
 
-                          <button @click="toggleDropdown(room.id)" type="button"
+                          <!--<button @click="toggleDropdown(room.id)" type="button"
                             class="text-gray-500 hover:text-gray-700 ml-2" :disabled="isLoadingRate">
                             <CircleChevronDown :class="{
                               'transform rotate-180 transition-transform': room.isOpen,
                               'transition-transform': !room.isOpen,
                             }" :size="20" />
-                          </button>
+                          </button>--> 
 
                           <div v-if="room.isOpen"
                             class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
@@ -250,10 +250,10 @@
                     </svg>
                     {{ $t('AddRoom') }}
                   </button>
-                  <button type="button"
+                 <!-- <button type="button"
                     class="px-4 py-2 border border-gray-600 text-gray-600 rounded-md text-sm font-normal hover:bg-gray-600 hover:text-white transition">
                     {{ $t('add_discount') }}
-                  </button>
+                  </button>-->
                 </div>
               </section>
               <section class="border-t border-gray-300 pt-4 space-y-4" v-if="reservation.isHold">
