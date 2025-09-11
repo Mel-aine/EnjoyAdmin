@@ -41,8 +41,7 @@ const emit = defineEmits(['click'])
 }
 
 .btn-primary {
-    background-color: rgb(182, 8, 182);
-    color: white;
+    color: black;
 }
 
 .btn-secondary {
