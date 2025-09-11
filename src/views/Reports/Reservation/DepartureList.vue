@@ -377,7 +377,7 @@ const apiFilters = ref<ReportFilters>({
 // UI Filters
 const filters = ref({
   departureFrom: '',
-  departureTo: '',
+  departureTo: '', 
   roomType: '',
   rateType: '',
   showAmount: 'rent_per_night',
