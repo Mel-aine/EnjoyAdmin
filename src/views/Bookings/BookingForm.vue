@@ -34,7 +34,7 @@
                 </div>
 
                 <!-- Nights -->
-                <div class="flex flex-col ">
+                <div class="flex flex-col w-full">
                   <Input :lb="$t('nights')" :disabled="true" :modelValue="numberOfNights.toString()" />
                 </div>
 
