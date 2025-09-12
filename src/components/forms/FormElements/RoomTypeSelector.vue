@@ -147,7 +147,7 @@ const fetchRoomTypesWithAvailability = async () => {
 
       return {
         value: roomType.id,
-        label: `${roomType.roomTypeName} (${availableRooms} ${t('available')})`,
+        label: ` (${availableRooms} ${t('available')})`,
         roomTypeName: roomType.name,
         shortCode: roomType.short_code,
         availableRooms: availableRooms,

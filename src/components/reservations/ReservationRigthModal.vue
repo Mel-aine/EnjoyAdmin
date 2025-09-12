@@ -600,7 +600,7 @@ const avgDailyRate = computed(() => {
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }
-const templates = ref<PrintTemplate[]>([
+const templates = ref<any[]>([
     {
         id: '1',
         name: 'Booking Confirmation',
