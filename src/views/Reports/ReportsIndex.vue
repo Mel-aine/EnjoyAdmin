@@ -1,4 +1,5 @@
 <template>
+<!-- @reference tailwindcss -->
   <ReportsLayout>
     <div class="p-6">
     <div class="mb-6">

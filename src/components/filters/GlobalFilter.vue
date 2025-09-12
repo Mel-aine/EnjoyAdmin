@@ -153,7 +153,7 @@ const fetchRoomType = async () => {
             .map((item: RoomTypeData) => ({
                 ...item,
                 value: item.id,
-                label: item.name,
+                label: item.roomTypeName,
             }))
     } catch (error) {
         console.error('Erreur lors de la récupération des roomtypes:', error)
@@ -168,6 +168,8 @@ onMounted(() => {
 </script>
 
 <style>
+@reference "tailwindcss";
+
 /* Tailwind CSS is typically configured via PostCSS in a Vue project.
    The CDN link would be in your public/index.html or similar. */
 .font-inter {

@@ -1,4 +1,5 @@
 <template>
+<!-- @reference tailwindcss -->
   <AdminLayout>
     <div class="min-h-screen bg-gray-50">
       <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -575,7 +576,6 @@
               title="Room Occupancy"
               :data="processedTableData"
               :columns="tableColumns"
-              :actions="tableActions"
               :loading="isLoading"
               :searchable="false"
               :selectable="false"
@@ -966,8 +966,8 @@ const filteredRooms = computed(() => {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(
       (room: any) =>
-        room.productName?.toLowerCase().includes(query) ||
-        room.productTypeName?.toLowerCase().includes(query) ||
+        room.roomNumber?.toLowerCase().includes(query) ||
+        room.roomType.roomTypeName?.toLowerCase().includes(query) ||
         room.guestName?.toLowerCase().includes(query),
     )
   }
@@ -1057,21 +1057,7 @@ const processedTableData = computed(() => {
       new Date(room.checkOutTime).toLocaleDateString() : '',
   }))
 })
-const tableActions = computed(() => [
-  {
-    label: t('Change Status'),
-    handler: (room: any) => handleQuickStatusChange(room, room.status),
-    icon: 'edit',
-    variant: 'primary' as const,
-  },
-  {
-    label: t('Maintenance'),
-    handler: (room: any) => handleMaintenance(room, 'maintenance'),
-    icon: 'settings',
-    variant: 'warning' as const,
-    condition: (room: any) => room.status !== 'maintenance',
-  },
-])
+
 
 const refreshRooms = () => {
   window.location.reload();
@@ -1307,7 +1293,7 @@ const closeModal = () => {
 const expandedRoomTypes = ref(new Set())
 
 // Fonction pour basculer l'expansion d'un type de chambre
-const toggleRoomType = (roomTypeId) => {
+const toggleRoomType = (roomTypeId:any) => {
   if (expandedRoomTypes.value.has(roomTypeId)) {
     expandedRoomTypes.value.delete(roomTypeId)
   } else {
@@ -1316,8 +1302,8 @@ const toggleRoomType = (roomTypeId) => {
 }
 
 // Fonction pour obtenir les chambres par statut
-const getRoomsByStatus = (rooms, targetStatus) => {
-  return rooms.filter((room) => {
+const getRoomsByStatus = (rooms:any, targetStatus:any) => {
+  return rooms.filter((room:any) => {
     switch (targetStatus) {
       case 'occupied':
         return room.status === 'occupied' || room.housekeepingStatus === 'dirty'

@@ -3,11 +3,10 @@
     <PageBreadcrumb :pageTitle="$t('unsettledFolios.title')" :breadcrumb="breadcrumb" />
     
     <div class="space-y-6">
-      <!-- Filter Component -->
       
       <!-- Unsettled Folios Table -->
       <ReusableTable
-        :title="$t('unsettledFolios.tableTitle')"
+        :title="'Unsettled Folios'"
         :columns="columns"
         :data="filteredFolios"
         :actions="actions"
@@ -19,20 +18,15 @@
         @selection-change="onSelectionChange"
         @action="onAction"
       >
-      <template #header-actions>
-              <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
-      </template>
-        <!-- Custom column templates -->
-        <template #column-guestName="{ item }">
-          <div>
-            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.guestName }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.reservationNumber }}</div>
-          </div>
+        <!-- Custom header slot for filters -->
+        <template #header-actions>
+          <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
         </template>
+        <!-- Custom column templates -->
         
         <template #column-balance="{ item }">
           <span :class="getBalanceClass(item.balance)" class="text-sm font-semibold">
-            ${{ item.balance.toFixed(2) }}
+          {{ formatBalance(item.balance) }}
           </span>
         </template>
         
@@ -60,7 +54,10 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import UnsettledFoliosFilter from '@/components/filters/UnsettledFoliosFilter.vue'
 import { FileTextIcon, DollarSignIcon, TrendingUpIcon, ClockIcon, EyeIcon, PrinterIcon, MailIcon } from 'lucide-vue-next'
+import { getUnsetteledFolio } from '@/services/foglioApi.ts' // Assume this API exists
+import { useServiceStore } from '@/composables/serviceStore'
 
+const serviceStore = useServiceStore()  
 const { t } = useI18n()
 
 // Define interfaces
@@ -76,17 +73,16 @@ interface UnsettledFolio {
   totalCharges: number
   totalPayments: number
   balance: number
-  status: 'Open' | 'Closed' | 'Pending' | 'Disputed'
+  status: string,
   lastActivity: string
   daysPending: number
 }
 
 interface FolioFilterItem {
+  searchBy: string
   searchText: string
   status: string
-  roomType: string
-  minBalance: string
-  maxBalance: string
+  arrivalEnabled: boolean
   dateFrom: string
   dateTo: string
 }
@@ -95,11 +91,10 @@ interface FolioFilterItem {
 const loading = ref(false)
 const selectedFolios = ref<UnsettledFolio[]>([])
 const currentFilters = ref<FolioFilterItem>({
+  searchBy: 'all',
   searchText: '',
   status: '',
-  roomType: '',
-  minBalance: '',
-  maxBalance: '',
+  arrivalEnabled: false,
   dateFrom: '',
   dateTo: ''
 })
@@ -112,83 +107,17 @@ const breadcrumb = [
 
 // Mock data for unsettled folios
 const folios = ref<UnsettledFolio[]>([
-  {
-    id: '1',
-    folioNumber: 'FNH163',
-    guestName: 'Mr. Huzaifa Ramalawala',
-    reservationNumber: '167',
-    roomNumber: '101',
-    roomType: 'Deluxe Room',
-    checkInDate: '2024-01-15',
-    checkOutDate: '2024-01-20',
-    totalCharges: 1506.00,
-    totalPayments: 0.00,
-    balance: 1506.00,
-    status: 'Open',
-    lastActivity: '2024-01-20',
-    daysPending: 15
-  },
-  {
-    id: '2',
-    folioNumber: 'FNH165',
-    guestName: 'Mr. Bulhanudin',
-    reservationNumber: '169',
-    roomNumber: '205',
-    roomType: 'Standard Room',
-    checkInDate: '2024-01-17',
-    checkOutDate: '2024-01-18',
-    totalCharges: 600.00,
-    totalPayments: 0.00,
-    balance: 600.00,
-    status: 'Open',
-    lastActivity: '2024-01-18',
-    daysPending: 17
-  },
-  {
-    id: '3',
-    folioNumber: 'FNH192',
-    guestName: 'Mr. Huzaifa Ramalawala',
-    reservationNumber: '192',
-    roomNumber: '301',
-    roomType: 'Suite',
-    checkInDate: '2024-01-15',
-    checkOutDate: '2024-01-16',
-    totalCharges: 2016.00,
-    totalPayments: 0.00,
-    balance: 2016.00,
-    status: 'Pending',
-    lastActivity: '2024-01-16',
-    daysPending: 19
-  },
-  {
-    id: '4',
-    folioNumber: 'FNH167',
-    guestName: 'Mr. Kunal Patil',
-    reservationNumber: '171',
-    roomNumber: '102',
-    roomType: 'Deluxe Room',
-    checkInDate: '2024-01-05',
-    checkOutDate: '2024-01-06',
-    totalCharges: 2016.00,
-    totalPayments: 0.00,
-    balance: 2016.00,
-    status: 'Disputed',
-    lastActivity: '2024-01-06',
-    daysPending: 29
-  }
 ])
 
 // Table columns configuration
 const columns = computed(() => [
-  { key: 'folioNumber', label: t('unsettledFolios.columns.folioNumber'), type: 'text' as const },
-  { key: 'guestName', label: t('unsettledFolios.columns.guestName'), type: 'custom' as const },
-  { key: 'roomNumber', label: t('unsettledFolios.columns.roomNumber'), type: 'text' as const },
-  { key: 'roomType', label: t('unsettledFolios.columns.roomType'), type: 'text' as const },
-  { key: 'checkOutDate', label: t('unsettledFolios.columns.checkOutDate'), type: 'date' as const },
-  { key: 'totalCharges', label: t('unsettledFolios.columns.totalCharges'), type: 'text' as const },
-  { key: 'balance', label: t('unsettledFolios.columns.balance'), type: 'custom' as const },
-  { key: 'status', label: t('unsettledFolios.columns.status'), type: 'custom' as const },
-  { key: 'daysPending', label: t('unsettledFolios.columns.daysPending'), type: 'custom' as const }
+  { key: 'folioNumber', label: 'Folio#', type: 'text' as const },
+  { key: 'reservationNumber', label: 'Reservation#', type: 'text' as const },
+  { key: 'guestName', label: 'Guest Name', type: 'text' as const },
+  { key: 'checkInDate', label: 'Arrival', type: 'date' as const },
+  { key: 'checkOutDate', label: 'Departure', type: 'date' as const },
+  { key: 'status', label: 'Status', type: 'custom' as const },
+  { key: 'balance', label: 'Balance', type: 'custom' as const }
 ])
 
 // Table actions
@@ -217,11 +146,20 @@ const filteredFolios = computed(() => {
   // Apply search filter
   if (currentFilters.value.searchText) {
     const searchTerm = currentFilters.value.searchText.toLowerCase()
-    filtered = filtered.filter(folio => 
-      folio.guestName.toLowerCase().includes(searchTerm) ||
-      folio.folioNumber.toLowerCase().includes(searchTerm) ||
-      folio.reservationNumber.toLowerCase().includes(searchTerm)
-    )
+    
+    if (currentFilters.value.searchBy === 'all') {
+      filtered = filtered.filter(folio => 
+        folio.guestName.toLowerCase().includes(searchTerm) ||
+        folio.folioNumber.toLowerCase().includes(searchTerm) ||
+        folio.reservationNumber.toLowerCase().includes(searchTerm)
+      )
+    } else if (currentFilters.value.searchBy === 'folio') {
+      filtered = filtered.filter(folio => folio.folioNumber.toLowerCase().includes(searchTerm))
+    } else if (currentFilters.value.searchBy === 'guest') {
+      filtered = filtered.filter(folio => folio.guestName.toLowerCase().includes(searchTerm))
+    } else if (currentFilters.value.searchBy === 'reservation') {
+      filtered = filtered.filter(folio => folio.reservationNumber.toLowerCase().includes(searchTerm))
+    }
   }
   
   // Apply status filter
@@ -229,29 +167,15 @@ const filteredFolios = computed(() => {
     filtered = filtered.filter(folio => folio.status === currentFilters.value.status)
   }
   
-  // Apply room type filter
-  if (currentFilters.value.roomType) {
-    filtered = filtered.filter(folio => folio.roomType === currentFilters.value.roomType)
-  }
-  
-  // Apply balance range filter
-  if (currentFilters.value.minBalance) {
-    const minBalance = parseFloat(currentFilters.value.minBalance)
-    filtered = filtered.filter(folio => folio.balance >= minBalance)
-  }
-  
-  if (currentFilters.value.maxBalance) {
-    const maxBalance = parseFloat(currentFilters.value.maxBalance)
-    filtered = filtered.filter(folio => folio.balance <= maxBalance)
-  }
-  
-  // Apply date range filter
-  if (currentFilters.value.dateFrom) {
-    filtered = filtered.filter(folio => folio.checkOutDate >= currentFilters.value.dateFrom)
-  }
-  
-  if (currentFilters.value.dateTo) {
-    filtered = filtered.filter(folio => folio.checkOutDate <= currentFilters.value.dateTo)
+  // Apply arrival date range filter
+  if (currentFilters.value.arrivalEnabled) {
+    if (currentFilters.value.dateFrom) {
+      filtered = filtered.filter(folio => folio.checkInDate >= currentFilters.value.dateFrom)
+    }
+    
+    if (currentFilters.value.dateTo) {
+      filtered = filtered.filter(folio => folio.checkInDate <= currentFilters.value.dateTo)
+    }
   }
   
   return filtered
@@ -271,7 +195,11 @@ const summary = computed(() => {
     oldestFolioDays: oldestFolio
   }
 })
-
+const formatBalance = (balance: string | number) => {
+  // Convertir en nombre si c'est une string
+  const balanceValue = typeof balance === 'string' ? parseFloat(balance) : balance
+  return balanceValue.toFixed(2)
+}
 // Methods
 const handleFilter = (filters: FolioFilterItem) => {
   currentFilters.value = { ...filters }
@@ -297,6 +225,24 @@ const onAction = (action: any, folio: UnsettledFolio) => {
       break
   }
 }
+const fetchUnsettledFolios = async () => {
+  const serviceId = serviceStore.serviceId
+  loading.value = true
+  try {
+    const data = await getUnsetteledFolio(serviceId!)
+    folios.value = data.data.data.map((folio: any) => ({
+      ...folio,
+      guestName: folio.folioName,
+      reservationNumber: folio.reservationId
+    }))
+    console.log('Fetched unsettled folios:', folios.value)
+  } catch (error) {
+    console.error('Error fetching unsettled folios:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 
 // Utility methods for styling
 const getBalanceClass = (balance: number) => {
@@ -307,6 +253,10 @@ const getBalanceClass = (balance: number) => {
 
 const getStatusClass = (status: string) => {
   switch (status) {
+    case 'Checked Out':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'Cancel':
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
     case 'Open':
       return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
     case 'Pending':
@@ -330,6 +280,7 @@ const getDaysClass = (days: number) => {
 onMounted(() => {
   // Load initial data
   loading.value = false
+  fetchUnsettledFolios()
 })
 </script>
 

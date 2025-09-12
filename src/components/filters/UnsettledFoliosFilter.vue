@@ -1,87 +1,72 @@
 <template>
-  <div class="flex justify-end mb-3">
+  <div class="flex justify-end">
     <BasicButton @click="showFilter = true" variant="secondary" :icon="FilterIcon"
-      :label="$t('unsettledFolios.filterSectionTitle')">
+      :label="$t('reservationsList.filterSectionTitle')">
     </BasicButton>
   </div>
-  <RightSideModal :is-open="showFilter" :title="$t('unsettledFolios.filterSectionTitle')"
+  
+  <RightSideModal :is-open="showFilter" :title="$t('reservationsList.filterSectionTitle')"
     @close="showFilter = false">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      <!-- Search by Guest Name/Folio Number -->
-      <div class="lg:col-span-2">
-        <Input :lb="$t('unsettledFolios.searchByGuestOrFolio')" :inputType="'text'"
-          :placeholder="$t('unsettledFolios.searchPlaceholder')" :id="'searchText'"
-          :forLabel="'unsettledFolios.searchByGuestOrFolio'" v-model="filters.searchText" />
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Search by dropdown and input -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Select :lb="'Search by'" v-model="filters.searchBy" :options="searchByOptions" />
+        
+        <Input :lb="'Search'" :inputType="'text'"
+          :placeholder="'Folio#, Res#, G...'"
+          :id="'searchText'"
+          :forLabel="'search'"
+          v-model="filters.searchText" />
       </div>
 
-      <!-- Status Filter -->
-      <div>
-        <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterStatus') }}:</label>
-        <select id="status" v-model="filters.status"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-          <option value="">{{ $t('unsettledFolios.filterAll') }}</option>
-          <option v-for="statusOption in statusOptions" :key="statusOption" :value="statusOption">
-            {{ $t(`folioStatus.${statusOption}`) }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Room Type Filter -->
-      <div>
-        <label for="roomType" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterRoomType') }}:</label>
-        <select id="roomType" v-model="filters.roomType"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-          <option value="">{{ $t('unsettledFolios.filterAll') }}</option>
-          <option v-for="type in activeRoomTypes" :key="type.id" :value="type.id">{{ type.label }}</option>
-        </select>
-      </div>
-
-      <!-- Balance Range Filter -->
-      <div>
-        <label for="minBalance" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.minBalance') }}:</label>
-        <input id="minBalance" v-model="filters.minBalance" type="number" step="0.01" min="0"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-          :placeholder="$t('unsettledFolios.enterMinBalance')" />
-      </div>
-
-      <div>
-        <label for="maxBalance" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.maxBalance') }}:</label>
-        <input id="maxBalance" v-model="filters.maxBalance" type="number" step="0.01" min="0"
-          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-          :placeholder="$t('unsettledFolios.enterMaxBalance')" />
-      </div>
-
-      <!-- Date Range Filter -->
-      <div v-if="showDate">
-        <label for="dateFrom" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterDateFrom') }}:</label>
-        <div class="relative">
-          <flat-pickr v-model="filters.dateFrom" :config="flatpickrConfig"
-            class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-            :placeholder="$t('Selectdate')" />
-          <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-            <CalendarIcon />
-          </span>
+      <!-- Arrival section -->
+      <div class="space-y-3">
+        <div class="flex items-center">
+          <input v-model="filters.arrivalEnabled" type="checkbox" id="arrival" 
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+          <label for="arrival" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Arrival</label>
+        </div>
+        
+        <div v-if="filters.arrivalEnabled" class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 md:pl-6 items-end">
+          <InputDatePicker 
+            :lb="'From Date'" 
+            :inputType="'date'"
+            :id="'dateFrom'"
+            :forLabel="'dateFrom'"
+            v-model="filters.dateFrom"
+            :placeholder="'01/09/20'" 
+          />
+          
+          <div class="flex justify-center py-2 md:py-0">
+            <span class="text-gray-500 text-lg md:mb-1">→</span>
+          </div>
+          
+          <InputDatePicker 
+            :lb="'To Date'" 
+            :inputType="'date'"
+            :id="'dateTo'"
+            :forLabel="'dateTo'"
+            v-model="filters.dateTo"
+            :placeholder="'31/10/20'" 
+          />
         </div>
       </div>
 
-      <div v-if="showDate">
-        <label for="dateTo" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('unsettledFolios.filterDateTo') }}:</label>
-        <div class="relative">
-          <flat-pickr v-model="filters.dateTo" :config="flatpickrConfig"
-            class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-            :placeholder="$t('Selectdate')" />
-          <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-            <CalendarIcon />
-          </span>
-        </div>
+      <!-- Status dropdown -->
+      <Select :lb="'Status'" v-model="filters.status" :options="statusOptions" />
+
+      <!-- Additional note -->
+      <div class="text-center pt-2">
+        <p class="text-sm text-red-500">You can also filter the date as per your requirement</p>
       </div>
 
-      <div class="mt-2 flex justify-end gap-3 lg:col-span-2">
-        <BasicButton @click="applyFilters" variant="secondary" :icon="SearchIcon"
-          :label="$t('unsettledFolios.applyFilters')">
-        </BasicButton>
+      <!-- Action buttons -->
+      <div class="mt-2 flex flex-col-reverse sm:flex-row justify-end gap-3">
         <BasicButton @click="clearFilters" variant="secondary" :icon="XCircleIcon"
-          :label="$t('unsettledFolios.clearFilters')">
+          :label="$t('reservationsList.clearFilters')" class="w-full sm:w-auto">
+        </BasicButton>
+        <BasicButton @click="applyFilters" variant="primary" :icon="SearchIcon"
+          :label="$t('reservationsList.applyFilters')" class="w-full sm:w-auto">
         </BasicButton>
       </div>
     </div>
@@ -89,77 +74,71 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import {
   Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon
 } from 'lucide-vue-next';
 import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
+import Select from '@/components/forms/FormElements/Select.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
-import flatPickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css'
-import CalendarIcon from '@/icons/CalendarIcon.vue';
 import { getTypeProductByServiceId } from '@/services/api';
 import type { RoomTypeData } from '@/types/option';
 import { useServiceStore } from '@/composables/serviceStore';
+import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 
 // Define folio filter interface
 interface FolioFilterItem {
+  searchBy: string;
   searchText: string;
   status: string;
-  roomType: string;
-  minBalance: string;
-  maxBalance: string;
+  arrivalEnabled: boolean;
   dateFrom: string;
   dateTo: string;
 }
 
 const emits = defineEmits(['filter']);
-defineProps({
-  showDate: {
-    type: Boolean,
-    default: true
-  }
-})
 
 // Filter state
 const filters = ref<FolioFilterItem>({
-  searchText: '', // For guest name or folio number
+  searchBy: 'all',
+  searchText: '',
   status: '',
-  roomType: '',
-  minBalance: '',
-  maxBalance: '',
+  arrivalEnabled: false,
   dateFrom: '',
   dateTo: '',
 });
 
 const showFilter = ref(false);
-const serviceStore = useServiceStore()
-
-// Options for status dropdown
-const statusOptions = ref([
-  'Open', 'Closed', 'Pending', 'Disputed'
-]);
-
-const flatpickrConfig = {
-  dateFormat: 'Y-m-d',
-  altInput: true,
-  altFormat: 'F j, Y',
-  wrap: true,
-}
-
+const serviceStore = useServiceStore();
 const activeRoomTypes = ref<RoomTypeData[]>([]);
 
+// Options for dropdowns using the same pattern as the first component
+const searchByOptions = computed(() => [
+  { label: 'All', value: 'all' },
+  { label: 'Folio#', value: 'folio' },
+  { label: 'Guest Name', value: 'guest' },
+  { label: 'Reservation#', value: 'reservation' }
+]);
+
+const statusOptions = computed(() => [
+  { label: '-Select-', value: '' },
+  { label: 'Checked Out', value: 'Checked Out' },
+  { label: 'Cancel', value: 'Cancel' },
+  { label: 'Open', value: 'Open' },
+  { label: 'Pending', value: 'Pending' }
+]);
+
 const applyFilters = () => {
-  emits('filter', filters.value)
+  emits('filter', filters.value);
+  showFilter.value = false; // Close modal after applying filters
 };
 
 const clearFilters = () => {
+  filters.value.searchBy = 'all';
   filters.value.searchText = '';
   filters.value.status = '';
-  filters.value.roomType = '';
-  filters.value.minBalance = '';
-  filters.value.maxBalance = '';
+  filters.value.arrivalEnabled = false;
   filters.value.dateFrom = '';
   filters.value.dateTo = '';
   applyFilters(); // Re-apply filters to show all
@@ -167,20 +146,20 @@ const clearFilters = () => {
 
 const fetchRoomType = async () => {
   try {
-    const serviceId = serviceStore.serviceId
-    const response = await getTypeProductByServiceId(serviceId)
+    const serviceId = serviceStore.serviceId;
+    const response = await getTypeProductByServiceId(serviceId);
 
     activeRoomTypes.value = response.data
       .filter((type: RoomTypeData) => type.status === 'active')
       .map((item: RoomTypeData) => ({
         ...item,
         value: item.id,
-        label: item.name,
-      }))
+        label: item.roomTypeName,
+      }));
   } catch (error) {
-    console.error('Error fetching room types:', error)
+    console.error('Error fetching room types:', error);
   }
-}
+};
 
 // Initial filter application on component mount
 onMounted(() => {

@@ -230,6 +230,8 @@
                    ></textarea>
                  </div>
               </div>
+              
+        
             </div>
           </form>
         </div>
@@ -350,7 +352,7 @@ const loadHotelInfo = async () => {
       registrationNo2:  currentService.registrationNo2 || '',
       registrationNo3:  currentService.registrationNo3 || '',
       cancellationPolicy: currentService.cancellationPolicy || '',
-      hotelPolicy: currentService.hotelPolicy || ''
+      hotelPolicy: currentService.hotelPolicy || '',
     }
   }
 }

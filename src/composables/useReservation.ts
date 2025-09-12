@@ -1,10 +1,11 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
-import { 
-  checkInReservation, 
+import {
+  checkInReservation,
   checkOutReservation,
-  getReservationDetailsById 
+  getReservationDetailsById,
+  unAssignRoomReservation
 } from '@/services/reservation'
 
 export interface CheckInReservationPayload {
@@ -18,9 +19,9 @@ export interface CheckInReservationPayload {
 export interface CheckOutReservationPayload {
   reservationRooms: number[]
   actualCheckOutTime: string
-  notes: string
-  finalBill: number
-  depositRefund: number
+ // notes: string
+ // finalBill: number
+  //depositRefund: number
 }
 
 export interface PaymentPayload {
@@ -53,11 +54,18 @@ export interface CancelReservationPayload {
   notes?: string
 }
 
+export interface AvheReservationPayload {
+  reservationRooms: number[]
+  actualCheckInTime: string
+  notes?: string
+}
+
 export function useReservation() {
   const toast = useToast()
   const { t } = useI18n()
-  
+
   // Loading states for each operation
+  const showNoShowModal = ref(false);
   const isCheckingIn = ref(false)
   const isCheckingOut = ref(false)
   const isAddingPayment = ref(false)
@@ -68,23 +76,23 @@ export function useReservation() {
   const isCancellingReservation = ref(false)
   const isMarkingNoShow = ref(false)
   const isVoidingReservation = ref(false)
-  const isUnassigningRoom = ref(false)
+  const isAvhe = ref(false)
   const isExchangingRoom = ref(false)
 
   // Check-in reservation
   const performCheckIn = async (reservationId: number, payload: CheckInReservationPayload, refreshCallback?: () => Promise<void>) => {
     isCheckingIn.value = true
-    
+
     try {
       const response = await checkInReservation(reservationId, payload)
       console.log('Check-in response:', response)
-      
+
       toast.success(t('toast.checkInSuccess') || 'Check-in completed successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       return response
     } catch (error) {
       console.error('Check-in error:', error)
@@ -98,17 +106,17 @@ export function useReservation() {
   // Check-out reservation
   const performCheckOut = async (reservationId: number, payload: CheckOutReservationPayload, refreshCallback?: () => Promise<void>) => {
     isCheckingOut.value = true
-    
+
     try {
       const response = await checkOutReservation(reservationId, payload)
       console.log('Check-out response:', response)
-      
+
       toast.success(t('toast.checkOutSuccess') || 'Check-out completed successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       return response
     } catch (error) {
       console.error('Check-out error:', error)
@@ -122,18 +130,18 @@ export function useReservation() {
   // Add payment
   const addPayment = async (payload: PaymentPayload, refreshCallback?: () => Promise<void>) => {
     isAddingPayment.value = true
-    
+
     try {
       // TODO: Implement payment API call
       // const response = await addReservationPayment(payload)
       console.log('Adding payment:', payload)
-      
+
       toast.success(t('toast.addPaymentSuccess') || 'Payment added successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Add payment error:', error)
@@ -147,18 +155,18 @@ export function useReservation() {
   // Amend stay
   const amendStay = async (payload: AmendStayPayload, refreshCallback?: () => Promise<void>) => {
     isAmendingStay.value = true
-    
+
     try {
       // TODO: Implement amend stay API call
       // const response = await amendReservationStay(payload)
       console.log('Amending stay:', payload)
-      
+
       toast.success(t('toast.amendStaySuccess') || 'Stay amended successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Amend stay error:', error)
@@ -172,18 +180,18 @@ export function useReservation() {
   // Room move
   const moveRoom = async (payload: RoomMovePayload, refreshCallback?: () => Promise<void>) => {
     isMovingRoom.value = true
-    
+
     try {
       // TODO: Implement room move API call
       // const response = await moveReservationRoom(payload)
       console.log('Moving room:', payload)
-      
+
       toast.success(t('toast.roomMoveSuccess') || 'Room moved successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Room move error:', error)
@@ -197,18 +205,18 @@ export function useReservation() {
   // Exchange room
   const exchangeRoom = async (payload: RoomMovePayload, refreshCallback?: () => Promise<void>) => {
     isExchangingRoom.value = true
-    
+
     try {
       // TODO: Implement room exchange API call
       // const response = await exchangeReservationRoom(payload)
       console.log('Exchanging room:', payload)
-      
+
       toast.success(t('toast.exchangeRoomSuccess') || 'Room exchanged successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Room exchange error:', error)
@@ -222,18 +230,18 @@ export function useReservation() {
   // Stop room move
   const stopRoomMove = async (reservationId: number, refreshCallback?: () => Promise<void>) => {
     isStoppingRoomMove.value = true
-    
+
     try {
       // TODO: Implement stop room move API call
       // const response = await stopReservationRoomMove(reservationId)
       console.log('Stopping room move for reservation:', reservationId)
-      
+
       toast.success(t('toast.stopRoomMoveSuccess') || 'Room move stopped successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Stop room move error:', error)
@@ -247,18 +255,18 @@ export function useReservation() {
   // Update inclusion list
   const updateInclusionList = async (reservationId: number, inclusions: string[], refreshCallback?: () => Promise<void>) => {
     isUpdatingInclusionList.value = true
-    
+
     try {
       // TODO: Implement inclusion list update API call
       // const response = await updateReservationInclusions(reservationId, inclusions)
       console.log('Updating inclusion list for reservation:', reservationId, inclusions)
-      
+
       toast.success(t('toast.inclusionListSuccess') || 'Inclusion list updated successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Update inclusion list error:', error)
@@ -272,18 +280,18 @@ export function useReservation() {
   // Cancel reservation
   const cancelReservation = async (payload: CancelReservationPayload, refreshCallback?: () => Promise<void>) => {
     isCancellingReservation.value = true
-    
+
     try {
       // TODO: Implement cancel reservation API call
       // const response = await cancelReservationById(payload)
       console.log('Cancelling reservation:', payload)
-      
+
       toast.success(t('toast.cancelReservationSuccess') || 'Reservation cancelled successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Cancel reservation error:', error)
@@ -297,18 +305,18 @@ export function useReservation() {
   // Mark as no show
   const markNoShow = async (reservationId: number, reason: string, refreshCallback?: () => Promise<void>) => {
     isMarkingNoShow.value = true
-    
+
     try {
       // TODO: Implement no show API call
       // const response = await markReservationNoShow(reservationId, reason)
       console.log('Marking no show for reservation:', reservationId, reason)
-      
+
       toast.success(t('toast.noShowSuccess') || 'Reservation marked as no show successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Mark no show error:', error)
@@ -322,18 +330,18 @@ export function useReservation() {
   // Void reservation
   const voidReservation = async (reservationId: number, reason: any, refreshCallback?: () => Promise<void>) => {
     isVoidingReservation.value = true
-    
+
     try {
       // TODO: Implement void reservation API call
       // const response = await voidReservationById(reservationId, reason)
       console.log('Voiding reservation:', reservationId, reason)
-      
+
       toast.success(t('toast.voidReservationSuccess') || 'Reservation voided successfully!')
-      
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
+
       // return response
     } catch (error) {
       console.error('Void reservation error:', error)
@@ -344,30 +352,33 @@ export function useReservation() {
     }
   }
 
-  // Unassign room
-  const unassignRoom = async (reservationId: number, roomId: number, refreshCallback?: () => Promise<void>) => {
-    isUnassigningRoom.value = true
-    
+  // Avhe (Unassign) room reservation
+  const performAvhe = async (reservationId: number, payload: AvheReservationPayload, refreshCallback?: () => Promise<void>) => {
+    isAvhe.value = true
+
     try {
-      // TODO: Implement unassign room API call
-      // const response = await unassignReservationRoom(reservationId, roomId)
-      console.log('Unassigning room for reservation:', reservationId, roomId)
-      
-      toast.success(t('toast.unassignRoomSuccess') || 'Room unassigned successfully!')
-      
+      const response = await unAssignRoomReservation(reservationId, payload)
+      console.log('Avhe response:', response)
+
+      toast.success(t('toast.avheSuccess') || 'Room unassignment completed successfully!')
+
       if (refreshCallback) {
         await refreshCallback()
       }
-      
-      // return response
+
+      return response
     } catch (error) {
-      console.error('Unassign room error:', error)
-      toast.error(t('toast.unassignRoomError') || 'Failed to unassign room. Please try again.')
+      console.error('Avhe error:', error)
+      toast.error(t('toast.avheError') || 'Failed to unassign room. Please try again.')
       throw error
     } finally {
-      isUnassigningRoom.value = false
+      isAvhe.value = false
     }
   }
+
+  const handleNoShowConfirmed = async (noshowData: any) => {
+    showNoShowModal.value = false;
+  };
 
   return {
     // Loading states
@@ -381,9 +392,9 @@ export function useReservation() {
     isCancellingReservation,
     isMarkingNoShow,
     isVoidingReservation,
-    isUnassigningRoom,
+    isAvhe,
     isExchangingRoom,
-    
+    showNoShowModal,
     // Methods
     performCheckIn,
     performCheckOut,
@@ -396,6 +407,8 @@ export function useReservation() {
     cancelReservation,
     markNoShow,
     voidReservation,
-    unassignRoom
+    performAvhe,
+    handleNoShowConfirmed,
+
   }
 }

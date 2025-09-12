@@ -33,7 +33,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-      
+    {
+      path: '/front-office/night-audit',
+      name: 'NightAudit_Office',
+      component: () => import('../views/FrontOffice/NightAudit.vue'),
+      meta: {
+        title: 'Night Audit',
+        requiresAuth: false,
+      },
+    },
+
     {
       path: '/welcome',
       name: 'welcome',
@@ -74,6 +83,7 @@ const router = createRouter({
         title: 'Edit Booking',
         requiresAuth: true,
       },
+
     },
 
     {
@@ -100,6 +110,16 @@ const router = createRouter({
       path: '/customer_detail/:id',
       name: 'CustomerDetails',
       component: () => import('../views/Customers/CustomerDetails.vue'),
+      props: true,
+      meta: {
+        title: 'Customers Details',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/customer_detail_log/:id',
+      name: 'CustomerAuditLog',
+      component: () => import('../views/Customers/CustomerDetailsLogs.vue'),
       props: true,
       meta: {
         title: 'Customers Details',
@@ -372,6 +392,123 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/reports/back-office/daily-receipt-detail',
+      name: 'DailyReceiptDetail',
+      component: () => import('../views/Reports/BackOffice/DailyReceiptDetail.vue'),
+      meta: {
+        title: 'Daily Receipt Detail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-receipt-summary',
+      name: 'DailyReceiptSummary',
+      component: () => import('../views/Reports/BackOffice/DailyReceiptSummary.vue'),
+      meta: {
+        title: 'Daily Receipt Summary',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-revenue',
+      name: 'DailyRevenue',
+      component: () => import('../views/Reports/BackOffice/DailyRevenue.vue'),
+      meta: {
+        title: 'Daily Revenue',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-refund-report',
+      name: 'DailyRefundReport',
+      component: () => import('../views/Reports/BackOffice/DailyRefundReport.vue'),
+      meta: {
+        title: 'Daily Refund Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/expense-voucher',
+      name: 'ExpenseVoucher',
+      component: () => import('../views/Reports/BackOffice/ExpenseVoucher.vue'),
+      meta: {
+        title: 'Expense Voucher',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/manager-report',
+      name: 'ManagerReport',
+      component: () => import('../views/Reports/BackOffice/ManagerReport.vue'),
+      meta: {
+        title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/folio-list',
+      name: 'FolioList',
+      component: () => import('../views/Reports/BackOffice/FolioList.vue'),
+      meta: {
+        title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/daily-extra-charge-detail',
+      name: 'DailyExtraChargeDetail',
+      component: () => import('../views/Reports/BackOffice/DailyExtraCharge.vue'),
+      meta: {
+        title: 'Daily Extra Charge Detail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/travel-agent-commission-detail',
+      name: 'travelAgentCommissionDetail',
+      component: () => import('../views/Reports/BackOffice/TravelAgentCommission.vue'),
+      meta: {
+        title: 'Travel Agent Commission Detail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/audit-trail',
+      name: 'auditTrail',
+      component: () => import('../views/Reports/Audit/AuditTrails.vue'),
+      meta: {
+        title: 'Audit Trail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/void-charge',
+      name: 'voidCharge',
+      component: () => import('../views/Reports/Audit/VoidCharge.vue'),
+      meta: {
+        title: 'Void Charge',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/house-status',
+      name: 'HouseStatusReport',
+      component: () => import('../views/Reports/BackOffice/HouseStatus.vue'),
+      meta: {
+        title: 'Folio List',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/travel-agent-commission-summary',
+      name: 'TravelAgentCommissionSummary',
+      component: () => import('../views/Reports/BackOffice/TravelAgent.vue'),
+      meta: {
+        title: 'Travel Agent Commission Summary',
+        requiresAuth: true,
+      },
+    },
     // Statistical Reports
     {
       path: '/reports/statistical/occupancy-reports',
@@ -381,6 +518,25 @@ const router = createRouter({
         title: 'Occupancy Reports',
         requiresAuth: true,
       },
+    },
+    // Custom Reports
+    {
+      path: '/reports/custom/monthly-occupancy',
+      name: 'OccupancyMonth',
+      component: () => import('../views/Reports/Custom/OccupancyMonthly.vue'),
+      meta: {
+        title: 'Occupancy Month',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/pdf-viewer',
+      name: 'PDFViewer',
+      component: () => import('@/views/PDFViewer.vue'),
+      meta: {
+        title: 'PDF Viewer',
+        requiresAuth: true
+      }
     },
     // Additional Front Office Reports
     {
@@ -859,13 +1015,22 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    
+
     {
       path: '/configuration/master/business-source',
       name: 'BusinessSource',
       component: () => import('../views/Configuration/Master/BusinessSource.vue'),
       meta: {
         title: 'Business Source',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/master/vip-status',
+      name: 'VipStatus',
+      component: () => import('../views/Configuration/Master/VipStatus.vue'),
+      meta: {
+        title: 'VIP Status',
         requiresAuth: true,
       },
     },
@@ -951,12 +1116,113 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    //configuration staff
     {
-      path: '/department',
+      path: '/configuration/staff/department',
       name: 'department',
-      component: () => import('../views/DepartmentView.vue'),
+      component: () => import('../views/Configuration/Staff/DepartmentView.vue'),
       meta: {
         title: 'Department',
+        requiresAuth: true,
+      },
+    },
+      {
+      path: '/configuration/staff/staff_management',
+      name: 'Staff Management',
+      component: () => import('../views/Configuration/Staff/EStaffStaffManager.vue'),
+      meta: {
+        title: 'Staff Management',
+        requiresAuth: true,
+      },
+    },
+      {
+      path: '/users/new',
+      name: 'newUser',
+      component: () => import('../views/Configuration/Staff/UserUpsertForm.vue'),
+      meta: {
+        title: 'new User',
+        requiresAuth: true,
+      },
+    },
+      {
+      path: '/users/new/:id',
+      name: 'editUser',
+      component: () => import('../views/Configuration/Staff/UserUpsertForm.vue'),
+      meta: {
+        title: 'new User',
+        requiresAuth: true,
+      },
+      props : true
+    },
+     {
+      path: '/configuration/staff/user_role',
+      name: 'User Role',
+      component: () => import('../views/Configuration/Staff/UserRoleView.vue'),
+      meta: {
+        title: 'User Role',
+        requiresAuth: true,
+      },
+    },
+    // Channel Manager Configuration Routes
+    {
+      path: '/configuration/channel-manager',
+      name: 'ChannelManager',
+       component: () => import('../views/Configuration/ChannelManager/Overview.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/inventory-channel-booking',
+      name: 'ChannelManagerInventoryChannelBooking',
+      component: () => import('../views/Configuration/ChannelManager/InventoryChannelBooking.vue'),
+      meta: {
+        title: 'Inventory Channel Booking',
+        requiresAuth: true,
+      },
+    },{
+      path: '/configuration/channel-manager/channel-manager',
+      name: 'channel',
+      component: () => import('../views/Configuration/ChannelManager/ChannelManager.vue'),
+      meta: {
+        title: 'Channel Manager',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/channels-booking',
+      name: 'ChannelManagerChannelsBooking',
+      component: () => import('../views/Configuration/ChannelManager/ChannelsBooking.vue'),
+      meta: {
+        title: 'Channels Booking',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/rooms-rates',
+      name: 'ChannelManagerRoomsRates',
+      component: () => import('../views/Configuration/ChannelManager/RoomsRates.vue'),
+      meta: {
+        title: 'Rooms & Rates',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/properties',
+      name: 'ChannelManagerProperties',
+      component: () => import('../views/Configuration/ChannelManager/Properties.vue'),
+      meta: {
+        title: 'Properties',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/channel-manager/iframe',
+      name: 'ChannelManagerIframe',
+      component: () => import('../views/Configuration/ChannelManager/IframeView.vue'),
+      meta: {
+        title: 'Channel Manager Iframe',
         requiresAuth: true,
       },
     },
@@ -1042,15 +1308,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/permission',
-      name: 'Permission',
-      component: () => import('../views/Users/Permission.vue'),
-      meta: {
-        title: 'Permission',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/service',
       name: 'Service',
@@ -1066,6 +1324,15 @@ const router = createRouter({
       component: () => import('../components/calendars/ReservationCalendarInterface.vue'),
       meta: {
         title: 'Reservation Calendar',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/demo/apply-discount',
+      name: 'ApplyDiscountDemo',
+      component: () => import('../components/demo/ApplyDiscountDemo.vue'),
+      meta: {
+        title: 'Apply Discount Demo',
         requiresAuth: true,
       },
     },
@@ -1135,37 +1402,6 @@ const router = createRouter({
       },
     },
 
-    //travel
-    {
-      path: '/dashboardTravel',
-      name: 'dashboard travel',
-      component: () => import('../views/Travel/DashboardTravel.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/all_routes',
-      name: 'all routes',
-      component: () => import('../views/Travel/ItineraryView.vue'),
-    },
-    {
-      path: '/vehicle_fleet',
-      name: 'vehicle fleet',
-      component: () => import('../views/Travel/Equipement/VehicleView.vue'),
-    },
-    {
-      path: '/scheduled_trips',
-      name: 'scheduled trips',
-      component: () => import('../views/Travel/TravelManagement.vue/TravelList.vue'),
-    },
-    {
-      path: '/schedules',
-      name: 'schedules',
-      component: () => import('../views/Travel/Planning/ScheduleView.vue'),
-      meta: {
-        title: 'Schedules',
-        requiresAuth: true,
-      },
-    },
     {
       path: '/amenities',
       name: 'amenities',
@@ -1193,11 +1429,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/driver',
-      name: 'driver',
-      component: () => import('../views/Travel/DriverView.vue'),
-    },
+
 
     /// Staff Management
 
@@ -1228,15 +1460,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/staff_management/staff_management',
-      name: 'Staff Management',
-      component: () => import('../views/StaffManagement/EStaffStaffManager.vue'),
-      meta: {
-        title: 'Staff Management',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/staff_management/action_history',
       name: 'Action History',
@@ -1257,15 +1481,6 @@ const router = createRouter({
     },
 
     {
-      path: '/vehicle_assignment',
-      name: 'vehicle assigment',
-      component: () => import('../views/Travel/Planning/VehicleAssignement.vue'),
-      meta: {
-        title: 'Vehicle assigment',
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/custom-guest-table',
       name: 'Custom Guest Table',
       component: () => import('../views/Tables/CustomGuestTable.vue'),
@@ -1274,6 +1489,18 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+        path: '/new',
+        name: 'CustomerCreate',
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
+      },
+
+      {
+        path: '/edit/:id',
+        name: 'CustomerEdit',
+        component: () => import('@/views/Customers/CustomerEditPage.vue'),
+        props: true
+      },
     {
       path: '/reusable-table-example',
       name: 'Reusable Table Example',
@@ -1293,6 +1520,79 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Cashiering routes
+    {
+      path: '/cashiering/center',
+      name: 'CashieringCenter',
+      component: () => import('../views/Cashiering/CashieringCenter.vue'),
+      meta: {
+        title: 'Cashiering Center',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/new-payment',
+      name: 'NewPaymentCityLedger',
+      component: () => import('../views/Cashiering/NewPaymentCityLedger.vue'),
+      meta: {
+        title: 'New Payment',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/company_database',
+      name: 'CompanyDatabase',
+      component: () => import('../views/Cashiering/CompanyDatabase.vue'),
+      meta: {
+        title: 'Company Database',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/Cashiering/new_company',
+      name: 'AddCompany',
+      component: () => import('../views/Cashiering/AddCompany.vue'),
+      meta: {
+        title: 'Add Company',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/Cashiering/edit_company/:id',
+      name: 'EditCompany',
+      component: () => import('../views/Cashiering/AddCompany.vue'),
+      meta: {
+        title: 'Edit Company',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/Cashiering/company_details/:id',
+      name: 'CompanyDetails',
+      component: () => import('../views/Cashiering/CompanyDetails.vue'),
+      meta: {
+        title: 'Company Details',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/exchange-rate',
+      name: 'ExchangeRate',
+      component: () => import('../views/Cashiering/ExchangeRatePage.vue'),
+      meta: {
+        title: 'Exchange Rate',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/cashiering/pos',
+      name: 'PosInterface',
+      component: () => import('../views/Cashiering/PosInterface.vue'),
+      meta: {
+        title: 'POS - Incidental Invoice',
+        requiresAuth: true,
+      },
+    },
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',
@@ -1302,32 +1602,40 @@ const router = createRouter({
         title: '404 - Page Not Found',
       },
     },
+    //Housekeeping routes
+    {
+      path: '/house_status',
+      name: 'HouseStatus',
+      component: () => import('../views/Housekeeping/HouseStatus/HouseStatusView.vue'),
+      props: true,
+      meta: {
+        title: 'House Status',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/work_order',
+      name: 'WorkOrder',
+      component: () => import('../views/Housekeeping/WorkOrder/WorkOrderView.vue'),
+      props: true,
+      meta: {
+        title: 'Work Order',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/maintenance_block',
+      name: 'MaintenanceBlock',
+      component: () => import('../views/Housekeeping/MaintenanceBlock/MaintenanceBlockView.vue'),
+      props: true,
+      meta: {
+        title: 'Maintenance Block',
+        requiresAuth: true,
+      },
+    },
   ],
 })
-// router.beforeEach(async (to, from, next) => {
-//   isLoading.value = true
 
-//   const authStore = useAuthStore()
-//   // const serviceStore = useServiceStore();
-
-//   try {
-//     console.log('user', authStore.user)
-//     console.log('token', authStore.token)
-//     console.log('UserId', authStore.UserId)
-//     // Si la route nécessite une auth mais qu’on n’est pas connecté
-//     if (to.meta.requiresAuth && (!authStore.token || !authStore.user)) {
-//       return next('/')
-//     }
-//     if (to.path === '/' && authStore.token && authStore.user && authStore.UserId) {
-//       next('/dashboard')
-//     }
-
-//     return next()
-//   } catch (error) {
-//     console.error('Error in navigation guard:', error)
-//     return next('/')
-//   }
-// })
 router.beforeEach(async (to, from, next) => {
   isLoading.value = true
 
@@ -1349,7 +1657,7 @@ router.beforeEach(async (to, from, next) => {
     // Redirection dashboard seulement si COMPLÈTEMENT authentifié
     if (to.path === '/' && isAuthenticated) {
       console.log(' Redirection vers dashboard - utilisateur complètement connecté')
-      return next('/dashboard')
+      return next('/front-office/dashboard')
     }
 
     if (to.path === '/') {

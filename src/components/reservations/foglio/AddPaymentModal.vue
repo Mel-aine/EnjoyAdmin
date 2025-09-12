@@ -12,26 +12,27 @@
 
       <!-- Folio -->
       <div>
-        <Select v-model="formData.folio" :options="folioOptions" :lb="$t('Folio')" :loading="isLoadingFolios" />
+        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" @select="folioSelected"
+          :reservation-id="reservationId" :is-required="true" />
       </div>
 
       <!-- Rec/Vou # -->
       <div>
         <Input v-model="formData.recVouNumber" type="text" :lb="$t('Rec/Vou #')"
-          placeholder="Enter receipt/voucher number" />
+          placeholder="Enter receipt/voucher number" :disabled="true" />
       </div>
 
-     <div class="grid grid-cols-2 gap-4">
-       <!-- Type -->
-      <div>
-        <Select v-model="formData.type" :options="typeOptions" :lb="$t('Type')" />
-      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Type -->
+        <div>
+          <Select v-model="formData.type" :options="typeOptions" :lb="$t('Type')" />
+        </div>
 
-      <!-- Method -->
-      <div>
-        <Select v-model="formData.method" :options="methodOptions" :lb="$t('Method')" />
+        <!-- Method -->
+        <div>
+          <InputPaymentMethodSelect v-model="formData.method" :payment-type="formData.type" @select="onMethodSelect" />
+        </div>
       </div>
-     </div>
 
       <!-- Amount -->
       <div>
@@ -47,7 +48,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
         <textarea v-model="formData.comment" rows="3"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none"
           placeholder="Enter any additional comments..."></textarea>
       </div>
     </div>
@@ -55,7 +56,8 @@
     <template #footer>
       <div class="flex justify-end space-x-2">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')"></BasicButton>
-        <BasicButton variant="primary" @click="savePayment" :label="'Save Payment'" :loading="isSaving" :disabled="isSaving"></BasicButton>
+        <BasicButton variant="primary" @click="savePayment" :label="'Save Payment'" :loading="isSaving"
+          :disabled="isSaving"></BasicButton>
       </div>
     </template>
   </RightSideModal>
@@ -68,15 +70,18 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
-import { getCurrencies, getPaymentMethods, getReservationTypes, getDiscounts, getTaxes, getExtraCharges } from '@/services/configrationApi'
+import InputFolioSelect from './InputFolioSelect.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { getReservationFolios, createFolioTransaction } from '../../../services/foglioApi'
+import { createFolioTransaction } from '../../../services/foglioApi'
 import { useToast } from 'vue-toastification'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
+import { safeParseInt, prepareFolioAmount } from '../../../utils/numericUtils'
+import { useI18n } from 'vue-i18n'
+import InputPaymentMethodSelect from './InputPaymentMethodSelect.vue'
 
 interface Props {
   isOpen: boolean
-  reservationId:number
+  reservationId: number
 }
 
 interface Emits {
@@ -86,38 +91,18 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const isLoadingFolios = ref(false)
 const isSaving = ref(false)
 const serviceStore = useServiceStore()
 const toast = useToast()
+const { t } = useI18n()
 
-// Options for dropdowns
-const folioOptions = ref([
-  { value: '', label: '-Select-' }
-])
 
 const typeOptions = ref([
-  { value: 'cash', label: 'cash' },
-  { value: 'credit card', label: 'credit card' },
-  { value: 'bank transfer', label: 'bank transfer' },
+  { value: 'city_ledger', label: t('city_ledger') },
+  { value: 'cash', label: t('cash') },
+  { value: 'bank', label: t('bank') },
+
 ])
-
-
-const discountOptions = ref([
-  { value: '', label: '-Select-' }
-])
-
-const taxOptions = ref([
-  { value: '', label: '-Select-' }
-])
-
-const extraChargeOptions = ref([
-  { value: '', label: '-Select-' }
-])
-
-const methodOptions = ref([{ value: '', label: '-Select-' }])
-
-const currencyOptions = ref([{ value: '', label: '-Select-' }])
 
 // Form data
 const formData = reactive({
@@ -125,7 +110,7 @@ const formData = reactive({
   folio: '',
   recVouNumber: '',
   type: 'cash',
-  method: '',
+  method: null as number | null, // Changed to number for method ID
   amount: 0,
   currency: 'XAF',
   comment: ''
@@ -139,17 +124,20 @@ const closeModal = () => {
     folio: '',
     recVouNumber: '',
     type: 'cash',
-    method: '',
+    method: null, // Reset to null for method ID
     amount: 0,
     currency: 'XAF',
     comment: ''
   })
   emit('close')
 }
-
+const folioSelected = (item: any) => {
+  formData.amount = item.balance;
+}
+const methodeSelected = ref<any>(null)
 const savePayment = async () => {
   // Validate required fields
-  if (!formData.folio || !formData.type || !formData.method || !formData.amount) {
+  if (!formData.folio || !formData.type || formData.method === null || !formData.amount) {
     toast.error('Please fill in all required fields')
     return
   }
@@ -161,31 +149,33 @@ const savePayment = async () => {
 
   try {
     isSaving.value = true
-    
-    // Prepare transaction data for API
+
+    // Prepare transaction data for API with safe numeric conversion
     const transactionData = {
-      folioId: parseInt(formData.folio),
+      folioId: safeParseInt(formData.folio),
       transactionType: 'payment',
       transactionCategory: formData.type,
       category: 'room',
-      description: `Payment - ${formData.type}`,
-      amount: parseFloat(formData.amount.toString()),
+      description: `Payment - ${methodeSelected.value.name}`,
+      amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
       notes: formData.comment,
-      paymentMethodId: parseInt(formData.method),
+      paymentMethodId: safeParseInt(formData.method),
       currency: formData.currency,
       transactionDate: formData.date,
-      status:"posted",
+      status: "posted",
       hotelId: serviceStore.serviceId,
       reservationId: props.reservationId
     }
 
+    console.log('Transaction data being sent:', transactionData)
+
     // Call the API to create folio transaction
     const response = await createFolioTransaction(transactionData)
-    
+
     // Show success message
     toast.success('Payment saved successfully')
-    
+
     // Emit the form data with API response
     emit('save', { ...formData, transactionId: response.id })
     closeModal()
@@ -197,93 +187,9 @@ const savePayment = async () => {
   }
 }
 
-// Fetch currencies from API
-const fetchCurrencies = async () => {
-  try {
-    const response = await getCurrencies()
-    currencyOptions.value = currencyOptions.value.concat((response.data.data.data || []).map((currency: any) => {
-      return { ...currency, label: `${currency.name} (${currency.symbol})`, value: currency.code }
-    }))
-  } catch (error) {
-    console.error('Error fetching currencies:', error)
-  }
+const onMethodSelect = (item: any) => {
+  methodeSelected.value = item;
 }
-
-// Fetch payment methods from API
-const fetchPaymentMethods = async () => {
-  try {
-    const response = await getPaymentMethods()
-    methodOptions.value = methodOptions.value.concat((response.data.data.data || []).map((method: any) => {
-      return { ...method, label: method.methodName, value: method.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching payment methods:', error)
-  }
-}
-
-// Fetch folios from API
-const fetchFolios = async () => {
-  try {
-    isLoadingFolios.value = true
-    const response = await getReservationFolios(props.reservationId)
-    folioOptions.value = folioOptions.value.concat((response.data || [])?.map((folio: any) => {
-      const guestName = folio.guest_name || `${folio.first_name || ''} ${folio.last_name || ''}`.trim() || 'Guest'
-      return { ...folio, label: `${folio.id} - ${guestName}`, value: folio.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching folios:', error)
-  } finally {
-    isLoadingFolios.value = false
-  }
-}
-
-
-
-// Fetch discounts from API
-const fetchDiscounts = async () => {
-  try {
-    const response = await getDiscounts()
-    discountOptions.value = discountOptions.value.concat((response.data.data.data || [])?.map((discount: any) => {
-      return { ...discount, label: discount.name || discount.discount_name, value: discount.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching discounts:', error)
-  }
-}
-
-// Fetch taxes from API
-const fetchTaxes = async () => {
-  try {
-    const response = await getTaxes()
-    taxOptions.value = taxOptions.value.concat((response.data.data.data || [])?.map((tax: any) => {
-      return { ...tax, label: tax.name || tax.tax_name, value: tax.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching taxes:', error)
-  }
-}
-
-// Fetch extra charges from API
-const fetchExtraCharges = async () => {
-  try {
-    const response = await getExtraCharges()
-    extraChargeOptions.value = extraChargeOptions.value.concat((response.data.data.data || []).map((charge: any) => {
-      return { ...charge, label: charge.name || charge.charge_name, value: charge.id }
-    }))
-  } catch (error) {
-    console.error('Error fetching extra charges:', error)
-  }
-}
-
-// Initialize data on component mount
-onMounted(() => {
-  fetchCurrencies()
-  fetchPaymentMethods()
-  fetchFolios()
-  fetchDiscounts()
-  fetchTaxes()
-  fetchExtraCharges()
-})
 
 // Close modal on escape key
 watch(() => props.isOpen, (newVal) => {

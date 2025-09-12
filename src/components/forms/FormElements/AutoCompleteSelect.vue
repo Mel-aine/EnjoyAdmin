@@ -10,12 +10,13 @@
     </label>
 
     <div
-      :class="['relative font-sans', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
+      :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
     >
+    <DotSpinner v-if="isLoading"></DotSpinner>
       <input
         :disabled="disabled"
         type="text"
-        class="flex justify-between dark:bg-dark-900 h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        class="flex justify-between dark:bg-dark-900  dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
         :class="isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300'"
         :placeholder="defaultValue"
         v-model="search"
@@ -26,10 +27,11 @@
         @keydown.enter.prevent="onEnter"
       />
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
-      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">▼</span>
+
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs">▼</span>
 
       <ul
-        v-if="isDropdownOpen && filteredOptions.length"
+        v-if="isDropdownOpen && filteredOptions.length && !isLoading"
         class="custom-scrollbar absolute top-full left-0 right-0 z-50 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
         role="listbox"
         :aria-expanded="isDropdownOpen"
@@ -55,6 +57,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import DotSpinner from '@/components/spinner/DotSpinner.vue';
 
 interface Option {
   label: string
@@ -68,6 +71,7 @@ const props = defineProps<{
   modelValue?: string | number
   options: Option[]
   disabled?: boolean
+  isLoading?: boolean
 }>()
 
 const emit = defineEmits(['update:modelValue', 'select', 'change'])
@@ -97,7 +101,7 @@ watch(
 )
 
 function openDropdown() {
-  if (!props.disabled) isDropdownOpen.value = true
+  if (!props.disabled && !props.isLoading) isDropdownOpen.value = true
 }
 
 function onInput() {
@@ -105,7 +109,7 @@ function onInput() {
 }
 
 function selectOption(option: Option) {
-  if (!props.disabled) {
+  if (!props.disabled && !props.isLoading) {
     selectedOption.value = option
     search.value = option.label
     isDropdownOpen.value = false

@@ -46,10 +46,10 @@ const handleApiError = (error: any): never => {
 }
 
 // Check-in d'une réservation
-export const checkInReservation = async (reservationId: number,datas:any): Promise<any | undefined> => {
+export const checkInReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `/reservation/${reservationId}/checkin`,datas,headers
+      `/reservation/${reservationId}/checkin`, datas, headers
     )
     console.log(response.data)
     return response.data
@@ -65,7 +65,7 @@ export const checkInReservations = async (
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `/reservation/${reservationId}/checkin`,
-      { reservationServiceProducts: reservationServiceProductIds },headers
+      { reservationServiceProducts: reservationServiceProductIds }, headers
     );
     return response.data;
   } catch (error) {
@@ -75,10 +75,10 @@ export const checkInReservations = async (
 
 
 // Check-out d'une réservation
-export const checkOutReservation = async (reservationId: number,datas:any): Promise<any | undefined> => {
+export const checkOutReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-out`,datas,headers
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/check-out`, datas, headers
     )
     console.log(response.data)
     return response.data
@@ -87,10 +87,10 @@ export const checkOutReservation = async (reservationId: number,datas:any): Prom
   }
 }
 
-export const checkOutReservations = async (reservationId: number,reservationServiceProductIds: number[]): Promise<ApiResponse | undefined> => {
+export const checkOutReservations = async (reservationId: number, reservationServiceProductIds: number[]): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/reservations/${reservationId}/check-out`,{ reservationServiceProducts: reservationServiceProductIds },headers
+      `/reservations/${reservationId}/check-out`, { reservationServiceProducts: reservationServiceProductIds }, headers
     )
     console.log(response.data)
     return response.data
@@ -99,10 +99,10 @@ export const checkOutReservations = async (reservationId: number,reservationServ
   }
 }
 
-export const setAvailable = async (id: number): Promise<any| undefined> => {
+export const setAvailable = async (id: number): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(
-      `/service_product/${id}/available`,headers
+      `/service_product/${id}/available`, headers
     )
     return response.data
   } catch (error) {
@@ -115,7 +115,7 @@ export const setAvailable = async (id: number): Promise<any| undefined> => {
 export const getRoomReservations = async (serviceProductId: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-      `/reservations/service-product/${serviceProductId}`,headers
+      `/reservations/service-product/${serviceProductId}`, headers
     )
     return response.data || []
   } catch (error) {
@@ -125,6 +125,30 @@ export const getRoomReservations = async (serviceProductId: number): Promise<any
 }
 
 
+// Check-in d'une réservation
+export const unAssignRoomReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/unassign-room`, datas, headers
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const assignRoomReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/assign-room`, datas, headers
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 
 
 /**
@@ -135,7 +159,7 @@ export const createReservation = async (data: any) => {
   try {
     console.log('Sending reservation data to backend:', data)
 
-    const response = await apiClient.post('/reservation/create', data,headers)
+    const response = await apiClient.post('/reservation/create', data, headers)
 
     console.log('Backend response:', response.data)
 
@@ -158,7 +182,7 @@ export const createReservation = async (data: any) => {
 export const getReservationDetailsById = async (reservationId: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-      `/reservation/${reservationId}/details`,headers
+      `/reservation/${reservationId}/details`, headers
     )
     return response.data || []
   } catch (error) {
@@ -178,7 +202,7 @@ export const getReservationDetailsById = async (reservationId: number): Promise<
 export const getCustomer = async (id: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
-      `/guests/${id}/customer`,headers
+      `/guests/${id}/customer`, headers
     )
     return response.data || []
   } catch (error) {
@@ -189,10 +213,10 @@ export const getCustomer = async (id: number): Promise<any> => {
 
 
 // recuperer la liste des clients
-export const getReservatonCustomers = async (serviceProductId:  number): Promise<any> => {
+export const getReservatonCustomers = async (serviceProductId: number): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/guests/${serviceProductId}/customer`,headers
+      `/guests/${serviceProductId}/customer`, headers
     )
     return response.data || []
   } catch (error) {
@@ -203,12 +227,12 @@ export const getReservatonCustomers = async (serviceProductId:  number): Promise
 
 /**
  * cancel reservation
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const cancelReservation = async (data: any) => {
   try {
-    const response = await apiClient.post(`/reservation/${data.reservationId}/cancel`, data,headers)
+    const response = await apiClient.post(`/reservation/${data.reservationId}/cancel`, data, headers)
     return response.data
   } catch (error: any) {
     console.error('API Error:', error)
@@ -224,12 +248,12 @@ export const cancelReservation = async (data: any) => {
 
 /**
  * void reservation
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const voidReservation = async (data: any) => {
   try {
-    const response = await apiClient.post(`/reservation/${data.reservationId}/void`, data,headers)
+    const response = await apiClient.post(`/reservation/${data.reservationId}/void`, data, headers)
     return response.data
   } catch (error: any) {
     console.error('API Error:', error)
@@ -245,12 +269,74 @@ export const voidReservation = async (data: any) => {
 
 /**
  * amend reservation
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const amendReservation = async (data: any) => {
   try {
-    const response = await apiClient.put(`/reservation/${data.reservationId}/amend-stay`, data,headers)
+    const response = await apiClient.put(`/reservation/${data.reservationId}/amend-stay`, data, headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}
+
+/***
+ * mark no show
+ */
+
+export const markNoShow = async (data: any) => {
+  try {
+    const response = await apiClient.post(`/reservation/${data.reservationId}/no-show`, data, headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}
+/***
+ *
+ * get Room charges
+ */
+export const getRoomCharges = async (reservationId: any) => {
+  try {
+    const response = await apiClient.get(`/reservation/${reservationId}/room-charges`, headers)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    throw error
+  }
+}
+
+/***
+ *
+ * get release reservations
+ */
+export const getReleaseReservations = async (data: any) => {
+  const params = new URLSearchParams({
+    date: data.data,
+  })
+  try {
+    const response = await apiClient.get(`/reservation/hotel/${data.hotelId}/released?${params}`, { params: params, ...headers })
     return response.data
   } catch (error: any) {
     console.error('API Error:', error)

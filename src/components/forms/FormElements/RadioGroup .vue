@@ -3,7 +3,7 @@
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
       {{ label }}
     </label>
-    <div class="flex flex-col gap-2">
+    <div class="flex gap-2">
       <label
         v-for="option in options"
         :key="option.value"
@@ -32,7 +32,7 @@ interface Option {
 }
 
 const props = defineProps<{
-  label: string
+  label?: string
   options: Option[]
   modelValue: string
 }>()

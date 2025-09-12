@@ -568,6 +568,8 @@ watch([searchQuery, selectedFilter], () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
+
 .animate-pulse {
   animation: pulse 1.5s ease-in-out infinite;
 }

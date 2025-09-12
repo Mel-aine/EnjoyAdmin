@@ -53,6 +53,8 @@ const formatDate = (dateString: string) => {
 </script>
 
 <style>
+@reference "tailwindcss";
+
 /* Tailwind CSS est géré via le CDN dans index.html ou via PostCSS dans un projet Vue réel */
 /* Assurez-vous que la police 'Inter' est disponible ou importez-la */
 .font-inter {

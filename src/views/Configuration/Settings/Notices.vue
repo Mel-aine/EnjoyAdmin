@@ -140,8 +140,8 @@ const notices = ref({
 
 // Load notices from current service
 const loadNoticesFromService = () => {
-  if (currentService.value && currentService.value.notice) {
-    const serviceNotices = currentService.value.notice
+  if (currentService.value && currentService.value.notices) {
+    const serviceNotices = currentService.value.notices
     notices.value = {
       folio: serviceNotices.folio || '',
       registrationCard: serviceNotices.registrationCard || '',
@@ -163,12 +163,12 @@ const saveNotices = async () => {
   
   try {
     // Call API to update notices
-    await updateHotelNotices(currentService.value.id, notices.value)
+    await updateHotelNotices(currentService.value.id, {notices:notices.value})
     
     // Update the service store with new notices
     const updatedService = {
       ...currentService.value,
-      notice: notices.value
+      notices: notices.value
     }
     serviceStore.setCurrentService(updatedService)
     

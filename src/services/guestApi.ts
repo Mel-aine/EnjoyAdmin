@@ -4,6 +4,7 @@ import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/guests`
+const API_URL1 = `${import.meta.env.VITE_API_URL as string}`
 
 const authStore = useAuthStore()
 const headers = {
@@ -21,22 +22,31 @@ export interface GuestPayload {
   lastName?: string
   name?: string
   phonePrimary?: string
-  mobile?: string
+  mobileNumber?: string
+  guestType?: string
   email?: string
   gender?: string
-  address?: string
+  addressLine?: string
+  stateProvince?:string
+  postalCode?:string
   city?: string
   management?: string
   country?: string
   nationality?: string
-  company?: string
+  companyName?: string
   fax?: string
-  registrationNo?: string
+  registrationNumber?: string
+  profilePhoto?: string
+  idPhoto?: string
+  idExpiryDate?: string
+  issuingCountry?: string
+  issuingCity?: string
   vipStatus?: string
   idType?: string
   idNumber?: string
   dateOfBirth?: string
   reservationId?: number
+  preferences?: any;
 }
 
 /**
@@ -76,4 +86,25 @@ export const getCustomerProfile = (
   id: number,
 ): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/${id}/profile`, headers)
+}
+
+/**
+ * Blacklist a guest
+ */
+export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/${id}/toggle-blacklist`, { reason }, headers)
+}
+
+/**
+ * Fetch guests with optional filters
+ */
+export const getGuests = (params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}`, { params, ...headers })
+}
+
+/**
+ * get Activitylog
+ */
+export const getGuestsActivityLogs = (hotelId: number ,guestId:number,params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL1}/activity-log/${hotelId}/guests/${guestId}/activity-logs`, { params, ...headers })
 }

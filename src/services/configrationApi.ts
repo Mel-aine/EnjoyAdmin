@@ -7,7 +7,7 @@ import type {
 } from '@/types/option'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration`
-
+const URL = `${import.meta.env.VITE_API_URL as string}`
 
 const authStore = useAuthStore()
 const headers = {
@@ -152,6 +152,15 @@ export const updateRoomById = (id: number, data: any): Promise<AxiosResponse<any
   return axios.put(`${API_URL}/rooms/${id}`, data, headers)
 }
 /**
+ * Update a reservation-room
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateReservationRoomById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${URL}/reservation-rooms/${id}`, data, headers)
+}
+/**
  * Delete a room
  * @param id
  * @returns {Promise<AxiosResponse<any>>}
@@ -165,6 +174,28 @@ export const deleteRoomById = (id: number): Promise<AxiosResponse<any>> => {
  */
 export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/rooms/${hotelId}/details`, headers)
+}
+
+/***
+ * get availiabele room by typeId
+ */
+export const getAvailableRoomsByTypeId = (
+  roomTypeId: number,
+  startDate?: string,
+  endDate?: string
+): Promise<AxiosResponse<any>> => {
+  const params = {
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate })
+  }
+
+  return axios.get(
+    `${API_URL}/rooms/available-by-room-type/${roomTypeId}`,
+    {
+      ...headers,
+      params
+    }
+  )
 }
 
 /**
@@ -184,6 +215,22 @@ export const updateRoomStatus = (
 
   return axios.patch(`${API_URL}/rooms/${roomId}/status`, payload, headers)
 }
+
+/**
+ * get housekeeping status
+ *
+ */
+export const getHouseStatus = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rooms/houseview/${hotelId}`, headers)
+}
+
+/**
+ * bulkUpdate
+ */
+export const bulkUpdateRooms = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/rooms/bulk-update`, data, headers)
+}
+
 
 ////// this is the Room Owner sections
 /**
@@ -305,6 +352,24 @@ export const getRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
  */
 export const updateRateTypeById = (id: number, data: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/rate_types/${id}`, data, headers)
+}
+
+
+/***
+ * get rate type by hotel id
+ * @param hotelId
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRateTypeByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rate_types/hotel/${hotelId}`, headers)
+}
+/***
+ * get rate type by hotel id
+ * @param hotelId
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRateStayViewTypeByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rate_types/hotel/${hotelId}/stay_view`, headers)
 }
 /**
  * Delete a rate type
@@ -535,8 +600,15 @@ export const updateIdentityTypeById = (id: number, data: any): Promise<AxiosResp
 export const deleteIdentityTypeById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/identity_types/${id}`, headers)
 }
-
-
+/**
+ * get identity type by hotel Id
+ */
+export const getIdentityTypesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/identity_types`, {
+    params: { hotelId },
+    ...headers
+  })
+}
 
 ///  this is the reason section
 /**
@@ -628,8 +700,8 @@ export const deleteDiscountById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all transportation modes
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getTransportationModes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/transportation_modes`, headers)
+export const getTransportationModes = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/transportation_modes?hotelId=${hotelId}`, headers)
 }
 /**
  * Post a new transportation mode
@@ -821,6 +893,13 @@ export const getMarketCodes = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
+ * get code by hotelId
+ */
+export const getMarketCodesByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/market_codes?hotelId=${hotelId}`, headers)
+}
+
+/**
  * Post a new market code
  * @param data
  * @returns {Promise<AxiosResponse<any>>}
@@ -866,6 +945,14 @@ export const deleteMarketCodeById = (id: number): Promise<AxiosResponse<any>> =>
  */
 export const getReservationTypes = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reservation_types`, headers)
+}
+
+/**
+ * Get all reservation types by hotel Id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getReservationTypesByHotelId = (hotelId:any): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reservation_types?hotelId=${hotelId}`, headers)
 }
 
 /**
@@ -1001,6 +1088,13 @@ export const deletePreferenceById = (id: number): Promise<AxiosResponse<any>> =>
   return axios.delete(`${API_URL}/preferences/${id}`, headers)
 }
 
+/**
+ * get by hotel Id
+ */
+export const getPreferencesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/preferences?hotelId=${hotelId}`, headers)
+}
+
 
 // this section is for Business Source
 
@@ -1010,6 +1104,14 @@ export const deletePreferenceById = (id: number): Promise<AxiosResponse<any>> =>
  */
 export const getBusinessSources = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/business_sources`, headers)
+}
+
+/**
+ * Get all business sources by hotel
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBusinessSourcesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/business_sources?hotelId=${hotelId}`, headers)
 }
 
 /**
@@ -1049,6 +1151,23 @@ export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>
   return axios.delete(`${API_URL}/business_sources/${id}`, headers)
 }
 
+// this section is for booking source
+
+/**
+ * Get all booking source
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBookingSources = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/booking_sources`, headers)
+}
+
+/**
+ * Get all booking source by hotel
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBookingSourcesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/booking_sources?hotelId=${hotelId}`, headers)
+}
 // this section is for Extra Charge
 
 /**
@@ -1143,3 +1262,524 @@ export const updateTaxById = (id: number, data: any): Promise<AxiosResponse<any>
 export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/taxes/${id}`, headers)
 }
+
+/**
+ * get Reasons by category
+ * @param category - The category to filter reasons by
+ */
+export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, headers)
+}
+
+// this section is for email Account
+
+// Email Accounts CRUD Operations
+export const emailAccountsApi = {
+  // Get all email accounts with pagination
+  async getEmailAccounts(params = {}) {
+    try {
+      const response = await axios.get(`${API_URL}/email-accounts`, {
+        params,
+        ...headers
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email accounts:', error)
+      throw error
+    }
+  },
+
+  // Create new email account
+  async createEmailAccount(data: {
+    hotelId: number
+    title: string
+    emailAddress: string
+    displayName: string
+    signature?: string
+    isActive?: boolean
+  }) {
+    try {
+      // Input validation
+      if (!data.hotelId || data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (!data.title || data.title.trim().length === 0 || data.title.length > 255) {
+        throw new Error('Title is required and must be between 1-255 characters')
+      }
+      if (!data.emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.emailAddress) || data.emailAddress.length > 255) {
+        throw new Error('Valid email address is required (max 255 characters)')
+      }
+      if (!data.displayName || data.displayName.trim().length === 0 || data.displayName.length > 255) {
+        throw new Error('Display name is required and must be between 1-255 characters')
+      }
+
+      const response = await axios.post(`${API_URL}/email-accounts`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error creating email account:', error)
+      throw error
+    }
+  },
+
+  // Get active email accounts for a hotel
+  async getActiveEmailAccounts(hotelId: number) {
+    try {
+      if (!hotelId || hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-accounts/active/${hotelId}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching active email accounts:', error)
+      throw error
+    }
+  },
+
+  // Get single email account by ID
+  async getEmailAccount(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-accounts/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email account:', error)
+      throw error
+    }
+  },
+
+  // Update email account
+  async updateEmailAccount(id: number, data: {
+    hotelId?: number
+    title?: string
+    emailAddress?: string
+    displayName?: string
+    signature?: string
+    isActive?: boolean
+  }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      // Input validation for provided fields
+      if (data.hotelId !== undefined && data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (data.title !== undefined && (data.title.trim().length === 0 || data.title.length > 255)) {
+        throw new Error('Title must be between 1-255 characters')
+      }
+      if (data.emailAddress && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.emailAddress) || data.emailAddress.length > 255)) {
+        throw new Error('Valid email address is required (max 255 characters)')
+      }
+      if (data.displayName !== undefined && (data.displayName.trim().length === 0 || data.displayName.length > 255)) {
+        throw new Error('Display name must be between 1-255 characters')
+      }
+
+      const response = await axios.put(`${API_URL}/email-accounts/${id}`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error updating email account:', error)
+      throw error
+    }
+  },
+
+  // Delete email account
+  async deleteEmailAccount(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      const response = await axios.delete(`${API_URL}/email-accounts/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting email account:', error)
+      throw error
+    }
+  },
+
+  // Toggle active status
+  async toggleActiveStatus(id: number, data?: { isActive?: boolean }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid account ID is required')
+      }
+
+      const response = await axios.patch(`${API_URL}/email-accounts/${id}/toggle-active`, data || {}, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error toggling email account status:', error)
+      throw error
+    }
+  }
+}
+
+// this section is for email Templates
+
+// Email Templates CRUD Operations
+export const emailTemplatesApi = {
+  // Get all email templates with pagination
+  async getEmailTemplates(params = {}) {
+    try {
+      const response = await axios.get(`${API_URL}/email-templates`, {
+        params,
+        ...headers
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email templates:', error)
+      throw error
+    }
+  },
+
+  // Create new email template
+  async createEmailTemplate(data: {
+    hotelId: number
+    name: string
+    category: string
+    subject: string
+    messageBody: string
+    autoSend?: string
+    attachment?: string
+    emailAccount?: string
+    scheduleDate?: string
+    isActive?: boolean
+  }) {
+    try {
+      // Input validation
+      if (!data.hotelId || data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (!data.name || data.name.trim().length === 0 || data.name.length > 255) {
+        throw new Error('Template name is required and must be between 1-255 characters')
+      }
+      if (!data.category || data.category.trim().length === 0) {
+        throw new Error('Category is required')
+      }
+      if (!data.subject || data.subject.trim().length === 0 || data.subject.length > 500) {
+        throw new Error('Subject is required and must be between 1-500 characters')
+      }
+      if (!data.messageBody || data.messageBody.trim().length === 0) {
+        throw new Error('Message body is required')
+      }
+
+      const response = await axios.post(`${API_URL}/email-templates`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error creating email template:', error)
+      throw error
+    }
+  },
+
+  // Get active email templates for a hotel
+  async getActiveEmailTemplates(hotelId: number) {
+    try {
+      if (!hotelId || hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-templates/active/${hotelId}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching active email templates:', error)
+      throw error
+    }
+  },
+
+  // Get email templates by category
+  async getEmailTemplatesByCategory(hotelId: number, category: string) {
+    try {
+      if (!hotelId || hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (!category || category.trim().length === 0) {
+        throw new Error('Category is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-templates/category/${hotelId}/${category}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email templates by category:', error)
+      throw error
+    }
+  },
+
+  // Get single email template by ID
+  async getEmailTemplate(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.get(`${API_URL}/email-templates/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching email template:', error)
+      throw error
+    }
+  },
+
+  // Update email template
+  async updateEmailTemplate(id: number, data: {
+    hotelId?: number
+    name?: string
+    category?: string
+    subject?: string
+    messageBody?: string
+    autoSend?: string
+    attachment?: string
+    emailAccount?: string
+    scheduleDate?: string
+    isActive?: boolean
+  }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      // Input validation for provided fields
+      if (data.hotelId !== undefined && data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+      if (data.name !== undefined && (data.name.trim().length === 0 || data.name.length > 255)) {
+        throw new Error('Template name must be between 1-255 characters')
+      }
+      if (data.category !== undefined && data.category.trim().length === 0) {
+        throw new Error('Category is required')
+      }
+      if (data.subject !== undefined && (data.subject.trim().length === 0 || data.subject.length > 500)) {
+        throw new Error('Subject must be between 1-500 characters')
+      }
+      if (data.messageBody !== undefined && data.messageBody.trim().length === 0) {
+        throw new Error('Message body is required')
+      }
+
+      const response = await axios.put(`${API_URL}/email-templates/${id}`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error updating email template:', error)
+      throw error
+    }
+  },
+
+  // Delete email template
+  async deleteEmailTemplate(id: number) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.delete(`${API_URL}/email-templates/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting email template:', error)
+      throw error
+    }
+  },
+
+  // Toggle active status
+  async toggleActiveStatus(id: number, data?: { isActive?: boolean }) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.patch(`${API_URL}/email-templates/${id}/toggle-active`, data || {}, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error toggling email template status:', error)
+      throw error
+    }
+  },
+
+  // Duplicate email template
+  async duplicateEmailTemplate(id: number, newName?: string) {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('Valid template ID is required')
+      }
+
+      const response = await axios.post(`${API_URL}/email-templates/${id}/duplicate`, {
+        newName: newName || undefined
+      }, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error duplicating email template:', error)
+      throw error
+    }
+  }
+}
+
+// VIP Status CRUD Operations
+export const vipStatusApi = {
+  // Get all VIP statuses for a hotel
+  async getVipStatuses(hotelId: number, params = {}) {
+    try {
+      const response = await axios.get(`${API_URL}/vip_statuses`, {
+        params: {
+          hotel_id:hotelId,
+          ...params
+        },
+        ...headers}
+      )
+      return response.data
+    } catch (error) {
+      console.error('Error fetching VIP statuses:', error)
+      throw error
+    }
+  },
+
+  // Get single VIP status by ID
+  async getVipStatus(id: number, hotelId: number) {
+    try {
+      const response = await axios.get(`${API_URL}/vip_statuses/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching VIP status:', error)
+      throw error
+    }
+  },
+
+  // Create new VIP status
+  async createVipStatus(data: {
+    name: string
+    color: string
+    icon: string
+    hotelId: number
+  }) {
+    try {
+      // Input validation
+      if (!data.name || data.name.trim().length === 0) {
+        throw new Error('VIP status name is required')
+      }
+      if (!data.color || !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(data.color)) {
+        throw new Error('Valid hex color is required (#RRGGBB or #RGB)')
+      }
+      if (!data.icon || data.icon.trim().length === 0) {
+        throw new Error('Icon is required')
+      }
+      if (!data.hotelId || data.hotelId <= 0) {
+        throw new Error('Valid hotel ID is required')
+      }
+
+      const response = await axios.post(`${API_URL}/vip_statuses`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error creating VIP status:', error)
+      throw error
+    }
+  },
+
+  // Update VIP status
+  async updateVipStatus(id: number, data: {
+    name?: string
+    color?: string
+    icon?: string
+    hotelId: number
+  }) {
+    try {
+      // Input validation
+      if (data.name !== undefined && data.name.trim().length === 0) {
+        throw new Error('VIP status name cannot be empty')
+      }
+      if (data.color && !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(data.color)) {
+        throw new Error('Valid hex color is required (#RRGGBB or #RGB)')
+      }
+      if (data.icon !== undefined && data.icon.trim().length === 0) {
+        throw new Error('Icon cannot be empty')
+      }
+
+      const response = await axios.put(`${API_URL}/vip_statuses/${id}`, data, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error updating VIP status:', error)
+      throw error
+    }
+  },
+
+  // Delete VIP status
+  async deleteVipStatus(id: number, hotelId: number) {
+    try {
+      const response = await axios.delete(`${API_URL}/vip_statuses/${id}`, headers)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting VIP status:', error)
+      throw error
+    }
+  }
+}
+
+/**
+ * Get incidental invoices with filter support
+ * @param params - Filter parameters
+ * @param params.hotelId - Hotel ID filter
+ * @param params.guestId - Guest ID filter
+ * @param params.folioId - Folio ID filter
+ * @param params.invoiceNumber - Invoice number filter
+ * @param params.status - Invoice status filter
+ * @param params.dateFrom - Start date filter (YYYY-MM-DD)
+ * @param params.dateTo - End date filter (YYYY-MM-DD)
+ * @param params.guestName - Guest name filter
+ * @param params.folioNumber - Folio number filter
+ * @param params.type - Invoice type filter
+ * @param params.amountMin - Minimum amount filter
+ * @param params.amountMax - Maximum amount filter
+ * @param params.createdBy - Created by user filter
+ * @param params.page - Page number for pagination
+ * @param params.limit - Number of items per page
+ * @returns {Promise<AxiosResponse<any>>} incidental_invoices
+ */
+export const getIncidentalInvoices = (params?: {
+  hotelId?: string | number;
+  guestId?: string | number;
+  folioId?: string | number;
+  invoiceNumber?: string;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  guestName?: string;
+  folioNumber?: string;
+  type?: string;
+  amountMin?: number;
+  amountMax?: number;
+  createdBy?: string | number;
+  page?: number;
+  limit?: number;
+  hideVoided?: boolean;
+}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/incidental_invoices`, {
+    params,
+    ...headers
+  })
+}
+
+/**
+ *
+ * post incidental invoices
+ */
+export const postIncidentalInvoices = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/incidental_invoices`, data, headers)
+}
+
+
+/**
+ * void incidental invoices
+ * @param id - incidental invoice id
+ * @param data - incidental invoice data
+ */
+
+export const voidIncidentalInvoices = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/incidental_invoices/${id}/void`, data, headers)
+}
+
+/**
+ * Permission
+ */
+export const getConfiguration = (hotelId:number) :Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/permissions?hotelId=${hotelId}`, headers)
+}
+

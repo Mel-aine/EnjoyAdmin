@@ -294,9 +294,9 @@ export const getUserAssignmentById = (serviceId: number | null): Promise<AxiosRe
   return axios.get(`${API_URL}/assigmentUser/${serviceId}`, headers)
 }
 
-export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
-}
+// export const getCustomer = (serviceId: number | null): Promise<AxiosResponse<any>> => {
+//   return axios.get(`${API_URL}/services/customer/${serviceId}`, headers)
+// }
 
 export const getSchedules = (serviceId: number | null): Promise<AxiosResponse<any>> => {
   console.log('-->Header:', headers)

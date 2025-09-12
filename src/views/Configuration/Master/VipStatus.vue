@@ -1,104 +1,105 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">VIP Status</h1>
-          <p class="text-gray-600 mt-1">
-            Define VIP status for use when creating guest profile.
-          </p>
-        </div>
-        <BasicButton 
-          variant="primary"
-          icon="Plus"
-          label="Add VIP Status"
-          @click="openAddModal"
-        />
-      </div>
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('vip_status.title') }}</h1>
 
-      <!-- Table -->
-      <div class="bg-white rounded-lg shadow">
-        <ReusableTable
-          :columns="columns"
-          :data="vipStatuses"
-          :actions="actions"
-          :loading="false"
-          searchPlaceholder="Search VIP status..."
-        />
-      </div>
-
-      <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            {{ isEditing ? 'Edit VIP Status' : 'Add VIP Status' }}
-          </h3>
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-gray-600 mb-6">
+          {{ $t('vip_status.subtitle') }}
+        </p>
+        <ReusableTable :title="$t('vip_status.title')" :columns="columns" :data="vipStatuses"
+          :actions="actions" :loading="loading" @action="onAction"
+          :selectable="true"
+          :search-placeholder="$t('vip_status.search')"
+          :empty-title="$t('vip_status.noResults')"
+          :empty-description="$t('vip_status.noResultsMessage')">
+          <template v-slot:header-actions>
+            <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
+              :label="$t('vip_status.add')" :loading="loading" />
+          </template>
           
+          <!-- Custom column for color display -->
+          <template #column-color="{ item }">
+            <div class="flex items-center gap-2">
+              <div 
+                class="w-5 h-5 rounded border border-gray-300" 
+                :style="{ backgroundColor: item.color }"
+              ></div>
+              <span class="text-sm text-gray-700">{{ item.color }}</span>
+            </div>
+          </template>
+
+          <!-- Custom column for icon display -->
+          <template #column-icon="{ item }">
+            <div class="flex items-center gap-2">
+              <component v-if="item.icon" :is="getIconComponent(item.icon)" :style="{ color: item.color }" class="w-5 h-5" />
+              <span class="text-sm text-gray-700">{{ item.icon }}</span>
+            </div>
+          </template>
+
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
+        </ReusableTable>
+      </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            {{ isEditing ? $t('vip_status.edit') : $t('vip_status.add') }}
+          </h3>
+
           <form @submit.prevent="saveVipStatus">
-            <!-- Name -->
+            <div class="mb-4">
+              <Input v-model="formData.name" :lb="$t('vip_status.name')" inputType="text"
+                :isRequired="true" :placeholder="$t('vip_status.namePlaceholder')" />
+            </div>
+
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                VIP Status Name *
+                {{ $t('vip_status.color') }} *
               </label>
-              <Input 
-                v-model="formData.name"
-                placeholder="Enter VIP status name"
-                required
+              <div class="flex items-center gap-3">
+                <input 
+                  type="color" 
+                  v-model="formData.color" 
+                  class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                />
+                <Input v-model="formData.color" inputType="text" :placeholder="$t('vip_status.colorPlaceholder')" class="flex-1" />
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <VipIconPicker 
+                v-model="formData.icon" 
+                :label="$t('vip_status.icon')" 
+                :required="true"
+                :icon-color="formData.color"
               />
             </div>
 
-            <!-- Description -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea 
-                v-model="formData.description"
-                placeholder="Enter description (optional)"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <!-- Priority Level -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Priority Level
-              </label>
-              <Select 
-                v-model="formData.priority"
-                :options="priorityOptions"
-                placeholder="Select priority level"
-              />
-            </div>
-
-            <!-- Status -->
-            <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <Select 
-                v-model="formData.status"
-                :options="statusOptions"
-                placeholder="Select status"
-              />
-            </div>
-
-            <div class="flex justify-end space-x-3">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ isEditing ? 'Update VIP Status' : 'Add VIP Status' }}
-              </button>
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('vip_status.cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary" :icon="Save"
+                :label="isEditing ? $t('vip_status.update') : $t('vip_status.save')"
+                :loading="saving" />
             </div>
           </form>
         </div>
@@ -108,179 +109,187 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+import { 
+  Plus, Save, Edit, Trash2, Crown, Star, Award, Trophy, Medal, Gem, Diamond, Heart, Shield, Zap, Sparkles, Gift, Target, Flame, Sun, Moon, Rocket, Wand2, Key, Lock, Unlock, BadgeCheck, CheckCircle, Minus, X, Settings, User, Users, UserCheck, UserPlus, UserX, Eye, EyeOff, ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Briefcase, Building, Home, MapPin, Globe, Compass, Navigation, Anchor, Feather, Leaf, Flower, TreePine, Mountain, Waves, Cloud, Snowflake, Umbrella, Coffee, Wine, Utensils, Car, Plane, Ship, Train, Bike, Camera, Music, Headphones, Gamepad2, Palette, Brush, Scissors, Wrench, Hammer, Lightbulb, Battery, Wifi, Smartphone, Laptop, Monitor, Printer, HardDrive, Database, Server, Download, Upload, Share, Link, Bookmark, Tag, Flag, Bell, Volume2, VolumeX, Play, Pause, Square, SkipForward, SkipBack, Repeat, Shuffle, Calendar, Clock, Timer, AlarmClock, Hourglass, Sunrise, Sunset, CloudRain, CloudSnow, Thermometer, Droplets, Wind, Tornado, Rainbow, Cloudy
+} from 'lucide-vue-next'
+import { vipStatusApi } from '@/services/configrationApi'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
-import Select from '../../../components/forms/FormElements/Select.vue'
+import VipIconPicker from '../../../components/utilities/VipIconPicker.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+
+const toast = useToast()
+const { t } = useI18n()
 
 // Reactive data
+const vipStatuses = ref([])
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref(null)
+const loading = ref(false)
+const saving = ref(false)
 
 // Form data
-const formData = ref({
+const formData = reactive({
+  id: null,
   name: '',
-  description: '',
-  priority: '',
-  status: 'Active'
+  color: '#3B82F6',
+  icon: ''
 })
 
-// Sample data
-const vipStatuses = ref([
+// Icon components mapping
+const iconComponents = {
+  Crown, Star, Award, Trophy, Medal, Gem, Diamond, Heart, Shield, Zap, Sparkles, Gift, Target, Flame, Sun, Moon, Rocket, Wand2, Key, Lock, Unlock, BadgeCheck, CheckCircle, Plus, Minus, X, Settings, User, Users, UserCheck, UserPlus, UserX, Eye, EyeOff, ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Briefcase, Building, Home, MapPin, Globe, Compass, Navigation, Anchor, Feather, Leaf, Flower, TreePine, Mountain, Waves, Cloud, Snowflake, Umbrella, Coffee, Wine, Utensils, Car, Plane, Ship, Train, Bike, Camera, Music, Headphones, Gamepad2, Palette, Brush, Scissors, Wrench, Hammer, Lightbulb, Battery, Wifi, Smartphone, Laptop, Monitor, Printer, HardDrive, Database, Server, Download, Upload, Share, Link, Bookmark, Tag, Flag, Bell, Volume2, VolumeX, Play, Pause, Square, SkipForward, SkipBack, Repeat, Shuffle, Calendar, Clock, Timer, AlarmClock, Hourglass, Sunrise, Sunset, CloudRain, CloudSnow, Thermometer, Droplets, Wind, Tornado, Rainbow, Cloudy
+}
+
+// Get icon component by name
+function getIconComponent(iconName) {
+  return iconComponents[iconName] || Crown
+}
+
+// Table columns configuration
+const columns = computed(() => [
   {
-    id: 1,
-    name: 'Gold',
-    description: 'Premium VIP status with exclusive benefits',
-    priority: 'High',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
+    key: 'name',
+    label: t('vip_status.name'),
+    sortable: true
   },
   {
-    id: 2,
-    name: 'Platinum',
-    description: 'Highest tier VIP status with all premium services',
-    priority: 'Highest',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
+    key: 'color',
+    label: t('vip_status.color'),
+    sortable: false,
+    type:'custom'
   },
   {
-    id: 3,
-    name: 'Silver',
-    description: 'Standard VIP status with basic benefits',
-    priority: 'Medium',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
+    key: 'icon',
+    label: t('vip_status.icon'),
+    sortable: false,
+    type:'custom'
   },
   {
-    id: 4,
-    name: 'Bronze',
-    description: 'Entry level VIP status',
-    priority: 'Low',
-    createdBy: 'admin',
-    createdDate: '2024-01-12',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-12',
-    status: 'Inactive'
+    key: 'createdInfo',
+    label: 'Created',
+    sortable: true,
+    type:'custom'
+  },
+  {
+    key: 'modifiedInfo',
+    label: 'Modified',
+    sortable: true,
+    type:'custom'
   }
 ])
 
-// Options
-const priorityOptions = [
-  { label: 'Highest', value: 'Highest' },
-  { label: 'High', value: 'High' },
-  { label: 'Medium', value: 'Medium' },
-  { label: 'Low', value: 'Low' }
-]
-
-const statusOptions = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' }
-]
-
-// Table configuration
-const columns = [
-  { key: 'name', label: 'VIP Status Name', type: 'text' },
-  { key: 'priority', label: 'Priority Level', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
-
-const actions = [
+// Table actions configuration
+const actions = computed(() => [
   {
-    label: 'Edit',
-    handler: (item) => editVipStatus(item),
-    variant: 'primary'
+    key: 'edit',
+    label: t('vip_status.edit'),
+    icon: Edit,
+    variant: 'outline'
   },
   {
+    key: 'delete',
     label: 'Delete',
-    handler: (item) => deleteVipStatus(item.id),
+    icon: Trash2,
     variant: 'danger'
   }
-]
+])
 
-// Functions
-const openAddModal = () => {
-  isEditing.value = false
-  editingId.value = null
-  formData.value = {
-    name: '',
-    description: '',
-    priority: '',
-    status: 'Active'
+// Methods
+const fetchVipStatuses = async () => {
+  try {
+    loading.value = true
+    const response = await vipStatusApi.getVipStatuses(useServiceStore().serviceId);
+    console.log("respinse",response)
+    vipStatuses.value = response.data?.data || []
+  } catch (error) {
+    toast.error(t('vip_status.loadError'))
+    console.error(error)
+  } finally {
+    loading.value = false
   }
-  showModal.value = true
+}
+
+const saveVipStatus = async () => {
+  try {
+    saving.value = true
+    
+    if (isEditing.value) {
+      await vipStatusApi.updateVipStatus(formData.id, formData)
+      toast.success(t('vip_status.saveSuccess'))
+    } else {
+      await vipStatusApi.createVipStatus({...formData,hotelId:useServiceStore().serviceId})
+      toast.success(t('vip_status.saveSuccess'))
+    }
+    
+    closeModal()
+    await fetchVipStatuses()
+  } catch (error) {
+    toast.error(error.message || t('vip_status.saveError'))
+    console.error(error)
+  } finally {
+    saving.value = false
+  }
+}
+
+const onAction = async (action, item) => {
+  if (action === 'edit') {
+    editVipStatus(item)
+  } else if (action === 'delete') {
+    await deleteVipStatus(item.id)
+  }
 }
 
 const editVipStatus = (item) => {
   isEditing.value = true
-  editingId.value = item.id
-  formData.value = {
-    name: item.name,
-    description: item.description,
-    priority: item.priority,
-    status: item.status
-  }
+  Object.assign(formData, item)
   showModal.value = true
 }
 
-const saveVipStatus = () => {
-  if (isEditing.value) {
-    // Update existing VIP status
-    const index = vipStatuses.value.findIndex(item => item.id === editingId.value)
-    if (index !== -1) {
-      vipStatuses.value[index] = {
-        ...vipStatuses.value[index],
-        ...formData.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+const deleteVipStatus = async (id) => {
+  try {
+    if (confirm(t('vip_status.confirmDelete'))) {
+      await vipStatusApi.deleteVipStatus(id)
+      toast.success(t('vip_status.deleteSuccess'))
+      await fetchVipStatuses()
     }
-  } else {
-    // Add new VIP status
-    const newVipStatus = {
-      id: Date.now(),
-      ...formData.value,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0]
-    }
-    vipStatuses.value.unshift(newVipStatus)
+  } catch (error) {
+    toast.error(t('vip_status.deleteError'))
+    console.error(error)
   }
-  closeModal()
 }
 
-const deleteVipStatus = (id) => {
-  if (confirm('Are you sure you want to delete this VIP status?')) {
-    const index = vipStatuses.value.findIndex(item => item.id === id)
-    if (index !== -1) {
-      vipStatuses.value.splice(index, 1)
-    }
-  }
+const resetForm = () => {
+  Object.assign(formData, {
+    id: null,
+    name: '',
+    color: '#3B82F6',
+    icon: ''
+  })
+  isEditing.value = false
+}
+
+const openAddModal = () => {
+  resetForm()
+  showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
-  isEditing.value = false
-  editingId.value = null
-  formData.value = {
-    name: '',
-    description: '',
-    priority: '',
-    status: 'Active'
-  }
+  resetForm()
 }
+
+// Lifecycle
+onMounted(() => {
+  fetchVipStatuses()
+})
 </script>
+
+<style scoped>
+/* Custom styles for VIP Status component */
+</style>

@@ -8,7 +8,7 @@
             This screen allows you to view the formula and modify it based on your requirements.
           </p>
         </div>
-        <BasicButton variant="primary" icon="Save" label="Save Changes" @click="saveFormula" />
+        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveFormula" :loading="isLoading" />
       </div>
       
       <div class="bg-white rounded-lg shadow">
@@ -133,9 +133,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelFormulaSetting } from '../../../services/hotelApi'
+import { Save } from 'lucide-vue-next'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+const isLoading = ref(false)
+
+// Get current service from store
+const currentService = computed(() => serviceStore.getCurrentService)
 
 const formula = ref({
   totalRoomRevenue: {
@@ -171,9 +184,56 @@ const totalRoomsFormula = computed(() => {
   return 'Total Rooms = Available Rooms'
 })
 
-const saveFormula = () => {
-  // TODO: Implement save functionality
-  console.log('Save formula configuration:', formula.value)
-  alert('Formula configuration saved successfully!')
+// Load formula from current service
+const loadFormulaFromService = () => {
+  if (currentService.value && currentService.value.formulaSetting) {
+    const serviceFormula = currentService.value.formulaSetting
+    formula.value = {
+      totalRoomRevenue: {
+        nightSoldRevenue: serviceFormula.totalRoomRevenue?.nightSoldRevenue ?? true,
+        dayUseRevenue: serviceFormula.totalRoomRevenue?.dayUseRevenue ?? true,
+        lateCheckoutRevenue: serviceFormula.totalRoomRevenue?.lateCheckoutRevenue ?? false,
+        cancellationRevenue: serviceFormula.totalRoomRevenue?.cancellationRevenue ?? false,
+        noShowRevenue: serviceFormula.totalRoomRevenue?.noShowRevenue ?? false
+      },
+      totalRooms: {
+        includeOutOfOrder: serviceFormula.totalRooms?.includeOutOfOrder ?? false
+      }
+    }
+  }
 }
+
+const saveFormula = async () => {
+  if (!currentService.value || !currentService.value.id) {
+    toast.error(t('toast.formulaUpdateError'))
+    return
+  }
+
+  isLoading.value = true
+  
+  try {
+    // Call API to update formula setting
+    await updateHotelFormulaSetting(currentService.value.id, { formulaSetting: formula.value })
+    
+    // Update the service store with new formula setting
+    const updatedService = {
+      ...currentService.value,
+      formulaSetting: formula.value
+    }
+    serviceStore.setCurrentService(updatedService)
+    
+    // Show success toast
+    toast.success(t('toast.formulaUpdated'))
+  } catch (error) {
+    console.error('Error saving formula:', error)
+    toast.error(t('toast.formulaUpdateError'))
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Load formula when component mounts
+onMounted(() => {
+  loadFormulaFromService()
+})
 </script>

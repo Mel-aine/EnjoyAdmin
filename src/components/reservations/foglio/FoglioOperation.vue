@@ -9,27 +9,30 @@
           </div>
           <!-- Show All Transactions Button -->
           <div class="px-2 pb-2">
-            <button 
-              class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
+            <button class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
               :class="!selectedFolio ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'"
               @click="showAllTransactions">
               {{ $t('showAllTransactions') }}
             </button>
           </div>
-          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room.roomNumber">
+          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber || 'No Room Number'">
             <div v-for="(fo, index) in folioList" :key="index">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1" 
-                   :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
-                   @click="selectFolio(fo)">
-                <span class="capitalize">{{ fo.folioName }}</span>
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
+                :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
+                @click="selectFolio(fo)">
+                <span class="capitalize">{{fo.folioNumber}} {{ fo.folioName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
             </div>
           </Accordion>
         </div>
-        <div class="px-4">
+        <div class="px-4 gap-1 py-2 text-sm flex flex-col">
           <div class="flex justify-between">
             <span>{{ $t('total') }}</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.totalChargesWithTaxes) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>{{ $t('paid') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <div class="flex justify-between  text-red-200">
@@ -46,10 +49,14 @@
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
             <BasicButton :label="$t('addPayment')" @click="openAddPaymentModal" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
-            <BasicButton :label="$t('applyDiscount')" />
-            <BasicButton :label="$t('folioOperations')" />
+            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
+            <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
-            <BasicButton :label="$t('more')" />
+            <!-- More Actions Dropdown -->
+            <div class="relative">
+              <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
+                :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
+            </div>
             <!-- Status indicators -->
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
@@ -103,16 +110,7 @@
               </div>
             </template>
 
-            <template #column-actions="{ item }">
-              <div class="flex items-center gap-1">
-                <button class="p-1 hover:bg-gray-100 rounded" @click="editItem(item)">
-                  <PencilIcon class="w-4 h-4 text-gray-500" />
-                </button>
-                <button class="p-1 hover:bg-gray-100 rounded" @click="deleteItem(item)">
-                  <TrashIcon class="w-4 h-4 text-red-500" />
-                </button>
-              </div>
-            </template>
+
           </ReusableTable>
         </div>
         <!-- Footer summary -->
@@ -121,7 +119,7 @@
             <span class="text-sm text-gray-600">{{ $t('endOfData') }}</span>
             <div class="text-right">
               <div class="text-sm font-medium text-red-600">
-                {{ $t('balance') }}: {{ formatAmount(balance) }}
+                {{ $t('balance') }}: {{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}
               </div>
             </div>
           </div>
@@ -129,7 +127,7 @@
 
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
-          <AddChargeModal :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @save="handleSaveCharge" />
+          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @refresh="refreshFolio" />
         </template>
 
         <!-- Add Payment Modal -->
@@ -142,16 +140,45 @@
           <CreateFolioModal :reservation-id="reservationId" :is-open="isCreateFolioModalOpen"
             @close="closeCreateFolioModal" @save="handleSaveFolio" :reservation="reservation" />
         </template>
-
+        <template v-if="isSplitFolioModal">
+          <SplitFolioModal :reservation-id="reservationId" :is-open="isSplitFolioModal" :default-folio="selectedFolio"
+            @close="closeSplitFolioModal" @save="handleSaveSplitFolio" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isTransferModal">
+          <TransferFolioModal :reservation-id="reservationId" :is-open="isTransferModal"
+            @close="closeTransferModal" @save="handleSaveTransfer" />
+        </template>
+        <template v-if="isCutFolioModal">
+          <CutFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isCutFolioModal"
+            @close="closeCutFolioModal" @save="handleSaveCut" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isRoomChargesModal">
+          <RoomChargeModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isRoomChargesModal"
+            @close="closeRoomChargesModal" @save="handleSaveRoomCharges" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isAdjustmentModal">
+          <AdjustmentFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isAdjustmentModal"
+            @close="closeAdjustmentModal" @save="handleSaveAdjustment" @refresh="refreshFolio" />
+        </template>
+        <template v-if="isSendFolioModal">
+          <SendFolioModal :reservation-id="reservationId" :is-open="isSendFolioModal"
+            @close="closeSendFolioModal" @save="handleSaveSendFolio" />
+        </template>
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
-          <PrintInvoice 
-            :is-open="isPrintModalOpen" 
-            :document-data="printDocumentData"
-            @close="closePrintModal" 
-            @print-success="handlePrintSuccess"
+          <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
+           @print-error="handlePrintError"
+          :reservation-id="reservationId" />
+        </template>
+        <!-- Apply Discount Modal -->
+        <template v-if="isApplyDiscountModal">
+          <ApplyDiscountRoomCharge 
+            :is-open="isApplyDiscountModal" 
             :reservation-id="reservationId"
-            @print-error="handlePrintError" />
+            :reservation-number="reservation?.reservationNumber"
+            @close="closeApplyDiscountModal" 
+            @discount-applied="handleDiscountApplied" 
+          />
         </template>
       </div>
     </div>
@@ -164,13 +191,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
-import AddPaymentModal from './AddPaymentModal.vue'
+const AddPaymentModal = defineAsyncComponent(() => import('./AddPaymentModal.vue'))
 import CreateFolioModal from './CreateFolioModal.vue'
-import PrintModal from '../../common/PrintModal.vue'
-import { PencilIcon, TrashIcon, RefreshCwIcon, SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
+import { SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
@@ -178,6 +204,14 @@ import { getReservationFolios } from '../../../services/foglioApi'
 import Accordion from '../../common/Accordion.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
+import { safeParseFloat, prepareFolioAmount } from '../../../utils/numericUtils'
+import ButtonDropdown from '../../common/ButtonDropdown.vue'
+import SplitFolioModal from './SplitFolioModal.vue'
+import RefreshIcon from '../../../icons/RefreshIcon.vue'
+import CutFolioModal from './CutFolioModal.vue'
+import RoomChargeModal from './RoomChargeModal.vue'
+import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
+import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
 const { t } = useI18n()
 const isOpen = ref(false)
 // Modal state
@@ -185,6 +219,84 @@ const isAddChargeModalOpen = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCreateFolioModalOpen = ref(false)
 const isPrintModalOpen = ref(false)
+const selectedMoreAction = ref<any>(null)
+const isSplitFolioModalOpen = ref(false)
+/// manage more action folio
+
+const isAdjustmentModal = ref(false);
+const isRoomChargesModal = ref(false);
+const isTransferModal = ref(false);
+const isSplitFolioModal = ref(false);
+const isCutFolioModal = ref(false);
+const isSendFolioModal = ref(false);
+const isApplyDiscountModal = ref(false);
+
+
+const closeSplitFolioModal = () => {
+  isSplitFolioModal.value = false
+}
+const handleSaveSplitFolio = (folioData: any) => {
+  console.log('Save split folio:', folioData)
+  // Add save logic here
+}
+const closeTransferModal = () => {
+  isTransferModal.value = false
+}
+const handleSaveTransfer = (transferData: any) => {
+  console.log('Save transfer:', transferData)
+  // Add save logic here
+}
+const closeCutFolioModal = () => {
+  isCutFolioModal.value = false
+}
+const handleSaveCut = (cutData: any) => {
+  console.log('Save cut:', cutData)
+  // Add save logic here
+}
+const closeRoomChargesModal = () => {
+  isRoomChargesModal.value = false
+}
+const handleSaveRoomCharges = (roomChargesData: any) => {
+  console.log('Save room charges:', roomChargesData)
+  // Add save logic here
+}
+const closeApplyDiscountModal = () => {
+  isApplyDiscountModal.value = false
+}
+const openApplyDiscountModal = () => {
+  isApplyDiscountModal.value = true
+}
+const handleDiscountApplied = (discountData: any) => {
+  console.log('Discount applied:', discountData)
+  // Add discount application logic here
+  // Refresh folio data after applying discount
+  refreshFolio()
+}
+const closeAdjustmentModal = () => {
+  isAdjustmentModal.value = false
+}
+const handleSaveAdjustment = (adjustmentData: any) => {
+  console.log('Save adjustment:', adjustmentData)
+  // Add save logic here
+}
+const closeSendFolioModal = () => {
+  isSendFolioModal.value = false
+}
+const handleSaveSendFolio = (sendFolioData: any) => {
+  console.log('Save send folio:', sendFolioData)
+  // Add save logic here
+}
+
+
+// More actions dropdown options
+const moreActionOptions = ref([
+  { label: t('adjustment'), id: 'adjustment' },
+  { label: t('roomCharges'), id: 'roomCharges' },
+  { label: t('transfer'), id: 'transfer' },
+  { label: t('splitFolio'), id: 'split' },
+  { label: t('cutFolio'), id: 'cut' },
+  { label: t('sendFolio'), id: 'send' }
+])
 const props = defineProps({
   reservationId: {
     type: Number,
@@ -218,18 +330,18 @@ const foglioData = computed(() => {
   if (!selectedFolio.value) {
     return allTransactions.value // Show all transactions when no folio is selected
   }
-  return allTransactions.value.filter(transaction => 
+  return allTransactions.value.filter(transaction =>
     transaction.folioId === selectedFolio.value.id
   )
 })
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'postingDate', label: t('Day'), type: 'custom' },
-  { key: 'refNo', label: t('Ref No.'), type: 'text' },
-  { key: 'category', label: t('Particulars'), type: 'text' },
+  { key: 'postingDate', label: t('Day'), type: 'date' },
+  { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
+  { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
   { key: 'description', label: t('Description'), type: 'text' },
-  { key: 'user', label: t('User'), type: 'custom' },
+  { key: 'guest.displayName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
 ])
@@ -245,16 +357,6 @@ const formatAmount = (amount: number) => {
 
 const getAmountColor = (amount: number) => {
   return amount >= 0 ? 'text-blue-600' : 'text-red-600'
-}
-
-const editItem = (item: FoglioItem) => {
-  console.log('Edit item:', item)
-  // Add edit logic here
-}
-
-const deleteItem = (item: FoglioItem) => {
-  console.log('Delete item:', item)
-  // Add delete logic here
 }
 
 // Modal handlers
@@ -277,7 +379,7 @@ const handleSaveCharge = (chargeData: any) => {
     particulars: chargeData.charge,
     description: chargeData.comment || chargeData.charge,
     user: 'current_user',
-    amount: parseFloat(chargeData.amount) || 0,
+    amount: prepareFolioAmount(chargeData.amount),
     status: 'unposted' as const,
     folioId: selectedFolio.value?.id || folioList.value[0]?.id // Assign to selected folio or first folio
   }
@@ -303,17 +405,15 @@ const selectFolio = (folio: any) => {
 const showAllTransactions = () => {
   selectedFolio.value = null
 }
-
-const getFolosReservations = async () => {
-  loading.value = true
+const refreshFolio =async ()=>{
   try {
     const resp = await getReservationFolios(props.reservationId)
     console.log(resp)
-    
+
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
       folioList.value = resp.data
-      
+
       // Extract all transactions from all folios
       allTransactions.value = []
       resp.data.forEach((folio: any) => {
@@ -322,8 +422,52 @@ const getFolosReservations = async () => {
           folio.transactions.forEach((transaction: any) => {
             allTransactions.value.push({
               ...transaction,
+              amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                grossAmount,
+              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
               folioId: folio.id,
-              guest:folio.guest
+              guest: folio.guest
+
+            })
+          })
+        }
+      })
+    } else if (resp.data.folios) {
+      // Alternative structure where folios and transactions are separate
+      folioList.value = resp.data.folios
+      allTransactions.value = resp.data.transactions || []
+    } else {
+      // Fallback: treat response as direct folio array
+      folioList.value = resp.data || []
+      allTransactions.value = []
+    }
+  } catch (e) {
+    console.log(e)
+  } 
+}
+const getFolosReservations = async () => {
+  loading.value = true
+  try {
+    const resp = await getReservationFolios(props.reservationId)
+    console.log(resp)
+
+    // Handle the case where folios contain their transactions
+    if (resp.data && Array.isArray(resp.data)) {
+      folioList.value = resp.data
+
+      // Extract all transactions from all folios
+      allTransactions.value = []
+      resp.data.forEach((folio: any) => {
+        if (folio.transactions && Array.isArray(folio.transactions)) {
+          // Add folioId to each transaction and add to allTransactions
+          folio.transactions.forEach((transaction: any) => {
+            allTransactions.value.push({
+              ...transaction,
+              amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                grossAmount,
+              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+              folioId: folio.id,
+              guest: folio.guest
 
             })
           })
@@ -346,23 +490,8 @@ const getFolosReservations = async () => {
 }
 getFolosReservations()
 const handleSavePayment = (paymentData: any) => {
-  console.log('Saving payment:', paymentData)
-  // Here you would typically send the data to your API
-  // For now, we'll just add it to our local data
-  const newPayment = {
-    id: allTransactions.value.length + 1,
-    day: paymentData.date,
-    refNo: paymentData.recVouNumber || `PAY${Date.now()}`,
-    particulars: `${paymentData.type} Payment - ${paymentData.method}`,
-    description: paymentData.comment || `Payment via ${paymentData.method}`,
-    user: 'current_user',
-    amount: -parseFloat(paymentData.amount) || 0, // Negative for payments
-    status: 'unposted' as const,
-    folioId: selectedFolio.value?.id || folioList.value[0]?.id // Assign to selected folio or first folio
-  }
-
-  allTransactions.value.push(newPayment)
   closeAddPaymentModal()
+
 }
 
 // Create Folio modal handlers
@@ -399,6 +528,69 @@ const handlePrintError = (error: any) => {
   console.error('Print error:', error)
 }
 
+// Handle more actions dropdown selection
+const handleMoreAction = (action: any) => {
+  if (!action) return
+
+  console.log('More action selected:', action)
+
+  switch (action.id) {
+    case 'transfer':
+      handleTransferFolio()
+      break
+    case 'split':
+      handleSplitFolio()
+      break
+    case 'cut':
+      handleCutFolio()
+      break
+    case 'roomCharges':
+      handleRoomCharges()
+      break
+    case 'adjustment':
+      handleAdjustTransaction()
+      break
+
+    case 'send':
+      handleEmailFolio()
+      break
+    default:
+      console.log('Unknown action:', action.api)
+  }
+}
+
+// More action handlers (placeholder implementations)
+const handleTransferFolio = () => {
+  console.log('Transfer folio action')
+  isTransferModal.value = true
+}
+
+const handleSplitFolio = () => {
+  console.log('Split folio action')
+  isSplitFolioModal.value = true
+}
+
+const handleCutFolio = () => {
+  console.log('Cut folio action')
+  isCutFolioModal.value = true
+}
+
+const handleRoomCharges = () => {
+  console.log('Room charges action')
+  isRoomChargesModal.value = true
+}
+
+const handleAdjustTransaction = () => {
+  console.log('Adjust transaction action')
+  isAdjustmentModal.value = true
+}
+
+
+const handleEmailFolio = () => {
+  console.log('Email folio action')
+  isSendFolioModal.value = true
+}
+
 // Document data for printing
 const printDocumentData = computed(() => ({
   reservation: props.reservation,
@@ -408,4 +600,6 @@ const printDocumentData = computed(() => ({
   balance: balance.value,
   reservationId: props.reservationId
 }))
+
+
 </script>

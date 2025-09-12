@@ -12,7 +12,7 @@
       sidebarStore.isExpanded ? 'lg:ml-64' : 'lg:ml-16'
     ]">
       <!-- Header -->
-      <AppHeader />
+      <ConfigurationHeader />
       
       <!-- Page content -->
       <main >
@@ -27,9 +27,9 @@
 
 <script setup>
 import { useSidebar } from '../../composables/useSidebar'
-import ConfigurationSidebar from '../../components/ConfigurationSidebar.vue'
+import ConfigurationSidebar from '../../components/layout/ConfigurationSidebar.vue'
 import Backdrop from '../../components/layout/Backdrop.vue'
-import AppHeader from '../../components/layout/AppHeader.vue'
+import ConfigurationHeader from '../../components/layout/ConfigurationHeader.vue'
 import AppFooter from '../../components/layout/AppFooter.vue'
 
 const sidebarStore = useSidebar()

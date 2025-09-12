@@ -9,11 +9,11 @@
     <div :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
       @click="handleDropdownToggle">
       <div
-        class="flex justify-between dark:bg-dark-900 h-11 w-full truncate  rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        class="flex items-center justify-between dark:bg-dark-900 h-11 w-full truncate  rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300', props.customClass]">
-        <span>{{ selectedOption?.label || defaultValue }}</span>
+        <span>{{ selectedOption?.label || defaultValue || props.placeholder }}</span>
         <DotSpinner v-if="isLoading"></DotSpinner>
-        <span v-else :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'">▼</span>
+        <span v-else :class="isDropdownOpen ? 'text-purple-500 text-xs' : 'text-gray-500 text-xs'">▼</span>
       </div>
 
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
@@ -46,6 +46,7 @@ const props = defineProps<{
   defaultValue?: string
   isRequired?: boolean
   modelValue?: string | number
+  placeholder?: string
   options: Option[]
   disabled?: boolean,
   isLoading?: boolean

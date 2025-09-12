@@ -1,34 +1,38 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)] mx-4">
+  <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
           <div class="flex justify-between pt-2 px-2 pb-2">
-            <span>Room/Guest</span>
+            <span>{{ $t('Room/Guest') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="createNewGuest" />
           </div>
 
-          <Accordion v-for="(fo, index) in reservation.reservationRooms" :key="index" :title="`${fo.room.roomNumber}`" class="mb-2">
+          <Accordion
+            v-for="(fo, index) in reservation.reservationRooms"
+            :key="index"
+            :title="`${fo.room?.roomNumber || 'No Room Number'}`"
+            class="mb-2"
+          >
             <div v-for="(guest, guestIndex) in guestList" :key="guestIndex">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
-                   :class="selectedGuest?.id === guest.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
-                   @click="selectGuest(guest)">
-                <span class="capitalize">{{ guest.displayName || guest.firstName + ' ' + guest.lastName }}</span>
+              <div
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
+                :class="
+                  selectedGuest?.id === guest.id
+                    ? 'bg-blue-100 border-l-4 border-blue-500'
+                    : 'bg-gray-100'
+                "
+                @click="selectGuest(guest)"
+              >
+                <span class="capitalize">{{
+                  guest.displayName || guest.firstName + ' ' + guest.lastName
+                }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
             </div>
           </Accordion>
         </div>
-        <div class="px-4">
-          <div class="flex justify-between">
-            <span>{{ $t('total') }}</span>
-            <span>2000xaf</span>
-          </div>
-          <div class="flex justify-between text-yellow-200">
-            <span>{{ $t('balance') }}</span>
-            <span>2000xaf</span>
-          </div>
-        </div>
+        <div class="px-4"></div>
       </div>
     </div>
 
@@ -46,204 +50,409 @@
                   {{ isCreatingNewGuest ? $t('New Guest') : $t('Guest') }}
                 </h2>
                 <p class="text-sm text-gray-500">
-                  {{ isCreatingNewGuest ? $t('Create new guest information') : $t('Guest information and details') }}
+                  {{
+                    isCreatingNewGuest
+                      ? $t('Create new guest information')
+                      : $t('Guest information and details')
+                  }}
                 </p>
               </div>
             </div>
             <div class="flex space-x-2">
-              <button class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
-                @click="editGuest">
-                <svg v-if="!isEditing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <button
+                class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+                @click="editGuest"
+              >
+                <svg
+                  v-if="!isEditing"
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
                 </svg>
                 <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
                 <span>{{ isEditing ? $t('Cancel') : $t('Edit') }}</span>
-              </button>
-              <button class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-                @click="uploadImage">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
               </button>
             </div>
           </div>
 
           <!-- Guest Form -->
           <div class="space-y-6">
-            <!-- Basic Information Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- Name -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Name') }}</label>
-                <div class="flex">
-                  <div class="w-20 -translate-y-1.5">
-                    <Select
-                      v-model="guestData.title"
-                      :options="titleOptions"
-                      customClass="rounded-r-none"
-                      :placeholder="$t('Mr')"
+            <!-- Section Informations Générales avec Photo de Profil -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              <!-- ImageUploader pour la Photo de Profil -->
+              <div class="col-span-12 md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+                  $t('ProfilePhoto')
+                }}</label>
+                <ImageUploader
+                  ref="profilePhotoUploader"
+                  v-model="guestData.profilePhoto"
+                  :disabled="!isEditing"
+                  @upload-success="onProfilePhotoSuccess"
+                  @upload-error="onUploadError"
+                  :key="`profile-${resetKey}`"
+                />
+              </div>
+
+              <!-- Champs d'information de base -->
+              <div class="col-span-12 md:col-span-10 space-y-6">
+                <!-- Ligne Nom, Téléphone, Mobile -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <!-- Nom -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+                      $t('Name')
+                    }}</label>
+                    <div class="flex">
+                      <div class="w-20 -translate-y-1.5">
+                        <Select
+                          v-model="guestData.title"
+                          :options="titleOptions"
+                          customClass="rounded-r-none"
+                          :placeholder="$t('Mr')"
+                          :disabled="!isEditing"
+                        />
+                      </div>
+
+                      <!-- Mode Affichage: Nom complet en lecture seule -->
+                      <div v-if="!isEditing" class="flex-1">
+                        <div
+                          class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
+                        >
+                          {{ fullName }}
+                        </div>
+                      </div>
+
+                      <!-- Mode Édition: Prénom et Nom -->
+                      <div v-if="isEditing" class="flex-1 flex gap-0">
+                        <div class="flex-1">
+                          <input
+                            v-model="guestData.firstName"
+                            type="text"
+                            :placeholder="$t('FirstName')"
+                            class="h-11 w-full rounded-lg rounded-l-none rounded-r-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                            :disabled="!isEditing"
+                          />
+                        </div>
+                        <div class="flex-1">
+                          <input
+                            v-model="guestData.lastName"
+                            type="text"
+                            :placeholder="$t('LastName')"
+                            class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                            :disabled="!isEditing"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Téléphone -->
+                  <div>
+                    <InputPhone
+                      :title="$t('Phone')"
+                      v-model="guestData.phone"
+                      :id="'phone'"
+                      :is-required="false"
                       :disabled="!isEditing"
                     />
                   </div>
 
-                  <!-- Display mode: Full name as read-only -->
-                  <div v-if="!isEditing" class="flex-1">
-                    <div class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                      {{ fullName }}
-                    </div>
+                  <!-- Mobile -->
+                  <div>
+                      <InputPhone
+                      :title="$t('mobile')"
+                      v-model="guestData.mobile"
+                      :id="'tel'"
+                      :is-required="false"
+                      :disabled="!isEditing"
+                    />
+
+                  </div>
+                </div>
+
+                <!-- Ligne Email, Genre, Type de client, Statut VIP -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <!-- Email -->
+                  <div>
+                    <InputEmail
+                      :title="$t('Email')"
+                      v-model="guestData.email"
+                      :placeholder="$t('Email')"
+                      :disabled="!isEditing"
+                    />
                   </div>
 
-                  <div v-if="isEditing" class="flex-1 flex gap-0">
-                    <div class="flex-1">
-                      <input
-                        v-model="guestData.firstName"
-                        type="text"
-                        :placeholder="$t('FirstName')"
-                        class="h-11 w-full rounded-lg rounded-l-none rounded-r-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                        :disabled="!isEditing"
-                      />
-                    </div>
-                    <div class="flex-1">
-                      <input
-                        v-model="guestData.lastName"
-                        type="text"
-                        :placeholder="$t('LastName')"
-                        class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                        :disabled="!isEditing"
-                      />
-                    </div>
+                  <!-- Genre -->
+                  <div>
+                    <Select
+                      :lb="$t('gender')"
+                      v-model="guestData.gender"
+                      :options="genderOptions"
+                      :placeholder="$t('Male')"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+
+                  <!-- Type de client -->
+                  <div>
+                    <Select
+                      :lb="$t('guestType')"
+                      v-model="guestData.guestType"
+                      :options="guestTypeOptions"
+                      :placeholder="$t('selected_item')"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+
+                  <!-- Statut VIP -->
+                  <div>
+                    <Select
+                      :lb="$t('StatutVIP')"
+                      v-model="guestData.vipStatus"
+                      :options="vipStatusOptions"
+                      :placeholder="$t('Select')"
+                      :disabled="!isEditing"
+                    />
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Phone -->
+            <!-- Section Adresse -->
+            <div class="border-t pt-6 space-y-4">
+              <!-- Champ Adresse -->
               <div>
-                <InputPhone :title="$t('Phone')"  v-model="guestData.phone" :id="'phone'" :is-required="false" :disabled="!isEditing"/>
-              </div>
-
-              <!-- Mobile -->
-              <div>
-                <Input
-                  :lb="$t('Mobile')"
-                  v-model="guestData.mobile"
-                  type="tel"
-                  :placeholder="$t('Mobile')"
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{
+                  $t('Address')
+                }}</label>
+                <textarea
+                  v-model="guestData.address"
+                  rows="2"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                  :placeholder="$t('Address')"
                   :disabled="!isEditing"
-                />
+                ></textarea>
+              </div>
+
+              <!-- Ligne Localisation -->
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Pays -->
+                <div>
+                  <InputCountries
+                    v-model="guestData.country"
+                    :placeholder="$t('Country')"
+                    :disabled="!isEditing"
+                  />
+                </div>
+
+                <!-- État/Province -->
+                <div>
+                  <Input
+                    :lb="$t('State/Province')"
+                    v-model="guestData.stateProvince"
+                    :placeholder="$t('State/Province')"
+                    :disabled="!isEditing"
+                  />
+                </div>
+
+                <!-- Ville -->
+                <div>
+                  <Input
+                    :lb="$t('city')"
+                    v-model="guestData.city"
+                    type="text"
+                    :placeholder="$t('City')"
+                    :disabled="!isEditing"
+                  />
+                </div>
+
+                <!-- Code Postal -->
+                <div>
+                  <Input
+                    :lb="$t('postalCode')"
+                    v-model="guestData.postalCode"
+                    :placeholder="$t('postalCode')"
+                    :disabled="!isEditing"
+                  />
+                </div>
               </div>
             </div>
 
-            <!-- Contact Information Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Email -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Email') }}</label>
-                <Input v-model="guestData.email" type="email" :placeholder="$t('Email')" :disabled="!isEditing" />
-              </div>
-
-              <!-- Gender -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Gender') }}</label>
-                <Select v-model="guestData.gender" :options="genderOptions" :placeholder="$t('Male')" :disabled="!isEditing" />
-              </div>
-            </div>
-
-            <!-- Address Information -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Address') }}</label>
-              <textarea v-model="guestData.address" rows="2"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
-                :placeholder="$t('Address')" :disabled="!isEditing"></textarea>
-            </div>
-
-            <!-- Location Information Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- City -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('City') }}</label>
-                <Input v-model="guestData.city" type="text" :placeholder="$t('City')" :disabled="!isEditing" />
-              </div>
-
-              <!-- Management -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Management') }}</label>
-                <Input v-model="guestData.management" type="text" :placeholder="$t('Management')" :disabled="!isEditing" />
-              </div>
-
-              <!-- Country -->
-              <div>
-                <InputCountries v-model="guestData.country" :placeholder="$t('India')" :disabled="!isEditing" />
-              </div>
-            </div>
-
-            <!-- Business Information Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- Nationality -->
-              <div>
-                <InputCountries v-model="guestData.nationality" :placeholder="$t('India')" :lb="$t('Nationality')" :disabled="!isEditing" />
-              </div>
-
-              <!-- Company -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Company') }}</label>
-                <Input v-model="guestData.company" type="text" :placeholder="$t('Company')" :disabled="!isEditing" />
-              </div>
-
-              <!-- Fax -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Fax') }}</label>
-                <Input v-model="guestData.fax" type="text" :placeholder="$t('Fax')" :disabled="!isEditing" />
+            <!-- Section Informations Professionnelles -->
+            <div class="border-t pt-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Nationalité -->
+                <div>
+                  <InputCountries
+                    v-model="guestData.nationality"
+                    :placeholder="$t('India')"
+                    :lb="$t('Nationality')"
+                    :disabled="!isEditing"
+                  />
+                </div>
+                <!-- Société -->
+                <div>
+                  <Input
+                    :lb="$t('Company Name')"
+                    v-model="guestData.company"
+                    type="text"
+                    :placeholder="$t('Company')"
+                    :disabled="!isEditing"
+                  />
+                </div>
+                <!-- Fax -->
+                <div>
+                  <Input
+                    :lb="$t('Fax')"
+                    v-model="guestData.fax"
+                    type="text"
+                    :placeholder="$t('Fax')"
+                    :disabled="!isEditing"
+                  />
+                </div>
+                <!-- Numéro d'enregistrement -->
+                <div>
+                  <Input
+                    :lb="$t('RegistrationNo')"
+                    v-model="guestData.registrationNo"
+                    type="text"
+                    :placeholder="$t('Registration No')"
+                    :disabled="!isEditing"
+                  />
+                </div>
               </div>
             </div>
 
-            <!-- Additional Information Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Registration No -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Registration No') }}</label>
-                <Input v-model="guestData.registrationNo" type="text" :placeholder="$t('Registration No')" :disabled="!isEditing" />
-              </div>
-
-              <!-- VIP Status -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('VIP Status') }}</label>
-                <Select v-model="guestData.vipStatus" :options="vipStatusOptions" :placeholder="$t('Select')" :disabled="!isEditing" />
-              </div>
-            </div>
-
-            <!-- Identity Information Collapsible Section -->
+            <!-- Section Informations d'Identité (Pliable) -->
             <div class="border-t pt-4">
-              <button @click="toggleIdentitySection" class="flex items-center justify-between w-full text-left">
-                <h3 class="text-sm font-medium text-gray-700">{{ $t('Identity Information') }}</h3>
+              <button
+                @click="toggleIdentitySection"
+                class="flex items-center justify-between w-full text-left"
+              >
+                <h3 class="text-lg font-medium text-gray-700">{{ $t('IdentityInformation') }}</h3>
                 <ChevronDownIcon
-                  :class="['w-4 h-4 text-gray-500 transition-transform', { 'rotate-180': showIdentitySection }]" />
+                  :class="[
+                    'w-5 h-5 text-gray-500 transition-transform',
+                    { 'rotate-180': showIdentitySection },
+                  ]"
+                />
               </button>
 
-              <div v-show="showIdentitySection" class="mt-4 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <!-- ID Type -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('ID Type') }}</label>
-                    <Select v-model="guestData.idType" :options="idTypeOptions" :placeholder="$t('Select ID Type')" :disabled="!isEditing" />
-                  </div>
-
-                  <!-- ID Number -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('ID Number') }}</label>
-                    <Input v-model="guestData.idNumber" type="text" :placeholder="$t('Enter ID Number')" :disabled="!isEditing" />
-                  </div>
+              <div
+                v-show="showIdentitySection"
+                class="mt-4 grid grid-cols-1 md:grid-cols-12 gap-6 items-start"
+              >
+                <!-- ImageUploader pour la Photo de la Pièce d'Identité -->
+                <div class="col-span-12 md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+                    $t('IDPhoto')
+                  }}</label>
+                  <ImageUploader
+                    ref="idPhotoUploader"
+                    v-model="guestData.idPhoto"
+                    :disabled="!isEditing"
+                    @upload-success="onIdPhotoSuccess"
+                    @upload-error="onUploadError"
+                    :key="`id-${resetKey}`"
+                  />
                 </div>
 
-                <!-- Date of Birth -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Date of Birth') }}</label>
-                    <InputDatePicker v-model="guestData.dateOfBirth" :placeholder="$t('Select Date')" :disabled="!isEditing" />
+                <div class="col-span-12 md:col-span-10 space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Type de Pièce d'Identité -->
+                    <div>
+                      <Select
+                        :lb="$t('IDType')"
+                        v-model="guestData.idType"
+                        :options="idTypeOptions"
+                        :placeholder="$t('Select ID Type')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <!-- Numéro de Pièce d'Identité -->
+                    <div class="md:col-span-2">
+                      <Input
+                        :lb="idNumberLabel"
+                        v-model="guestData.idNumber"
+                        type="text"
+                        :placeholder="idNumberLabel"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <div>
+                      <InputDatePicker
+                        :title="$t('ExpiryDate')"
+                        v-model="guestData.idExpiryDate"
+                        :placeholder="$t('Select Date')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
                   </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Pays d'Émission -->
+                    <div>
+                      <InputCountries
+                        :lb="$t('Countryofissue')"
+                        v-model="guestData.issuingCountry"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <!-- Ville d'Émission -->
+                    <div class="md:col-span-2">
+                      <Input
+                        :lb="$t('Cityofissue')"
+                        v-model="guestData.issuingCity"
+                        :placeholder="$t('Cityofissue')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Autres Informations (Pliable) -->
+            <div class="border-t pt-4">
+              <button
+                @click="toggleOtherInfoSection"
+                class="flex items-center justify-between w-full text-left"
+              >
+                <h3 class="text-lg font-medium text-gray-700">{{ $t('OtherInformation') }}</h3>
+                <ChevronDownIcon
+                  :class="[
+                    'w-5 h-5 text-gray-500 transition-transform',
+                    { 'rotate-180': showOtherInfoSection },
+                  ]"
+                />
+              </button>
+              <div v-show="showOtherInfoSection" class="mt-4 space-y-4">
+               <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {{ $t('Preference') }}
+                  </label>
+                  <MultipleSelect
+                    v-model="guestData.preferences"
+                    :options="Preferences"
+                    :placeholder="$t('SelectPreferences')"
+                    :disabled="!isEditing"
+                  />
                 </div>
               </div>
             </div>
@@ -252,26 +461,43 @@
           <!-- Action Buttons -->
           <div v-if="isEditing" class="flex justify-end space-x-3 mt-6 pt-6 border-t">
             <BasicButton variant="secondary" :label="$t('Cancel')" @click="cancelEdit" />
-            <BasicButton variant="primary" :label="$t('Save Changes')" @click="saveGuest" :loading="isSaving" />
+            <BasicButton
+              variant="primary"
+              :label="isCreatingNewGuest ? $t('Create Guest') : $t('Save Changes')"
+              @click="saveGuest"
+              :loading="isSaving"
+            />
           </div>
         </div>
-        <div class="px-4">
-          <div class="flex justify-between">
-            <span>{{ $t('total') }}</span>
-            <span>2000xaf</span>
-          </div>
-          <div class="flex justify-between text-yellow-200">
-            <span>{{ $t('balance') }}</span>
-            <span>2000xaf</span>
+        <div class="px-4"></div>
+           <!-- Footer summary -->
+        <div class=" p-2 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end items-end ">
+            <BasicButton
+               variant="primary"
+              :label="$t('common.pickup/dropoff')"
+              @click="handlePickupDropoff()"
+            />
+
           </div>
         </div>
       </div>
+
     </div>
+      <!-- Pickup/Dropoff Modal -->
+      <template v-if="showPickupModal">
+        <PickupAndDropModal
+          :isOpen="showPickupModal"
+          :reservationId="reservationId"
+          :guestId="guest.id"
+          @close="showPickupModal = false"
+        />
+      </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../buttons/BasicButton.vue'
@@ -279,14 +505,47 @@ import Input from '../forms/FormElements/Input.vue'
 import Select from '../forms/FormElements/Select.vue'
 import InputCountries from '../forms/FormElements/InputCountries.vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
-import UserCircleIcon from '@/icons/UserCircleIcon.vue'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
-import Accordion from '../common/Accordion.vue'
 import InputPhone from '../forms/FormElements/InputPhone.vue'
-import { PlusCircle, ChevronRight } from 'lucide-vue-next'
+import InputEmail from '../forms/FormElements/InputEmail.vue'
+import ImageUploader from '@/components/customers/ImageUploader.vue'
 import { createGuest, updateGuest, type GuestPayload } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
-import { useAuthStore } from '@/composables/user'
+import { PlusCircle, ChevronRight } from 'lucide-vue-next'
+import UserCircleIcon from '@/icons/UserCircleIcon.vue'
+import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
+import { getPreferencesByHotelId ,getIdentityTypesByHotelId} from '@/services/configrationApi'
+import PickupAndDropModal from '../customers/PickupAndDropModal.vue'
+
+interface GuestData {
+  title: string
+  firstName: string
+  lastName: string
+  profilePhoto: string | null
+  phone: string
+  mobile: string
+  email: string
+  gender: string
+  guestType: string
+  vipStatus: string
+  address: string
+  country: string
+  stateProvince: string
+  city: string
+  postalCode: string
+  nationality: string
+  company: string
+  fax: string
+  registrationNo: string
+  idPhoto: string | null
+  idType: string
+  idNumber: string
+  dateOfBirth: string
+  idExpiryDate: string
+  issuingCountry: string
+  issuingCity: string
+  preferences?: any;
+}
 
 interface Props {
   guest?: any
@@ -295,168 +554,319 @@ interface Props {
   reservation: any
 }
 
-interface GuestData {
-  title: string
-  name: string
-  firstName: string
-  lastName: string
-  phone: string
-  mobile: string
-  email: string
-  gender: string
-  address: string
-  city: string
-  management: string
-  country: string
-  nationality: string
-  company: string
-  fax: string
-  registrationNo: string
-  vipStatus: string
-  idType: string
-  idNumber: string
-  dateOfBirth: string
+interface SelectOption {
+  value: string
+  label: string
+  label_fr?:string
+}
+
+interface RichSelectOption extends SelectOption {
+  numberField: string
+  dateField: string
+  label_fr: string
 }
 
 const props = defineProps<Props>()
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
-const authStore = useAuthStore()
+const Preferences = ref<SelectOption[]>([])
 
 // State
 const isSaving = ref(false)
-const showIdentitySection = ref(false)
 const isEditing = ref(false)
-const selectedGuest = ref(props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null)
+const resetKey = ref(0) // Clé pour forcer la réinitialisation des composants
+const showPickupModal = ref(false)
+// State pour les sections dépliantes
+const showIdentitySection = ref(false)
+const showOtherInfoSection = ref(false)
+const idTypeOptions = ref<SelectOption[]>([])
+
+const selectedGuest = ref(
+  props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null,
+)
 const isCreatingNewGuest = ref(false)
 
-// Guest data - initialize with selected guest or default values
-const initializeGuestData = (guest: any = null) => ({
-  title: guest?.title || 'Mr',
-  name: guest?.name || '',
-  firstName: guest?.firstName || '',
-  lastName: guest?.lastName || '',
-  phone: guest?.phone || '',
-  mobile: guest?.mobile || '',
-  email: guest?.email || '',
-  gender: guest?.gender || 'Male',
-  address: guest?.address || '',
-  city: guest?.city || '',
-  management: guest?.management || '',
-  country: guest?.country || 'India',
-  nationality: guest?.nationality || 'India',
-  company: guest?.company || '',
-  fax: guest?.fax || '',
-  registrationNo: guest?.registrationNo || '',
-  vipStatus: guest?.vipStatus || '',
-  idType: guest?.idType || '',
-  idNumber: guest?.idNumber || '',
-  dateOfBirth: guest?.dateOfBirth || ''
-})
+// Refs pour les uploaders
+const profilePhotoUploader = ref<InstanceType<typeof ImageUploader> | null>(null)
+const idPhotoUploader = ref<InstanceType<typeof ImageUploader> | null>(null)
+
+const parsePreferencesFromDB = (preferencesFromDB: any[] = []): { label: string; value: string }[] => {
+  if (!Array.isArray(preferencesFromDB)) return []
+  return preferencesFromDB.map(pref => ({
+    label: pref.label || pref.name || pref.value || '',
+    value: pref.value || pref.id || pref.label || ''
+  })).filter(pref => pref.label && pref.value)
+}
+
+// Fonction pour convertir les préférences vers le format BD
+const formatPreferencesForDB = (selectedPreferenceValues: string[] | undefined): string => {
+  if (!selectedPreferenceValues || selectedPreferenceValues.length === 0) {
+
+    return '[]'
+  }
+  return JSON.stringify(selectedPreferenceValues)
+}
+
+// Fonction d'initialisation mise à jour avec tous les nouveaux champs
+const mapApiCustomerToFormData = (customer: any): GuestData => {
+  const baseData: GuestData = {
+    title: customer?.title || 'Mr',
+    firstName: customer?.firstName || '',
+    lastName: customer?.lastName || '',
+    profilePhoto: customer?.profilePhoto || null,
+    phone: customer?.phone || customer?.phonePrimary || '',
+    mobile: customer?.mobile || customer?.mobileNumber || '',
+    email: customer?.email || '',
+    gender: customer?.gender || 'male',
+    guestType: customer?.guestType || '',
+    vipStatus: customer?.vipStatus || '',
+    address: customer?.addressLine || customer?.address || '',
+    country: customer?.country || '',
+    stateProvince: customer?.stateProvince || '',
+    city: customer?.city || '',
+    postalCode: customer?.postalCode || '',
+    nationality: customer?.nationality || '',
+    company: customer?.companyName || customer?.company || '',
+    fax: customer?.fax || '',
+    registrationNo: customer?.registrationNumber || customer?.registrationNo || '',
+    idPhoto: customer?.idPhoto || null,
+    idType: '',
+    idNumber: '',
+    dateOfBirth: customer?.dateOfBirth || '',
+    idExpiryDate: '',
+    issuingCountry: customer?.issuingCountry || '',
+    issuingCity: customer?.issuingCity || '',
+    preferences: parsePreferencesFromDB(customer?.preferences)
+  }
+
+  if (customer?.passportNumber) {
+    baseData.idType = customer.idType
+    baseData.idNumber = customer.passportNumber
+    baseData.idExpiryDate = customer.passportExpiry
+  } else if (customer?.visaNumber) {
+    baseData.idType = customer.idType
+    baseData.idNumber = customer.visaNumber
+    baseData.idExpiryDate = customer.visaExpiry
+  } else if (customer?.idNumber) {
+    baseData.idType = customer.idType || 'ID National'
+    baseData.idNumber = customer.idNumber
+    baseData.idExpiryDate = customer.idExpiryDate
+  }
+
+  if (baseData.idExpiryDate && typeof baseData.idExpiryDate === 'string') {
+    baseData.idExpiryDate = baseData.idExpiryDate.substring(0, 10)
+  }
+
+  return baseData
+}
+
+// Fonction d'initialisation mise à jour
+const initializeGuestData = (guest: any = null): GuestData => {
+  if (guest) {
+    return mapApiCustomerToFormData(guest)
+  }
+
+  return {
+    title: 'Mr',
+    firstName: '',
+    lastName: '',
+    profilePhoto: null,
+    phone: '',
+    mobile: '',
+    email: '',
+    gender: 'male',
+    guestType: '',
+    vipStatus: '',
+    address: '',
+    country: '',
+    stateProvince: '',
+    city: '',
+    postalCode: '',
+    nationality: '',
+    company: '',
+    fax: '',
+    registrationNo: '',
+    idPhoto: null,
+    idType: '',
+    idNumber: '',
+    dateOfBirth: '',
+    idExpiryDate: '',
+    issuingCountry: '',
+    issuingCity: '',
+    preferences: []
+  }
+}
 
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
 // Computed properties
-const guestList = computed(() => {
-  return props.reservation?.guests || []
-})
-
-const fullName = computed(() => {
-  return (guestData.firstName + ' ' + guestData.lastName).trim() || guestData.name || ''
-})
+const guestList = computed(() => props.reservation?.guests || [])
+const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName).trim() || '')
 
 // Watch for changes in selected guest
-watch(selectedGuest, (newGuest) => {
-  Object.assign(guestData, initializeGuestData(newGuest))
-}, { deep: true })
+watch(
+  selectedGuest,
+  (newGuest) => {
+    Object.assign(guestData, initializeGuestData(newGuest))
+    resetKey.value++
+  },
+  { deep: true },
+)
 
-// Options
+// Options pour les 'Select'
 const titleOptions = computed(() => [
   { label: t('Mr'), value: 'Mr' },
   { label: t('Mrs'), value: 'Mrs' },
   { label: t('Ms'), value: 'Ms' },
-  { label: t('Dr'), value: 'Dr' }
 ])
-
 const genderOptions = computed(() => [
   { label: t('Male'), value: 'male' },
   { label: t('Female'), value: 'female' },
-  { label: t('Other'), value: 'other' }
+  { label: t('Other'), value: 'other' },
 ])
+// Nouvelles options pour le type de client
 
+const guestTypeOptions: SelectOption[] = [
+  { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
+  { value: 'corporate', label: t('GuestTypes.corporate') },
+  { value: 'individual', label: t('GuestTypes.individual') },
+]
 const vipStatusOptions = computed(() => [
-  { label: t('Regular'), value: 'regular' },
-  { label: t('VIP'), value: 'vip' },
-  { label: t('VVIP'), value: 'vvip' },
-  { label: t('Corporate'), value: 'corporate' }
+  { label: t('vipStatus.bronze'), value: 'bronze' },
+  { label: t('vipStatus.silver'), value: 'silver' },
+  { label: t('vipStatus.gold'), value: 'gold' },
+  { label: t('vipStatus.platinum'), value: 'platinum' },
+  { label: t('vipStatus.diamond'), value: 'diamond' },
+  { label: t('vipStatus.none'), value: 'none' },
 ])
 
-const idTypeOptions = computed(() => [
-  { label: t('Passport'), value: 'passport' },
-  { label: t('National ID'), value: 'national_id' },
-  { label: t('Driving License'), value: 'driving_license' },
-  { label: t('Voter ID'), value: 'voter_id' },
-  { label: t('Aadhaar'), value: 'aadhaar' }
-])
 
-// Methods
+// --- Méthodes ---
+
 const selectGuest = (guest: any) => {
   selectedGuest.value = guest
   isCreatingNewGuest.value = false
   Object.assign(guestData, initializeGuestData(guest))
   isEditing.value = false
+  resetKey.value++
 }
 
 const createNewGuest = () => {
+  console.log('Creating new guest')
   selectedGuest.value = null
   isCreatingNewGuest.value = true
-  Object.assign(guestData, initializeGuestData())
+
+  // Réinitialiser complètement les données
+  Object.assign(guestData, initializeGuestData(null))
+
+  // Forcer la réinitialisation des composants ImageUploader
+  resetKey.value++
+
+  // Passer en mode édition
   isEditing.value = true
+
+  console.log('Guest data after reset:', guestData)
 }
 
 const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
 }
 
+// Nouvelle fonction pour la section "Autres informations"
+const toggleOtherInfoSection = () => {
+  showOtherInfoSection.value = !showOtherInfoSection.value
+}
+
 const editGuest = () => {
-  isEditing.value = !isEditing.value
+  if (isEditing.value && isCreatingNewGuest.value) {
+
+    cancelEdit()
+  } else {
+    isEditing.value = !isEditing.value
+  }
 }
 
-const uploadImage = () => {
-  console.log('Upload image')
+// Fonctions pour gérer les uploads d'images
+const onProfilePhotoSuccess = async (result: any) => {
+  try {
+
+    if (profilePhotoUploader.value?.hasSelectedFile()) {
+      const uploadedUrl = await profilePhotoUploader.value.uploadToCloudinary()
+      guestData.profilePhoto = uploadedUrl
+    } else {
+      guestData.profilePhoto = result.url || result.info?.secure_url || result
+    }
+    toast.success(t('Profile photo uploaded successfully'))
+  } catch (error) {
+    console.error('Error handling profile photo:', error)
+    toast.error(t('Profile photo upload failed'))
+  }
+}
+
+const onIdPhotoSuccess = async (result: any) => {
+  try {
+
+    if (idPhotoUploader.value?.hasSelectedFile()) {
+      const uploadedUrl = await idPhotoUploader.value.uploadToCloudinary()
+      guestData.idPhoto = uploadedUrl
+    } else {
+      guestData.idPhoto = result.url || result.info?.secure_url || result
+    }
+    toast.success(t('ID photo uploaded successfully'))
+  } catch (error) {
+    console.error('Error handling ID photo:', error)
+    toast.error(t('ID photo upload failed'))
+  }
+}
+
+const onUploadError = (error: any) => {
+  console.error('Upload error:', error)
+  toast.error(t('Image upload failed'))
 }
 
 
+const handlePickupDropoff = () => {
+  showPickupModal.value = true
+}
 
+// Fonction de préparation de la charge utile (payload) mise à jour
 const prepareGuestPayload = (): GuestPayload => {
   const payload: GuestPayload = {
+    hotelId: serviceStore.serviceId!,
     title: guestData.title,
     firstName: guestData.firstName,
     lastName: guestData.lastName,
+    profilePhoto: guestData.profilePhoto?? undefined,
     phonePrimary: guestData.phone,
-    hotelId:serviceStore.serviceId!,
-    // mobile: guestData.mobile,
+    mobileNumber: guestData.mobile,
     email: guestData.email,
     gender: guestData.gender,
-    address: guestData.address,
-    city: guestData.city,
-    // management: guestData.management,
-    country: guestData.country,
-    nationality: guestData.nationality,
-    company: guestData.company,
-    // fax: guestData.fax,
-    // registrationNo: guestData.registrationNo,
+    guestType: guestData.guestType,
     vipStatus: guestData.vipStatus,
+    addressLine: guestData.address,
+    country: guestData.country,
+    stateProvince: guestData.stateProvince,
+    city: guestData.city,
+    postalCode: guestData.postalCode,
+    nationality: guestData.nationality,
+    companyName: guestData.company,
+    fax: guestData.fax,
+    registrationNumber: guestData.registrationNo,
+    idPhoto: guestData.idPhoto ?? undefined,
     idType: guestData.idType,
     idNumber: guestData.idNumber,
     dateOfBirth: guestData.dateOfBirth,
-    // reservationId: props.reservationId
+    idExpiryDate: guestData.idExpiryDate,
+    issuingCountry: guestData.issuingCountry,
+    issuingCity: guestData.issuingCity,
+    preferences: formatPreferencesForDB(guestData.preferences)
   }
 
-  // Remove empty/undefined values
-  Object.keys(payload).forEach(key => {
-    if (payload[key as keyof GuestPayload] === '' || payload[key as keyof GuestPayload] === undefined) {
+  // Optionnel: Nettoyer les valeurs vides
+  Object.keys(payload).forEach((key) => {
+    const value = payload[key as keyof GuestPayload]
+    if (value === '' || value === null || value === undefined) {
       delete payload[key as keyof GuestPayload]
     }
   })
@@ -465,40 +875,54 @@ const prepareGuestPayload = (): GuestPayload => {
 }
 
 const saveGuest = async () => {
+  isSaving.value = true
   try {
-
-    isSaving.value = true
-    const payload = prepareGuestPayload()
-
-
-    if (isCreatingNewGuest.value) {
-     const response = await createGuest(payload)
-     console.log('createGuest',response)
-      toast.success(t('Guest created successfully'))
-    } else {
-      const guestId = selectedGuest.value?.id
-      if (!guestId) {
-        throw new Error('Guest ID is required for update')
-      }
-      console.log("payload",payload)
-      console.log("guestId",guestId)
-      const response = await updateGuest(guestId, payload)
-      console.log('updateGuest',response)
-
-      toast.success(t('Guest updated successfully'))
-
+    // Upload des images si nécessaire
+    if (profilePhotoUploader.value?.hasSelectedFile()) {
+      guestData.profilePhoto = await profilePhotoUploader.value.uploadToCloudinary()
     }
 
-    // Exit edit mode and creation mode
+    if (idPhotoUploader.value?.hasSelectedFile()) {
+      guestData.idPhoto = await idPhotoUploader.value.uploadToCloudinary()
+    }
+
+    const payload = prepareGuestPayload()
+
+    if (isCreatingNewGuest.value) {
+      const response = await createGuest(payload)
+      toast.success(t('Guest created successfully'))
+
+      // Mettre à jour la liste des invités si possible
+      if (response.data && props.reservation) {
+        // Ajouter le nouvel invité à la liste
+        props.reservation.guests = props.reservation.guests || []
+        props.reservation.guests.push(response.data)
+
+        // Sélectionner le nouvel invité
+        selectedGuest.value = response.data
+        Object.assign(guestData, initializeGuestData(response.data))
+      }
+
+      isCreatingNewGuest.value = false
+    } else {
+      const guestId = selectedGuest.value?.id
+      if (!guestId) throw new Error('Guest ID is required for update')
+      await updateGuest(guestId, payload)
+      toast.success(t('Guest updated successfully'))
+
+      // Mettre à jour les données de l'invité sélectionné
+      if (selectedGuest.value) {
+        Object.assign(selectedGuest.value, guestData)
+      }
+    }
+
     isEditing.value = false
-    isCreatingNewGuest.value = false
+    resetKey.value++
 
   } catch (error: any) {
     console.error('Error saving guest:', error)
-    const errorMessage = isCreatingNewGuest.value
-      ? t('Error creating guest: ') + (error.response?.data?.message || error.message)
-      : t('Error updating guest: ') + (error.response?.data?.message || error.message)
-    toast.error(errorMessage)
+    const errorMessage = error.response?.data?.message || error.message
+    toast.error(`${t('Error saving guest')}: ${errorMessage}`)
   } finally {
     isSaving.value = false
   }
@@ -506,19 +930,91 @@ const saveGuest = async () => {
 
 const cancelEdit = () => {
   isEditing.value = false
-
   if (isCreatingNewGuest.value) {
     isCreatingNewGuest.value = false
-    const guestToSelect = props.guest || (guestList.value && guestList.value[0])
+    const guestToSelect = props.guest || guestList.value?.[0]
     if (guestToSelect) {
       selectGuest(guestToSelect)
+    } else {
+      selectedGuest.value = null
+      Object.assign(guestData, initializeGuestData(null))
     }
   } else {
     Object.assign(guestData, initializeGuestData(selectedGuest.value))
   }
+  resetKey.value++
 }
-</script>
 
-<style scoped>
-/* Additional styles if needed */
-</style>
+const loadPreferences = async () => {
+  try {
+    const hotelId = serviceStore.serviceId
+    const response = await getPreferencesByHotelId(hotelId!)
+    Preferences.value = response.data.data.data.map((i: any) => ({
+      label: i.name,
+      value: i.id
+    }))
+
+  } catch (error) {
+    console.error('Error loading preferences:', error)
+  }
+}
+
+const fetchIdentityTypes = async () => {
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId) return
+
+    const res = await getIdentityTypesByHotelId(hotelId)
+
+    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+
+      const normalizedName = type.name.toLowerCase().replace(/ /g, '')
+
+      switch (normalizedName) {
+        case 'passport':
+        case 'passeport':
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'passportNumber',
+            dateField: 'passportExpiry',
+            label_fr: t('identity.passport_number'),
+          }
+        case 'visa':
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'visaNumber',
+            dateField: 'visaExpiry',
+            label_fr: t('identity.visa_number'),
+          }
+        default:
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'idNumber',
+            dateField: 'idExpiryDate',
+            label_fr: t('identity.id_number'),
+          }
+      }
+    })
+  } catch (err) {
+    console.error('Erreur lors de la récupération des types de pièces:', err)
+  }
+}
+
+const selectedIdTypeInfo = computed(() => {
+  return idTypeOptions.value.find((opt) => opt.value === guestData.idType)
+})
+
+const idNumberLabel = computed(() => {
+  // Retourne le label personnalisé, ou un label par défaut
+  return selectedIdTypeInfo.value?.label_fr || t('identity.id_number')
+})
+
+onMounted(() => {
+  loadPreferences()
+  fetchIdentityTypes()
+
+})
+</script>

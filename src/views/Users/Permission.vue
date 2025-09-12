@@ -1,9 +1,10 @@
 <template>
-  <AdminLayout>
+<!-- @reference tailwindcss -->
+  <ConfigurationLayout>
     <div class="min-h-screen bg-gray-50 p-6">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 @reference p-6 mb-6">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -37,7 +38,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-screen">
           <!-- Roles List -->
           <div class="lg:col-span-1 lg:sticky lg:top-20 self-start">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 @reference p-4">
               <div class="flex justify-between py-2">
                 <h2 class="font-semibold text-gray-900 mb-4">{{ $t('roles') }} ({{ filteredRoles.length }})
                   <DotSpinner v-if="isloadingRole"/>
@@ -50,7 +51,7 @@
                 <button v-for="role in filteredRoles" :key="role.id" @click="selectedRole = role" :class="selectedRole?.id === role.id
                   ? 'bg-blue-50 border-blue-200 text-blue-900'
                   : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                  " class="w-full text-left p-3 rounded-lg border transition-colors">
+                  " class="w-full text-left p-3 rounded-lg border border-gray-200 @reference transition-colors">
                   <div class="font-medium">{{ capitalizeEachWord(role.name) }}</div>
                   <div class="text-sm text-gray-500 mt-1">
                     {{ role.permissions?.service?.length || 0 }} {{ $t('permission')
@@ -63,7 +64,7 @@
 
           <!-- Permissions Details -->
           <div class="lg:col-span-3">
-            <div v-if="editMode && selectedRole" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div v-if="editMode && selectedRole" class="bg-white rounded-lg shadow-sm border border-gray-200 @reference p-6">
               <div class="flex justify-between items-center mb-6">
                 <h4 class="font-medium text-gray-900 mb-4">{{ $t('edit_permission') }}</h4>
 
@@ -84,7 +85,7 @@
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <label v-for="permission in allPermissions" :key="permission"
-                  class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  class="flex items-center gap-3 p-3 border border-gray-200 @reference rounded-lg hover:bg-gray-50 cursor-pointer">
                   <input type="checkbox" :checked="hasPermission(selectedRole, permission)"
                     @change="togglePermission(selectedRole, permission, $event)"
                     class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
@@ -118,7 +119,7 @@
               </div>
             </div>
             <div v-else>
-              <div v-if="selectedRole" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div v-if="selectedRole" class="bg-white rounded-lg shadow-sm border border-gray-200 @reference p-6">
 
                 <div class="flex items-center justify-between mb-6">
                   <div>
@@ -145,7 +146,7 @@
                 <div v-if="Object.keys(getPermissionsByCategory(selectedRole)).length">
 
                   <div v-for="(permissions, category) in getPermissionsByCategory(selectedRole)" :key="category"
-                    class="border border-gray-200 rounded-lg p-4 mb-6">
+                    class="border border-gray-200 @reference rounded-lg p-4 mb-6">
                     <h3 class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mb-3"
                       :class="getCategoryColor(category)">
                       {{ $t(`categories.${category}`) || category }}
@@ -174,7 +175,7 @@
                 </div>
               </div>
 
-              <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+              <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200 @reference p-12 text-center">
                 <Users class="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('select_role') }}</h3>
                 <p class="text-gray-600">
@@ -186,7 +187,6 @@
         </div>
       </div>
     </div>
-
     <Modal v-if="modalOpen" @close="closeModal()">
       <template #body>
         <div
@@ -241,11 +241,10 @@
         </div>
       </template>
     </Modal>
-  </AdminLayout>
+  </ConfigurationLayout>
 </template>
 
 <script lang="ts" setup>
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { ref, computed, onMounted } from 'vue'
@@ -261,6 +260,7 @@ import { useAuthStore } from '@/composables/user'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useI18n } from 'vue-i18n'
 import DotSpinner from '@/components/spinner/DotSpinner.vue'
+import ConfigurationLayout from '../Configuration/ConfigurationLayout.vue'
 const isloadingRole = ref(false);
 const { t } = useI18n()
 

@@ -379,6 +379,8 @@ const endTransition = (el: Element): void => {
 };
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .sidebar-scroll {
   -ms-overflow-style: none;  /* Internet Explorer 10+ */
   scrollbar-width: none;  /* Firefox */
