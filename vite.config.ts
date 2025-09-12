@@ -438,6 +438,6 @@ export default defineConfig({
     emptyOutDir: true,
     assetsDir: 'assets',
     // Enable source maps for debugging but exclude from production
-    sourcemap: process.env.NODE_ENV === 'development',
+    sourcemap: false,
   }
 })
