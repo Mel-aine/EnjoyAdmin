@@ -41,7 +41,7 @@
           <!-- Guest Stats -->
 
             <div class="flex flex-col text-center">
-              <span class="text-sm font-bold mb-1">{{ $t('Outstanding') }}</span>
+              <span class="text-sm font-bold mb-1">{{ $t('OutstandingBalance') }}</span>
               <div class="relative">
                 <span
                   :class="[

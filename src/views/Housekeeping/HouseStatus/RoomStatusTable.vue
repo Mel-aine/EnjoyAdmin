@@ -38,7 +38,7 @@
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-green-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-green-500 mr-1"></div>
-                <span class="text-sm">{{ $t('clean') }}</span>
+                <span class="text-sm">{{ $t('Clean') }}</span>
               </div>
             </th>
             <th class="py-2 px-3 border-b border-gray-200 text-center bg-gray-50">
@@ -54,16 +54,16 @@
             <th colspan="7" class="py-3 px-4 border-b border-gray-200">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                  <span class="text-sm font-medium">{{ selectedRoomsCount }} Records Selected</span>
+                  <span class="text-sm font-medium">{{ selectedRoomsCount }} {{ $t('RecordsSelected') }}</span>
 
                   <div class="flex items-center space-x-2">
                     <div class="w-48">
-                      <Select :placeholder="'Select operation'" :options="availableOperations" v-model="selectedOperation" @change="onOperationChange"/>
+                      <Select :placeholder="$t('Selectoperation')" :options="availableOperations" v-model="selectedOperation" @change="onOperationChange"/>
                     </div>
 
                     <!-- Select pour le statut si "Set Status" est sélectionné -->
                     <div v-if="selectedOperation === 'set_clean_status'" class="w-48">
-                      <Select :placeholder="$t('set_to_clean')" :options="[{value: 'clean', label: t('clean')}]" v-model="selectedStatus"/>
+                      <Select :placeholder="$t('set_to_clean')" :options="[{value: 'clean', label: t('Clean')}]" v-model="selectedStatus"/>
                     </div>
 
                     <!-- Select pour le housekeeper si "Assign Housekeeper" est sélectionné -->
@@ -339,12 +339,12 @@ const availableOperations = computed(() => {
 
   // Si toutes les chambres sélectionnées sont dirty, on peut les nettoyer
   if (selectedRooms.length > 0 && selectedRooms.every(room => isDirtyRoom(room))) {
-    operations.push({ value: 'set_clean_status', label: 'Mark as Clean' })
+    operations.push({ value: 'set_clean_status', label: t('Mark as Clean') })
   }
 
   // Si toutes les chambres sélectionnées sont dirty, on peut assigner un housekeeper
   if (selectedRooms.length > 0 && selectedRooms.every(room => isDirtyRoom(room))) {
-    operations.push({ value: 'assign_housekeeper', label: 'Assign Housekeeper' })
+    operations.push({ value: 'assign_housekeeper', label: t('Assign Housekeeper') })
   }
 
   return operations

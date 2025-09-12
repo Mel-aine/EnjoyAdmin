@@ -23,7 +23,7 @@ import messages from '@/lang/index';
 
 const i18n = createI18n({
     legacy: false,
-    locale: 'en', // set locale
+    locale: localStorage.getItem('language') || 'en', // set locale
     fallbackLocale: 'en', // set fallback locale
     messages,
 })

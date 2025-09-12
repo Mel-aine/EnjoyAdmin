@@ -47,7 +47,7 @@
         <div>
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
-            <BasicButton :label="$t('addPayment')" @click="openAddPaymentModal" />
+            <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
             <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
@@ -172,12 +172,12 @@
         </template>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountRoomCharge 
-            :is-open="isApplyDiscountModal" 
+          <ApplyDiscountRoomCharge
+            :is-open="isApplyDiscountModal"
             :reservation-id="reservationId"
             :reservation-number="reservation?.reservationNumber"
-            @close="closeApplyDiscountModal" 
-            @discount-applied="handleDiscountApplied" 
+            @close="closeApplyDiscountModal"
+            @discount-applied="handleDiscountApplied"
           />
         </template>
       </div>
@@ -443,7 +443,7 @@ const refreshFolio =async ()=>{
     }
   } catch (e) {
     console.log(e)
-  } 
+  }
 }
 const getFolosReservations = async () => {
   loading.value = true

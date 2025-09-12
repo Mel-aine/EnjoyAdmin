@@ -422,10 +422,10 @@ console.log('modalevalue', props.modelValue)
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
           <div>
-            <InputCountries :lb="'Country'" v-model="selectedCustomer.country" />
+            <InputCountries :lb="$t('country')" v-model="selectedCustomer.country" />
           </div>
           <div>
-            <Input :inputType="'text'" :lb="$t('State')" :id="'State'" forLabel="'State'"
+            <Input :inputType="'text'" :lb="$t('hotelInformation.fields.stateProvince')" :id="'State'" forLabel="'State'" :placeholder="$t('enterState')"
               v-model="selectedCustomer.state" />
           </div>
           <div>
@@ -433,7 +433,7 @@ console.log('modalevalue', props.modelValue)
               v-model="selectedCustomer.city" />
           </div>
           <div>
-            <Input :inputType="'text'" :lb="$t('Zipcode')" :id="'zipcode'" forLabel="'zipcode'"
+            <Input :inputType="'text'" :lb="$t('postalCode')" :id="'zipcode'" forLabel="'zipcode'" :placeholder="$t('postalCode')"
               v-model="selectedCustomer.zipcode" />
           </div>
         </div>

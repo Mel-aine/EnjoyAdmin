@@ -94,8 +94,8 @@ const genders = computed(()=>[
 ])
 
 const Languages = computed(()=>[
-  { label: t('english'), value: 'english' },
-  { label: t('french'), value: 'french' },
+  { label: t('english'), value: 'en' },
+  { label: t('french'), value: 'fr' },
 ])
 
 const togglePasswordVisibility = () => {

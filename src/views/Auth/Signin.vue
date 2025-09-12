@@ -225,7 +225,9 @@ import { useRouter } from 'vue-router'
 import { auth, validateEmail, validatePassword } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
 import ButtonLanguage from '@/components/buttons/ButtonLanguage.vue'
+import { useI18n } from 'vue-i18n'
 
+const { locale } = useI18n()
 const isLoading = ref(false);
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
@@ -276,6 +278,10 @@ const handleSubmit = async () => {
     console.log("res.data.data", res.data.data);
 
     if (user) {
+      if (user.language) {
+        locale.value = user.language;
+        localStorage.setItem('language', user.language);
+      }
       const userServices = res.data.data.userServices || [];
 
       if (userServices.length > 1) {

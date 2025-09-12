@@ -112,10 +112,10 @@
         <Input :lb="$t('city')" v-model="form.city" placeholder="Ville" />
       </div>
       <div>
-        <Input :lb="$t('postalCode')" v-model="form.postalCode" placeholder="Code Postal" />
+        <Input :lb="$t('postalCode')" v-model="form.postalCode" :placeholder="$t('postalCode')" />
       </div>
       <div>
-        <InputCountries v-model="form.nationality" :lb="$t('nationality')" />
+        <InputCountries v-model="form.nationality" :lb="$t('customerDetails.basicInfo.nationality')" />
       </div>
       <div>
         <Input :lb="$t('Company Name')" v-model="form.companyName" placeholder="Société" />
