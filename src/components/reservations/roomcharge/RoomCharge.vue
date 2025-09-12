@@ -419,7 +419,7 @@ const getMoreActionOptions = () => {
     const status = reservationStatus.value?.toLowerCase()
     const currentDate = new Date()
     const arrivalDate = new Date(checkInDate.value)
-    const departureDate = new Date(props.reservation?.departDate || props.reservation?.checkOutDate)
+    // const departureDate = new Date(props.reservation?.departDate || props.reservation?.checkOutDate)
 
     // Check-in: Available for confirmed reservations on or after arrival date
     if (canCheckIn) {
