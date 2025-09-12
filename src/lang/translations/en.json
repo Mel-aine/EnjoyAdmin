@@ -1,6 +1,7 @@
 {
   "login": "Login",
   "french": "French",
+  "english" : "English",
   "FirstName": "First Name",
   "LastName": "Last Name",
   "Phone": "Phone",
@@ -6019,5 +6020,10 @@
   "Local Address": "Local Address",
   "External Service": "External Service",
   "Internal Service": "Internal Service",
-  "AssignRoom":"Assign Room"
+  "AssignRoom":"Assign Room",
+  "SelectedReservations" : "Selected Reservations",
+  "OnGroup" : "On Group",
+  "ApplyChargesOn" : "Apply ChargesOn",
+  "SelectOwner" : "Select Owner",
+  "selectLanguage" : "Select a Language"
 }

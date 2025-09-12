@@ -619,7 +619,7 @@ onMounted(() => {
       </div>
       <!--tab content-->
       <div v-if="activeTab === 'room_charges'">
-        <RoomCharge :reservation-id="reservation.id"></RoomCharge>
+        <RoomCharge :reservation-id="reservation.id" :reservation="reservation"></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && reservation && reservation.id">
         <FoglioOperation

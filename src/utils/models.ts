@@ -338,6 +338,7 @@ export interface Form {
   contractEndDate: string
   dataProcessingConsent?: boolean
   consentDate: string
+  language:string
 }
 export const defaultData = (): Form => {
   return {
@@ -362,6 +363,7 @@ export const defaultData = (): Form => {
     contractEndDate: '',
     dataProcessingConsent: true,
     consentDate: '',
+    language:''
   }
 }
 

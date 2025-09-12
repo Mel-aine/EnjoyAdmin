@@ -56,10 +56,10 @@
             <span>{{ formatAmount(summaryData?.totalCharges || 0) }}</span>
           </div>
           <!-- Total Tax -->
-          <div class="flex justify-between text-xs text-gray-600">
+          <!-- <div class="flex justify-between text-xs text-gray-600">
             <span>{{ $t('TotalTax') }}</span>
             <span>{{ formatAmount(summaryData?.totalTax || 0) }}</span>
-          </div>
+          </div> -->
           <!-- Total Discounts -->
           <div v-if="summaryData?.totalDiscounts > 0" class="flex justify-between text-xs text-green-600">
             <span>{{ $t('TotalDiscounts') }}</span>
@@ -71,17 +71,17 @@
             <span>{{ formatAmount(summaryData?.totalAdjustments || 0) }}</span>
           </div>
 
-          <hr class="border-gray-300 my-1">
+          <!-- <hr class="border-gray-300 my-1"> -->
           <!-- Net Total -->
-          <div class="flex justify-between font-medium">
+          <!-- <div class="flex justify-between font-medium">
             <span>{{ $t('NetTotal') }}</span>
             <span>{{ formatAmount(summaryData?.totalNetAmount || 0) }}</span>
-          </div>
+          </div> -->
           <!-- Balance Due -->
-          <div class="flex justify-between text-red-500 font-medium">
+          <!-- <div class="flex justify-between text-red-500 font-medium">
             <span>{{ $t('BalanceDue') }}</span>
             <span>{{ formatAmount(balanceAmount) }}</span>
-          </div>
+          </div> -->
           <!-- Room Info -->
           <div class="flex justify-between text-xs text-gray-500 mt-1 pt-1 border-t border-gray-100">
             <span>{{ summaryData?.totalRooms }} {{ summaryData?.totalRooms === 1 ? $t('Room') : $t('Rooms') }} • {{ summaryData?.totalTransactions }} {{ $t('transactions') }}</span>
@@ -236,6 +236,15 @@
           <UnAssignRoomReservation :reservation-id="reservationId" :is-open="isUnAssignReservationModalOpen"
             @close="closeUnAssignReservationModal" />
         </template>
+        <template v-if="reservation">
+         <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+
+         <CancelReseravtion :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @cancel-confirmed="handleCancelConfirmed" />
+        </template>
     </div>
 
     <!-- Apply Discount Modal -->
@@ -263,6 +272,8 @@ import { getRoomCharges } from '../../../services/reservation'
 import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
+import AmendStay from '../foglio/AmendStay.vue'
+import CancelReseravtion from '../foglio/CancelReseravtion.vue'
 const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
 
@@ -277,6 +288,10 @@ const props = defineProps({
   isGroup: {
     type: Boolean,
     default: false
+  },
+  reservation: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -285,6 +300,7 @@ const props = defineProps({
 const isAddRoomChargeModalOpen = ref(false)
 const isApplyRateModalOpen = ref(false)
 const isApplyDiscountModalOpen = ref(false)
+const showCancelModal = ref(false)
 
 interface RoomChargeItem {
   id: number
@@ -295,6 +311,11 @@ interface RoomChargeItem {
   amount: number
   status: 'active' | 'inactive'
   nights: number
+}
+
+interface Emits {
+    (e: 'close'): void
+    (e: 'save', data?: any): void
 }
 
 const loading = ref(false)
@@ -313,9 +334,12 @@ const selectedTableItems = ref<any[]>([])
 const toast = useToast()
 const isCheckInReservationModalOpen = ref(false)
 const isUnAssignReservationModalOpen = ref(false)
+const showAmendModal = ref(false)
+
+const emit = defineEmits<Emits>()
 
 // Computed Properties
-const isGroupReservation = computed(() => props.isGroup || groupRooms.value.length > 1)
+const isGroupReservation = computed(() => groupRooms.value.length > 1)
 
 const filteredRoomChargeData = computed(() => {
   if (!isGroupReservation.value) {
@@ -360,6 +384,12 @@ const canCheckIn = computed(() => {
   return isConfirmed && isCheckInDateReached
 })
 
+const canCancel = computed(()=>{
+  const isCancel = reservationStatus.value?.toLocaleLowerCase() != 'cancelled'
+  return isCancel
+})
+
+
 // Table Columns
 const columns = computed<Column[]>(() => [
   { key: 'transactionDate', label: t('Stay'), type: 'custom' },
@@ -390,6 +420,10 @@ const getMoreActionOptions = () => {
       groupOptions.push({ label: t('groupCheckIn'), id: 'groupCheckIn' })
     }
 
+     if (canCancel.value) {
+      groupOptions.push({ label: t('GroupCancellation'), id: 'groupCancellation' })
+    }
+
     // Ajouter les autres options de groupe
     groupOptions.push(
       { label: t('UnassignRooms'), id: 'unassignRooms' },
@@ -399,7 +433,7 @@ const getMoreActionOptions = () => {
       { label: t('SetReleaseDate'), id: 'setReleaseDate' },
       { label: t('GroupSettlement'), id: 'groupSettlement' },
       { label: t('AddBookingToGroup'), id: 'addBookingToGroup' },
-      { label: t('GroupCancellation'), id: 'groupCancellation' }
+
     )
 
     return [...baseOptions, ...groupOptions]
@@ -437,16 +471,6 @@ const getAmountColor = (amount: number): string => {
   return 'text-gray-500'
 }
 
-const getTableTitle = (): string => {
-  if (isGroupReservation.value) {
-    if (selectedRoomId.value) {
-      const room = groupRooms.value.find(r => r.id === selectedRoomId.value)
-      return `${t('RoomCharges')} - ${room?.roomNumber || ''}`
-    }
-    return t('GroupRoomCharges')
-  }
-  return t('RoomCharges')
-}
 
 // Event Handlers
 const selectRoom = (roomId: number) => {
@@ -465,11 +489,20 @@ const handleMoreAction = (action: any) => {
       }
       break
     case 'unassignRooms':
-      // Handle unassign rooms
+      openUnAssignReservationModal()
       break
     case 'voidGroup':
       openVoidReservationModal()
       break
+    case 'groupAmendStay' :
+     showAmendModal.value = true
+    break
+    case 'groupCancellation' :
+      if(canCancel.value){
+        showCancelModal.value = true
+      }
+
+     break
     // Add more cases as needed
   }
 }
@@ -501,7 +534,7 @@ const loadRoomCharges = async () => {
       roomChargeData.value = response.data.roomChargesTable || []
       summaryData.value = response.data.summary || {}
       totalAmount.value = response.data.summary?.totalNetAmount || 0
-      balanceAmount.value = response.data.summary?.totalNetAmount || 0
+      // balanceAmount.value = response.data.summary?.outstandingBalance || 0
 
       // Récupérer le statut et la date de check-in depuis la réponse
       reservationStatus.value = response.data.status || response.data.reservationStatus || ''
@@ -541,6 +574,19 @@ const loadRoomCharges = async () => {
   }
 }
 
+
+const getTableTitle = (): string => {
+  if (isGroupReservation.value) {
+    if (selectedRoomId.value) {
+      const room = groupRooms.value.find(r => r.id === selectedRoomId.value)
+      return `${t('RoomCharges')} - ${room?.roomNumber || ''}`
+    }
+    return t('GroupRoomCharges')
+  }
+  return t('RoomCharges')
+}
+
+
 //handle Modal
 
 const openCheckInReservationModal = () =>{
@@ -563,6 +609,17 @@ const handleApplyRate = (rateData: any) => {
   console.log('Applying rate:', rateData)
   // Here you would typically update room charges with new rates
   closeApplyRateModal()
+}
+
+const handleAmendConfirmed = () => {
+    showAmendModal.value = false
+    // Emit save event to notify parent components
+    emit('save', { action: 'amend', reservationId: props.reservation?.id })
+}
+
+const handleCancelConfirmed = () => {
+    showCancelModal.value = false
+    emit('save', { action: 'cancel', reservationId: props.reservation?.id })
 }
 
 // Apply Discount modal handlers
