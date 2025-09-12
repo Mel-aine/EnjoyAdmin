@@ -451,6 +451,32 @@ const printOptions = computed(() => [
 // Print handlers
 const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
+    if (option.id === 'invoice') {
+        templates.value = [
+            {
+                id: 'invoice-1',
+                name: 'Standard Invoice',
+                type: 'invoice',
+            },
+        ]
+    } else if (option.id === 'confirmation') {
+        templates.value = [
+            {
+                id: 'confirmation-1',
+                name: 'Booking Confirmation',
+                type: 'confirmation',
+            },
+        ]
+    } else if (option.id === 'receipt') {
+        templates.value = [
+            {
+                id: 'receipt-1',
+                name: 'Payment Receipt',
+                type: 'receipt',
+            },
+        ]
+    }
+
     showPrintModal.value = true
 }
 const roomRateTypeSummary = computed(() => {
@@ -506,26 +532,7 @@ const handlePrintSuccess = (data: any) => {
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }
-const templates = ref<PrintTemplate[]>([
-    {
-        id: '1',
-        name: 'Booking Confirmation',
-        description: 'Document de confirmation de booking',
-        type: 'confirmation'
-    },
-    {
-        id: '2',
-        name: 'Invoice Reception',
-        description: 'Facture de réservation',
-        type: 'invoice'
-    },
-    {
-        id: '3', 
-        name: 'Reçu',
-        description: 'Reçu de paiement',
-        type: 'receipt'
-    }
-])
+const templates = ref<PrintTemplate[]>([])
 // Document data for printing
 const printDocumentData = computed(() => ({
     reservation: reservation.value,
