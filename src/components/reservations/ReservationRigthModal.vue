@@ -271,7 +271,7 @@
                         </div>
                         <!-- Show room list for multiple rooms -->
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
-                            <GroupReservationRoomList :rooms="reservation.reservationRooms"
+                            <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" />
                         </div>
                     </div>

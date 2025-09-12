@@ -12,7 +12,9 @@
       <!-- Rate Types Table using ReusableTable -->
       <ReusableTable :title="t('rateTypesList')" :columns="columns" :data="rateTypes" :actions="actions"
         :search-placeholder="t('searchRateTypes')" :selectable="true" :empty-state-title="t('noRateTypesFound')"
-        :empty-state-message="t('addRateTypeMessage')" @action="onAction" @selection-change="onSelectionChange">
+        :empty-state-message="t('addRateTypeMessage')" @action="onAction" @selection-change="onSelectionChange"
+        :loading="loading"
+        >
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRateType')" :icon="Plus">
           </BasicButton>
@@ -116,36 +118,10 @@
                   <!-- Custom column for room type info -->
                   <template #column-roomTypeInfo="{ item }">
                     <div>
-                      <div class="text-sm font-medium text-gray-900">{{ item.label }}({{ item.baseAdult }}/{{ item.baseChild }})</div>
+                      <div class="text-sm font-medium text-gray-900">{{ item.label }}({{ item.baseAdult }}/{{
+                        item.baseChild }})</div>
                     </div>
                   </template>
-
-                  <!-- Custom column for rate inputs 
-                  <template #column-rateInputs="{ item }">
-                    <div class="grid grid-cols-3 gap-2">
-                      <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('rackRate') }}</label>
-                        <input type="number" step="0.01" min="0" :value="getRoomRate(item.value, 'rackRate')"
-                          @input="updateRoomRate(item.value, 'rackRate', $event.target.value)"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                          :placeholder="t('enterRate')" />
-                      </div>
-                      <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('extraAdult') }}</label>
-                        <input type="number" step="0.01" min="0" :value="getRoomRate(item.value, 'extraAdult')"
-                          @input="updateRoomRate(item.value, 'extraAdult', $event.target.value)"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                          :placeholder="t('enterRate')" />
-                      </div>
-                      <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('extraChild') }}</label>
-                        <input type="number" step="0.01" min="0" :value="getRoomRate(item.value, 'extraChild')"
-                          @input="updateRoomRate(item.value, 'extraChild', $event.target?.value)"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                          :placeholder="t('enterRate')" />
-                      </div>
-                    </div>
-                  </template> -->
                 </ReusableTable>
               </div>
             </div>
@@ -188,7 +164,7 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
-import { getRateTypes, postRateType, updateRateTypeById, getRoomTypes } from '@/services/configrationApi'
+import { getRateTypes, postRateType, updateRateTypeById, getRoomTypes, deleteRateTypeById } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
@@ -278,7 +254,7 @@ const roomTypeColumns: Column[] = [
 ]
 
 const serviceStore = useServiceStore()
-
+const loading =ref(false);
 // Sample data
 const rateTypes = ref([
 
@@ -310,11 +286,9 @@ const confirmDeleteRateType = async () => {
 
   isDeletingLoading.value = true
   try {
-    const index = rateTypes.value.findIndex((rt:any) => rt.id === rateTypeToDelete.value.id)
-    if (index > -1) {
-      rateTypes.value.splice(index, 1)
-      toast.success(t('rateTypeDeletedSuccessfully'))
-    }
+    const response = deleteRateTypeById(rateTypeToDelete.value.id)
+    toast.success(t('rateTypeDeletedSuccessfully'))
+
   } catch (error) {
     console.error('Error deleting rate type:', error)
     toast.error(t('errorDeletingRateType'))
@@ -362,7 +336,7 @@ const confirmDeleteSelected = async () => {
   isDeletingLoading.value = true
   try {
     selectedRateTypes.value.forEach((rateType: any) => {
-      const index = rateTypes.value.findIndex((rt:any) => rt.id === rateType?.id)
+      const index = rateTypes.value.findIndex((rt: any) => rt.id === rateType?.id)
       if (index > -1) {
         rateTypes.value.splice(index, 1)
       }
@@ -453,20 +427,10 @@ const updateRoomRatesArray = () => {
   })
 }
 
-const getRoomRate = (roomTypeId: string, rateType: string) => {
-  const roomRate = roomRates.value.find(rate => rate.roomTypeId === roomTypeId)
-  return roomRate ? roomRate[rateType] : 0
-}
-
-const updateRoomRate = (roomTypeId: string, rateType: string, value: string) => {
-  const roomRateIndex = roomRates.value.findIndex(rate => rate.roomTypeId === roomTypeId)
-  if (roomRateIndex !== -1) {
-    roomRates.value[roomRateIndex][rateType] = parseFloat(value) || 0
-  }
-}
 
 // Load data from API
 const loadData = async () => {
+loading.value = true
   try {
     const response = await getRateTypes()
     rateTypes.value = response.data.data.data || []
@@ -474,6 +438,8 @@ const loadData = async () => {
     console.error('Error loading rate types:', error)
     toast.error(t('errorLoadingRateTypes'))
     // Keep existing mock data as fallback
+  }finally{
+  loading.value = false
   }
 }
 
