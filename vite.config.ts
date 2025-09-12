@@ -91,10 +91,7 @@ export default defineConfig({
           if (id.includes('vue-router')) {
             return 'vue-router'
           }
-          // Pinia state management
-          if (id.includes('pinia')) {
-            return 'pinia'
-          }
+          // Pinia state management - excluded from build
           // Vue DevTools
           if (id.includes('vue-devtools') || id.includes('@vue/devtools')) {
             return 'vue-devtools'
