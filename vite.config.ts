@@ -91,7 +91,9 @@ export default defineConfig({
           if (id.includes('vue-router')) {
             return 'vue-router'
           }
-          // Pinia state management - excluded from build
+          if (id.includes('pinia')) {
+                return 'pinia';
+              }
           // Vue DevTools
           if (id.includes('vue-devtools') || id.includes('@vue/devtools')) {
             return 'vue-devtools'
@@ -429,8 +431,7 @@ export default defineConfig({
         }
       },
       external: (id) => {
-        // Externalize heavy dependencies that can be loaded via CDN in production
-        return false
+        return false;
       }
     },
     // Electron build optimizations
