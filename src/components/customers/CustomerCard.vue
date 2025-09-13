@@ -13,7 +13,7 @@ import { useI18n } from 'vue-i18n'
 import { getCustomer } from '../../services/reservation'
 import InputCountries from '../forms/FormElements/InputCountries.vue'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
-import { getIdentityTypesByHotelId} from '@/services/configrationApi'
+import { getIdentityTypesByHotelId } from '@/services/configrationApi'
 import ImageUploader from './ImageUploader.vue'
 import { useToast } from 'vue-toastification'
 // Ajout de l'import manquant
@@ -28,7 +28,7 @@ import { useBooking } from '@/composables/useBooking2'
 interface SelectOption {
   value: string
   label: string
-  label_fr?:string
+  label_fr?: string
 }
 
 
@@ -118,12 +118,12 @@ const selectCustomer = (customer: any) => {
   selectedCustomer.value.zipcode = customer.postalCode ?? selectedCustomer.value.postalCode
   selectedCustomer.value.title = customer.title ?? selectedCustomer.value.title
   selectedCustomer.value.idPhoto = customer.idPhoto ?? selectedCustomer.value.idPhoto
-   selectedCustomer.value.profilePhoto = customer.profilePhoto ?? selectedCustomer.value.profilePhoto
+  selectedCustomer.value.profilePhoto = customer.profilePhoto ?? selectedCustomer.value.profilePhoto
   // selectedCustomer.value.idNumber = customer.idNumber ?? selectedCustomer.value.idNumber
   // selectedCustomer.value.idExpiryDate = customer.idExpiryDate ?? selectedCustomer.value.idExpiryDate
   selectedCustomer.value.issuingCountry = customer.issuingCountry ?? selectedCustomer.value.issuingCountry
   selectedCustomer.value.issuingCity = customer.issuingCity ?? selectedCustomer.value.issuingCity
-    if (customer.passportNumber) {
+  if (customer.passportNumber) {
     selectedCustomer.value.idType = customer.idType || 'Passport'
     selectedCustomer.value.idNumber = customer.passportNumber
     selectedCustomer.value.idExpiryDate = customer.passportExpiry ? customer.passportExpiry.substring(0, 10) : ''
@@ -355,242 +355,161 @@ console.log('modalevalue', props.modelValue)
   <div class="">
     <!-- Section Informations Personnelles -->
     <div class="p-2 mb-3">
-       <button
-        @click.prevent="toggleInfoSection"
-        class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors"
-      >
-        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen-icon lucide-user-pen w-6 h-6 mr-2 text-purple-600"><path d="M11.5 15H7a4 4 0 0 0-4 4v2"/><path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><circle cx="10" cy="7" r="4"/></svg>
+      <button @click.prevent="toggleInfoSection"
+        class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
+        <h2 class="text-md font-semibold text-gray-900 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-user-pen-icon lucide-user-pen w-5 h-5 mr-2 text-black">
+            <path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
+            <path
+              d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+            <circle cx="10" cy="7" r="4" />
+          </svg>
 
           {{ $t('personalInformation') }}
         </h2>
 
         <div class="flex items-center">
 
-          <ChevronDownIcon
-            :class="[
-              'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
-              { 'rotate-180': !showInfoSection }
-            ]"
-          />
+          <ChevronDownIcon :class="[
+            'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
+            { 'rotate-180': !showInfoSection }
+          ]" />
         </div>
       </button>
 
-    <div
-      v-show="!showInfoSection"
-      class="mt-6 transition-all duration-300 ease-in-out"
-    >
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-        <div class="md:col-span-1">
-          <ImageUploader
-            ref="profilePhotoUploader"
-            v-model="selectedCustomer.profilePhoto"
-            :label="$t('ProfilePhoto')"
-            :max-size-m-b="5"
-            :cloudinary-config="cloudinaryConfig"
-             @file-selected="onProfilePhotoSelected"
-            @file-removed="onProfilePhotoRemoved"
-            @upload-success="onProfilePhotoSuccess"
-            @upload-error="onUploadError"
-          />
-        </div>
-
-        <div class="md:col-span-2 space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-0">
-            <div class="sm:col-span-1">
-              <Select
-                :lb="$t('Title')"
-                :options="GuestTitles"
-                v-model="selectedCustomer.title"
-                :default-value="$t('guestTitles.mr')"
-                custom-class="rounded-r-none"
-              />
-            </div>
-            <div class="sm:col-span-2">
-              <CustomerSarch
-                @customer-selected="selectCustomer"
-                v-model="selectedCustomer"
-              />
+      <div v-show="!showInfoSection" class="mt-6 transition-all duration-300 ease-in-out">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+          <div class="md:col-span-2 max-w-xs">
+            <ImageUploader ref="profilePhotoUploader" v-model="selectedCustomer.profilePhoto"
+              :label="$t('ProfilePhoto')" :max-size-m-b="5" :cloudinary-config="cloudinaryConfig"
+              @file-selected="onProfilePhotoSelected" @file-removed="onProfilePhotoRemoved"
+              @upload-success="onProfilePhotoSuccess" @upload-error="onUploadError" />
+          </div>
+         <div class="col-span-10 grid grid-cols-1 md:grid-cols-12 gap-6">
+           <div class="md:col-span-6 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-0">
+              <div class="sm:col-span-2">
+                <Select :lb="$t('Title')" :options="GuestTitles" v-model="selectedCustomer.title"
+                  :default-value="$t('guestTitles.mr')" custom-class="rounded-r-none" />
+              </div>
+              <div class="sm:col-span-10">
+                <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
+              </div>
             </div>
           </div>
+          <div class="md:col-span-6">
+            <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
+          </div>
 
+          <div class="md:col-span-6">
+            <div>
+              <InputPhone :title="$t('Phone')" v-model="selectedCustomer.phoneNumber" :id="'phone'"
+                :is-required="false" />
+            </div>
+          </div>
+          <div class="md:col-span-6">
+              <InputEmail v-model="selectedCustomer.email" placeholder="info@gmail.com" :title="$t('Email')" required />
+            </div>
+         </div>
+        </div>
+
+        <div class="mt-4">
+          <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" forLabel="'address'"
+            v-model="selectedCustomer.address" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
           <div>
-            <Input
-              :lb="$t('LastName')"
-              v-model="selectedCustomer.lastName"
-            />
+            <InputCountries :lb="'Country'" v-model="selectedCustomer.country" />
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <InputPhone
-                :title="$t('Phone')"
-                v-model="selectedCustomer.phoneNumber"
-                :id="'phone'"
-                :is-required="false"
-              />
-            </div>
-            <div>
-              <InputEmail
-                v-model="selectedCustomer.email"
-                placeholder="info@gmail.com"
-                :title="$t('Email')"
-                required
-              />
-            </div>
+          <div>
+            <Input :inputType="'text'" :lb="$t('State')" :id="'State'" forLabel="'State'"
+              v-model="selectedCustomer.state" />
+          </div>
+          <div>
+            <Input :inputType="'text'" :lb="$t('City')" :id="'city'" forLabel="'city'"
+              v-model="selectedCustomer.city" />
+          </div>
+          <div>
+            <Input :inputType="'text'" :lb="$t('Zipcode')" :id="'zipcode'" forLabel="'zipcode'"
+              v-model="selectedCustomer.zipcode" />
           </div>
         </div>
       </div>
-
-      <div class="mt-4">
-        <Input
-          :inputType="'text'"
-          :lb="$t('Address')"
-          :id="'address'"
-          forLabel="'address'"
-          v-model="selectedCustomer.address"
-        />
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        <div>
-          <InputCountries
-            :lb="'Country'"
-            v-model="selectedCustomer.country"
-          />
-        </div>
-        <div>
-          <Input
-            :inputType="'text'"
-            :lb="$t('State')"
-            :id="'State'"
-            forLabel="'State'"
-            v-model="selectedCustomer.state"
-          />
-        </div>
-        <div>
-          <Input
-            :inputType="'text'"
-            :lb="$t('City')"
-            :id="'city'"
-            forLabel="'city'"
-            v-model="selectedCustomer.city"
-          />
-        </div>
-        <div>
-          <Input
-            :inputType="'text'"
-            :lb="$t('Zipcode')"
-            :id="'zipcode'"
-            forLabel="'zipcode'"
-            v-model="selectedCustomer.zipcode"
-          />
-        </div>
-      </div>
-    </div>
 
 
     </div>
 
     <!-- Section Informations d'Identité -->
     <div class=" p-2">
-      <button
-        @click.prevent="toggleIdentitySection"
-        class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors"
-      >
-        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
-          <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1"></path>
+      <button @click.prevent="toggleIdentitySection"
+        class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
+        <h2 class="text-md font-semibold text-gray-900 flex items-center">
+          <svg class=" w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
+            </path>
           </svg>
           {{ $t('IdentityInformation') }}
         </h2>
 
         <div class="flex items-center">
 
-          <ChevronDownIcon
-            :class="[
-              'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
-              { 'rotate-180': showIdentitySection }
-            ]"
-          />
+          <ChevronDownIcon :class="[
+            'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
+            { 'rotate-180': showIdentitySection }
+          ]" />
         </div>
       </button>
 
       <div class="p-2">
-    <div
-      v-show="showIdentitySection"
-      class="mt-6 transition-all duration-300 ease-in-out"
-    >
-      <div class=" space-y-6">
-        </div>
-
-      <div class=" md:grid md:grid-cols-12 gap-6 items-start">
-        <div class="col-span-12 md:col-span-3 lg:col-span-2">
-          <label class=" text-sm font-medium text-gray-700 mb-3">
-            {{ $t('IDPhoto') }}
-          </label>
-          <div class="w-full max-w-xs">
-            <ImageUploader
-              ref="idPhotoUploader"
-              v-model="selectedCustomer.idPhoto"
-              :cloudinary-config="cloudinaryConfig"
-              @upload-success="onIdPhotoSuccess"
-              @upload-error="onUploadError"
-              @file-selected="onIdPhotoSelected"
-              @file-removed="onIdPhotoRemoved"
-              :key="`id-${resetKey}`"
-              class="w-full aspect-square"
-            />
-          </div>
-        </div>
-
-        <div class="col-span-12 md:col-span-9 lg:col-span-10 space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Select
-                :lb="$t('IDType')"
-                v-model="selectedCustomer.idType"
-                :options="idTypeOptions"
-                :placeholder="$t('Select ID Type')"
-              />
+        <div v-show="showIdentitySection" class="mt-6 transition-all duration-300 ease-in-out">
+          <div class=" md:grid md:grid-cols-12 gap-6 items-start">
+            <div class="col-span-12 md:col-span-3 lg:col-span-2">
+              <label class=" text-sm font-medium text-gray-700 mb-3">
+                {{ $t('IDPhoto') }}
+              </label>
+              <div class="w-full max-w-xs">
+                <ImageUploader ref="idPhotoUploader" v-model="selectedCustomer.idPhoto"
+                  :cloudinary-config="cloudinaryConfig" @upload-success="onIdPhotoSuccess" @upload-error="onUploadError"
+                  @file-selected="onIdPhotoSelected" @file-removed="onIdPhotoRemoved" :key="`id-${resetKey}`"
+                  class="w-full aspect-square" />
+              </div>
             </div>
-            <div class="md:col-span-2">
-              <Input
-                :lb="idNumberLabel"
-                v-model="selectedCustomer.idNumber"
-                type="text"
-                :placeholder="idNumberLabel"
-              />
-            </div>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <InputDatePicker
-                :title="$t('ExpiryDate')"
-                v-model="selectedCustomer.idExpiryDate"
-                :placeholder="$t('Select Date')"
-              />
-            </div>
-            <div>
-              <InputCountries
-                :lb="$t('Countryofissue')"
-                v-model="selectedCustomer.issuingCountry"
-              />
-            </div>
-          </div>
+            <div class="col-span-12 md:col-span-9 lg:col-span-10 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Select :lb="$t('IDType')" v-model="selectedCustomer.idType" :options="idTypeOptions"
+                    :placeholder="$t('Select ID Type')" />
+                </div>
+                <div class="md:col-span-2">
+                  <Input :lb="idNumberLabel" v-model="selectedCustomer.idNumber" type="text"
+                    :placeholder="idNumberLabel" />
+                </div>
+              </div>
 
-          <div>
-              <Input
-                :lb="$t('Cityofissue')"
-                v-model="selectedCustomer.issuingCity"
-                :placeholder="$t('Cityofissue')"
-              />
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <InputDatePicker :title="$t('ExpiryDate')" v-model="selectedCustomer.idExpiryDate"
+                    :placeholder="$t('Select Date')" />
+                </div>
+                <div>
+                  <InputCountries :lb="$t('Countryofissue')" v-model="selectedCustomer.issuingCountry" />
+                </div>
+                <div>
+                  <Input :lb="$t('Cityofissue')" v-model="selectedCustomer.issuingCity"
+                    :placeholder="$t('Cityofissue')" />
+                </div>
+              </div>
+
+
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
     </div>
   </div>
 </template>
@@ -598,6 +517,7 @@ console.log('modalevalue', props.modelValue)
 <style scoped>
 .flex-container {
   display: flex;
-  align-items: flex-start; /* Aligns items at the start of the container */
+  align-items: flex-start;
+  /* Aligns items at the start of the container */
 }
 </style>

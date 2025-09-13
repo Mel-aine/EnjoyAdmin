@@ -589,6 +589,8 @@ const clearFilter = () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
+
 .grid_a {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }

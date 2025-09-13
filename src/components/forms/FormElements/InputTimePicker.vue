@@ -2,7 +2,7 @@
   <div>
     <label
       for="timePicker"
-      class="block text-gray-700 text-sm font-bold mb-2"
+      class="block text-gray-700 text-sm font-medium mb-1.5"
       v-if="title"
     >
       {{ title }}

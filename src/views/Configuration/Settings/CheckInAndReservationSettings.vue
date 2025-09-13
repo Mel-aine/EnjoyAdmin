@@ -8,7 +8,7 @@
             Configure check-in and checkout times, day use options, late checkout policies, cancellation fees, no-show fees, and other reservation settings.
           </p>
         </div>
-        <BasicButton variant="primary" icon="Save" label="Save Changes" @click="saveSettings" />
+        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveSettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
@@ -439,11 +439,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { updateHotelCheckinReservationSettings } from '../../../services/hotelApi'
+import { Save } from 'lucide-vue-next'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+const isLoading = ref(false)
+
+// Get current service from store
+const currentService = computed(() => serviceStore.getCurrentService)
 
 const timeSettings = ref({
   twentyFourHourCheckout: false,
@@ -539,20 +552,80 @@ const reviewEmailOptions = [
   { label: 'All Guests', value: 'all' }
 ]
 
-const saveSettings = () => {
-  const settings = {
-    timeSettings: timeSettings.value,
-    dayUseSettings: dayUseSettings.value,
-    lateCheckoutSettings: lateCheckoutSettings.value,
-    cancellationSettings: cancellationSettings.value,
-    noShowSettings: noShowSettings.value,
-    financialSettings: financialSettings.value,
-    mandatoryFields: mandatoryFields.value,
-    otherSettings: otherSettings.value
+// Load checkin reservation settings from current service
+const loadCheckinReservationSettingsFromService = () => {
+  if (currentService.value && currentService.value.checkinReservationSettings) {
+    const serviceSettings = currentService.value.checkinReservationSettings
+    
+    if (serviceSettings.timeSettings) {
+      timeSettings.value = { ...timeSettings.value, ...serviceSettings.timeSettings }
+    }
+    if (serviceSettings.dayUseSettings) {
+      dayUseSettings.value = { ...dayUseSettings.value, ...serviceSettings.dayUseSettings }
+    }
+    if (serviceSettings.lateCheckoutSettings) {
+      lateCheckoutSettings.value = { ...lateCheckoutSettings.value, ...serviceSettings.lateCheckoutSettings }
+    }
+    if (serviceSettings.cancellationSettings) {
+      cancellationSettings.value = { ...cancellationSettings.value, ...serviceSettings.cancellationSettings }
+    }
+    if (serviceSettings.noShowSettings) {
+      noShowSettings.value = { ...noShowSettings.value, ...serviceSettings.noShowSettings }
+    }
+    if (serviceSettings.financialSettings) {
+      financialSettings.value = { ...financialSettings.value, ...serviceSettings.financialSettings }
+    }
+    if (serviceSettings.mandatoryFields) {
+      mandatoryFields.value = { ...mandatoryFields.value, ...serviceSettings.mandatoryFields }
+    }
+    if (serviceSettings.otherSettings) {
+      otherSettings.value = { ...otherSettings.value, ...serviceSettings.otherSettings }
+    }
   }
-  
-  // TODO: Implement save functionality
-  console.log('Save check-in and reservation settings:', settings)
-  alert('Check-in and reservation settings saved successfully!')
 }
+
+const saveSettings = async () => {
+  if (!currentService.value || !currentService.value.id) {
+    toast.error(t('toast.checkinReservationSettingsUpdateError'))
+    return
+  }
+
+  isLoading.value = true
+  
+  try {
+    const settings = {
+      timeSettings: timeSettings.value,
+      dayUseSettings: dayUseSettings.value,
+      lateCheckoutSettings: lateCheckoutSettings.value,
+      cancellationSettings: cancellationSettings.value,
+      noShowSettings: noShowSettings.value,
+      financialSettings: financialSettings.value,
+      mandatoryFields: mandatoryFields.value,
+      otherSettings: otherSettings.value
+    }
+    
+    // Call API to update checkin reservation settings
+    await updateHotelCheckinReservationSettings(currentService.value.id, { checkinReservationSettings: settings })
+    
+    // Update the service store with new checkin reservation settings
+    const updatedService = {
+      ...currentService.value,
+      checkinReservationSettings: settings
+    }
+    serviceStore.setCurrentService(updatedService)
+    
+    // Show success toast
+    toast.success(t('toast.checkinReservationSettingsUpdated'))
+  } catch (error) {
+    console.error('Error saving checkin reservation settings:', error)
+    toast.error(t('toast.checkinReservationSettingsUpdateError'))
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Load checkin reservation settings when component mounts
+onMounted(() => {
+  loadCheckinReservationSettingsFromService()
+})
 </script>

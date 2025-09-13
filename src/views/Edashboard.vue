@@ -74,14 +74,13 @@ import {
 
 const AdminLayout = defineAsyncComponent(() => import('../components/layout/AdminLayout.vue'))
 const HotelMetrics = defineAsyncComponent(() => import('../components/hotel/HotelMetrics.vue'))
-const OccupancyRate = defineAsyncComponent(() => import('../components/hotel/OccupancyRate.vue'))
-const MonthlyBookings = defineAsyncComponent(
-  () => import('../components/hotel/MonthlyBookings.vue'),
-)
-const RevenueChart = defineAsyncComponent(() => import('../components/hotel/RevenueChart.vue'))
-const GuestDemographics = defineAsyncComponent(
-  () => import('../components/hotel/GuestDemographics.vue'),
-)
+import {
+  LazyOccupancyRate as OccupancyRate,
+  LazyMonthlyBookings as MonthlyBookings,
+  LazyRevenueChart as RevenueChart,
+  LazyGuestDemographics as GuestDemographics,
+  preloadCriticalComponents
+} from '@/utils/lazyLoader'
 const RecentBookings = defineAsyncComponent(() => import('../components/hotel/RecentBookings.vue'))
 const serviceStore = useServiceStore()
 const generalStats = ref<any>({})
@@ -133,6 +132,8 @@ onMounted(async() => {
   await fetchOccupancyData()
   await fetchRevenuData()
   await fetchRevenuAndOccupancyData()
+  // Preload critical components on user interaction
+  preloadCriticalComponents()
 })
 
 interface DayRate {

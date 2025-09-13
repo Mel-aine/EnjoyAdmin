@@ -110,5 +110,7 @@ const close = () => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 /* Additional styles if needed */
 </style>

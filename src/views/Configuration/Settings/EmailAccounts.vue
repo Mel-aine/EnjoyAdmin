@@ -6,59 +6,51 @@
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Email Accounts</h1>
           <p class="text-gray-600 mt-1">
-            Define all the email accounts that will be used by your staff to send emails to the guests and to business source/partners.
+            Define all the email accounts that will be used by your staff to send emails to the guests and to business
+            source/partners.
           </p>
         </div>
-        <BasicButton 
-          variant="primary"
-          icon="Plus"
-          label="Add Email"
-          @click="openAddModal"
-        />
       </div>
 
       <!-- Table -->
       <div class="bg-white rounded-lg shadow">
-        <ReusableTable
-          :columns="columns"
-          :data="emailAccounts"
-          :actions="actions"
-          :loading="false"
-          searchPlaceholder="Search email accounts..."
-        />
+        <ReusableTable :columns="columns" :data="emailAccounts" :actions="actions" :loading="isLoadingAccounts"
+          searchPlaceholder="Search email accounts...">
+          <template #header-actions>
+            <BasicButton variant="primary" :icon="Plus" label="Add Email" @click="openAddModal" />
+          </template>
+
+          <!-- Custom status column template -->
+          <template #column-isActive="{ item }">
+            <span :class="[
+              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+              item.isActive
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            ]">
+              {{ item.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </template>
+        </ReusableTable>
       </div>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-lg">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">
             {{ isEditing ? 'Edit Email Account' : 'Add Email Account' }}
           </h3>
-          
+
           <form @submit.prevent="saveEmailAccount">
             <!-- Title -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Title *
-              </label>
-              <Input 
-                v-model="formData.title"
-                placeholder="Enter the title for this email account"
-                required
-              />
+              <Input :lb="$t('Title')" :isRequired="true" v-model="formData.title"
+                placeholder="Enter the title for this email account" />
             </div>
-
             <!-- Email Address -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Email Address *
-              </label>
-              <Input 
-                v-model="formData.email"
-                type="email"
-                placeholder="Enter the email address"
-                required
-              />
+              <InputEmail :title="$t('Email Address')" :isRequired="true" v-model="formData.emailAddress" type="email"
+                placeholder="Enter the email address" required />
             </div>
 
             <!-- Display Name -->
@@ -66,40 +58,27 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Display Name *
               </label>
-              <Input 
-                v-model="formData.displayName"
-                placeholder="Name to display when email is sent"
-                required
-              />
+              <Input v-model="formData.displayName" placeholder="Name to display when email is sent" required />
             </div>
 
             <!-- Signature -->
-            <div class="mb-6">
+            <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Signature
               </label>
-              <textarea 
-                v-model="formData.signature"
+              <textarea v-model="formData.signature"
                 placeholder="Create and edit signatures for outgoing messages, replies and forwards"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                rows="4"
-              ></textarea>
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500-500 focus:border-purple-500"
+                rows="4"></textarea>
             </div>
 
-            <div class="flex justify-end space-x-3">
-              <button 
-                type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ isEditing ? 'Update Email Account' : 'Add Email Account' }}
-              </button>
+
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel"
+                :disabled="isLoading" />
+              <BasicButton type="submit" variant="primary"
+                :label="isEditing ? 'Update Email Account' : 'Add Email Account'"
+                :loading="isLoading" />
             </div>
           </form>
         </div>
@@ -109,72 +88,58 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
+import Select from '../../../components/forms/FormElements/Select.vue'
+import { Plus } from 'lucide-vue-next'
+import { emailAccountsApi } from '../../../services/configrationApi'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+import { useServiceStore } from '../../../composables/serviceStore'
+import InputEmail from '../../../components/forms/FormElements/InputEmail.vue'
+
+const { t } = useI18n()
+const toast = useToast()
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref(null)
+const isLoading = ref(false)
+const isLoadingAccounts = ref(false)
+
+// Hotels data
+const hotels = ref([])
+const selectedHotelId = ref(null)
 
 // Form data
 const formData = ref({
+  hotelId: null,
   title: '',
-  email: '',
+  emailAddress: '',
   displayName: '',
-  signature: ''
+  signature: '',
+  isActive: true
 })
 
-// Sample data
-const emailAccounts = ref([
-  {
-    id: 1,
-    title: 'Front Desk',
-    email: 'frontdesk@royalhotel.com',
-    displayName: 'Royal Hotel Front Desk',
-    signature: 'Best regards,\nRoyal Hotel Front Desk Team\nPhone: +91-866-606-6295\nEmail: frontdesk@royalhotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-15',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-15',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    title: 'Reservations',
-    email: 'reservations@royalhotel.com',
-    displayName: 'Royal Hotel Reservations',
-    signature: 'Thank you for choosing Royal Hotel!\nReservations Team\nPhone: +91-866-606-6295\nEmail: reservations@royalhotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-14',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-14',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    title: 'Guest Services',
-    email: 'guestservices@royalhotel.com',
-    displayName: 'Royal Hotel Guest Services',
-    signature: 'We are here to serve you!\nGuest Services Team\nPhone: +91-866-606-6295\nEmail: guestservices@royalhotel.com',
-    createdBy: 'admin',
-    createdDate: '2024-01-13',
-    modifiedBy: 'admin',
-    modifiedDate: '2024-01-13',
-    status: 'Active'
-  }
-])
+// Email accounts data
+const emailAccounts = ref([])
+const pagination = ref({
+  page: 1,
+  limit: 10,
+  total: 0
+})
 
 // Table configuration
 const columns = [
   { key: 'title', label: 'Title', type: 'text' },
-  { key: 'email', label: 'Email Address', type: 'text' },
+  { key: 'emailAddress', label: 'Email Address', type: 'text' },
   { key: 'displayName', label: 'Display Name', type: 'text' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
+  { key: 'isActive', label: 'Status', type: 'custom' }
 ]
 
 const actions = [
@@ -184,21 +149,54 @@ const actions = [
     variant: 'primary'
   },
   {
+    label: 'Toggle Status',
+    handler: (item) => toggleAccountStatus(item),
+    variant: 'secondary'
+  },
+  {
     label: 'Delete',
     handler: (item) => deleteEmailAccount(item.id),
     variant: 'danger'
   }
 ]
 
-// Functions
+// Computed properties
+const hotelOptions = computed(() => {
+  return hotels.value.map(hotel => ({
+    value: hotel.id,
+    label: hotel.name
+  }))
+})
+
+
+
+const loadEmailAccounts = async () => {
+  isLoadingAccounts.value = true
+  try {
+
+    const response = await emailAccountsApi.getActiveEmailAccounts(selectedHotelId.value);
+    console.log('response', response)
+    emailAccounts.value = response.data || []
+    pagination.value.total = response.total || 0
+
+  } catch (error) {
+    console.error('Error loading email accounts:', error)
+    toast.error(t('errorLoadingEmailAccounts'))
+  } finally {
+    isLoadingAccounts.value = false
+  }
+}
+
 const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
   formData.value = {
+    hotelId: selectedHotelId.value || (hotels.value.length > 0 ? hotels.value[0].id : null),
     title: '',
-    email: '',
+    emailAddress: '',
     displayName: '',
-    signature: ''
+    signature: '',
+    isActive: true
   }
   showModal.value = true
 }
@@ -207,47 +205,79 @@ const editEmailAccount = (item) => {
   isEditing.value = true
   editingId.value = item.id
   formData.value = {
+    hotelId: item.hotelId,
     title: item.title,
-    email: item.email,
+    emailAddress: item.emailAddress,
     displayName: item.displayName,
-    signature: item.signature
+    signature: item.signature || '',
+    isActive: item.isActive
   }
   showModal.value = true
 }
 
-const saveEmailAccount = () => {
-  if (isEditing.value) {
-    // Update existing email account
-    const index = emailAccounts.value.findIndex(item => item.id === editingId.value)
-    if (index !== -1) {
-      emailAccounts.value[index] = {
-        ...emailAccounts.value[index],
-        ...formData.value,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
-    }
-  } else {
-    // Add new email account
-    const newEmailAccount = {
-      id: Date.now(),
-      ...formData.value,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
-    }
-    emailAccounts.value.unshift(newEmailAccount)
+const saveEmailAccount = async () => {
+  if (!formData.value.hotelId) {
+    toast.error(t('pleaseSelectHotel'))
+    return
   }
-  closeModal()
+
+  if (!formData.value.title.trim()) {
+    toast.error(t('titleIsRequired'))
+    return
+  }
+
+  if (!formData.value.emailAddress.trim()) {
+    toast.error(t('emailAddressIsRequired'))
+    return
+  }
+
+  if (!formData.value.displayName.trim()) {
+    toast.error(t('displayNameIsRequired'))
+    return
+  }
+
+  isLoading.value = true
+  try {
+    if (isEditing.value) {
+      // Update existing email account
+      await emailAccountsApi.updateEmailAccount(editingId.value, formData.value)
+      toast.success(t('emailAccountUpdatedSuccessfully'))
+    } else {
+      // Create new email account
+      await emailAccountsApi.createEmailAccount(formData.value)
+      toast.success(t('emailAccountCreatedSuccessfully'))
+    }
+
+    await loadEmailAccounts()
+    closeModal()
+  } catch (error) {
+    console.error('Error saving email account:', error)
+    toast.error(t('errorSavingEmailAccount'))
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const deleteEmailAccount = (id) => {
-  if (confirm('Are you sure you want to delete this email account?')) {
-    const index = emailAccounts.value.findIndex(item => item.id === id)
-    if (index !== -1) {
-      emailAccounts.value.splice(index, 1)
+const toggleAccountStatus = async (item) => {
+  try {
+    await emailAccountsApi.toggleActiveStatus(item.id, { isActive: !item.isActive })
+    toast.success(t('accountStatusUpdated'))
+    await loadEmailAccounts()
+  } catch (error) {
+    console.error('Error toggling account status:', error)
+    toast.error(t('errorUpdatingAccountStatus'))
+  }
+}
+
+const deleteEmailAccount = async (id) => {
+  if (confirm(t('confirmDeleteEmailAccount'))) {
+    try {
+      await emailAccountsApi.deleteEmailAccount(id)
+      toast.success(t('emailAccountDeletedSuccessfully'))
+      await loadEmailAccounts()
+    } catch (error) {
+      console.error('Error deleting email account:', error)
+      toast.error(t('errorDeletingEmailAccount'))
     }
   }
 }
@@ -257,10 +287,22 @@ const closeModal = () => {
   isEditing.value = false
   editingId.value = null
   formData.value = {
+    hotelId: null,
     title: '',
-    email: '',
+    emailAddress: '',
     displayName: '',
-    signature: ''
+    signature: '',
+    isActive: true
   }
 }
+
+const onHotelChange = () => {
+  loadEmailAccounts()
+}
+
+// Lifecycle
+onMounted(async () => {
+  selectedHotelId.value = useServiceStore().serviceId
+  await loadEmailAccounts()
+})
 </script>

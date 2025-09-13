@@ -1,4 +1,5 @@
 <template>
+<!-- @reference tailwindcss -->
   <div class="general-settings mb-8 max-w-full mx-auto p-6 bg-white rounded-lg">
     <div class="space-y-6">
       <!-- Preferences -->

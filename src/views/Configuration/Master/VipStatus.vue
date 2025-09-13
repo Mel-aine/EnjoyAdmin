@@ -1,184 +1,287 @@
 <template>
-  <div class="vip-status-management">
-    <!-- Add/Edit Form -->
-    <el-dialog :title="isEditing ? 'Edit VIP Status' : 'Add VIP Status'" v-model="dialogVisible">
-      <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
-        <el-form-item label="Name" prop="name">
-          <el-input v-model="form.name" placeholder="Enter VIP status name" />
-        </el-form-item>
-        
-        <el-form-item label="Color" prop="color">
-          <div class="color-input-group">
-            <el-color-picker v-model="form.color" />
-            <el-input 
-              v-model="form.color" 
-              placeholder="#RRGGBB" 
-              style="margin-left: 10px; width: 120px;"
-            />
-          </div>
-        </el-form-item>
-        
-        <el-form-item label="Icon" prop="icon">
-          <el-input v-model="form.icon" placeholder="Enter icon name or class" />
-          <div class="icon-preview" v-if="form.icon">
-            <i :class="form.icon" :style="{ color: form.color }"></i>
-            Preview
-          </div>
-        </el-form-item>
-      </el-form>
-      
-      <template #footer>
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleSubmit" :loading="loading">
-          {{ isEditing ? 'Update' : 'Create' }}
-        </el-button>
-      </template>
-    </el-dialog>
+  <ConfigurationLayout>
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('vip_status.title') }}</h1>
 
-    <!-- Data Table -->
-    <el-table :data="vipStatuses" v-loading="tableLoading">
-      <el-table-column prop="name" label="Name" />
-      
-      <el-table-column label="Color" width="100">
-        <template #default="{ row }">
-          <div class="color-display">
-            <div 
-              class="color-box" 
-              :style="{ backgroundColor: row.color }"
-            ></div>
-            <span>{{ row.color }}</span>
-          </div>
-        </template>
-      </el-table-column>
-      
-      <el-table-column label="Icon" width="100">
-        <template #default="{ row }">
-          <div class="icon-display">
-            <i :class="row.icon" :style="{ color: row.color }"></i>
-            <span>{{ row.icon }}</span>
-          </div>
-        </template>
-      </el-table-column>
-      
-      <el-table-column label="Actions" width="200">
-        <template #default="{ row }">
-          <el-button size="small" @click="editVipStatus(row)">Edit</el-button>
-          <el-button size="small" type="danger" @click="deleteVipStatus(row.id)">
-            Delete
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-  </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-gray-600 mb-6">
+          {{ $t('vip_status.subtitle') }}
+        </p>
+        <ReusableTable :title="$t('vip_status.title')" :columns="columns" :data="vipStatuses"
+          :actions="actions" :loading="loading" @action="onAction"
+          :selectable="true"
+          :search-placeholder="$t('vip_status.search')"
+          :empty-title="$t('vip_status.noResults')"
+          :empty-description="$t('vip_status.noResultsMessage')">
+          <template v-slot:header-actions>
+            <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
+              :label="$t('vip_status.add')" :loading="loading" />
+          </template>
+          
+          <!-- Custom column for color display -->
+          <template #column-color="{ item }">
+            <div class="flex items-center gap-2">
+              <div 
+                class="w-5 h-5 rounded border border-gray-300" 
+                :style="{ backgroundColor: item.color }"
+              ></div>
+              <span class="text-sm text-gray-700">{{ item.color }}</span>
+            </div>
+          </template>
+
+          <!-- Custom column for icon display -->
+          <template #column-icon="{ item }">
+            <div class="flex items-center gap-2">
+              <component v-if="item.icon" :is="getIconComponent(item.icon)" :style="{ color: item.color }" class="w-5 h-5" />
+              <span class="text-sm text-gray-700">{{ item.icon }}</span>
+            </div>
+          </template>
+
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
+        </ReusableTable>
+      </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            {{ isEditing ? $t('vip_status.edit') : $t('vip_status.add') }}
+          </h3>
+
+          <form @submit.prevent="saveVipStatus">
+            <div class="mb-4">
+              <Input v-model="formData.name" :lb="$t('vip_status.name')" inputType="text"
+                :isRequired="true" :placeholder="$t('vip_status.namePlaceholder')" />
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                {{ $t('vip_status.color') }} *
+              </label>
+              <div class="flex items-center gap-3">
+                <input 
+                  type="color" 
+                  v-model="formData.color" 
+                  class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                />
+                <Input v-model="formData.color" inputType="text" :placeholder="$t('vip_status.colorPlaceholder')" class="flex-1" />
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <VipIconPicker 
+                v-model="formData.icon" 
+                :label="$t('vip_status.icon')" 
+                :required="true"
+                :icon-color="formData.color"
+              />
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('vip_status.cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary" :icon="Save"
+                :label="isEditing ? $t('vip_status.update') : $t('vip_status.save')"
+                :loading="saving" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </ConfigurationLayout>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+import { 
+  Plus, Save, Edit, Trash2, Crown, Star, Award, Trophy, Medal, Gem, Diamond, Heart, Shield, Zap, Sparkles, Gift, Target, Flame, Sun, Moon, Rocket, Wand2, Key, Lock, Unlock, BadgeCheck, CheckCircle, Minus, X, Settings, User, Users, UserCheck, UserPlus, UserX, Eye, EyeOff, ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Briefcase, Building, Home, MapPin, Globe, Compass, Navigation, Anchor, Feather, Leaf, Flower, TreePine, Mountain, Waves, Cloud, Snowflake, Umbrella, Coffee, Wine, Utensils, Car, Plane, Ship, Train, Bike, Camera, Music, Headphones, Gamepad2, Palette, Brush, Scissors, Wrench, Hammer, Lightbulb, Battery, Wifi, Smartphone, Laptop, Monitor, Printer, HardDrive, Database, Server, Download, Upload, Share, Link, Bookmark, Tag, Flag, Bell, Volume2, VolumeX, Play, Pause, Square, SkipForward, SkipBack, Repeat, Shuffle, Calendar, Clock, Timer, AlarmClock, Hourglass, Sunrise, Sunset, CloudRain, CloudSnow, Thermometer, Droplets, Wind, Tornado, Rainbow, Cloudy
+} from 'lucide-vue-next'
 import { vipStatusApi } from '@/services/configrationApi'
+import ConfigurationLayout from '../ConfigurationLayout.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
+import ReusableTable from '../../../components/tables/ReusableTable.vue'
+import Input from '../../../components/forms/FormElements/Input.vue'
+import VipIconPicker from '../../../components/utilities/VipIconPicker.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+
+const toast = useToast()
+const { t } = useI18n()
 
 // Reactive data
-const dialogVisible = ref(false)
+const vipStatuses = ref([])
+const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
-const tableLoading = ref(false)
-const vipStatuses = ref([])
-const formRef = ref()
+const saving = ref(false)
 
 // Form data
-const form = reactive({
+const formData = reactive({
+  id: null,
   name: '',
-  color: '#000000',
-  icon: '',
-  hotelId: 1 // Get from store/props
+  color: '#3B82F6',
+  icon: ''
 })
 
-// Validation rules
-const rules = {
-  name: [
-    { required: true, message: 'Name is required', trigger: 'blur' },
-    { min: 1, max: 100, message: 'Name must be 1-100 characters', trigger: 'blur' }
-  ],
-  color: [
-    { required: true, message: 'Color is required', trigger: 'blur' },
-    { pattern: /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, message: 'Invalid hex color format', trigger: 'blur' }
-  ],
-  icon: [
-    { required: true, message: 'Icon is required', trigger: 'blur' },
-    { min: 1, max: 100, message: 'Icon must be 1-100 characters', trigger: 'blur' }
-  ]
+// Icon components mapping
+const iconComponents = {
+  Crown, Star, Award, Trophy, Medal, Gem, Diamond, Heart, Shield, Zap, Sparkles, Gift, Target, Flame, Sun, Moon, Rocket, Wand2, Key, Lock, Unlock, BadgeCheck, CheckCircle, Plus, Minus, X, Settings, User, Users, UserCheck, UserPlus, UserX, Eye, EyeOff, ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Briefcase, Building, Home, MapPin, Globe, Compass, Navigation, Anchor, Feather, Leaf, Flower, TreePine, Mountain, Waves, Cloud, Snowflake, Umbrella, Coffee, Wine, Utensils, Car, Plane, Ship, Train, Bike, Camera, Music, Headphones, Gamepad2, Palette, Brush, Scissors, Wrench, Hammer, Lightbulb, Battery, Wifi, Smartphone, Laptop, Monitor, Printer, HardDrive, Database, Server, Download, Upload, Share, Link, Bookmark, Tag, Flag, Bell, Volume2, VolumeX, Play, Pause, Square, SkipForward, SkipBack, Repeat, Shuffle, Calendar, Clock, Timer, AlarmClock, Hourglass, Sunrise, Sunset, CloudRain, CloudSnow, Thermometer, Droplets, Wind, Tornado, Rainbow, Cloudy
 }
+
+// Get icon component by name
+function getIconComponent(iconName) {
+  return iconComponents[iconName] || Crown
+}
+
+// Table columns configuration
+const columns = computed(() => [
+  {
+    key: 'name',
+    label: t('vip_status.name'),
+    sortable: true
+  },
+  {
+    key: 'color',
+    label: t('vip_status.color'),
+    sortable: false,
+    type:'custom'
+  },
+  {
+    key: 'icon',
+    label: t('vip_status.icon'),
+    sortable: false,
+    type:'custom'
+  },
+  {
+    key: 'createdInfo',
+    label: 'Created',
+    sortable: true,
+    type:'custom'
+  },
+  {
+    key: 'modifiedInfo',
+    label: 'Modified',
+    sortable: true,
+    type:'custom'
+  }
+])
+
+// Table actions configuration
+const actions = computed(() => [
+  {
+    key: 'edit',
+    label: t('vip_status.edit'),
+    icon: Edit,
+    variant: 'outline'
+  },
+  {
+    key: 'delete',
+    label: 'Delete',
+    icon: Trash2,
+    variant: 'danger'
+  }
+])
 
 // Methods
 const fetchVipStatuses = async () => {
   try {
-    tableLoading.value = true
-    const response = await vipStatusApi.getVipStatuses(form.hotelId)
-    vipStatuses.value = response.data.data || []
-  } catch (error) {
-    ElMessage.error('Failed to fetch VIP statuses')
-    console.error(error)
-  } finally {
-    tableLoading.value = false
-  }
-}
-
-const handleSubmit = async () => {
-  try {
-    await formRef.value.validate()
     loading.value = true
-    
-    if (isEditing.value) {
-      await vipStatusApi.updateVipStatus(form.id, form)
-      ElMessage.success('VIP status updated successfully')
-    } else {
-      await vipStatusApi.createVipStatus(form)
-      ElMessage.success('VIP status created successfully')
-    }
-    
-    dialogVisible.value = false
-    resetForm()
-    await fetchVipStatuses()
+    const response = await vipStatusApi.getVipStatuses(useServiceStore().serviceId);
+    console.log("respinse",response)
+    vipStatuses.value = response.data?.data || []
   } catch (error) {
-    ElMessage.error(error.message || 'Operation failed')
+    toast.error(t('vip_status.loadError'))
     console.error(error)
   } finally {
     loading.value = false
   }
 }
 
-const editVipStatus = (row) => {
+const saveVipStatus = async () => {
+  try {
+    saving.value = true
+    
+    if (isEditing.value) {
+      await vipStatusApi.updateVipStatus(formData.id, formData)
+      toast.success(t('vip_status.saveSuccess'))
+    } else {
+      await vipStatusApi.createVipStatus({...formData,hotelId:useServiceStore().serviceId})
+      toast.success(t('vip_status.saveSuccess'))
+    }
+    
+    closeModal()
+    await fetchVipStatuses()
+  } catch (error) {
+    toast.error(error.message || t('vip_status.saveError'))
+    console.error(error)
+  } finally {
+    saving.value = false
+  }
+}
+
+const onAction = async (action, item) => {
+  if (action === 'edit') {
+    editVipStatus(item)
+  } else if (action === 'delete') {
+    await deleteVipStatus(item.id)
+  }
+}
+
+const editVipStatus = (item) => {
   isEditing.value = true
-  Object.assign(form, row)
-  dialogVisible.value = true
+  Object.assign(formData, item)
+  showModal.value = true
 }
 
 const deleteVipStatus = async (id) => {
   try {
-    await ElMessageBox.confirm('Are you sure you want to delete this VIP status?', 'Confirm Delete')
-    await vipStatusApi.deleteVipStatus(id, form.hotelId)
-    ElMessage.success('VIP status deleted successfully')
-    await fetchVipStatuses()
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('Failed to delete VIP status')
-      console.error(error)
+    if (confirm(t('vip_status.confirmDelete'))) {
+      await vipStatusApi.deleteVipStatus(id)
+      toast.success(t('vip_status.deleteSuccess'))
+      await fetchVipStatuses()
     }
+  } catch (error) {
+    toast.error(t('vip_status.deleteError'))
+    console.error(error)
   }
 }
 
 const resetForm = () => {
-  Object.assign(form, {
+  Object.assign(formData, {
+    id: null,
     name: '',
-    color: '#000000',
-    icon: '',
-    hotelId: form.hotelId
+    color: '#3B82F6',
+    icon: ''
   })
   isEditing.value = false
 }
 
-const openCreateDialog = () => {
+const openAddModal = () => {
   resetForm()
-  dialogVisible.value = true
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+  resetForm()
 }
 
 // Lifecycle
@@ -188,37 +291,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.color-input-group {
-  display: flex;
-  align-items: center;
-}
-
-.color-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.color-box {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.icon-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.icon-preview {
-  margin-top: 8px;
-  padding: 8px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* Custom styles for VIP Status component */
 </style>

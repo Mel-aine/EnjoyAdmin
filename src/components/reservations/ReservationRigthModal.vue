@@ -218,13 +218,13 @@
                                             </label>
 
                                             <!-- Show simple list for single room -->
-                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1"
+                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room:any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
                                             <AssignRoomReservation 
-                                                v-else 
+                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)" 
                                                 :reservation="reservation" 
                                                 @assigned="handleRoomAssigned" 
                                             />
@@ -271,7 +271,7 @@
                         </div>
                         <!-- Show room list for multiple rooms -->
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
-                            <GroupReservationRoomList :rooms="reservation.reservationRooms"
+                            <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" />
                         </div>
                     </div>
@@ -344,19 +344,20 @@
         <!--unassign template-->
           <template v-if="isUnAssignModalOpen">
             <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
-                @close="closeUnAssignReservationModal" />
+                @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
         </template>
     </template>
 
 
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+    :templates="templates"
         @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservationId" />
 
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, defineAsyncComponent } from 'vue'
 import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
@@ -365,21 +366,23 @@ import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, S
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
-import CancelReservation from './foglio/CancelReseravtion.vue'
+// Lazy load all modal components to improve code splitting
+const CancelReservation = defineAsyncComponent(() => import('./foglio/CancelReseravtion.vue'))
 import PrintModal from '../common/PrintModal.vue'
 import { getReservationDetailsById } from '../../services/reservation'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
-import BookingConfirmationTemplate from '../common/templates/BookingConfirmationTemplate.vue'
-import VoidReservation from './foglio/VoidReservation.vue'
-import AmendStay from './foglio/AmendStay.vue'
-import AddPaymentModal from './foglio/AddPaymentModal.vue'
-import BookingInvoice from '../common/templates/BookingInvoice.vue'
-import NoShowReservation from './foglio/NoShowReservation.vue'
-import GroupReservationRoomList from './GroupReservationRoomList.vue'
-import CheckOutReservation from './CheckOutReservation.vue'
-import CheckInReservation from './CheckInReservation.vue'
-import UnAssignRoomReservation from './UnAssignRoomReservation.vue'
+const BookingConfirmationTemplate = defineAsyncComponent(() => import('../common/templates/BookingConfirmationTemplate.vue'))
+const VoidReservation = defineAsyncComponent(() => import('./foglio/VoidReservation.vue'))
+const AmendStay = defineAsyncComponent(() => import('./foglio/AmendStay.vue'))
+const AddPaymentModal = defineAsyncComponent(() => import('./foglio/AddPaymentModal.vue'))
+// Lazy load BookingInvoice to avoid bundling conflicts
+const BookingInvoice = defineAsyncComponent(() => import('../common/templates/BookingInvoice.vue'))
+const NoShowReservation = defineAsyncComponent(() => import('./foglio/NoShowReservation.vue'))
+const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReservationRoomList.vue'))
+const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReservation.vue'))
+const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'))
+const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'))
 import AssignRoomReservation from './AssignRoomReservation.vue'
 
 const { t } = useI18n()
@@ -470,6 +473,12 @@ const handleNoShowConfirmed = () => {
     // Emit save event to notify parent components
     emit('save', { action: 'noshow', reservationId: reservation.value?.id })
 }
+const handleUnAssignConfirmed = () => {
+    isUnAssignModalOpen.value = false
+    getBookingDetailsById();
+    // Emit save event to notify parent components
+    emit('save', { action: 'unassign', reservationId: reservation.value?.id })
+}
 const openAddPaymentModal = () => {
     isAddPaymentModalOpen.value = true
 }
@@ -502,8 +511,8 @@ const closeUnAssignReservationModal = () => {
 }
 
 const handleRoomAssigned = (data: any) => {
-    console.log('Room assigned:', data)
     getBookingDetailsById();
+    emit('save', { action: 'RoomAssigned', reservationId: reservation.value?.id, data })
 }
 
 const closeAddPaymentModal = () => {
@@ -591,7 +600,7 @@ const avgDailyRate = computed(() => {
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }
-const templates = ref<PrintTemplate[]>([
+const templates = ref<any[]>([
     {
         id: '1',
         name: 'Booking Confirmation',

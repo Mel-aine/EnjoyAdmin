@@ -38,6 +38,7 @@ const toggleAccordion = () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .accordion-container {
   @apply border border-gray-200 rounded-md;
 }

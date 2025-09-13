@@ -2,23 +2,24 @@
 import { useI18n } from 'vue-i18n';
 import ButtomDropdownAction from '../common/ButtomDropdownAction.vue';
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, Users, X } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, ref, defineAsyncComponent } from 'vue';
 import { formatCurrency, formatTime } from '../utilities/UtilitiesFunction';
 import router from '../../router';
 import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
 import { useReservation } from '../../composables/useReservation';
-import CancelReservation from './foglio/CancelReseravtion.vue';
+// Lazy load modal components for better code splitting
+const CancelReservation = defineAsyncComponent(() => import('./foglio/CancelReseravtion.vue'));
 import PrintModal from '../common/PrintModal.vue';
-import VoidReservation from './foglio/VoidReservation.vue';
-import AmendStay from './foglio/AmendStay.vue';
-import AddPaymentModal from './foglio/AddPaymentModal.vue';
-import NoShowReservation from './foglio/NoShowReservation.vue';
-import ReservationStatus from '../common/ReservationStatus.vue';
-import CheckOutReservation from './CheckOutReservation.vue';
-import CheckInReservation from './CheckInReservation.vue';
-import UnAssignRoomReservation from './UnAssignRoomReservation.vue';
+const VoidReservation = defineAsyncComponent(() => import('./foglio/VoidReservation.vue'));
+const AmendStay = defineAsyncComponent(() => import('./foglio/AmendStay.vue'));
+const AddPaymentModal = defineAsyncComponent(() => import('./foglio/AddPaymentModal.vue'));
+const NoShowReservation = defineAsyncComponent(() => import('./foglio/NoShowReservation.vue'));
 import AssignRoomReservation from './AssignRoomReservation.vue';
+import ReservationStatus from '../common/ReservationStatus.vue';
+const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReservation.vue'));
+const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'));
+const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'));
 const { t, locale } = useI18n({ useScope: 'global' })
 
 // Initialize the reservation composable
@@ -347,11 +348,10 @@ const formatDate = (dateString: string) => {
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
-            <span v-if="roomRateTypeSummary">
+            <span v-if="reservation.reservationRooms && reservation.reservationRooms.length>0 && reservation.reservationRooms.every((room:any) => room.roomId)">
               {{ roomRateTypeSummary }}
             </span>
-            <AssignRoomReservation 
-              v-else 
+            <AssignRoomReservation v-else
               :reservation="reservation" 
               @refresh="$emit('save')" 
               @assigned="handleRoomAssigned" 

@@ -89,6 +89,8 @@ onMounted(() => {
 </script>
 
 <style>
+@reference "tailwindcss";
+
 /* Tailwind CSS is typically configured via PostCSS in a Vue project.
    The CDN link would be in your public/index.html or similar. */
 .font-inter {

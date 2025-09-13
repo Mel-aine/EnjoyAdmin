@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, nextTick, onBeforeUnmount } from 'vue'
-import * as echarts from 'echarts'
+import { loadECharts, preloadECharts } from '@/utils/chartLoader'
 import { useI18n } from 'vue-i18n'
 
 interface DayRate {
@@ -108,7 +108,8 @@ const emit = defineEmits<{
 }>()
 
 const echartRef = ref<HTMLDivElement | null>(null)
-let chartInstance: echarts.ECharts | null = null
+let chartInstance: any = null
+let echarts: any = null
 
 const currentData = computed(() => props.data?.current || [])
 const previousData = computed(() => props.data?.previous || [])
@@ -142,7 +143,7 @@ const handleViewChange = (view: 'weekly' | 'monthly' | 'yearly') => {
   }, 100)
 }
 
-const renderChart = () => {
+const renderChart = async () => {
   console.log('[renderChart] called')
 
   if (!echartRef.value) {
@@ -163,6 +164,11 @@ const renderChart = () => {
 
   if (chartInstance) {
     chartInstance.dispose()
+  }
+
+  // Load ECharts dynamically
+  if (!echarts) {
+    echarts = await loadECharts()
   }
 
   chartInstance = echarts.init(container)
@@ -252,6 +258,9 @@ watch(
 )
 
 onMounted(async () => {
+  // Preload ECharts on component mount for better UX
+  preloadECharts()
+  
   await nextTick()
   if (!props.currentPeriod) {
     emit('changeView', 'weekly')

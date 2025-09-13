@@ -442,6 +442,8 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
+
 /* Additional custom styles if needed */
 .dropdown-up {
   bottom: 100%;

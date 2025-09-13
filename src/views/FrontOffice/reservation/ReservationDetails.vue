@@ -17,7 +17,7 @@ import {
   ChevronDown,
   Users,
 } from 'lucide-vue-next'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue'
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue'
@@ -37,19 +37,21 @@ import {
   type CheckInReservationPayload,
   type CheckOutReservationPayload,
 } from '../../../composables/useReservation'
-import AddPaymentModal from '../../../components/reservations/foglio/AddPaymentModal.vue'
-import CancelReservation from '../../../components/reservations/foglio/CancelReseravtion.vue'
+// Lazy load modal components for better code splitting
+const AddPaymentModal = defineAsyncComponent(() => import('../../../components/reservations/foglio/AddPaymentModal.vue'))
+const CancelReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/CancelReseravtion.vue'))
 import PrintModal from '../../../components/common/PrintModal.vue'
-import BookingConfirmationTemplate from '../../../components/common/templates/BookingConfirmationTemplate.vue'
+const BookingConfirmationTemplate = defineAsyncComponent(() => import('../../../components/common/templates/BookingConfirmationTemplate.vue'))
 import { useServiceStore } from '../../../composables/serviceStore'
-import NoShowReservation from '../../../components/reservations/foglio/NoShowReservation.vue'
+const NoShowReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/NoShowReservation.vue'))
 import AuditTrail from '../../../components/audit/AuditTrail.vue'
 import ReservationStatus from '../../../components/common/ReservationStatus.vue'
-import VoidReservation from '@/components/reservations/foglio/VoidReservation.vue'
-import AmendStay from '@/components/reservations/foglio/AmendStay.vue'
-import CheckInReservation from '@/components/reservations/CheckInReservation.vue'
-import CheckOutReservation from '@/components/reservations/CheckOutReservation.vue'
-import UnAssignRoomReservation from '@/components/reservations/UnAssignRoomReservation.vue'
+import AssignRoomReservation from '../../../components/reservations/AssignRoomReservation.vue'
+const VoidReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/VoidReservation.vue'))
+const AmendStay = defineAsyncComponent(() => import('@/components/reservations/foglio/AmendStay.vue'))
+const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+const CheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/CheckOutReservation.vue'))
+const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/reservations/UnAssignRoomReservation.vue'))
 
 // Simple Button component
 const Button = {
@@ -243,11 +245,9 @@ const roomRateTypeSummary = computed(() => {
 
   const reservationRooms = reservation.value.reservationRooms
   console.log('reservationRooms', reservationRooms)
-  const totalRooms = reservationRooms.length
-
   // Get room numbers and create summary
   const roomNumbers = reservationRooms.map((room: any) => {
-    return `${room.room?.roomNumber} / ${room.oomTypeId}`
+    return `${room.room?.roomNumber} / ${room.room?.roomType?.roomTypeName}`
   })
 
   return roomNumbers[0]
@@ -271,14 +271,6 @@ const handleCheckOut = async () => {
   performCheckOut(reservation.value.id, play, getBookingDetailsById)
 }
 
-const handleAmendStay = async () => {
-  const payload = {
-    newCheckInDate: reservation.value.arrivedDate,
-    newCheckOutDate: reservation.value.departDate,
-    reason: 'Guest requested amendment',
-    notes: '',
-  }
-}
 
 const handleAmendConfirmed = () => {
   const id = router.currentRoute.value.params.id
@@ -520,9 +512,9 @@ onMounted(() => {
               <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
               <span class="text-xs flex gap-2">
                 <span>{{ formatDateT(reservation.arrivedDate) }}</span>
-                <span>
+                <!--<span>
                   <PencilIcon class="w-3" />
-                </span>
+                </span>-->
               </span>
             </div>
             <!--depature-->
@@ -530,9 +522,9 @@ onMounted(() => {
               <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
               <span class="text-xs flex gap-2">
                 <span>{{ formatDateT(reservation.departDate) }}</span>
-                <span>
+               <!-- <span>
                   <PencilIcon class="w-3" />
-                </span>
+                </span>-->
               </span>
             </div>
             <!--Nigth-->
@@ -545,9 +537,10 @@ onMounted(() => {
             <!--room/roomtype-->
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
-              <span class="text-xs flex gap-2 flex-col">
+              <span class="text-xs flex gap-2 flex-col" v-if="reservation.reservationRooms.length > 0 && reservation.reservationRooms.every((room:any) => room.room?.id)">
                 <span>{{ roomRateTypeSummary }}</span>
               </span>
+              <AssignRoomReservation :reservation="reservation" v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)"/>
             </div>
             <!--depature-->
             <div class="flex flex-col">
@@ -628,7 +621,7 @@ onMounted(() => {
         <BookingDetails :booking="reservation" :guest="reservation.guest"></BookingDetails>
       </div>
       <div v-if="activeTab === 'guest_details'">
-        <GuestDetails :reservation="reservation" :guest="reservation.guest" />
+        <GuestDetails :reservation="reservation" :guest="reservation.guest" :reservationId="reservation.id" />
       </div>
       <div v-if="activeTab === 'audit_trial'">
         <AuditTrail :entity-ids="[reservation.id]" />

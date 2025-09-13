@@ -186,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
@@ -204,12 +204,13 @@ import {
 import { createPayment, confirmPayment, checkExtendStay } from '@/services/api'
 import { useServiceStore } from '../../composables/serviceStore'
 import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations, postNightlyCharges } from '../../services/nightAudit'
-import VoidReservation from '../../components/reservations/foglio/VoidReservation.vue'
-import NoShowReservation from '../../components/reservations/foglio/NoShowReservation.vue'
-import CancelReseravtion from '../../components/reservations/foglio/CancelReseravtion.vue'
-import CheckInReservation from '../../components/reservations/CheckInReservation.vue'
-import CheckOutReservation from '../../components/reservations/CheckOutReservation.vue'
-import AmendStay from '../../components/reservations/foglio/AmendStay.vue'
+// Lazy load modal components for better code splitting
+const VoidReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/VoidReservation.vue'))
+const NoShowReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/NoShowReservation.vue'))
+import AssignRoomReservation from '../../components/reservations/AssignRoomReservation.vue'
+const CheckInReservation = defineAsyncComponent(() => import('../../components/reservations/CheckInReservation.vue'))
+const CheckOutReservation = defineAsyncComponent(() => import('../../components/reservations/CheckOutReservation.vue'))
+const AmendStay = defineAsyncComponent(() => import('../../components/reservations/foglio/AmendStay.vue'))
 const serviceStore = useServiceStore();
 const router = useRouter()
 const { t } = useI18n()

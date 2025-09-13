@@ -349,3 +349,15 @@ export const getReleaseReservations = async (data: any) => {
     throw error
   }
 }
+
+export const stopRoomMoveReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/stop-room-move`, datas, headers
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}

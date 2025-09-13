@@ -474,6 +474,7 @@ const isActive = (path: string) => {
 </script>
 
 <style scoped>
+
 .menu-item {
   @apply flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer;
 }

@@ -240,12 +240,12 @@
     "taxes": "Taxes",
     "extraCharges": "Frais Supplémentaires",
     "Add Room Charge": "Ajouter Frais de Chambre",
-  "Add Adjustment": "Ajouter Ajustement",
-  "Adjustment Folio": "Folio d'Ajustement",
-  "Round Off": "Arrondir",
-  "Enter comment": "Entrez un commentaire",
-  "Adjustment added successfully": "Ajustement ajouté avec succès",
-  "Error adding adjustment": "Erreur lors de l'ajout de l'ajustement",
+    "Add Adjustment": "Ajouter Ajustement",
+    "Adjustment Folio": "Folio d'Ajustement",
+    "Round Off": "Arrondir",
+    "Enter comment": "Entrez un commentaire",
+    "Adjustment added successfully": "Ajustement ajouté avec succès",
+    "Error adding adjustment": "Erreur lors de l'ajout de l'ajustement",
     "Apply Rate": "Appliquer Tarif",
     "Bulk Update": "Mise à Jour en Lot",
     "Room Operations": "Opérations de Chambre",
@@ -2569,7 +2569,44 @@
       "businessSource": "Source d'Affaires",
       "marketCode": "Code de Marché",
       "reasonCode": "Code de Raison",
-      "units": "Unités"
+      "units": "Unités",
+      "vipStatus": "Statut VIP"
+    },
+    "vip_status": {
+      "title": "Statut VIP",
+      "subtitle": "Gérer les niveaux de statut VIP pour les clients",
+      "add": "Ajouter un Statut VIP",
+      "edit": "Modifier le Statut VIP",
+      "update": "Mettre à jour le Statut VIP",
+      "search": "Rechercher un statut VIP...",
+      "noResults": "Aucun statut VIP trouvé",
+      "noResultsMessage": "Cliquez sur 'Ajouter un Statut VIP' pour créer votre premier statut VIP.",
+      "name": "Nom",
+      "color": "Couleur",
+      "icon": "Icône",
+      "actions": "Actions",
+      "namePlaceholder": "Entrez le nom du statut VIP",
+      "colorPlaceholder": "#RRGGBB",
+      "iconPlaceholder": "Sélectionnez une icône",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "loading": "Chargement...",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce statut VIP ?",
+      "deleteSuccess": "Statut VIP supprimé avec succès",
+      "deleteError": "Échec de la suppression du statut VIP",
+      "saveSuccess": "Statut VIP enregistré avec succès",
+      "saveError": "Échec de l'enregistrement du statut VIP",
+      "loadError": "Échec du chargement du statut VIP",
+      "validation": {
+        "nameRequired": "Le nom est requis",
+        "colorRequired": "La couleur est requise",
+        "iconRequired": "L'icône est requise"
+      },
+      "chooseIcon": "Choisir une Icône",
+      "selectVipIcon": "Sélectionner une Icône VIP",
+      "searchIcons": "Rechercher des icônes...",
+      "noIconsFound": "Aucune icône trouvée correspondant à votre recherche"
     },
     "settings": {
       "hotelInformation": "Informations de l'Hôtel",
@@ -3902,6 +3939,9 @@
   "List": "Liste",
   "House Status View": "Vue du statut de la maison",
   "Room Types": "Types de chambres",
+  "roomsAvailable": "chambres disponibles",
+  "roomAvailable": "chambre disponible",
+  "noRoomsAvailable": "Aucune chambre disponible",
   "No Status": "Aucun statut",
   "Clean": "Propre",
   "Dirty": "Sale",
@@ -4543,7 +4583,7 @@
   "navigation": {
     "frontOffice": "Réception"
   },
-  "new_activities" : "Les nouvelles activités apparaîtront ici",
+  "new_activities": "Les nouvelles activités apparaîtront ici",
   "Order#": "N° de commande",
   "Unit/Room": "Unité/Chambre",
   "Category": "Catégorie",
@@ -4553,7 +4593,7 @@
   "Updated": "Mis à jour",
   "Deadline": "Date limite",
   "AddWorkOrder": "Ajouter un ordre de travail",
-   "companyDatabase": {
+  "companyDatabase": {
     "title": "Base de Données des Entreprises",
     "addCompany": "Ajouter une Entreprise",
     "export": "Exporter",
@@ -4600,7 +4640,6 @@
     "emailPlaceholder": "Entrez l'adresse email",
     "applyFilters": "Appliquer les Filtres",
     "clearFilters": "Effacer les Filtres"
-    
   },
   "maintenance_block": "Blocs de Maintenance",
   "BlockRoom": "Bloquer une Chambre",
@@ -4669,5 +4708,12 @@
   "discountAppliedSuccessfully": "Remise appliquée avec succès",
   "errorApplyingDiscount": "Erreur lors de l'application de la remise",
   "errorFetchingReservationDetails": "Erreur lors de la récupération des détails de la réservation",
-  "errorLoadingTransactions": "Erreur lors du chargement des transactions"
+  "errorLoadingTransactions": "Erreur lors du chargement des transactions",
+  "hold_release_date_time": "Date et Heure de Libération de Réservation",
+  "select_date": "Sélectionner la Date",
+  "select_time": "Sélectionner l'Heure",
+  "release_term": "Terme de Libération(%)",
+  "remind_guest_before": "Rappeler le Client avant",
+  "hold_release_date": "Date de Libération de Réservation",
+  "arrival_date": "Date d'Arrivée"
 }

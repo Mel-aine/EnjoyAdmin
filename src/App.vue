@@ -22,4 +22,6 @@ if (useLanguage.language) {
   useLanguage.set(t.locale.value)
 }
 </script>
-<style></style>
+<style>
+@reference "tailwindcss";
+</style>

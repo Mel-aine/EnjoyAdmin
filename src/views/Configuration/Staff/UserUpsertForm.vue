@@ -643,7 +643,7 @@ onMounted(async () => {
                                 autocomplete="current-password"
                                 required
                                 :placeholder="t('Enteryourpassword')"
-                                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10"
+                                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800  placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10"
                               />
                               <span
                                 @click="togglePasswordVisibility"

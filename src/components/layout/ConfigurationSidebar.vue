@@ -46,7 +46,7 @@
         <div v-if="expandedSections.rooms && sidebarStore.isExpanded" class="ml-6 space-y-1">
           <router-link v-for="item in filteredRoomsItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50">
+            active-class="text-gray-900 bg-gray-200 font-medium">
             {{ item.label }}
           </router-link>
         </div>
@@ -71,7 +71,7 @@
         <div v-if="expandedSections.rates && sidebarStore.isExpanded" class="ml-6 space-y-1">
           <router-link v-for="item in filteredRatesItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50">
+            active-class="text-gray-900 bg-gray-200 font-medium">
             {{ item.label }}
           </router-link>
         </div>
@@ -96,7 +96,7 @@
         <div v-if="expandedSections.housekeeping && sidebarStore.isExpanded" class="ml-6 space-y-1">
           <router-link v-for="item in filteredHousekeepingItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50">
+            active-class="text-gray-900 bg-gray-200 font-medium">
             {{ item.label }}
           </router-link>
         </div>
@@ -121,7 +121,7 @@
         <div v-if="expandedSections.master && sidebarStore.isExpanded" class="ml-6 space-y-1">
           <router-link v-for="item in filteredMasterItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50">
+            active-class="text-gray-900 bg-gray-200 font-medium">
             {{ item.label }}
           </router-link>
         </div>
@@ -146,7 +146,7 @@
         <div v-if="expandedSections.settings && sidebarStore.isExpanded" class="ml-6 space-y-1">
           <router-link v-for="item in filteredSettingsItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50">
+            active-class="text-gray-900 bg-gray-200 font-medium">
             {{ item.label }}
           </router-link>
         </div>
@@ -171,7 +171,7 @@
         <div v-if="expandedSections.staff && sidebarStore.isExpanded" class="ml-6 space-y-1">
           <router-link v-for="item in filteredStaffItems" :key="item.path" :to="item.path"
             class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-blue-600 bg-blue-50">
+            active-class="text-gray-900 bg-gray-200 font-medium">
             {{ item.label }}
           </router-link>
         </div>
@@ -181,7 +181,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
 import {
   Settings,
@@ -201,6 +202,8 @@ import { useI18n } from 'vue-i18n'
 const sidebarStore = useSidebar()
 const searchQuery = ref('')
 const { t } = useI18n()
+const route = useRoute()
+const navElement = ref(null)
 
 const expandedSections = ref({
   rooms: true,
@@ -322,20 +325,31 @@ const filteredSettingsItems = computed(() => {
 const filteredStaffItems = computed(() => {
   if (!searchQuery.value) return staffItems
   return staffItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 </script>
 
 <style scoped>
-/* Prevent scrolling when active item is clicked */
-.router-link-active {
-  scroll-behavior: auto;
+@reference "tailwindcss";
+
+/* Smooth scrolling for navigation container */
+.overflow-y-auto {
+  scroll-behavior: smooth;
 }
 
-/* Smooth scrolling for navigation */
-nav {
-  scroll-behavior: smooth;
+/* Ensure active state styling works properly with higher specificity */
+:deep(.router-link-active.router-link-active) {
+  color: #111827 !important;
+  background-color: #e5e7eb !important;
+  font-weight: 500 !important;
+}
+
+/* Alternative approach - target the active class directly */
+:deep(a.router-link-active) {
+  color: #111827 !important;
+  background-color: #e5e7eb !important;
+  font-weight: 500 !important;
 }
 
 /* Hide scrollbar but keep functionality */
