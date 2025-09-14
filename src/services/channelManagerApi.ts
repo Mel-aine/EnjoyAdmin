@@ -16,12 +16,12 @@ const getHeaders = () => ({
   withCredentials: true,
 })
 
-const headers = {
+const headers = () => ({
   headers: {
     Authorization: `Bearer ${authStore.token}`,
   },
   withCredentials: true,
-}
+})
 
 const serviceStore = useServiceStore();
 // --- Types ---
@@ -637,7 +637,7 @@ export const getChannexBookingRevisions = (params?: {
   if (params?.limit) queryParams.append('limit', params.limit.toString())
   
   const url = `${CHANNEX_API_URL}/booking-revisions/feed${queryParams.toString() ? '?' + queryParams.toString() : ''}`
-  return axios.get(url, headers)
+  return axios.get(url,)
 }
 
 /**
@@ -649,7 +649,7 @@ export const getIframUrl = (page:string): Promise<AxiosResponse<ApiResponse<{
   return axios.post(`${CHANNEX_API_URL}/iframe/url`,{
     hotelId: serviceStore.serviceId,
     page: page
-  }, headers)
+  }, getHeaders())
 }
 
       

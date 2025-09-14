@@ -18,12 +18,14 @@ export interface OccupancyReportResponse {
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports/statistics`
 
-const authStore = useAuthStore()
-const headers: any = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {  
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 /**
@@ -66,7 +68,7 @@ export const getMonthlyOccupancyPDF = async (params: MonthlyOccupancyParams): Pr
     
     // Configure axios to receive blob response
     const config = {
-      ...headers,
+      ...getHeaders(),
       responseType: 'blob' as const,
     }
 

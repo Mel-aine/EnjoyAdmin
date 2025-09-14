@@ -123,5 +123,5 @@ export const useServiceStore = defineStore('service', {
     }
   },
 
-  persist: true,
+  persist:true,
 })
