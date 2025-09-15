@@ -1,6 +1,7 @@
 <template>
+  <AdminLayout>
   <FullScreenLayout>
-    <AppHeader />
+    <!-- <AppHeader /> -->
     <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
       <div class="mb-4 bg-white px-6 py-1 flex items-center justify-between rounded-b-lg border-b">
@@ -109,7 +110,7 @@
                             <span class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
                             {{ getAvailableRoomsByType(date, group.room_type_id) }}
                           </span>
-                          <span 
+                          <span
                             class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded cursor-pointer hover:bg-blue-50 transition-colors"
                             @click="handleUnassignedRoomClick(date, group.room_type_id)"
                           >
@@ -223,7 +224,7 @@
         <div class="sticky bottom-0 bg-white shadow z-10">
           <table class="w-full border-t border border-gray-300 text-xs table-fixed">
 
-            <tfoot> 
+            <tfoot>
               <tr>
                 <td class="bg-gray-100 border h-7 border-gray-300 text-center" :style="`width: 200px`">{{ $t('Unassigned reservations') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
@@ -337,7 +338,7 @@
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
     </template>
-    
+
     <!-- Unassigned Reservations Modal -->
     <UnassignedReservationsModal
       v-if="showUnassignedModal"
@@ -347,7 +348,7 @@
       @close="closeUnassignedModal"
       @room-assigned="handleRoomAssigned"
     />
-    
+
     <!-- Assign Room Reservation Modal -->
      <template v-if="selectedReservationForAssignment">
           <RoomSelectionModal :is-open="showAssignRoomModal"  :reservation-id="selectedReservationForAssignment.id"
@@ -356,6 +357,7 @@
           />
      </template>
   </FullScreenLayout>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
@@ -371,6 +373,7 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getDailyOccupancyAndReservations } from "@/services/api"
 import CrownIcon from '@/icons/CrownIcon.vue'
+import AdminLayout from '../layout/AdminLayout.vue';
 
 const isLoading = ref(false);
 function getReservationTypeIcon(type: string) {
@@ -542,13 +545,13 @@ function handleRoomAssignmentComplete(data: any) {
 function handleUnassignedRoomClick(date: Date, roomTypeId: number) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
- 
+
   if (metric && metric.unassigned_room_reservations_by_type) {
     const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
-    
+
     if (roomTypeData && roomTypeData.unassigned_reservations) {
       const unassignedReservations = roomTypeData.unassigned_reservations
-      
+
       if (unassignedReservations.length === 1) {
         // Only one reservation - directly open AssignRoomReservation
         selectedReservationForAssignment.value = unassignedReservations[0]
