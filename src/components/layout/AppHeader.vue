@@ -99,6 +99,8 @@
       </div>
     </div>
   </header>
+  <app-sidebar v-if="isExpanded" />
+    <Backdrop />
   <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
 </template>
 
@@ -109,6 +111,8 @@ import SearchBar from './header/SearchBar.vue'
 import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
+import AppSidebar from './AppSidebar.vue'
+import Backdrop from './Backdrop.vue'
 import { Calendar, X ,PlusCircle,List } from 'lucide-vue-next'
 import AddBookingModal from "@/components/modal/AddBookingModal.vue"
 import router from '@/router'
