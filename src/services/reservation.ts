@@ -363,3 +363,21 @@ export const stopRoomMoveReservation = async (reservationId: number, datas: any)
     handleApiError(error)
   }
 }
+
+
+/*** build guest regiqstration card */
+
+export const printGuestReservationCard = async (data: {
+  reservationId: number
+  guestId:number
+}): Promise<any> => {
+  try {
+    const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
+
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/reservation/print-guest-card`, data, headersWithBlob)
+    return response.data
+  } catch (error) {
+    console.error('Error printing confirmBooking:', error)
+    throw error
+  }
+}
