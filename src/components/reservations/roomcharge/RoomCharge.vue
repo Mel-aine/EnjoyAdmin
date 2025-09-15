@@ -56,10 +56,10 @@
             <span>{{ formatAmount(summaryData?.totalCharges || 0) }}</span>
           </div>
           <!-- Total Tax -->
-          <div class="flex justify-between text-xs text-gray-600">
+          <!-- <div class="flex justify-between text-xs text-gray-600">
             <span>{{ $t('TotalTax') }}</span>
             <span>{{ formatAmount(summaryData?.totalTax || 0) }}</span>
-          </div>
+          </div> -->
           <!-- Total Discounts -->
           <div v-if="summaryData?.totalDiscounts > 0" class="flex justify-between text-xs text-green-600">
             <span>{{ $t('TotalDiscounts') }}</span>
@@ -71,17 +71,17 @@
             <span>{{ formatAmount(summaryData?.totalAdjustments || 0) }}</span>
           </div>
 
-          <hr class="border-gray-300 my-1">
+          <!-- <hr class="border-gray-300 my-1"> -->
           <!-- Net Total -->
-          <div class="flex justify-between font-medium">
+          <!-- <div class="flex justify-between font-medium">
             <span>{{ $t('NetTotal') }}</span>
             <span>{{ formatAmount(summaryData?.totalNetAmount || 0) }}</span>
-          </div>
+          </div> -->
           <!-- Balance Due -->
-          <div class="flex justify-between text-red-500 font-medium">
+          <!-- <div class="flex justify-between text-red-500 font-medium">
             <span>{{ $t('BalanceDue') }}</span>
             <span>{{ formatAmount(balanceAmount) }}</span>
-          </div>
+          </div> -->
           <!-- Room Info -->
           <div class="flex justify-between text-xs text-gray-500 mt-1 pt-1 border-t border-gray-100">
             <span>{{ summaryData?.totalRooms }} {{ summaryData?.totalRooms === 1 ? $t('Room') : $t('Rooms') }} • {{ summaryData?.totalTransactions }} {{ $t('transactions') }}</span>
@@ -236,6 +236,15 @@
           <UnAssignRoomReservation :reservation-id="reservationId" :is-open="isUnAssignReservationModalOpen"
             @close="closeUnAssignReservationModal" />
         </template>
+        <template v-if="reservation">
+         <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+
+         <CancelReseravtion :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+            @cancel-confirmed="handleCancelConfirmed" />
+        </template>
     </div>
 
     <!-- Apply Discount Modal -->
@@ -263,6 +272,8 @@ import { getRoomCharges } from '../../../services/reservation'
 import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
+import AmendStay from '../foglio/AmendStay.vue'
+import CancelReseravtion from '../foglio/CancelReseravtion.vue'
 const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
 
@@ -277,6 +288,10 @@ const props = defineProps({
   isGroup: {
     type: Boolean,
     default: false
+  },
+  reservation: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -285,6 +300,7 @@ const props = defineProps({
 const isAddRoomChargeModalOpen = ref(false)
 const isApplyRateModalOpen = ref(false)
 const isApplyDiscountModalOpen = ref(false)
+const showCancelModal = ref(false)
 
 interface RoomChargeItem {
   id: number
@@ -295,6 +311,11 @@ interface RoomChargeItem {
   amount: number
   status: 'active' | 'inactive'
   nights: number
+}
+
+interface Emits {
+    (e: 'close'): void
+    (e: 'save', data?: any): void
 }
 
 const loading = ref(false)
@@ -313,9 +334,12 @@ const selectedTableItems = ref<any[]>([])
 const toast = useToast()
 const isCheckInReservationModalOpen = ref(false)
 const isUnAssignReservationModalOpen = ref(false)
+const showAmendModal = ref(false)
+
+const emit = defineEmits<Emits>()
 
 // Computed Properties
-const isGroupReservation = computed(() => props.isGroup || groupRooms.value.length > 1)
+const isGroupReservation = computed(() => groupRooms.value.length > 1)
 
 const filteredRoomChargeData = computed(() => {
   if (!isGroupReservation.value) {
@@ -360,6 +384,12 @@ const canCheckIn = computed(() => {
   return isConfirmed && isCheckInDateReached
 })
 
+const canCancel = computed(()=>{
+  const isCancel = reservationStatus.value?.toLocaleLowerCase() != 'cancelled'
+  return isCancel
+})
+
+
 // Table Columns
 const columns = computed<Column[]>(() => [
   { key: 'transactionDate', label: t('Stay'), type: 'custom' },
@@ -375,39 +405,78 @@ const columns = computed<Column[]>(() => [
 ])
 
 // More Actions Options
+
+
 const getMoreActionOptions = () => {
   const baseOptions = [
-    // { label: t('updateDetails'), id: 'updateDetails' },
-    // { label: t('applyDiscount'), id: 'applyDiscount' },
     { label: t('RemoveTransaction'), id: 'removeTransaction' },
   ]
 
   if (isGroupReservation.value) {
     const groupOptions :any[] = []
 
-    // Ajouter "Group Check In" seulement si les conditions sont remplies
-    if (canCheckIn.value) {
+    // Récupérer les informations de statut et de dates
+    const status = reservationStatus.value?.toLowerCase()
+    const currentDate = new Date()
+    const arrivalDate = new Date(checkInDate.value)
+    // const departureDate = new Date(props.reservation?.departDate || props.reservation?.checkOutDate)
+
+    // Check-in: Available for confirmed reservations on or after arrival date
+    if (canCheckIn) {
       groupOptions.push({ label: t('groupCheckIn'), id: 'groupCheckIn' })
     }
 
-    // Ajouter les autres options de groupe
-    groupOptions.push(
-      { label: t('UnassignRooms'), id: 'unassignRooms' },
-      { label: t('VoidGroup'), id: 'voidGroup' },
-      { label: t('GroupAmendStay'), id: 'groupAmendStay' },
-      { label: t('ChangeOwner'), id: 'changeOwner' },
-      { label: t('SetReleaseDate'), id: 'setReleaseDate' },
-      { label: t('GroupSettlement'), id: 'groupSettlement' },
-      { label: t('AddBookingToGroup'), id: 'addBookingToGroup' },
-      { label: t('GroupCancellation'), id: 'groupCancellation' }
-    )
+    // Group Check-out: Available during stay (checked-in status)
+    // if (['checked-in', 'checked_in'].includes(status) && currentDate >= departureDate) {
+    //   groupOptions.push({ label: t('groupCheckOut'), id: 'groupCheckOut' })
+    // }
+
+    // Group Amend Stay: Available before or during stay
+    if (['confirmed', 'guaranteed', 'pending', 'checked-in', 'checked_in'].includes(status)) {
+      groupOptions.push({ label: t('GroupAmendStay'), id: 'groupAmendStay' })
+    }
+
+    // Group Cancellation: Available before check-in
+    if (['confirmed', 'guaranteed', 'pending'].includes(status) && currentDate < arrivalDate) {
+      groupOptions.push({ label: t('GroupCancellation'), id: 'groupCancellation' })
+    }
+
+
+    // Unassign Rooms: Available for confirmed reservations
+    if (['confirmed', 'guaranteed', 'pending'].includes(status)) {
+      groupOptions.push({ label: t('UnassignRooms'), id: 'unassignRooms' })
+    }
+
+    // Void Group: Available for recent reservations with certain conditions
+    const numRooms = groupRooms.value?.length || 0
+    if (['confirmed', 'guaranteed', 'pending'].includes(status) && numRooms <= 10) {
+      groupOptions.push({ label: t('VoidGroup'), id: 'voidGroup' })
+    }
+
+
+
+    // Actions disponibles pour tous les statuts actifs
+    if (!['cancelled', 'no-show', 'voided'].includes(status)) {
+      groupOptions.push(
+        { label: t('ChangeOwner'), id: 'changeOwner' },
+        { label: t('GroupSettlement'), id: 'groupSettlement' }
+      )
+    }
+
+    // Actions spéciales pour les groupes confirmés/en attente
+    if (['confirmed', 'guaranteed', 'pending', 'checked-in', 'checked_in'].includes(status)) {
+      groupOptions.push(
+        { label: t('SetReleaseDate'), id: 'setReleaseDate' },
+        { label: t('AddBookingToGroup'), id: 'addBookingToGroup' },
+
+      )
+    }
 
     return [...baseOptions, ...groupOptions]
   }
 
   return baseOptions
 }
-
 // Utility Functions
 const formatAmount = (amount: number): string => {
   return new Intl.NumberFormat('fr-FR', {
@@ -437,16 +506,6 @@ const getAmountColor = (amount: number): string => {
   return 'text-gray-500'
 }
 
-const getTableTitle = (): string => {
-  if (isGroupReservation.value) {
-    if (selectedRoomId.value) {
-      const room = groupRooms.value.find(r => r.id === selectedRoomId.value)
-      return `${t('RoomCharges')} - ${room?.roomNumber || ''}`
-    }
-    return t('GroupRoomCharges')
-  }
-  return t('RoomCharges')
-}
 
 // Event Handlers
 const selectRoom = (roomId: number) => {
@@ -455,7 +514,7 @@ const selectRoom = (roomId: number) => {
 
 const handleMoreAction = (action: any) => {
   console.log('More action selected:', action)
-  // Handle different actions based on action.id
+
   switch (action.id) {
     case 'groupCheckIn':
       if (canCheckIn.value) {
@@ -464,15 +523,52 @@ const handleMoreAction = (action: any) => {
         toast.warning(t('checkInNotAvailable'))
       }
       break
+
     case 'unassignRooms':
-      // Handle unassign rooms
+      openUnAssignReservationModal()
       break
+
     case 'voidGroup':
-      openVoidReservationModal()
+      if(canVoidGroup.value){
+        openVoidReservationModal()
+      }
+
       break
-    // Add more cases as needed
+
+    case 'groupAmendStay':
+      showAmendModal.value = true
+      break
+
+    case 'groupCancellation':
+      if (canCancel.value) {
+        showCancelModal.value = true
+      } else {
+        toast.warning(t('cancellationNotAvailable'))
+      }
+      break
+
+    case 'changeOwner':
+      openChangeOwnerModal()
+      break
+
+    case 'setReleaseDate':
+      openSetReleaseDateModal()
+      break
+
+    case 'groupSettlement':
+      openGroupSettlementModal()
+      break
+
+    case 'addBookingToGroup':
+      openAddBookingToGroupModal()
+      break
+
+    default:
+      console.warn('Unknown action:', action.id)
   }
 }
+
+
 
 const updateDetails = () => {
   console.log('Update details clicked')
@@ -501,7 +597,7 @@ const loadRoomCharges = async () => {
       roomChargeData.value = response.data.roomChargesTable || []
       summaryData.value = response.data.summary || {}
       totalAmount.value = response.data.summary?.totalNetAmount || 0
-      balanceAmount.value = response.data.summary?.totalNetAmount || 0
+      // balanceAmount.value = response.data.summary?.outstandingBalance || 0
 
       // Récupérer le statut et la date de check-in depuis la réponse
       reservationStatus.value = response.data.status || response.data.reservationStatus || ''
@@ -541,6 +637,19 @@ const loadRoomCharges = async () => {
   }
 }
 
+
+const getTableTitle = (): string => {
+  if (isGroupReservation.value) {
+    if (selectedRoomId.value) {
+      const room = groupRooms.value.find(r => r.id === selectedRoomId.value)
+      return `${t('RoomCharges')} - ${room?.roomNumber || ''}`
+    }
+    return t('GroupRoomCharges')
+  }
+  return t('RoomCharges')
+}
+
+
 //handle Modal
 
 const openCheckInReservationModal = () =>{
@@ -563,6 +672,17 @@ const handleApplyRate = (rateData: any) => {
   console.log('Applying rate:', rateData)
   // Here you would typically update room charges with new rates
   closeApplyRateModal()
+}
+
+const handleAmendConfirmed = () => {
+    showAmendModal.value = false
+    // Emit save event to notify parent components
+    emit('save', { action: 'amend', reservationId: props.reservation?.id })
+}
+
+const handleCancelConfirmed = () => {
+    showCancelModal.value = false
+    emit('save', { action: 'cancel', reservationId: props.reservation?.id })
 }
 
 // Apply Discount modal handlers
@@ -590,7 +710,7 @@ const getTransactionFolio =async()=>{
   }
   loading.value = false;
 }
-getTransactionFolio();
+
 const openVoidReservationModal = () => {
   // if (selectedTableItems.value.length === 0) {
   //   toast.warning(t('toast.selectedItems'))
@@ -602,6 +722,54 @@ const openVoidReservationModal = () => {
 const closeVoidReservationModal = () => {
   isVoidReservationModalOpen.value = false
 }
+
+const canCheckOut = computed(() => {
+  const status = reservationStatus.value?.toLowerCase()
+  const currentDate = new Date()
+  const departureDate = new Date(props.reservation?.departDate || props.reservation?.checkOutDate)
+
+  return ['checked-in', 'checked_in'].includes(status) && currentDate >= departureDate
+})
+
+const canMarkNoShow = computed(() => {
+  const status = reservationStatus.value?.toLowerCase()
+  const currentDate = new Date()
+  const arrivalDate = new Date(checkInDate.value)
+
+  return ['confirmed', 'guaranteed', 'pending'].includes(status) && currentDate > arrivalDate
+})
+
+const canVoidGroup = computed(() => {
+  const status = reservationStatus.value?.toLowerCase()
+  const numRooms = groupRooms.value?.length || 0
+
+  return ['confirmed', 'guaranteed', 'pending'].includes(status) && numRooms <= 10
+})
+
+// Fonctions d'ouverture des modales (à implémenter selon vos besoins)
+
+
+const openChangeOwnerModal = () => {
+  // À implémenter
+  console.log('Opening change owner modal')
+}
+
+const openSetReleaseDateModal = () => {
+  // À implémenter
+  console.log('Opening set release date modal')
+}
+
+const openGroupSettlementModal = () => {
+  // À implémenter
+  console.log('Opening group settlement modal')
+}
+
+const openAddBookingToGroupModal = () => {
+  // À implémenter
+  console.log('Opening add booking to group modal')
+}
+
+
 
 const handleVoidSuccess = async () => {
   try {
@@ -625,12 +793,10 @@ const closeApplyRateModal = () => {
 
 
 
-getTransactionFolio();
+
 
 // Lifecycle
-onMounted(() => {
-  loadRoomCharges()
-})
+
 
 // Watchers
 watch(() => props.reservationId, (newId) => {

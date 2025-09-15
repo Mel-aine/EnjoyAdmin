@@ -282,7 +282,7 @@ const getItemActions = (item: any) => {
   if (item.noaction === true) {
     return []
   }
-  
+
   return props.actions.filter((action:any) =>
     !action.condition || action.condition(item)
   )
