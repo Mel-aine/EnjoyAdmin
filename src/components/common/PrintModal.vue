@@ -114,7 +114,7 @@
           
           <!-- Invoice Template -->
           <PdfExporterNode 
-            v-else-if="currentTemplate?.type === 'invoice' && invoicePdfUrl"
+            v-else-if="currentTemplate?.type === 'receipt' && invoicePdfUrl"
             @close="showPdfExporter=false" 
             :is-modal-open="showPdfExporter" 
             :is-generating="loading" 
@@ -126,7 +126,7 @@
           
           <!-- Receipt Template -->
           <PdfExporterNode 
-            v-else-if="currentTemplate?.type === 'receipt' && receiptPdfUrl"
+            v-else-if="currentTemplate?.type === 'invoice' && receiptPdfUrl"
             @close="showPdfExporter=false" 
             :is-modal-open="showPdfExporter" 
             :is-generating="loading" 
@@ -301,13 +301,14 @@ const handlePrint = async () => {
       pdfBlob = await printConfirmBookingPdf({
         reservationId: props.reservationId
       })
+      console.log('PDF Blob for confirmation:', pdfBlob)
       // Libérer l'ancienne URL si elle existe
       if (confirmationPdfUrl.value) {
         window.URL.revokeObjectURL(confirmationPdfUrl.value)
       }
       confirmationPdfUrl.value = window.URL.createObjectURL(pdfBlob)
     } 
-    else if (templateType === 'invoice') {
+    else if (templateType === 'receipt') {
       pdfBlob = await printHotelPdf({
         reservationId: props.reservationId
       })
@@ -316,7 +317,7 @@ const handlePrint = async () => {
       }
       invoicePdfUrl.value = window.URL.createObjectURL(pdfBlob)
     } 
-/*     else if (templateType === 'receipt') {
+/*     else if (templateType === 'invoice') {
       pdfBlob = await printReceiptPdf({
         reservationId: props.reservationId
       })
