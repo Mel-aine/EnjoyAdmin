@@ -5937,6 +5937,12 @@
   "printGuestCard": "Imprimer la carte de réservation",
   "printResVourcher": "Imprimer le bon de réservation",
   "sendInvoice": "Envoyer la facture",
-  "printSend": "Imprimer / Envoyer"
+  "printSend": "Imprimer / Envoyer",
+  "Checking in room {roomNumber}...": "Enregistrement de la chambre {roomNumber}...",
+  "Room {roomNumber} checked in successfully": "La chambre {roomNumber} a été enregistrée avec succès",
+  "Checking out room {roomNumber}...": "Départ de la chambre {roomNumber}...",
+  "Room {roomNumber} checked out successfully": "La chambre {roomNumber} a été libérée avec succès"
+
+
 
 }

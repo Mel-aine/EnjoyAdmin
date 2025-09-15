@@ -120,7 +120,7 @@
                                         {{ reservation.guest?.displayName }}
                                     </h2>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        
+
                                         {{ reservation.reservationNumber }}
                                     </p>
                                 </div>
@@ -224,10 +224,10 @@
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
-                                            <AssignRoomReservation 
-                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)" 
-                                                :reservation="reservation" 
-                                                @assigned="handleRoomAssigned" 
+                                            <AssignRoomReservation
+                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)"
+                                                :reservation="reservation"
+                                                @assigned="handleRoomAssigned"
                                             />
                                         </div>
 
@@ -749,11 +749,54 @@ const handleOptionSelected = async (option: any) => {
             break;
         case 'inclusion_list':
             break;
-        case 'check_in':
-          openCheckInReservationModal()
-            break;
-        case 'check_out':
-          openCheckOutReservationModal()
+       case 'check_in':
+      const availableRoomsForCheckin =   reservation.value.reservationRooms?.filter((room: any) =>
+        !room.actualCheckInTime &&
+        room.status !== 'checked_in' &&
+        room.status !== 'occupied' &&
+        !room.checkedIn
+      ) || []
+
+      if (availableRoomsForCheckin.length === 0) {
+        toast.info(t('All rooms have already been checked in'))
+        return
+      } else if (availableRoomsForCheckin.length === 1) {
+        // Check-in automatique avec feedback
+        const roomNumber = availableRoomsForCheckin[0].room?.roomNumber || availableRoomsForCheckin[0].id
+        console.log("roomNumber",roomNumber)
+        await executeAction(
+          'check_in',
+          () => performAutoCheckIn(availableRoomsForCheckin[0]),
+          t('Checking in room {roomNumber}...', { roomNumber }),
+          t('Room {roomNumber} checked in successfully', { roomNumber })
+        )
+      } else {
+        openCheckInReservationModal()
+      }
+      break
+
+    case 'check_out':
+      const availableRoomsForCheckout =   reservation.value.reservationRooms
+      console.log('Available rooms for check-out:', availableRoomsForCheckout.length)
+
+      if (availableRoomsForCheckout.length === 0) {
+        toast.info(t('No rooms available for check-out'))
+        return
+      } else if (availableRoomsForCheckout.length === 1) {
+        // Check-out automatique avec feedback pour une seule chambre
+        const roomNumber = availableRoomsForCheckout[0].room?.roomNumber || availableRoomsForCheckout[0].id
+        console.log("roomNumber checkout", roomNumber)
+
+        await executeAction(
+          'check_out',
+          () => performAutoCheckOut(availableRoomsForCheckout[0]),
+          t('Checking out room {roomNumber}...', { roomNumber }),
+          t('Room {roomNumber} checked out successfully', { roomNumber })
+        )
+      } else {
+        // Plusieurs chambres : ouvrir le modal de groupe
+        openCheckOutReservationModal()
+      }
             break;
         case 'room_move':
             break;

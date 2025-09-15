@@ -5937,5 +5937,9 @@
   "printGuestCard": "Print Guest Reservation Card",
   "printResVourcher": "Print Reservation Voucher",
   "sendInvoice": "Send Invoice",
-  "printSend":"Print / Send"
+  "printSend":"Print / Send",
+  "Checking in room {roomNumber}...": "Checking in room {roomNumber}...",
+  "Room {roomNumber} checked in successfully": "Room {roomNumber} checked in successfully",
+  "Checking out room {roomNumber}...": "Checking out room {roomNumber}...",
+  "Room {roomNumber} checked out successfully": "Room {roomNumber} checked out successfully"
 }

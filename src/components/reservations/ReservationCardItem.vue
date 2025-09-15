@@ -8,6 +8,7 @@ import router from '../../router';
 import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
 import { useReservation } from '../../composables/useReservation';
+import { useToast } from 'vue-toastification';
 // Lazy load modal components for better code splitting
 const CancelReservation = defineAsyncComponent(() => import('./foglio/CancelReseravtion.vue'));
 import PrintModal from '../common/PrintModal.vue';
@@ -62,6 +63,7 @@ const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
+const toast = useToast()
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
 }
@@ -184,16 +186,342 @@ const actionColorMap = {
   'unassign_room': 'text-gray-600',
 };
 
+// const dropdownOptions = computed(() => {
+//   // Always include the view option as first item
+//   const options = [{
+//     id: 'view',
+//     label: t('view'),
+//     icon: Eye,
+//     color: 'text-blue-600'
+//   }];
+//   console.log(props.reservation)
+//   // Add available actions from reservation data
+//   if (props.reservation?.availableActions) {
+//     const availableOptions = props.reservation.availableActions
+//       .filter((action: any) => action.available)
+//       .map((action: any) => ({
+//         id: action.action,
+//         label: action.label,
+//         description: action.description,
+//         route: action.route,
+//         icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+//         color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+//       }));
+
+//     options.push(...availableOptions);
+//   }
+
+//   return options;
+// });
+
+// Dans votre handleOptionSelected, modifiez la partie check_in comme ceci :
+
+// const handleOptionSelected = async (option: any) => {
+//   console.log('Selected option:', option);
+//   if (option.id === 'view') {
+//     router.push({
+//       name: 'ReservationDetails',
+//       params: { id: props.reservation.id }
+//     });
+//     return;
+//   }
+
+//   if (!props.reservation?.reservationNumber) {
+//     console.error('No reservation number available');
+//     return;
+//   }
+
+//   // Handle specific actions using the composable
+//   switch (option.id) {
+//     case 'add_payment':
+//       openAddPaymentModal()
+//       break;
+//     case 'amend_stay':
+//       showAmendModal.value = true;
+//       break;
+//     case 'cancel_reservation':
+//       showCancelModal.value = true;
+//       break;
+//     case 'void_reservation':
+//       showVoidModal.value = true;
+//       break;
+//    case 'check_in':
+//   // Déterminer le nombre de chambres disponibles pour le check-in
+//   const availableRoomsForCheckin = props.reservation.reservationRooms?.filter((room: any) =>
+//     !room.actualCheckInTime &&
+//     room.status !== 'checked_in' &&
+//     room.status !== 'occupied' &&
+//     !room.checkedIn
+//   ) || [];
+
+//   console.log('Available rooms for check-in:', availableRoomsForCheckin.length);
+
+//   if (availableRoomsForCheckin.length === 0) {
+//     // Toutes les chambres sont déjà check-in
+//     toast.info(t('All rooms have already been checked in'));
+//     return;
+//   } else if (availableRoomsForCheckin.length === 1) {
+//     // Une seule chambre : check-in direct sans ouvrir la modale
+//     console.log('Single room check-in detected - performing automatic check-in');
+
+//     try {
+//       // Préparer les données pour le check-in automatique
+//       const checkInDateTime = new Date().toISOString();
+//       const checkInPayload = {
+//         reservationRooms: [availableRoomsForCheckin[0].id],
+//         actualCheckInTime: checkInDateTime,
+//         notes: '',
+//         keyCardsIssued: 2,
+//         depositAmount: 0
+//       };
+
+//       // Effectuer le check-in directement
+//       await performCheckIn(props.reservation.id, checkInPayload);
+
+//       // Afficher un message de succès
+//       toast.success(t('Room checked in successfully'));
+
+//       // Émettre l'événement pour rafraîchir les données
+//       emit('save', {
+//         action: 'checkIn',
+//         reservationId: props.reservation.id,
+//         data: checkInPayload
+//       });
+
+//     } catch (error: any) {
+//       console.error('Automatic check-in error:', error);
+//       const errorMessage = error.response?.data?.message ||
+//                           error.message ||
+//                           t('Failed to perform check-in');
+//       toast.error(errorMessage);
+//     }
+//   } else {
+//     // Plusieurs chambres : ouvrir le modal de groupe
+//     console.log('Multiple rooms check-in detected');
+//     openCheckInReservationModal();
+//   }
+
+//       break;
+//     case 'check_out':
+//       openCheckOutReservationModal()
+//       break
+//     case 'room_move':
+//       break;
+//     case 'exchange_room':
+//       break;
+//     case 'stop_room_move':
+//       break;
+//     case 'unassign_room':
+//       openUnAssignReservationModal()
+//       break;
+//     case 'inclusion_list':
+//       break;
+//     case 'no_show':
+//       showNoShowModal.value = true
+//       break;
+//     case 'print':
+//       showPrintModal.value = true;
+//       break;
+//     default:
+//       console.log(`Action ${option.id} not handled`);
+//   }
+// };
+
+// Ajoutez ces variables réactives au début de votre script setup
+const currentAction = ref<string | null>(null)
+const isPerformingAction = computed(() => currentAction.value !== null)
+
+// Fonction générique pour exécuter une action avec feedback
+const executeAction = async (actionId: string, actionFn: () => Promise<void>, loadingMessage?: string, successMessage?: string) => {
+  if (isPerformingAction.value) {
+    return // Empêcher les actions multiples
+  }
+
+  try {
+    currentAction.value = actionId
+
+    // Toast d'information si fourni
+    if (loadingMessage) {
+      toast.info(loadingMessage, {
+        timeout: 2000,
+        hideProgressBar: false
+      })
+    }
+
+    // Exécuter l'action
+    await actionFn()
+
+    // Message de succès si fourni
+    if (successMessage) {
+      toast.success(successMessage)
+    }
+
+  } catch (error: any) {
+    console.error(`${actionId} error:`, error)
+    const errorMessage = error.response?.data?.message ||
+                        error.message ||
+                        t(`Failed to ${actionId.replace('_', ' ')}`)
+    toast.error(errorMessage)
+  } finally {
+    currentAction.value = null
+  }
+}
+
+// Fonction pour le check-in automatique
+const performAutoCheckIn = async (availableRoom: any) => {
+  const checkInDateTime = new Date().toISOString()
+  const checkInPayload = {
+    reservationRooms: [availableRoom.id],
+    actualCheckInTime: checkInDateTime,
+    notes: '',
+    keyCardsIssued: 2,
+    depositAmount: 0
+  }
+
+  await performCheckIn(props.reservation.id, checkInPayload)
+
+  emit('save', {
+    action: 'checkIn',
+    reservationId: props.reservation.id,
+    data: checkInPayload
+  })
+}
+
+// Fonction pour le check-out
+const performAutoCheckOut = async (availableRoom: any) => {
+  const checkOutDateTime = new Date().toISOString()
+  const checkOutPayload = {
+    reservationRooms: [availableRoom.id],
+    actualCheckOutTime: checkOutDateTime,
+    notes: '',
+  }
+
+  await performCheckOut(props.reservation.id, checkOutPayload)
+
+  emit('save', {
+    action: 'checkOut',
+    reservationId: props.reservation.id,
+    data: checkOutPayload
+  })
+}
+
+// Votre handleOptionSelected modifié
+const handleOptionSelected = async (option: any) => {
+  console.log('Selected option:', option)
+
+  if (option.id === 'view') {
+    router.push({
+      name: 'ReservationDetails',
+      params: { id: props.reservation.id }
+    })
+    return
+  }
+
+  if (!props.reservation?.reservationNumber) {
+    console.error('No reservation number available')
+    return
+  }
+
+  // Handle specific actions
+  switch (option.id) {
+    case 'add_payment':
+      openAddPaymentModal()
+      break
+
+    case 'amend_stay':
+      showAmendModal.value = true
+      break
+
+    case 'cancel_reservation':
+      showCancelModal.value = true
+      break
+
+    case 'void_reservation':
+      showVoidModal.value = true
+      break
+
+    case 'check_in':
+      const availableRoomsForCheckin = props.reservation.reservationRooms?.filter((room: any) =>
+        !room.actualCheckInTime &&
+        room.status !== 'checked_in' &&
+        room.status !== 'occupied' &&
+        !room.checkedIn
+      ) || []
+
+      if (availableRoomsForCheckin.length === 0) {
+        toast.info(t('All rooms have already been checked in'))
+        return
+      } else if (availableRoomsForCheckin.length === 1) {
+        // Check-in automatique avec feedback
+        const roomNumber = availableRoomsForCheckin[0].room?.roomNumber || availableRoomsForCheckin[0].id
+        console.log("roomNumber",roomNumber)
+        await executeAction(
+          'check_in',
+          () => performAutoCheckIn(availableRoomsForCheckin[0]),
+          t('Checking in room {roomNumber}...', { roomNumber }),
+          t('Room {roomNumber} checked in successfully', { roomNumber })
+        )
+      } else {
+        openCheckInReservationModal()
+      }
+      break
+
+    case 'check_out':
+      const availableRoomsForCheckout = props.reservation.reservationRooms
+      //  ?.filter((room: any) => room.actualCheckInTime &&
+      //   (room.status === 'checked_in' || room.status === 'occupied') && // Statut approprié pour check-out
+      //   !room.actualCheckOutTime && // Pas encore check-out
+      //   !room.checkedOut // Pas marquée comme check-out
+      // ) || []
+
+      console.log('Available rooms for check-out:', availableRoomsForCheckout.length)
+
+      if (availableRoomsForCheckout.length === 0) {
+        toast.info(t('No rooms available for check-out'))
+        return
+      } else if (availableRoomsForCheckout.length === 1) {
+        // Check-out automatique avec feedback pour une seule chambre
+        const roomNumber = availableRoomsForCheckout[0].room?.roomNumber || availableRoomsForCheckout[0].id
+        console.log("roomNumber checkout", roomNumber)
+
+        await executeAction(
+          'check_out',
+          () => performAutoCheckOut(availableRoomsForCheckout[0]),
+          t('Checking out room {roomNumber}...', { roomNumber }),
+          t('Room {roomNumber} checked out successfully', { roomNumber })
+        )
+      } else {
+        // Plusieurs chambres : ouvrir le modal de groupe
+        openCheckOutReservationModal()
+      }
+      break
+
+    case 'unassign_room':
+      openUnAssignReservationModal()
+      break
+
+    case 'no_show':
+      showNoShowModal.value = true
+      break
+
+    case 'print':
+      showPrintModal.value = true
+      break
+
+    default:
+      console.log(`Action ${option.id} not handled`)
+  }
+}
+
+// Modifier le computed dropdownOptions pour désactiver pendant les actions
 const dropdownOptions = computed(() => {
-  // Always include the view option as first item
   const options = [{
     id: 'view',
     label: t('view'),
     icon: Eye,
     color: 'text-blue-600'
-  }];
-  console.log(props.reservation)
-  // Add available actions from reservation data
+  }]
+
   if (props.reservation?.availableActions) {
     const availableOptions = props.reservation.availableActions
       .filter((action: any) => action.available)
@@ -204,70 +532,27 @@ const dropdownOptions = computed(() => {
         route: action.route,
         icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
         color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
-      }));
+      }))
 
-    options.push(...availableOptions);
+    options.push(...availableOptions)
   }
 
-  return options;
-});
+  return options
+})
 
-const handleOptionSelected = async (option: any) => {
-  console.log('Selected option:', option);
-  if (option.id === 'view') {
-    router.push({
-      name: 'ReservationDetails',
-      params: { id: props.reservation.id }
-    });
-    return;
+// Fonction pour obtenir le texte de chargement selon l'action
+const getActionLoadingText = (action: string | null) => {
+  const loadingTexts: Record<string, string> = {
+    'check_in': t('Checking in...'),
+    'check_out': t('Checking out...'),
+    'cancel_reservation': t('Cancelling...'),
+    'void_reservation': t('Voiding...'),
+    'add_payment': t('Processing payment...'),
+    // Ajoutez d'autres actions selon vos besoins
   }
 
-  if (!props.reservation?.reservationNumber) {
-    console.error('No reservation number available');
-    return;
-  }
-
-  // Handle specific actions using the composable
-  switch (option.id) {
-    case 'add_payment':
-      openAddPaymentModal()
-      break;
-    case 'amend_stay':
-      showAmendModal.value = true;
-      break;
-    case 'cancel_reservation':
-      showCancelModal.value = true;
-      break;
-    case 'void_reservation':
-      showVoidModal.value = true;
-      break;
-    case 'check_in':
-      openCheckInReservationModal()
-      break;
-    case 'check_out':
-      openCheckOutReservationModal()
-      break
-    case 'room_move':
-      break;
-    case 'exchange_room':
-      break;
-    case 'stop_room_move':
-      break;
-    case 'unassign_room':
-      openUnAssignReservationModal()
-      break;
-    case 'inclusion_list':
-      break;
-    case 'no_show':
-      showNoShowModal.value = true
-      break;
-    case 'print':
-      showPrintModal.value = true;
-      break;
-    default:
-      console.log(`Action ${option.id} not handled`);
-  }
-};
+  return loadingTexts[action || ''] || t('Processing...')
+}
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
@@ -297,10 +582,28 @@ const formatDate = (dateString: string) => {
               </p>
             </div>
           </div>
-          <div class="flex gap-1">
+          <!-- <div class="flex gap-1">
             <ButtomDropdownAction :id="`${reservation.id}`" :options="dropdownOptions"
               @option-selected="handleOptionSelected" />
 
+          </div> -->
+          <div class="flex gap-1">
+            <!-- Indicateur de chargement générique -->
+            <div v-if="isPerformingAction" class="flex items-center px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">
+              <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ getActionLoadingText(currentAction) }}
+            </div>
+
+            <!-- Dropdown normal -->
+            <ButtomDropdownAction
+              v-else
+              :id="`${reservation.id}`"
+              :options="dropdownOptions"
+              @option-selected="handleOptionSelected"
+            />
           </div>
         </div>
 
@@ -352,9 +655,9 @@ const formatDate = (dateString: string) => {
               {{ roomRateTypeSummary }}
             </span>
             <AssignRoomReservation v-else
-              :reservation="reservation" 
-              @refresh="$emit('save')" 
-              @assigned="handleRoomAssigned" 
+              :reservation="reservation"
+              @refresh="$emit('save')"
+              @assigned="handleRoomAssigned"
             />
           </div>
           <div class="flex gap-1">
