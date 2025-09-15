@@ -100,8 +100,6 @@ const { t } = useI18n()
 const typeOptions = ref([
   { value: 'city_ledger', label: t('city_ledger') },
   { value: 'cash', label: t('cash') },
-  { value: 'bank', label: t('bank') },
-
 ])
 
 // Form data

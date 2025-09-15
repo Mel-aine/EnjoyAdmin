@@ -7,12 +7,14 @@ import type { FitlterItem } from '../utils/models'
 const API_URL = `${import.meta.env.VITE_API_URL as string}/hotels`
 
 
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {  
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 
@@ -23,7 +25,7 @@ const headers = {
  */
 
 export const updateStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/${id}/status-colors`, data, headers)
+  return axios.patch(`${API_URL}/${id}/status-colors`, data, getHeaders())
 }
 
 /**
@@ -33,7 +35,7 @@ export const updateStatusColors = (id:number,data:any): Promise<AxiosResponse<an
  * @returns
  */
 export const updateHotelInformation = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/information`, data, headers)
+  return axios.put(`${API_URL}/${id}/information`, data, getHeaders())
 }
 
 
@@ -44,7 +46,7 @@ export const updateHotelInformation = (id:number,data:any): Promise<AxiosRespons
  * @returns
  */
 export const updateHotelNotices = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/notices`, data, headers)
+  return axios.put(`${API_URL}/${id}/notices`, data, getHeaders())
 }
 
 /**
@@ -54,7 +56,7 @@ export const updateHotelNotices = (id:number,data:any): Promise<AxiosResponse<an
  * @returns
  */
 export const updateHotelFormulaSetting = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/formula-setting`, data, headers)
+  return axios.put(`${API_URL}/${id}/formula-setting`, data, getHeaders())
 }
 
 /**
@@ -64,7 +66,7 @@ export const updateHotelFormulaSetting = (id:number,data:any): Promise<AxiosResp
  * @returns
  */
 export const updateHotelDocumentNumberingSetting = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/document-numbering-setting`, data, headers)
+  return axios.put(`${API_URL}/${id}/document-numbering-setting`, data, getHeaders())
 }
 
 /**
@@ -74,7 +76,7 @@ export const updateHotelDocumentNumberingSetting = (id:number,data:any): Promise
  * @returns
  */
 export const updateHotelPrintEmailSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/print-email-settings`, data, headers)
+  return axios.put(`${API_URL}/${id}/print-email-settings`, data, getHeaders())
 }
 
 /**
@@ -84,7 +86,7 @@ export const updateHotelPrintEmailSettings = (id:number,data:any): Promise<Axios
  * @returns
  */
 export const updateHotelCheckinReservationSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/checkin-reservation-settings`, data, headers)
+  return axios.put(`${API_URL}/${id}/checkin-reservation-settings`, data, getHeaders())
 }
 
 /**
@@ -94,7 +96,7 @@ export const updateHotelCheckinReservationSettings = (id:number,data:any): Promi
  * @returns
  */
 export const updateHotelDisplaySettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/display-settings`, data, headers)
+  return axios.put(`${API_URL}/${id}/display-settings`, data, getHeaders())
 }
 
 /**
@@ -104,7 +106,7 @@ export const updateHotelDisplaySettings = (id:number,data:any): Promise<AxiosRes
  * @returns
  */
 export const updateHotelRegistrationSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/registration-settings`, data, headers)
+  return axios.put(`${API_URL}/${id}/registration-settings`, data, getHeaders())
 }
 
 /**
@@ -114,7 +116,7 @@ export const updateHotelRegistrationSettings = (id:number,data:any): Promise<Axi
  * @returns
  */
 export const updateHotelHousekeepingStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/housekeeping-status-colors`, data, headers)
+  return axios.put(`${API_URL}/${id}/housekeeping-status-colors`, data, getHeaders())
 }
 
 // Find reservation
@@ -140,5 +142,5 @@ export const filterReservation = (id: number, filter: FitlterItem): Promise<Axio
     if (qs) qs += `&status=${filter.status}`
     else qs += `?status=${filter.status}`
   }
-  return axios.get(`${API_URL}/${id}/reservation/search${qs}`, headers)
+  return axios.get(`${API_URL}/${id}/reservation/search${qs}`, getHeaders())
 }

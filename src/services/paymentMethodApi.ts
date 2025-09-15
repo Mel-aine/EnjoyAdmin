@@ -5,13 +5,14 @@ import { useAuthStore } from '@/composables/user'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/payment_method`
 
-
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 
@@ -20,7 +21,7 @@ const headers = {
  */
 
 export const getPaymentMethods = (hotelId:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${hotelId}`,headers)
+  return axios.get(`${API_URL}/${hotelId}`, getHeaders())
 }
 
 

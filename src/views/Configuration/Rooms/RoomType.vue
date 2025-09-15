@@ -11,17 +11,13 @@
 
       <!-- Room Types Table using ReusableTable -->
       <ReusableTable :title="t('roomTypeList')" :columns="columns" :data="roomTypes" :actions="actions"
-        :search-placeholder="t('searchRoomTypes')" :selectable="true" :empty-state-title="t('noRoomTypesFound')"
-        :empty-state-message="t('getStartedByAddingRoomType')" @selection-change="onSelectionChange"
-        @action="onAction" :loading="loading">
+        :search-placeholder="t('searchRoomTypes')" :empty-state-title="t('noRoomTypesFound')"
+        :empty-state-message="t('getStartedByAddingRoomType')" @action="onAction"
+        :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRoomType')" :icon="Plus">
           </BasicButton>
-          <button v-if="selectedRoomTypes.length > 0" @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
-            <Trash2 class="w-4 h-4" />
-            <span>{{ t('deleteSelected') }} ({{ selectedRoomTypes.length }})</span>
-          </button>
+
         </template>
 
         <!-- Custom column for capacity info -->
@@ -53,6 +49,12 @@
           </div>
         </template>
       </ReusableTable>
+
+      <!-- Delete Confirmation Modal -->
+      <ModalConfirmation v-if="showDeleteConfirmation" action="DANGER" :title="t('confirmDeleteTitle')"
+        :message="t('confirmDeleteRoomType', { name: roomTypeToDelete?.roomTypeName || roomTypeToDelete?.shortCode })"
+        :isLoading="isDeletingLoading" @close="showDeleteConfirmation = false; roomTypeToDelete = null"
+        @confirm="confirmDeleteRoomType" />
 
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal"
@@ -166,9 +168,12 @@
               </button>
               <button type="submit" :disabled="isLoading"
                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
-                <svg v-if="isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg v-if="isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
                 <span>{{ showAddModal ? t('save') : t('update') }}</span>
               </button>
@@ -186,20 +191,23 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
-import { getAmenities, getRoomTypes, postRoomType, updateRoomTypeById } from '../../../services/configrationApi'
+import { getAmenities, getRoomTypes, postRoomType, updateRoomTypeById, deleteRoomType as deleteRoomTypeApi } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 
 const { t } = useI18n()
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
-const selectedRoomTypes = ref([])
 const editingRoomType = ref(null)
 const loading = ref(false)
 const isLoading = ref(false)
+const showDeleteConfirmation = ref(false)
+const roomTypeToDelete = ref(null)
+const isDeletingLoading = ref(false)
 
 // Form data
 const formData = ref({
@@ -289,15 +297,13 @@ const actions = ref([
 const roomTypes = ref([])
 
 // Methods
-const onSelectionChange = (selection) => {
-  selectedRoomTypes.value = selection
-}
+
 
 const onAction = (action, item) => {
   if (action === 'edit') {
     editRoomType(item)
   } else if (action === 'delete') {
-    deleteRoomType(item.id)
+    deleteRoomType(item)
   }
 }
 
@@ -311,25 +317,41 @@ const editRoomType = (roomType) => {
     maxAdult: roomType.maxAdult,
     maxChild: roomType.maxChild,
     publishToWebsite: roomType.publishToWebsite,
-    roomAmenities:roomType.roomAmenities && roomType.roomAmenities.length >0?[...roomType.roomAmenities]:[],
+    roomAmenities: roomType.roomAmenities && roomType.roomAmenities.length > 0 ? [...roomType.roomAmenities] : [],
     color: roomType.color,
     defaultWebInventory: roomType.defaultWebInventory
   }
   showEditModal.value = true
 }
 
-const deleteRoomType = (id) => {
-  if (confirm(t('confirmDeleteRoomType'))) {
-    roomTypes.value = roomTypes.value.filter(roomType => roomType.id !== id)
+const deleteRoomType = (roomType) => {
+  roomTypeToDelete.value = roomType
+  showDeleteConfirmation.value = true
+}
+
+const confirmDeleteRoomType = async () => {
+  if (!roomTypeToDelete.value) return
+
+  isDeletingLoading.value = true
+  try {
+    const response = await deleteRoomTypeApi(roomTypeToDelete.value.id)
+    if (response.status === 200 || response.status === 204) {
+      roomTypes.value = roomTypes.value.filter(rt => rt.id !== roomTypeToDelete.value.id)
+      toast.success(t('roomTypeDeletedSuccessfully'))
+    } else {
+      toast.error(t('errorDeletingRoomType'))
+    }
+  } catch (error) {
+    console.error('Error deleting room type:', error)
+    toast.error(t('errorDeletingRoomType'))
+  } finally {
+    isDeletingLoading.value = false
+    showDeleteConfirmation.value = false
+    roomTypeToDelete.value = null
   }
 }
 
-const deleteSelected = () => {
-  if (confirm(t('confirmDeleteSelectedRoomTypes', { count: selectedRoomTypes.value.length }))) {
-    roomTypes.value = roomTypes.value.filter(roomType => !selectedRoomTypes.value.includes(roomType.id))
-    selectedRoomTypes.value = []
-  }
-}
+
 
 const saveRoomType = async () => {
   try {
@@ -429,9 +451,9 @@ const loadData = async () => {
   }
 }
 
-const loadAmenities =async ()=>{
-   const resp = await getAmenities();
-   availableAmenities.value = resp.data.data.data;
+const loadAmenities = async () => {
+  const resp = await getAmenities();
+  availableAmenities.value = resp.data.data.data;
 }
 
 loadData();

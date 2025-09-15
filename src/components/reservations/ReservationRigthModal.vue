@@ -120,6 +120,7 @@
                                         {{ reservation.guest?.displayName }}
                                     </h2>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        
                                         {{ reservation.reservationNumber }}
                                     </p>
                                 </div>
@@ -150,7 +151,7 @@
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             :options="dropdownOptions" :button-text="t('Options')"
                                             @option-selected="handleOptionSelected" />
-                                        <ButtonDropdown :options="printOptions" :button-text="t('print')"
+                                        <ButtonDropdown :options="printOptions" :button-text="t('printSend')"
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             @option-selected="handlePrintOptionSelected" />
                                     </div>
@@ -271,7 +272,7 @@
                         </div>
                         <!-- Show room list for multiple rooms -->
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
-                            <GroupReservationRoomList :rooms="reservation.reservationRooms"
+                            <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" />
                         </div>
                     </div>
@@ -362,7 +363,7 @@ import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
@@ -526,40 +527,15 @@ const handleSavePayment = (data: any) => {
 
 // Print options
 const printOptions = computed(() => [
+    { id: 'guestCard', label: t('printGuestCard'), icon: Printer },
+    { id: 'confirmation', label: t('printResVourcher'), icon: FileCheck },
     { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
-    { id: 'confirmation', label: t('printConfirmation'), icon: CheckCircle },
-    { id: 'receipt', label: t('printReceipt'), icon: List }
+    { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
 ])
 
 // Print handlers
 const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
-    if (option.id === 'invoice') {
-        templates.value = [
-            {
-                id: 'invoice-1',
-                name: 'Standard Invoice',
-                type: 'invoice',
-            },
-        ]
-    } else if (option.id === 'confirmation') {
-        templates.value = [
-            {
-                id: 'confirmation-1',
-                name: 'Booking Confirmation',
-                type: 'confirmation',
-            },
-        ]
-    } else if (option.id === 'receipt') {
-        templates.value = [
-            {
-                id: 'receipt-1',
-                name: 'Payment Receipt',
-                type: 'receipt',
-            },
-        ]
-    }
-
     showPrintModal.value = true
 }
 const roomRateTypeSummary = computed(() => {
@@ -626,7 +602,26 @@ const avgDailyRate = computed(() => {
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }
-const templates = ref<PrintTemplate[]>([])
+const templates = ref<any[]>([
+    {
+        id: '1',
+        name: 'Booking Confirmation',
+        description: 'Document de confirmation de booking',
+        type: 'confirmation'
+    },
+    {
+        id: '2',
+        name: 'Invoice Reception',
+        description: 'Facture de réservation',
+        type: 'invoice'
+    },
+    {
+        id: '3',
+        name: 'Reçu',
+        description: 'Reçu de paiement',
+        type: 'receipt'
+    }
+])
 // Document data for printing
 const printDocumentData = computed(() => ({
     reservation: reservation.value,

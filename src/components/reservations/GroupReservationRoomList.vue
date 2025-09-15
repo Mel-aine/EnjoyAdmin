@@ -36,7 +36,7 @@
           <div>
             <span class="text-gray-600 dark:text-gray-400">{{ $t('roomType') }}</span>
             <p class="font-medium text-gray-900 dark:text-white">
-              {{ room.roomType?.roomTypeName || $t('notAssigned') }}
+              {{ room.roomType?.roomTypeName }}
             </p>
           </div>
 
@@ -48,17 +48,10 @@
             </div>
             <div v-else class="flex items-center gap-2">
               <!-- Placeholder Image -->
-              <div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
-                <Home class="w-4 h-4 text-gray-400" />
-              </div>
               <!-- Assign Room Button -->
-              <button 
-                @click.stop="openRoomAssignment(room)"
-                class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors flex items-center gap-1"
-              >
-                <Plus class="w-3 h-3" />
-                {{ $t('assignRoom') }}
-              </button>
+              <AssignRoomReservation
+                :reservation="reservation"
+              />
             </div>
           </div>
 
@@ -118,6 +111,7 @@ import Child from '../../icons/Child.vue'
 import StaredIcon from '../../icons/StaredIcon.vue'
 import { CrownIcon, Home, Plus } from 'lucide-vue-next'
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue'
+import AssignRoomReservation from './AssignRoomReservation.vue'
 
 interface Room {
   id?: number
@@ -145,6 +139,7 @@ interface Room {
 
 interface Props {
   rooms: Room[]
+  reservation:any
 }
 
 interface Emits {
