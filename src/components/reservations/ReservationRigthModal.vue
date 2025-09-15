@@ -727,6 +727,86 @@ const handleRoomSelected = (room: any) => {
     // For example, navigate to room details or show room-specific actions
 }
 
+
+const currentAction = ref<string | null>(null)
+const isPerformingAction = computed(() => currentAction.value !== null)
+
+// Fonction générique pour exécuter une action avec feedback
+const executeAction = async (actionId: string, actionFn: () => Promise<void>, loadingMessage?: string, successMessage?: string) => {
+  if (isPerformingAction.value) {
+    return // Empêcher les actions multiples
+  }
+
+  try {
+    currentAction.value = actionId
+
+    // Toast d'information si fourni
+    if (loadingMessage) {
+      toast.info(loadingMessage, {
+        timeout: 2000,
+        hideProgressBar: false
+      })
+    }
+
+    // Exécuter l'action
+    await actionFn()
+
+    // Message de succès si fourni
+    if (successMessage) {
+      toast.success(successMessage)
+    }
+
+  } catch (error: any) {
+    console.error(`${actionId} error:`, error)
+    const errorMessage = error.response?.data?.message ||
+                        error.message ||
+                        t(`Failed to ${actionId.replace('_', ' ')}`)
+    toast.error(errorMessage)
+  } finally {
+    currentAction.value = null
+  }
+}
+
+// Fonction pour le check-in automatique
+const performAutoCheckIn = async (availableRoom: any) => {
+  const checkInDateTime = new Date().toISOString()
+  const checkInPayload = {
+    reservationRooms: [availableRoom.id],
+    actualCheckInTime: checkInDateTime,
+    notes: '',
+    keyCardsIssued: 2,
+    depositAmount: 0
+  }
+
+  await performCheckIn(props.reservation.id, checkInPayload)
+
+  emit('save', {
+    action: 'checkIn',
+    reservationId: props.reservation.id,
+    data: checkInPayload
+  })
+}
+
+// Fonction pour le check-out
+const performAutoCheckOut = async (availableRoom: any) => {
+  const checkOutDateTime = new Date().toISOString()
+  const checkOutPayload = {
+    reservationRooms: [availableRoom.id],
+    actualCheckOutTime: checkOutDateTime,
+    notes: '',
+  }
+
+  await performCheckOut(props.reservation.id, checkOutPayload)
+
+  emit('save', {
+    action: 'checkOut',
+    reservationId: props.reservation.id,
+    data: checkOutPayload
+  })
+}
+
+
+
 const handleOptionSelected = async (option: any) => {
 
 
