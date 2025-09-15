@@ -5933,13 +5933,9 @@
   "AddFound" : "Add Found",
   "Who Found" : "who Found",
   "Item Name" : "Item Name",
-  "Item Color" : "Item Color"
-}
-
-  "AssignRoom": "Assign Room",
+  "Item Color" : "Item Color",
   "printGuestCard": "Print Guest Reservation Card",
   "printResVourcher": "Print Reservation Voucher",
-  "printInvoice": "Print Invoice",
   "sendInvoice": "Send Invoice",
   "printSend":"Print / Send"
 }
