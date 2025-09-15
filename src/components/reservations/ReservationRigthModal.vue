@@ -422,6 +422,17 @@ const toast = useToast()
 
 // Initialize the reservation composable
 const {
+     isCheckingIn,
+    isCheckingOut,
+    isAmendingStay,
+    isMovingRoom,
+    isExchangingRoom,
+    isStoppingRoomMove,
+    isUpdatingInclusionList,
+    isMarkingNoShow,
+    isVoidingReservation,
+    performCheckIn,
+    performCheckOut,
     showNoShowModal,
 } = useReservation();
 interface Props {
