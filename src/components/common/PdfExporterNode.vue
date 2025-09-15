@@ -1,6 +1,6 @@
 <template>
 
-  <PdfModalPreview :title="'Invoice'" :is-open="isModalOpen" @close="closeModal">
+  <PdfModalPreview :title="title" :is-open="isModalOpen" @close="closeModal">
 
     <div>
       <!-- Modal de prévisualisation -->
@@ -119,6 +119,7 @@ interface PdfExporterProps {
   showControls?: boolean
   isGenerating: boolean
   isModalOpen:boolean
+  title:string
 }
 
 // Props
