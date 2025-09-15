@@ -947,6 +947,19 @@ watch(() => props.isOpen, (newValue) => {
     }
 });
 
+const getActionLoadingText = (action: string | null) => {
+  const loadingTexts: Record<string, string> = {
+    'check_in': t('Checking in...'),
+    'check_out': t('Checking out...'),
+    'cancel_reservation': t('Cancelling...'),
+    'void_reservation': t('Voiding...'),
+    'add_payment': t('Processing payment...'),
+    // Ajoutez d'autres actions selon vos besoins
+  }
+
+  return loadingTexts[action || ''] || t('Processing...')
+}
+
 // Fetch data on mount if modal is already open
 onMounted(() => {
     if (props.isOpen && props.reservationData?.reservation_id) {
