@@ -119,10 +119,19 @@
                                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ reservation.guest?.displayName }}
                                     </h2>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-
-                                        {{ reservation.reservationNumber }}
-                                    </p>
+                                    <div class="text-sm flex gap-2 text-gray-500 dark:text-gray-400">
+                                        <div v-if="reservation.guest?.country"
+                                            class="flex align-middle self-center content-center items-center gap-1">
+                                            <MapPin class="w-4 h-4" /><span>{{
+                                                $t(`countries_lists.${reservation.guest?.country.toLowerCase()}`)
+                                                }}</span>
+                                        </div>
+                                        <div v-if="reservation.guest?.phonePrimary
+                                        " class="flex align-middle self-center content-center items-center gap-1">
+                                            <PhoneCall class="w-3 h-3" /><span>{{ $t(reservation.guest?.phonePrimary)
+                                                }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -217,7 +226,8 @@
                                             <p class="text-sm text-gray-900 dark:text-white">{{
                                                 formatDate(reservation.createdAt) }}</p>
                                         </div>
-                                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
+                                        <div
+                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('roomType') }}
@@ -228,23 +238,22 @@
                                             </p>
                                         </div>
 
-                                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
+                                        <div
+                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ t('roomNumber') }}
                                             </label>
 
                                             <!-- Show simple list for single room -->
-                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room:any) => room.room?.id)"
+                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room: any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
                                             <AssignRoomReservation
-                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)"
-                                                :reservation="reservation"
-                                                @assigned="handleRoomAssigned"
-                                            />
+                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room: any) => !room.room?.id)"
+                                                :reservation="reservation" @assigned="handleRoomAssigned" />
                                         </div>
 
                                         <div
@@ -287,7 +296,8 @@
                             </slot>
                         </div>
                         <!-- Show room list for multiple rooms -->
-                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
+                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1"
+                            class="py-6 pe-6">
                             <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" />
                         </div>
@@ -348,18 +358,18 @@
                 @close="closeAddPaymentModal" @save="handleSavePayment" />
         </template>
         <!--check out template-->
-          <template v-if="isCkeckOutModalOpen">
+        <template v-if="isCkeckOutModalOpen">
             <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
                 @close="closeCheckOutReservationModal" />
         </template>
         <!--check in template-->
-          <template v-if="isCkeckInModalOpen">
+        <template v-if="isCkeckInModalOpen">
             <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
                 @close="closeCheckInReservationModal" />
         </template>
 
         <!--unassign template-->
-          <template v-if="isUnAssignModalOpen">
+        <template v-if="isUnAssignModalOpen">
             <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
                 @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
         </template>
@@ -367,9 +377,11 @@
 
 
     <!-- Print Modal -->
-    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-    :templates="templates"
-        @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservationId" />
+    <div v-if="showPdfExporter || laodingPrint">
+        <!-- Confirmation Template -->
+        <PdfExporterNode v-if="pdfUrl || laodingPrint" @close="closePrint" :is-modal-open="showPdfExporter"
+            :is-generating="laodingPrint" :pdf-url="pdfUrl" :title="documentTitle" />
+    </div>
 
 </template>
 
@@ -379,28 +391,27 @@ import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
 // Lazy load all modal components to improve code splitting
 const CancelReservation = defineAsyncComponent(() => import('./foglio/CancelReseravtion.vue'))
-import PrintModal from '../common/PrintModal.vue'
-import { getReservationDetailsById } from '../../services/reservation'
+import { getReservationDetailsById, printGuestReservationCard } from '../../services/reservation'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
-const BookingConfirmationTemplate = defineAsyncComponent(() => import('../common/templates/BookingConfirmationTemplate.vue'))
 const VoidReservation = defineAsyncComponent(() => import('./foglio/VoidReservation.vue'))
 const AmendStay = defineAsyncComponent(() => import('./foglio/AmendStay.vue'))
 const AddPaymentModal = defineAsyncComponent(() => import('./foglio/AddPaymentModal.vue'))
 // Lazy load BookingInvoice to avoid bundling conflicts
-const BookingInvoice = defineAsyncComponent(() => import('../common/templates/BookingInvoice.vue'))
 const NoShowReservation = defineAsyncComponent(() => import('./foglio/NoShowReservation.vue'))
 const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReservationRoomList.vue'))
 const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReservation.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'))
 import AssignRoomReservation from './AssignRoomReservation.vue'
+import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
+import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
@@ -411,17 +422,6 @@ const toast = useToast()
 
 // Initialize the reservation composable
 const {
-    isCheckingIn,
-    isCheckingOut,
-    isAmendingStay,
-    isMovingRoom,
-    isExchangingRoom,
-    isStoppingRoomMove,
-    isUpdatingInclusionList,
-    isMarkingNoShow,
-    isVoidingReservation,
-    performCheckIn,
-    performCheckOut,
     showNoShowModal,
 } = useReservation();
 interface Props {
@@ -442,14 +442,6 @@ const props = withDefaults(defineProps<Props>(), {
     subtitle: ''
 })
 
-interface PrintTemplate {
-    id: string
-    name: string
-    description?: string
-    type: 'confirmation' | 'invoice' | 'receipt' // Le type suffit
-    // Plus besoin de la propriété component
-}
-
 const emit = defineEmits<Emits>()
 
 // Cancel modal state
@@ -461,6 +453,10 @@ const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
+const laodingPrint = ref(false);
+const pdfUrl = ref<any>(null);
+const documentTitle = ref<String>('')
+const showPdfExporter = ref(false);
 const reservationId = ref(props.reservationData?.reservation_id || 0)
 
 
@@ -472,6 +468,10 @@ const handleCancelConfirmed = () => {
     getBookingDetailsById();
     // Emit save event to notify parent components
     emit('save', { action: 'cancel', reservationId: reservation.value?.id })
+}
+const closePrint = () => {
+    showPdfExporter.value = false;
+    pdfUrl.value = null
 }
 const handleVoidConfirmed = () => {
     showVoidModal.value = false
@@ -512,8 +512,6 @@ const closeCheckOutReservationModal = () => {
 
 const openCheckInReservationModal = () => {
     isCkeckInModalOpen.value = true
-
-
 }
 
 const closeCheckInReservationModal = () => {
@@ -545,25 +543,77 @@ const handleSavePayment = (data: any) => {
 // Print options
 const printOptions = computed(() => [
     { id: 'guestCard', label: t('printGuestCard'), icon: Printer },
-    { id: 'confirmation', label: t('printResVourcher'), icon: FileCheck },
+    { id: 'printResVourcher', label: t('printResVourcher'), icon: FileCheck },
     { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
-    { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
+   // { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
 ])
 
-const getActionLoadingText = (action: string | null) => {
-  const loadingTexts: Record<string, string> = {
-    'check_in': t('Checking in...'),
-    'check_out': t('Checking out...'),
 
-    // Ajoutez d'autres actions selon vos besoins
-  }
+const handlePrint = async (templateType: string) => {
+    try {
+        laodingPrint.value = true
 
-  return loadingTexts[action || ''] || t('Processing...')
+        // Show PDF exporter
+        showPdfExporter.value = true
+
+        // Generate PDF based on template type
+        let pdfBlob: Blob
+
+        if (templateType === 'confirmation') {
+            pdfBlob = await printConfirmBookingPdf({
+                reservationId: reservation.value?.id
+            })
+            console.log('PDF Blob for confirmation:', pdfBlob)
+            // Libérer l'ancienne URL si elle existe
+            if (pdfUrl.value) {
+                window.URL.revokeObjectURL(pdfUrl.value)
+            }
+            pdfUrl.value = window.URL.createObjectURL(pdfBlob)
+        }
+        else if (templateType === 'receipt') {
+            pdfBlob = await printHotelPdf({
+                reservationId: reservation.value?.id
+            })
+            if (pdfUrl.value) {
+                window.URL.revokeObjectURL(pdfUrl.value)
+            }
+            pdfUrl.value = window.URL.createObjectURL(pdfBlob)
+        } else if (templateType === 'guestCard') {
+            pdfBlob = await printGuestReservationCard({
+                reservationId: reservation.value?.id,
+                guestId:reservation.value?.guestId
+            })
+            console.log('PDF Blob for confirmation:', pdfBlob)
+            // Libérer l'ancienne URL si elle existe
+            if (pdfUrl.value) {
+                window.URL.revokeObjectURL(pdfUrl.value)
+            }
+            pdfUrl.value = window.URL.createObjectURL(pdfBlob)
+        }
+    } catch (error) {
+
+        showPdfExporter.value = false
+    } finally {
+        laodingPrint.value = false
+    }
 }
+
 // Print handlers
 const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
-    showPrintModal.value = true
+
+    if (option.id === 'guestCard') {
+        documentTitle.value = t('printGuestCard')
+        handlePrint('guestCard')
+    }
+    else if (option.id === 'printResVourcher') {
+        documentTitle.value = t('printResVourcher')
+        handlePrint('confirmation')
+    }
+    else if (option.id === 'invoice') {
+        documentTitle.value = t('printInvoice')
+        handlePrint('receipt')
+    }
 }
 const roomRateTypeSummary = computed(() => {
     if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
@@ -610,10 +660,7 @@ const roomTypeSumarry = computed(() => {
     })
     return roomNumbers;
 })
-const handlePrintSuccess = (data: any) => {
-    console.log('Print successful:', data)
-    showPrintModal.value = false
-}
+
 const avgDailyRate = computed(() => {
     if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {
         return 0;
@@ -626,42 +673,6 @@ const avgDailyRate = computed(() => {
     return total;
 
 })
-const handlePrintError = (error: any) => {
-    console.error('Print error:', error)
-}
-const templates = ref<any[]>([
-    {
-        id: '1',
-        name: 'Booking Confirmation',
-        description: 'Document de confirmation de booking',
-        type: 'confirmation'
-    },
-    {
-        id: '2',
-        name: 'Invoice Reception',
-        description: 'Facture de réservation',
-        type: 'invoice'
-    },
-    {
-        id: '3',
-        name: 'Reçu',
-        description: 'Reçu de paiement',
-        type: 'receipt'
-    }
-])
-// Document data for printing
-const printDocumentData = computed(() => ({
-    reservation: reservation.value,
-    customer: reservation.value?.guest,
-    rooms: reservation.value?.reservationRooms,
-    totalAmount: reservation.value?.totalAmount,
-    paidAmount: reservation.value?.paidAmount,
-    remainingAmount: reservation.value?.remainingAmount,
-    company: {}
-}))
-const handleSave = () => {
-    emit('save', props.reservationData)
-}
 
 
 const gotoResevationDetails = () => {
@@ -852,7 +863,7 @@ const handleOptionSelected = async (option: any) => {
             showVoidModal.value = true;
             break;
         case 'unassign_room':
-          openUnAssignReservationModal()
+            openUnAssignReservationModal()
             break;
         case 'inclusion_list':
             break;
