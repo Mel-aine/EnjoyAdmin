@@ -57,7 +57,7 @@
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
                 :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
             </div>
-            <!-- Status indicators -->
+            <!-- Status indicators 
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
                 <div class="w-3 h-3 bg-orange-400 rounded"></div>
@@ -75,7 +75,7 @@
                   <SettingsIcon class="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </div>-->
           </div>
 
           <!-- Table -->

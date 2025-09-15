@@ -245,11 +245,9 @@ const roomRateTypeSummary = computed(() => {
 
   const reservationRooms = reservation.value.reservationRooms
   console.log('reservationRooms', reservationRooms)
-  const totalRooms = reservationRooms.length
-
   // Get room numbers and create summary
   const roomNumbers = reservationRooms.map((room: any) => {
-    return `${room.room?.roomNumber} / ${room.room?.roomType?.name}`
+    return `${room.room?.roomNumber} / ${room.room?.roomType?.roomTypeName}`
   })
 
   return roomNumbers[0]
@@ -273,14 +271,6 @@ const handleCheckOut = async () => {
   performCheckOut(reservation.value.id, play, getBookingDetailsById)
 }
 
-const handleAmendStay = async () => {
-  const payload = {
-    newCheckInDate: reservation.value.arrivedDate,
-    newCheckOutDate: reservation.value.departDate,
-    reason: 'Guest requested amendment',
-    notes: '',
-  }
-}
 
 const handleAmendConfirmed = () => {
   const id = router.currentRoute.value.params.id
@@ -522,9 +512,9 @@ onMounted(() => {
               <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
               <span class="text-xs flex gap-2">
                 <span>{{ formatDateT(reservation.arrivedDate) }}</span>
-                <span>
+                <!--<span>
                   <PencilIcon class="w-3" />
-                </span>
+                </span>-->
               </span>
             </div>
             <!--depature-->
@@ -532,9 +522,9 @@ onMounted(() => {
               <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
               <span class="text-xs flex gap-2">
                 <span>{{ formatDateT(reservation.departDate) }}</span>
-                <span>
+               <!-- <span>
                   <PencilIcon class="w-3" />
-                </span>
+                </span>-->
               </span>
             </div>
             <!--Nigth-->

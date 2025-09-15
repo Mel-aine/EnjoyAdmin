@@ -6,12 +6,14 @@ import { useAuthStore } from '@/composables/user'
 const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration/rate_types`
 
 
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {  
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 
@@ -20,9 +22,9 @@ const headers = {
  */
 
 export const getRateTypes = (id:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/hotel/${id}`, headers)
+  return axios.get(`${API_URL}/hotel/${id}`, getHeaders())
 }
 
 export const getRateTypesByRoomTypes = (id:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/roomType/${id}`, headers)
+  return axios.get(`${API_URL}/roomType/${id}`, getHeaders())
 }

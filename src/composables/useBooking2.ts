@@ -277,7 +277,6 @@ export function useBooking() {
   const bookingTypeLo = ref<any>([...serviceStore.reservationType])
   const marketCodesLo = ref<any>([])
   const bookingSourceLo = ref<any>([...serviceStore.bookingSources])
-  console.log('reservation details',serviceStore.currentService)
   // Options depuis le store
   const BookingSource = computed(() => bookingSourceLo.value || [])
   const BusinessSource = computed(() => businessSourcesLo.value || [])

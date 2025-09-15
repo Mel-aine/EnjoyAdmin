@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useLanguageStore = defineStore('language', {
   state: () => ({
-    language: localStorage.getItem('language') || null as string | null,
+    language: (typeof window !== 'undefined' ? localStorage.getItem('language') : null) || null as string | null,
   }),
 
   getters: {
@@ -12,15 +12,19 @@ export const useLanguageStore = defineStore('language', {
   actions: {
     set(lang: string | null) {
       this.language = lang;
-      localStorage.setItem('language', lang || '');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('language', lang || '');
+      }
       console.log('here', lang);
     },
 
     init() {
       // Cette action peut être appelée au démarrage de l'application
-      const storedLanguage = localStorage.getItem('language');
-      if (storedLanguage) {
-        this.language = storedLanguage;
+      if (typeof window !== 'undefined') {
+        const storedLanguage = localStorage.getItem('language');
+        if (storedLanguage) {
+          this.language = storedLanguage;
+        }
       }
     },
   },

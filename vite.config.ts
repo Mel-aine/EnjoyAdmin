@@ -91,10 +91,9 @@ export default defineConfig({
           if (id.includes('vue-router')) {
             return 'vue-router'
           }
-          // Pinia state management
           if (id.includes('pinia')) {
-            return 'pinia'
-          }
+                return 'pinia';
+              }
           // Vue DevTools
           if (id.includes('vue-devtools') || id.includes('@vue/devtools')) {
             return 'vue-devtools'
@@ -432,8 +431,7 @@ export default defineConfig({
         }
       },
       external: (id) => {
-        // Externalize heavy dependencies that can be loaded via CDN in production
-        return false
+        return false;
       }
     },
     // Electron build optimizations
@@ -441,6 +439,6 @@ export default defineConfig({
     emptyOutDir: true,
     assetsDir: 'assets',
     // Enable source maps for debugging but exclude from production
-    sourcemap: process.env.NODE_ENV === 'development',
+    sourcemap: false,
   }
 })

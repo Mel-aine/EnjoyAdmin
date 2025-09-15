@@ -271,7 +271,7 @@
                         </div>
                         <!-- Show room list for multiple rooms -->
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
-                            <GroupReservationRoomList :rooms="reservation.reservationRooms"
+                            <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" />
                         </div>
                     </div>
@@ -600,7 +600,7 @@ const avgDailyRate = computed(() => {
 const handlePrintError = (error: any) => {
     console.error('Print error:', error)
 }
-const templates = ref<PrintTemplate[]>([
+const templates = ref<any[]>([
     {
         id: '1',
         name: 'Booking Confirmation',

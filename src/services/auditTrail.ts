@@ -41,13 +41,16 @@ export interface ApiResponse<T = any> {
   error?: string
 }
 
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
+
 
 // Error handling
 const handleApiError = (error: any) => {
@@ -65,7 +68,7 @@ export const getAuditTrail = async (params: AuditTrailQueryParams): Promise<any>
     const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
       '/audit-trail',
       {
-        ...headers,
+        ...getHeaders(),
         params,
       }
     )
@@ -82,7 +85,7 @@ export const exportAuditTrail = async (params: AuditTrailQueryParams): Promise<B
     const response: AxiosResponse<Blob> = await apiClient.get(
       '/audit-trail/export',
       {
-        ...headers,
+        ...getHeaders(),
         params,
         responseType: 'blob',
       }
@@ -99,7 +102,7 @@ export const getEntityAuditTrail = async (entityType: string, entityId: number, 
     const response: AxiosResponse<ApiResponse<AuditTrailEntry[]>> = await apiClient.get(
       `/audit-trail/${entityType}/${entityId}`,
       {
-        ...headers,
+        ...getHeaders(),
         params: { hotelId },
       }
     )
