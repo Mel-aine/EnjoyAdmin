@@ -2976,6 +2976,7 @@
   "reservationsList": {
     "headerTitle": "Gestion des réservations d'hôtel",
     "headerSubtitle": "Rechercher, filtrer et gérer les réservations",
+    "filterSectionTitle": "Recherche & Filtres",
     "searchByNameOrNumber": "Rechercher par nom de client ou numéro de réservation",
     "searchPlaceholder": "ex: Martin Sophie ou RES-001",
     "filterStatus": "Statut",
@@ -5932,6 +5933,10 @@
   "AddFound": "Ajouter un objet trouvé",
   "Who Found": "Qui a trouvé",
   "Item Name": "Nom de l'objet",
-  "Item Color": "Couleur de l'objet"
+  "Item Color": "Couleur de l'objet",
+  "printGuestCard": "Imprimer la carte de réservation",
+  "printResVourcher": "Imprimer le bon de réservation",
+  "sendInvoice": "Envoyer la facture",
+  "printSend": "Imprimer / Envoyer"
 
 }
