@@ -119,10 +119,19 @@
                                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ reservation.guest?.displayName }}
                                     </h2>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        
-                                        {{ reservation.reservationNumber }}
-                                    </p>
+                                    <div class="text-sm flex gap-2 text-gray-500 dark:text-gray-400">
+                                        <div v-if="reservation.guest?.country"
+                                            class="flex align-middle self-center content-center items-center gap-1">
+                                            <MapPin class="w-4 h-4" /><span>{{
+                                                $t(`countries_lists.${reservation.guest?.country.toLowerCase()}`)
+                                                }}</span>
+                                        </div>
+                                        <div v-if="reservation.guest?.phonePrimary
+                                        " class="flex align-middle self-center content-center items-center gap-1">
+                                            <PhoneCall class="w-3 h-3" /><span>{{ $t(reservation.guest?.phonePrimary)
+                                                }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -201,7 +210,8 @@
                                             <p class="text-sm text-gray-900 dark:text-white">{{
                                                 formatDate(reservation.createdAt) }}</p>
                                         </div>
-                                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
+                                        <div
+                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('roomType') }}
@@ -212,23 +222,22 @@
                                             </p>
                                         </div>
 
-                                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
+                                        <div
+                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ t('roomNumber') }}
                                             </label>
 
                                             <!-- Show simple list for single room -->
-                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room:any) => room.room?.id)"
+                                            <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room: any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
                                                     }}</span>
                                             </p>
-                                            <AssignRoomReservation 
-                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)" 
-                                                :reservation="reservation" 
-                                                @assigned="handleRoomAssigned" 
-                                            />
+                                            <AssignRoomReservation
+                                                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room: any) => !room.room?.id)"
+                                                :reservation="reservation" @assigned="handleRoomAssigned" />
                                         </div>
 
                                         <div
@@ -271,7 +280,8 @@
                             </slot>
                         </div>
                         <!-- Show room list for multiple rooms -->
-                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1" class="py-6 pe-6">
+                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1"
+                            class="py-6 pe-6">
                             <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" />
                         </div>
@@ -332,18 +342,18 @@
                 @close="closeAddPaymentModal" @save="handleSavePayment" />
         </template>
         <!--check out template-->
-          <template v-if="isCkeckOutModalOpen">
+        <template v-if="isCkeckOutModalOpen">
             <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
                 @close="closeCheckOutReservationModal" />
         </template>
         <!--check in template-->
-          <template v-if="isCkeckInModalOpen">
+        <template v-if="isCkeckInModalOpen">
             <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
                 @close="closeCheckInReservationModal" />
         </template>
 
         <!--unassign template-->
-          <template v-if="isUnAssignModalOpen">
+        <template v-if="isUnAssignModalOpen">
             <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
                 @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
         </template>
@@ -352,8 +362,8 @@
 
     <!-- Print Modal -->
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
-    :templates="templates"
-        @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="reservationId" />
+        :templates="templates" @print-success="handlePrintSuccess" @print-error="handlePrintError"
+        :reservation-id="reservationId" />
 
 </template>
 
@@ -363,7 +373,7 @@ import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
@@ -745,15 +755,15 @@ const handleOptionSelected = async (option: any) => {
             showVoidModal.value = true;
             break;
         case 'unassign_room':
-          openUnAssignReservationModal()
+            openUnAssignReservationModal()
             break;
         case 'inclusion_list':
             break;
         case 'check_in':
-          openCheckInReservationModal()
+            openCheckInReservationModal()
             break;
         case 'check_out':
-          openCheckOutReservationModal()
+            openCheckOutReservationModal()
             break;
         case 'room_move':
             break;
