@@ -5941,7 +5941,14 @@
   "Checking in room {roomNumber}...": "Enregistrement de la chambre {roomNumber}...",
   "Room {roomNumber} checked in successfully": "La chambre {roomNumber} a été enregistrée avec succès",
   "Checking out room {roomNumber}...": "Départ de la chambre {roomNumber}...",
-  "Room {roomNumber} checked out successfully": "La chambre {roomNumber} a été libérée avec succès"
+  "Room {roomNumber} checked out successfully": "La chambre {roomNumber} a été libérée avec succès",
+  "Checking in...": "Enregistrement en cours...",
+  "Checking out...": "Départ en cours...",
+  "Failed to check in": "Échec de l'enregistrement",
+  "Failed to check out": "Échec du départ",
+  "please_select_at_least_one_room": "Veuillez sélectionner au moins une chambre"
+
+
 
 
 

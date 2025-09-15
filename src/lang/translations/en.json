@@ -5941,5 +5941,13 @@
   "Checking in room {roomNumber}...": "Checking in room {roomNumber}...",
   "Room {roomNumber} checked in successfully": "Room {roomNumber} checked in successfully",
   "Checking out room {roomNumber}...": "Checking out room {roomNumber}...",
-  "Room {roomNumber} checked out successfully": "Room {roomNumber} checked out successfully"
+  "Room {roomNumber} checked out successfully": "Room {roomNumber} checked out successfully",
+  "Checking in...": "Checking in...",
+  "Checking out...": "Checking out...",
+  "Failed to check in": "Failed to check in",
+  "Failed to check out": "Failed to check out",
+  "please_select_at_least_one_room": "Please select at least one room"
+
+
+
 }

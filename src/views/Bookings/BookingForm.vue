@@ -573,8 +573,6 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
-import { useReservation } from '@/composables/useReservation'
-import { useToast } from 'vue-toastification'
 import {
   PencilLine,
   CircleChevronDown,
@@ -593,13 +591,9 @@ import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
-const {
-  performCheckIn
-} = useReservation()
-
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
-const toast = useToast()
+
 const isAddPaymentModalOpen = ref(false)
 const performChecking = () => { }
 const closeAddPaymentModal = () => {
@@ -622,63 +616,9 @@ const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
 }
 
-const performAutoCheckIn = async (room:any) => {
-
-  const checkInDateTime = new Date().toISOString()
-  const checkInPayload = {
-    reservationRooms: [room.id],
-    actualCheckInTime: checkInDateTime,
-    notes: '',
-    keyCardsIssued: 2,
-    depositAmount: 0,
-  }
-console.log("checkInPayload",room)
-  await performCheckIn(reservationId.value!, checkInPayload)
-
-  router.push({
-    name: 'ReservationDetails',
-    params: { id: reservationId.value },
-  })
+const openCheckInReservationModal = () => {
+  isCkeckInModalOpen.value = true
 }
-
-const openCheckInReservationModal = async () => {
-  if (!reservationId.value) {
-    toast.error(t('No reservation found for check-in'))
-    return
-  }
-
-  const availableRoomsForCheckin = roomConfigurations.value.filter(
-    (room) => room.roomNumber
-  )
-
-  console.log('Available rooms for check-in:', availableRoomsForCheckin.length)
-
-  if (availableRoomsForCheckin.length === 0) {
-    toast.info(t('No rooms available for check-in'))
-    return
-  } else if (availableRoomsForCheckin.length === 1) {
-    // Récupère un label lisible pour la chambre
-    const roomInfo = getRoomsForRoom(availableRoomsForCheckin[0].id).find(
-      (r) => r.value === availableRoomsForCheckin[0].roomNumber
-    )
-    const roomNumber =
-      roomInfo?.label || availableRoomsForCheckin[0].roomNumber || 'Unknown'
-
-    console.log('roomNumber', roomNumber)
-
-    try {
-      toast.info(t('Checking in room {roomNumber}...', { roomNumber }))
-      await performAutoCheckIn(availableRoomsForCheckin[0])
-      toast.success(t('Room {roomNumber} checked in successfully', { roomNumber }))
-    } catch (error) {
-      console.error(error)
-      toast.error(t('Failed to check in room {roomNumber}', { roomNumber }))
-    }
-  } else {
-    isCkeckInModalOpen.value = true
-  }
-}
-
 
 const closeCheckInReservationModal = () => {
   isCkeckInModalOpen.value = false

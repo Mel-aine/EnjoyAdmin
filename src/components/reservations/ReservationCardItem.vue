@@ -327,9 +327,12 @@ const handleOptionSelected = async (option: any) => {
       break
 
     case 'check_out':
-      const availableRoomsForCheckout = props.reservation.reservationRooms
+      const availableRoomsForCheckout = props.reservation.reservationRooms?.filter((room: any) =>
+        room.status === 'checked_in'
+      ) || []
 
-      console.log('Available rooms for check-out:', availableRoomsForCheckout.length)
+
+      console.log('Available rooms for check-out:', availableRoomsForCheckout)
 
       if (availableRoomsForCheckout.length === 0) {
         toast.info(t('No rooms available for check-out'))

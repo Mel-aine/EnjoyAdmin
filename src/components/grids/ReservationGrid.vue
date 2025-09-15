@@ -343,7 +343,7 @@ const filteredReservations = computed(() => {
   // Filter based on activeFilter
   switch (activeFilter.value) {
     case 'arrivals':
-      filtered = filtered.filter(reservation => isToday(reservation.arrivedDate) && reservation.status === 'confirmed'  )
+      filtered = filtered.filter(reservation => isToday(reservation.arrivedDate) && (reservation.status === 'confirmed' || reservation.status === 'checked_in')  )
       break
     case 'departures':
       filtered = filtered.filter(

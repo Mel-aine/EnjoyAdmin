@@ -185,10 +185,20 @@ const handleOptionSelected = (option: any) => {
   // Add specific logic for different actions
   switch (option.id) {
     case 'check_in':
-      openCheckInReservationModal()
+
+      if (reservation.value.reservationRooms && reservation.value.reservationRooms.length > 1) {
+        openCheckInReservationModal()
+      } else {
+        checkInRerservation()
+
+      }
       break
     case 'check_out':
-      openCheckOutReservationModal()
+      if (reservation.value.reservationRooms && reservation.value.reservationRooms.length > 1) {
+        openCheckOutReservationModal()
+      } else {
+        handleCheckOut()
+      }
       break
     case 'add_payment':
       isAddPaymentModalOpen.value = true

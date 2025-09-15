@@ -147,10 +147,26 @@
                                         <button class="rounded-lg bg-primary text-sm text-white px-4"
                                             @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>
-                                        <ButtonDropdown
+                                             <div v-if="isPerformingAction" class="flex items-center px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">
+                                                <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                {{ getActionLoadingText(currentAction) }}
+                                              </div>
+
+                                              <!-- Dropdown normal -->
+                                              <ButtonDropdown
+                                                v-else
+                                               :button-class="'bg-white text-sm border border-primary text-primary'"
+                                                :options="dropdownOptions" :button-text="t('Options')"
+                                                @option-selected="handleOptionSelected"
+                                              />
+
+                                        <!-- <ButtonDropdown
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             :options="dropdownOptions" :button-text="t('Options')"
-                                            @option-selected="handleOptionSelected" />
+                                            @option-selected="handleOptionSelected" /> -->
                                         <ButtonDropdown :options="printOptions" :button-text="t('printSend')"
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             @option-selected="handlePrintOptionSelected" />
@@ -385,12 +401,13 @@ const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReserva
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'))
 import AssignRoomReservation from './AssignRoomReservation.vue'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 const router = useRouter()
 const isLoading = ref(false);
 const reservation = ref<any>(null)
-
+const toast = useToast()
 
 // Initialize the reservation composable
 const {
@@ -533,6 +550,16 @@ const printOptions = computed(() => [
     { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
 ])
 
+const getActionLoadingText = (action: string | null) => {
+  const loadingTexts: Record<string, string> = {
+    'check_in': t('Checking in...'),
+    'check_out': t('Checking out...'),
+
+    // Ajoutez d'autres actions selon vos besoins
+  }
+
+  return loadingTexts[action || ''] || t('Processing...')
+}
 // Print handlers
 const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
@@ -778,11 +805,11 @@ const performAutoCheckIn = async (availableRoom: any) => {
     depositAmount: 0
   }
 
-  await performCheckIn(props.reservation.id, checkInPayload)
+  await performCheckIn(reservation.value.id, checkInPayload)
 
   emit('save', {
     action: 'checkIn',
-    reservationId: props.reservation.id,
+    reservationId: reservation.value.id,
     data: checkInPayload
   })
 }
@@ -796,11 +823,11 @@ const performAutoCheckOut = async (availableRoom: any) => {
     notes: '',
   }
 
-  await performCheckOut(props.reservation.id, checkOutPayload)
+  await performCheckOut(reservation.value.id, checkOutPayload)
 
   emit('save', {
     action: 'checkOut',
-    reservationId: props.reservation.id,
+    reservationId: reservation.value.id,
     data: checkOutPayload
   })
 }
