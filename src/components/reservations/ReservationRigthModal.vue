@@ -150,7 +150,7 @@
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             :options="dropdownOptions" :button-text="t('Options')"
                                             @option-selected="handleOptionSelected" />
-                                        <ButtonDropdown :options="printOptions" :button-text="t('print')"
+                                        <ButtonDropdown :options="printOptions" :button-text="t('printSend')"
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             @option-selected="handlePrintOptionSelected" />
                                     </div>
@@ -362,7 +362,7 @@ import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 import { useReservation } from '../../composables/useReservation'
@@ -526,9 +526,10 @@ const handleSavePayment = (data: any) => {
 
 // Print options
 const printOptions = computed(() => [
+    { id: 'guestCard', label: t('printGuestCard'), icon: Printer },
+    { id: 'confirmation', label: t('printResVourcher'), icon: FileCheck },
     { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
-    { id: 'confirmation', label: t('printConfirmation'), icon: CheckCircle },
-    { id: 'receipt', label: t('printReceipt'), icon: List }
+    { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
 ])
 
 // Print handlers

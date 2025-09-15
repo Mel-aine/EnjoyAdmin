@@ -91,9 +91,8 @@ export default defineConfig({
           if (id.includes('vue-router')) {
             return 'vue-router'
           }
-          if (id.includes('pinia')) {
-                return 'pinia';
-              }
+          // Pinia - integrate with main bundle to avoid separate chunk
+          // Removed separate pinia chunk to prevent loading issues
           // Vue DevTools
           if (id.includes('vue-devtools') || id.includes('@vue/devtools')) {
             return 'vue-devtools'

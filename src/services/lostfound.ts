@@ -4,12 +4,14 @@ import { useAuthStore } from '@/composables/user'
 
 //const API_URL = import.meta.env.VITE_API_URL as string;
 
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 export interface CheckInPayload {
@@ -38,7 +40,7 @@ export interface ApiResponse<T = any> {
 export const addLostFound = async (data: any): Promise<any | undefined> => {
   try { 
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      '/lost-found', data, headers
+      '/lost-found', data, getHeaders()
     )
     return response.data
   } catch (error) {
@@ -50,7 +52,7 @@ export const addLostFound = async (data: any): Promise<any | undefined> => {
 export const getLostFound = async (): Promise<any> => {
   try { 
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/lost-found`, headers
+      `/lost-found`, getHeaders()
     )
     return response.data 
   } catch (error) {
@@ -64,7 +66,7 @@ export const getLostFound = async (): Promise<any> => {
 export const updateLostFoundItem = async (itemId: number, data: any): Promise<any | undefined> => {
   try { 
     const response: AxiosResponse<ApiResponse> = await apiClient.put(
-      `/lost-found/${itemId}`, data, headers
+      `/lost-found/${itemId}`, data, getHeaders()
     )
     return response.data
   }
@@ -79,7 +81,7 @@ export const updateLostFoundItem = async (itemId: number, data: any): Promise<an
 export const getLostFoundItem = async (itemId: number): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/lost-found/${itemId}`, headers
+      `/lost-found/${itemId}`, getHeaders()
     )
     return response.data
   } catch (error) {
@@ -92,12 +94,12 @@ export const getLostFoundItem = async (itemId: number): Promise<any | undefined>
 export const deleteLostFoundItem = async (itemId: number): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.delete(
-      `/lost-found/${itemId}`, headers
+      `/lost-found/${itemId}`, getHeaders()
     )
     return response.data
   } catch (error) {
     console.error('Erreur suppression objet perdu/trouvé:', error)
     return undefined
   }
-}       
+}
 
