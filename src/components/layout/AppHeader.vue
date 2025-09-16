@@ -99,8 +99,11 @@
       </div>
     </div>
   </header>
-  <app-sidebar v-if="isExpanded" />
+  <template v-if="showSidebar">
+    <app-sidebar v-if="isExpanded" />
     <Backdrop />
+  </template>
+
   <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
 </template>
 
@@ -144,4 +147,12 @@ const gotoReservation = () => {
 const gotoAddReservation = () => {
   router.push({ name: "New Booking" })
 }
+
+interface HeaderProps {
+  showSidebar?: boolean
+}
+
+const props = withDefaults(defineProps<HeaderProps>(), {
+  showSidebar: false,
+})
 </script>

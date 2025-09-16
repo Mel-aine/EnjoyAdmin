@@ -6,6 +6,7 @@ export const useAuthStore = defineStore('auth', {
     user: null as Record<string, any> | null,
     roleId: null as number | null,
     UserId: null as number | null,
+    reportsPermissions:[] as { id: string; name: string; description: string }[],
   }),
 
   getters: {
@@ -81,6 +82,26 @@ export const useAuthStore = defineStore('auth', {
     setUserId(UserId: number) {
       this.UserId = UserId;
     },
+    setReportsPermissions(permissions:any){
+      console.log("permissions",permissions)
+       this.reportsPermissions = permissions;
+    },
+
+    /**
+     * Vérifie si l'utilisateur a une ou plusieurs permissions
+     * @param names string | string[]
+     */
+    hasReportPermission(permissionName:any) {
+      if (!this.user?.permisReports) return false;
+
+      try {
+        const permissions = JSON.parse(this.user.permisReports);
+        return permissions.includes(permissionName);
+      } catch (error) {
+        console.error('Erreur lors de la vérification des permissions:', error);
+        return false;
+      }
+    },
     clearsetRoleId() {
       this.roleId = null;
     },
@@ -89,7 +110,10 @@ export const useAuthStore = defineStore('auth', {
     },
     clearsetUser() {
       this.user = null;
-    }
+    },
+     clearPermissionsReports() {
+      this.reportsPermissions = []
+    },
   },
 
   persist: true

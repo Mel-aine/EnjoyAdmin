@@ -38,7 +38,7 @@ export default defineConfig({
     }),
     vueJsx(),
     vueDevTools(),
-    visualizer({ 
+    visualizer({
       filename: 'stats.html',
       open: false,
       gzipSize: true,
@@ -54,7 +54,7 @@ export default defineConfig({
   base: process.env.ELECTRON === 'true' ? './' : '/',
   server: {
     port: 5173,
-    strictPort: true,
+    strictPort: true
   },
 /*  server: {
     host: '0.0.0.0',
