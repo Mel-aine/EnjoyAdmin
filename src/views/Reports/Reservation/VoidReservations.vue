@@ -39,108 +39,83 @@
           </div>
         </div>
 
-        <!-- Report Template -->
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
-          <!-- Report Template -->
-          <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Template</label>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <SelectComponent 
-                v-model="filters.reportTemplate"
-                :options="reportTemplateOptions"
-                placeholder="Default"
-                class="min-w-32 w-full sm:w-auto"
-              />
-              <button 
-                @click="editTemplate"
-                class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title="Edit Template"
-              >
-                <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <!-- Export Button with dropdown -->
-            <div class="relative">
-              <button
-                @click="toggleExportMenu"
-                :disabled="exportLoading"
-                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
-              >
-                <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span v-if="!exportLoading">Export</span>
-                <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-              
-              <!-- Export Dropdown Menu -->
-              <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-                <button 
-                  @click="exportCSV" 
-                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                  :disabled="exportLoading"
-                >
-                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  CSV
-                </button>
-                <button 
-                  @click="exportPDF" 
-                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                  :disabled="exportLoading"
-                >
-                  <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  PDF
-                </button>
-                <button 
-                  @click="exportExcel" 
-                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                  :disabled="exportLoading"
-                >
-                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Excel
-                </button>
-              </div>
-            </div>
-            
-            <!-- Report Button -->
-            <button 
-              @click="generateVoidReport"
-              :disabled="loading"
-              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700">
+          <!-- Export Button with dropdown -->
+          <div class="relative">
+            <button
+              @click="toggleExportMenu"
+              :disabled="exportLoading"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
-              <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Report
+              <span v-if="!exportLoading">Export</span>
+              <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
             </button>
             
-            <!-- Reset Button -->
-            <button 
-              @click="resetForm"
-              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
-            >
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Reset
-            </button>
+            <!-- Export Dropdown Menu -->
+            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+              <button 
+                @click="exportCSV" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                CSV
+              </button>
+              <button 
+                @click="exportPDF" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF
+              </button>
+              <button 
+                @click="exportExcel" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+              </button>
+            </div>
           </div>
+          
+          <!-- Report Button -->
+          <button 
+            @click="generateVoidReport"
+            :disabled="loading"
+            class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+          >
+            <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Report
+          </button>
+          
+          <!-- Reset Button -->
+          <button 
+            @click="resetForm"
+            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+          >
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Reset
+          </button>
         </div>
       </div>
 
@@ -206,9 +181,6 @@
                 <div>Paid: {{ totalPaid }}</div>
                 <div>Balance: {{ totalBalance }}</div>
               </div>
-            </div>
-            <div v-if="filters.reportTemplate !== 'default'" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              Template: {{ getTemplateName(filters.reportTemplate) }}
             </div>
           </div>
         </div>
@@ -296,25 +268,14 @@ const pdfUrl = ref('')
 const apiFilters = ref<ReportFilters>({
   startDate: '',
   endDate: '',
-  hotelId: idHotel !== null ? idHotel : undefined,
-  reportTemplate: 'default'
+  hotelId: idHotel !== null ? idHotel : undefined
 })
 
-// UI Filters
+// UI Filters (only the two date fields from the original code)
 const filters = ref({
   arrivalFrom: '',
-  arrivalTo: '',
-  reportTemplate: 'default'
+  arrivalTo: ''
 })
-
-// Options for report template select
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: t('common.default') },
-  { value: 'detailed', label: t('common.reportTemplates.detailed') },
-  { value: 'summary', label: t('common.reportTemplates.summary') },
-  { value: 'financial', label: t('common.reportTemplates.financial') },
-  { value: 'custom', label: t('common.reportTemplates.custom') }
-])
 
 // Table columns configuration
 type ColumnType = "custom" | "image" | "text" | "date" | "email" | "badge" | undefined;
@@ -515,8 +476,7 @@ watch(filters, (newFilters) => {
   apiFilters.value = {
     ...apiFilters.value,
     arrivalFrom: newFilters.arrivalFrom,
-    arrivalTo: newFilters.arrivalTo,
-    reportTemplate: newFilters.reportTemplate
+    arrivalTo: newFilters.arrivalTo
   }
 }, { deep: true })
 
@@ -546,7 +506,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV with filters:', apiFilters.value)
-    const result = await exportData('csv', 'voidReservations', 'void-reservations', apiFilters.value)
+    const result = await exportData('csv', 'voidReservations', 'void', apiFilters.value)
     console.log('CSV export result:', result)
   } catch (error) {
     console.error('CSV export error:', error)
@@ -567,7 +527,7 @@ const exportPDF = async (): Promise<void> => {
     }
 
     console.log('Export PDF with filters:', apiFilters.value)
-    const result = await exportData('pdf', 'voidReservations', 'void-reservations', apiFilters.value)
+    const result = await exportData('pdf', 'voidReservations', 'void', apiFilters.value)
     pdfUrl.value = result?.fileUrl || ''
     openPDFInNewPage()
     console.log('PDF export result:', result)
@@ -583,7 +543,7 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export Excel with filters:', apiFilters.value)
-    const result = await exportData('excel', 'voidReservations', 'void-reservations', apiFilters.value)
+    const result = await exportData('excel', 'voidReservations', 'void', apiFilters.value)
     console.log('Excel export result:', result)
   } catch (error) {
     console.error('Excel export error:', error)
@@ -632,21 +592,10 @@ const formatDate = (dateString: string): string => {
   }
 }
 
-const getTemplateName = (templateValue: string): string => {
-  const template = reportTemplateOptions.value.find(opt => opt.value === templateValue)
-  return template ? template.label : 'Default'
-}
-
-const editTemplate = (): void => {
-  console.log('Editing template...')
-  // Logic for editing template would go here
-}
-
 const resetForm = (): void => {
   filters.value = {
     arrivalFrom: '',
-    arrivalTo: '',
-    reportTemplate: 'default'
+    arrivalTo: ''
   }
   showResults.value = false
   reportData.value = null
