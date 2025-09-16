@@ -5950,9 +5950,7 @@
   "actionsBlackList": {
     "addToBlacklist": "Add to Blacklist",
     "removeFromBlacklist": "Remove from Blacklist"
-  }
-
-  "please_select_at_least_one_room": "Please select at least one room",
+  },
   "asOnDate":"As on date"
 
 
