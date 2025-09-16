@@ -18,7 +18,7 @@
               fill="" />
           </svg>
 
-          <X v-if="isExpanded"/>
+          <X v-if="isExpanded" />
           <svg v-else width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd"
               d="M0.583252 1C0.583252 0.585788 0.919038 0.25 1.33325 0.25H14.6666C15.0808 0.25 15.4166 0.585786 15.4166 1C15.4166 1.41421 15.0808 1.75 14.6666 1.75L1.33325 1.75C0.919038 1.75 0.583252 1.41422 0.583252 1ZM0.583252 11C0.583252 10.5858 0.919038 10.25 1.33325 10.25L14.6666 10.25C15.0808 10.25 15.4166 10.5858 15.4166 11C15.4166 11.4142 15.0808 11.75 14.6666 11.75L1.33325 11.75C0.919038 11.75 0.583252 11.4142 0.583252 11ZM1.33325 5.25C0.919038 5.25 0.583252 5.58579 0.583252 6C0.583252 6.41421 0.919038 6.75 1.33325 6.75L7.99992 6.75C8.41413 6.75 8.74992 6.41421 8.74992 6C8.74992 5.58579 8.41413 5.25 7.99992 5.25L1.33325 5.25Z"
@@ -35,19 +35,15 @@
           </svg>
         </button>
         <!-- Header avec logo - position fixe -->
-      <div >
-        <div class="flex items-center gap-2" >
+        <div>
+          <div class="flex items-center gap-2">
 
-          <img
-            class="rounded-full w-10"
-           src="/src/assets/images/header/logo2.png"
-            alt="Logo" />
-          <span
-            class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
-            Enjoy
-          </span>
+            <img class="rounded-full w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
+            <span class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
+              Enjoy
+            </span>
+          </div>
         </div>
-      </div>
         <SearchBar />
       </div>
       <div class="lg:flex self-center justify-center align-middle hidden">
@@ -57,40 +53,34 @@
         class="items-center justify-between w-full gap-4 px-5 py-4 bg-gradient-to-r from-white/80 via-gray-50/80 to-white/80 backdrop-blur-sm shadow-xl border-t border-gray-100 dark:border-gray-700 dark:from-gray-800/80 dark:via-gray-700/80 dark:to-gray-800/80 lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:bg-transparent lg:border-t-0 lg:backdrop-blur-none">
         <div class="flex items-center gap-1 sm:gap-2">
 
-            <button
-              class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
-              @click="gotoReservation"
-            >
-              <List class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
-              <span
-                class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
-              >
-                {{ $t('AllBooking') }}
-              </span>
+          <button
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="gotoReservation">
+            <List class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ $t('AllBooking') }}
+            </span>
           </button>
 
           <button
-              class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
-              @click="gotoAddReservation"
-            >
-               <PlusCircle class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
-              <span
-                class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
-              >
-                {{ $t('AddBooking') }}
-              </span>
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="gotoAddReservation">
+            <PlusCircle class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ $t('AddBooking') }}
+            </span>
           </button>
 
           <button
-              class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
-              @click="gotoCalendar"
-            >
-              <Calendar class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
-              <span
-                class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
-              >
-                {{ $t('stay_view') }}
-              </span>
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="gotoCalendar">
+            <Calendar class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ $t('stay_view') }}
+            </span>
           </button>
 
           <NotificationMenu />
@@ -99,10 +89,8 @@
       </div>
     </div>
   </header>
-  <template v-if="showSidebar">
-    <app-sidebar v-if="isExpanded" />
-    <Backdrop />
-  </template>
+  <app-sidebar v-if="isExpanded" />
+  <Backdrop />
 
   <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
 </template>
@@ -116,11 +104,11 @@ import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 import AppSidebar from './AppSidebar.vue'
 import Backdrop from './Backdrop.vue'
-import { Calendar, X ,PlusCircle,List } from 'lucide-vue-next'
+import { Calendar, X, PlusCircle, List } from 'lucide-vue-next'
 import AddBookingModal from "@/components/modal/AddBookingModal.vue"
 import router from '@/router'
 const showModalAddingModal = ref(false);
-const { toggleSidebar, toggleMobileSidebar, isMobileOpen,isExpanded } = useSidebar()
+const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
 
 const handleToggle = () => {
   if (window.innerWidth >= 1024) {

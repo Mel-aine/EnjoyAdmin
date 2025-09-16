@@ -1,8 +1,5 @@
 <template>
   <div class="min-h-screen xl:flex">
-    <app-sidebar v-if="isExpanded || isHovered" />
-    <Backdrop />
-    
     <div
       class="flex-1 transition-all duration-300 ease-in-out"
     ><app-header />
