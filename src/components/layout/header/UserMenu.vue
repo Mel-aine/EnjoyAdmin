@@ -69,8 +69,6 @@
         />
        {{$t('SignOut')}}
       </router-link>
-
-
     </div>
 
     <!-- Dropdown End v-if="user?.service?.length" -->

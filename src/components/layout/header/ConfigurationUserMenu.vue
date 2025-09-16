@@ -62,15 +62,12 @@
         />
        {{$t('SignOut')}}
       </router-link>
-
-
     </div>
   </div>
 </template>
 
 <script setup>
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon, HomeIcon } from '@/icons'
-import ServiceSwitcher from '@/views/Services/ServiceSwitcher.vue'
 import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted ,computed , nextTick} from 'vue'

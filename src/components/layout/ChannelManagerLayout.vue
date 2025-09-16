@@ -18,7 +18,7 @@
       },
     ]">
       <!-- Header -->
-      <AppHeader />
+      <AppHeader :show-sidebar='false' />
       
       <!-- Page content -->
       <main class="pt-16 lg:pt-0">
@@ -51,7 +51,8 @@ import AppFooter from './AppFooter.vue'
 import ChannelConnectionModal from '@/components/modal/ChannelConnectionModal.vue'
 import { syncAllChannels } from '@/services/channelManagerApi'
 
-const { isExpanded } = useSidebar()
+const { isExpanded } = useSidebar();
+
 const isHovered = ref(false)
 const showAddConnectionModal = ref(false)
 
