@@ -38,7 +38,7 @@
 
     <div class="w-10/12">
       <div class="h-full flex flex-col justify-between">
-        <div class="bg-white border border-gray-200 p-6 overflow-y-auto">
+        <div class="bg-white border border-gray-200 p-6 overflow-y-auto custom-scrollbar">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center space-x-3">
@@ -1171,3 +1171,12 @@ onMounted(() => {
 
 })
 </script>
+<style scoped>
+/* Scrollbar invisible mais toujours scrollable */
+.custom-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+</style>

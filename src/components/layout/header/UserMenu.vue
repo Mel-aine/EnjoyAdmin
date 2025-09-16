@@ -122,6 +122,7 @@ const signOut = async () => {
   try {
     closeDropdown();
     authStore.forceLogout();
+    authStore.clearPermissionsReports();
     serviceStore.clearServiceId();
     serviceStore.clearCurrentService();
     serviceStore.clearServiceCategory();
