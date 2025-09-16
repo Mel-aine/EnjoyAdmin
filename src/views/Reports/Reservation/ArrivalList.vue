@@ -205,7 +205,7 @@
         </div>
 
         <!-- Select Columns -->
-        <div class="mt-6">
+        <!-- <div class="mt-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Select Columns (Any 5)
           </label>
@@ -228,7 +228,7 @@
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
             Selected: {{ filters.selectedColumns.length }}/5 columns
           </p>
-        </div>
+        </div> -->
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200">
