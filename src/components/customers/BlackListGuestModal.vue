@@ -62,8 +62,9 @@
           <!-- Form -->
           <form @submit.prevent="handleSubmit" class="px-2 pr-14">
             <!-- Reason Selection -->
-            <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div class="mb-6" v-if="isBlacklisting">
+              <Select :lb="$t('blacklistReason')" :options="blacklistReasons" :placeholder="$t('please_select_reason')" :is-Loading="loading" :is-required="true"  v-model="blacklistReason"/>
+              <!-- <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t('blacklistReason') }} <span class="text-red-500">*</span>
               </label>
               <textarea
@@ -78,7 +79,7 @@
               </p>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {{ $t('minimumCharacters', { count: 5 }) }}
-              </p>
+              </p> -->
             </div>
 
             <!-- Warning message -->
@@ -119,15 +120,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, computed } from 'vue'
+import { ref, defineAsyncComponent, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import { watch } from 'vue'
 import { CheckCircle, AlertTriangle } from 'lucide-vue-next'
+import Select from '../forms/FormElements/Select.vue'
+import BlackListReason from '@/views/Configuration/Master/BlackListReason.vue'
+import { useServiceStore } from '@/composables/serviceStore'
+import {
+  getBlackListReasonsByHotel
+} from '@/services/configrationApi'
 
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 
 const { t } = useI18n()
+const serviceStore = useServiceStore()
 
 
 // --- PROPS ---
@@ -151,6 +159,8 @@ const emit = defineEmits<{
 // --- LOGIQUE ---
 const blacklistReason = ref('');
 const errors = ref({ reason: '' });
+const blacklistReasons = ref([])
+const loading = ref(false)
 
 
 const isBlacklisting = computed(() => !props.guestData?.blacklisted);
@@ -163,10 +173,10 @@ const validateForm = (): boolean => {
       errors.value.reason = t('validation.reasonRequired');
       return false;
     }
-    if (blacklistReason.value.trim().length < 5) {
-      errors.value.reason = t('validation.reasonTooShort');
-      return false;
-    }
+    // if (blacklistReason.value.trim().length < 5) {
+    //   errors.value.reason = t('validation.reasonTooShort');
+    //   return false;
+    // }
   }
   return true;
 };
@@ -198,6 +208,29 @@ const guestDisplayName = computed(() => {
       || props.guestData.fullName
       || `${props.guestData.firstName} ${props.guestData.lastName}`;
 });
+
+const fetchBlacklistReasons = async () => {
+  try {
+    loading.value = true
+    const hotelId = serviceStore.serviceId
+    const response = await getBlackListReasonsByHotel(hotelId!)
+    console.log("response",response)
+    blacklistReasons.value = response.data.data.data.map((r:any)=>{
+      return{
+        label:r.reason,
+        value : r.reason
+      }
+    }) || []
+  } catch (error) {
+    console.error('Error fetching blacklist reasons:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(()=>{
+  fetchBlacklistReasons()
+})
 
 </script>
 

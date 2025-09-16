@@ -49,6 +49,16 @@
                 <h2 class="text-lg font-semibold text-gray-900">
                   {{ isCreatingNewGuest ? $t('New Guest') : $t('Guest') }}
                 </h2>
+                <div
+                  v-if="props.reservation.guest?.blacklisted && !isCreatingNewGuest"
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200"
+                >
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 008.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/>
+                  </svg>
+                  {{ $t('Blacklisted') }}
+                </div>
+
                 <p class="text-sm text-gray-500">
                   {{
                     isCreatingNewGuest
@@ -56,6 +66,7 @@
                       : $t('Guest information and details')
                   }}
                 </p>
+
               </div>
             </div>
             <div class="flex space-x-2">
@@ -473,13 +484,28 @@
         <div class="px-4"></div>
            <!-- Footer summary -->
         <div class=" p-2 border-t border-gray-200 bg-gray-50">
-          <div class="flex justify-end items-end ">
+          <div class="flex justify-between items-center ">
+            <div class="flex flex-row gap-4">
+                   <BasicButton
+                    :variant="props.reservation.guest?.blacklisted ? 'danger' : 'warning'"
+                    :label="getBlacklistButtonLabel()"
+                    @click="openBlackListModal()"
+
+                  />
+
+             <BasicButton
+               variant="primary"
+              :label="$t('printGuestCard')"
+              @click="handlePrint()"
+            />
+            </div>
+            <div>
             <BasicButton
                variant="primary"
               :label="$t('common.pickup/dropoff')"
               @click="handlePickupDropoff()"
             />
-
+            </div>
           </div>
         </div>
       </div>
@@ -494,6 +520,20 @@
           @close="showPickupModal = false"
         />
       </template>
+
+        <div v-if="showPdfExporter || laodingPrint">
+        <!-- Confirmation Template -->
+        <PdfExporterNode v-if="pdfUrl || laodingPrint" @close="closePrint" :is-modal-open="showPdfExporter"
+            :is-generating="laodingPrint" :pdf-url="pdfUrl" :title="documentTitle" />
+        </div>
+
+      <BlackListGuestModal
+      :isOpen="showBlacklistModal"
+      :isLoading="blacklisting"
+      :guestData="props.reservation.guest"
+      @close="closeBlacklistModal"
+      @confirm="confirmBlacklistCustomer"
+    />
   </div>
 </template>
 
@@ -512,11 +552,17 @@ import InputEmail from '../forms/FormElements/InputEmail.vue'
 import ImageUploader from '@/components/customers/ImageUploader.vue'
 import { createGuest, updateGuest, type GuestPayload } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
-import { PlusCircle, ChevronRight } from 'lucide-vue-next'
+import { PlusCircle, ChevronRight}from 'lucide-vue-next'
+import {ShieldCheck ,ShieldX  } from 'lucide-vue-next'
 import UserCircleIcon from '@/icons/UserCircleIcon.vue'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import { getPreferencesByHotelId ,getIdentityTypesByHotelId} from '@/services/configrationApi'
 import PickupAndDropModal from '../customers/PickupAndDropModal.vue'
+import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
+import { printGuestReservationCard } from '../../services/reservation'
+import PdfExporterNode from '../common/PdfExporterNode.vue'
+import { toggleGuestBlacklist } from '@/services/guestApi'
+import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 
 interface GuestData {
   title: string
@@ -582,6 +628,7 @@ const showPickupModal = ref(false)
 const showIdentitySection = ref(false)
 const showOtherInfoSection = ref(false)
 const idTypeOptions = ref<SelectOption[]>([])
+const showPdfExporter = ref(false);
 
 const selectedGuest = ref(
   props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null,
@@ -1012,6 +1059,111 @@ const idNumberLabel = computed(() => {
   // Retourne le label personnalisé, ou un label par défaut
   return selectedIdTypeInfo.value?.label_fr || t('identity.id_number')
 })
+
+const laodingPrint = ref(false);
+const pdfUrl = ref<any>(null);
+const documentTitle = ref<String>('')
+const showBlacklistModal = ref(false)
+const blacklisting = ref(false)
+const customerToBlacklist = ref<any>(null)
+
+const handlePrint = async () => {
+    try {
+        laodingPrint.value = true
+
+        // Show PDF exporter
+        showPdfExporter.value = true
+
+        // Generate PDF based on template type
+        let pdfBlob: Blob
+            pdfBlob = await printGuestReservationCard({
+                reservationId: props.reservation?.id,
+                guestId:props.reservation?.guestId
+            })
+            console.log('PDF Blob for confirmation:', pdfBlob)
+            // Libérer l'ancienne URL si elle existe
+            if (pdfUrl.value) {
+                window.URL.revokeObjectURL(pdfUrl.value)
+            }
+            pdfUrl.value = window.URL.createObjectURL(pdfBlob)
+
+    } catch (error) {
+
+        showPdfExporter.value = false
+    } finally {
+        laodingPrint.value = false
+    }
+}
+
+
+
+const closePrint = () => {
+    showPdfExporter.value = false;
+    pdfUrl.value = null
+}
+
+const openBlackListModal = () => {
+    console.log('Blacklisting guest:', props.reservation)
+   showBlacklistModal.value = true
+}
+
+const closeBlacklistModal = () => {
+  showBlacklistModal.value = false
+  customerToBlacklist.value = null
+}
+
+
+
+// Fonction pour obtenir le label du bouton blacklist
+const getBlacklistButtonLabel = (): string => {
+  if (props.reservation.guest?.blacklisted) {
+    return t('actionsBlackList.removeFromBlacklist')
+  } else {
+    return t('actionsBlackList.addToBlacklist')
+  }
+}
+
+// Améliorez aussi la fonction de confirmation du blacklist
+const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: boolean }) => {
+  if (!props.reservation?.guestId) return
+  try {
+    blacklisting.value = true
+    const payload = data.reason || (data.blacklisted ? 'Raison non spécifiée' : 'Retiré de la liste noire')
+
+    await toggleGuestBlacklist(props.reservation?.guestId, payload)
+
+    const successMessage = data.blacklisted
+      ? t('toast.guestBlacklistedSuccess', { name: props.reservation.guest.fullName })
+      : t('toast.guestUnblacklistedSuccess', { name: props.reservation.guest.fullName })
+
+    toast.success(successMessage)
+
+    // Mettre à jour le statut blacklist localement pour refléter le changement immédiatement
+    if (props.reservation.guest) {
+      props.reservation.guest.blacklisted = data.blacklisted
+
+      // Mettre à jour les notes si nécessaire
+      if (data.blacklisted && data.reason) {
+        const timestamp = new Date().toISOString()
+        const blacklistNote = `\n[${timestamp}] Blacklisted: ${data.reason}`
+        props.reservation.guest.notes = (props.reservation.guest.notes || '') + blacklistNote
+      }
+    }
+
+  } catch (error: any) {
+    console.error('Erreur lors de la mise en liste noire du client:', error)
+
+    if (error.response && error.response.status === 409) {
+      toast.error(t('errors.guestAlreadyBlacklisted'))
+    } else {
+      toast.error(t('toast.blacklistError'))
+    }
+  } finally {
+    blacklisting.value = false
+    closeBlacklistModal()
+  }
+}
+
 
 onMounted(() => {
   loadPreferences()

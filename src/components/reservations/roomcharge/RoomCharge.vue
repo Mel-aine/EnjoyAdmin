@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
     <!-- Left Sidebar - Room Selection -->
-    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
+    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50 max-h-full">
       <div class="h-full flex flex-col justify-between">
         <div class="bg-white h-full">
           <!-- Room/Group Header -->
@@ -139,6 +139,7 @@
         :searchable="false"
         :title="getTableTitle()"
         @selection-change="handleTableSelectionChange"
+        max-height="450px"
       >
         <!-- Custom Stay Column -->
         <template #column-transactionDate="{ item }">

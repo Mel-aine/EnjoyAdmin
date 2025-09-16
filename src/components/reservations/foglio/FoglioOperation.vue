@@ -57,7 +57,7 @@
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
                 :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
             </div>
-            <!-- Status indicators 
+            <!-- Status indicators
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
                 <div class="w-3 h-3 bg-orange-400 rounded"></div>
@@ -90,7 +90,7 @@
             </div>
           </div>
           <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false"
-            :selectable="false" :searchable="false" :title="$t('folio')">
+            :selectable="false" :searchable="false" :title="$t('folio')" max-height="450px">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
               <div class="text-sm text-gray-900">

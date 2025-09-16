@@ -87,14 +87,14 @@ export const deleteGuest = (id: number): Promise<AxiosResponse<any>> => {
 export const getCustomerProfile = (
   id: number,
 ): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL1}/customer-profile/${id}`, getHeaders())
+  return axios.get(`${API_URL}/${id}/profile`, getHeaders())
 }
 
 /**
  * Blacklist a guest
  */
 export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/blacklist`, { reason }, getHeaders())
+  return axios.patch(`${API_URL}/${id}/toggle-blacklist`, { reason }, getHeaders())
 }
 
 /**
@@ -108,5 +108,5 @@ export const getGuests = (params: any = {}): Promise<AxiosResponse<any>> => {
  * get Activitylog
  */
 export const getGuestsActivityLogs = (hotelId: number ,guestId:number,params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL1}/hotels/${hotelId}/guests/${guestId}/activity-logs`, { ...getHeaders(), params })
+  return axios.get(`${API_URL1}/activity-log/${hotelId}/guests/${guestId}/activity-logs`, { ...getHeaders(), params })
 }

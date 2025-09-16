@@ -1,14 +1,14 @@
 <template>
   <div class="accordion-container">
-    <div 
-      class="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-50" 
+    <div
+      class="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-50"
       @click="toggleAccordion"
-      :class="{ 'bg-gray-200': isOpen, 'bg-primary/10': !isOpen }"
+      :class="{ 'bg-purple-50': isOpen, 'bg-gray-50': !isOpen }"
     >
       <span>{{ title }}</span>
-      <ChevronDownIcon 
-        class="w-5 h-5 transition-transform duration-200" 
-        :class="{ 'rotate-180': isOpen }" 
+      <ChevronDownIcon
+        class="w-5 h-5 transition-transform duration-200"
+        :class="{ 'rotate-180': isOpen }"
       />
     </div>
     <div v-if="isOpen" class="accordion-content">

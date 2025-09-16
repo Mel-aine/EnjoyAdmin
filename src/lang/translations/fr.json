@@ -5946,7 +5946,12 @@
   "Checking out...": "Départ en cours...",
   "Failed to check in": "Échec de l'enregistrement",
   "Failed to check out": "Échec du départ",
-  "please_select_at_least_one_room": "Veuillez sélectionner au moins une chambre"
+  "please_select_at_least_one_room": "Veuillez sélectionner au moins une chambre",
+  "actionsBlackList": {
+  "addToBlacklist": "Ajouter à la liste noire",
+  "removeFromBlacklist": "Retirer de la liste noire"
+}
+
 
 
 
