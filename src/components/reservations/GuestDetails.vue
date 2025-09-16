@@ -1062,7 +1062,7 @@ const idNumberLabel = computed(() => {
 
 const laodingPrint = ref(false);
 const pdfUrl = ref<any>(null);
-const documentTitle = ref<String>('')
+const documentTitle = ref<string>('')
 const showBlacklistModal = ref(false)
 const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
