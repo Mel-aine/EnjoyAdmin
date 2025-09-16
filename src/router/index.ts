@@ -442,7 +442,25 @@ const router = createRouter({
       name: 'ManagerReport',
       component: () => import('../views/Reports/BackOffice/ManagerReport.vue'),
       meta: {
-        title: 'Folio List',
+        title: 'Manager Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/revenue-by-rate-type',
+      name: 'RevenueByRateType',
+      component: () => import('../views/Reports/BackOffice/RevenueByRateType.vue'),
+      meta: {
+        title: 'Revenue By Rate Type',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/revenue-by-room-type',
+      name: 'RevenueByRoomType',
+      component: () => import('../views/Reports/BackOffice/RevenueByRoomType.vue'),
+      meta: {
+        title: 'Revenue By Room Type',
         requiresAuth: true,
       },
     },

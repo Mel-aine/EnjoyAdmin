@@ -466,7 +466,7 @@ const isCkeckInModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
 const laodingPrint = ref(false);
 const pdfUrl = ref<any>(null);
-const documentTitle = ref<String>('')
+const documentTitle = ref<string>('')
 const showPdfExporter = ref(false);
 const reservationId = ref(props.reservationData?.reservation_id || 0)
 
