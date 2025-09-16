@@ -245,7 +245,7 @@
               class="mr-2"
             />
             {{ $t('SendMail') }}
-            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.sendMail ? 'true' : 'false' }})</span>
+
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -256,7 +256,7 @@
               class="mr-2"
             />
             {{ $t('CheckOutMail') }}
-            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.checkOutMail ? 'true' : 'false' }})</span>
+
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -267,7 +267,7 @@
               class="mr-2"
             />
             {{ $t('thankYouEmail') }}
-            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.thankYouEmail ? 'true' : 'false' }})</span>
+
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -278,7 +278,7 @@
               class="mr-2"
             />
             {{ $t('SupressRateOnGRCard') }}
-            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.suppressRate ? 'true' : 'false' }})</span>
+
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -289,7 +289,7 @@
               class="mr-2"
             />
             {{ $t('AccessGuestPortal') }}
-            <span class="ml-1 text-xs text-gray-500">({{ roomOptions.accessGuestPortal ? 'true' : 'false' }})</span>
+
           </label>
         </div>
 

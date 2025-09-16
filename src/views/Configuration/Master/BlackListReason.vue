@@ -23,8 +23,8 @@
         @action="onAction"
       >
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
+          <BasicButton
+            variant="primary"
             :icon="Plus"
             :label="t('configuration.blacklist_reason.add_blacklist_reason')"
             @click="openAddModal"
@@ -48,7 +48,7 @@
           </template>
 
         <template #column-severity="{ item }">
-          <span 
+          <span
             :class="{
               'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': item.severity === 'High',
               'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': item.severity === 'Medium',
@@ -67,48 +67,48 @@
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ isEditing ? t('configuration.blacklist_reason.edit_blacklist_reason') : t('configuration.blacklist_reason.add_new_blacklist_reason') }}
           </h3>
-          
+
           <form @submit.prevent="saveBlacklistReason" class="space-y-4">
-            <Input 
+            <Input
               :lb="'Reason Name'"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.reason"
               :placeholder="'Enter blacklist reason name'"
             />
-            
-            <Select 
+
+            <Select
                :lb="'Category'"
                :isRequired="true"
                v-model="formData.category"
                :options="categoryOptions"
                :defaultValue="'Select category'"
              />
-             
-             <Select 
+
+             <Select
                :lb="'Severity'"
                :isRequired="true"
                v-model="formData.severity"
                :options="severityOptions"
                :defaultValue="'Select severity level'"
              />
-            
-            <Input 
+
+            <Input
               :lb="'Description'"
               :inputType="'text'"
               v-model="formData.description"
               :placeholder="'Enter description (optional)'"
             />
-            
+
            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                variant="secondary" 
+              <BasicButton
+                variant="secondary"
                 @click="closeModal"
                 type="button"
                 :label="t('configuration.blacklist_reason.cancel')"
               />
-              <BasicButton 
-                variant="primary" 
+              <BasicButton
+                variant="primary"
                 type="submit"
                 :icon="Save"
                 :label="isEditing ? t('configuration.blacklist_reason.update_blacklist_reason') : t('configuration.blacklist_reason.save_blacklist_reason')"
@@ -134,11 +134,11 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { 
-  getBlackListReasons, 
-  postBlackListReason, 
-  updateBlackListReasonById, 
-  deleteBlackListReasonById 
+import {
+  getBlackListReasonsByHotel,
+  postBlackListReason,
+  updateBlackListReasonById,
+  deleteBlackListReasonById
 } from '@/services/configrationApi'
 import { Save } from 'lucide-vue-next'
 import type { Column } from '../../../utils/models'
@@ -212,7 +212,7 @@ const columns = computed<Column[]>(() => [
     sortable: false,
     type:"custom"
   },
- 
+
 ])
 
 const actions = computed(() => [
@@ -234,7 +234,8 @@ const actions = computed(() => [
 const fetchBlacklistReasons = async () => {
   try {
     loading.value = true
-    const response = await getBlackListReasons()
+    const hotelId = serviceStore.serviceId
+    const response = await getBlackListReasonsByHotel(hotelId!)
     blacklistReasons.value = response.data.data.data || []
   } catch (error) {
     console.error('Error fetching blacklist reasons:', error)
@@ -284,7 +285,7 @@ const closeModal = () => {
 const saveBlacklistReason = async () => {
   try {
     saving.value = true
-    
+
     const payload = {
       reason: formData.value.reason,
       category: formData.value.category,
@@ -300,12 +301,12 @@ const saveBlacklistReason = async () => {
       await postBlackListReason(payload)
       toast.success(t('configuration.blacklist_reason.save_success'))
     }
-    
+
     closeModal()
     await fetchBlacklistReasons()
   } catch (error) {
     console.error('Error saving blacklist reason:', error)
-    const errorMessage = isEditing.value 
+    const errorMessage = isEditing.value
       ? t('configuration.blacklist_reason.update_error')
       : t('configuration.blacklist_reason.save_error')
     toast.error(errorMessage)

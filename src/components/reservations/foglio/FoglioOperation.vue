@@ -1,8 +1,8 @@
 <template>
   <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
-      <div class="h-full flex flex-col justify-between">
-        <div class="bg-white h-full">
+      <div class="h-full flex flex-col">
+        <div class="bg-white flex-grow overflow-y-auto">
           <div class="flex justify-between pt-2 px-2 pb-2">
             <span>{{ $t('roomFolios') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="openCreateFolioModal" />
@@ -43,8 +43,8 @@
       </div>
     </div>
     <div class="w-10/12">
-      <div class="bg-white border-t-1 shadow-sm flex flex-col h-full justify-between">
-        <div>
+      <div class="bg-white border-t-1 shadow-sm flex flex-col h-full">
+        <div class="flex-grow overflow-y-auto custom-scrollbar">
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
             <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal" />
@@ -57,7 +57,7 @@
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
                 :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
             </div>
-            <!-- Status indicators 
+            <!-- Status indicators
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
                 <div class="w-3 h-3 bg-orange-400 rounded"></div>
@@ -183,11 +183,6 @@
       </div>
     </div>
   </div>
-
-
-
-
-
 </template>
 
 <script setup lang="ts">
@@ -603,3 +598,12 @@ const printDocumentData = computed(() => ({
 
 
 </script>
+<style scoped>
+/* Scrollbar invisible mais toujours scrollable */
+.custom-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+</style>

@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
     <!-- Left Sidebar - Room Selection -->
-    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
-      <div class="h-full flex flex-col justify-between">
-        <div class="bg-white h-full">
+    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50 max-h-full">
+      <div class="h-full flex flex-col">
+        <div class="bg-white flex-grow overflow-y-auto ">
           <!-- Room/Group Header -->
           <div class="px-2 pb-2">
             <button  class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors">
@@ -14,7 +14,7 @@
           <!-- Group Rooms Display -->
           <div v-if="isGroupReservation">
             <Accordion :title="$t('GroupInfo')" :is-open="true">
-              <div class="max-h-60 overflow-y-auto">
+              <div class="max-h-60 overflow-y-auto custom-scrollbar">
                 <div
                   v-for="room in groupRooms"
                   :key="room.id"
@@ -91,7 +91,7 @@
     </div>
 
     <!-- Right Content Area -->
-    <div class="w-10/12">
+    <div class="w-10/12 flex flex-col">
       <!-- Action Buttons -->
       <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
@@ -130,79 +130,81 @@
       </div>
 
       <!-- Room Charges Table -->
-      <ReusableTable
-        :columns="columns"
-        :data="filteredRoomChargeData"
-        :loading="loading"
-        :show-header="true"
-        :selectable="true"
-        :searchable="false"
-        :title="getTableTitle()"
-        @selection-change="handleTableSelectionChange"
-      >
-        <!-- Custom Stay Column -->
-        <template #column-transactionDate="{ item }">
-          <div class="text-sm text-gray-900">
-            <div class="font-medium">{{ formatDateRange(item.stay?.checkInDate, item.stay?.checkOutDate) }}</div>
-            <div class="text-xs text-gray-500">
-              {{ item.stay?.nights }} {{ item.stay?.nights === 1 ? t('night') : t('nights') }}
+      <div class="flex-grow overflow-y-auto custom-scrollbar">
+        <ReusableTable
+          :columns="columns"
+          :data="filteredRoomChargeData"
+          :loading="loading"
+          :show-header="true"
+          :selectable="true"
+          :searchable="false"
+          :title="getTableTitle()"
+          @selection-change="handleTableSelectionChange"
+        >
+          <!-- Custom Stay Column -->
+          <template #column-transactionDate="{ item }">
+            <div class="text-sm text-gray-900">
+              <div class="font-medium">{{ formatDateRange(item.stay?.checkInDate, item.stay?.checkOutDate) }}</div>
+              <div class="text-xs text-gray-500">
+                {{ item.stay?.nights }} {{ item.stay?.nights === 1 ? t('night') : t('nights') }}
+              </div>
             </div>
-          </div>
-        </template>
+          </template>
 
-        <!-- Custom Room Column -->
-        <template #column-room="{ item }">
-          <div class="text-sm font-medium">
-            {{ item.room?.roomNumber || '---' }}
-          </div>
-        </template>
+          <!-- Custom Room Column -->
+          <template #column-room="{ item }">
+            <div class="text-sm font-medium">
+              {{ item.room?.roomNumber || '---' }}
+            </div>
+          </template>
 
-        <!-- Custom Rate Type Column -->
-        <template #column-rateType="{ item }">
-          <div class="text-sm">
-            {{ item.rateType?.ratePlanName || '---' }}
-          </div>
-        </template>
+          <!-- Custom Rate Type Column -->
+          <template #column-rateType="{ item }">
+            <div class="text-sm">
+              {{ item.rateType?.ratePlanName || '---' }}
+            </div>
+          </template>
 
-        <!-- Custom Pax Column -->
-        <template #column-pax="{ item }">
-          <div class="text-sm">
-            {{ item.pax || '0/0' }}
-          </div>
-        </template>
+          <!-- Custom Pax Column -->
+          <template #column-pax="{ item }">
+            <div class="text-sm">
+              {{ item.pax || '0/0' }}
+            </div>
+          </template>
 
-        <!-- Custom Charge Column -->
-        <template #column-charge="{ item }">
-          <div class="text-sm">
-            <div class="font-medium text-blue-600">{{ formatAmount(item.charge || 0) }}</div>
-            <div class="text-xs text-gray-500">{{ item.description || '' }}</div>
-          </div>
-        </template>
-
-
-        <!-- Custom Tax Column -->
-        <template #column-tax="{ item }">
-          <div class="text-sm text-green-600">
-            {{ formatAmount(item.tax || 0) }}
-          </div>
-        </template>
-
-        <!-- Custom Adjustment Column -->
-        <template #column-adjustment="{ item }">
-          <div class="text-sm" :class="getAmountColor(item.adjustment || 0)">
-            {{ formatAmount(item.adjustment || 0) }}
-          </div>
-        </template>
-
-        <!-- Custom Net Amount Column -->
-        <template #column-netAmount="{ item }">
-          <div class="text-sm font-bold" :class="getAmountColor(item.netAmount)">
-            {{ formatAmount(item.netAmount) }}
-          </div>
-        </template>
+          <!-- Custom Charge Column -->
+          <template #column-charge="{ item }">
+            <div class="text-sm">
+              <div class="font-medium text-blue-600">{{ formatAmount(item.charge || 0) }}</div>
+              <div class="text-xs text-gray-500">{{ item.description || '' }}</div>
+            </div>
+          </template>
 
 
-      </ReusableTable>
+          <!-- Custom Tax Column -->
+          <template #column-tax="{ item }">
+            <div class="text-sm text-green-600">
+              {{ formatAmount(item.tax || 0) }}
+            </div>
+          </template>
+
+          <!-- Custom Adjustment Column -->
+          <template #column-adjustment="{ item }">
+            <div class="text-sm" :class="getAmountColor(item.adjustment || 0)">
+              {{ formatAmount(item.adjustment || 0) }}
+            </div>
+          </template>
+
+          <!-- Custom Net Amount Column -->
+          <template #column-netAmount="{ item }">
+            <div class="text-sm font-bold" :class="getAmountColor(item.netAmount)">
+              {{ formatAmount(item.netAmount) }}
+            </div>
+          </template>
+
+
+        </ReusableTable>
+      </div>
 
       <!-- Footer Summary -->
       <div class="p-4 border-t border-gray-200 bg-gray-50">
@@ -805,3 +807,12 @@ watch(() => props.reservationId, (newId) => {
   }
 }, { immediate: true })
 </script>
+<style scoped>
+/* Scrollbar invisible mais toujours scrollable */
+.custom-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+</style>

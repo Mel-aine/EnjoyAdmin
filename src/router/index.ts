@@ -4,7 +4,7 @@ import { isLoading } from '@/composables/spinner'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { left: 0, top: 0 }
   },

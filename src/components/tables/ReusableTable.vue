@@ -32,7 +32,7 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-visible">
+    <div class="overflow-y-auto custom-scrollbar" :style="{ maxHeight: props.maxHeight }">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -223,6 +223,7 @@ interface Props {
   loading?: boolean // Loading state for skeleton display
   rowClass?: (item: any) => string
   canSelectItem?: (item: any) => boolean // Function to determine if an item can be selected
+  maxHeight?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -236,7 +237,9 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
   showHeader: true,
   loading: false,
-  rowClass: () => ''
+  rowClass: () => '',
+  maxHeight: '100vh'
+
 })
 
 const emit = defineEmits<{
@@ -451,4 +454,13 @@ onUnmounted(() => {
   margin-bottom: 0.5rem;
   margin-top: 0;
 }
+
+/* Scrollbar invisible mais toujours scrollable */
+.custom-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
 </style>
