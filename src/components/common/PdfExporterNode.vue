@@ -119,7 +119,7 @@ interface PdfExporterProps {
   showControls?: boolean
   isGenerating: boolean
   isModalOpen:boolean
-  title:any
+  title?:string
 }
 
 // Props

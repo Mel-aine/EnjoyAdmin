@@ -62,17 +62,12 @@
         />
        {{$t('SignOut')}}
       </router-link>
-
-      <div class="mt-4 border-t border-gray-900 pt-4">
-          <ServiceSwitcher  />
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon, HomeIcon } from '@/icons'
-import ServiceSwitcher from '@/views/Services/ServiceSwitcher.vue'
 import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted ,computed , nextTick} from 'vue'

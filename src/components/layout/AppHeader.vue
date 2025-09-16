@@ -89,8 +89,10 @@
       </div>
     </div>
   </header>
-  <app-sidebar v-if="isExpanded" />
-  <Backdrop />
+  <template v-if="showSidebar">
+    <app-sidebar v-if="isExpanded" />
+    <Backdrop />
+  </template>
 
   <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" />
 </template>
@@ -141,6 +143,6 @@ interface HeaderProps {
 }
 
 const props = withDefaults(defineProps<HeaderProps>(), {
-  showSidebar: false,
+  showSidebar: true,
 })
 </script>
