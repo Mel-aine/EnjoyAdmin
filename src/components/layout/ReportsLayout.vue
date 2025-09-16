@@ -15,7 +15,7 @@
       },
     ]">
       <!-- Header -->
-      <AppHeader />
+      <AppHeader :show-sidebar="false" />
       
       <!-- Page content -->
       <main class="pt-16 lg:pt-0">
