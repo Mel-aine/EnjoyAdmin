@@ -104,14 +104,14 @@ export interface TransactionSearchParams {
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/folios`
 
-
-
-const authStore = useAuthStore()
-const headers: any = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 /**
@@ -119,7 +119,7 @@ const headers: any = {
  */
 export const getAllFoglio = async (): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(API_URL, headers)
+    const response: AxiosResponse = await axios.get(API_URL, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error fetching foglio:', error)
@@ -162,7 +162,7 @@ export const getFoglioWithParams = async (params: {
     if (params.date_to) queryParams.append('date_to', params.date_to)
 
     const url = queryParams.toString() ? `${API_URL}?${queryParams.toString()}` : API_URL
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error fetching foglio with params:', error)
@@ -175,7 +175,7 @@ export const getFoglioWithParams = async (params: {
  */
 export const getFoglioById = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error fetching foglio:', error)
@@ -188,7 +188,7 @@ export const getFoglioById = async (id: number): Promise<any> => {
  */
 export const createFoglio = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(API_URL, data, headers)
+    const response: AxiosResponse = await axios.post(API_URL, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error creating foglio:', error)
@@ -201,7 +201,7 @@ export const createFoglio = async (data: any): Promise<any> => {
  */
 export const updateFoglio = async (id: number, data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${API_URL}/${id}`, data, headers)
+    const response: AxiosResponse = await axios.put(`${API_URL}/${id}`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error updating foglio:', error)
@@ -214,7 +214,7 @@ export const updateFoglio = async (id: number, data: any): Promise<any> => {
  */
 export const deleteFoglio = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.delete(`${API_URL}/${id}`, headers)
+    const response: AxiosResponse = await axios.delete(`${API_URL}/${id}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error deleting foglio:', error)
@@ -229,7 +229,7 @@ export const deleteFoglio = async (id: number): Promise<any> => {
  */
 export const closeFolio = async (id: number, data: { notes?: string }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error closing folio:', error)
@@ -242,7 +242,7 @@ export const closeFolio = async (id: number, data: { notes?: string }): Promise<
  */
 export const reopenFolio = async (id: number, data: { reason?: string }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error reopening folio:', error)
@@ -259,7 +259,7 @@ export const transferCharges = async (id: number, data: {
   description: string
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/transfer`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/transfer`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error transferring charges:', error)
@@ -274,7 +274,7 @@ export const transferCharges = async (id: number, data: {
  */
 export const postTransaction = async (data: TransactionData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/transactions`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/transactions`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error posting transaction:', error)
@@ -287,7 +287,7 @@ export const postTransaction = async (data: TransactionData): Promise<any> => {
  */
 export const settleFolio = async (data: SettlementData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/settle`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/settle`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error settling folio:', error)
@@ -300,7 +300,7 @@ export const settleFolio = async (data: SettlementData): Promise<any> => {
  */
 export const transferChargesBetweenFolios = async (data: TransferChargesData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/transfer-charges`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/transfer-charges`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error transferring charges between folios:', error)
@@ -313,7 +313,7 @@ export const transferChargesBetweenFolios = async (data: TransferChargesData): P
  */
 export const closeFolioWithService = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close-service`, {}, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close-service`, {}, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error closing folio with service:', error)
@@ -326,7 +326,7 @@ export const closeFolioWithService = async (id: number): Promise<any> => {
  */
 export const reopenFolioWithService = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen-service`, {}, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen-service`, {}, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error reopening folio with service:', error)
@@ -339,7 +339,7 @@ export const reopenFolioWithService = async (id: number): Promise<any> => {
  */
 export const getStatementWithService = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement-service`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement-service`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting statement with service:', error)
@@ -359,7 +359,7 @@ export const createFolioForReservation = async (data: {
   notes?: string
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/reservation`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/reservation`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error creating folio for reservation:', error)
@@ -378,7 +378,7 @@ export const createFolioForWalkIn = async (data: {
   notes?: string
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/walk-in`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/walk-in`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error creating folio for walk-in guest:', error)
@@ -391,7 +391,7 @@ export const createFolioForWalkIn = async (data: {
  */
 export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/group`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/group`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error creating folios for group:', error)
@@ -406,7 +406,7 @@ export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> =
  */
 export const postRoomCharges = async (data: { reservationId: number }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/post-room-charges`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/post-room-charges`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error posting room charges:', error)
@@ -419,7 +419,7 @@ export const postRoomCharges = async (data: { reservationId: number }): Promise<
  */
 export const postTaxesAndFees = async (data: { reservationId: number }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/post-taxes-fees`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/post-taxes-fees`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error posting taxes and fees:', error)
@@ -434,7 +434,7 @@ export const postTaxesAndFees = async (data: { reservationId: number }): Promise
  */
 export const getReservationFolios = async (reservationId: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/reservation/${reservationId}`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/reservation/${reservationId}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting reservation folios:', error)
@@ -449,7 +449,7 @@ export const getReservationFolios = async (reservationId: number): Promise<any> 
  */
 export const getSettlementSummary = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/settlement-summary`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/settlement-summary`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting settlement summary:', error)
@@ -462,7 +462,7 @@ export const getSettlementSummary = async (id: number): Promise<any> => {
  */
 export const getCheckoutSummary = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/checkout-summary`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/checkout-summary`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting checkout summary:', error)
@@ -475,7 +475,7 @@ export const getCheckoutSummary = async (id: number): Promise<any> => {
  */
 export const processCheckout = async (data: CheckoutData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/checkout`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/checkout`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error processing checkout:', error)
@@ -488,7 +488,7 @@ export const processCheckout = async (data: CheckoutData): Promise<any> => {
  */
 export const processReservationCheckout = async (data: ReservationCheckoutData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/reservation-checkout`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/reservation-checkout`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error processing reservation checkout:', error)
@@ -501,7 +501,7 @@ export const processReservationCheckout = async (data: ReservationCheckoutData):
  */
 export const forceCloseFolio = async (data: ForceCloseData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/force-close`, data, headers)
+    const response: AxiosResponse = await axios.post(`${API_URL}/force-close`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error force closing folio:', error)
@@ -514,7 +514,7 @@ export const forceCloseFolio = async (data: ForceCloseData): Promise<any> => {
  */
 export const validateCheckout = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/validate-checkout`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/validate-checkout`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error validating checkout:', error)
@@ -530,7 +530,7 @@ export const validateCheckout = async (id: number): Promise<any> => {
 export const getGuestView = async (id: number, includeSensitive?: boolean): Promise<any> => {
   try {
     const queryParams = includeSensitive ? '?include_sensitive=true' : ''
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/guest-view${queryParams}`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/guest-view${queryParams}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting guest view:', error)
@@ -543,7 +543,7 @@ export const getGuestView = async (id: number, includeSensitive?: boolean): Prom
  */
 export const getStaffView = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/staff-view`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/staff-view`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting staff view:', error)
@@ -569,7 +569,7 @@ export const searchFolios = async (params: SearchParams): Promise<any> => {
     if (params.folio_number) queryParams.append('folio_number', params.folio_number)
 
     const url = `${API_URL}/search/details?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error searching folios:', error)
@@ -593,7 +593,7 @@ export const searchTransactions = async (params: TransactionSearchParams): Promi
     if (params.amount_max) queryParams.append('amount_max', params.amount_max.toString())
 
     const url = `${API_URL}/transactions/search?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error searching transactions:', error)
@@ -606,7 +606,7 @@ export const searchTransactions = async (params: TransactionSearchParams): Promi
  */
 export const getTimeline = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/timeline`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/timeline`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting timeline:', error)
@@ -632,7 +632,7 @@ export const getAdvancedStatistics = async (params: {
     if (params.group_by) queryParams.append('group_by', params.group_by)
 
     const url = `${API_URL}/statistics-advanced?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting advanced statistics:', error)
@@ -647,7 +647,7 @@ export const getAdvancedStatistics = async (params: {
  */
 export const getFolioBalance = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/balance`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/balance`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting folio balance:', error)
@@ -660,7 +660,7 @@ export const getFolioBalance = async (id: number): Promise<any> => {
  */
 export const getFolioStatement = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement`, headers)
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting folio statement:', error)
@@ -684,7 +684,7 @@ export const getStatistics = async (params: {
     if (params.date_to) queryParams.append('date_to', params.date_to)
 
     const url = `${API_URL}/statistics?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting statistics:', error)
@@ -719,7 +719,7 @@ export const getAllFolioTransactions = async (params: {
 
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
     const url = queryParams.toString() ? `${transactionApiUrl}?${queryParams.toString()}` : transactionApiUrl
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting folio transactions:', error)
@@ -733,7 +733,7 @@ export const getAllFolioTransactions = async (params: {
 export const getFolioTransactionById = async (id: number): Promise<any> => {
   try {
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.get(`${transactionApiUrl}/${id}`, headers)
+    const response: AxiosResponse = await axios.get(`${transactionApiUrl}/${id}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting folio transaction:', error)
@@ -747,7 +747,7 @@ export const getFolioTransactionById = async (id: number): Promise<any> => {
 export const createFolioTransaction = async (data: any): Promise<any> => {
   try {
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.post(transactionApiUrl, data, headers)
+    const response: AxiosResponse = await axios.post(transactionApiUrl, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error creating folio transaction:', error)
@@ -761,7 +761,7 @@ export const createFolioTransaction = async (data: any): Promise<any> => {
 export const updateFolioTransaction = async (id: number, data: any): Promise<any> => {
   try {
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.put(`${transactionApiUrl}/${id}`, data, headers)
+    const response: AxiosResponse = await axios.put(`${transactionApiUrl}/${id}`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error updating folio transaction:', error)
@@ -775,7 +775,7 @@ export const updateFolioTransaction = async (id: number, data: any): Promise<any
 export const deleteFolioTransaction = async (id: number): Promise<any> => {
   try {
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.delete(`${transactionApiUrl}/${id}`, headers)
+    const response: AxiosResponse = await axios.delete(`${transactionApiUrl}/${id}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error deleting folio transaction:', error)
@@ -789,7 +789,7 @@ export const deleteFolioTransaction = async (id: number): Promise<any> => {
 export const voidFolioTransaction = async (id: number, data: { reason: string }): Promise<any> => {
   try {
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/void`, data, headers)
+    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/void`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error voiding folio transaction:', error)
@@ -803,7 +803,7 @@ export const voidFolioTransaction = async (id: number, data: { reason: string })
 export const reverseFolioTransaction = async (id: number, data: { reason: string }): Promise<any> => {
   try {
     const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/reverse`, data, headers)
+    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/reverse`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error reversing folio transaction:', error)
@@ -822,7 +822,7 @@ export const printFolio = async (data: {
   currencyId?: number
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-transactions/print`, data, headers)
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-transactions/print`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error printing folio:', error)
@@ -842,9 +842,9 @@ export const printFolioPdf = async (data: {
   currencyId?: number
 }): Promise<any> => {
 
-  headers.responseType = 'blob'
+  const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print-pdf`, data, headers,)
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print-pdf`, data, headersWithBlob)
     return response.data
   } catch (error) {
     console.error('Error printing folio:', error)
@@ -854,10 +854,10 @@ export const printFolioPdf = async (data: {
 export const printConfirmBookingPdf = async (data: {
   reservationId?: number
 }): Promise<any> => {
-
-  headers.responseType = 'blob'
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_confirm_booking-pdf`, data, headers,)
+    const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
+
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_confirm_booking-pdf`, data, headersWithBlob)
     return response.data
   } catch (error) {
     console.error('Error printing confirmBooking:', error)
@@ -867,10 +867,10 @@ export const printConfirmBookingPdf = async (data: {
 export const printHotelPdf = async (data: {
   reservationId?: number
 }): Promise<any> => {
-
-  headers.responseType = 'blob'
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_hotel-pdf`, data, headers,)
+    const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
+
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_hotel-pdf`, data, headersWithBlob)
     return response.data
   } catch (error) {
     console.error('Error printing confirmBooking:', error)
@@ -881,7 +881,7 @@ export const printHotelPdf = async (data: {
 export const getUnsetteledFolio = async (hotelId: number): Promise<any> => {
   
   try { 
-    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, headers)
+    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error fetching folio:', error)
@@ -917,7 +917,7 @@ export const findFolio = async (params: {
     if (params.dateFrom) queryParams.append('dateFrom', params.dateFrom)
     if (params.dateTo) queryParams.append('dateTo', params.dateTo)
     const url = queryParams.toString() ? `${API_URL}/comprehensive/search?${queryParams.toString()}` : API_URL
-    const response: AxiosResponse = await axios.get(url, headers)
+    const response: AxiosResponse = await axios.get(url, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error fetching foglio with params:', error)
@@ -933,7 +933,7 @@ export const findFolio = async (params: {
  */
 export const splitFolioHandler = async (data:any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/split`, data, headers)
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/split`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error splitting folio:', error)
@@ -948,7 +948,7 @@ export const splitFolioHandler = async (data:any): Promise<any> => {
  */
 export const cutFolioHandler = async (data:any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/cut`, data, headers)
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/cut`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error cutting folio:', error)
@@ -963,7 +963,7 @@ export const cutFolioHandler = async (data:any): Promise<any> => {
  */
 export const addRoomChargeHandler = async (data:any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/add`, data, headers)
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/add`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error adding room charge:', error)
@@ -978,7 +978,7 @@ export const addRoomChargeHandler = async (data:any): Promise<any> => {
  */
 export const addAdjustmentHandler = async (data:any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/add`, data, headers)
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/add`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error adding adjustment:', error)

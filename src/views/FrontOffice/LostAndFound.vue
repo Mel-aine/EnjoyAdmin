@@ -9,6 +9,7 @@
           :actions="actions"
           :selectable="false"
           :loading="loading"
+          :searchPlaceholder="$t('search...')"
           v-model="searchQuery"
           @search-change="onSearchChange"
           class="modern-table"
@@ -35,13 +36,13 @@
       </div>
     </AdminLayout>
 
-    <ModalLostAndFound 
-      :isOpen="showModal" 
+    <ModalLostAndFound
+      :isOpen="showModal"
       :isEditMode="isEditMode"
       :isFoundMode="isFoundMode"
       :lostFoundData="selectedItem"
-      @close="handleCloseModal" 
-      @submit="handleSubmitLostFound" 
+      @close="handleCloseModal"
+      @submit="handleSubmitLostFound"
     />
 
   </div>
@@ -150,11 +151,11 @@ const columns = computed(() => [
 
 const actions = computed(() => [
   {
-    label: 'View',
+    label: t('view'),
     handler: (item: any) => handleLostFoundAction('view', item)
   },
   {
-    label: 'Edit',
+    label: t('Edit'),
     handler: (item: any) => handleLostFoundAction('edit', item)
   }
 ])
@@ -184,14 +185,14 @@ const handleLostFoundAction = async (action: string, item: any) => {
 
     if (foundItem) {
       selectedItem.value = foundItem
-      
+
       if (action === 'edit') {
         isEditMode.value = true
         // Définir le mode Found basé sur le type de l'item
         isFoundMode.value = foundItem.type === 'found'
         showModal.value = true
       }
-      
+
       console.log('Selected item:', selectedItem.value)
     } else {
       console.error('Item introuvable pour ID:', item.id)
@@ -204,7 +205,7 @@ const fetchLostFoundItems = async () => {
   try {
     loading.value = true
     const response = await getLostFound();
-    
+
     lostFoundItems.value = response.data.map((item: any) => {
       return {
         ...item,
@@ -216,7 +217,7 @@ const fetchLostFoundItems = async () => {
         room: item.room || { roomNumber: '' }
       }
     })
-    
+
     console.log("Formatted lostFoundItems", lostFoundItems.value)
 
   } catch (error) {
@@ -240,7 +241,7 @@ const handleSubmitLostFound = async (payload: any) => {
 
     const { data, isEdit, isFound } = payload
     data.service_id = serviceStore.serviceId
-    
+
     // Ajouter le type d'item selon le mode
     if (!isEdit) {
       data.type = isFound ? 'found' : 'lost'
@@ -254,20 +255,20 @@ const handleSubmitLostFound = async (payload: any) => {
       if (!id) {
         throw new Error('ID de l\'item non trouvé pour la mise à jour')
       }
-    
+
       await updateLostFoundItem(id, data)
-      
+
       // Mise à jour locale pour la démo
       const index = lostFoundItems.value.findIndex(item => item.id === selectedItem.value?.id)
       if (index !== -1) {
         lostFoundItems.value[index] = { ...lostFoundItems.value[index], ...data }
       }
-      
+
       toast.success(t('toast.Updated'))
     } else {
       // Appel API pour créer
        await addLostFound(data)
-      
+
       toast.success(t('toast.Created'))
     }
 

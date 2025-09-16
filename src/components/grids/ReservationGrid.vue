@@ -3,7 +3,7 @@
     <!-- Grid Header with Controls -->
     <div class="bg-gray-50 mt-2 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div class="flex items-center gap-4">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ $t('Reservations') }}</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ $t('reservations') }}</h2>
                 <span
           class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
           :class="getFilterBadgeClass('totalReservations')"
@@ -343,7 +343,7 @@ const filteredReservations = computed(() => {
   // Filter based on activeFilter
   switch (activeFilter.value) {
     case 'arrivals':
-      filtered = filtered.filter(reservation => isToday(reservation.arrivedDate) && reservation.status === 'confirmed'  )
+      filtered = filtered.filter(reservation => isToday(reservation.arrivedDate) && (reservation.status === 'confirmed' || reservation.status === 'checked_in')  )
       break
     case 'departures':
       filtered = filtered.filter(

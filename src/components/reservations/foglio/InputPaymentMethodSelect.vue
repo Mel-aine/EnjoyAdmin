@@ -27,14 +27,16 @@
         </li>
         <li v-else v-for="(paymentMethod, index) in filteredPaymentMethods" :key="paymentMethod.id"
           @click="selectPaymentMethod(paymentMethod)" 
-          class="px-5 py-2 cursor-pointer hover:bg-brand-100"
+          class="px-5 py-2 cursor-pointer hover:bg-brand-100 transition-colors duration-150"
           :class="{
-            'bg-blue-50': index === selectedIndex
+            'bg-blue-50': index === selectedIndex,
+            'bg-purple-100 border-l-4 border-purple-500 font-semibold text-purple-800': props.modelValue === paymentMethod.id,
+            'text-gray-700': props.modelValue !== paymentMethod.id
           }"
           role="option" :aria-selected="props.modelValue === paymentMethod.id">
-          <div class="font-medium">{{ paymentMethod.name }}</div>
-          <div v-if="paymentMethod.description" class="text-xs text-gray-500">
-            {{ paymentMethod.description }}
+          <div class="font-medium flex items-center justify-between">
+            <span>{{ paymentMethod.name }}</span>
+            <span v-if="props.modelValue === paymentMethod.id" class="text-purple-600 text-sm">✓</span>
           </div>
         </li>
       </ul>
@@ -87,6 +89,7 @@ const isLoading = ref(false)
 const searchQuery = ref('')
 const paymentMethods = ref<PaymentMethod[]>([])
 const selectedIndex = ref(-1)
+const isUserTyping = ref(false) // Track if user is actively typing
 
 // Computed properties
 const displayValue = computed(() => {
@@ -98,32 +101,22 @@ const displayValue = computed(() => {
 })
 
 const filteredPaymentMethods = computed(() => {
-  if (!searchQuery.value) {
-    let filtered = paymentMethods.value
-
-    // Filter by payment type if provided
-    if (props.paymentType) {
-      filtered = filtered.filter(method =>
-        (method.methodType?.toLowerCase() === props.paymentType?.toLowerCase()) || (
-        method.methodType !== 'city_ledger' && method.type?.toLowerCase() === props.paymentType?.toLowerCase()
-      )
-      )
-    }
-
-    return filtered
-  }
-
-  let filtered = paymentMethods.value.filter(method =>
-    method.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    (method.description && method.description.toLowerCase().includes(searchQuery.value.toLowerCase()))
-  )
+  let filtered = paymentMethods.value
 
   // Filter by payment type if provided
   if (props.paymentType) {
     filtered = filtered.filter(method =>
       (method.methodType?.toLowerCase() === props.paymentType?.toLowerCase()) || (
-        method.methodType !== 'city_ledger' && method.type?.toLowerCase() === props.paymentType?.toLowerCase()
-      )
+      method.methodType !== 'city_ledger' && method.type?.toLowerCase() === props.paymentType?.toLowerCase()
+    )
+    )
+  }
+
+  // Only apply search filter if user is actively typing and has entered text
+  if (isUserTyping.value && searchQuery.value.trim()) {
+    filtered = filtered.filter(method =>
+      method.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (method.description && method.description.toLowerCase().includes(searchQuery.value.toLowerCase()))
     )
   }
 
@@ -155,6 +148,7 @@ const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value
   selectedIndex.value = -1
+  isUserTyping.value = true // Mark that user is actively typing
 
   if (!target.value && props.modelValue) {
     emit('update:modelValue', null)
@@ -166,6 +160,16 @@ const handleInput = (event: Event) => {
 
 const handleFocus = () => {
   showDropdown.value = true
+  isUserTyping.value = false // Reset typing state on focus to show all options
+  
+  // Clear search query when focusing to show all available options
+  if (props.modelValue) {
+    const selectedMethod = paymentMethods.value.find(method => method.id === props.modelValue)
+    searchQuery.value = selectedMethod ? selectedMethod.name : ''
+  } else {
+    searchQuery.value = ''
+  }
+  
   if (paymentMethods.value.length === 0) {
     loadPaymentMethods()
   }

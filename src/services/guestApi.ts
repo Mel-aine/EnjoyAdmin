@@ -6,12 +6,14 @@ import { useAuthStore } from '@/composables/user'
 const API_URL = `${import.meta.env.VITE_API_URL as string}/guests`
 const API_URL1 = `${import.meta.env.VITE_API_URL as string}`
 
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 // Interface for Guest data
@@ -53,21 +55,21 @@ export interface GuestPayload {
  * Create a new guest
  */
 export const createGuest = (guestData: GuestPayload): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/`, guestData, headers)
+  return axios.post(`${API_URL}`, guestData, getHeaders())
 }
 
 /**
  * Update existing guest
  */
 export const updateGuest = (id: number, guestData: GuestPayload): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}`, guestData, headers)
+  return axios.put(`${API_URL}/${id}`, guestData, getHeaders())
 }
 
 /**
  * Get guest by ID
  */
 export const getGuestById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}`, headers)
+  return axios.get(`${API_URL}/${id}`, getHeaders())
 }
 
 
@@ -76,7 +78,7 @@ export const getGuestById = (id: number): Promise<AxiosResponse<any>> => {
  * Delete guest
  */
 export const deleteGuest = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/${id}`, headers)
+  return axios.delete(`${API_URL}/${id}`, getHeaders())
 }
 
 /**
@@ -85,26 +87,26 @@ export const deleteGuest = (id: number): Promise<AxiosResponse<any>> => {
 export const getCustomerProfile = (
   id: number,
 ): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}/profile`, headers)
+  return axios.get(`${API_URL1}/customer-profile/${id}`, getHeaders())
 }
 
 /**
  * Blacklist a guest
  */
 export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/${id}/toggle-blacklist`, { reason }, headers)
+  return axios.put(`${API_URL}/${id}/blacklist`, { reason }, getHeaders())
 }
 
 /**
  * Fetch guests with optional filters
  */
 export const getGuests = (params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}`, { params, ...headers })
+  return axios.get(`${API_URL}`, { ...getHeaders(), params })
 }
 
 /**
  * get Activitylog
  */
 export const getGuestsActivityLogs = (hotelId: number ,guestId:number,params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL1}/activity-log/${hotelId}/guests/${guestId}/activity-logs`, { params, ...headers })
+  return axios.get(`${API_URL1}/hotels/${hotelId}/guests/${guestId}/activity-logs`, { ...getHeaders(), params })
 }

@@ -28,10 +28,10 @@
               <span>{{ $t('Room') }}</span>
             </div>
             <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ roomTypeSummary }}</div>
-            
+
             <div class="space-y-2 px-2">
-              <div 
-                v-for="room in reservationRooms" 
+              <div
+                v-for="room in reservationRooms"
                 :key="room.id"
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 rounded"
                 :class="
@@ -57,7 +57,7 @@
               {{ $t('BillingInformation') }}
             </h3>
           </div>
-          
+
           <div class="space-y-4">
             <!-- Bill To and Type Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -70,7 +70,7 @@
                   :disabled="!editMode"
                 />
               </div>
-              
+
               <!-- Type Section -->
               <div>
                 <div class="flex flex-col md:flex-row md:space-x-4">
@@ -98,7 +98,7 @@
                   :disabled="!editMode"
                 />
               </div>
-              
+
               <div>
                 <Input
                   :lb="$t('GSTINNo')"
@@ -170,7 +170,7 @@
                   :disabled="!editMode"
                 />
               </div>
-              
+
               <div>
                 <Select
                   :lb="$t('BusinessSource')"
@@ -205,7 +205,7 @@
                       customClass="rounded-r-none h-11"
                     />
                   </div>
-                  <button 
+                  <button
                     class="w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
                     :disabled="!editMode"
                   >
@@ -239,9 +239,9 @@
           <label class="flex items-center">
             <InputCheckbox
               :key="`sendMail-${selectedRoom?.id}-${roomOptions.sendMail}`"
-              type="checkbox" 
-              v-model="roomOptions.sendMail" 
-              :disabled="!editMode" 
+              type="checkbox"
+              v-model="roomOptions.sendMail"
+              :disabled="!editMode"
               class="mr-2"
             />
             {{ $t('SendMail') }}
@@ -250,9 +250,9 @@
           <label class="flex items-center">
             <InputCheckbox
               :key="`checkOutMail-${selectedRoom?.id}-${roomOptions.checkOutMail}`"
-              type="checkbox" 
-              v-model="roomOptions.checkOutMail" 
-              :disabled="!editMode" 
+              type="checkbox"
+              v-model="roomOptions.checkOutMail"
+              :disabled="!editMode"
               class="mr-2"
             />
             {{ $t('CheckOutMail') }}
@@ -261,9 +261,9 @@
           <label class="flex items-center">
             <InputCheckbox
               :key="`thankYouEmail-${selectedRoom?.id}-${roomOptions.thankYouEmail}`"
-              type="checkbox" 
-              v-model="roomOptions.thankYouEmail" 
-              :disabled="!editMode" 
+              type="checkbox"
+              v-model="roomOptions.thankYouEmail"
+              :disabled="!editMode"
               class="mr-2"
             />
             {{ $t('thankYouEmail') }}
@@ -272,9 +272,9 @@
           <label class="flex items-center">
             <InputCheckbox
               :key="`suppressRate-${selectedRoom?.id}-${roomOptions.suppressRate}`"
-              type="checkbox" 
-              v-model="roomOptions.suppressRate" 
-              :disabled="!editMode" 
+              type="checkbox"
+              v-model="roomOptions.suppressRate"
+              :disabled="!editMode"
               class="mr-2"
             />
             {{ $t('SupressRateOnGRCard') }}
@@ -283,26 +283,26 @@
           <label class="flex items-center">
             <InputCheckbox
               :key="`accessGuestPortal-${selectedRoom?.id}-${roomOptions.accessGuestPortal}`"
-              type="checkbox" 
-              v-model="roomOptions.accessGuestPortal" 
-              :disabled="!editMode" 
+              type="checkbox"
+              v-model="roomOptions.accessGuestPortal"
+              :disabled="!editMode"
               class="mr-2"
             />
             {{ $t('AccessGuestPortal') }}
             <span class="ml-1 text-xs text-gray-500">({{ roomOptions.accessGuestPortal ? 'true' : 'false' }})</span>
           </label>
         </div>
-        
+
         <!-- Right side - Action Buttons -->
         <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
           <BasicButton variant="secondary" :label="$t('ApplyToGroup')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
-          <BasicButton 
+          <BasicButton
             v-if="editMode"
-            variant="primary" 
-            :label="$t('SaveChanges')" 
+            variant="primary"
+            :label="$t('SaveChanges')"
             @click="saveChanges"
             :disabled="isSaving"
-            :loading="isSaving" 
+            :loading="isSaving"
             class="w-full md:w-auto"
           />
         </div>
@@ -410,7 +410,7 @@ const UpdateReservationRoom = async () => {
     if (!selectedRoomId.value) {
       throw new Error('No room selected')
     }
-    
+
     // Créer l'objet de mise à jour avec les options actuelles
     const updateData = {
       sendMail: roomOptions.value.sendMail,
@@ -419,18 +419,18 @@ const UpdateReservationRoom = async () => {
       supressRate: roomOptions.value.suppressRate,
       accessGuestPortal: roomOptions.value.accessGuestPortal
     }
-    
+
     console.log('Updating reservation room with ID:', selectedRoomId.value)
     console.log('Update data:', updateData)
-    
+
     const response = await updateReservationRoomById(selectedRoomId.value, updateData)
     console.log('Reservation room updated:', response.data)
-    
+
     // Mettre à jour l'objet selectedRoom avec les nouvelles valeurs
     if (selectedRoom.value) {
       Object.assign(selectedRoom.value, updateData)
     }
-    
+
     return response.data
   } catch (error) {
     console.error('Error updating reservation room:', error)
@@ -442,7 +442,7 @@ const totalRooms = computed(() => reservationRooms.value.length)
 
 const roomTypeSummary = computed(() => {
   if (reservationRooms.value.length === 0) return 'N/A'
-  
+
   const roomTypes = [...new Set(reservationRooms.value.map((room:any) => room.roomType?.roomTypeName || 'N/A'))]
   return roomTypes.join(', ')
 })
@@ -457,9 +457,9 @@ const statusCounts = computed(() => {
     inHouse: 0,
     cancel: 0
   }
-  
+
   if (!reservationRooms.value.length) return counts
-  
+
   reservationRooms.value.forEach((room:any) => {
     const status = room.status?.toLowerCase() || ''
     if (status.includes('reserved')) counts.reserved++
@@ -470,12 +470,12 @@ const statusCounts = computed(() => {
     if (status.includes('in_house')) counts.inHouse++
     if (status.includes('cancel')) counts.cancel++
   })
-  
+
   return counts
 })
 
-const totalAmount = computed(() => bookingData.value.totalAmount || bookingData.value.total || 0)
-const balanceAmount = computed(() => bookingData.value.remainingAmount || bookingData.value.balance || 0)
+const totalAmount = computed(() => bookingData.value.balanceSummary.totalChargesWithTaxes || 0)
+const balanceAmount = computed(() => bookingData.value.balanceSummary.outstandingBalance || 0)
 
 const remarkCount = computed(() => bookingData.value.remarks?.length || 0)
 const taskCount = computed(() => bookingData.value.tasks?.length || 0)
@@ -492,7 +492,7 @@ const billingData = reactive<BillingData>({
 })
 
 const sourceData = reactive<SourceData>({
-  marketCode: '',  
+  marketCode: '',
   sourceOfBusiness: '',
   travelAgent: '',
   voucherNo: '',
@@ -546,7 +546,7 @@ const updateRoomOptions = (room: any) => {
     suppressRate: room?.supressRate || false,
     accessGuestPortal: room?.accessGuestPortal || false
   }
-  
+
   console.log('Room options updated:', roomOptions.value)
   console.log('Room data received:', {
     sendMail: room?.sendMail,
@@ -560,12 +560,12 @@ const updateRoomOptions = (room: any) => {
 const selectRoom = (room: any) => {
   console.log('Selecting room:', room)
   selectedRoom.value = room
-  
+
   // Forcer la mise à jour des options de la chambre
   nextTick(() => {
     updateRoomOptions(room)
   })
-  
+
   // Mettre à jour les données de source avec les informations de la chambre sélectionnée
   if (room) {
     sourceData.voucherNo = bookingData.value.reservationNumber || ''
@@ -591,7 +591,7 @@ const saveChanges = async () => {
     console.log('Saving billing data:', billingData)
     console.log('Saving source data:', sourceData)
     console.log('Saving options:', roomOptions.value)
-    
+
     toast.success(t('Changes saved successfully'))
     editMode.value = false
   } catch (error) {
@@ -618,15 +618,15 @@ const initBillingData = () => {
     } else {
       billingData.billTo = 'individual'
     }
-    
+
     // Set payment type based on VIP status
     billingData.type = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
-    
+
     // Set GSTIN from company registration if available
     if (guestData.value.company && guestData.value.registrationNo) {
       billingData.gstinNo = guestData.value.registrationNo
     }
-    
+
     // Set reservation type from booking data
     if (bookingData.value.reservationType) {
       billingData.reservationType = bookingData.value.reservationType
@@ -641,17 +641,17 @@ const initSourceData = () => {
     if (bookingData.value.sourceOfBusiness) {
       sourceData.sourceOfBusiness = bookingData.value.sourceOfBusiness
     }
-    
+
     // Set voucher number from booking data
     if (bookingData.value.reservationNumber) {
       sourceData.voucherNo = bookingData.value.reservationNumber
     }
-    
+
     // Set company if available
     if (bookingData.value.companyName) {
       sourceData.company = bookingData.value.companyName
     }
-    
+
     // Set plan value from selected room or first room
     if (selectedRoom.value && selectedRoom.value.roomRate) {
       sourceData.planValue = selectedRoom.value.roomRate
@@ -664,19 +664,19 @@ const initSourceData = () => {
 // Initialize data when component is mounted or props change
 onMounted(async () => {
   await nextTick()
-  
+
   // Sélectionner la première chambre par défaut
   if (reservationRooms.value.length > 0) {
     selectedRoom.value = reservationRooms.value[0]
     updateRoomOptions(selectedRoom.value)
     console.log('Initial room selected:', selectedRoom.value)
   }
-  
+
   // Initialiser les données après avoir sélectionné la chambre
   initBillingData()
   initSourceData()
   getCompaniesList()
-  
+
   console.log('BookingDetails mounted with booking:', bookingData.value)
 })
 
@@ -688,7 +688,7 @@ watch(() => props.booking, (newBooking) => {
       selectedRoom.value = reservationRooms.value[0]
       updateRoomOptions(selectedRoom.value)
     }
-    
+
     initBillingData()
     initSourceData()
   }
@@ -702,7 +702,7 @@ watch(selectedRoom, (newRoom, oldRoom) => {
     nextTick(() => {
       updateRoomOptions(newRoom)
     })
-    
+
     // Mettre à jour les données spécifiques à la chambre
     if (newRoom.roomRate) {
       sourceData.planValue = newRoom.roomRate

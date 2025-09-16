@@ -6,24 +6,31 @@ import { useServiceStore } from '../composables/serviceStore'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 const CHANNEX_API_URL = `${API_URL}/channex`
-const authStore = useAuthStore()
 
-const getHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-})
-
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+      'Content-Type': 'application/json',
+    },
+    withCredentials: true,
+  }
 }
 
-const serviceStore = useServiceStore();
+const headers = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
+}
+
+const getServiceStore = () => {
+  return useServiceStore()
+}
 // --- Types ---
 export interface ChannelConnection {
   id: number
@@ -234,6 +241,7 @@ export interface ApiResponse<T = any> {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const migrateCompleteHotel = (): Promise<AxiosResponse<any>> => {
+  const serviceStore = getServiceStore()
   return axios.post(`${CHANNEX_API_URL}/migrate/${serviceStore.serviceId}`, {}, getHeaders())
 }
 
@@ -637,7 +645,7 @@ export const getChannexBookingRevisions = (params?: {
   if (params?.limit) queryParams.append('limit', params.limit.toString())
   
   const url = `${CHANNEX_API_URL}/booking-revisions/feed${queryParams.toString() ? '?' + queryParams.toString() : ''}`
-  return axios.get(url, headers)
+  return axios.get(url,)
 }
 
 /**
@@ -646,10 +654,11 @@ export const getChannexBookingRevisions = (params?: {
 export const getIframUrl = (page:string): Promise<AxiosResponse<ApiResponse<{
   url: string
 }>>> => {
+  const serviceStore = getServiceStore()
   return axios.post(`${CHANNEX_API_URL}/iframe/url`,{
     hotelId: serviceStore.serviceId,
     page: page
-  }, headers)
+  }, getHeaders())
 }
 
       

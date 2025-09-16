@@ -185,10 +185,20 @@ const handleOptionSelected = (option: any) => {
   // Add specific logic for different actions
   switch (option.id) {
     case 'check_in':
-      openCheckInReservationModal()
+
+      if (reservation.value.reservationRooms && reservation.value.reservationRooms.length > 1) {
+        openCheckInReservationModal()
+      } else {
+        checkInRerservation()
+
+      }
       break
     case 'check_out':
-      openCheckOutReservationModal()
+      if (reservation.value.reservationRooms && reservation.value.reservationRooms.length > 1) {
+        openCheckOutReservationModal()
+      } else {
+        handleCheckOut()
+      }
       break
     case 'add_payment':
       isAddPaymentModalOpen.value = true
@@ -609,7 +619,7 @@ onMounted(() => {
       </div>
       <!--tab content-->
       <div v-if="activeTab === 'room_charges'">
-        <RoomCharge :reservation-id="reservation.id"></RoomCharge>
+        <RoomCharge :reservation-id="reservation.id" :reservation="reservation"></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && reservation && reservation.id">
         <FoglioOperation

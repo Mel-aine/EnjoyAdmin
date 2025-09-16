@@ -1,14 +1,14 @@
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
-
-
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 /**
@@ -35,10 +35,7 @@ interface BaseRateResponse {
 export const getBaseRateByRoomAndRateType = async (params: BaseRateParams) => {
   try {
     const response = await apiClient.get<any>('/configuration/room_rates/base-rate', {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
-      withCredentials: true,
+      ...getHeaders(),
       params: {
         hotel_id: params.hotel_id,
         room_type_id: params.room_type_id,

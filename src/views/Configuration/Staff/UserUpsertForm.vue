@@ -88,9 +88,14 @@ const tabs = computed(() => [
   { id: 'discounts', label: t('Discounts'), icon: Percent },
 ])
 
-const genders = ref([
+const genders = computed(()=>[
   { label: t('male'), value: 'male' },
   { label: t('female'), value: 'female' },
+])
+
+const Languages = computed(()=>[
+  { label: t('english'), value: 'en' },
+  { label: t('french'), value: 'fr' },
 ])
 
 const togglePasswordVisibility = () => {
@@ -337,6 +342,7 @@ const fetchUserData = async (id: string) => {
       nationalIdNumber: userData.nationalIdNumber || '',
       dataProcessingConsent: userData.dataProcessingConsent || false,
       consentDate: userData.consentDate || '',
+      language:userData.language || '',
 
       addressLine: userData.address || '',
       stateProvince: userData.stateProvince || '',
@@ -392,6 +398,7 @@ const saveUser = async () => {
       national_id_number: form.value.nationalIdNumber,
       data_processing_consent: form.value.dataProcessingConsent,
       consent_date: form.value.consentDate,
+      language:form.value.language,
       // Address fields
       address: form.value.addressLine,
       state_province: form.value.stateProvince,
@@ -452,6 +459,7 @@ const updateFormData = async () => {
       data_processing_consent: form.value.dataProcessingConsent,
       consent_date: form.value.consentDate,
       department_id: form.value.department,
+      language:form.value.language,
       // Address fields
       address_line: form.value.addressLine,
       state_province: form.value.stateProvince,
@@ -695,6 +703,14 @@ onMounted(async () => {
                             v-model="form.department"
                             :is-Loading="isLoadingDepartment"
                             :options="departments"
+                          />
+
+                           <Select
+                            :is-required="true"
+                            :lb="t('Language')"
+                            v-model="form.language"
+                            :placeholder="$t('selectLanguage')"
+                            :options="Languages"
                           />
                         </div>
                       </div>

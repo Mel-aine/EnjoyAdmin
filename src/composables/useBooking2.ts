@@ -189,7 +189,7 @@ export function useBooking() {
     checkinDate: new Date().toISOString().split('T')[0],
     checkinTime: '15:00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '11:00',
+    checkoutTime: '16:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -367,7 +367,7 @@ export function useBooking() {
     if (!reservation.value.bookingType && newBookingTypes.length > 0) {
       reservation.value.bookingType = newBookingTypes[0].id
     }
-    
+
     // Set default bookingSource if not already set and options are available
     if (!reservation.value.bookingSource && newBookingSources.length > 0) {
       reservation.value.bookingSource = newBookingSources[0].id
@@ -585,7 +585,7 @@ export function useBooking() {
       RoomTypes.value = roomTypeOptions
     } catch (error) {
       console.error('Error fetching room types:', error)
-      toast.error(t('toast.errorFetchingRoomTypes'))
+      toast.error(t('toast.fetchError'))
       RoomTypes.value = []
       RoomTypesData.value = []
     } finally {
@@ -1233,7 +1233,7 @@ export function useBooking() {
       checkinDate: new Date().toISOString().split('T')[0],
       checkinTime: '15:00',
       checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      checkoutTime: '11:00',
+      checkoutTime: '16:00',
       rooms: 1,
       bookingType: '',
       bookingSource: '',

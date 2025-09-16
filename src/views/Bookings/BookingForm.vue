@@ -214,7 +214,7 @@
                               'transform rotate-180 transition-transform': room.isOpen,
                               'transition-transform': !room.isOpen,
                             }" :size="20" />
-                          </button>--> 
+                          </button>-->
 
                           <div v-if="room.isOpen"
                             class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
@@ -521,7 +521,7 @@
 
         <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-700">{{ $t('PaymentMode') }}</h3>
         <!-- payment -->
-        <div class="grid grid-cols-2 gap-6 mt-5">
+        <div class="grid grid-cols-1 gap-2 mt-5">
           <!-- Payment Information -->
           <div class="space-y-4">
             <div class="flex space-x-4">
@@ -529,14 +529,14 @@
                 <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" />
                 {{ $t('cash') }}
               </label>
-              <label class="flex items-center">
-                <input type="radio" v-model="billing.paymentType" value="bank" class="mr-2" />
-                {{ $t('bank') }}
+               <label class="flex items-center">
+                <input type="radio" v-model="billing.paymentType" value="city_ledger" class="mr-2" />
+               {{ $t('city_ledger')}}
               </label>
             </div>
           </div>
 
-          <div class="space-y-4">
+          <div class="space-y-4 w-full">
             <InputPaymentMethodSelect :paymentType="billing.paymentType" v-model="billing.paymentMode"
               :hide-label="true" />
           </div>

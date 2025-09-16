@@ -5,9 +5,6 @@ import { getChannexBookingRevisions, type ChannexBookingRevision } from './chann
 import { useServiceStore } from '../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 
-const serviceStore = useServiceStore()
-const toast = useToast()
-
 /**
  * Interface for processed reservation data
  */
@@ -80,6 +77,8 @@ export const createGuestFromChannexCustomer = async (customer: any, hotelId: num
  * Process a single Channex booking revision
  */
 export const processBookingRevision = async (revision: ChannexBookingRevision): Promise<void> => {
+  const serviceStore = useServiceStore()
+  const toast = useToast()
   const { attributes } = revision
   const hotelId = serviceStore.serviceId
 
@@ -138,6 +137,7 @@ export const fetchAndProcessBookingRevisions = async (params?: {
   page?: number
   limit?: number
 }): Promise<void> => {
+  const toast = useToast()
   try {
     console.log('Fetching Channex booking revisions...')
     const response = await getChannexBookingRevisions(params)
