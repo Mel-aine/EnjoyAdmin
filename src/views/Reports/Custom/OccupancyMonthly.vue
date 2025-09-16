@@ -134,54 +134,7 @@ const selectedHotelId = ref<number | ''>(1) // Default hotel ID or empty for def
 // Available options
 const availableMonths = ref(getAvailableMonths())
 const availableYears = ref(getAvailableYears())
-const availableHotels = ref([
-  { id: 1, name: 'Main Hotel' },
-  { id: 2, name: 'Resort Branch' },
-  { id: 3, name: 'City Center' }
-]) // This should be fetched from an API in a real application
 
-// PDF Viewer Configuration
-const pdfViewerConfig = ref({
-  sidebar: {
-    viewThumbnail: true,
-    viewOutline: true,
-    viewAttachments: false
-  },
-  toolbar: {
-    toolbarViewerLeft: {
-      findbar: true,
-      previous: true,
-      next: true,
-      pageNumber: true
-    },
-    toolbarViewerRight: {
-      presentationMode: false,
-      openFile: false,
-      print: true,
-      download: true,
-      viewBookmark: false
-    },
-    toolbarViewerMiddle: {
-      zoomOut: true,
-      zoomIn: true,
-      scaleSelectContainer: true
-    }
-  },
-  errorWrapper: true,
-  loadingBar: {
-    show: true,
-    color: '#10b981'
-  }
-})
-
-// PDF Theme
-const pdfTheme = ref({
-  '--main-color': '#10b981',
-  '--body-bg-color': '#f9fafb',
-  '--progressBar-color': '#10b981',
-  '--button-hover-color': '#059669',
-  '--toggled-btn-bg-color': '#d1fae5'
-})
 
 // Computed properties
 const currentParams = computed((): MonthlyOccupancyParams => ({
@@ -190,12 +143,7 @@ const currentParams = computed((): MonthlyOccupancyParams => ({
   hotelId: useServiceStore().serviceId!
 }))
 
-const reportTitle = computed(() => {
-  const monthName = availableMonths.value.find(m => m.value === selectedMonth.value)?.label || 'Unknown'
-  const hotelName = selectedHotelId.value
-    ? availableHotels.value.find(h => h.id === selectedHotelId.value)?.name || 'Selected Hotel'
-    : 'Default Hotel'
-  return `${monthName} ${selectedYear.value} - ${hotelName}`
+const reportTitle = computed(() => {return ''
 })
 
 const onFiltersChange =()=>{
@@ -248,14 +196,6 @@ const openPDFInNewPage = () => {
   }
 }
 
-const downloadReport = async () => {
-  try {
-    await downloadMonthlyOccupancyPDF(currentParams.value, `${reportTitle.value}.pdf`)
-  } catch (error) {
-    console.error('❌ Error downloading report:', error)
-    errorMessage.value = 'Failed to download report'
-  }
-}
 
 // Cleanup
 const cleanup = () => {
@@ -272,44 +212,4 @@ onUnmounted(cleanup)
 </script>
 
 <style scoped>
-.occupancy-rate-report {
-  display: flex;
-  flex-direction: column;
-  background-color: #f9fafb;
-}
-
-/* Custom scrollbar for better UX */
-.occupancy-rate-report :deep(.pdf-viewer-container) {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar) {
-  width: 8px;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-track) {
-  background: #f1f5f9;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-thumb) {
-  background-color: #cbd5e1;
-  border-radius: 4px;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-thumb:hover) {
-  background-color: #94a3b8;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .occupancy-rate-report {
-    height: 100vh;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
 </style>

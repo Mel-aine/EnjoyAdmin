@@ -38,7 +38,7 @@ export default defineConfig({
     }),
     vueJsx(),
     vueDevTools(),
-    visualizer({ 
+    visualizer({
       filename: 'stats.html',
       open: false,
       gzipSize: true,
@@ -54,7 +54,7 @@ export default defineConfig({
   base: process.env.ELECTRON === 'true' ? './' : '/',
   server: {
     port: 5173,
-    strictPort: true,
+    strictPort: true
   },
 /*  server: {
     host: '0.0.0.0',
@@ -72,6 +72,7 @@ export default defineConfig({
     target: 'esnext',
     cssMinify: true,
     reportCompressedSize: true,
+    cssCodeSplit: false,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -326,10 +327,7 @@ export default defineConfig({
           if (id.includes('@cloudinary')) {
             return 'cloudinary'
           }
-          // CSS frameworks and styling
-          if (id.includes('tailwindcss') || id.includes('postcss')) {
-            return 'styles'
-          }
+         
           // Large vendor libraries - separate heavy ones
           if (id.includes('node_modules') && id.includes('typescript')) {
             return 'typescript'
@@ -355,10 +353,6 @@ export default defineConfig({
           }
           if (id.includes('node_modules') && id.includes('tippy.js')) {
             return 'tooltip'
-          }
-          // CSS processing libraries
-          if (id.includes('node_modules') && (id.includes('autoprefixer') || id.includes('cssnano'))) {
-            return 'css-processors'
           }
           // Polyfills and compatibility
           if (id.includes('node_modules') && (id.includes('core-js') || id.includes('regenerator'))) {

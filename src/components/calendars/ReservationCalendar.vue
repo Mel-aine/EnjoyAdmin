@@ -1,7 +1,7 @@
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
-    <AppHeader />
+    <AppHeader :show-sidebar = "true" />
     <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
       <div class="mb-4 bg-white px-6 py-1 flex items-center justify-between rounded-b-lg border-b">

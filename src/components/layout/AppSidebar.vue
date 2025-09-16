@@ -20,7 +20,7 @@
       },
     ]">
 
-      
+
 
       <!-- Zone de navigation scrollable -->
       <div class="flex-1 overflow-hidden"
@@ -29,7 +29,7 @@
 
         <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
           <div class="flex flex-col gap-2 pb-6">
-            <div v-for="(menuGroup, groupIndex) in filteredMenu" :key="groupIndex">
+            <div v-for="(menuGroup, groupIndex) in menu" :key="groupIndex">
               <ul class="flex flex-col gap-3" v-if="menuGroup">
                 <li v-for="(item, index) in menuGroup.items" :key="item.name" >
 
@@ -234,60 +234,87 @@ export interface MenuGroupWrapper {
 
 
 
-const filteredMenu = computed(() => {
+// const filteredMenu = computed(() => {
+//   try {
+//     console.log(' Permissions dans le store :', serviceStore.permissions.map(p => p.name))
+
+//     if (!serviceStore.permissions.length) {
+//       console.log(' Aucune permission trouvée, menu vide.')
+//       return []
+//     }
+
+//     const categoryName = 'hotel'
+//     console.log(' Catégorie de service:', categoryName)
+
+//     const menuGroups = getMenuByCategoryName(categoryName, t)
+//     console.log(' Groupes de menu récupérés:', menuGroups.length)
+
+//     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
+//       console.warn(' Aucun menu trouvé pour la catégorie:', categoryName)
+//       return []
+//     }
+
+//     // Filtrer chaque groupe de menu
+//     const result = menuGroups.map(group => {
+//       if (!group || !Array.isArray(group.items)) {
+//         console.warn(' Groupe de menu invalide:', group)
+//         return null
+//       }
+
+//       const filteredItems = filterMenuByPermissions(group.items, serviceStore.hasPermission)
+
+//       if (filteredItems.length === 0) {
+//         console.log(` Groupe exclu (aucun item autorisé): ${group.title}`)
+//         return null
+//       }
+
+//       return {
+//         ...group,
+//         items: filteredItems,
+//       }
+//     }).filter(Boolean)
+
+//     console.log(' Menu final filtré:', result.length, 'groupes')
+//     return result
+
+//   } catch (error) {
+//     console.error(' Erreur dans filteredMenu:', error)
+//     return []
+//   }
+// })
+
+
+
+const menu = computed(() => {
   try {
-    console.log(' Permissions dans le store :', serviceStore.permissions.map(p => p.name))
-
-    if (!serviceStore.permissions.length) {
-      console.log(' Aucune permission trouvée, menu vide.')
-      return []
-    }
-
     const categoryName = 'hotel'
-    console.log(' Catégorie de service:', categoryName)
+    console.log('Catégorie de service:', categoryName)
 
     const menuGroups = getMenuByCategoryName(categoryName, t)
-    console.log(' Groupes de menu récupérés:', menuGroups.length)
+    console.log('Groupes de menu récupérés:', menuGroups.length)
 
     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
-      console.warn(' Aucun menu trouvé pour la catégorie:', categoryName)
+      console.warn('Aucun menu trouvé pour la catégorie:', categoryName)
       return []
     }
 
-    // Filtrer chaque groupe de menu
-    const result = menuGroups.map(group => {
-      if (!group || !Array.isArray(group.items)) {
-        console.warn(' Groupe de menu invalide:', group)
-        return null
-      }
+    // Retourner tous les groupes de menu sans filtrage
+    const result = menuGroups.filter(group => {
+      return group && Array.isArray(group.items) && group.items.length > 0
+    })
 
-      const filteredItems = filterMenuByPermissions(group.items, serviceStore.hasPermission)
-
-      if (filteredItems.length === 0) {
-        console.log(` Groupe exclu (aucun item autorisé): ${group.title}`)
-        return null
-      }
-
-      return {
-        ...group,
-        items: filteredItems,
-      }
-    }).filter(Boolean)
-
-    console.log(' Menu final filtré:', result.length, 'groupes')
+    console.log('Menu final (sans filtrage):', result.length, 'groupes')
     return result
 
   } catch (error) {
-    console.error(' Erreur dans filteredMenu:', error)
+    console.error('Erreur dans menu:', error)
     return []
   }
 })
 
-
-
 const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
   const key = `${groupIndex}-${itemIndex}`;
-  const item = filteredMenu.value[groupIndex]?.items[itemIndex];
+  const item = menu.value[groupIndex]?.items[itemIndex];
 
   if (!item || !('subItems' in item) || !Array.isArray(item.subItems)) return false;
 
@@ -303,6 +330,8 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
       (item.subItems.some((subItem: any) => isActive(subItem.path)) || isSubSubmenuActive))
   );
 };
+
+
 const currentService = computed(() => {
   try {
     return JSON.parse(serviceStore.currentService || '{}');
@@ -319,7 +348,7 @@ const isSubSubmenuOpen = (
 ): boolean => {
   const key = `${groupIndex}-${itemIndex}-${subItemName}`;
 
-  const item = filteredMenu.value[groupIndex]?.items[itemIndex];
+  const item = menu.value[groupIndex]?.items[itemIndex];
 
   if (!item || typeof item !== 'object' || !('subItems' in item) || !Array.isArray((item as any).subItems)) {
     return false;
@@ -334,7 +363,7 @@ const isSubSubmenuOpen = (
 };
 
 const isAnySubmenuRouteActive = computed<boolean>(() => {
-  return filteredMenu.value.some((group: any) =>
+  return menu.value.some((group: any) =>
     group.items.some((item: any) =>
       item.subItems?.some((subItem: any) =>
         isActive(subItem.path) || subItem.subItems?.some((subSubItem: any) => isActive(subSubItem.path))

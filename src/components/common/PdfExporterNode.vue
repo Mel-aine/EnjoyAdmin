@@ -19,8 +19,8 @@
               </div>
               <div v-else-if="pdfUrl" class="h-screen overflow-hidden">
                 <!-- Custom PDF Controls (Optional) -->
-                
-                <VuePdfApp 
+
+                <VuePdfApp
                     :pdf="pdfUrl"
                     :config="pdfViewerConfig"
                     class="w-full h-full border-0"
@@ -29,7 +29,7 @@
                     @page-rendered="onPageRendered"
                     @error="onPdfError"
                   ></VuePdfApp>
-                
+
               </div>
             </div>
           </div>
@@ -42,30 +42,30 @@
 <script setup lang="ts">
 /**
  * PdfExporter Component with VuePdfApp Configuration
- * 
+ *
  * This component provides a comprehensive PDF viewer and exporter with the following features:
- * 
+ *
  * VuePdfApp Configuration Options:
  * - Sidebar: Control thumbnail, outline, and attachment views
  * - Toolbar: Customize left, right, and middle toolbar sections
  * - Theme: Full CSS custom property theming support
  * - Events: Handle PDF viewer lifecycle events
  * - Controls: Optional custom control panel for enhanced interaction
- * 
+ *
  * Usage Examples:
- * 
+ *
  * Basic usage:
  * <PdfExporter :template="myTemplate" :document-data="data" />
- * 
+ *
  * With custom configuration:
- * <PdfExporter 
- *   :template="myTemplate" 
+ * <PdfExporter
+ *   :template="myTemplate"
  *   :document-data="data"
  *   :pdf-viewer-config="{ sidebar: { viewThumbnail: false } }"
  *   :pdf-theme="{ '--main-color': '#ff6b6b' }"
  *   :show-controls="true"
  * />
- * 
+ *
  * @author EnjoyAdmin Team
  * @version 2.0.0
  */
@@ -119,7 +119,7 @@ interface PdfExporterProps {
   showControls?: boolean
   isGenerating: boolean
   isModalOpen:boolean
-  title:string
+  title?:string
 }
 
 // Props
@@ -230,7 +230,7 @@ const defaultPdfTheme = {
 // Merge user configuration with defaults
 const pdfViewerConfig = computed(() => {
   if (!props.pdfViewerConfig) return defaultPdfViewerConfig
-  
+
   return {
     ...defaultPdfViewerConfig,
     ...props.pdfViewerConfig,
@@ -389,15 +389,15 @@ const onPdfError = (error: any) => {
     height: auto !important;
     background: white !important;
   }
-  
+
   :deep(.vue-pdf-app .toolbar) {
     display: none !important;
   }
-  
+
   :deep(.vue-pdf-app .sidebar) {
     display: none !important;
   }
-  
+
   :deep(.vue-pdf-app .viewer) {
     width: 100% !important;
     height: auto !important;
@@ -405,7 +405,7 @@ const onPdfError = (error: any) => {
     padding: 0 !important;
     margin: 0 !important;
   }
-  
+
   :deep(.vue-pdf-app .page) {
     width: 100% !important;
     height: auto !important;
@@ -415,22 +415,22 @@ const onPdfError = (error: any) => {
     border: none !important;
     page-break-after: always;
   }
-  
+
   :deep(.vue-pdf-app .page:last-child) {
     page-break-after: avoid;
   }
-  
+
   :deep(.vue-pdf-app canvas) {
     width: 100% !important;
     height: auto !important;
     max-width: none !important;
   }
-  
+
   /* Hide all UI elements during print */
   .pdf-controls {
     display: none !important;
   }
-  
+
   .pdf-viewer-container {
     background: white !important;
     padding: 0 !important;
@@ -444,11 +444,11 @@ const onPdfError = (error: any) => {
     gap: 10px;
     padding: 15px;
   }
-  
+
   .pdf-controls > div {
     justify-content: center;
   }
-  
+
   .pdf-viewer-container.with-controls {
     height: calc(100% - 120px); /* Adjust for mobile controls height */
   }

@@ -1,28 +1,52 @@
-
 <template>
   <ReportsLayout>
     <div class="occupancy-rate-report">
       <!-- Header Section -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ $t('reports.frontOffice.roomStatusReport') }}
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          {{ $t('reports.frontOffice.roomStatusReportDescription') }}
-        </p>
+      <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Monthly Revenue Report</h1>
+            <p class="mt-1 text-sm text-gray-600">
+              View detailed occupancy statistics and trends for your hotel
+            </p>
+          </div>
+
+        </div>
       </div>
 
       <!-- Filter Section -->
-      <div class="px-6 py-4">
+      <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Month Selection -->
           <div>
-            <InputDatePicker :title="$t('asOnDate')" v-model="selectedDate" />
+            <label for="month" class="block text-sm font-medium text-gray-700 mb-1">
+              Month
+            </label>
+            <select id="month" v-model="selectedMonth" @change="onFiltersChange"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <option v-for="month in availableMonths" :key="month.value" :value="month.value">
+                {{ month.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Year Selection -->
+          <div>
+            <label for="year" class="block text-sm font-medium text-gray-700 mb-1">
+              Year
+            </label>
+            <select id="year" v-model="selectedYear" @change="onFiltersChange"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <option v-for="year in availableYears" :key="year.value" :value="year.value">
+                {{ year.label }}
+              </option>
+            </select>
           </div>
 
           <!-- Generate Button -->
           <div class="flex items-end">
-            <button @click="generateReport" :disabled="isLoading || !selectedDate"
-              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/25 focus:outline-none  disabled:opacity-50 disabled:cursor-not-allowed">
+            <button @click="generateReport" :disabled="isLoading || !selectedMonth"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
               <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor"
@@ -72,13 +96,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  getMonthlyOccupancyPDFUrl,
-  downloadMonthlyOccupancyPDF,
-  validateMonthlyOccupancyParams,
+  getMonthlyRevenuePDFUrl,
   getAvailableMonths,
   getAvailableYears,
-  type MonthlyOccupancyParams,
-  getRoomStatusPdfUrl
+  type MonthlyOccupancyParams
 } from '@/services/occupancyReportsApi'
 
 // Reactive data
@@ -87,17 +108,28 @@ const errorMessage = ref('')
 const pdfUrl = ref('')
 
 // Filter selections
-const selectedDate = ref( new Date().toISOString().split('T')[0])
+const selectedMonth = ref(new Date().getMonth() + 1) // Current month (1-12)
+const selectedYear = ref(new Date().getFullYear()) // Current year
+const selectedHotelId = ref<number | ''>(1) // Default hotel ID or empty for default
+
+// Available options
+const availableMonths = ref(getAvailableMonths())
+const availableYears = ref(getAvailableYears())
+
+
 // Computed properties
-const currentParams = computed((): any => ({
-  asOnDate: selectedDate.value,
+const currentParams = computed((): MonthlyOccupancyParams => ({
+  month: selectedMonth.value,
+  year: selectedYear.value,
   hotelId: useServiceStore().serviceId!
 }))
 
-const reportTitle = computed(() => {
-  return `Room_Status_Report_${selectedDate.value}`
+const reportTitle = computed(() => {return ''
 })
 
+const onFiltersChange =()=>{
+  generateReport();
+}
 // Methods
 const generateReport = async () => {
   try {
@@ -111,7 +143,7 @@ const generateReport = async () => {
     }
 
     // Generate new PDF URL
-    const newPdfUrl = await getRoomStatusPdfUrl(currentParams.value)
+    const newPdfUrl = await getMonthlyRevenuePDFUrl(currentParams.value)
     pdfUrl.value = newPdfUrl
     openPDFInNewPage()
 
@@ -154,49 +186,8 @@ const cleanup = () => {
 import { onUnmounted } from 'vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import ReportsLayout from '../../../components/layout/ReportsLayout.vue'
-import InputDatePicker from '../../../components/forms/FormElements/InputDatePicker.vue'
 onUnmounted(cleanup)
 </script>
 
 <style scoped>
-.occupancy-rate-report {
-  display: flex;
-  flex-direction: column;
-  background-color: #f9fafb;
-}
-
-/* Custom scrollbar for better UX */
-.occupancy-rate-report :deep(.pdf-viewer-container) {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar) {
-  width: 8px;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-track) {
-  background: #f1f5f9;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-thumb) {
-  background-color: #cbd5e1;
-  border-radius: 4px;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-thumb:hover) {
-  background-color: #94a3b8;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .occupancy-rate-report {
-    height: 100vh;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
 </style>

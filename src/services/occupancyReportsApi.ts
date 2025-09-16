@@ -108,7 +108,6 @@ export const getMonthlyOccupancyPDFUrl = async (params: MonthlyOccupancyParams):
     throw error
   }
 }
-
 /**
  * Download Monthly Occupancy PDF
  * 
@@ -218,4 +217,292 @@ export const getAvailableYears = (startYear: number = 2020) => {
   }
   
   return years
+}
+
+
+ export const getRoomStatusPDF = async (data: {hotelId:number,asOnDate:string}): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/room-status-report-pdf`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.post(url,data, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching monthly occupancy PDF:', error)
+    throw error
+  }
+}
+
+export const getRoomStatusPdfUrl = async (data: {hotelId:number,asOnDate:string}): Promise<string> => {
+  try {
+    const pdfBlob = await getRoomStatusPDF(data)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating PDF URL:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Night Audit Report PDF
+ * 
+ * Fetches the night audit report as a PDF blob from the API.
+ * 
+ * @param data - Parameters including hotelId, asOnDate, and currency
+ * @returns Promise<Blob> - PDF blob data
+ */
+export const getNightAuditReportPDF = async (data: {hotelId:number, asOnDate:string, currency:string}): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/night-audit-report-pdf`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.post(url, data, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching night audit report PDF:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Night Audit Report PDF URL
+ * 
+ * Creates a blob URL for the night audit report PDF.
+ * 
+ * @param data - Parameters including hotelId, asOnDate, and currency
+ * @returns Promise<string> - Blob URL for the PDF
+ */
+export const getNightAuditReportPdfUrl = async (data: {hotelId:number, asOnDate:string, currency:string}): Promise<string> => {
+  try {
+    const pdfBlob = await getNightAuditReportPDF(data)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating night audit report PDF URL:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Manager Report PDF
+ * 
+ * Fetches the manager report as a PDF blob from the API.
+ * 
+ * @param data - Parameters for the manager report
+ * @returns Promise<Blob> - PDF blob data
+ */
+export const getManagerReportPDF = async (data: any): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/management-report-pdf`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.post(url, data, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching manager report PDF:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Manager Report PDF URL
+ * 
+ * Creates a blob URL for the manager report PDF.
+ * 
+ * @param data - Parameters for the manager report
+ * @returns Promise<string> - Blob URL for the PDF
+ */
+export const getManagerReportPdfUrl = async (data: any): Promise<string> => {
+  try {
+    const pdfBlob = await getManagerReportPDF(data)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating manager report PDF URL:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Revenue By Rate Type Report PDF
+ * 
+ * Fetches the revenue by rate type report as a PDF blob from the API.
+ * 
+ * @param data - Parameters for the revenue by rate type report
+ * @returns Promise<Blob> - PDF blob data
+ */
+export const getRevenueByRateTypePDF = async (data: any): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/revenue-by-rate-type-pdf`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.post(url, data, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching revenue by rate type PDF:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Revenue By Rate Type Report PDF URL
+ * 
+ * Creates a blob URL for the revenue by rate type report PDF.
+ * 
+ * @param data - Parameters for the revenue by rate type report
+ * @returns Promise<string> - Blob URL for the PDF
+ */
+export const getRevenueByRateTypePdfUrl = async (data: any): Promise<string> => {
+  try {
+    const pdfBlob = await getRevenueByRateTypePDF(data)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating revenue by rate type PDF URL:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Revenue By Room Type Report PDF
+ * 
+ * Fetches the revenue by room type report as a PDF blob from the API.
+ * 
+ * @param data - Parameters for the revenue by room type report
+ * @returns Promise<Blob> - PDF blob data
+ */
+export const getRevenueByRoomTypePDF = async (data: any): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/revenue-by-room-type-pdf`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.post(url, data, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching revenue by room type PDF:', error)
+    throw error
+  }
+}
+
+/**
+ * Get Revenue By Room Type Report PDF URL
+ * 
+ * Creates a blob URL for the revenue by room type report PDF.
+ * 
+ * @param data - Parameters for the revenue by room type report
+ * @returns Promise<string> - Blob URL for the PDF
+ */
+export const getRevenueByRoomTypePdfUrl = async (data: any): Promise<string> => {
+  try {
+    const pdfBlob = await getRevenueByRoomTypePDF(data)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating revenue by room type PDF URL:', error)
+    throw error
+  }
+}
+
+export const getMonthlyRevenuePDFUrl = async (params: MonthlyOccupancyParams): Promise<string> => {
+  try {
+    const pdfBlob = await getMonthlyRevenuPDF(params)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating PDF URL:', error)
+    throw error
+  }
+}
+
+export const getMonthlyRevenuPDF = async (params: MonthlyOccupancyParams): Promise<Blob> => {
+  try {
+    const queryParams = new URLSearchParams()
+
+    // Add required month parameter
+    queryParams.append('month', params.month.toString())
+
+    // Add optional parameters if they exist
+    if (params.year) {
+      queryParams.append('year', params.year.toString())
+    }
+    if (params.hotelId) {
+      queryParams.append('hotelId', params.hotelId.toString())
+    }
+
+    const url = `${API_URL}/monthly-revenue-pdf?${queryParams.toString()}`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching monthly occupancy PDF:', error)
+    throw error
+  }
 }

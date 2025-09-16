@@ -847,6 +847,14 @@ export const getBlackListReasons = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
+ * Get all black list reasons
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBlackListReasonsByHotel = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/black_list_reasons?hotelId=${hotelId}`, getHeaders())
+}
+
+/**
  * Post a new black list reason
  * @param data
  * @returns {Promise<AxiosResponse<any>>}

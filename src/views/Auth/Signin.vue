@@ -267,6 +267,23 @@ const handleSubmit = async () => {
     serviceStore.setBusinessSources(res.data.data.businessSources)
     serviceStore.setReservationType(res.data.data.reservationTypes)
 
+    if (user.permisReports) {
+      try {
+        const reportsPermissions = JSON.parse(user.permisReports);
+        console.log('Permissions de rapports:', reportsPermissions);
+
+        authStore.setReportsPermissions(reportsPermissions);
+
+      } catch (parseError) {
+        console.error('Erreur lors du parsing des permissions de rapports:', parseError);
+        // Définir des permissions vides en cas d'erreur
+        authStore.setReportsPermissions([]);
+      }
+    } else {
+      console.warn('Aucune permission de rapport trouvée pour cet utilisateur');
+      authStore.setReportsPermissions([]);
+    }
+
     if (keepLoggedIn.value) {
       localStorage.setItem('auth_token', token);
     } else {
@@ -290,11 +307,7 @@ const handleSubmit = async () => {
         const service = userServices[0];
         serviceStore.setServiceId(service.id);
         serviceStore.setCurrentService(service);
-
-        const rawCategory = service?.category;
-        const categoryName = typeof rawCategory === 'object' ? rawCategory.categoryName : rawCategory;
-        serviceStore.setServiceCategory(categoryName);
-        router.push('/welcome');
+        router.push('/front-office/dashboard');
       } else {
         // Aucun service : afficher une erreur
         error.value = "Aucun service disponible pour cet utilisateur.";

@@ -4,7 +4,7 @@ import { isLoading } from '@/composables/spinner'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { left: 0, top: 0 }
   },
@@ -442,7 +442,25 @@ const router = createRouter({
       name: 'ManagerReport',
       component: () => import('../views/Reports/BackOffice/ManagerReport.vue'),
       meta: {
-        title: 'Folio List',
+        title: 'Manager Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/revenue-by-rate-type',
+      name: 'RevenueByRateType',
+      component: () => import('../views/Reports/BackOffice/RevenueByRateType.vue'),
+      meta: {
+        title: 'Revenue By Rate Type',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/back-office/revenue-by-room-type',
+      name: 'RevenueByRoomType',
+      component: () => import('../views/Reports/BackOffice/RevenueByRoomType.vue'),
+      meta: {
+        title: 'Revenue By Room Type',
         requiresAuth: true,
       },
     },
@@ -526,6 +544,16 @@ const router = createRouter({
       component: () => import('../views/Reports/Custom/OccupancyMonthly.vue'),
       meta: {
         title: 'Occupancy Month',
+        requiresAuth: true,
+      },
+    },
+    // Custom Reports
+    {
+      path: '/reports/custom/monthly-revenue',
+      name: 'MonthlyRevenu',
+      component: () => import('../views/Reports/Custom/MonthlyRevenu.vue'),
+      meta: {
+        title: 'MonthRevenu',
         requiresAuth: true,
       },
     },

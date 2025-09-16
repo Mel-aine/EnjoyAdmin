@@ -16,7 +16,7 @@
         'pt-4 pb-4 flex-shrink-0',
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
-        <router-link to="/dashboard" class="flex items-center gap-2">
+        <router-link to="/front-office/dashboard" class="flex items-center gap-2">
           <img v-if="isExpanded || isHovered || isMobileOpen"
             class="dark:hidden rounded-full w-10"
             src="/src/assets/images/header/logo2.png"
@@ -43,13 +43,13 @@
 
         <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
           <div class="flex flex-col gap-2 pb-6">
-            
+
             <!-- Search Bar -->
             <div v-if="isExpanded || isHovered || isMobileOpen" class="mb-4">
               <div class="relative">
-                <input 
+                <input
                   v-model="searchQuery"
-                  type="text" 
+                  type="text"
                   :placeholder="$t('Searchortypecommand')"
                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                 >
@@ -61,10 +61,10 @@
 
             <!-- Reports Menu -->
             <div class="space-y-2">
-              
+
               <!-- Reservation Report -->
-              <div>
-                <button 
+              <div v-if="filteredReservationReports.length > 0">
+                <button
                   @click="toggleSection('reservation')"
                   :class="[
                     'menu-item group text-sm w-full',
@@ -74,7 +74,7 @@
                     },
                     !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
                   ]">
-                  
+
                   <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                     {{ $t('reports.reservation.title') }}
                   </span>
@@ -86,11 +86,11 @@
                       },
                     ]" />
                 </button>
-                
+
                 <transition name="slide-down">
                   <div v-show="openSections.reservation && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
-                    <router-link 
-                      v-for="report in reservationReports" 
+                    <router-link
+                      v-for="report in filteredReservationReports"
                       :key="report.path"
                       :to="report.path"
                       :class="[
@@ -107,8 +107,8 @@
               </div>
 
               <!-- Front Office Report -->
-              <div>
-                <button 
+              <div v-if="filteredFrontOfficeReports.length > 0">
+                <button
                   @click="toggleSection('frontOffice')"
                   :class="[
                     'menu-item group text-sm w-full',
@@ -129,11 +129,11 @@
                       },
                     ]" />
                 </button>
-                
+
                 <transition name="slide-down">
                   <div v-show="openSections.frontOffice && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
-                    <router-link 
-                      v-for="report in frontOfficeReports" 
+                    <router-link
+                      v-for="report in filteredFrontOfficeReports"
                       :key="report.path"
                       :to="report.path"
                       :class="[
@@ -150,8 +150,8 @@
               </div>
 
               <!-- Back Office Report -->
-              <div>
-                <button 
+              <div v-if="filteredBackOfficeReports.length > 0">
+                <button
                   @click="toggleSection('backOffice')"
                   :class="[
                     'menu-item group text-sm w-full',
@@ -161,7 +161,7 @@
                     },
                     !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
                   ]">
-                  
+
                   <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                     {{ $t('reports.backOffice.title') }}
                   </span>
@@ -173,11 +173,11 @@
                       },
                     ]" />
                 </button>
-                
+
                 <transition name="slide-down">
                   <div v-show="openSections.backOffice && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
-                    <router-link 
-                      v-for="report in backOfficeReports" 
+                    <router-link
+                      v-for="report in filteredBackOfficeReports"
                       :key="report.path"
                       :to="report.path"
                       :class="[
@@ -194,8 +194,8 @@
               </div>
 
               <!-- Audit Report -->
-              <div>
-                <button 
+              <div v-if="filteredAuditReports.length > 0">
+                <button
                   @click="toggleSection('audit')"
                   :class="[
                     'menu-item group text-sm w-full',
@@ -205,7 +205,7 @@
                     },
                     !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
                   ]">
-                  
+
                   <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                     {{ $t('reports.audit.title') }}
                   </span>
@@ -217,11 +217,11 @@
                       },
                     ]" />
                 </button>
-                
+
                 <transition name="slide-down">
                   <div v-show="openSections.audit && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
-                    <router-link 
-                      v-for="report in auditReports" 
+                    <router-link
+                      v-for="report in filteredAuditReports"
                       :key="report.path"
                       :to="report.path"
                       :class="[
@@ -238,8 +238,8 @@
               </div>
 
               <!-- Statistical Report -->
-              <div>
-                <button 
+              <div v-if="filteredStatisticalReports.length > 0">
+                <button
                   @click="toggleSection('statistical')"
                   :class="[
                     'menu-item group text-sm w-full',
@@ -249,7 +249,7 @@
                     },
                     !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
                   ]">
-                
+
                   <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                     {{ $t('reports.statistical.title') }}
                   </span>
@@ -261,11 +261,11 @@
                       },
                     ]" />
                 </button>
-                
+
                 <transition name="slide-down">
                   <div v-show="openSections.statistical && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
-                    <router-link 
-                      v-for="report in statisticalReports" 
+                    <router-link
+                      v-for="report in filteredStatisticalReports"
                       :key="report.path"
                       :to="report.path"
                       :class="[
@@ -282,8 +282,8 @@
               </div>
 
               <!-- Custom Report -->
-              <div>
-                <button 
+              <div v-if="filteredCustomReports.length > 0">
+                <button
                   @click="toggleSection('custom')"
                   :class="[
                     'menu-item group text-sm w-full',
@@ -293,7 +293,7 @@
                     },
                     !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
                   ]">
-                 
+
                   <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                     {{ $t('reports.custom.title') }}
                   </span>
@@ -305,11 +305,11 @@
                       },
                     ]" />
                 </button>
-                
+
                 <transition name="slide-down">
                   <div v-show="openSections.custom && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
-                    <router-link 
-                      v-for="report in customReports" 
+                    <router-link
+                      v-for="report in filteredCustomReports"
                       :key="report.path"
                       :to="report.path"
                       :class="[
@@ -337,6 +337,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
+import { useAuthStore } from '@/composables/user'
 import CalenderIcon from '@/icons/CalenderIcon.vue'
 import HomeIcon from '@/icons/HomeIcon.vue'
 import BarChartIcon from '@/icons/BarChartIcon.vue'
@@ -347,6 +348,7 @@ import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
 
 const route = useRoute()
 const { isExpanded, isMobileOpen } = useSidebar()
+const authStore = useAuthStore()
 const isHovered = ref(false)
 const searchQuery = ref('')
 
@@ -359,19 +361,94 @@ const openSections = ref<any>({
   custom: false
 })
 
+// Mapping des noms de rapports vers les permissions
+const reportPermissions = {
+  // Reservation Reports
+  'arrival-list': 'arrival_list',
+  'departure-list': 'departure_list',
+  'cancelled-reservations': 'cancelled_reservations',
+  'no-show-reservations': 'no_show_reservations',
+  'country-wise-reservation-statistics': 'country_wise_reservation_statistics',
+  'release-reservation-list': 'release_reservation_list',
+  'reservation-activity': 'reservation_activity',
+  'void-reservation': 'void_reservations',
+
+  // Front Office Reports
+  'guest-checked-in': 'guest_checked_in',
+  'guest-checked-out': 'guest_checked_out',
+  'guest-list': 'guest_list',
+  'guest-message': 'guest_message',
+  'inclusion-report': 'inclusion_report',
+  'inventory-by-room-type': 'inventory_by_room_type',
+  'invoice-breakdown': 'invoice_breakdown',
+  'night-audit': 'night_audit',
+  'pickup-dropoff': 'pickup_dropoff',
+  'room-availability': 'room_availability',
+  'room-status-report': 'room_status_report',
+  'task-list-report': 'task_list_report',
+
+  // Back Office Reports
+  'advance-deposit-ledger': 'advance_deposit_ledger',
+  'city-ledger-detail': 'city_ledger_detail',
+  'city-ledger-summary': 'city_ledger_summary',
+  'daily-extra-charge-detail': 'daily_extra_charge_detail',
+  'daily-receipt-detail': 'daily_receipt_detail',
+  'daily-receipt-summary': 'daily_receipt_summary',
+  'daily-refund-report': 'daily_refund_report',
+  'daily-revenue': 'daily_revenue',
+  'expense-voucher': 'expense_voucher',
+  'folio-list': 'folio_list',
+  'guest-ledger': 'guest_ledger',
+  'house-status': 'house_status',
+  'manager-report': 'manager_report',
+  'revenue-by-rate-type': 'revenue_by_rate_type',
+  'revenue-by-room-type': 'revenue_by_room_type',
+  'travel-agent-commission-detail': 'travel_agent_commission_detail',
+  'travel-agent-commission-summary': 'travel_agent_commission_summary',
+
+  // Audit Reports
+  'audit-trail': 'audit_trail',
+  'ip-report': 'ip_report',
+  'void-charge': 'void_charge',
+  'void-payment': 'void_payment',
+  'void-transaction': 'void_transaction',
+
+  // Statistical Reports
+  'business-analysis': 'business_analysis',
+  'contribution-analysis-report': 'contribution_analysis_report',
+  'monthly-country-wise-pax-analysis': 'monthly_country_wise_pax_analysis',
+  'monthly-revenue-by-income-stream': 'monthly_revenue_by_income_stream',
+  'monthly-statistics': 'monthly_statistics',
+  'monthly-summary': 'monthly_summary',
+  'monthly-tax': 'monthly_tax',
+  'room-sale-statistics': 'room_sale_statistics',
+  'room-statistics': 'room_statistics',
+  'room-on-books': 'room_on_books',
+  'yearly-statistics': 'yearly_statistics',
+  'booking-source-wise-reservation-statistics': 'booking_source_wise_reservation_statistics',
+  'channelwise-booking-report': 'channelwise_booking_report',
+  'mobile-desktop-wise-reservation-statistics': 'mobile_desktop_wise_reservation_statistics',
+  'ota-wise-monthly-breakdown': 'ota_wise_monthly_breakdown',
+  'performance-analysis-report': 'performance_analysis_report',
+
+  // Custom Reports
+  'monthly-occupancy': 'monthly_occupancy',
+  'monthly-revenue': 'monthly_revenue',
+  'payment-summary': 'payment_summary',
+  'revenue-by-rate-type-summary': 'revenue_by_rate_type_summary',
+  'statistics-by-room-type': 'statistics_by_room_type'
+}
+
 // Reservation Reports
 const reservationReports = ref([
-  { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList' },
+  { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList'  },
   { name: 'departure-list', path: '/reports/reservation/departure-list', label: 'reports.reservation.departureList' },
-  // { name: 'confirmed-reservations', path: '/reports/reservation/confirmed-reservations', label: 'reports.reservation.confirmedReservations' },
   { name: 'cancelled-reservations', path: '/reports/reservation/cancelled-reservations', label: 'reports.reservation.cancelledReservations' },
   { name: 'no-show-reservations', path: '/reports/reservation/no-show-reservations', label: 'reports.reservation.noShowReservations' },
-  // { name: 'reservation-forecast', path: '/reports/reservation/reservation-forecast', label: 'reports.reservation.reservationForecast' },
   { name: 'country-wise-reservation-statistics', path: '/reports/reservation/country-wise-reservation-statistics', label: 'reports.reservation.countryWiseReservationStatistics' },
   { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
   { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
   { name: 'void-reservation', path: '/reports/reservation/void-reservation', label: 'reports.reservation.voidReservation' },
-
 ])
 
 // Front Office Reports
@@ -386,20 +463,12 @@ const frontOfficeReports = ref([
   { name: 'night-audit', path: '/reports/front-office/night-audit', label: 'reports.frontOffice.nightAudit' },
   { name: 'pickup-dropoff', path: '/reports/front-office/pickup-dropoff', label: 'reports.frontOffice.pickupDropoff' },
   { name: 'room-availability', path: '/reports/front-office/room-availability', label: 'reports.frontOffice.roomAvailability' },
-  // { name: 'room-service-report', path: '/reports/front-office/room-service-report', label: 'reports.frontOffice.roomServiceReport' },
   { name: 'room-status-report', path: '/reports/front-office/room-status-report', label: 'reports.frontOffice.roomStatusReport' },
   { name: 'task-list-report', path: '/reports/front-office/task-list-report', label: 'reports.frontOffice.taskListReport' }
 ])
 
 // Back Office Reports
 const backOfficeReports = ref([
-/*   { name: 'revenue-reports', path: '/reports/back-office/revenue-reports', label: 'reports.backOffice.revenueReports' },
-  { name: 'expense-reports', path: '/reports/back-office/expense-reports', label: 'reports.backOffice.expenseReports' },
-  { name: 'accounts-receivable', path: '/reports/back-office/accounts-receivable', label: 'reports.backOffice.accountsReceivable' },
-  { name: 'accounts-payable', path: '/reports/back-office/accounts-payable', label: 'reports.backOffice.accountsPayable' },
-  { name: 'cashier-reports', path: '/reports/back-office/cashier-reports', label: 'reports.backOffice.cashierReports' },
-  { name: 'financial-summary', path: '/reports/back-office/financial-summary', label: 'reports.backOffice.financialSummary' },
-  { name: 'payment-report', path: '/reports/back-office/payment-report', label: 'reports.backOffice.paymentReport' } */
   { name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
   { name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
   { name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
@@ -421,8 +490,6 @@ const backOfficeReports = ref([
 
 // Audit Reports
 const auditReports = ref([
-/*   { name: 'user-activity-log', path: '/reports/audit/user-activity-log', label: 'reports.audit.userActivityLog' },
-  { name: 'modification-log', path: '/reports/audit/modification-log', label: 'reports.audit.modificationLog' } */
   { name: 'audit-trail', path: '/reports/audit/audit-trail', label: 'reports.audit.auditTrail' },
   { name: 'ip-report', path: '/reports/audit/ip-report', label: 'reports.audit.ipReport' },
   { name: 'void-charge', path: '/reports/audit/void-charge', label: 'reports.audit.voidCharge' },
@@ -432,11 +499,6 @@ const auditReports = ref([
 
 // Statistical Reports
 const statisticalReports = ref([
-  /* { name: 'occupancy-reports', path: '/reports/statistical/occupancy-reports', label: 'reports.statistical.occupancyReports' },
-  { name: 'adr-report', path: '/reports/statistical/adr-report', label: 'reports.statistical.adrReport' },
-  { name: 'revpar-report', path: '/reports/statistical/revpar-report', label: 'reports.statistical.revparReport' },
-  { name: 'market-segment-analysis', path: '/reports/statistical/market-segment-analysis', label: 'reports.statistical.marketSegmentAnalysis' },
-  { name: 'source-of-business-report', path: '/reports/statistical/source-of-business-report', label: 'reports.statistical.sourceOfBusinessReport' }, */
   { name: 'business-analysis', path: '/reports/statistical/business-analysis', label: 'reports.statistical.businessAnalysis' },
   { name: 'contribution-analysis-report', path: '/reports/statistical/contribution-analysis-report', label: 'reports.statistical.contributionAnalysisReport' },
   { name: 'monthly-country-wise-pax-analysis', path: '/reports/statistical/monthly-country-wise-pax-analysis', label: 'reports.statistical.monthlyCountryWisePaxAnalysis' },
@@ -452,7 +514,7 @@ const statisticalReports = ref([
   { name: 'channelwise-booking-report', path: '/reports/statistical/channelwise-booking-report', label: 'reports.statistical.channelwiseBookingReport' },
   { name: 'mobile-desktop-wise-reservation-statistics', path: '/reports/statistical/mobile-desktop-wise-reservation-statistics', label: 'reports.statistical.mobileDesktopWiseReservationStatistics' },
   { name: 'ota-wise-monthly-breakdown', path: '/reports/statistical/ota-wise-monthly-breakdown', label: 'reports.statistical.otaWiseMonthlyBreakdown' },
-  { name: 'performance-analysis-report', path: '/reports/statistical/performance-analysis-report', label: 'reports.statistical.performanceAnalysisReport' } 
+  { name: 'performance-analysis-report', path: '/reports/statistical/performance-analysis-report', label: 'reports.statistical.performanceAnalysisReport' }
 ])
 
 // Custom Reports
@@ -463,6 +525,49 @@ const customReports = ref([
   { name: 'revenue-by-rate-type-summary', path: '/reports/custom/revenue-by-rate-type-summary', label: 'reports.custom.revenueByRateTypeSummary' },
   { name: 'statistics-by-room-type', path: '/reports/custom/statistics-by-room-type', label: 'reports.custom.statisticsByRoomType' }
 ])
+
+// Computed properties pour filtrer les rapports selon les permissions
+const filteredReservationReports = computed(() => {
+  return reservationReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredFrontOfficeReports = computed(() => {
+  return frontOfficeReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredBackOfficeReports = computed(() => {
+  return backOfficeReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredAuditReports = computed(() => {
+  return auditReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredStatisticalReports = computed(() => {
+  return statisticalReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredCustomReports = computed(() => {
+  return customReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
 
 const toggleSection = (section: string) => {
   openSections.value[section] = !openSections.value[section]
