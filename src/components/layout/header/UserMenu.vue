@@ -70,9 +70,7 @@
        {{$t('SignOut')}}
       </router-link>
 
-      <div class="mt-4 border-t border-gray-900 pt-4">
-          <ServiceSwitcher  />
-      </div>
+
     </div>
 
     <!-- Dropdown End v-if="user?.service?.length" -->
