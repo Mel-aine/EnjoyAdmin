@@ -11,30 +11,26 @@
       </div>
 
       <!-- Filters -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div class=" p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Report Date -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Report Date
-            </label>
             <InputDatepicker 
               v-model="filters.reportDate" 
               placeholder="Select date"
               class="w-full"
+              :title="t('asOnDate')"
             />
           </div>
 
           <!-- Room Type -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Room Type
-            </label>
             <Select 
               v-model="filters.roomType"
               :options="roomTypeOptions"
               :placeholder="'All Room Types'"
               class="w-full"
+              :lb="t('roomType')"
             />
           </div>
         </div>
@@ -106,7 +102,7 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { getRevenueByRoomTypePdfUrl } from '@/services/occupancyReportsApi'
-import { getRoomTypes } from '@/services/configrationApi'
+import { getRoomTypes } from '../../../services/roomTypeApi'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -115,16 +111,6 @@ const serviceStore = useServiceStore()
 interface FilterOptions {
   value: string;
   label: string;
-}
-
-interface ReportItem {
-  roomType: string;
-  totalRooms: number;
-  roomsSold: number;
-  revenue: number;
-  averageRate: number;
-  occupancyRate: number;
-  isTotal?: boolean;
 }
 
 interface Filters {
@@ -144,18 +130,25 @@ const filters = ref<Filters>({
 })
 
 // Options for room type selection
-const roomTypeOptions = ref<FilterOptions[]>([])
+const roomTypeOptions = ref<FilterOptions[]>([
+  
+  { value: '', label: 'All room types' }
+])
 
 const loadRoomTypes = async () => {
   try {
-    const response = await getRoomTypes()
-    if (response.data && response.data.data) {
-      const apiRoomTypes = response.data.data.map((roomType: any) => ({
-        value: roomType.id.toString(),
+    const response = await getRoomTypes(serviceStore.serviceId!);
+    console.log('response', response)
+      const apiRoomTypes = (response.data?.data?.data || []).map((roomType: any) => ({
+        value: roomType.id,
         label: roomType.name
       }))
-      roomTypeOptions.value = apiRoomTypes
-    }
+
+      roomTypeOptions.value = [
+        { value: '', label: 'All room types' },
+        ...apiRoomTypes
+      ]
+    
   } catch (error) {
     console.error('Error loading room types:', error)
   }
@@ -165,8 +158,8 @@ const loadRoomTypes = async () => {
 // Computed properties for PDF generation
 const currentParams = computed(() => ({
   hotelId: serviceStore.serviceId!,
-  reportDate: filters.value.reportDate,
-  roomType: filters.value.roomType
+  asOnDate: filters.value.reportDate,
+  roomTypeId: filters.value.roomType
 }))
 
 const reportTitle = computed(() => {

@@ -547,6 +547,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Custom Reports
+    {
+      path: '/reports/custom/monthly-revenue',
+      name: 'MonthlyRevenu',
+      component: () => import('../views/Reports/Custom/MonthlyRevenu.vue'),
+      meta: {
+        title: 'MonthRevenu',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/pdf-viewer',
       name: 'PDFViewer',

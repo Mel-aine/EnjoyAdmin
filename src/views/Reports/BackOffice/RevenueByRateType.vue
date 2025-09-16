@@ -11,30 +11,26 @@
       </div>
 
       <!-- Filters -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div class=" p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Report Date -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Report Date
-            </label>
             <InputDatepicker 
               v-model="filters.reportDate" 
               placeholder="Select date"
               class="w-full"
+              :title="t('asOnDate')"
             />
           </div>
 
           <!-- Rate Type -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate Type
-            </label>
             <Select 
               v-model="filters.rateType"
               :options="rateTypeOptions"
               :placeholder="'All Rate Types'"
               class="w-full"
+              :lb="t('Rate Type')"
             />
           </div>
         </div>
@@ -132,14 +128,10 @@ interface Filters {
   rateType: string;
 }
 
-const hotelName = ref<string>('Hotel HuzzR')
 const showResults = ref<boolean>(false)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const pdfUrl = ref('')
-
-// Get current service from store
-const currentService = computed(() => serviceStore.getCurrentService)
 
 const filters = ref<Filters>({
   reportDate: new Date().toISOString().split('T')[0],
@@ -154,60 +146,32 @@ const rateTypeOptions = ref<FilterOptions[]>([
 const loadRateTypes = async () => {
   try {
     const response = await getRateTypes()
-    if (response.data && response.data.data) {
-      const apiRateTypes = response.data.data.map((rateType: any) => ({
-        value: rateType.id.toString(),
-        label: rateType.name
+    console.log('response rate type', response)
+      const apiRateTypes = (response.data?.data?.data || []) .map((rateType: any) => ({
+        value: rateType.id,
+        label: rateType.rateTypeName
       }))
       rateTypeOptions.value = [
         { value: '', label: 'All Rate Types' },
         ...apiRateTypes
       ]
-    }
+    
   } catch (error) {
     console.error('Error loading rate types:', error)
   }
 }
 
-// Sample report data
-const reportData = ref<ReportItem[]>([
-  { rateType: 'Standard Rate', roomsSold: 45, revenue: 67500, averageRate: 1500, percentage: 45.2 },
-  { rateType: 'Corporate Rate', roomsSold: 28, revenue: 39200, averageRate: 1400, percentage: 26.3 },
-  { rateType: 'Government Rate', roomsSold: 15, revenue: 18000, averageRate: 1200, percentage: 12.1 },
-  { rateType: 'Group Rate', roomsSold: 12, revenue: 14400, averageRate: 1200, percentage: 9.7 },
-  { rateType: 'Promotional Rate', roomsSold: 8, revenue: 9600, averageRate: 1200, percentage: 6.7 },
-  { rateType: 'Total', roomsSold: 108, revenue: 148700, averageRate: 1377, percentage: 100, isTotal: true }
-])
+
 
 // Computed properties for PDF generation
 const currentParams = computed(() => ({
   hotelId: serviceStore.serviceId!,
-  reportDate: filters.value.reportDate,
-  rateType: filters.value.rateType
+  asOnDate: filters.value.reportDate,
+  rateTypeId: filters.value.rateType
 }))
 
 const reportTitle = computed(() => {
   return `Revenue_By_Rate_Type_Report_${filters.value.reportDate}`
-})
-
-// Computed properties for ResultTable
-const tableColumns = computed(() => [
-  { key: 'rateType', label: 'Rate Type' },
-  { key: 'roomsSold', label: 'Rooms Sold' },
-  { key: 'revenue', label: `Revenue (${currentService.value?.currency || 'XAF'})` },
-  { key: 'averageRate', label: `Average Rate (${currentService.value?.currency || 'XAF'})` },
-  { key: 'percentage', label: 'Percentage (%)' }
-])
-
-const revenueReportData = computed(() => {
-  return reportData.value.map(item => ({
-    rateType: item.rateType,
-    roomsSold: item.roomsSold.toString(),
-    revenue: formatAmount(item.revenue),
-    averageRate: formatAmount(item.averageRate),
-    percentage: `${item.percentage}%`,
-    _rowClass: item.isTotal ? 'font-bold bg-blue-50 dark:bg-blue-900 border-t border-b border-blue-300 dark:border-blue-600' : ''
-  }))
 })
 
 // Methods
@@ -264,14 +228,6 @@ const cleanup = () => {
   if (pdfUrl.value) {
     URL.revokeObjectURL(pdfUrl.value)
   }
-}
-
-const formatAmount = (amount: number): string => {
-  if (amount === 0) return '0'
-  return amount.toLocaleString('en-IN', { 
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0 
-  })
 }
 
 // Initialize component

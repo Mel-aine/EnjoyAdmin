@@ -108,7 +108,6 @@ export const getMonthlyOccupancyPDFUrl = async (params: MonthlyOccupancyParams):
     throw error
   }
 }
-
 /**
  * Download Monthly Occupancy PDF
  * 
@@ -456,6 +455,54 @@ export const getRevenueByRoomTypePdfUrl = async (data: any): Promise<string> => 
     return URL.createObjectURL(pdfBlob)
   } catch (error) {
     console.error('Error creating revenue by room type PDF URL:', error)
+    throw error
+  }
+}
+
+export const getMonthlyRevenuePDFUrl = async (params: MonthlyOccupancyParams): Promise<string> => {
+  try {
+    const pdfBlob = await getMonthlyRevenuPDF(params)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating PDF URL:', error)
+    throw error
+  }
+}
+
+export const getMonthlyRevenuPDF = async (params: MonthlyOccupancyParams): Promise<Blob> => {
+  try {
+    const queryParams = new URLSearchParams()
+
+    // Add required month parameter
+    queryParams.append('month', params.month.toString())
+
+    // Add optional parameters if they exist
+    if (params.year) {
+      queryParams.append('year', params.year.toString())
+    }
+    if (params.hotelId) {
+      queryParams.append('hotelId', params.hotelId.toString())
+    }
+
+    const url = `${API_URL}/monthly-revenue-pdf?${queryParams.toString()}`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching monthly occupancy PDF:', error)
     throw error
   }
 }
