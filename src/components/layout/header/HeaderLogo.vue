@@ -1,5 +1,5 @@
 <template>
-  <router-link to="/" class="lg:hidden flex items-center gap-2">
+  <router-link to="/front-office/dashboard" class="lg:hidden flex items-center gap-2">
   <!-- Logo en mode clair -->
   <img class="dark:hidden rounded-full w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
 

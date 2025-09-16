@@ -26,7 +26,7 @@
         </p>
         <div class="space-y-2">
           <router-link
-            v-for="report in reservationReports"
+            v-for="report in filteredReservationReports"
             :key="report.name"
             :to="report.path"
             class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -49,7 +49,7 @@
         </p>
         <div class="space-y-2">
           <router-link
-            v-for="report in frontOfficeReports"
+            v-for="report in filteredFrontOfficeReports"
             :key="report.name"
             :to="report.path"
             class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -72,7 +72,7 @@
         </p>
         <div class="space-y-2">
           <router-link
-            v-for="report in backOfficeReports"
+            v-for="report in filteredBackOfficeReports"
             :key="report.name"
             :to="report.path"
             class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -95,7 +95,7 @@
         </p>
         <div class="space-y-2">
           <router-link
-            v-for="report in auditReports"
+            v-for="report in filteredAuditReports"
             :key="report.name"
             :to="report.path"
             class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -118,7 +118,7 @@
         </p>
         <div class="space-y-2">
           <router-link
-            v-for="report in statisticalReports"
+            v-for="report in filteredStatisticalReports"
             :key="report.name"
             :to="report.path"
             class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -141,7 +141,7 @@
         </p>
         <div class="space-y-2">
           <router-link
-            v-for="report in customReports"
+            v-for="report in filteredCustomReports"
             :key="report.name"
             :to="report.path"
             class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -158,9 +158,91 @@
 <script setup lang="ts">
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { CalenderIcon, HomeIcon, BarChartIcon, CheckIcon, PieChartIcon, SettingsIcon } from '@/icons'
+import { useAuthStore } from '@/composables/user'
+import { ref, computed } from 'vue'
 
+const authStore = useAuthStore()
+
+
+// Mapping des noms de rapports vers les permissions
+const reportPermissions = {
+  // Reservation Reports
+  'arrival-list': 'arrival_list',
+  'departure-list': 'departure_list',
+  'cancelled-reservations': 'cancelled_reservations',
+  'no-show-reservations': 'no_show_reservations',
+  'country-wise-reservation-statistics': 'country_wise_reservation_statistics',
+  'release-reservation-list': 'release_reservation_list',
+  'reservation-activity': 'reservation_activity',
+  'void-reservation': 'void_reservations',
+
+  // Front Office Reports
+  'guest-checked-in': 'guest_checked_in',
+  'guest-checked-out': 'guest_checked_out',
+  'guest-list': 'guest_list',
+  'guest-message': 'guest_message',
+  'inclusion-report': 'inclusion_report',
+  'inventory-by-room-type': 'inventory_by_room_type',
+  'invoice-breakdown': 'invoice_breakdown',
+  'night-audit': 'night_audit',
+  'pickup-dropoff': 'pickup_dropoff',
+  'room-availability': 'room_availability',
+  'room-status-report': 'room_status_report',
+  'task-list-report': 'task_list_report',
+
+  // Back Office Reports
+  'advance-deposit-ledger': 'advance_deposit_ledger',
+  'city-ledger-detail': 'city_ledger_detail',
+  'city-ledger-summary': 'city_ledger_summary',
+  'daily-extra-charge-detail': 'daily_extra_charge_detail',
+  'daily-receipt-detail': 'daily_receipt_detail',
+  'daily-receipt-summary': 'daily_receipt_summary',
+  'daily-refund-report': 'daily_refund_report',
+  'daily-revenue': 'daily_revenue',
+  'expense-voucher': 'expense_voucher',
+  'folio-list': 'folio_list',
+  'guest-ledger': 'guest_ledger',
+  'house-status': 'house_status',
+  'manager-report': 'manager_report',
+  'revenue-by-rate-type': 'revenue_by_rate_type',
+  'revenue-by-room-type': 'revenue_by_room_type',
+  'travel-agent-commission-detail': 'travel_agent_commission_detail',
+  'travel-agent-commission-summary': 'travel_agent_commission_summary',
+
+  // Audit Reports
+  'audit-trail': 'audit_trail',
+  'ip-report': 'ip_report',
+  'void-charge': 'void_charge',
+  'void-payment': 'void_payment',
+  'void-transaction': 'void_transaction',
+
+  // Statistical Reports
+  'business-analysis': 'business_analysis',
+  'contribution-analysis-report': 'contribution_analysis_report',
+  'monthly-country-wise-pax-analysis': 'monthly_country_wise_pax_analysis',
+  'monthly-revenue-by-income-stream': 'monthly_revenue_by_income_stream',
+  'monthly-statistics': 'monthly_statistics',
+  'monthly-summary': 'monthly_summary',
+  'monthly-tax': 'monthly_tax',
+  'room-sale-statistics': 'room_sale_statistics',
+  'room-statistics': 'room_statistics',
+  'room-on-books': 'room_on_books',
+  'yearly-statistics': 'yearly_statistics',
+  'booking-source-wise-reservation-statistics': 'booking_source_wise_reservation_statistics',
+  'channelwise-booking-report': 'channelwise_booking_report',
+  'mobile-desktop-wise-reservation-statistics': 'mobile_desktop_wise_reservation_statistics',
+  'ota-wise-monthly-breakdown': 'ota_wise_monthly_breakdown',
+  'performance-analysis-report': 'performance_analysis_report',
+
+  // Custom Reports
+  'monthly-occupancy': 'monthly_occupancy',
+  'monthly-revenue': 'monthly_revenue',
+  'payment-summary': 'payment_summary',
+  'revenue-by-rate-type-summary': 'revenue_by_rate_type_summary',
+  'statistics-by-room-type': 'statistics_by_room_type'
+}
 // Reservation Reports
-const reservationReports = [
+const reservationReports = ref([
   { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList' },
   { name: 'departure-list', path: '/reports/reservation/departure-list', label: 'reports.reservation.departureList' },
   // { name: 'confirmed-reservations', path: '/reports/reservation/confirmed-reservations', label: 'reports.reservation.confirmedReservations' },
@@ -171,10 +253,10 @@ const reservationReports = [
   { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
   { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
   { name: 'void-reservation', path: '/reports/reservation/void-reservation', label: 'reports.reservation.voidReservation' },
-]
+])
 
 // Front Office Reports
-const frontOfficeReports = [
+const frontOfficeReports = ref([
   { name: 'guest-checked-in', path: '/reports/front-office/guest-checked-in', label: 'reports.frontOffice.guestCheckedIn' },
   { name: 'guest-checked-out', path: '/reports/front-office/guest-checked-out', label: 'reports.frontOffice.guestCheckedOut' },
   { name: 'guest-list', path: '/reports/front-office/guest-list', label: 'reports.frontOffice.guestList' },
@@ -188,10 +270,10 @@ const frontOfficeReports = [
   // { name: 'room-service-report', path: '/reports/front-office/room-service-report', label: 'reports.frontOffice.roomServiceReport' },
   { name: 'room-status-report', path: '/reports/front-office/room-status-report', label: 'reports.frontOffice.roomStatusReport' },
   { name: 'task-list-report', path: '/reports/front-office/task-list-report', label: 'reports.frontOffice.taskListReport' }
-]
+])
 
 // Back Office Reports
-const backOfficeReports = [
+const backOfficeReports = ref([
  /*   { name: 'revenue-reports', path: '/reports/back-office/revenue-reports', label: 'reports.backOffice.revenueReports' },
   { name: 'expense-reports', path: '/reports/back-office/expense-reports', label: 'reports.backOffice.expenseReports' },
   { name: 'accounts-receivable', path: '/reports/back-office/accounts-receivable', label: 'reports.backOffice.accountsReceivable' },
@@ -216,10 +298,10 @@ const backOfficeReports = [
   { name: 'revenue-by-room-type', path: '/reports/back-office/revenue-by-room-type', label: 'reports.backOffice.revenueByRoomType' },
   { name: 'travel-agent-commission-detail', path: '/reports/back-office/travel-agent-commission-detail', label: 'reports.backOffice.travelAgentCommissionDetail' },
   { name: 'travel-agent-commission-summary', path: '/reports/back-office/travel-agent-commission-summary', label: 'reports.backOffice.travelAgentCommissionSummary' }
-]
+])
 
 // Audit Reports
-const auditReports = [
+const auditReports = ref([
   /*   { name: 'user-activity-log', path: '/reports/audit/user-activity-log', label: 'reports.audit.userActivityLog' },
   { name: 'modification-log', path: '/reports/audit/modification-log', label: 'reports.audit.modificationLog' } */
   { name: 'audit-trail', path: '/reports/audit/audit-trail', label: 'reports.audit.auditTrail' },
@@ -227,10 +309,10 @@ const auditReports = [
   { name: 'void-charge', path: '/reports/audit/void-charge', label: 'reports.audit.voidCharge' },
   { name: 'void-payment', path: '/reports/audit/void-payment', label: 'reports.audit.voidPayment' },
   { name: 'void-transaction', path: '/reports/audit/void-transaction', label: 'reports.audit.voidTransaction' },
-]
+])
 
 // Statistical Reports
-const statisticalReports = [
+const statisticalReports = ref([
     /* { name: 'occupancy-reports', path: '/reports/statistical/occupancy-reports', label: 'reports.statistical.occupancyReports' },
   { name: 'adr-report', path: '/reports/statistical/adr-report', label: 'reports.statistical.adrReport' },
   { name: 'revpar-report', path: '/reports/statistical/revpar-report', label: 'reports.statistical.revparReport' },
@@ -252,14 +334,58 @@ const statisticalReports = [
   { name: 'mobile-desktop-wise-reservation-statistics', path: '/reports/statistical/mobile-desktop-wise-reservation-statistics', label: 'reports.statistical.mobileDesktopWiseReservationStatistics' },
   { name: 'ota-wise-monthly-breakdown', path: '/reports/statistical/ota-wise-monthly-breakdown', label: 'reports.statistical.otaWiseMonthlyBreakdown' },
   { name: 'performance-analysis-report', path: '/reports/statistical/performance-analysis-report', label: 'reports.statistical.performanceAnalysisReport' }
-]
+])
 
 // Custom Reports
-const customReports = [
+const customReports = ref([
   { name: 'monthly-occupancy', path: '/reports/custom/monthly-occupancy', label: 'reports.custom.monthlyOccupancy' },
   { name: 'monthly-revenue', path: '/reports/custom/monthly-revenue', label: 'reports.custom.monthlyRevenue' },
   { name: 'payment-summary', path: '/reports/custom/payment-summary', label: 'reports.custom.paymentSummary' },
   { name: 'revenue-by-rate-type-summary', path: '/reports/custom/revenue-by-rate-type-summary', label: 'reports.custom.revenueByRateTypeSummary' },
   { name: 'statistics-by-room-type', path: '/reports/custom/statistics-by-room-type', label: 'reports.custom.statisticsByRoomType' }
-]
+])
+
+
+// Computed properties pour filtrer les rapports selon les permissions
+const filteredReservationReports = computed(() => {
+  return reservationReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredFrontOfficeReports = computed(() => {
+  return frontOfficeReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredBackOfficeReports = computed(() => {
+  return backOfficeReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredAuditReports = computed(() => {
+  return auditReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredStatisticalReports = computed(() => {
+  return statisticalReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredCustomReports = computed(() => {
+  return customReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
 </script>

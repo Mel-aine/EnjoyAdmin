@@ -307,11 +307,7 @@ const handleSubmit = async () => {
         const service = userServices[0];
         serviceStore.setServiceId(service.id);
         serviceStore.setCurrentService(service);
-
-        const rawCategory = service?.category;
-        const categoryName = typeof rawCategory === 'object' ? rawCategory.categoryName : rawCategory;
-        serviceStore.setServiceCategory(categoryName);
-        router.push('/welcome');
+        router.push('/front-office/dashboard');
       } else {
         // Aucun service : afficher une erreur
         error.value = "Aucun service disponible pour cet utilisateur.";
