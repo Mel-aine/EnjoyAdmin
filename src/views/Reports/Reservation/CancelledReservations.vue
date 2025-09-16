@@ -727,7 +727,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', apiFilters.value)
-    const result = await exportData('csv','cancelledList','cancelled-reservations', apiFilters.value)
+    const result = await exportData('csv','cancelledReservations','cancelled', apiFilters.value)
     console.log('Résultat export CSV:', result)
   } catch (error) {
     console.error('Erreur détaillée CSV:', error)
@@ -741,7 +741,7 @@ const exportPDF = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export PDF avec filtres:', apiFilters.value)
-    const result = await exportData('pdf', 'cancelledList','cancelled-reservations', apiFilters.value)
+    const result = await exportData('pdf', 'cancelledReservations','cancelled', apiFilters.value)
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
@@ -755,7 +755,7 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export Excel avec filtres:', apiFilters.value)
-    const result = await exportData('excel', 'cancelledList','cancelled-reservations', apiFilters.value)
+    const result = await exportData('excel', 'cancelledReservations','cancelled', apiFilters.value)
     console.log('Résultat export Excel:', result)
   } catch (error) {
     console.error('Erreur détaillée Excel:', error)

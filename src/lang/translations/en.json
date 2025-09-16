@@ -1752,7 +1752,29 @@
     "less": "Less Than",
     "ascending": "Ascending",
     "descending": "Descending",
-    "sendEmail": "Send Email"
+    "sendEmail": "Send Email",
+    "filters": "Filters",
+    "from": "From",
+    "to": "To",
+    "company": "Company",
+    "select": "Select",
+    "roomType": "Room Type",
+    "travelAgent": "Travel Agent",
+    "rateType": "Rate Type",
+    "businessSource": "Business Source",
+    "market": "Market",
+    "user": "User",
+    "reservationType": "Reservation Type",
+    "export": "Export",
+    "report": "Report",
+    "reset": "Reset",
+    "generated": "Generated",
+    "default": "Default",
+    "reportTemplates": {
+      "detailed": "Detailed",
+      "summary": "Summary",
+      "financial": "Financial"
+    }
   },
   "schedule": {
     "title": "Staff Schedule",
@@ -3820,7 +3842,17 @@
       "countryWiseReservationStatistics": "Country Wise Reservation Statistics",
       "releaseReservationList": "Release Reservation List",
       "reservationActivity": "Reservation Activity",
-      "voidReservation": "Void Reservations"
+      "voidReservation": "Void Reservations",
+      "departureList": "Departure List",
+      "departure": "Departure",
+      "rateFrom": "Rate From",
+      "showAmount": "Show Amount",
+      "rentPerNight": "Rent per Night",
+      "totalAmount": "Total Amount",
+      "departureResults": "Departure Results",
+      "totalReservations": "Total Reservations",
+      "totalPax": "Total Guests",
+      "taxInclusiveRates": "Tax Inclusive Rates"
     },
     "frontOffice": {
       "title": "Front Office Reports",
@@ -4598,6 +4630,7 @@
         "no": "No",
         "never": "Never",
         "migrating": "Migrating"
+        
       }
     },
     "payment_method": {

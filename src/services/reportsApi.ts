@@ -378,7 +378,7 @@ export const generateSourceOfBusinessReport = async (filters: ReportFilters = {}
   }
 }
 // Export
-export const exportData= async (
+export const exportData = async (
   format: 'csv' | 'pdf' | 'excel' = 'csv',
   reportTypes: string,
   URL_TYPE: string,
@@ -394,76 +394,160 @@ export const exportData= async (
       },
       {
         ...headers,
-        responseType: 'blob' // Toujours utiliser blob pour tous les formats
+        responseType: 'blob'
       }
     )
 
-    // Créer le blob à partir de la réponse
-    const blob = new Blob([response.data])
-    
-    // Déterminer le type MIME et l'extension en fonction du format
-    let mimeType, fileExtension
-    switch (format) {
-      case 'csv':
-        mimeType = 'text/csv'
-        fileExtension = 'csv'
-        break
-      case 'pdf':
-        mimeType = 'application/pdf'
-        fileExtension = 'pdf'
-        break
-      case 'excel':
-        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        fileExtension = 'xlsx'
-        break
-      default:
-        mimeType = 'text/csv'
-        fileExtension = 'csv'
+    // Vérification de base que nous avons des données
+    if (!response.data) {
+      throw new Error('Aucune donnée reçue du serveur');
     }
 
-    // Créer le blob avec le bon type MIME
-    const formattedBlob = new Blob([response.data], { type: mimeType })
-    const url = window.URL.createObjectURL(formattedBlob)
-    const link = document.createElement('a')
+    // DEBUG: Informations utiles pour le débogage
+    console.log('Headers de réponse:', response.headers);
+    console.log('Taille des données:', response.data.size);
+    console.log('Type de contenu:', response.headers['content-type']);
+
+    // Pour PDF, ne pas essayer de valider le blob immédiatement
+    // Créer le blob avec le type MIME correct
+    const blob = new Blob([response.data], { 
+      type: response.headers['content-type'] || getMimeType(format)
+    });
     
-    // Générer un nom de fichier avec timestamp
-    const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '')
-    link.setAttribute('download', `arrival_list_${timestamp}.${fileExtension}`)
-    
-    link.href = url
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(url)
+    // Télécharger le fichier sans validation préalable pour PDF
+    const filename = `${reportTypes}_${new Date().toISOString().split('T')[0]}.${getFileExtension(format)}`;
+    downloadFile(blob, filename);
     
     return { 
       success: true, 
       message: `Fichier ${format.toUpperCase()} téléchargé avec succès` 
-    }
+    };
   } catch (error) {
-    console.error('Erreur détaillée lors de l\'export:', error)
+    console.error('Erreur détaillée lors de l\'export:', error);
     
-    // Gestion spécifique des erreurs 400
+    // Gestion des erreurs
     if (error.response?.status === 400) {
-      // Essayer de lire le message d'erreur du blob
       try {
-        const errorData = await error.response.data.text()
-        const errorJson = JSON.parse(errorData)
-        throw {
-          message: errorJson.message || 'Erreur de validation des paramètres',
-          error: errorJson.error || 'Bad Request'
+        // Essayer de lire le message d'erreur du backend
+        const errorText = await error.response.data.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.message || 'Erreur de validation des paramètres');
+        } catch {
+          throw new Error(errorText || 'Erreur de validation');
         }
       } catch (parseError) {
-        throw {
-          message: 'Erreur de format de réponse du serveur',
-          error: 'Invalid server response format'
-        }
+        throw new Error('Erreur de format de réponse du serveur');
       }
     }
     
-    handleApiError(error)
+    throw error;
   }
-}
+};
+
+// Fonctions utilitaires
+const getMimeType = (format: string): string => {
+  const mimeTypes = {
+    'pdf': 'application/pdf',
+    'csv': 'text/csv',
+    'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  };
+  return mimeTypes[format] || 'application/octet-stream';
+};
+
+const getFileExtension = (format: string): string => {
+  const extensions = {
+    'pdf': 'pdf',
+    'csv': 'csv',
+    'excel': 'xlsx'
+  };
+  return extensions[format] || 'bin';
+};
+
+// Fonctions utilitaires
+const getFileInfo = (format: string): { mimeType: string; fileExtension: string } => {
+  switch (format) {
+    case 'csv':
+      return { 
+        mimeType: 'text/csv; charset=utf-8', 
+        fileExtension: 'csv' 
+      };
+    case 'pdf':
+      return { 
+        mimeType: 'application/pdf', 
+        fileExtension: 'pdf' 
+      };
+    case 'excel':
+      return { 
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+        fileExtension: 'xlsx' 
+      };
+    default:
+      return { 
+        mimeType: 'text/csv; charset=utf-8', 
+        fileExtension: 'csv' 
+      };
+  }
+};
+
+const downloadFile = (blob: Blob, filename: string) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+// Validation spécifique pour les PDF
+const validatePdfBlob = async (blob: Blob): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Vérifier la taille minimale d'un PDF (au moins 100 bytes)
+    if (blob.size < 100) {
+      reject(new Error('Le fichier PDF est trop petit et probablement corrompu'));
+      return;
+    }
+
+    // Lire les premiers bytes pour vérifier le header PDF
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const arrayBuffer = e.target?.result as ArrayBuffer;
+      const uint8Array = new Uint8Array(arrayBuffer.slice(0, 5));
+      
+      // Vérifier le header PDF (%PDF-)
+      const header = Array.from(uint8Array).map(byte => 
+        String.fromCharCode(byte)).join('');
+      
+      if (!header.startsWith('%PDF-')) {
+        reject(new Error('Le fichier ne semble pas être un PDF valide'));
+        return;
+      }
+      
+      resolve();
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Impossible de lire le fichier PDF'));
+    };
+    
+    reader.readAsArrayBuffer(blob.slice(0, 1024)); // Lire seulement les premiers 1KB
+  });
+};
+
+// Alternative: Vérification plus simple
+const quickPdfValidation = (blob: Blob): boolean => {
+  // Un PDF valide doit avoir une certaine taille
+  if (blob.size < 100) return false;
+  
+  // Vérifier le type MIME
+  if (!blob.type.includes('pdf')) {
+    console.warn('Type MIME inattendu pour PDF:', blob.type);
+  }
+  
+  return true;
+};
 
 
 // Générer un rapport personnalisé

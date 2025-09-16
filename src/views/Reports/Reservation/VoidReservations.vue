@@ -5,9 +5,6 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Void Reservations
         </h1>
-       <!--  <p class="text-gray-600 dark:text-gray-400">
-          View and manage cancelled guest reservations
-        </p> -->
       </div>
 
       <!-- Filters -->
@@ -26,6 +23,7 @@
               v-model="filters.arrivalFrom" 
               placeholder="From"
               class="w-full"
+              @update:modelValue="updateDateFilter('startDate', $event)"
             />
           </div>
           <div>
@@ -36,94 +34,17 @@
               v-model="filters.arrivalTo" 
               placeholder="To"
               class="w-full"
+              @update:modelValue="updateDateFilter('endDate', $event)"
             />
           </div>
-<!--           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Room Type
-            </label>
-            <SelectComponent 
-              v-model="filters.roomType"
-              :options="roomTypeOptions"
-              placeholder="All Room Types"
-              class="w-full"
-            />
-          </div> -->
         </div>
 
-        <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-           Rate Type
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate Type
-            </label>
-            <SelectComponent 
-              v-model="filters.rateType"
-              :options="rateTypeOptions"
-              placeholder="All Rate Types"
-              class="w-full"
-            />
-          </div>
-          
-          Company
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Company
-            </label>
-            <SelectComponent 
-              v-model="filters.company"
-              :options="companyOptions"
-              placeholder="All Companies"
-              class="w-full"
-            />
-          </div>
-          
-          Business Source 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Business Source
-            </label>
-            <SelectComponent 
-              v-model="filters.businessSource"
-              :options="businessSourceOptions"
-              placeholder="All Sources"
-              class="w-full"
-            />
-          </div>
-        </div> -->
-<!-- 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-           Travel Agent
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Travel Agent
-            </label>
-            <SelectComponent 
-              v-model="filters.travelAgent"
-              :options="travelAgentOptions"
-              placeholder="All Travel Agents"
-              class="w-full"
-            />
-          </div>
-           Tax Inclusive 
-          <div class="flex items-end">
-            <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <input 
-                v-model="filters.taxInclusive" 
-                type="checkbox"
-                class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-              />
-              Tax Inclusive Rates
-            </label>
-          </div>
-        </div> -->
-
+        <!-- Report Template -->
         <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
-          <!-- Report Template (déplacé à gauche) -->
+          <!-- Report Template -->
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Template</label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
-              
               <SelectComponent 
                 v-model="filters.reportTemplate"
                 :options="reportTemplateOptions"
@@ -142,93 +63,152 @@
             </div>
           </div>
 
-          <!-- Action Buttons (restent à droite) -->
+          <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <ButtonComponent 
-              @click="exportData"
-              variant="secondary"
-              class="min-w-24 w-full sm:w-auto"
-            >
-              Export
-            </ButtonComponent>
+            <!-- Export Button with dropdown -->
+            <div class="relative">
+              <button
+                @click="toggleExportMenu"
+                :disabled="exportLoading"
+                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+              >
+                <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="!exportLoading">Export</span>
+                <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              
+              <!-- Export Dropdown Menu -->
+              <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+                <button 
+                  @click="exportCSV" 
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  :disabled="exportLoading"
+                >
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  CSV
+                </button>
+                <button 
+                  @click="exportPDF" 
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  :disabled="exportLoading"
+                >
+                  <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  PDF
+                </button>
+                <button 
+                  @click="exportExcel" 
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  :disabled="exportLoading"
+                >
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Excel
+                </button>
+              </div>
+            </div>
             
-            <ButtonComponent 
-              @click="generateReport"
-              variant="primary"
-              class="min-w-24 w-full sm:w-auto"
+            <!-- Report Button -->
+            <button 
+              @click="generateVoidReport"
+              :disabled="loading"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
+              <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
               Report
-            </ButtonComponent>
+            </button>
             
-            <ButtonComponent 
+            <!-- Reset Button -->
+            <button 
               @click="resetForm"
-              variant="outline"
-              class="min-w-24 w-full sm:w-auto"
+              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
             >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               Reset
-            </ButtonComponent>
+            </button>
           </div>
         </div>
-    </div>
+      </div>
 
-      <!-- Results Table -->
+      <!-- Results Table or HTML Report -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <!-- Report header -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Cancelled Reservations Results
+            {{ reportData?.title || 'Void Reservations Results' }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ hotelName }}</span> • 
-            <span>Date From: {{ filters.arrivalFrom }} To {{ filters.arrivalTo }}</span> • 
-            <span>Order By: Room</span> • 
-            <span>Tax Inclusive: {{ filters.taxInclusive ? 'Yes' : 'No' }}</span>
+            <span>Generated: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
           </div>
         </div>
         
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th v-for="column in tableColumns" :key="column.key" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {{ column.label }}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="(item, index) in tableDataWithRemarks" :key="index" :class="{'bg-gray-50 dark:bg-gray-700': item.isRemarkRow}">
-                <td v-for="column in tableColumns" :key="column.key" class="px-6 py-4 whitespace-nowrap text-sm" :class="{'font-medium text-gray-700 dark:text-gray-300': item.isRemarkRow, 'text-gray-900 dark:text-white': !item.isRemarkRow}">
-                  <template v-if="column.key === 'resNo'">
-                    <div :class="{'italic': item.isRemarkRow}">
-                      {{ item[column.key] }}
-                    </div>
-                  </template>
-                  <template v-else-if="column.key === 'bookingDate'">
-                    <div v-if="item.isRemarkRow" class="text-gray-600 dark:text-gray-400 italic">
-                      {{ item[column.key] }}
-                    </div>
-                    <div v-else>
-                      {{ item[column.key] }}
-                    </div>
-                  </template>
-                  <template v-else>
-                    {{ item[column.key] }}
-                  </template>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- HTML Report Content -->
+        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
         
-        <!-- Total Row -->
-        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-          <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>Total Cancelled Reservations: {{ totalReservations }}</div>
-            <div class="flex gap-4">
-              <div>ADR: {{ totalADR }}</div>
-              <div>Car Revenue: {{ totalCarRevenue }}</div>
-              <div>Charges: {{ totalCharges }}</div>
-              <div>Paid: {{ totalPaid }}</div>
-              <div>Balance: {{ totalBalance }}</div>
+        <!-- Fallback if no HTML (normal table display) -->
+        <div v-else>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th v-for="column in tableColumns" :key="column.key" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    {{ column.label }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tr v-for="(item, index) in tableDataWithRemarks" :key="index" :class="{'bg-gray-50 dark:bg-gray-700': item.isRemarkRow}">
+                  <td v-for="column in tableColumns" :key="column.key" class="px-6 py-4 whitespace-nowrap text-sm" :class="{'font-medium text-gray-700 dark:text-gray-300': item.isRemarkRow, 'text-gray-900 dark:text-white': !item.isRemarkRow}">
+                    <template v-if="column.key === 'resNo'">
+                      <div :class="{'italic': item.isRemarkRow}">
+                        {{ item[column.key] }}
+                      </div>
+                    </template>
+                    <template v-else-if="column.key === 'bookingDate'">
+                      <div v-if="item.isRemarkRow" class="text-gray-600 dark:text-gray-400 italic">
+                        {{ item[column.key] }}
+                      </div>
+                      <div v-else>
+                        {{ item[column.key] }}
+                      </div>
+                    </template>
+                    <template v-else>
+                      {{ item[column.key] }}
+                    </template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Total Row -->
+          <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+            <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div>Total Cancelled Reservations: {{ totalReservations }}</div>
+              <div class="flex gap-4">
+                <div>ADR: {{ totalADR }}</div>
+                <div>Car Revenue: {{ totalCarRevenue }}</div>
+                <div>Charges: {{ totalCharges }}</div>
+                <div>Paid: {{ totalPaid }}</div>
+                <div>Balance: {{ totalBalance }}</div>
+              </div>
+            </div>
+            <div v-if="filters.reportTemplate !== 'default'" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Template: {{ getTemplateName(filters.reportTemplate) }}
             </div>
           </div>
         </div>
@@ -236,16 +216,21 @@
     </div>
   </ReportsLayout>
 </template>
+
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-//import ReusableTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { generateVoidList, type ReportFilters, exportData } from '@/services/reportsApi'
+import { useServiceStore } from '@/composables/serviceStore'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
+const serviceStore = useServiceStore()
+const router = useRouter()
+const idHotel = serviceStore.serviceId
 
 interface FilterOptions {
   value: string;
@@ -292,32 +277,44 @@ interface TableRow {
   [key: string]: string | boolean | undefined;
 }
 
-interface Filters {
-  arrivalFrom: string;
-  arrivalTo: string;
-  roomType: string;
-  rateType: string;
-  company: string;
-  travelAgent: string;
-  businessSource: string;
-  taxInclusive: boolean;
-  reportTemplate: string;
+interface ReportData {
+  title: string;
+  html: string;
+  generatedAt: string;
+  filters: any;
 }
 
 const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
+const reportData = ref<ReportData | null>(null)
+const loading = ref<boolean>(false)
+const exportMenuOpen = ref<boolean>(false)
+const exportLoading = ref<boolean>(false)
+const pdfUrl = ref('')
 
-const filters = ref<Filters>({
-  arrivalFrom: '01/04/2020',
-  arrivalTo: '17/04/2020',
-  roomType: '',
-  rateType: '',
-  company: '',
-  travelAgent: '',
-  businessSource: '',
-  taxInclusive: true,
+// API Filters
+const apiFilters = ref<ReportFilters>({
+  startDate: '',
+  endDate: '',
+  hotelId: idHotel !== null ? idHotel : undefined,
   reportTemplate: 'default'
 })
+
+// UI Filters
+const filters = ref({
+  arrivalFrom: '',
+  arrivalTo: '',
+  reportTemplate: 'default'
+})
+
+// Options for report template select
+const reportTemplateOptions = ref<FilterOptions[]>([
+  { value: 'default', label: t('common.default') },
+  { value: 'detailed', label: t('common.reportTemplates.detailed') },
+  { value: 'summary', label: t('common.reportTemplates.summary') },
+  { value: 'financial', label: t('common.reportTemplates.financial') },
+  { value: 'custom', label: t('common.reportTemplates.custom') }
+])
 
 // Table columns configuration
 type ColumnType = "custom" | "image" | "text" | "date" | "email" | "badge" | undefined;
@@ -344,46 +341,6 @@ const tableColumns = computed<TableColumn[]>(() => [
   { key: 'source', label: t('reports.reservation.columns.source'), type: 'custom' },
   { key: 'cancelledBy', label: t('reports.reservation.columns.cancelledBy'), type: 'custom' },
   { key: 'cancelledDate', label: t('reports.reservation.columns.cancelledDate'), type: 'custom' }
-])
-
-// Options for selects
-/* const companyOptions = ref<FilterOptions[]>([
-  { value: 'company1', label: t('common.company1') },
-  { value: 'company2', label: t('common.company2') }
-])
-
-const roomTypeOptions = ref<FilterOptions[]>([
-  { value: 'suite', label: t('common.roomTypes.suite') },
-  { value: 'standard', label: t('common.roomTypes.standard') },
-  { value: 'deluxe', label: t('common.roomTypes.deluxe') }
-])
-
-const rateTypeOptions = ref<FilterOptions[]>([
-  { value: 'manual', label: t('common.rateTypes.manual') },
-  { value: 'breakfast', label: t('common.rateTypes.breakfast') },
-  { value: 'european', label: t('common.rateTypes.european') },
-  { value: 'continental', label: t('common.rateTypes.continental') }
-])
-
-const travelAgentOptions = ref<FilterOptions[]>([
-  { value: 'agent1', label: t('common.travelAgents.agent1') },
-  { value: 'agent2', label: t('common.travelAgents.agent2') }
-])
-
-const businessSourceOptions = ref<FilterOptions[]>([
-  { value: 'online', label: t('common.businessSources.online') },
-  { value: 'phone', label: t('common.businessSources.phone') },
-  { value: 'walk_in', label: t('common.businessSources.walkIn') },
-  { value: 'expedia', label: t('common.businessSources.expedia') },
-  { value: 'internet', label: t('common.businessSources.internet') }
-]) */
-
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: t('common.default') },
-  { value: 'detailed', label: t('common.reportTemplates.detailed') },
-  { value: 'summary', label: t('common.reportTemplates.summary') },
-  { value: 'financial', label: t('common.reportTemplates.financial') },
-  { value: 'custom', label: t('common.reportTemplates.custom') }
 ])
 
 // Sample data for the table
@@ -549,52 +506,174 @@ const totalBalance = computed(() => {
   }, 0).toFixed(2)
 })
 
+const reportTitle = computed(() => {
+  return reportData.value?.title || 'Void Reservations Report'
+})
+
+// Watch for filter changes
+watch(filters, (newFilters) => {
+  apiFilters.value = {
+    ...apiFilters.value,
+    arrivalFrom: newFilters.arrivalFrom,
+    arrivalTo: newFilters.arrivalTo,
+    reportTemplate: newFilters.reportTemplate
+  }
+}, { deep: true })
+
 // Methods
-const generateReport = (): void => {
-  showResults.value = true
-  console.log('Generating report with filters:', filters.value)
+const generateVoidReport = async () => {
+  loading.value = true
+  showResults.value = false
+  
+  try {
+    console.log('Generating void report with filters:', apiFilters.value)
+    const response = await generateVoidList(apiFilters.value)
+    console.log('Report Data:', response)
+    
+    if (response.success && response.data) {
+      reportData.value = response.data
+      showResults.value = true
+    }
+  } catch (error) {
+    console.error('Error generating void report:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
-const exportData = (): void => {
-  console.log('Exporting data...')
+const exportCSV = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export CSV with filters:', apiFilters.value)
+    const result = await exportData('csv', 'voidReservations', 'void-reservations', apiFilters.value)
+    console.log('CSV export result:', result)
+  } catch (error) {
+    console.error('CSV export error:', error)
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportPDF = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    
+    // Clear previous PDF URL
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
+
+    console.log('Export PDF with filters:', apiFilters.value)
+    const result = await exportData('pdf', 'voidReservations', 'void-reservations', apiFilters.value)
+    pdfUrl.value = result?.fileUrl || ''
+    openPDFInNewPage()
+    console.log('PDF export result:', result)
+  } catch (error) {
+    console.error('PDF export error:', error) 
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportExcel = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export Excel with filters:', apiFilters.value)
+    const result = await exportData('excel', 'voidReservations', 'void-reservations', apiFilters.value)
+    console.log('Excel export result:', result)
+  } catch (error) {
+    console.error('Excel export error:', error)
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const updateDateFilter = (field: 'startDate' | 'endDate', value: string) => {
+  if (value) {
+    const date = new Date(value)
+    apiFilters.value[field] = date.toISOString().split('T')[0]
+  } else {
+    apiFilters.value[field] = ''
+  }
+}
+
+const openPDFInNewPage = () => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
+}
+
+const formatDate = (dateString: string): string => {
+  if (!dateString) return ''
+  
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (error) {
+    return dateString
+  }
+}
+
+const getTemplateName = (templateValue: string): string => {
+  const template = reportTemplateOptions.value.find(opt => opt.value === templateValue)
+  return template ? template.label : 'Default'
+}
+
+const editTemplate = (): void => {
+  console.log('Editing template...')
+  // Logic for editing template would go here
 }
 
 const resetForm = (): void => {
   filters.value = {
     arrivalFrom: '',
     arrivalTo: '',
-    roomType: '',
-    rateType: '',
-    company: '',
-    travelAgent: '',
-    businessSource: '',
-    taxInclusive: true,
     reportTemplate: 'default'
   }
   showResults.value = false
+  reportData.value = null
 }
 
-const editTemplate = (): void => {
-  console.log('Editing template...')
+const toggleExportMenu = () => {
+  exportMenuOpen.value = !exportMenuOpen.value
 }
+
+// Close export menu when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.relative')) {
+    exportMenuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .flex-col > div {
-    width: 100%;
-  }
-  
-  .flex-col > div + div {
-    margin-top: 1rem;
-  }
-  
-  .items-end {
-    align-items: stretch;
-  }
-}
-
 /* Custom styling for remark rows */
 :deep(.bg-white.dark\:bg-gray-800.divide-y.divide-gray-200.dark\:divide-gray-600 tr:has([data-remark-row])) {
   background-color: #f9fafb;
@@ -602,5 +681,70 @@ const editTemplate = (): void => {
 
 :deep(.dark .bg-white.dark\:bg-gray-800.divide-y.divide-gray-200.dark\:divide-gray-600 tr:has([data-remark-row])) {
   background-color: #374151;
+}
+
+/* Styles for HTML report content */
+:deep(.report-html-container) {
+  width: 100%;
+}
+
+:deep(.report-html-container table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:deep(.report-html-container th),
+:deep(.report-html-container td) {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+}
+
+:deep(.report-html-container .report-container) {
+  margin: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+:deep(.report-html-container .results-table) {
+  font-size: 12px;
+}
+
+/* Dark mode adaptation */
+.dark :deep(.report-html-container) {
+  color: #e5e7eb;
+}
+
+.dark :deep(.report-html-container .report-container) {
+  background-color: transparent;
+}
+
+.dark :deep(.report-html-container th),
+.dark :deep(.report-html-container td) {
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+/* Export button styles */
+.export-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.export-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.export-button:active {
+  transform: translateY(0);
+}
+
+/* Dropdown menu animation */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

@@ -359,6 +359,7 @@ import { useBooking } from '@/composables/useBooking2'
 import { getCompanies } from '@/services/companyApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
+import { useRouter } from 'vue-router'
 import { getEmployeesForService } from '@/services/userApi'
 
 interface FilterOptions {
@@ -446,6 +447,12 @@ const filters = ref<Filters>({
   selectedColumns: []
 })
 
+
+const pdfUrl = ref('')
+const router = useRouter()
+const reportTitle = computed(() => {
+  return reportData.value?.title || 'Arrival List Report'
+})
 // Options for selects
 const getCompaniesList = async () => {
   try {
@@ -558,6 +565,7 @@ watch(filters, (newFilters) => {
   apiFilters.value = {
     ...apiFilters.value,
     arrivalFrom: newFilters.arrivalFrom,
+    selectedColumns: newFilters.selectedColumns,
     arrivalTo: newFilters.arrivalTo,
     roomTypeId: newFilters.roomType ? parseInt(newFilters.roomType) : undefined,
     ratePlanId: newFilters.rateType ? parseInt(newFilters.rateType) : undefined,
@@ -571,7 +579,6 @@ watch(filters, (newFilters) => {
     reservationType: newFilters.reservationType,
     showAmount: newFilters.showAmount,
     taxInclusive: newFilters.taxInclusive,
-    selectedColumns: newFilters.selectedColumns
   }
 }, { deep: true })
 
@@ -656,11 +663,19 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
+        // Clear previous PDF URL
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
+
     console.log('Export PDF avec filtres:', apiFilters.value)
     const result = await exportData('pdf', 'arrivalList','arrival-list',apiFilters.value)
+    pdfUrl.value = result?.fileUrl || ''
+    openPDFInNewPage()
     console.log('Résultat export PDF:', result)
   } catch (error) {
-    console.error('Erreur détaillée PDF:', error)
+    console.error('Erreur détaillée PDF:', error) 
   } finally {
     exportLoading.value = false
   }
@@ -688,7 +703,19 @@ const updateDateFilter = (field: 'startDate' | 'endDate', value: string) => {
     apiFilters.value[field] = ''
   }
 }
-
+const openPDFInNewPage = () => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
+}
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
   
