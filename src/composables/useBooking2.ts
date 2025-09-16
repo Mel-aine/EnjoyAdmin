@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
@@ -282,7 +282,7 @@ export function useBooking() {
   const BusinessSource = computed(() => businessSourcesLo.value || [])
   const BookingType = computed(() => bookingTypeLo.value || [])
   const MarketCode = computed(() => marketCodesLo.value || [])
-
+  console.log('BookingType',BookingType.value )
   const creditTypes = computed(() => [
     { label: 'Visa', value: 'visa' },
     { label: 'MasterCard', value: 'mastercard' },

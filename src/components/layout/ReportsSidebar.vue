@@ -16,7 +16,7 @@
         'pt-4 pb-4 flex-shrink-0',
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
-        <router-link to="/dashboard" class="flex items-center gap-2">
+        <router-link to="/front-office/dashboard" class="flex items-center gap-2">
           <img v-if="isExpanded || isHovered || isMobileOpen"
             class="dark:hidden rounded-full w-10"
             src="/src/assets/images/header/logo2.png"
