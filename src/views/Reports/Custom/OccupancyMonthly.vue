@@ -156,7 +156,7 @@ const generateReport = async () => {
     errorMessage.value = ''
 
     // Clear previous PDF URL
-    if (pdfUrl.value) {
+    if (pdfUrl.value) { 
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
