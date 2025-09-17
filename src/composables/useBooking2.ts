@@ -740,9 +740,9 @@ const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
 
   if (!isValid) {
     const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
-    toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`)
+    toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`) // Corrected escaping for consistency
     // Optionnel : réinitialiser le numéro de chambre
-    room.roomNumber = ''
+    // room.roomNumber = ''
     return false
   }
 
@@ -751,20 +751,35 @@ const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
 
 const validateAllRooms = () => {
   let isValid = true;
-  const errors = [];
+  const errors: string[] = [];
+  console.log("Validate all rooms called"); 
+  console.log("Room configurations:", JSON.stringify(roomConfigurations.value, null, 2));
 
   for (const room of roomConfigurations.value) {
+    console.log("Checking room:", JSON.stringify(room, null, 2));
     if (room.roomType && room.roomNumber) {
-      const isRoomValid = validateRoomNumberOnChange(room.id, room.roomNumber);
-      console.log(`Validation for Room ID: ${room.id}, Room Number: ${room.roomNumber} - Status: ${isRoomValid ? 'Valid' : 'Invalid'}`);
-      if (!isRoomValid) {
+      const availableRooms = getRoomsForRoom(room.id);
+      const roomExists = availableRooms.some(option =>
+        option.value.toString() === room.roomNumber.toString()
+      );
+
+      console.log(`Validation for Room ID: ${room.id}, Room Number: ${room.roomNumber} - Status: ${roomExists ? 'Valid' : 'Invalid'}`);
+
+      if (!roomExists) {
         isValid = false;
-        errors.push(`Room validation failed for room with ID: ${room.id}`);
+        const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown';
+        errors.push(`Le numéro de chambre "${room.roomNumber}" n'est pas disponible pour le type "${roomTypeName}"`);
       }
+    } else {
+        console.log("Skipping room validation because roomType or roomNumber is missing.");
     }
   }
 
-  return { isValid, errors };
+  console.log("Validation result:", { isValid, errors });
+  return {
+    isValid: isValid,
+    errors: errors
+  };
 };
   //save reservation
   const saveReservation = async () => {

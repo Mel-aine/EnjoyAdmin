@@ -161,6 +161,9 @@
                           @clear-error="emit('clear-error')" />
                       </div> -->
                       <div class="relative">
+  <p v-if="hasInvalidRoomNumber(room.id)" class="text-sm text-red-600 mb-1">
+    {{ $t('invalidRoomNumber') }}
+  </p>
   <AutoCompleteSelect
     v-model="room.roomNumber"
     :options="getRoomsForRoom(room.id)"
@@ -170,16 +173,10 @@
     :use-dropdown="useDropdownRoom"
     :disabled="!room.roomType"
     :isLoading="isLoadingAvailableRooms"
-    @update:modelValue="(value) => {
-      onRoomNumberChange(room);
-      validateRoomNumberOnChange(room.id, value);
-    }"
+    @update:modelValue="onRoomNumberChange(room)"
     @clear-error="emit('clear-error')"
     :class="{ 'border-red-500': hasInvalidRoomNumber(room.id) }"
   />
-  <p v-if="hasInvalidRoomNumber(room.id)" class="text-sm text-red-600 mt-1">
-    {{ $t('invalidRoomNumber') }}
-  </p>
 </div>
 
                       <!-- Adult Count avec gestion des changements -->
