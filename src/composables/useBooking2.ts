@@ -702,6 +702,70 @@ export function useBooking() {
     }
   }
 
+  const validateRoomNumbers = (): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+
+  for (const room of roomConfigurations.value) {
+    if (room.roomType && room.roomNumber) {
+      // Récupérer les options de chambres disponibles pour ce type de chambre
+      const availableRooms = getRoomsForRoom(room.id)
+
+      // Vérifier si le numéro de chambre saisi existe dans les options
+      const roomExists = availableRooms.some(option =>
+        option.value.toString() === room.roomNumber.toString()
+      )
+
+      if (!roomExists) {
+        // Récupérer le nom du type de chambre pour l'erreur
+        const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
+        errors.push(`Le numéro de chambre "${room.roomNumber}" n'est pas disponible pour le type "${roomTypeName}"`)
+      }
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
+}
+
+const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
+  const room = roomConfigurations.value.find(r => r.id === roomId)
+  if (!room || !newRoomNumber) return true
+
+  const availableRooms = getRoomsForRoom(roomId)
+  const isValid = availableRooms.some(option =>
+    option.value.toString() === newRoomNumber.toString()
+  )
+
+  if (!isValid) {
+    const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
+    toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`)
+    // Optionnel : réinitialiser le numéro de chambre
+    room.roomNumber = ''
+    return false
+  }
+
+  return true
+}
+
+const validateAllRooms = () => {
+  let isValid = true;
+  const errors = [];
+
+  for (const room of roomConfigurations.value) {
+    if (room.roomType && room.roomNumber) {
+      const isRoomValid = validateRoomNumberOnChange(room.id, room.roomNumber);
+      console.log(`Validation for Room ID: ${room.id}, Room Number: ${room.roomNumber} - Status: ${isRoomValid ? 'Valid' : 'Invalid'}`);
+      if (!isRoomValid) {
+        isValid = false;
+        errors.push(`Room validation failed for room with ID: ${room.id}`);
+      }
+    }
+  }
+
+  return { isValid, errors };
+};
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true
@@ -722,6 +786,13 @@ export function useBooking() {
       if (!billing.value.paymentMode) {
         throw new Error('veuiller selectionner la methode de paiement')
       }
+
+       const roomValidation = validateAllRooms()
+    if (!roomValidation.isValid) {
+      // Afficher toutes les erreurs de validation des chambres
+      roomValidation.errors.forEach(error => toast.error(error))
+      throw new Error('Validation des numéros de chambre échouée')
+    }
 
       //email client
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -1554,6 +1625,8 @@ watch(() => otherInfo.value.voucherEmail, () => {
     isLoadingAvailableRooms,
     voucherEmailError,
     validateVoucherEmail,
+     validateRoomNumbers,
+  validateRoomNumberOnChange,
 
     // Computed
     numberOfNights,

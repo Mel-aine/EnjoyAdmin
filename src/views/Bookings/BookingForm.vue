@@ -153,13 +153,34 @@
                           @update:modelValue="onRateTypeChange(room.id, $event)" @clear-error="emit('clear-error')" />
                       </div>
 
-                      <div class="relative">
+                      <!-- <div class="relative">
                         <AutoCompleteSelect v-model="room.roomNumber" :options="getRoomsForRoom(room.id)"
                           :defaultValue="$t('SelectRoom')" :lb="$t('Room')" :is-required="false"
                           :use-dropdown="useDropdownRoom" :disabled="!room.roomType"
                           :isLoading="isLoadingAvailableRooms" @update:modelValue="onRoomNumberChange(room)"
                           @clear-error="emit('clear-error')" />
-                      </div>
+                      </div> -->
+                      <div class="relative">
+  <AutoCompleteSelect
+    v-model="room.roomNumber"
+    :options="getRoomsForRoom(room.id)"
+    :defaultValue="$t('SelectRoom')"
+    :lb="$t('Room')"
+    :is-required="false"
+    :use-dropdown="useDropdownRoom"
+    :disabled="!room.roomType"
+    :isLoading="isLoadingAvailableRooms"
+    @update:modelValue="(value) => {
+      onRoomNumberChange(room);
+      validateRoomNumberOnChange(room.id, value);
+    }"
+    @clear-error="emit('clear-error')"
+    :class="{ 'border-red-500': hasInvalidRoomNumber(room.id) }"
+  />
+  <p v-if="hasInvalidRoomNumber(room.id)" class="text-sm text-red-600 mt-1">
+    {{ $t('invalidRoomNumber') }}
+  </p>
+</div>
 
                       <!-- Adult Count avec gestion des changements -->
                       <div>
@@ -635,7 +656,15 @@ const useDropdownRoomType = ref(true)
 const useDropdownRateType = ref(true)
 const useDropdownRoom = ref(true)
 const useDropdownBooking = ref(true)
+const hasInvalidRoomNumber = (roomId: string): boolean => {
+  const room = roomConfigurations.value.find(r => r.id === roomId)
+  if (!room || !room.roomNumber || !room.roomType) return false
 
+  const availableRooms = getRoomsForRoom(roomId)
+  return !availableRooms.some(option =>
+    option.value.toString() === room.roomNumber.toString()
+  )
+}
 
 interface Emits {
   (e: 'clear-error'): void
@@ -664,6 +693,7 @@ const {
   isCustomPrize,
   isCheckedIn,
   voucherEmailError,
+  validateRoomNumberOnChange,
   validateVoucherEmail,
 
   // Computed
