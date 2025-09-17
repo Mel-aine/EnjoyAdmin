@@ -815,11 +815,13 @@ const validateAllRooms = () => {
       }
 
        const roomValidation = validateAllRooms()
-    if (!roomValidation.isValid) {
-      // Afficher toutes les erreurs de validation des chambres
-      roomValidation.errors.forEach(error => toast.error(error))
-      // throw new Error('Validation des numéros de chambre échouée')
-    }
+        if (!roomValidation.isValid) {
+          // Afficher toutes les erreurs de validation des chambres
+          roomValidation.errors.forEach(error => toast.error(error))
+          isLoading.value = false
+          return
+          // throw new Error('Validation des numéros de chambre échouée')
+        }
 
       //email client
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

@@ -290,7 +290,7 @@ const menu = computed(() => {
     const categoryName = 'hotel'
     console.log('Catégorie de service:', categoryName)
 
-    const menuGroups = getMenuByCategoryName(categoryName, t)
+    const menuGroups : any = getMenuByCategoryName(categoryName, t)
     console.log('Groupes de menu récupérés:', menuGroups.length)
 
     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
