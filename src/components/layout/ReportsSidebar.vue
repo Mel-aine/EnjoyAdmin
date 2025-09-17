@@ -580,46 +580,19 @@ const isActive = (path: string) => {
 
 <style scoped>
 
-.menu-item {
-  @apply flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer;
-}
-
-.menu-item-active {
-  @apply bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300;
-}
-
-.menu-item-inactive {
-  @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white;
-}
-
-.menu-item-icon-active {
-  @apply text-purple-600 dark:text-purple-400;
-}
-
-.menu-item-icon-inactive {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-200;
-}
-
-.menu-item-text {
-  @apply font-medium;
-}
-
-.menu-dropdown-item {
-  @apply px-3 py-2 rounded-md transition-all duration-200 cursor-pointer;
-}
-
-.menu-dropdown-item-active {
-  @apply bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300;
-}
-
-.menu-dropdown-item-inactive {
-  @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white;
-}
-
 .sidebar-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+  /* Safari and Chrome */
+}
+
+
 
 .sidebar-scroll::-webkit-scrollbar {
   width: 6px;

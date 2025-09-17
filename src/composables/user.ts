@@ -102,6 +102,17 @@ export const useAuthStore = defineStore('auth', {
         return false;
       }
     },
+    hasPermission(permissionName: string) {
+      if (!this.user?.permisPrivileges) return false;
+
+      try {
+        const permissions = JSON.parse(this.user.permisPrivileges);
+        return permissions.includes(permissionName);
+      } catch (error) {
+        console.error('Erreur lors de la vérification des permissions:', error);
+        return false;
+      }
+    },
     clearsetRoleId() {
       this.roleId = null;
     },

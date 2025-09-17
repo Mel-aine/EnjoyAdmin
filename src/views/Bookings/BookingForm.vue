@@ -529,7 +529,7 @@
                 <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" />
                 {{ $t('cash') }}
               </label>
-               <label class="flex items-center">
+               <label class="flex items-center" v-if="canCityLedgerPay">
                 <input type="radio" v-model="billing.paymentType" value="city_ledger" class="mr-2" />
                {{ $t('city_ledger')}}
               </label>
@@ -696,6 +696,7 @@ const {
   onRoomNumberChange,
   pendingUploads,
   holdReleaseData,
+  canCityLedgerPay
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours

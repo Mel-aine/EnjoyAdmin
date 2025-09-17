@@ -1,23 +1,14 @@
 <template>
   <div class="relative" ref="dropdownRef">
-    <button
-      class="flex items-center text-gray-700 dark:text-gray-400 space-x-1"
-      @click.prevent="toggleDropdown"
-    >
-       <div class="relative flex-shrink-0">
-            <img
-              v-if="picture"
-              :src="picture"
-              alt="Photo utilisateur"
-              class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg"
-            />
-            <div
-              v-else
-              class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-lg sm:text-xl font-bold border-2 border-gray-500"
-            >
-              {{ userInitials }}
-            </div>
-          </div>
+    <button class="flex items-center text-gray-700 dark:text-gray-400 space-x-1" @click.prevent="toggleDropdown">
+      <div class="relative flex-shrink-0">
+        <img v-if="picture" :src="picture" alt="Photo utilisateur"
+          class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg" />
+        <div v-else
+          class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-lg sm:text-xl font-bold border-2 border-gray-500">
+          {{ userInitials }}
+        </div>
+      </div>
 
       <span class="block mr-1 font-medium text-theme-sm"> {{ fullName }} </span>
 
@@ -25,10 +16,8 @@
     </button>
 
     <!-- Dropdown Start -->
-    <div
-      v-if="dropdownOpen"
-      class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
-    >
+    <div v-if="dropdownOpen"
+      class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark">
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
           {{ fullName }}
@@ -40,27 +29,17 @@
 
       <ul class="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
         <li v-for="item in menuItems" :key="item.href">
-          <router-link
-            :to="item.href"
-            class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-          >
-            <component
-              :is="item.icon"
-              class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-            />
+          <router-link :to="item.href"
+            class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+            <component :is="item.icon" class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
             {{ item.text }}
           </router-link>
         </li>
       </ul>
-      <router-link
-        to="/"
-        @click="signOut"
-        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-      >
-        <LogoutIcon
-          class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-        />
-       {{$t('SignOut')}}
+      <router-link to="/" @click="signOut"
+        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+        <LogoutIcon class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
+        {{ $t('SignOut') }}
       </router-link>
     </div>
   </div>
@@ -70,7 +49,7 @@
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon, HomeIcon } from '@/icons'
 import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
-import { ref, onMounted, onUnmounted ,computed , nextTick} from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
@@ -79,27 +58,30 @@ import { useI18n } from "vue-i18n";
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 const { t } = useI18n();
-
-// Menu items with added "Go to Front" option
-const menuItems = [
-  { href: '/', icon: HomeIcon, text: t('Go to Front') },
-  { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
-  { href: '/configuration', icon: SettingsIcon, text: t('Configuration') },
-  { href: '/configuration/channel-manager/', icon: PlugInIcon, text: t('configuration.channelManager.title') },
-]
-
 const authStore = useAuthStore()
+
+const menuItems = computed(() => {
+  let menus = [
+    { href: '/', icon: HomeIcon, text: t('Go to Front') },
+    { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
+  ]
+
+  if (authStore.hasPermission('access_to_channel_manager')) {
+    menus.push({ href: '/configuration/channel-manager/', icon: PlugInIcon, text: t('configuration.channelManager.title') })
+  }
+  return menus;
+})
 const serviceStore = useServiceStore()
 const router = useRouter()
 
 const fullName = computed(() => {
   const user = authStore.user;
-   return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
+  return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 })
 
 const Email = computed(() => {
   const user = authStore.user;
-   return `${user?.email ?? ''}`
+  return `${user?.email ?? ''}`
 })
 
 const picture = computed(() => {
@@ -148,7 +130,7 @@ const toggleDropdown = () => {
 
 const userInitials = computed(() => {
   const names = fullName.value.trim().split(' ');
-  return names?.map((n)=> n[0]).slice(0, 2).join('');
+  return names?.map((n) => n[0]).slice(0, 2).join('');
 });
 
 const closeDropdown = () => {

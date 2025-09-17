@@ -610,6 +610,7 @@
     "departure": "Guest departure scheduled",
     "inhouse": "Guest is currently staying in the room"
   },
+  "notifications":"Notifications",
   "receiveemailnotifications": "Receive email notifications",
   "emailNotifications": "Email Notifications",
   "darkMode": "Dark Mode",

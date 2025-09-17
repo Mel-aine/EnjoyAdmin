@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted, computed } from 'vue'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
@@ -78,6 +78,7 @@ import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { safeParseInt, prepareFolioAmount } from '../../../utils/numericUtils'
 import { useI18n } from 'vue-i18n'
 import InputPaymentMethodSelect from './InputPaymentMethodSelect.vue'
+import { useAuthStore } from '../../../composables/user'
 
 interface Props {
   isOpen: boolean
@@ -97,10 +98,13 @@ const toast = useToast()
 const { t } = useI18n()
 
 
-const typeOptions = ref([
-  { value: 'city_ledger', label: t('city_ledger') },
-  { value: 'cash', label: t('cash') },
-])
+const typeOptions = computed(() => {
+  const canCityLedgerPay = useAuthStore().hasPermission('access_to_transfer_charges_to_city_ledger')
+  return [
+    { value: 'cash', label: t('cash') },
+    ...(canCityLedgerPay ? [{ value: 'city_ledger', label: t('city_ledger') }] : [])
+  ]
+})
 
 // Form data
 const formData = reactive({
