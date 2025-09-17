@@ -93,9 +93,16 @@ const filteredOptions = computed(() => {
 watch(
   () => props.modelValue,
   (newVal) => {
-    selectedOption.value =
-      props.options.find((option) => option.value === newVal) || null
-    search.value = selectedOption.value?.label || ''
+    const newSelectedOption = props.options.find((option) => option.value === newVal);
+    if (newSelectedOption) {
+      selectedOption.value = newSelectedOption;
+      search.value = newSelectedOption.label;
+    } else {
+      // If the new modelValue doesn't match any option, it's a custom value.
+      // We should display it directly.
+      selectedOption.value = null;
+      search.value = newVal as string;
+    }
   },
   { immediate: true }
 )
@@ -106,6 +113,8 @@ function openDropdown() {
 
 function onInput() {
   isDropdownOpen.value = true
+  // Directly emit the input value as the user types
+  emit('update:modelValue', search.value)
 }
 
 function selectOption(option: Option) {

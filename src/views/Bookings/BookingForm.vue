@@ -140,25 +140,37 @@
                     <!-- Room Configuration Fields -->
                     <div class="grid md:grid-cols-6 grid-cols-1 gap-4 items-end">
                       <div class="relative">
+                        <p v-if="isRoomTypeInvalid(room)" class="text-sm text-red-600 mb-1">
+                          {{ $t('validation.invalidRoomType') }}
+                        </p>
                         <AutoCompleteSelect v-model="room.roomType" :options="RoomTypes"
                           :defaultValue="$t('SelectRoomType')" :lb="$t('roomType')" :is-required="false"
                           :use-dropdown="useDropdownRoomType" :disabled="isLoadingRoom"
-                          @update:modelValue="onRoomTypeChange(room.id, $event)" @clear-error="emit('clear-error')" />
+                          @update:modelValue="onRoomTypeChange(room.id, $event)" @clear-error="emit('clear-error')"
+                          :class="{ 'border-red-500': isRoomTypeInvalid(room) }" />
                       </div>
 
                       <div class="relative">
+                        <p v-if="isRateTypeInvalid(room)" class="text-sm text-red-600 mb-1">
+                          {{ $t('validation.invalidRateType') }}
+                        </p>
                         <AutoCompleteSelect v-model="room.rateType" :options="getRateTypesForRoom(room.id)"
                           :defaultValue="$t('SelectRateType')" :lb="$t('configuration.rates.rateType')"
                           :is-required="false" :use-dropdown="useDropdownRateType" :disabled="!room.roomType"
-                          @update:modelValue="onRateTypeChange(room.id, $event)" @clear-error="emit('clear-error')" />
+                          @update:modelValue="onRateTypeChange(room.id, $event)" @clear-error="emit('clear-error')"
+                          :class="{ 'border-red-500': isRateTypeInvalid(room) }" />
                       </div>
 
                       <div class="relative">
+                        <p v-if="isRoomNumberInvalid(room)" class="text-sm text-red-600 mb-1">
+                          {{ $t('invalidRoomNumber') }}
+                        </p>
                         <AutoCompleteSelect v-model="room.roomNumber" :options="getRoomsForRoom(room.id)"
                           :defaultValue="$t('SelectRoom')" :lb="$t('Room')" :is-required="false"
                           :use-dropdown="useDropdownRoom" :disabled="!room.roomType"
                           :isLoading="isLoadingAvailableRooms" @update:modelValue="onRoomNumberChange(room)"
-                          @clear-error="emit('clear-error')" />
+                          @clear-error="emit('clear-error')"
+                          :class="{ 'border-red-500': isRoomNumberInvalid(room) }" />
                       </div>
 
                       <!-- Adult Count avec gestion des changements -->
@@ -329,7 +341,10 @@
 
                     <div v-if="otherInfo.emailBookingVouchers" class="flex space-x-2 pl-6">
                       <div class="w-[900px]">
-                        <InputEmail placeholder="info@gmail.com" v-model="otherInfo.voucherEmail" />
+                        <InputEmail placeholder="info@gmail.com" v-model="otherInfo.voucherEmail" @blur="validateVoucherEmail" />
+                         <p v-if="voucherEmailError" class="text-sm text-red-600 mt-1">
+                          {{ voucherEmailError }}
+                         </p>
                       </div>
                       <div class="flex flex-col h-full justify-center align-middle self-center mt-2">
                         <BasicButton :label="$t('otherInfo.previewVoucher')" variant="dark"></BasicButton>
@@ -344,7 +359,7 @@
 
           <!-- Form actions -->
           <div class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <BasicButton type="button" @click.prevent="goBack" :disabled="isLoading" :label="$t('Cancel')">
+            <BasicButton type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
             </BasicButton>
 
             <div class="flex space-x-3">
@@ -633,6 +648,27 @@ const useDropdownRateType = ref(true)
 const useDropdownRoom = ref(true)
 const useDropdownBooking = ref(true)
 
+const submitted = ref(false);
+
+const isRoomTypeInvalid = (room: any) => {
+    if (!submitted.value) return false;
+    if (!room.roomType) return true; // Required
+    return !RoomTypes.value.some(option => option.value === room.roomType); // Must be in list
+};
+
+const isRateTypeInvalid = (room: any) => {
+    if (!submitted.value) return false;
+    if (!room.rateType) return true; // Required
+    return !getRateTypesForRoom(room.id).some(option => option.value === room.rateType); // Must be in list
+};
+
+const isRoomNumberInvalid = (room: any) => {
+    if (!submitted.value) return false;
+    // if (room.roomType && !room.roomNumber) return true; // Required if roomType is selected
+    if (!room.roomNumber) return false;
+    return !getRoomsForRoom(room.id).some(option => option.value.toString() === room.roomNumber.toString());
+};
+
 
 interface Emits {
   (e: 'clear-error'): void
@@ -660,6 +696,9 @@ const {
   confirmReservation,
   isCustomPrize,
   isCheckedIn,
+  voucherEmailError,
+  validateRoomNumberOnChange,
+  validateVoucherEmail,
 
   // Computed
   numberOfNights,
@@ -679,6 +718,7 @@ const {
   saveReservation,
   formatCurrency,
   goBack,
+  resetForm,
 
   // Room methods
   addRoom,
@@ -737,6 +777,7 @@ const selectOption = (option: any, roomId: string) => {
 
 // Gestionnaire de soumission du formulaire
 const handleSubmit = async () => {
+  submitted.value = true;
   try {
     await saveReservation()
   } catch (error) {

@@ -206,7 +206,7 @@ export interface MenuGroupWrapper {
 const menu = computed(() => {
   try {
     const categoryName = 'hotel'
-    const menuGroups = getMenuByCategoryName(categoryName, t)
+    const menuGroups : any = getMenuByCategoryName(categoryName, t)
     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
       return []
     }
