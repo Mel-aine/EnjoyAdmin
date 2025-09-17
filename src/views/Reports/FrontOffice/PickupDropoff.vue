@@ -272,7 +272,7 @@ import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { generatePickupDropoff, exportData, type ReportFilters } from '@/services/reportsApi'
+import { generatePickupDropoff, exportData, type PickupDropoffFilters } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const { t } = useI18n()
@@ -337,10 +337,10 @@ const filters = ref<Filters>({
 })
 
 // Filtres pour l'API - correspond aux données attendues par le backend
-const apiFilters = ref<ReportFilters>({
+const apiFilters = ref<PickupDropoffFilters>({
   startDate: '',
   endDate: '',
-  hotelId: idHotel !== null ? idHotel : undefined
+  hotelId: idHotel !== null ? idHotel : 0 // Use 0 or a default value if required
 })
 
 // Options pour les sélecteurs - correspondent aux valeurs attendues par le backend
@@ -360,8 +360,8 @@ watch(filters, (newFilters) => {
   // Mapper les filtres UI vers les filtres API
   apiFilters.value = {
     ...apiFilters.value,
-    startDate: newFilters.dateFrom,
-    endDate: newFilters.dateTo,
+    startDate: newFilters.dateFrom || '',
+    endDate: newFilters.dateTo || '',
     type: newFilters.type,
   }
 }, { deep: true })

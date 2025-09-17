@@ -3,16 +3,17 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Daily Revenue
+          {{ t('reports.frontOffice.dailyRevenue') }}
         </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          View and analyze daily revenue data for your hotel
-        </p>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Filters
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- As On Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -20,60 +21,76 @@
             </label>
             <InputDatepicker 
               v-model="filters.asOnDate" 
-              placeholder="Select date"
+              :placeholder="'DD/MM/YYYY'"
               class="w-full"
-            />
+            ></InputDatepicker>
           </div>
-
-          <!-- Daily Revenue By -->
+          
+          <!-- Revenue Types -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Daily Revenue By
+              Revenue Types
             </label>
             <SelectComponent 
-              v-model="filters.dailyRevenueBy"
-              :options="revenueByOptions"
-              placeholder="--Select--"
+              v-model="filters.revenueBy"
+              :options="revenueTypeOptions"
+              :placeholder="'--Select--'"
+              :multiple="false"
               class="w-full"
-            />
+            ></SelectComponent>
           </div>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-2 justify-end mt-6">
-          <ButtonComponent 
-            @click="resetForm"
-            variant="outline"
-            class="min-w-24"
-          >
-            Reset
-          </ButtonComponent>
-          
-          <ButtonComponent 
-            @click="generateReport"
-            variant="primary"
-            class="min-w-24"
-          >
-            Report
-          </ButtonComponent>
+        
+        <!-- Buttons -->
+        <div class="flex items-center justify-end mt-6">
+          <div class="flex gap-2">
+            <button @click="exportData" :disabled="isLoading || !filters.asOnDate"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Export
+            </button>
+            
+            <ButtonComponent 
+              @click="resetForm"
+              variant="outline"
+              class="px-6 py-2"
+            >
+              Reset
+            </ButtonComponent>
+          </div>
         </div>
+      </div>
 
-        <!-- Help Guide -->
-        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">Help Guide</h3>
-          <p class="text-blue-800 dark:text-blue-200 text-sm mb-3">
-            This report will give you revenue of specific posting date for selected revenue account.
-          </p>
-          
-          <div class="text-sm text-blue-800 dark:text-blue-200">
-            <h4 class="font-semibold mb-2">How can you compare the report data with other reports?</h4>
-            <div class="space-y-2">
-              <p><strong>1)</strong> Daily Revenue pulled out for some specific date. Its Room Charges column total can be matched with Manager or Weekly Manager Report for same date.</p>
-              <p><strong>2)</strong> Daily Revenue pulled out for some specific date. Its Room Charges, Discount and Round Off summation can be matched with Monthly Revenue Report.</p>
-              <p><strong>3)</strong> Daily Revenue report when pulled out by Cancellation Revenue can be matched with Cancelled Reservation report.</p>
-              <p><strong>4)</strong> Daily Revenue report when pulled out by No show Revenue can be matched with No show Reservation report.</p>
-              <p><strong>5)</strong> Daily Revenue pulled out for Room Charges summation can be matched with Revenue By Rate Type report.</p>
-            </div>
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700 dark:text-red-200">{{ errorMessage }}</p>
+          </div>
+          <div class="ml-auto pl-3">
+            <button @click="errorMessage = ''" class="text-red-400 hover:text-red-600">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -82,85 +99,157 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import type { Column } from '../../../utils/models'
+import { useServiceStore } from '@/composables/serviceStore'
+import {
+  getDailyRevenuePDFUrl,
+  downloadDailyRevenuePDF,
+  validateDailyRevenueParams,
+  type DailyRevenueParams
+} from '@/services/reportsApi'
+
+const { t } = useI18n()
+const router = useRouter()
+const serviceStore = useServiceStore()
 
 interface FilterOptions {
   value: string;
   label: string;
 }
 
-interface RevenueData {
-  revenueAccount: string;
-  description: string;
-  roomCharges: number;
-  foodBeverage: number;
-  telephone: number;
-  laundry: number;
-  miscellaneous: number;
-  extraBed: number;
-  discount: number;
-  roundOff: number;
-  total: number;
-  percentage: number;
-}
-
 interface Filters {
   asOnDate: string;
-  dailyRevenueBy: string;
+  revenueBy: string;
 }
 
-const hotelName = ref<string>('Hotel Nihal')
-const showResults = ref<boolean>(false)
+// Reactive data
+const isLoading = ref<boolean>(false)
+const errorMessage = ref<string>('')
+const pdfUrl = ref<string>('')
 
 const filters = ref<Filters>({
-  asOnDate: '20/09/2021',
-  dailyRevenueBy: '',
+  asOnDate: '',
+  revenueBy: ''
 })
 
-// Options for selects
-const revenueByOptions = ref<FilterOptions[]>([
-  { value: '', label: 'All' },
+// Fonction helper pour normaliser revenueBy en tableau
+const normalizeRevenueBy = (value: string | null): string[] => {
+  if (!value) return []
+  return [value]
+}
+
+// Revenue type options matching the backend default values
+const revenueTypeOptions = ref<FilterOptions[]>([
   { value: 'room_revenue', label: 'Room Revenue' },
   { value: 'no_show_revenue', label: 'No Show Revenue' },
   { value: 'cancellation_revenue', label: 'Cancellation Revenue' },
-  { value: 'dayuser_revenue', label: 'Dayuser Revenue' },
-  { value: 'late_check_out_revenue', label: 'Late Check Out Revenue' },
+  { value: 'dayuser_revenue', label: 'Day User Revenue' },
+  { value: 'late_check_out_revenue', label: 'Late Check Out Revenue' }
 ])
 
+// Computed properties
+const currentParams = computed((): DailyRevenueParams => {
+  const revenueByArray = normalizeRevenueBy(filters.value.revenueBy)
+  return {
+    hotelId: serviceStore.serviceId!,
+    asOnDate: filters.value.asOnDate,
+    revenueBy: revenueByArray.length > 0 ? revenueByArray.join(',') : undefined
+  }
+})
+
+const reportTitle = computed(() => {
+  return `Daily Revenue Report - ${filters.value.asOnDate}`
+})
+
 // Methods
-const generateReport = (): void => {
-  showResults.value = true
-  console.log('Generating daily revenue report with filters:', filters.value)
+const exportData = async (): Promise<void> => {
+  try {
+    isLoading.value = true
+    errorMessage.value = ''
+
+    // Clear previous PDF URL
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
+
+    // Validate parameters using the API validation function
+    validateDailyRevenueParams(currentParams.value)
+
+    // Generate new PDF URL using the API function
+    const newPdfUrl = await getDailyRevenuePDFUrl(currentParams.value)
+    pdfUrl.value = newPdfUrl
+
+    // Open PDF in new window/tab
+    openPDFInNewPage()
+
+    console.log('📊 Daily revenue report generated successfully:', reportTitle.value)
+  } catch (error) {
+    console.error('❌ Error generating daily revenue report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const openPDFInNewPage = (): void => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer', // Adjust route name according to your routing setup
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
 }
 
 const resetForm = (): void => {
   filters.value = {
     asOnDate: '',
-    dailyRevenueBy: '',
+    revenueBy: ''
   }
-  showResults.value = false
+  errorMessage.value = ''
+  
+  // Cleanup previous PDF URL
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+    pdfUrl.value = ''
+  }
 }
 
+// Cleanup function
+const cleanup = (): void => {
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+  }
+}
+
+// Cleanup on unmount
+onUnmounted(cleanup)
 </script>
 
 <style scoped>
-/* Custom styles for revenue report */
-.highlight-row {
-  background-color: #f3f4f6;
-}
-
-.dark .highlight-row {
-  background-color: #374151;
-}
-
+/* Responsive adjustments */
 @media (max-width: 640px) {
   .grid-cols-1 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
 </style>

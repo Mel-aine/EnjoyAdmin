@@ -18,12 +18,21 @@ export interface ApiResponse<T = any> {
   data?: T
   error?: string
 }
-interface GuestCheckoutFilters {
+export interface GuestCheckoutFilters {
   fromDate: string
   toDate: string
   hotelId: number
 }
-interface PickupDropoffFilters {
+
+export interface DailyReceipt {
+  fromDate:string
+  toDate: string
+  hotelId: number
+  receiptByUserId: number
+  currencyId: number
+  paymentMethodId: number
+}
+export interface PickupDropoffFilters {
   startDate: string
   endDate: string
   type?: string
@@ -239,7 +248,7 @@ export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promi
 export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `${API_URL}/custom/guest-checkout`,
+      `${API_URL}/statistics/guest-checkout`,
       filters,
       headers 
     )
@@ -250,10 +259,37 @@ export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Pr
     return undefined
   }
 }
+export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-detail`,
+      filters,
+      headers 
+    )
+    
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+    return undefined
+  }
+}
+export const generateDailyReceiptDetail = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-detail`,
+      filters,
+      headers 
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+    return undefined
+  }
+}
 export const generatePickupDropoff = async (filters: PickupDropoffFilters): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `${API_URL}/custom/pickup-dropoff`,
+      `${API_URL}/statistics/pickup-dropoff`,
       filters,
       headers 
     )
