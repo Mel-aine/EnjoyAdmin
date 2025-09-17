@@ -751,32 +751,30 @@ const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
 const validateAllRooms = () => {
   let isValid = true;
   const errors: string[] = [];
-  console.log("Validate all rooms called");
 
   for (const [index, room] of roomConfigurations.value.entries()) {
-    console.log(`Checking room ${index + 1}:`, JSON.stringify(room, null, 2));
 
     // --- Room Type Validation ---
     if (!room.roomType) {
       isValid = false;
-      errors.push(`Room ${index + 1}: Please select a Room Type.`);
+      errors.push(t('toast.validation.roomTypeRequired', { index: index + 1 }));
     } else {
       const roomTypeExists = RoomTypes.value.some(option => option.value === room.roomType);
       if (!roomTypeExists) {
         isValid = false;
-        errors.push(`Room ${index + 1}: Room Type "${room.roomType}" is not valid.`);
+        errors.push(t('toast.validation.roomTypeInvalid', { index: index + 1, value: room.roomType }));
       }
     }
 
     // --- Rate Type Validation ---
     if (!room.rateType) {
       isValid = false;
-      errors.push(`Room ${index + 1}: Please select a Rate Type.`);
+      errors.push(t('toast.validation.rateTypeRequired', { index: index + 1 }));
     } else {
       const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value === room.rateType);
       if (!rateTypeExists) {
         isValid = false;
-        errors.push(`Room ${index + 1}: Rate Type "${room.rateType}" is not valid for the selected Room Type.`);
+        errors.push(t('toast.validation.rateTypeInvalid', { index: index + 1, value: room.rateType }));
       }
     }
 
@@ -788,12 +786,11 @@ const validateAllRooms = () => {
       if (!roomNumberExists) {
         isValid = false;
         const roomTypeName = RoomTypes.value.find(rt => rt.value === room.roomType)?.label || 'Unknown';
-        errors.push(`Room ${index + 1}: Room number "${room.roomNumber}" is not available for ${roomTypeName}.`);
+        errors.push(t('toast.validation.roomNumberInvalid', { index: index + 1, value: room.roomNumber, roomTypeName: roomTypeName }));
       }
     }
   }
 
-  console.log("Validation result:", { isValid, errors });
   return { isValid, errors };
 };
   //save reservation
@@ -802,7 +799,7 @@ const validateAllRooms = () => {
     try {
       // Validation
       if (!formData.value.firstName || !formData.value.lastName  || !formData.value.phoneNumber || !formData.value.email ) {
-        throw new Error('Guest information is incomplete')
+        throw new Error(t('Guest information is incomplete'))
       }
 
       // if (roomConfigurations.value.some((room) => !room.roomType)) {
@@ -810,11 +807,11 @@ const validateAllRooms = () => {
       // }
 
       if (!serviceStore.serviceId) {
-        throw new Error('Service ID is missing')
+        throw new Error(t('Service ID is missing'))
       }
 
       if (!billing.value.paymentMode) {
-        throw new Error('veuiller selectionner la methode de paiement')
+        throw new Error(t('Please select the payment method'))
       }
 
        const roomValidation = validateAllRooms()
@@ -827,16 +824,16 @@ const validateAllRooms = () => {
       //email client
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.value.email)) {
-      throw new Error('Invalid guest email address')
+      throw new Error(t('Invalid guest email address'))
     }
 
     // l'email booking voucher si activé
     if (otherInfo.value.emailBookingVouchers) {
       if (!otherInfo.value.voucherEmail) {
-        throw new Error('Voucher email is required when email booking vouchers is enabled')
+        throw new Error(t('Voucher email is required when email booking vouchers is enabled'))
       }
       if (!validateVoucherEmail()) {
-        throw new Error('Invalid voucher email address')
+        throw new Error(t('Invalid voucher email address'))
       }
     }
       await waitForPendingUploads()
@@ -844,11 +841,11 @@ const validateAllRooms = () => {
       uploadErrors.value = []
 
       if (formData.value.profilePhoto && !formData.value.profilePhoto.startsWith('http')) {
-        throw new Error('Profile photo upload incomplete')
+        throw new Error(t('Profile photo upload incomplete'))
       }
 
       if (formData.value.idPhoto && !formData.value.idPhoto.startsWith('http')) {
-        throw new Error('ID photo upload incomplete')
+        throw new Error(t('ID photo upload incomplete'))
       }
 
       let identityPayload = {
@@ -960,7 +957,7 @@ const validateAllRooms = () => {
 
         // Payment info
         bill_to: billing.value.billTo,
-        payment_mode: billing.value.paymentMode,
+        payment: billing.value.paymentMode,
         credit_type: billing.value.creditType || undefined,
         tax_exempt: Boolean(billing.value.taxExempt),
 
@@ -978,18 +975,18 @@ const validateAllRooms = () => {
 
       console.log('Final reservation payload:', reservationPayload)
 
-      // const response = await createReservation(reservationPayload)
-      // reservationId.value = response.reservationId
-      // console.log('reservationId.value', reservationId.value)
+      const response = await createReservation(reservationPayload)
+      reservationId.value = response.reservationId
+      console.log('reservationId.value', reservationId.value)
 
-      // if (response.reservationId) {
-      //   isPaymentButtonShow.value = true
-      //   confirmReservation.value = true
-      // }
+      if (response.reservationId) {
+        isPaymentButtonShow.value = true
+        confirmReservation.value = true
+      }
 
-      // toast.success(t('reservationCreated'))
+      toast.success(t('reservationCreated'))
 
-      // return response
+      return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
