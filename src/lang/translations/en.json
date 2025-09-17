@@ -1483,6 +1483,7 @@
     "floor": "Floor",
     "currentGuest": "Current Guest",
     "nextAvailable": "Next Available",
+    "generating" : "generating ...",
     "today": "Today",
     "book": "Book",
     "standard": "Standard",
@@ -1684,21 +1685,14 @@
     "ascending": "Ascending",
     "descending": "Descending",
     "sendEmail": "Send Email",
-    "filters": "Filters",
     "from": "From",
-    "to": "To",
     "company": "Company",
     "select": "Select",
-    "roomType": "Room Type",
-    "travelAgent": "Travel Agent",
     "rateType": "Rate Type",
     "businessSource": "Business Source",
     "market": "Market",
-    "user": "User",
     "reservationType": "Reservation Type",
-    "export": "Export",
     "report": "Report",
-    "reset": "Reset",
     "generated": "Generated",
     "default": "Default",
     "reportTemplates": {
@@ -5984,7 +5978,8 @@
     "addToBlacklist": "Add to Blacklist",
     "removeFromBlacklist": "Remove from Blacklist"
   },
-  "asOnDate":"As on date"
+  "asOnDate":"As on date",
+  "generatePdf" : "Generate PDF"
 
 
 }

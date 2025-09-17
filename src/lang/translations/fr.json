@@ -5950,7 +5950,9 @@
   "actionsBlackList": {
   "addToBlacklist": "Ajouter à la liste noire",
   "removeFromBlacklist": "Retirer de la liste noire"
-}
+  },
+  "generatePdf" : "Générer PDF",
+  "asOnDate": "À la date"
 
 
 
