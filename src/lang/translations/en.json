@@ -352,7 +352,16 @@
     "info": "Drag to move, pull edges to change duration"
   },
   "EditUser": "Edit User",
+  "invalidRoomNumber": "Invalid or unavailable room number",
   "toast": {
+    "validation": {
+      "roomTypeRequired": "Room {index}: Please select a Room Type.",
+      "roomTypeInvalid": "Room {index}: Room Type \"{value}\" is not valid.",
+      "rateTypeRequired": "Room {index}: Please select a Rate Type.",
+      "rateTypeInvalid": "Room {index}: Rate Type \"{value}\" is not valid for the selected Room Type.",
+      "roomNumberRequired": "Room {index}: Please select a Room Number.",
+      "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
+    },
     "userUpdatedSuccess": "User successfully updated ✅",
     "updateError": "An error occurred while updating ❌",
     "userDeleted": "User successfully deleted ✅",
@@ -1483,6 +1492,7 @@
     "floor": "Floor",
     "currentGuest": "Current Guest",
     "nextAvailable": "Next Available",
+    "generating" : "generating ...",
     "today": "Today",
     "book": "Book",
     "standard": "Standard",
@@ -1684,21 +1694,14 @@
     "ascending": "Ascending",
     "descending": "Descending",
     "sendEmail": "Send Email",
-    "filters": "Filters",
     "from": "From",
-    "to": "To",
     "company": "Company",
     "select": "Select",
-    "roomType": "Room Type",
-    "travelAgent": "Travel Agent",
     "rateType": "Rate Type",
     "businessSource": "Business Source",
     "market": "Market",
-    "user": "User",
     "reservationType": "Reservation Type",
-    "export": "Export",
     "report": "Report",
-    "reset": "Reset",
     "generated": "Generated",
     "default": "Default",
     "reportTemplates": {
@@ -3717,9 +3720,7 @@
       "arrivalList": "Arrival List",
       "arrivalListDescription": "View guests arriving today and upcoming dates",
       "arrivalResults": "Arrival Results",
-      "departureList": "Departure List",
       "departureListDescription": "View guests departing today and upcoming dates",
-      "departureResults": "Departure Results",
       "confirmedReservations": "Confirmed Reservations",
       "confirmedReservationsDescription": "View all confirmed reservations",
       "confirmedReservationsResults": "Confirmed Reservations Results",
@@ -4020,7 +4021,10 @@
     "reasonRequired": "Please select a reason",
     "customReasonRequired": "Please provide a custom reason",
     "customReasonTooShort": "Reason must be at least 10 characters long",
-    "reasonTooShort": "Reason must be at least 5 characters long"
+    "reasonTooShort": "Reason must be at least 5 characters long",
+    "invalidRoomType": "Invalid Room Type",
+    "invalidRateType": "Invalid Rate Type",
+    "required": "This field is required"
   },
   "Currency": "Currency",
   "Add Currency": "Add Currency",
@@ -5388,9 +5392,10 @@
     "blocked": "Blocked",
     "maintenance": "Maintenance",
     "outOfOrder": "Out of order",
-    "available": "Available",
-    "occupied": "Occupied",
-    "dirty": "Dirty"
+    "pending": "Pending",
+    "in_progress": "In Progress",
+    "inProgress": "In Progress",
+    "completed": "Completed"
   },
   "successBlockDeleted": "Maintenance block deleted successfully",
   "blocksExportedSuccessfully": "Blocks exported successfully",
@@ -5984,7 +5989,17 @@
     "addToBlacklist": "Add to Blacklist",
     "removeFromBlacklist": "Remove from Blacklist"
   },
-  "asOnDate":"As on date"
+  "asOnDate":"As on date",
+  "generatePdf" : "Generate PDF",
+  "Guest information is incomplete": "Guest information is incomplete",
+  "Service ID is missing": "Service ID is missing",
+  "Please select the payment method": "Please select the payment method",
+  "Invalid guest email address": "Invalid guest email address",
+  "Voucher email is required when email booking vouchers is enabled": "Voucher email is required when email booking vouchers is enabled",
+  "Invalid voucher email address": "Invalid voucher email address",
+  "Profile photo upload incomplete": "Profile photo upload incomplete",
+  "ID photo upload incomplete": "ID photo upload incomplete"
+
 
 
 }

@@ -83,17 +83,34 @@
       </div>
 
       <!-- Status -->
-      <div>
+      <div v-if="!isEditing">
         <Select
           v-model="formData.status"
           :options="statusOptions"
-          :placeholder="$t('SelectStatus')"
+          :placeholder="$t('selectStatusPlaceholder')"
           :lb="$t('Status')"
         />
       </div>
 
       <!-- Reason -->
+        <div>
+        <Select
+          v-model="formData.reason"
+          :options="reasonOptions"
+          :placeholder="$t('SelectReason')"
+          :lb="$t('Reason')"
+        />
+      </div>
+
+      <!-- Description -->
       <div>
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          {{ $t('Description') }}
+        </label>
+        <textarea v-model="formData.description" :placeholder="$t('Largetext')" rows="6"
+          class="dark:bg-dark-900 h-20 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"></textarea>
+      </div>
+      <!-- <div>
         <AutoCompleteSelect
           v-model="formData.reason"
           :options="reasonOptions"
@@ -107,7 +124,7 @@
         <p v-if="validationErrors.reason" class="mt-1 text-xs text-red-500">
           {{ validationErrors.reason }}
         </p>
-      </div>
+      </div> -->
 
     </div>
 
@@ -164,6 +181,7 @@ interface MaintenanceBlock {
   }
   blockFromDate: string
   blockToDate: string
+  description:string
   blockedBy: {
     id: string
     firstName: string
@@ -216,23 +234,27 @@ const selectedRoomTypeId = ref<string | number | undefined>(undefined)
 
 // Options
 const roomTypeOptions = ref<{ value: number; label: string; [key: string]: any }[]>([])
-const reasonOptions = ref<{ value: string; label: string }[]>([])
+// const reasonOptions = ref<{ value: string; label: string }[]>([])
 const errorMessage = ref<string>('')
 
-const statusOptions = [
+const reasonOptions = computed(()=>[
   { value: 'blocked', label: t('statuses.blocked') },
   { value: 'maintenance', label: t('statuses.maintenance') },
   { value: 'out_of_order', label: t('statuses.outOfOrder') },
-  { value: 'available', label: t('statuses.available') },
-  { value: 'occupied', label: t('statuses.occupied') },
-  { value: 'dirty', label: t('statuses.dirty') }
-]
+])
+
+const statusOptions = computed(()=>[
+  { value: 'pending', label: t('statuses.pending') },
+  { value: 'inProgress', label: t('statuses.in_progress') },
+  { value: 'completed', label: t('statuses.completed') },
+])
 
 // Form data
 const formData = reactive({
   selectedRooms: [] as RoomOption[],
   reason: '',
-  status: 'blocked',
+  status: '',
+  description: '',
   dateRanges: [{ start: null, end: null }] as DateRange[],
 })
 
@@ -306,7 +328,8 @@ const populateFormData = () => {
     }]
 
     formData.reason = props.blockData.reason || ''
-    formData.status = props.blockData.status || 'blocked'
+    formData.status = props.blockData.status || ''
+    formData.status = props.blockData.description || ''
   } else {
     resetForm()
   }
@@ -315,7 +338,8 @@ const populateFormData = () => {
 const resetForm = () => {
   formData.selectedRooms = []
   formData.reason = ''
-  formData.status = 'blocked'
+  formData.status = ''
+  formData.description = ''
   formData.dateRanges = [{ start: null, end: null }]
   selectedRoomTypeId.value = undefined
 
@@ -440,8 +464,9 @@ const saveBlock = async () => {
         room_id: formData.selectedRooms[0]?.value,
         block_from_date: validDateRanges[0]?.start,
         block_to_date: validDateRanges[0]?.end,
-        reason: formData.reason.trim(),
-        status: formData.status
+        reason: formData.reason,
+        status: formData.status,
+        description:formData.description
       }
 
       try {
@@ -486,8 +511,9 @@ const saveBlock = async () => {
             room_id: roomId,
             block_from_date: range.start,
             block_to_date: range.end,
-            reason: formData.reason.trim(),
+            reason: formData.reason,
             status: formData.status,
+            description:formData.description
           }
 
           try {
@@ -658,17 +684,17 @@ onMounted(async () => {
     }
 
     // Load reasons
-    console.log(' Loading maintenance block reasons')
-    const reasonsResponse = await getByCategory(hotel_id, 'Maintenance Block')
-    const reasonsData = reasonsResponse.data
+    // console.log(' Loading maintenance block reasons')
+    // const reasonsResponse = await getByCategory(hotel_id, 'Maintenance Block')
+    // const reasonsData = reasonsResponse.data
 
-    if (Array.isArray(reasonsData)) {
-      reasonOptions.value = reasonsData.map((reason: any) => ({
-        value: reason.reasonName || reason.name,
-        label: reason.reasonName || reason.name
-      }))
-      console.log(' Reasons loaded:', reasonOptions.value.length)
-    }
+    // if (Array.isArray(reasonsData)) {
+    //   reasonOptions.value = reasonsData.map((reason: any) => ({
+    //     value: reason.reasonName || reason.name,
+    //     label: reason.reasonName || reason.name
+    //   }))
+    //   console.log(' Reasons loaded:', reasonOptions.value.length)
+    // }
 
   } catch (err: any) {
     console.error(' Error loading data:', err)

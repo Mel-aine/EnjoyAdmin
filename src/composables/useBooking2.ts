@@ -456,7 +456,7 @@ export function useBooking() {
       }
     } catch (error) {
       console.error('Error loading rate types for room type:', error)
-      toast.error(t('toast.errorLoadingRateTypes'))
+
     }
   }
 
@@ -493,7 +493,6 @@ export function useBooking() {
       }
     } catch (error) {
       console.error('Error loading available rooms for room type:', error)
-      toast.error(t('toast.errorLoadingAvailableRooms'))
       roomTypeRooms.value.set(roomTypeId, [])
     } finally {
       isLoadingAvailableRooms.value = false
@@ -608,7 +607,7 @@ export function useBooking() {
       return response
     } catch (error) {
       console.error('Error fetching rate types:', error)
-      toast.error(t('toast.errorfetchRateTypes'))
+
       return { data: { roomType: { rateTypes: [] } } }
     }
   }
@@ -702,13 +701,105 @@ export function useBooking() {
     }
   }
 
+  const validateRoomNumbers = (): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+
+  for (const room of roomConfigurations.value) {
+    if (room.roomType && room.roomNumber) {
+      // Récupérer les options de chambres disponibles pour ce type de chambre
+      const availableRooms = getRoomsForRoom(room.id)
+
+      // Vérifier si le numéro de chambre saisi existe dans les options
+      const roomExists = availableRooms.some(option =>
+        option.value.toString() === room.roomNumber.toString()
+      )
+
+      if (!roomExists) {
+        // Récupérer le nom du type de chambre pour l'erreur
+        const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
+        errors.push(`Le numéro de chambre "${room.roomNumber}" n'est pas disponible pour le type "${roomTypeName}"`)
+      }
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
+}
+
+const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
+  const room = roomConfigurations.value.find(r => r.id === roomId)
+  if (!room || !newRoomNumber) return true
+
+  const availableRooms = getRoomsForRoom(roomId)
+  const isValid = availableRooms.some(option =>
+    option.value.toString() === newRoomNumber.toString()
+  )
+
+  if (!isValid) {
+    const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
+    toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`) // Corrected escaping for consistency
+    // Optionnel : réinitialiser le numéro de chambre
+    // room.roomNumber = ''
+    return false
+  }
+
+  return true
+}
+
+const validateAllRooms = () => {
+  let isValid = true;
+  const errors: string[] = [];
+
+  for (const [index, room] of roomConfigurations.value.entries()) {
+
+    // --- Room Type Validation ---
+    if (!room.roomType) {
+      isValid = false;
+      errors.push(t('toast.validation.roomTypeRequired', { index: index + 1 }));
+    } else {
+      const roomTypeExists = RoomTypes.value.some(option => option.value === room.roomType);
+      if (!roomTypeExists) {
+        isValid = false;
+        errors.push(t('toast.validation.roomTypeInvalid', { index: index + 1, value: room.roomType }));
+      }
+    }
+
+    // --- Rate Type Validation ---
+    if (!room.rateType) {
+      isValid = false;
+      errors.push(t('toast.validation.rateTypeRequired', { index: index + 1 }));
+    } else {
+      const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value === room.rateType);
+      if (!rateTypeExists) {
+        isValid = false;
+        errors.push(t('toast.validation.rateTypeInvalid', { index: index + 1, value: room.rateType }));
+      }
+    }
+
+    // --- Room Number Validation ---
+    if (room.roomType && room.roomNumber) {
+      const roomNumberExists = getRoomsForRoom(room.id).some(option =>
+        option.value.toString() === room.roomNumber.toString()
+      );
+      if (!roomNumberExists) {
+        isValid = false;
+        const roomTypeName = RoomTypes.value.find(rt => rt.value === room.roomType)?.label || 'Unknown';
+        errors.push(t('toast.validation.roomNumberInvalid', { index: index + 1, value: room.roomNumber, roomTypeName: roomTypeName }));
+      }
+    }
+  }
+
+  return { isValid, errors };
+};
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true
     try {
       // Validation
-      if (!formData.value.firstName || !formData.value.email) {
-        throw new Error('Guest information is incomplete')
+      if (!formData.value.firstName || !formData.value.lastName  || !formData.value.phoneNumber || !formData.value.email ) {
+        throw new Error(t('Guest information is incomplete'))
       }
 
       // if (roomConfigurations.value.some((room) => !room.roomType)) {
@@ -716,19 +807,47 @@ export function useBooking() {
       // }
 
       if (!serviceStore.serviceId) {
-        throw new Error('Service ID is missing')
+        throw new Error(t('Service ID is missing'))
       }
 
+      if (!billing.value.paymentMode) {
+        throw new Error(t('Please select the payment method'))
+      }
+
+       const roomValidation = validateAllRooms()
+        if (!roomValidation.isValid) {
+          // Afficher toutes les erreurs de validation des chambres
+          roomValidation.errors.forEach(error => toast.error(error))
+          isLoading.value = false
+          return
+          // throw new Error('Validation des numéros de chambre échouée')
+        }
+
+      //email client
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.value.email)) {
+      throw new Error(t('Invalid guest email address'))
+    }
+
+    // l'email booking voucher si activé
+    if (otherInfo.value.emailBookingVouchers) {
+      if (!otherInfo.value.voucherEmail) {
+        throw new Error(t('Voucher email is required when email booking vouchers is enabled'))
+      }
+      if (!validateVoucherEmail()) {
+        throw new Error(t('Invalid voucher email address'))
+      }
+    }
       await waitForPendingUploads()
 
       uploadErrors.value = []
 
       if (formData.value.profilePhoto && !formData.value.profilePhoto.startsWith('http')) {
-        throw new Error('Profile photo upload incomplete')
+        throw new Error(t('Profile photo upload incomplete'))
       }
 
       if (formData.value.idPhoto && !formData.value.idPhoto.startsWith('http')) {
-        throw new Error('ID photo upload incomplete')
+        throw new Error(t('ID photo upload incomplete'))
       }
 
       let identityPayload = {
@@ -840,7 +959,7 @@ export function useBooking() {
 
         // Payment info
         bill_to: billing.value.billTo,
-        payment_mode: billing.value.paymentMode,
+        payment: billing.value.paymentMode,
         credit_type: billing.value.creditType || undefined,
         tax_exempt: Boolean(billing.value.taxExempt),
 
@@ -1228,63 +1347,133 @@ export function useBooking() {
   })
 
   const resetForm = () => {
-    // Reset form data (votre code existant)
-    Object.assign(reservation.value, {
-      checkinDate: new Date().toISOString().split('T')[0],
-      checkinTime: '15:00',
-      checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      checkoutTime: '16:00',
-      rooms: 1,
-      bookingType: '',
-      bookingSource: '',
-      businessSource: '',
-      isComplementary: false,
-      complimentaryRoom: false,
-    })
+  // Reset reservation data
+  Object.assign(reservation.value, {
+    checkinDate: new Date().toISOString().split('T')[0],
+    checkinTime: '15:00',
+    checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    checkoutTime: '16:00',
+    rooms: 1,
+    bookingType: '',
+    bookingSource: '',
+    businessSource: '',
+    isComplementary: false,
+    complimentaryRoom: false,
+    isHold: false,
+    reservationStatus: 'confirmed',
+  })
 
-    roomConfigurations.value = [
-      {
-        id: 'room-1',
-        roomType: '',
-        rateType: '',
-        roomNumber: '',
-        adultCount: 1,
-        childCount: 0,
-        rate: 0,
-        isOpen: false,
-        taxes: [],
-      },
-    ]
+  // Reset room configurations
+  roomConfigurations.value = [
+    {
+      id: 'room-1',
+      roomType: '',
+      rateType: '',
+      roomNumber: '',
+      adultCount: 1,
+      childCount: 0,
+      rate: 0,
+      isOpen: false,
+      taxes: [],
+    },
+  ]
 
-    Object.assign(guest.value, {
-      address: '',
-      country: '',
-      state: '',
-      city: '',
-      zipcode: '',
-    })
+  // Reset guest data
+  Object.assign(guest.value, {
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zipcode: '',
+  })
 
-    Object.assign(formData.value, {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      email: '',
-      roleId: null,
-      companyName: '',
-      groupName: '',
-      title: '',
-      id: 0,
-      idPhoto: '',
-      idType: '',
-      idNumber: '',
-      idExpiryDate: '',
-      issuingCountry: '',
-      issuingCity: '',
-    })
+  // Reset ALL formData fields - this was the missing part
+  Object.assign(formData.value, {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    roleId: null,
+    companyName: '',
+    groupName: '',
+    title: '',
+    id: 0,
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zipcode: '',
+    idPhoto: '',
+    idType: '',
+    idNumber: '',
+    idExpiryDate: '',
+    issuingCountry: '',
+    issuingCity: '',
+    profilePhoto: '',
+  })
 
-    roomTypeRateTypes.value.clear()
-    roomTypeRooms.value.clear()
-  }
+  // Reset other info
+  Object.assign(otherInfo.value, {
+    emailBookingVouchers: false,
+    voucherEmail: '',
+    sendEmailAtCheckout: false,
+    emailTemplate: '',
+    accessToGuestPortal: false,
+    successRateOnRegistrationCard: false,
+  })
+
+  // Reset billing
+  Object.assign(billing.value, {
+    roomCharges: 0,
+    taxes: 0,
+    totalAmount: 0,
+    billTo: 'guest',
+    taxExempt: false,
+    paymentMode: undefined,
+    creditType: '',
+    paymentType: 'cash',
+  })
+
+  // Reset payment data
+  Object.assign(paymentData.value, {
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardHolderName: '',
+    amount: 0,
+    paymentMethod: 'cash',
+  })
+
+  // Reset hold release data
+  Object.assign(holdReleaseData.value, {
+    date: '',
+    time: '',
+    releaseTerm: '',
+    remindDays: 0,
+    dateType: 'hold_release_date'
+  })
+
+  // Reset taxes
+  taxes.value = []
+
+  // Clear maps and other state
+  roomTypeRateTypes.value.clear()
+  roomTypeRooms.value.clear()
+  roomTypeBaseInfo.value.clear()
+
+  // Reset other state variables
+  dateError.value = null
+  confirmReservation.value = false
+  isPaymentButtonShow.value = false
+  reservationId.value = null
+  RoomRateById.value = null
+  isCustomPrize.value = false
+  isCheckedIn.value = false
+
+  // Clear upload tracking
+  pendingUploads.value.clear()
+  uploadErrors.value = []
+}
 
   // Initialize
   const initialize = async () => {
@@ -1297,43 +1486,7 @@ export function useBooking() {
       toast.error(t('toast.errorInitializing'))
     }
   }
-  // const onRoomNumberChange = (roomC: any) => {
-  //   console.log('roomTypeRooms.value', RoomTypesData.value);
-  //   console.log("roomC", roomC)
-  //   if(!roomC.roomType){
-  //     return
-  //   }
 
-  //   const rooms = RoomTypesData.value.filter((e: any) => {
-  //     return e.id === roomC.roomType
-  //   })[0].rooms;
-
-  //   console.log('rooms', rooms)
-  //   //  const room = rooms.find((r:any) => r.id === roomId)
-  //   // console.log('room', room)
-  //   roomC.taxes = rooms.find((r: any) => r.id === roomC.roomNumber)?.taxRates || [];
-  //   console.log("roomC", roomC);
-  //   const nightsForCalculation = Math.max(1, Number(numberOfNights.value) || 1);
-  //   roomC.taxes.forEach((tax: any) => {
-  //     if (tax.postingType === "flat_amount") {
-  //       tax.taxAmount = parseFloat(tax.amount) * nightsForCalculation;
-  //     } else if (tax.postingType === "flat_percentage") {
-  //       tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
-  //       tax.taxAmount = ((parseFloat(tax.percentage) * roomC.rate) / 100) * nightsForCalculation
-  //     } else {
-  //       tax = 0
-  //     }
-  //   })
-
-  //   roomConfigurations.value.forEach((room: any) => {
-  //     if (room.id === roomC.id) {
-  //       room.taxes = roomC.taxes
-  //     }
-  //   });
-  //   roomConfigurations.value = [...roomConfigurations.value]
-  //   console.log('roomConfigurations.value', roomConfigurations.value)
-
-  // }
 
   const onRoomNumberChange = async (roomC: any) => {
     console.log('onRoomNumberChange called with:', roomC)
@@ -1446,6 +1599,33 @@ export function useBooking() {
     return reservation.value.checkinDate === today
   })
 
+
+  const voucherEmailError = ref('')
+
+// Fonction de validation email
+const validateVoucherEmail = () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (otherInfo.value.emailBookingVouchers && otherInfo.value.voucherEmail) {
+    if (!emailRegex.test(otherInfo.value.voucherEmail)) {
+      voucherEmailError.value = t('validation.invalidEmail')
+      return false
+    } else {
+      voucherEmailError.value = ''
+      return true
+    }
+  }
+
+  voucherEmailError.value = ''
+  return true
+}
+
+// Watcher pour valider l'email en temps réel
+watch(() => otherInfo.value.voucherEmail, () => {
+  if (otherInfo.value.voucherEmail) {
+    validateVoucherEmail()
+  }
+})
   return {
     // Data
     reservation,
@@ -1472,6 +1652,10 @@ export function useBooking() {
     isCustomPrize,
     isCheckedIn,
     isLoadingAvailableRooms,
+    voucherEmailError,
+    validateVoucherEmail,
+     validateRoomNumbers,
+  validateRoomNumberOnChange,
 
     // Computed
     numberOfNights,
