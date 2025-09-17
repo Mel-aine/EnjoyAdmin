@@ -456,7 +456,7 @@ export function useBooking() {
       }
     } catch (error) {
       console.error('Error loading rate types for room type:', error)
-      toast.error(t('toast.errorLoadingRateTypes'))
+
     }
   }
 
@@ -493,7 +493,6 @@ export function useBooking() {
       }
     } catch (error) {
       console.error('Error loading available rooms for room type:', error)
-      toast.error(t('toast.errorLoadingAvailableRooms'))
       roomTypeRooms.value.set(roomTypeId, [])
     } finally {
       isLoadingAvailableRooms.value = false
@@ -608,7 +607,7 @@ export function useBooking() {
       return response
     } catch (error) {
       console.error('Error fetching rate types:', error)
-      toast.error(t('toast.errorfetchRateTypes'))
+
       return { data: { roomType: { rateTypes: [] } } }
     }
   }
@@ -752,11 +751,25 @@ const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
 const validateAllRooms = () => {
   let isValid = true;
   const errors: string[] = [];
-  console.log("Validate all rooms called"); 
+  console.log("Validate all rooms called");
   console.log("Room configurations:", JSON.stringify(roomConfigurations.value, null, 2));
 
-  for (const room of roomConfigurations.value) {
-    console.log("Checking room:", JSON.stringify(room, null, 2));
+  for (const [index, room] of roomConfigurations.value.entries()) {
+    console.log(`Checking room ${index + 1}:`, JSON.stringify(room, null, 2));
+
+    // Check for Room Type
+    if (!room.roomType) {
+      isValid = false;
+      errors.push(`Room ${index + 1}: Please select a Room Type.`);
+    }
+
+    // Check for Rate Type
+    if (!room.rateType) {
+      isValid = false;
+      errors.push(`Room ${index + 1}: Please select a Rate Type.`);
+    }
+
+    // Check for Room Number validity
     if (room.roomType && room.roomNumber) {
       const availableRooms = getRoomsForRoom(room.id);
       const roomExists = availableRooms.some(option =>
@@ -768,10 +781,8 @@ const validateAllRooms = () => {
       if (!roomExists) {
         isValid = false;
         const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown';
-        errors.push(`Le numéro de chambre "${room.roomNumber}" n'est pas disponible pour le type "${roomTypeName}"`);
+        errors.push(`Room ${index + 1}: The room number "${room.roomNumber}" is not available for ${roomTypeName}.`);
       }
-    } else {
-        console.log("Skipping room validation because roomType or roomNumber is missing.");
     }
   }
 
