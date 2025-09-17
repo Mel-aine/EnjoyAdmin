@@ -3,7 +3,7 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('reports.frontOffice.dailyReceipt') }}
+          {{ t('reports.frontOffice.dailyRevenue') }}
         </h1>
       </div>
 
@@ -14,78 +14,28 @@
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Receipt From Date -->
+          <!-- As On Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Receipt From
+              As On Date
             </label>
             <InputDatepicker 
-              v-model="filters.receiptFrom" 
+              v-model="filters.asOnDate" 
               :placeholder="'DD/MM/YYYY'"
               class="w-full"
             ></InputDatepicker>
           </div>
           
-          <!-- To Date -->
+          <!-- Revenue Types -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
-            </label>
-            <InputDatepicker 
-              v-model="filters.receiptTo" 
-              :placeholder="'DD/MM/YYYY'"
-              class="w-full"
-            ></InputDatepicker>
-          </div>
-          
-          <!-- Received By -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Received By
+              Revenue Types
             </label>
             <SelectComponent 
-              v-model="filters.receivedBy"
-              :options="receivedByOptions"
+              v-model="filters.revenueBy"
+              :options="revenueTypeOptions"
               :placeholder="'--Select--'"
-              class="w-full"
-            ></SelectComponent>
-          </div>
-          
-          <!-- Payment Method -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Payment Method
-            </label>
-            <SelectComponent 
-              v-model="filters.paymentMethod"
-              :options="paymentMethodOptions"
-              :placeholder="'--Select--'"
-              class="w-full"
-            ></SelectComponent>
-          </div>
-          
-          <!-- Currency -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Currency
-            </label>
-            <SelectComponent 
-              v-model="filters.currency"
-              :options="currencyOptions"
-              :placeholder="'--Select--'"
-              class="w-full"
-            ></SelectComponent>
-          </div>
-          
-          <!-- Payment For -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Payment For
-            </label>
-            <SelectComponent 
-              v-model="filters.paymentFor"
-              :options="paymentForOptions"
-              :placeholder="'--Select--'"
+              :multiple="true"
               class="w-full"
             ></SelectComponent>
           </div>
@@ -94,21 +44,20 @@
         <!-- Buttons -->
         <div class="flex items-center justify-end mt-6">
           <div class="flex gap-2">
-            <ButtonComponent 
-              @click="exportData"
-              variant="secondary"
-              class="px-6 py-2"
-            >
+            <button @click="exportData" :disabled="isLoading || !filters.asOnDate"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
               Export
-            </ButtonComponent>
-            
-            <ButtonComponent 
-              @click="generateReport"
-              variant="primary"
-              class="px-6 py-2"
-            >
-              Report
-            </ButtonComponent>
+            </button>
             
             <ButtonComponent 
               @click="resetForm"
@@ -121,108 +70,27 @@
         </div>
       </div>
 
-      <!-- Results Section -->
-      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
-        <!-- Report Header with Hotel Name and Title -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
-          <div class="text-center">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Hotel Nihal</h2>
-            <div class="inline-block bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-2 rounded-lg border border-red-300 dark:border-red-700">
-              <span class="font-semibold">Daily Receipt - Detail</span>
-            </div>
-            <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-              <span class="inline-block bg-red-200 dark:bg-red-800 px-3 py-1 rounded">
-                Date From {{ filters.receiptFrom }} To {{ filters.receiptTo }}
-              </span>
-            </div>
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd" />
+            </svg>
           </div>
-        </div>
-
-        <!-- Receipt Details Table -->
-        <div class="px-6 py-4">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th v-for="header in receiptHeaders" :key="header.key" 
-                      :class="['px-4 py-3 text-xs font-medium uppercase tracking-wider', 
-                              header.align === 'right' ? 'text-right' : 'text-left',
-                              header.align === 'center' ? 'text-center' : '',
-                              'text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 last:border-r-0']">
-                    {{ header.label }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
-                <tr v-for="(item, index) in receiptData" :key="index" 
-                    class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.date }}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.receipt }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.reference }}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.amount }}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.user }}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ item.enteredOn }}
-                  </td>
-                </tr>
-                
-                <!-- Payment Mode Row -->
-                <tr class="bg-gray-100 dark:bg-gray-700 border-t-2 border-gray-400 dark:border-gray-500">
-                  <td class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="2">
-                    Payment Mode
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    Cash 
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ paymentModeTotal }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ totalEntries }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                  </td>
-                </tr>
-                
-                <!-- Total Row -->
-                <tr class="bg-gray-50 dark:bg-gray-600 font-semibold">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="3">
-                    Total
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ grandTotal }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                  </td>
-                </tr>
-                
-                <!-- Grand Total Row -->
-                <tr class="bg-gray-100 dark:bg-gray-700 font-bold border-t-2 border-gray-400 dark:border-gray-500">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="3">
-                    Grand Total 
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right font-bold text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-600">
-                    {{ grandTotal }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="ml-3">
+            <p class="text-sm text-red-700 dark:text-red-200">{{ errorMessage }}</p>
+          </div>
+          <div class="ml-auto pl-3">
+            <button @click="errorMessage = ''" class="text-red-400 hover:text-red-600">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -231,14 +99,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { useServiceStore } from '@/composables/serviceStore'
+import {
+  getDailyRevenuePDFUrl,
+  downloadDailyRevenuePDF,
+  validateDailyRevenueParams,
+  type DailyRevenueParams
+} from '@/services/reportsApi'
 
 const { t } = useI18n()
+const router = useRouter()
+const serviceStore = useServiceStore()
 
 interface FilterOptions {
   value: string;
@@ -246,123 +124,119 @@ interface FilterOptions {
 }
 
 interface Filters {
-  receiptFrom: string;
-  receiptTo: string;
-  receivedBy: string;
-  paymentMethod: string;
-  currency: string;
-  paymentFor: string;
+  asOnDate: string;
+  revenueBy: string[] | string | null;
 }
 
-interface TableHeader {
-  key: string;
-  label: string;
-  align?: 'left' | 'right' | 'center';
-}
-
-interface ReceiptItem {
-  date: string;
-  receipt: string;
-  reference: string;
-  amount: string;
-  user: string;
-  enteredOn: string;
-}
-
-const showResults = ref<boolean>(false)
+// Reactive data
+const isLoading = ref<boolean>(false)
+const errorMessage = ref<string>('')
+const pdfUrl = ref<string>('')
 
 const filters = ref<Filters>({
-  receiptFrom: '25/04/2019',
-  receiptTo: '27/04/2019',
-  receivedBy: '',
-  paymentMethod: '',
-  currency: '',
-  paymentFor: ''
+  asOnDate: '',
+  revenueBy: []
 })
 
-// Headers for receipt table
-const receiptHeaders = ref<TableHeader[]>([
-  { key: 'date', label: 'Date', align: 'left' },
-  { key: 'receipt', label: 'Receipt', align: 'left' },
-  { key: 'reference', label: 'Reference', align: 'left' },
-  { key: 'amount', label: 'Amount', align: 'right' },
-  { key: 'user', label: 'User', align: 'left' },
-  { key: 'enteredOn', label: 'Entered On', align: 'left' }
-])
-
-// Sample receipt data
-const receiptData = ref<ReceiptItem[]>([
-  {
-    date: '2019-04-27',
-    receipt: 'retente',
-    reference: 'Front Desk Folio : FNH598, Room : 207, Guest : Mr. test 00001',
-    amount: '873.00',
-    user: 'helpdesksupport',
-    enteredOn: '2020-04-16 01:11:36 PM'
-  }
-])
-
-// Computed values for totals
-const paymentModeTotal = computed(() => {
-  return receiptData.value.reduce((sum, item) => sum + parseFloat(item.amount), 0).toFixed(2)
-})
-
-const grandTotal = computed(() => {
-  return receiptData.value.reduce((sum, item) => sum + parseFloat(item.amount), 0).toFixed(2)
-})
-
-const totalEntries = computed(() => {
-  return receiptData.value.length.toString()
-})
-
-// Options for selects
-const receivedByOptions = ref<FilterOptions[]>([
-  { value: 'helpdesksupport', label: 'helpdesksupport' },
-  { value: 'admin', label: 'admin' },
-  { value: 'manager', label: 'manager' }
-])
-
-const paymentMethodOptions = ref<FilterOptions[]>([
-  { value: 'cash', label: 'Cash' },
-  { value: 'card', label: 'Card' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'cheque', label: 'Cheque' }
-])
-
-const currencyOptions = ref<FilterOptions[]>([
-  { value: 'Rs', label: 'Rs' },
-  { value: 'USD', label: 'USD' },
-  { value: 'EUR', label: 'EUR' }
-])
-
-const paymentForOptions = ref<FilterOptions[]>([
-  { value: 'room_rent', label: 'Room Rent' },
-  { value: 'restaurant', label: 'Restaurant' },
-  { value: 'laundry', label: 'Laundry' },
-  { value: 'other', label: 'Other' }
-])
-
-// Methods
-const generateReport = (): void => {
-  showResults.value = true
-  console.log('Generating daily receipt report with filters:', filters.value)
+// Fonction helper pour normaliser revenueBy en tableau
+const normalizeRevenueBy = (value: string[] | string | null): string[] => {
+  if (!value) return []
+  if (Array.isArray(value)) return value
+  if (typeof value === 'string') return [value]
+  return []
 }
 
-const exportData = (): void => {
-  console.log('Exporting daily receipt data...')
+// Revenue type options matching the backend default values
+const revenueTypeOptions = ref<FilterOptions[]>([
+  { value: 'room_revenue', label: 'Room Revenue' },
+  { value: 'no_show_revenue', label: 'No Show Revenue' },
+  { value: 'cancellation_revenue', label: 'Cancellation Revenue' },
+  { value: 'dayuser_revenue', label: 'Day User Revenue' },
+  { value: 'late_check_out_revenue', label: 'Late Check Out Revenue' }
+])
+
+// Computed properties
+const currentParams = computed((): DailyRevenueParams => {
+  const revenueByArray = normalizeRevenueBy(filters.value.revenueBy)
+  return {
+    hotelId: serviceStore.serviceId!,
+    asOnDate: filters.value.asOnDate,
+    revenueBy: revenueByArray.length > 0 ? revenueByArray.join(',') : undefined
+  }
+})
+
+const reportTitle = computed(() => {
+  return `Daily Revenue Report - ${filters.value.asOnDate}`
+})
+
+// Methods
+const exportData = async (): Promise<void> => {
+  try {
+    isLoading.value = true
+    errorMessage.value = ''
+
+    // Clear previous PDF URL
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
+
+    // Validate parameters using the API validation function
+    validateDailyRevenueParams(currentParams.value)
+
+    // Generate new PDF URL using the API function
+    const newPdfUrl = await getDailyRevenuePDFUrl(currentParams.value)
+    pdfUrl.value = newPdfUrl
+
+    // Open PDF in new window/tab
+    openPDFInNewPage()
+
+    console.log('📊 Daily revenue report generated successfully:', reportTitle.value)
+  } catch (error) {
+    console.error('❌ Error generating daily revenue report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const openPDFInNewPage = (): void => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer', // Adjust route name according to your routing setup
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
 }
 
 const resetForm = (): void => {
   filters.value = {
-    receiptFrom: '',
-    receiptTo: '',
-    receivedBy: '',
-    paymentMethod: '',
-    currency: '',
-    paymentFor: ''
+    asOnDate: '',
+    revenueBy: []
   }
-  showResults.value = false
+  errorMessage.value = ''
+  
+  // Cleanup previous PDF URL
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+    pdfUrl.value = ''
+  }
 }
+
+// Cleanup function
+const cleanup = (): void => {
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+  }
+}
+
+// Cleanup on unmount
+onUnmounted(cleanup)
 </script>
 
 <style scoped>
@@ -379,14 +253,5 @@ const resetForm = (): void => {
   .lg\:grid-cols-3 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
-}
-
-/* Table styling improvements */
-.table-auto {
-  table-layout: auto;
-}
-
-.border-collapse {
-  border-collapse: collapse;
 }
 </style>
