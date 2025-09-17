@@ -329,7 +329,10 @@
 
                     <div v-if="otherInfo.emailBookingVouchers" class="flex space-x-2 pl-6">
                       <div class="w-[900px]">
-                        <InputEmail placeholder="info@gmail.com" v-model="otherInfo.voucherEmail" />
+                        <InputEmail placeholder="info@gmail.com" v-model="otherInfo.voucherEmail" @blur="validateVoucherEmail" />
+                         <p v-if="voucherEmailError" class="text-sm text-red-600 mt-1">
+                          {{ voucherEmailError }}
+                         </p>
                       </div>
                       <div class="flex flex-col h-full justify-center align-middle self-center mt-2">
                         <BasicButton :label="$t('otherInfo.previewVoucher')" variant="dark"></BasicButton>
@@ -344,7 +347,7 @@
 
           <!-- Form actions -->
           <div class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <BasicButton type="button" @click.prevent="goBack" :disabled="isLoading" :label="$t('Cancel')">
+            <BasicButton type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
             </BasicButton>
 
             <div class="flex space-x-3">
@@ -660,6 +663,8 @@ const {
   confirmReservation,
   isCustomPrize,
   isCheckedIn,
+  voucherEmailError,
+  validateVoucherEmail,
 
   // Computed
   numberOfNights,
@@ -679,6 +684,7 @@ const {
   saveReservation,
   formatCurrency,
   goBack,
+  resetForm,
 
   // Room methods
   addRoom,
