@@ -77,12 +77,119 @@
           </template>
 
           <template #column-status="{ item }">
+            <div class="flex items-center space-x-2">
             <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
               {{ $t(`statuses.${item.status}`) }}
             </span>
+              <button
+                @click="openStatusModal(item)"
+                class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                :title="$t('changeStatus')"
+              >
+                <Edit class="w-4 h-4" />
+              </button>
+              </div>
           </template>
         </ReusableTable>
       </div>
+
+       <!-- Modal de changement de statut -->
+     <template v-if="showStatusModal">
+        <Modal @close="closeStatusModal">
+          <template #body>
+
+             <div class="no-scrollbar relative w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
+          <!-- Close button -->
+          <button
+            @click="closeStatusModal"
+            class="transition-color absolute right-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            <svg
+              class="fill-current"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+                fill=""
+              />
+            </svg>
+          </button>
+            <div class="">
+              <div class="sm:flex sm:items-start">
+                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    {{ $t('changeBlockStatus') }}
+                  </h3>
+
+                  <div class="space-y-4">
+                    <!-- Informations sur le bloc -->
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                      <p class="text-sm text-gray-600">
+                        <strong>{{ $t('room') }}:</strong> {{ selectedStatusBlock?.room?.roomNumber }}
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        <strong>{{ $t('currentStatus') }}:</strong>
+                        <span :class="getStatusClass(selectedStatusBlock?.status)" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-1">
+                          {{ $t(`statuses.${selectedStatusBlock?.status}`) }}
+                        </span>
+                      </p>
+                    </div>
+
+                    <!-- Sélection du nouveau statut -->
+                    <div>
+                       <Select
+                           v-model="newStatus"
+                          :options="statusOptions"
+                          :placeholder="$t('selectStatusPlaceholder')"
+                          :lb="$t('newStatus')"
+                        />
+
+                    </div>
+
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boutons -->
+              <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  @click="confirmStatusChange"
+                  :disabled="statusUpdateLoading || !newStatus || newStatus === selectedStatusBlock?.status"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  <span v-if="statusUpdateLoading" class="inline-flex items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ $t('updating') }}...
+                  </span>
+                  <span v-else>{{ $t('updateStatus') }}</span>
+                </button>
+
+                <button
+                  type="button"
+                  @click="closeStatusModal"
+                  :disabled="statusUpdateLoading"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+                >
+                  {{ $t('cancel') }}
+                </button>
+              </div>
+            </div>
+            </div>
+          </template>
+        </Modal>
+      </template>
+
 
       <!-- Modal de confirmation de suppression -->
       <ConfirmationModal
@@ -123,6 +230,8 @@ import { KeyRound, FileDown, Edit, Trash2 } from 'lucide-vue-next'
 import { createRoomBlock, getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification';
+import Modal from '@/components/profile/Modal.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 
@@ -153,6 +262,7 @@ interface MaintenanceBlock {
   blockedBy: BlockedByUser
   createdAt: string
   reason: string
+  description: string
   status: string
 }
 
@@ -169,6 +279,11 @@ const isEditing = ref(false)
 const isBlockModalOpen = ref(false)
 const blocks = ref<MaintenanceBlock[]>([])
 const serviceStore = useServiceStore()
+const showStatusModal = ref(false)
+const newStatus = ref('')
+const statusChangeComment = ref('')
+const statusUpdateLoading = ref(false)
+const selectedStatusBlock = ref<any | null>(null)
 const toast = useToast()
 
 // Breadcrumb
@@ -212,6 +327,12 @@ const columns = computed(() => [
   {
     key: 'reason',
     label: t('maintenanceBlocks.columns.reason'),
+    type: 'custom' as const,
+    sortable: true
+  },
+  {
+    key: 'description',
+    label: t('description'),
     type: 'custom' as const,
     sortable: true
   },
@@ -269,23 +390,22 @@ const filteredBlocks = computed(() => {
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'blocked':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-    case 'maintenance':
+    case 'pending':
       return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-    case 'out_of_order':
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-    case 'available':
+    case 'completed':
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    case 'occupied':
+    case 'inProgress':
       return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-    case 'dirty':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
     default:
       return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
   }
 }
 
+const statusOptions = computed(()=>[
+  { value: 'pending', label: t('statuses.pending') },
+  { value: 'inProgress', label: t('statuses.in_progress') },
+  { value: 'completed', label: t('statuses.completed') },
+])
 
 // Actions configuration
 const actions = computed(() => [
@@ -323,6 +443,55 @@ const formatDate = (dateString: string): string => {
     return dateString
   }
 }
+
+// Status change functions
+const openStatusModal = (block: MaintenanceBlock) => {
+  selectedStatusBlock.value = { ...block }
+  newStatus.value = block.status
+  statusChangeComment.value = ''
+  showStatusModal.value = true
+}
+
+const closeStatusModal = () => {
+  showStatusModal.value = false
+  selectedStatusBlock.value = null
+  newStatus.value = ''
+  statusChangeComment.value = ''
+}
+
+const confirmStatusChange = async () => {
+  if (!selectedStatusBlock.value || !newStatus.value || newStatus.value === selectedStatusBlock.value.status) {
+    return
+  }
+
+  statusUpdateLoading.value = true
+
+  try {
+    // Préparer les données pour la mise à jour
+    const updateData = {
+      ...selectedStatusBlock.value,
+      status: newStatus.value,
+    }
+
+    // Appeler l'API pour mettre à jour le statut
+    await updateRoomBlock(selectedStatusBlock.value.id, updateData)
+
+    // Mettre à jour la liste locale
+    await fetchBlocks()
+
+    toast.success(t('statusUpdatedSuccessfully'))
+    closeStatusModal()
+
+  } catch (error: any) {
+    console.error('Error updating status:', error)
+    const errorMsg = error.response?.data?.message || error.message || t('errorUpdatingStatus')
+    console.error("error",errorMsg)
+    toast.error(t('errorUpdatingStatus'))
+  } finally {
+    statusUpdateLoading.value = false
+  }
+}
+
 
 
 // Event handlers
