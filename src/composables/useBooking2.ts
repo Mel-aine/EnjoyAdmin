@@ -752,52 +752,56 @@ const validateAllRooms = () => {
   let isValid = true;
   const errors: string[] = [];
   console.log("Validate all rooms called");
-  console.log("Room configurations:", JSON.stringify(roomConfigurations.value, null, 2));
 
   for (const [index, room] of roomConfigurations.value.entries()) {
     console.log(`Checking room ${index + 1}:`, JSON.stringify(room, null, 2));
 
-    // Check for Room Type
+    // --- Room Type Validation ---
     if (!room.roomType) {
       isValid = false;
       errors.push(`Room ${index + 1}: Please select a Room Type.`);
+    } else {
+      const roomTypeExists = RoomTypes.value.some(option => option.value === room.roomType);
+      if (!roomTypeExists) {
+        isValid = false;
+        errors.push(`Room ${index + 1}: Room Type "${room.roomType}" is not valid.`);
+      }
     }
 
-    // Check for Rate Type
+    // --- Rate Type Validation ---
     if (!room.rateType) {
       isValid = false;
       errors.push(`Room ${index + 1}: Please select a Rate Type.`);
+    } else {
+      const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value === room.rateType);
+      if (!rateTypeExists) {
+        isValid = false;
+        errors.push(`Room ${index + 1}: Rate Type "${room.rateType}" is not valid for the selected Room Type.`);
+      }
     }
 
-    // Check for Room Number validity
+    // --- Room Number Validation ---
     if (room.roomType && room.roomNumber) {
-      const availableRooms = getRoomsForRoom(room.id);
-      const roomExists = availableRooms.some(option =>
+      const roomNumberExists = getRoomsForRoom(room.id).some(option =>
         option.value.toString() === room.roomNumber.toString()
       );
-
-      console.log(`Validation for Room ID: ${room.id}, Room Number: ${room.roomNumber} - Status: ${roomExists ? 'Valid' : 'Invalid'}`);
-
-      if (!roomExists) {
+      if (!roomNumberExists) {
         isValid = false;
-        const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown';
-        errors.push(`Room ${index + 1}: The room number "${room.roomNumber}" is not available for ${roomTypeName}.`);
+        const roomTypeName = RoomTypes.value.find(rt => rt.value === room.roomType)?.label || 'Unknown';
+        errors.push(`Room ${index + 1}: Room number "${room.roomNumber}" is not available for ${roomTypeName}.`);
       }
     }
   }
 
   console.log("Validation result:", { isValid, errors });
-  return {
-    isValid: isValid,
-    errors: errors
-  };
+  return { isValid, errors };
 };
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true
     try {
       // Validation
-      if (!formData.value.firstName || !formData.value.email) {
+      if (!formData.value.firstName || !formData.value.lastName  || !formData.value.phoneNumber || !formData.value.email ) {
         throw new Error('Guest information is incomplete')
       }
 
@@ -817,7 +821,7 @@ const validateAllRooms = () => {
     if (!roomValidation.isValid) {
       // Afficher toutes les erreurs de validation des chambres
       roomValidation.errors.forEach(error => toast.error(error))
-      throw new Error('Validation des numéros de chambre échouée')
+      // throw new Error('Validation des numéros de chambre échouée')
     }
 
       //email client

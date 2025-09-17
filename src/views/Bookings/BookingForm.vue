@@ -141,7 +141,7 @@
                     <div class="grid md:grid-cols-6 grid-cols-1 gap-4 items-end">
                       <div class="relative">
                         <p v-if="isRoomTypeInvalid(room)" class="text-sm text-red-600 mb-1">
-                          {{ $t('validation.required') }}
+                          {{ $t('validation.invalidRoomType') }}
                         </p>
                         <AutoCompleteSelect v-model="room.roomType" :options="RoomTypes"
                           :defaultValue="$t('SelectRoomType')" :lb="$t('roomType')" :is-required="false"
@@ -152,7 +152,7 @@
 
                       <div class="relative">
                         <p v-if="isRateTypeInvalid(room)" class="text-sm text-red-600 mb-1">
-                          {{ $t('validation.required') }}
+                          {{ $t('validation.invalidRateType') }}
                         </p>
                         <AutoCompleteSelect v-model="room.rateType" :options="getRateTypesForRoom(room.id)"
                           :defaultValue="$t('SelectRateType')" :lb="$t('configuration.rates.rateType')"
@@ -650,16 +650,24 @@ const useDropdownBooking = ref(true)
 
 const submitted = ref(false);
 
-const isRoomTypeInvalid = (room: any) => submitted.value && !room.roomType;
-const isRateTypeInvalid = (room: any) => submitted.value && !room.rateType;
+const isRoomTypeInvalid = (room: any) => {
+    if (!submitted.value) return false;
+    if (!room.roomType) return true; // Required
+    return !RoomTypes.value.some(option => option.value === room.roomType); // Must be in list
+};
+
+const isRateTypeInvalid = (room: any) => {
+    if (!submitted.value) return false;
+    if (!room.rateType) return true; // Required
+    return !getRateTypesForRoom(room.id).some(option => option.value === room.rateType); // Must be in list
+};
+
 const isRoomNumberInvalid = (room: any) => {
     if (!submitted.value) return false;
-    // if (room.roomType && !room.roomNumber) return true; // Invalid if empty after submission attempt
-    if (!room.roomNumber) return false; // Don't validate if no room number is entered yet, unless submitted
-
-    const availableRooms = getRoomsForRoom(room.id);
-    return !availableRooms.some(option => option.value.toString() === room.roomNumber.toString());
-}
+    // if (room.roomType && !room.roomNumber) return true; // Required if roomType is selected
+    if (!room.roomNumber) return false;
+    return !getRoomsForRoom(room.id).some(option => option.value.toString() === room.roomNumber.toString());
+};
 
 
 interface Emits {
