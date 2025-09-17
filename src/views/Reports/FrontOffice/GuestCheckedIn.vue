@@ -285,7 +285,7 @@ const {
   creditTypes,
   billToOptions,
   MarketCode,
-  emailTemplates,
+  // emailTemplates,
   reservationId,
 } = useBooking()
 

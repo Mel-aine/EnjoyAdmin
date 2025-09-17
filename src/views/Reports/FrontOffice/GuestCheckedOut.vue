@@ -250,29 +250,81 @@
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <ButtonComponent 
-              @click="exportData"
-              variant="secondary"
-              class="min-w-24 w-full sm:w-auto"
-            >
-              {{ t('common.export') }}
-            </ButtonComponent>
+            <!-- Bouton d'export avec menu déroulant -->
+            <div class="relative">
+              <button
+                @click="toggleExportMenu"
+                :disabled="exportLoading"
+                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+              >
+                <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="!exportLoading">{{ t('common.export') }}</span>
+                <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              
+              <!-- Menu déroulant Export -->
+              <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+                <button 
+                  @click="exportCSV" 
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  :disabled="exportLoading"
+                >
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  CSV
+                </button>
+                <button 
+                  @click="exportPDF" 
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  :disabled="exportLoading"
+                >
+                  <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  PDF
+                </button>
+                <button 
+                  @click="exportExcel" 
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  :disabled="exportLoading"
+                >
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Excel
+                </button>
+              </div>
+            </div>
             
-            <ButtonComponent 
+            <!-- Bouton Report -->
+            <button 
               @click="generateReport"
-              variant="primary"
-              class="min-w-24 w-full sm:w-auto"
+              :disabled="loading"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
+              <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
               {{ t('common.report') }}
-            </ButtonComponent>
+            </button>
             
-            <ButtonComponent 
+            <!-- Bouton Reset -->
+            <button 
               @click="resetForm"
-              variant="outline"
-              class="min-w-24 w-full sm:w-auto"
+              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
             >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               {{ t('common.reset') }}
-            </ButtonComponent>
+            </button>
           </div>
         </div>
       </div>
@@ -315,15 +367,47 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import ButtonComponent from '@/components/forms/FormElements/Button.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 
+const router = useRouter()
 const { t } = useI18n()
+
+// Récupérer l'ID de l'hôtel depuis le store ou une autre source
+const idHotel = ref<string | null>(null) // Vous devrez peut-être initialiser cette valeur différemment
+
+// Export data function
+const exportData = async (
+  type: 'csv' | 'pdf' | 'excel',
+  reportType: string,
+  fileName: string,
+  params: any
+) => {
+  try {
+    // TODO: Implement the actual export logic here
+    // This is a placeholder that simulates an API call
+    console.log(`Exporting ${type} for ${reportType} with params:`, params)
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Return a mock response
+    return {
+      success: true,
+      message: 'Export completed successfully',
+      fileUrl: type === 'pdf' ? 'data:application/pdf;base64,...' : undefined
+    }
+  } catch (error) {
+    console.error('Error during export:', error)
+    throw error
+  }
+}
 
 interface FilterOptions {
   value: string;
@@ -350,12 +434,16 @@ interface Reservation {
 interface Filters {
   arrivalFrom: string;
   arrivalTo: string;
+  departureFrom: string;
+  departureTo: string;
   roomType: string;
+  roomNumber: string;
   rateType: string;
   showAmount: string;
   rateFrom: string;
   rateTo: string;
   reservationType: string;
+  reservationNumber: string;
   company: string;
   travelAgent: string;
   businessSource: string;
@@ -370,16 +458,24 @@ interface Filters {
 
 const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
+const exportMenuOpen = ref<boolean>(false)
+const exportLoading = ref<boolean>(false)
+const loading = ref<boolean>(false)
+const pdfUrl = ref<string>('')
 
 const filters = ref<Filters>({
   arrivalFrom: '27/04/2019',
   arrivalTo: '30/04/2019',
+  departureFrom: '',
+  departureTo: '',
   roomType: '',
+  roomNumber: '',
   rateType: '',
   showAmount: t('reports.reservation.rentPerNight'),
   rateFrom: '',
   rateTo: '',
   reservationType: '',
+  reservationNumber: '',
   company: '',
   travelAgent: '',
   businessSource: '',
@@ -509,31 +605,111 @@ const generateReport = (): void => {
   console.log('Generating report with filters:', filters.value)
 }
 
-const exportData = (): void => {
-  console.log('Exporting data...')
+const toggleExportMenu = (): void => {
+  exportMenuOpen.value = !exportMenuOpen.value
+}
+
+const exportCSV = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export CSV avec filtres:', filters.value)
+    const result = await exportData('csv', 'guestCheckedOut', 'guest-checked-out', {
+      ...filters.value,
+      hotelId: idHotel.value !== null ? idHotel.value : undefined
+    })
+    console.log('Résultat export CSV:', result)
+  } catch (error) {
+    console.error('Erreur détaillée CSV:', error)
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportPDF = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    // Clear previous PDF URL
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
+
+    console.log('Export PDF avec filtres:', filters.value)
+    const result = await exportData('pdf', 'guestCheckedOut', 'guest-checked-out', {
+      ...filters.value,
+      hotelId: idHotel.value !== null ? idHotel.value : undefined
+    })
+    pdfUrl.value = result?.fileUrl || ''
+    openPDFInNewPage()
+    console.log('Résultat export PDF:', result)
+  } catch (error) {
+    console.error('Erreur détaillée PDF:', error) 
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportExcel = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export Excel avec filtres:', filters.value)
+    const result = await exportData('excel', 'guestCheckedOut', 'guest-checked-out', {
+      ...filters.value,
+      hotelId: idHotel.value !== null ? idHotel.value : undefined
+    })
+    console.log('Résultat export Excel:', result)
+  } catch (error) {
+    console.error('Erreur détaillée Excel:', error)
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const openPDFInNewPage = (): void => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: t('reports.frontOffice.guestCheckedOut')
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
 }
 
 const resetForm = (): void => {
+  // Réinitialiser les filtres aux valeurs par défaut
   filters.value = {
     arrivalFrom: '',
     arrivalTo: '',
+    departureFrom: '',
+    departureTo: '',
     roomType: '',
+    roomNumber: '',
     rateType: '',
-    showAmount: t('reports.reservation.rentPerNight'),
+    showAmount: 'withoutVat',
     rateFrom: '',
     rateTo: '',
     reservationType: '',
+    reservationNumber: '',
     company: '',
     travelAgent: '',
     businessSource: '',
     market: '',
     user: '',
-    taxInclusive: true,
+    taxInclusive: false,
     checkin: false,
     selectedColumns: [],
-    reportTemplate: 'default',
-    filterBy:''
+    reportTemplate: '',
+    filterBy: 'booking'
   }
+  
+  // Cacher les résultats
   showResults.value = false
 }
 
