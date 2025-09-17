@@ -457,14 +457,14 @@ const frontOfficeReports = ref([
   { name: 'guest-checked-out', path: '/reports/front-office/guest-checked-out', label: 'reports.frontOffice.guestCheckedOut' },
   { name: 'guest-list', path: '/reports/front-office/guest-list', label: 'reports.frontOffice.guestList' },
   { name: 'guest-message', path: '/reports/front-office/guest-message', label: 'reports.frontOffice.guestMessage' },
-  { name: 'inclusion-report', path: '/reports/front-office/inclusion-report', label: 'reports.frontOffice.inclusionReport' },
+ // { name: 'inclusion-report', path: '/reports/front-office/inclusion-report', label: 'reports.frontOffice.inclusionReport' },
   { name: 'inventory-by-room-type', path: '/reports/front-office/inventory-by-room-type', label: 'reports.frontOffice.inventoryByRoomType' },
   { name: 'invoice-breakdown', path: '/reports/front-office/invoice-breakdown', label: 'reports.frontOffice.invoiceBreakdown' },
   { name: 'night-audit', path: '/reports/front-office/night-audit', label: 'reports.frontOffice.nightAudit' },
   { name: 'pickup-dropoff', path: '/reports/front-office/pickup-dropoff', label: 'reports.frontOffice.pickupDropoff' },
   { name: 'room-availability', path: '/reports/front-office/room-availability', label: 'reports.frontOffice.roomAvailability' },
   { name: 'room-status-report', path: '/reports/front-office/room-status-report', label: 'reports.frontOffice.roomStatusReport' },
-  { name: 'task-list-report', path: '/reports/front-office/task-list-report', label: 'reports.frontOffice.taskListReport' }
+ // { name: 'task-list-report', path: '/reports/front-office/task-list-report', label: 'reports.frontOffice.taskListReport' }
 ])
 
 // Back Office Reports
@@ -475,23 +475,23 @@ const backOfficeReports = ref([
   { name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
   { name: 'daily-receipt-detail', path: '/reports/back-office/daily-receipt-detail', label: 'reports.backOffice.dailyReceiptDetail' },
   { name: 'daily-receipt-summary', path: '/reports/back-office/daily-receipt-summary', label: 'reports.backOffice.dailyReceiptSummary' },
-  { name: 'daily-refund-report', path: '/reports/back-office/daily-refund-report', label: 'reports.backOffice.dailyRefundReport' },
+ //TODO { name: 'daily-refund-report', path: '/reports/back-office/daily-refund-report', label: 'reports.backOffice.dailyRefundReport' },
   { name: 'daily-revenue', path: '/reports/back-office/daily-revenue', label: 'reports.backOffice.dailyRevenue' },
-  { name: 'expense-voucher', path: '/reports/back-office/expense-voucher', label: 'reports.backOffice.expenseVoucher' },
+//TODO  { name: 'expense-voucher', path: '/reports/back-office/expense-voucher', label: 'reports.backOffice.expenseVoucher' },
   { name: 'folio-list', path: '/reports/back-office/folio-list', label: 'reports.backOffice.folioList' },
   { name: 'guest-ledger', path: '/reports/back-office/guest-ledger', label: 'reports.backOffice.guestLedger' },
   { name: 'house-status', path: '/reports/back-office/house-status', label: 'reports.backOffice.houseStatus' },
   { name: 'manager-report', path: '/reports/back-office/manager-report', label: 'reports.backOffice.managerReport' },
   { name: 'revenue-by-rate-type', path: '/reports/back-office/revenue-by-rate-type', label: 'reports.backOffice.revenueByRateType' },
   { name: 'revenue-by-room-type', path: '/reports/back-office/revenue-by-room-type', label: 'reports.backOffice.revenueByRoomType' },
-  { name: 'travel-agent-commission-detail', path: '/reports/back-office/travel-agent-commission-detail', label: 'reports.backOffice.travelAgentCommissionDetail' },
-  { name: 'travel-agent-commission-summary', path: '/reports/back-office/travel-agent-commission-summary', label: 'reports.backOffice.travelAgentCommissionSummary' }
+//TODO  { name: 'travel-agent-commission-detail', path: '/reports/back-office/travel-agent-commission-detail', label: 'reports.backOffice.travelAgentCommissionDetail' },
+//TODO  { name: 'travel-agent-commission-summary', path: '/reports/back-office/travel-agent-commission-summary', label: 'reports.backOffice.travelAgentCommissionSummary' }
 ])
 
 // Audit Reports
 const auditReports = ref([
   { name: 'audit-trail', path: '/reports/audit/audit-trail', label: 'reports.audit.auditTrail' },
-  { name: 'ip-report', path: '/reports/audit/ip-report', label: 'reports.audit.ipReport' },
+//TBD  { name: 'ip-report', path: '/reports/audit/ip-report', label: 'reports.audit.ipReport' },
   { name: 'void-charge', path: '/reports/audit/void-charge', label: 'reports.audit.voidCharge' },
   { name: 'void-payment', path: '/reports/audit/void-payment', label: 'reports.audit.voidPayment' },
   { name: 'void-transaction', path: '/reports/audit/void-transaction', label: 'reports.audit.voidTransaction' },
@@ -511,9 +511,9 @@ const statisticalReports = ref([
   { name: 'room-on-books', path: '/reports/statistical/room-on-books', label: 'reports.statistical.roomOnBooks' },
   { name: 'yearly-statistics', path: '/reports/statistical/yearly-statistics', label: 'reports.statistical.yearlyStatistics' },
   { name: 'booking-source-wise-reservation-statistics', path: '/reports/statistical/booking-source-wise-reservation-statistics', label: 'reports.statistical.bookingSourceWiseReservationStatistics' },
-  { name: 'channelwise-booking-report', path: '/reports/statistical/channelwise-booking-report', label: 'reports.statistical.channelwiseBookingReport' },
-  { name: 'mobile-desktop-wise-reservation-statistics', path: '/reports/statistical/mobile-desktop-wise-reservation-statistics', label: 'reports.statistical.mobileDesktopWiseReservationStatistics' },
-  { name: 'ota-wise-monthly-breakdown', path: '/reports/statistical/ota-wise-monthly-breakdown', label: 'reports.statistical.otaWiseMonthlyBreakdown' },
+  //{ name: 'channelwise-booking-report', path: '/reports/statistical/channelwise-booking-report', label: 'reports.statistical.channelwiseBookingReport' },
+  //{ name: 'mobile-desktop-wise-reservation-statistics', path: '/reports/statistical/mobile-desktop-wise-reservation-statistics', label: 'reports.statistical.mobileDesktopWiseReservationStatistics' },
+  //TODO{ name: 'ota-wise-monthly-breakdown', path: '/reports/statistical/ota-wise-monthly-breakdown', label: 'reports.statistical.otaWiseMonthlyBreakdown' },
   { name: 'performance-analysis-report', path: '/reports/statistical/performance-analysis-report', label: 'reports.statistical.performanceAnalysisReport' }
 ])
 
