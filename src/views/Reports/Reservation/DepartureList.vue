@@ -454,10 +454,12 @@ const tableColumns = computed(() => {
 const getCompaniesList = async () => {
   try {
     const resp = await getCompanies()
-    companyOptions.value = resp.map((c: any) => ({
-      label: c.companyName,
-      value: c.companyCode
-    }))
+    companyOptions.value = Array.isArray(resp)
+      ? resp.map((c: any) => ({
+          label: c.companyName,
+          value: c.companyCode
+        }))
+      : []
   } catch (error) {
     console.error('Error fetching companies:', error)
   }
@@ -508,7 +510,7 @@ watch(filters, (newFilters) => {
     endDate: newFilters.departureTo,
     roomTypeId: newFilters.roomType ? parseInt(newFilters.roomType) : undefined,
     ratePlanId: newFilters.rateType ? parseInt(newFilters.rateType) : undefined,
-    company: newFilters.company,
+    company: newFilters.company ? newFilters.company : undefined,
     travelAgent: newFilters.travelAgent,
     businessSource: newFilters.businessSource,
     market: newFilters.market,
@@ -543,7 +545,7 @@ const generateDepartureReport = async () => {
     const response = await generateDepatureList(apiFilters.value)
     console.log('Departure Report Data:', response)
     
-    if (response.success && response.data) {
+    if (response && response.success && response.data) {
       reportData.value = response.data
       showResults.value = true
     } else {

@@ -475,8 +475,8 @@ const reportTitle = computed(() => {
 watch(filters, (newFilters) => {
   apiFilters.value = {
     ...apiFilters.value,
-    arrivalFrom: newFilters.arrivalFrom,
-    arrivalTo: newFilters.arrivalTo
+    startDate: newFilters.arrivalFrom,
+    endDate: newFilters.arrivalTo
   }
 }, { deep: true })
 
@@ -490,7 +490,7 @@ const generateVoidReport = async () => {
     const response = await generateVoidList(apiFilters.value)
     console.log('Report Data:', response)
     
-    if (response.success && response.data) {
+    if (response && response.success && response.data) {
       reportData.value = response.data
       showResults.value = true
     }

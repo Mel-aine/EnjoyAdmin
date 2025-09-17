@@ -285,7 +285,6 @@ const {
   creditTypes,
   billToOptions,
   MarketCode,
-  emailTemplates,
   reservationId,
 } = useBooking()
 
@@ -398,10 +397,12 @@ const generateReport = async (): Promise<void> => {
     // Appel API pour générer le rapport
     const response = await generateGuestCheckedIn({
       ...filters.value,
+      rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
+      rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined,
     })
     console.log('Report generation response:', response)
-    if (response.success) {
+    if (response && response.success) {
       showResults.value = true
     }
   } catch (error) {
@@ -418,6 +419,8 @@ const exportCSV = async (): Promise<void> => {
     console.log('Export CSV avec filtres:', filters.value)
     const result = await exportData('csv', 'guestCheckedIn', 'guest-checked-in', {
       ...filters.value,
+      rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
+      rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
     })
     console.log('Résultat export CSV:', result)
@@ -441,6 +444,8 @@ const exportPDF = async (): Promise<void> => {
     console.log('Export PDF avec filtres:', filters.value)
     const result = await exportData('pdf', 'guestCheckedIn', 'guest-checked-in', {
       ...filters.value,
+      rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
+      rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
     })
     pdfUrl.value = result?.fileUrl || ''
@@ -460,6 +465,8 @@ const exportExcel = async (): Promise<void> => {
     console.log('Export Excel avec filtres:', filters.value)
     const result = await exportData('excel', 'guestCheckedIn', 'guest-checked-in', {
       ...filters.value,
+      rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
+      rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
     })
     console.log('Résultat export Excel:', result)

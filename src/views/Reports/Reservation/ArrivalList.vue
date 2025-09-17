@@ -458,10 +458,12 @@ const getCompaniesList = async () => {
   try {
     const resp = await getCompanies()
     console.log('Companies response:', resp)
-    companyOptions.value = resp.map((c: any) => ({
-      label: c.companyName,
-      value: c.companyCode
-    }))
+    companyOptions.value = Array.isArray(resp)
+      ? resp.map((c: any) => ({
+          label: c.companyName,
+          value: c.companyCode
+        }))
+      : []
   } catch (error) {
     console.error('Error fetching companies:', error)
   }
@@ -522,7 +524,6 @@ const {
   creditTypes,
   billToOptions,
   MarketCode,
-  emailTemplates,
   reservationId,
 } = useBooking()
 
@@ -564,9 +565,9 @@ watch(filters, (newFilters) => {
   // Mapper les filtres UI vers les filtres API
   apiFilters.value = {
     ...apiFilters.value,
-    arrivalFrom: newFilters.arrivalFrom,
-    selectedColumns: newFilters.selectedColumns,
-    arrivalTo: newFilters.arrivalTo,
+    startDate: newFilters.arrivalFrom,
+    // selectedColumns: newFilters.selectedColumns,
+    endDate: newFilters.arrivalTo,
     roomTypeId: newFilters.roomType ? parseInt(newFilters.roomType) : undefined,
     ratePlanId: newFilters.rateType ? parseInt(newFilters.rateType) : undefined,
     company: newFilters.company,
@@ -634,7 +635,7 @@ const generateArrivalReport = async () => {
     const response = await generateArrivalList(apiFilters.value)
     console.log('Report Data:', response)
     
-    if (response.success && response.data) {
+    if (response && response.success && response.data) {
       reportData.value = response.data
       showResults.value = true
     }
