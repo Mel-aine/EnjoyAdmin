@@ -29,6 +29,18 @@ export interface ReportFilters {
   departmentId?: number
   bookingSourceId?: number
   ratePlanId?: number
+  company?: string
+  travelAgent?: string
+  businessSource?: string
+  market?: string
+  minAmount?: number
+  maxAmount?: number
+  user?: string
+  rateFrom?: number
+  rateTo?: number
+  reservationType?: string
+  taxInclusive?: boolean
+  showAmount?: string
 }
 
 const handleApiError = (error: any): never => {
@@ -40,15 +52,16 @@ const handleApiError = (error: any): never => {
 }
 
 // Obtenir les types de rapports disponibles
-export const getAvailableReports = async (): Promise<ApiResponse> => {
+export const getAvailableReports = async (): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}`,
       headers
     )
     return response.data
   } catch (error) {
     handleApiError(error)
+    return undefined
   }
 }
 
@@ -56,9 +69,9 @@ export const getAvailableReports = async (): Promise<ApiResponse> => {
 export const generateReport = async (
   reportType: string,
   filters: ReportFilters = {}
-): Promise<ApiResponse> => {
+): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/generate`,
       { reportType, filters },
       headers
@@ -72,9 +85,9 @@ export const generateReport = async (
 // Méthodes spécifiques pour chaque type de rapport
 
 // Arrival Reports
-export const generateArrivalList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateArrivalList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/arrival-list`,
       { reportType: 'arrivalList', filters },
       headers
@@ -86,9 +99,9 @@ export const generateArrivalList = async (filters: ReportFilters = {}): Promise<
 }
 
 // Departure Reports
-export const generateDepatureList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateDepatureList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/departure-list`,
       { reportType: 'departureList', filters },
       headers
@@ -100,9 +113,9 @@ export const generateDepatureList = async (filters: ReportFilters = {}): Promise
 }
 
 // cancelled Reports
-export const generateCancelledList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateCancelledList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/cancelled`,
       { reportType: 'cancelledReservations', filters },
       headers
@@ -114,9 +127,9 @@ export const generateCancelledList = async (filters: ReportFilters = {}): Promis
 }
 
 // void Reports
-export const generateVoidList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateVoidList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/void`,
       { reportType: 'voidReservations', filters },
       headers
@@ -127,9 +140,9 @@ export const generateVoidList = async (filters: ReportFilters = {}): Promise<Api
   }
 }
 
-export const generateDepartureList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateDepartureList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/departure-list`,
       { reportType: 'departureList', filters },
       headers
@@ -140,9 +153,9 @@ export const generateDepartureList = async (filters: ReportFilters = {}): Promis
   }
 }
 
-export const generateConfirmedReservations = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateConfirmedReservations = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/confirmed`,
       { reportType: 'confirmedReservations', filters },
       headers
@@ -153,9 +166,9 @@ export const generateConfirmedReservations = async (filters: ReportFilters = {})
   }
 }
 
-export const generateCancelledReservations = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateCancelledReservations = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/cancelled`,
       { reportType: 'cancelledReservations', filters },
       headers
@@ -166,9 +179,9 @@ export const generateCancelledReservations = async (filters: ReportFilters = {})
   }
 }
 
-export const generateNoShowReservations = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateNoShowReservations = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/no-show`,
       { reportType: 'noShowReservations', filters },
       headers
@@ -179,9 +192,9 @@ export const generateNoShowReservations = async (filters: ReportFilters = {}): P
   }
 }
 
-export const generateReservationForecast = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateReservationForecast = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/forecast`,
       { reportType: 'reservationForecast', filters },
       headers
@@ -193,9 +206,9 @@ export const generateReservationForecast = async (filters: ReportFilters = {}): 
 }
 
 // Front Office Reports
-export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/checked-in`,
       { reportType: 'guestCheckedIn', filters },
       headers
@@ -206,9 +219,9 @@ export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promi
   }
 }
 
-export const generateGuestCheckedOut = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateGuestCheckedOut = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/checked-out`,
       { reportType: 'guestCheckedOut', filters },
       headers
@@ -219,9 +232,9 @@ export const generateGuestCheckedOut = async (filters: ReportFilters = {}): Prom
   }
 }
 
-export const generateRoomAvailability = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateRoomAvailability = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/room-availability`,
       { reportType: 'roomAvailability', filters },
       headers
@@ -232,9 +245,9 @@ export const generateRoomAvailability = async (filters: ReportFilters = {}): Pro
   }
 }
 
-export const generateRoomStatus = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateRoomStatus = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/room-status`,
       { reportType: 'roomStatus', filters },
       headers
@@ -245,9 +258,9 @@ export const generateRoomStatus = async (filters: ReportFilters = {}): Promise<A
   }
 }
 
-export const generateTaskList = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateTaskList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/task-list`,
       { reportType: 'taskList', filters },
       headers
@@ -259,9 +272,9 @@ export const generateTaskList = async (filters: ReportFilters = {}): Promise<Api
 }
 
 // Back Office Reports
-export const generateRevenueReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateRevenueReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/back-office/revenue`,
       { reportType: 'revenueReport', filters },
       headers
@@ -272,9 +285,9 @@ export const generateRevenueReport = async (filters: ReportFilters = {}): Promis
   }
 }
 
-export const generateExpenseReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateExpenseReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/back-office/expenses`,
       { reportType: 'expenseReport', filters },
       headers
@@ -285,9 +298,9 @@ export const generateExpenseReport = async (filters: ReportFilters = {}): Promis
   }
 }
 
-export const generateCashierReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateCashierReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/back-office/cashier`,
       { reportType: 'cashierReport', filters },
       headers
@@ -299,9 +312,9 @@ export const generateCashierReport = async (filters: ReportFilters = {}): Promis
 }
 
 // Audit Reports
-export const generateUserActivityLog = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateUserActivityLog = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/audit/user-activity`,
       { reportType: 'userActivityLog', filters },
       headers
@@ -313,9 +326,9 @@ export const generateUserActivityLog = async (filters: ReportFilters = {}): Prom
 }
 
 // Statistical Reports
-export const generateOccupancyReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateOccupancyReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/occupancy`,
       { reportType: 'occupancyReport', filters },
       headers
@@ -326,9 +339,9 @@ export const generateOccupancyReport = async (filters: ReportFilters = {}): Prom
   }
 }
 
-export const generateADRReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateADRReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/adr`,
       { reportType: 'adrReport', filters },
       headers
@@ -339,9 +352,9 @@ export const generateADRReport = async (filters: ReportFilters = {}): Promise<Ap
   }
 }
 
-export const generateRevPARReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateRevPARReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/revpar`,
       { reportType: 'revparReport', filters },
       headers
@@ -352,9 +365,9 @@ export const generateRevPARReport = async (filters: ReportFilters = {}): Promise
   }
 }
 
-export const generateMarketSegmentAnalysis = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateMarketSegmentAnalysis = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/market-segment`,
       { reportType: 'marketSegmentAnalysis', filters },
       headers
@@ -365,9 +378,9 @@ export const generateMarketSegmentAnalysis = async (filters: ReportFilters = {})
   }
 }
 
-export const generateSourceOfBusinessReport = async (filters: ReportFilters = {}): Promise<ApiResponse> => {
+export const generateSourceOfBusinessReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/source-of-business`,
       { reportType: 'sourceOfBusinessReport', filters },
       headers
@@ -426,10 +439,10 @@ export const exportData = async (
     console.error('Erreur détaillée lors de l\'export:', error);
     
     // Gestion des erreurs
-    if (error.response?.status === 400) {
+    if ((error as any).response?.status === 400) {
       try {
         // Essayer de lire le message d'erreur du backend
-        const errorText = await error.response.data.text();
+        const errorText = await (error as any).response.data.text();
         try {
           const errorJson = JSON.parse(errorText);
           throw new Error(errorJson.message || 'Erreur de validation des paramètres');
@@ -447,7 +460,7 @@ export const exportData = async (
 
 // Fonctions utilitaires
 const getMimeType = (format: string): string => {
-  const mimeTypes = {
+  const mimeTypes: Record<string, string> = {
     'pdf': 'application/pdf',
     'csv': 'text/csv',
     'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -455,8 +468,8 @@ const getMimeType = (format: string): string => {
   return mimeTypes[format] || 'application/octet-stream';
 };
 
-const getFileExtension = (format: string): string => {
-  const extensions = {
+const getFileExtension = (format: 'pdf' | 'csv' | 'excel'): string => {
+  const extensions: Record<'pdf' | 'csv' | 'excel', string> = {
     'pdf': 'pdf',
     'csv': 'csv',
     'excel': 'xlsx'
@@ -508,6 +521,7 @@ const validatePdfBlob = async (blob: Blob): Promise<void> => {
     if (blob.size < 100) {
       reject(new Error('Le fichier PDF est trop petit et probablement corrompu'));
       return;
+
     }
 
     // Lire les premiers bytes pour vérifier le header PDF
@@ -558,9 +572,9 @@ export const generateCustomReport = async (
   joins: any[] = [],
   groupBy: string[] = [],
   orderBy: any[] = []
-): Promise<ApiResponse> => {
+): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/custom`,
       { tableName, selectedFields, filters, joins, groupBy, orderBy },
       headers
@@ -572,9 +586,9 @@ export const generateCustomReport = async (
 }
 
 // Obtenir les modèles de rapports
-export const getReportTemplates = async (): Promise<ApiResponse> => {
+export const getReportTemplates = async (): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/templates`,
       headers
     )
@@ -585,10 +599,10 @@ export const getReportTemplates = async (): Promise<ApiResponse> => {
 }
 
 // Obtenir les statistiques de rapports
-export const getReportStats = async (hotelId?: number): Promise<ApiResponse> => {
+export const getReportStats = async (hotelId?: number): Promise<ApiResponse | undefined> => {
   try {
     const params = hotelId ? { hotelId } : {}
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/stats`,
       {
         ...headers,
@@ -602,9 +616,9 @@ export const getReportStats = async (hotelId?: number): Promise<ApiResponse> => 
 }
 
 // Vérifier la santé du service de rapports
-export const checkReportsHealth = async (): Promise<ApiResponse> => {
+export const checkReportsHealth = async (): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/health`,
     )
     return response.data
