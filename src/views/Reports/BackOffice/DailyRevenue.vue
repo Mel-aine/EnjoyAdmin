@@ -37,19 +37,6 @@
               class="w-full"
             />
           </div>
-
-          <!-- Report Template -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Report Template
-            </label>
-            <SelectComponent 
-              v-model="filters.reportTemplate"
-              :options="reportTemplateOptions"
-              placeholder="Default"
-              class="w-full"
-            />
-          </div>
         </div>
 
         <!-- Action Buttons -->
@@ -90,51 +77,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Results Table -->
-      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Daily Revenue Report
-          </h2>
-          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ hotelName }}</span> • 
-            <span>Report Date: {{ filters.asOnDate }}</span> • 
-            <span>Revenue By: {{ getRevenueByLabel(filters.dailyRevenueBy) }}</span>
-          </div>
-        </div>
-        
-        <div class="overflow-x-auto">
-          <ResultTable 
-            title="Daily Revenue Report"
-            :data="revenueData"
-            :columns="tableColumns"
-            class="w-full"
-          />
-        </div>
-        
-        <!-- Summary -->
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Total Room Revenue:</span>
-              <span class="ml-2 font-bold text-green-600 dark:text-green-400">Rs {{ totalRoomRevenue.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Total F&B Revenue:</span>
-              <span class="ml-2 font-bold text-blue-600 dark:text-blue-400">Rs {{ totalFBRevenue.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Total Other Revenue:</span>
-              <span class="ml-2 font-bold text-purple-600 dark:text-purple-400">Rs {{ totalOtherRevenue.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Grand Total:</span>
-              <span class="ml-2 font-bold text-gray-900 dark:text-white text-lg">Rs {{ grandTotal.toLocaleString() }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </ReportsLayout>
 </template>
@@ -144,7 +86,6 @@ import { ref, computed } from 'vue'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import type { Column } from '../../../utils/models'
 
@@ -171,7 +112,6 @@ interface RevenueData {
 interface Filters {
   asOnDate: string;
   dailyRevenueBy: string;
-  reportTemplate: string;
 }
 
 const hotelName = ref<string>('Hotel Nihal')
@@ -180,149 +120,17 @@ const showResults = ref<boolean>(false)
 const filters = ref<Filters>({
   asOnDate: '20/09/2021',
   dailyRevenueBy: '',
-  reportTemplate: 'default'
 })
 
 // Options for selects
 const revenueByOptions = ref<FilterOptions[]>([
-  { value: 'room_type', label: 'Room Type' },
-  { value: 'rate_type', label: 'Rate Type' },
-  { value: 'market_code', label: 'Market Code' },
-  { value: 'business_source', label: 'Business Source' },
-  { value: 'company', label: 'Company' },
-  { value: 'travel_agent', label: 'Travel Agent' },
-  { value: 'user', label: 'User' },
-  { value: 'payment_mode', label: 'Payment Mode' }
+  { value: '', label: 'All' },
+  { value: 'room_revenue', label: 'Room Revenue' },
+  { value: 'no_show_revenue', label: 'No Show Revenue' },
+  { value: 'cancellation_revenue', label: 'Cancellation Revenue' },
+  { value: 'dayuser_revenue', label: 'Dayuser Revenue' },
+  { value: 'late_check_out_revenue', label: 'Late Check Out Revenue' },
 ])
-
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: 'Default' },
-  { value: 'detailed', label: 'Detailed' },
-  { value: 'summary', label: 'Summary' },
-  { value: 'custom', label: 'Custom' }
-])
-
-// Sample revenue data
-const revenueData = ref<RevenueData[]>([
-  {
-    revenueAccount: 'ROOM-STD',
-    description: 'Standard Room Revenue',
-    roomCharges: 15000,
-    foodBeverage: 3500,
-    telephone: 250,
-    laundry: 400,
-    miscellaneous: 150,
-    extraBed: 800,
-    discount: -500,
-    roundOff: 5,
-    total: 19605,
-    percentage: 45.2
-  },
-  {
-    revenueAccount: 'ROOM-DLX',
-    description: 'Deluxe Room Revenue',
-    roomCharges: 22000,
-    foodBeverage: 5200,
-    telephone: 180,
-    laundry: 600,
-    miscellaneous: 320,
-    extraBed: 1200,
-    discount: -800,
-    roundOff: -8,
-    total: 28692,
-    percentage: 66.1
-  },
-  {
-    revenueAccount: 'ROOM-STE',
-    description: 'Suite Room Revenue',
-    roomCharges: 8500,
-    foodBeverage: 2100,
-    telephone: 120,
-    laundry: 350,
-    miscellaneous: 180,
-    extraBed: 600,
-    discount: -300,
-    roundOff: 3,
-    total: 11553,
-    percentage: 26.6
-  },
-  {
-    revenueAccount: 'REST-MAIN',
-    description: 'Main Restaurant',
-    roomCharges: 0,
-    foodBeverage: 12500,
-    telephone: 0,
-    laundry: 0,
-    miscellaneous: 250,
-    extraBed: 0,
-    discount: -450,
-    roundOff: 2,
-    total: 12302,
-    percentage: 28.4
-  },
-  {
-    revenueAccount: 'BAR-001',
-    description: 'Main Bar',
-    roomCharges: 0,
-    foodBeverage: 6800,
-    telephone: 0,
-    laundry: 0,
-    miscellaneous: 150,
-    extraBed: 0,
-    discount: -200,
-    roundOff: -3,
-    total: 6747,
-    percentage: 15.5
-  },
-  {
-    revenueAccount: 'SPA-001',
-    description: 'Spa Services',
-    roomCharges: 0,
-    foodBeverage: 0,
-    telephone: 0,
-    laundry: 0,
-    miscellaneous: 4500,
-    extraBed: 0,
-    discount: -150,
-    roundOff: 1,
-    total: 4351,
-    percentage: 10.0
-  }
-])
-
-// Table columns
-const tableColumns = ref<Column[]>([
-  { key: 'revenueAccount', label: 'Revenue Account' },
-  { key: 'description', label: 'Description' },
-  { key: 'roomCharges', label: 'Room Charges ', type: 'text' },
-  { key: 'foodBeverage', label: 'Food & Beverage ', type: 'text' },
-  { key: 'telephone', label: 'Telephone ', type: 'text' },
-  { key: 'laundry', label: 'Laundry ', type: 'text' },
-  { key: 'miscellaneous', label: 'Miscellaneous ', type: 'text' },
-  { key: 'extraBed', label: 'Extra Bed ', type: 'text' },
-  { key: 'discount', label: 'Discount ', type: 'text' },
-  { key: 'roundOff', label: 'Round Off ', type: 'text' },
-  { key: 'total', label: 'Total ', type: 'text',   },
-  { key: 'percentage', label: 'Percentage (%)', type: 'text' }
-])
-
-// Computed properties
-const totalRoomRevenue = computed(() => {
-  return revenueData.value.reduce((total, item) => total + item.roomCharges, 0)
-})
-
-const totalFBRevenue = computed(() => {
-  return revenueData.value.reduce((total, item) => total + item.foodBeverage, 0)
-})
-
-const totalOtherRevenue = computed(() => {
-  return revenueData.value.reduce((total, item) => 
-    total + item.telephone + item.laundry + item.miscellaneous + item.extraBed, 0)
-})
-
-const grandTotal = computed(() => {
-  return revenueData.value.reduce((total, item) => total + item.total, 0)
-})
 
 // Methods
 const generateReport = (): void => {
@@ -334,15 +142,10 @@ const resetForm = (): void => {
   filters.value = {
     asOnDate: '',
     dailyRevenueBy: '',
-    reportTemplate: 'default'
   }
   showResults.value = false
 }
 
-const getRevenueByLabel = (value: string): string => {
-  const option = revenueByOptions.value.find(opt => opt.value === value)
-  return option ? option.label : 'All'
-}
 </script>
 
 <style scoped>
