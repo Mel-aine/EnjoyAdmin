@@ -5364,12 +5364,14 @@
     "unblacklistGuest": "Retirer le client de la liste noire"
   },
   "statuses": {
-    "blocked": "Bloqué",
+    "blocked": "Bloquée",
     "maintenance": "Maintenance",
-    "outOfOrder": "Hors d'usage",
-    "available": "Disponible",
-    "occupied": "Occupée",
-    "dirty": "Sale"
+    "outOfOrder": "Hors service",
+    "pending": "En attente",
+    "in_progress": "En cours",
+    "inProgress": "En cours",
+    "completed": "Terminé",
+    "assigned": "Assigné"
   },
   "successBlockDeleted": "Blocage pour maintenance supprimé avec succès",
   "blocksExportedSuccessfully": "Blocages exportés avec succès",

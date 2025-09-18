@@ -5395,7 +5395,8 @@
     "pending": "Pending",
     "in_progress": "In Progress",
     "inProgress": "In Progress",
-    "completed": "Completed"
+    "completed": "Completed",
+    "assigned" : "Assigned"
   },
   "successBlockDeleted": "Maintenance block deleted successfully",
   "blocksExportedSuccessfully": "Blocks exported successfully",
@@ -5998,7 +5999,9 @@
   "Voucher email is required when email booking vouchers is enabled": "Voucher email is required when email booking vouchers is enabled",
   "Invalid voucher email address": "Invalid voucher email address",
   "Profile photo upload incomplete": "Profile photo upload incomplete",
-  "ID photo upload incomplete": "ID photo upload incomplete"
+  "ID photo upload incomplete": "ID photo upload incomplete",
+  "others_tasks" : "Others Tasks",
+  "repair" : "Repair"
 
 
 

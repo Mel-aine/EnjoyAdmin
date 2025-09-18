@@ -1,79 +1,113 @@
 <template>
-    <AdminLayout>
-       <FullScreenLayout>
-        <PageBreadcrumb :pageTitle="$t('work_order')" :breadcrumb="breadcrumb"/>
-          <div class="mt-10">
-            <ReusableTable
-              :title="$t('work_order')"
-              :columns="columns"
-              :data="WorkOrders"
-              :selectable="false"
-              :actions="actions"
-              :loading="loading"
-              :empty-state-title="$t('noWorkFound')"
-              :empty-state-message="$t('noWorkMessage')"
-              v-model="searchQuery"
-              @search-change="onSearchChange"
-              class="modern-table"
-            >
-              <template #header-actions="{ searchQuery }">
-                <BasicButton
-                  :label="$t('AddWorkOrder')"
-                  variant="primary"
-                  :icon="Plus"
-                  @click="openAddWorkModal"
-                />
-                <BasicButton
-                  :label="$t('export')"
-                  variant="secondary"
-                  :icon="FileDown"
-                />
+  <AdminLayout>
+    <FullScreenLayout>
+      <PageBreadcrumb :pageTitle="$t('work_order')" :breadcrumb="breadcrumb"/>
+      
+      <div class="mt-10">
+        <ReusableTable
+          :title="$t('work_order')"
+          :columns="columns"
+          :data="workOrders"
+          :selectable="false"
+          :actions="actions"
+          :loading="loading"
+          :empty-state-title="$t('noWorkFound')"
+          :empty-state-message="$t('noWorkMessage')"
+          v-model="searchQuery"
+          @search-change="onSearchChange"
+          class="modern-table"
+        >
+          <template #header-actions="{ searchQuery }">
+            <BasicButton
+              :label="$t('AddWorkOrder')"
+              variant="primary"
+              :icon="Plus"
+              @click="openAddWorkModal"
+            />
+            <!-- <BasicButton
+              :label="$t('export')"
+              variant="secondary"
+              :icon="FileDown"
+              @click="exportWorkOrders"
+            /> -->
+          </template>
+        </ReusableTable>
+      </div>
 
-              </template>
-            </ReusableTable>
-          </div>
-          <template v-if="isAddWorkModalOpen">
-          <AddWorkOrderModal :is-open="isAddWorkModalOpen" @close="closeAddWorkModal"  />
-        </template>
-      </FullScreenLayout>
-    </AdminLayout>
+      <!-- Add/Edit Work Order Modal -->
+      <AddWorkOrderModal 
+        v-if="isAddWorkModalOpen"
+        :is-open="isAddWorkModalOpen" 
+        :work-order-data="selectedWorkOrder"
+        :is-editing="isEditing"
+        @close="closeAddWorkModal" 
+        @save="handleWorkOrderSave" 
+      />
+
+      <!-- Delete Confirmation Modal -->
+      <ConfirmationModal
+        v-if="showDeleteModal"
+        :is-open="showDeleteModal"
+        :title="$t('DeleteWorkOrder')"
+        :message="$t('AreYouSureDeleteWorkOrder')"
+        :confirm-label="$t('Delete')"
+        :cancel-label="$t('Cancel')"
+        variant="danger"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
+    </FullScreenLayout>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Plus} from 'lucide-vue-next'
+import { Plus, FileDown } from 'lucide-vue-next'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import { useRouter } from 'vue-router'
-import { useBookingStore } from '@/composables/booking'
-import { useToast } from 'vue-toastification';
 import BasicButton from '../../../components/buttons/BasicButton.vue'
-import { FileDown } from 'lucide-vue-next';
 import AddWorkOrderModal from '@/components/Housekeeping/AddWorkOrderModal.vue'
-
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '@/composables/serviceStore'
+import { 
+  getWorkOrder, 
+  deleteWorkOrder,
+} from '@/services/workOrderApi'
 
 const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
+
+// State management
 const loading = ref(false)
+const workOrders = ref<any[]>([])
+const searchQuery = ref('')
 const isAddWorkModalOpen = ref(false)
+const isEditing = ref(false)
+const selectedWorkOrder = ref<any>(null)
+const showDeleteModal = ref(false)
+const workOrderToDelete = ref<any>(null)
 
 const breadcrumb = [
   { label: t('navigation.housekeeping'), href: '#' },
   { label: t('work_order'), href: '#' }
 ]
 
+// Table columns configuration
 const columns = computed(() => [
   {
-    key: 'orderNumber',
+    key: 'rec_vou_number',
     label: t('Order#'),
     type: 'text' as const,
     sortable: true,
     translatable: false
   },
   {
-    key: 'unitRoom',
+    key: 'room_number',
     label: t('Unit/Room'),
     type: 'text' as const,
     sortable: true,
@@ -82,145 +116,204 @@ const columns = computed(() => [
   {
     key: 'category',
     label: t('Category'),
-    type: 'text' as const,
+    type: 'badge' as const,
     sortable: true,
-    translatable: false
+    translatable: true
   },
   {
     key: 'description',
     label: t('Description'),
     type: 'text' as const,
-    sortable: true,
-    translatable: true
+    sortable: false,
+    translatable: false,
+    maxLength: 50
   },
   {
     key: 'priority',
     label: t('Priority'),
-    type: 'text' as const,
+    type: 'badge' as const,
     sortable: true,
-    translatable: true
+    translatable: true,
+    variant: (value: string) => {
+      switch (value) {
+        case 'high': case 'urgent': return 'danger'
+        case 'medium': return 'warning'
+        case 'low': return 'success'
+        default: return 'secondary'
+      }
+    }
   },
   {
-    key: 'assignTo',
+    key: 'assigned_user_name',
     label: t('AssignTo'),
     type: 'text' as const,
     sortable: true,
-    translatable: true
-  },
-  {
-    key: 'enteredOn',
-    label: t('EnteredOn'),
-    type: 'date' as const,
-    sortable: true,
     translatable: false
   },
+  
   {
-    key: 'updatedAt',
-    label: t('Updated'),
-    type: 'date' as const,
-    sortable: true,
-    dateFormat: 'short',
-    translatable: false
-  },
-  {
-    key: 'deadline',
+    key: 'due_date',
     label: t('Deadline'),
     type: 'date' as const,
     sortable: true,
-    translatable: true
+    translatable: false,
+    dateFormat: 'short'
   },
   {
     key: 'status',
     label: t('Status'),
     type: 'badge' as const,
     sortable: true,
-    translatable: true
+    translatable: true,
+    variant: (value: string) => {
+      switch (value) {
+        case 'completed': return 'success'
+        case 'in_progress': return 'warning'
+        case 'assigned': return 'info'
+      
+        default: return 'secondary'
+      }
+    }
   }
 ])
 
-
-const WorkOrders = [
+// Table actions
+const actions = computed(() => [
   {
-    orderNumber: "WO-001",
-    unitRoom: "Room 101",
-    category: "Plumbing",
-    description: "Leaking sink in the bathroom",
-    priority: "High",
-    assignTo: "John Doe",
-    enteredOn: "2025-08-01",
-    updatedAt: "2025-08-15",
-    deadline: "2025-08-20",
-    status: "In Progress"
+    label: t('EditWorkOrder'),
+    icon: 'Edit',
+    handler: (item: any) => handleEdit(item)
   },
   {
-    orderNumber: "WO-002",
-    unitRoom: "Room 205",
-    category: "Electrical",
-    description: "Light not working",
-    priority: "Medium",
-    assignTo: "Jane Smith",
-    enteredOn: "2025-08-10",
-    updatedAt: "2025-08-18",
-    deadline: "2025-08-22",
-    status: "Pending"
+    label: t('ViewDetails'),
+    icon: 'Eye',
+    handler: (item: any) => handleView(item)
   },
   {
-    orderNumber: "WO-003",
-    unitRoom: "Room 310",
-    category: "Housekeeping",
-    description: "Carpet needs cleaning",
-    priority: "Low",
-    assignTo: "Ali Karim",
-    enteredOn: "2025-08-05",
-    updatedAt: "2025-08-17",
-    deadline: "2025-08-25",
-    status: "Completed"
+    label: t('PrintWorkOrder'),
+    icon: 'Printer',
+    handler: (item: any) => handlePrint(item)
+  },
+  {
+    label: t('DeleteWorkOrder'),
+    icon: 'Trash',
+    variant: 'danger',
+    handler: (item: any) => handleDelete(item)
   }
-]
+])
 
-
+// Modal management
 const openAddWorkModal = () => {
+  selectedWorkOrder.value = null
+  isEditing.value = false
   isAddWorkModalOpen.value = true
 }
 
 const closeAddWorkModal = () => {
   isAddWorkModalOpen.value = false
+  selectedWorkOrder.value = null
+  isEditing.value = false
 }
 
+// CRUD Operations
+const fetchWorkOrders = async () => {
+  loading.value = true
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId) {
+      throw new Error('Hotel ID not found')
+    }
 
-// Header actions are now handled through slots
+    const response = await getWorkOrder(hotelId)
+
+    workOrders.value = response.data.data || []
+  } catch (error: any) {
+    console.error('Error fetching work orders:', error)
+    toast.error(error.message || t('ErrorFetchingWorkOrders'))
+    workOrders.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleWorkOrderSave = async (eventData: any) => {
+  if (eventData.success) {
+    await fetchWorkOrders()
+    toast.success(
+      eventData.isEditing 
+        ? t('WorkOrderUpdatedSuccessfully') 
+        : t('WorkOrderCreatedSuccessfully')
+    )
+  }
+  closeAddWorkModal()
+}
+
+// Action handlers
+const handleEdit = (workOrder: any) => {
+  selectedWorkOrder.value = workOrder
+  isEditing.value = true
+  isAddWorkModalOpen.value = true
+}
+
+const handleView = (workOrder: any) => {
+  // Implement view details functionality
+  console.log('View work order:', workOrder)
+  // You can open a detailed view modal or navigate to a details page
+}
+
+const handlePrint = (workOrder: any) => {
+  // Implement print functionality
+  console.log('Print work order:', workOrder)
+  window.print() // Simple implementation, you might want to create a dedicated print view
+}
+
+const handleDelete = (workOrder: any) => {
+  workOrderToDelete.value = workOrder
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!workOrderToDelete.value) return
+
+  try {
+    await deleteWorkOrder(workOrderToDelete.value.id)
+    toast.success(t('WorkOrderDeletedSuccessfully'))
+    await fetchWorkOrders()
+  } catch (error: any) {
+    console.error('Error deleting work order:', error)
+    toast.error(error.message || t('ErrorDeletingWorkOrder'))
+  } finally {
+    showDeleteModal.value = false
+    workOrderToDelete.value = null
+  }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  workOrderToDelete.value = null
+}
 
 // Search functionality
-const searchQuery = ref('')
-
 const onSearchChange = (query: string) => {
-  console.log('Search query changed:', query)
-  // Add any additional search logic here if needed
+  searchQuery.value = query
+  // Debounce the search to avoid too many API calls
+  setTimeout(() => {
+    fetchWorkOrders()
+  }, 500)
 }
 
 
 
-
-const actions = computed(() => [
-  {
-    label: 'Edit Work Order',
-    handler: (item: any) => handleCustomerAction('edit', item)
-  },
-  {
-    label: 'Post Note',
-    handler: (item: any) => handleCustomerAction('post', item)
-  },
-   {
-    label: 'Print Work Order',
-    handler: (item: any) => handleCustomerAction('print', item)
-  }
-])
-
-const handleCustomerAction =(action:any, item:any)=>{
-  console.log('action', action)
-  console.log('item', item)
-}
-
+// Lifecycle
+onMounted(() => {
+  fetchWorkOrders()
+})
 </script>
 
-<style scoped></style>
+<style scoped>
+.modern-table {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm;
+}
+
+/* Add any additional custom styles here */
+</style>
