@@ -33,35 +33,35 @@
           </template>
 
           <template #column-status="{ item }">
-            
             <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
               {{ $t(`statuses.${item.status}`) }}
             </span>
-         
-            </template>
+          </template>
 
-            <template #column-priority="{ item }">
-            
+          <template #column-priority="{ item }">
             <span :class="getPriorityClass(item.priority)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
               {{ $t(`taskManagement.priorities.${item.priority}`) }}
             </span>
-         
-            </template>
-            <template #column-assignedToUser="{ item }">
+          </template>
+
+          <template #column-assignedToUser="{ item }">
             <div class="text-sm text-gray-600">
               {{ item.assignedToUser.firstName }} {{ item.assignedToUser.lastName }}
             </div>
           </template>
+
           <template #column-dueDateTime="{ item }">
             <div class="text-sm text-gray-500">
               {{ formatDateT(item.dueDateTime) }}
             </div>
           </template>
+
           <template #column-roomNumber="{ item }">
             <div class="text-sm text-gray-600">
               {{ item.room.roomNumber }} 
             </div>
           </template>
+
           <template #column-block_dates="{ item }">
             <div class="text-sm">
               <div class="font-medium">{{ formatDateT(item.blockFromDate) }}</div>
@@ -83,16 +83,47 @@
 
       <!-- Delete Confirmation Modal -->
       <ConfirmationModal
-        v-if="showDeleteModal"
-        :is-open="showDeleteModal"
+        v-model:show="showDeleteModal"
         :title="$t('DeleteWorkOrder')"
         :message="$t('AreYouSureDeleteWorkOrder')"
-        :confirm-label="$t('Delete')"
-        :cancel-label="$t('Cancel')"
+        :confirm-text="$t('Delete')"
+        :cancel-text="$t('Cancel')"
         variant="danger"
+        :loading="loadingDelete"
         @confirm="confirmDelete"
         @cancel="cancelDelete"
       />
+
+      <!-- Status Update Modal -->
+      <ConfirmationModal
+        v-model:show="showStatusModal"
+        :title="statusUpdateTitle"
+        :message="statusUpdateMessage"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="warning"
+        :loading="loadingStatusUpdate"
+        @confirm="confirmStatusUpdate"
+        @cancel="cancelStatusUpdate"
+      >
+        <template #content>
+          
+          <div class="mt-4 mx-8">
+            <label for="statusNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ $t('Notes') }} ({{ $t('Optional') }})
+            </label>
+            <textarea
+           id="statusNotes"
+              v-model="statusUpdateNotes"
+          :placeholder="$t('Add notes about this status change...')"
+          rows="6"
+          class="dark:bg-dark-900 h-20 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+        ></textarea>
+          
+          </div>
+        </template>
+      </ConfirmationModal>
+    
     </FullScreenLayout>
   </AdminLayout>
 </template>
@@ -103,7 +134,7 @@ import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Plus, FileDown } from 'lucide-vue-next'
+import { Plus, FileDown, Edit, Trash2, Play, CheckCircle } from 'lucide-vue-next'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import AddWorkOrderModal from '@/components/Housekeeping/AddWorkOrderModal.vue'
@@ -114,6 +145,7 @@ import { formatDateT } from '@/components/utilities/UtilitiesFunction'
 import { 
   getWorkOrder, 
   deleteWorkOrder,
+  updateStatusWorkOrder 
 } from '@/services/workOrderApi'
 
 const { t } = useI18n()
@@ -129,11 +161,48 @@ const isEditing = ref(false)
 const selectedWorkOrder = ref<any>(null)
 const showDeleteModal = ref(false)
 const workOrderToDelete = ref<any>(null)
+const loadingDelete = ref(false)
+
+// Status update modal state
+const showStatusModal = ref(false)
+const loadingStatusUpdate = ref(false)
+const workOrderToUpdateStatus = ref<any>(null)
+const newStatusToUpdate = ref('')
+const statusUpdateNotes = ref('')
 
 const breadcrumb = [
   { label: t('navigation.housekeeping'), href: '#' },
   { label: t('work_order'), href: '#' }
 ]
+
+// Computed properties for status modal
+const statusUpdateTitle = computed(() => {
+  if (!workOrderToUpdateStatus.value || !newStatusToUpdate.value) return ''
+  
+  switch (newStatusToUpdate.value) {
+    case 'in_progress':
+      return t('Mark as In Progress')
+    case 'completed':
+      return t('Mark as Completed')
+    default:
+      return t('Update Status')
+  }
+})
+
+const statusUpdateMessage = computed(() => {
+  if (!workOrderToUpdateStatus.value || !newStatusToUpdate.value) return ''
+  
+  const orderNumber = workOrderToUpdateStatus.value.orderNumber
+  switch (newStatusToUpdate.value) {
+    case 'in_progress':
+      return t('statusUpdate.confirmInProgress', { orderNumber })
+    case 'completed':
+      return t('statusUpdate.confirmCompleted', { orderNumber })
+    default:
+      return t('statusUpdate.confirmDefault', { orderNumber })
+  }
+})
+
 
 // Table columns configuration
 const columns = computed(() => [
@@ -171,7 +240,6 @@ const columns = computed(() => [
     label: t('Priority'),
     type: 'custom' as const,
     sortable: true,
-   
   },
   {
     key: 'assignedToUser',
@@ -186,13 +254,11 @@ const columns = computed(() => [
     type: 'custom' as const,
     sortable: true
   },
-  
   {
     key: 'dueDateTime',
     label: t('Deadline'),
     type: 'custom' as const,
     sortable: true,
-   
   },
   {
     key: 'status',
@@ -216,7 +282,6 @@ const getStatusClass = (status: string) => {
   }
 }
 
-
 const getPriorityClass = (priority: string) => {
   switch (priority) {
     case 'high':
@@ -231,26 +296,26 @@ const getPriorityClass = (priority: string) => {
   }
 }
 
-// Table actions
+// Simple actions array - all actions are always shown
 const actions = computed(() => [
   {
     label: t('EditWorkOrder'),
-    icon: 'Edit',
+    icon: Edit,
     handler: (item: any) => handleEdit(item)
   },
   {
-    label: t('ViewDetails'),
-    icon: 'Eye',
-    handler: (item: any) => handleView(item)
+    label: t('Mark as In Progress'),
+    icon: Play,
+    handler: (item: any) => handleStatusUpdate(item, 'in_progress')
   },
   {
-    label: t('PrintWorkOrder'),
-    icon: 'Printer',
-    handler: (item: any) => handlePrint(item)
+    label: t('Mark as Completed'),
+    icon: CheckCircle,
+    handler: (item: any) => handleStatusUpdate(item, 'completed')
   },
   {
     label: t('DeleteWorkOrder'),
-    icon: 'Trash',
+    icon: Trash2,
     variant: 'danger',
     handler: (item: any) => handleDelete(item)
   }
@@ -269,6 +334,60 @@ const closeAddWorkModal = () => {
   isEditing.value = false
 }
 
+// Status update handlers
+const handleStatusUpdate = (workOrder: any, newStatus: string) => {
+  // Validate status transition
+  if (newStatus === 'in_progress' && workOrder.status !== 'assigned') {
+    toast.error(t('Can only mark assigned work orders as in progress'))
+    return
+  }
+  
+  if (newStatus === 'completed' && workOrder.status !== 'in_progress') {
+    toast.error(t('Can only mark in progress work orders as completed'))
+    return
+  }
+
+  workOrderToUpdateStatus.value = workOrder
+  newStatusToUpdate.value = newStatus
+  statusUpdateNotes.value = ''
+  showStatusModal.value = true
+}
+
+const confirmStatusUpdate = async () => {
+  if (!workOrderToUpdateStatus.value || !newStatusToUpdate.value) return
+
+  try {
+    loadingStatusUpdate.value = true
+    
+    const payload = {
+      status: newStatusToUpdate.value,
+      notes: statusUpdateNotes.value.trim() || undefined
+    }
+
+    await updateStatusWorkOrder(workOrderToUpdateStatus.value.id, payload)
+    
+    toast.success(t('Work order status updated successfully'))
+    await fetchWorkOrders()
+    
+  } catch (error: any) {
+    console.error('Error updating work order status:', error)
+    toast.error(error.message || t('Error updating work order status'))
+  } finally {
+    loadingStatusUpdate.value = false
+    showStatusModal.value = false
+    workOrderToUpdateStatus.value = null
+    newStatusToUpdate.value = ''
+    statusUpdateNotes.value = ''
+  }
+}
+
+const cancelStatusUpdate = () => {
+  showStatusModal.value = false
+  workOrderToUpdateStatus.value = null
+  newStatusToUpdate.value = ''
+  statusUpdateNotes.value = ''
+}
+
 // CRUD Operations
 const fetchWorkOrders = async () => {
   loading.value = true
@@ -279,7 +398,7 @@ const fetchWorkOrders = async () => {
     }
 
     const response = await getWorkOrder(hotelId)
-    console.log('fetchWorkOrders',response)
+    console.log('fetchWorkOrders', response)
 
     workOrders.value = response.data.data.data || []
   } catch (error: any) {
@@ -311,18 +430,6 @@ const handleEdit = (workOrder: any) => {
   isAddWorkModalOpen.value = true
 }
 
-const handleView = (workOrder: any) => {
-  // Implement view details functionality
-  console.log('View work order:', workOrder)
-  // You can open a detailed view modal or navigate to a details page
-}
-
-const handlePrint = (workOrder: any) => {
-  // Implement print functionality
-  console.log('Print work order:', workOrder)
-  window.print() // Simple implementation, you might want to create a dedicated print view
-}
-
 const handleDelete = (workOrder: any) => {
   workOrderToDelete.value = workOrder
   showDeleteModal.value = true
@@ -332,6 +439,7 @@ const confirmDelete = async () => {
   if (!workOrderToDelete.value) return
 
   try {
+    loadingDelete.value = true
     await deleteWorkOrder(workOrderToDelete.value.id)
     toast.success(t('WorkOrderDeletedSuccessfully'))
     await fetchWorkOrders()
@@ -339,6 +447,7 @@ const confirmDelete = async () => {
     console.error('Error deleting work order:', error)
     toast.error(error.message || t('ErrorDeletingWorkOrder'))
   } finally {
+    loadingDelete.value = false
     showDeleteModal.value = false
     workOrderToDelete.value = null
   }
@@ -357,8 +466,6 @@ const onSearchChange = (query: string) => {
     fetchWorkOrders()
   }, 500)
 }
-
-
 
 // Lifecycle
 onMounted(() => {

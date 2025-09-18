@@ -76,7 +76,7 @@
             required
           />
         </div>
-        <div>
+        <div v-if="!isEditing"> 
           <Select 
             v-model="formData.status" 
             :options="statusOptions" 
@@ -216,7 +216,7 @@ const priorityOptions = computed(() => [
 const formData = reactive({
   recVouNumber: '',
   unit: '',
-  blockDates: null as any,
+  blockDates: { from: null, to: null } as any,
   dueDate: null as string | any,
   description: '',
   category: '',

@@ -6001,7 +6001,12 @@
   "Profile photo upload incomplete": "Profile photo upload incomplete",
   "ID photo upload incomplete": "ID photo upload incomplete",
   "others_tasks" : "Others Tasks",
-  "repair" : "Repair"
+  "repair" : "Repair",
+  "statusUpdate": {
+    "confirmInProgress": "Are you sure you want to mark work order #{orderNumber} as in progress?",
+    "confirmCompleted": "Are you sure you want to mark work order #{orderNumber} as completed?",
+    "confirmDefault": "Are you sure you want to update the status of work order #{orderNumber}?"
+  }
 
 
 

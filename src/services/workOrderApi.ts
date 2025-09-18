@@ -94,5 +94,5 @@ export const getWorkOrderWithFilters = (
  */
 export const updateStatusWorkOrder = (oderId: number ,data:any): Promise<AxiosResponse<any>> => {
   console.log('status:', oderId)
-  return axios.patch(`${API_URL}/${oderId}/status`, data, getAuthHeaders())
+  return axios.put(`${API_URL}/${oderId}/status`, data, getAuthHeaders())
 }
