@@ -205,6 +205,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import Spinner from '../../../components/spinner/Spinner.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getFolioListReport } from '@/services/reportsApi'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n();
 const serviceStore = useServiceStore()
@@ -301,7 +302,7 @@ const hotelName = computed(() => {
   return useServiceStore().getCurrentService?.hotelName
 })
 
-const selectedTableColumns = computed(() => [
+const selectedTableColumns = computed<Column[]>(() => [
   { key: 'folioNo', label: t('reports.folio.folioNo'), type: 'text' },
   { key: 'invoiceNo', label: t('reports.folio.invoiceNo'), type: 'text' },
   { key: 'date', label: t('common.date'), type: 'date' },
