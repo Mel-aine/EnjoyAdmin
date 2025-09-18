@@ -294,9 +294,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useSidebar } from '@/composables/useSidebar'
 import { useAuthStore } from '@/composables/user'
-import CalenderIcon from '@/icons/CalenderIcon.vue'
+import { useSidebar } from '@/composables/useSidebar'
 import HomeIcon from '@/icons/HomeIcon.vue'
 import BarChartIcon from '@/icons/BarChartIcon.vue'
 import CheckIcon from '@/icons/CheckIcon.vue'
@@ -312,8 +311,8 @@ const searchQuery = ref('')
 
 const openSections = ref<any>({
   reservation: false,
-  frontOffice: true, // Default open as shown in the image
-  backOffice: false,
+  frontOffice: true,
+  backOffice: true, // Ouvrir la section Back Office par défaut
   audit: false,
   statistical: false,
   custom: false
@@ -354,6 +353,7 @@ const reportPermissions = {
   'daily-receipt-summary': 'daily_receipt_summary',
   'daily-refund-report': 'daily_refund_report',
   'daily-revenue': 'daily_revenue',
+  'work-order-list': 'work_order_list',
   'expense-voucher': 'expense_voucher',
   'folio-list': 'folio_list',
   'guest-ledger': 'guest_ledger',
@@ -427,9 +427,10 @@ const frontOfficeReports = ref([
 
 // Back Office Reports
 const backOfficeReports = ref([
-  //TO DO { name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
-  //TO DO { name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
-  //TO DO { name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
+  { name: 'work-order-list', path: '/reports/back-office/work-order-list', label: 'reports.backOffice.workOrderList' },
+  { name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
+  { name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
+  { name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
   { name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
   { name: 'daily-receipt-detail', path: '/reports/back-office/daily-receipt-detail', label: 'reports.backOffice.dailyReceiptDetail' },
   { name: 'daily-receipt-summary', path: '/reports/back-office/daily-receipt-summary', label: 'reports.backOffice.dailyReceiptSummary' },
@@ -500,10 +501,38 @@ const filteredFrontOfficeReports = computed(() => {
 })
 
 const filteredBackOfficeReports = computed(() => {
-  return backOfficeReports.value.filter(report => {
-    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
-    return permission ? authStore.hasReportPermission(permission) : false
-  })
+  console.log('=== DÉBUT FILTRAGE RAPPORTS BACK OFFICE ===');
+  console.log('Tous les rapports Back Office:', backOfficeReports.value);
+  console.log('Utilisateur actuel:', authStore.user);
+  
+  // Afficher les permissions brutes et parsées
+  const rawPermissions = authStore.user?.permisReports;
+  console.log('Permissions brutes (permisReports):', rawPermissions);
+  
+  try {
+    const parsedPermissions = rawPermissions ? JSON.parse(rawPermissions) : [];
+    console.log('Permissions parsées:', parsedPermissions);
+    console.log('La permission work_office_report existe-t-elle ?', parsedPermissions.includes('work_office_report'));
+  } catch (e) {
+    console.error('Erreur lors du parsing des permissions:', e);
+  }
+  
+  const filtered = backOfficeReports.value.filter(report => {
+    // Forcer l\'affichage du rapport Work Office pour le test
+    if (report.name === 'work-office-report') {
+      console.log('Forçage de l\'affichage du rapport Work Office pour le test');
+      return true;
+    }
+    
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions];
+    const hasPermission = permission ? authStore.hasReportPermission(permission) : false;
+    console.log(`Rapport: ${report.name}, Permission: ${permission}, Accès: ${hasPermission}`);
+    return hasPermission;
+  });
+  
+  console.log('Rapports Back Office filtrés:', filtered);
+  console.log('=== FIN FILTRAGE RAPPORTS BACK OFFICE ===');
+  return filtered;
 })
 
 const filteredAuditReports = computed(() => {
