@@ -106,11 +106,6 @@
             </label>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
               <label class="flex items-center gap-2">
-                <input v-model="filters.include.all" type="checkbox" @change="handleAllChange"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
-                {{ t('common.all') }}
-              </label>
-              <label class="flex items-center gap-2">
                 <input v-model="filters.include.reserved" type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.reserved') }}
@@ -197,6 +192,7 @@
             :title="t('reports.folio.folioListResults')" 
             :data="folioData" 
             :columns="selectedTableColumns"
+            :show-header="false"
             :loading="loading"
             :empty-message="folioData.length === 0 && !loading ? t('reports.noDataAvailable') : ''"
             class="w-full mb-4 min-w-max" 
@@ -341,7 +337,7 @@ const generateReport = async (): Promise<void> => {
       status: filters.value.status,
       businessSource: filters.value.businessSource,
       include: filters.value.include,
-      hotelId: filters.value.hotelId // Si vous avez un hotelId
+      hotelId: useServiceStore().serviceId // Si vous avez un hotelId
     }
 
     console.log('Generating folio list report with params:', params)
@@ -349,9 +345,9 @@ const generateReport = async (): Promise<void> => {
     const response = await getFolioListReport(params)
     console.log('Folio list report response:', response)
     
-    if (response && response.data && response.data.success) {
+    if (response && response.data && response.success) {
       // Mapper les données du backend vers le format attendu par le frontend
-      const folios = response.data.data.folios || []
+      const folios = response.data.folios || []
       folioData.value = folios.map((folio: any) => ({
         folioNo: folio.folioNo,
         invoiceNo: folio.invoiceNo || 'N/A',
@@ -365,7 +361,7 @@ const generateReport = async (): Promise<void> => {
         balanceAmount: folio.balanceAmount
       }))
 
-      reportTotals.value = response.data.data.totals
+      reportTotals.value = response.data.totals
       showResults.value = true
       
       // Ne pas afficher d'erreur s'il n'y a simplement pas de données
@@ -439,7 +435,6 @@ const resetForm = (): void => {
     },
     businessSource: '',
     include: {
-      all: true,
       reserved: false,
       cancelled: false,
       noShow: false,
