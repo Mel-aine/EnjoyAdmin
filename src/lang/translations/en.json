@@ -3715,11 +3715,6 @@
   "reports": {
     "title": "Reports",
     "description": "Access comprehensive reports and analytics for your hotel operations",
-    "backOffice": {
-      "title": "Back Office Reports",
-      "description": "Financial and administrative reports",
-      "workOrderList": "Work Order List"
-    },
     "reservation": {
       "title": "Reservation Reports",
       "description": "Track and analyze reservation data",
@@ -3853,7 +3848,10 @@
       "revenueByRateType": "Revenue By Rate Type",
       "revenueByRoomType": "Revenue By Room Type",
       "travelAgentCommissionDetail": "Travel Agent Commission - Detail",
-      "travelAgentCommissionSummary": "Travel Agent Commission - Summary"
+      "travelAgentCommissionSummary": "Travel Agent Commission - Summary",
+      "titles": "Back Office Reports",
+      "descriptions": "Financial and administrative reports",
+      "workOrderList": "Work Order List"
     },
     "audit": {
       "title": "Audit Reports",

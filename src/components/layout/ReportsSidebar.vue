@@ -345,6 +345,7 @@ const reportPermissions = {
   'task-list-report': 'task_list_report',
 
   // Back Office Reports
+  'work-order-list': 'work_order_list',
   'advance-deposit-ledger': 'advance_deposit_ledger',
   'city-ledger-detail': 'city_ledger_detail',
   'city-ledger-summary': 'city_ledger_summary',
@@ -353,7 +354,6 @@ const reportPermissions = {
   'daily-receipt-summary': 'daily_receipt_summary',
   'daily-refund-report': 'daily_refund_report',
   'daily-revenue': 'daily_revenue',
-  'work-order-list': 'work_order_list',
   'expense-voucher': 'expense_voucher',
   'folio-list': 'folio_list',
   'guest-ledger': 'guest_ledger',
@@ -363,7 +363,6 @@ const reportPermissions = {
   'revenue-by-room-type': 'revenue_by_room_type',
   'travel-agent-commission-detail': 'travel_agent_commission_detail',
   'travel-agent-commission-summary': 'travel_agent_commission_summary',
-
   // Audit Reports
   'audit-trail': 'audit_trail',
   'ip-report': 'ip_report',
@@ -519,7 +518,7 @@ const filteredBackOfficeReports = computed(() => {
   
   const filtered = backOfficeReports.value.filter(report => {
     // Forcer l\'affichage du rapport Work Office pour le test
-    if (report.name === 'work-office-report') {
+    if (report.name === 'work-order-list') {
       console.log('Forçage de l\'affichage du rapport Work Office pour le test');
       return true;
     }
