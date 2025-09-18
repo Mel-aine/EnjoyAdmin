@@ -31,6 +31,43 @@
               @click="exportWorkOrders"
             /> -->
           </template>
+
+          <template #column-status="{ item }">
+            
+            <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+              {{ $t(`statuses.${item.status}`) }}
+            </span>
+         
+            </template>
+
+            <template #column-priority="{ item }">
+            
+            <span :class="getPriorityClass(item.priority)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+              {{ $t(`taskManagement.priorities.${item.priority}`) }}
+            </span>
+         
+            </template>
+            <template #column-assignedToUser="{ item }">
+            <div class="text-sm text-gray-600">
+              {{ item.assignedToUser.firstName }} {{ item.assignedToUser.lastName }}
+            </div>
+          </template>
+          <template #column-dueDateTime="{ item }">
+            <div class="text-sm text-gray-500">
+              {{ formatDateT(item.dueDateTime) }}
+            </div>
+          </template>
+          <template #column-roomNumber="{ item }">
+            <div class="text-sm text-gray-600">
+              {{ item.room.roomNumber }} 
+            </div>
+          </template>
+          <template #column-block_dates="{ item }">
+            <div class="text-sm">
+              <div class="font-medium">{{ formatDateT(item.blockFromDate) }}</div>
+              <div class="text-gray-500">{{ $t('to') }} {{ formatDateT(item.blockToDate) }}</div>
+            </div>
+          </template>
         </ReusableTable>
       </div>
 
@@ -73,6 +110,7 @@ import AddWorkOrderModal from '@/components/Housekeeping/AddWorkOrderModal.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
+import { formatDateT } from '@/components/utilities/UtilitiesFunction'
 import { 
   getWorkOrder, 
   deleteWorkOrder,
@@ -100,23 +138,23 @@ const breadcrumb = [
 // Table columns configuration
 const columns = computed(() => [
   {
-    key: 'rec_vou_number',
+    key: 'orderNumber',
     label: t('Order#'),
     type: 'text' as const,
     sortable: true,
     translatable: false
   },
   {
-    key: 'room_number',
+    key: 'roomNumber',
     label: t('Unit/Room'),
-    type: 'text' as const,
+    type: 'custom' as const,
     sortable: true,
     translatable: false
   },
   {
     key: 'category',
     label: t('Category'),
-    type: 'badge' as const,
+    type: 'text' as const,
     sortable: true,
     translatable: true
   },
@@ -131,51 +169,67 @@ const columns = computed(() => [
   {
     key: 'priority',
     label: t('Priority'),
-    type: 'badge' as const,
+    type: 'custom' as const,
     sortable: true,
-    translatable: true,
-    variant: (value: string) => {
-      switch (value) {
-        case 'high': case 'urgent': return 'danger'
-        case 'medium': return 'warning'
-        case 'low': return 'success'
-        default: return 'secondary'
-      }
-    }
+   
   },
   {
-    key: 'assigned_user_name',
+    key: 'assignedToUser',
     label: t('AssignTo'),
-    type: 'text' as const,
+    type: 'custom' as const,
     sortable: true,
     translatable: false
   },
+  {
+    key: 'block_dates',
+    label: t('maintenanceBlocks.columns.blockDates'),
+    type: 'custom' as const,
+    sortable: true
+  },
   
   {
-    key: 'due_date',
+    key: 'dueDateTime',
     label: t('Deadline'),
-    type: 'date' as const,
+    type: 'custom' as const,
     sortable: true,
-    translatable: false,
-    dateFormat: 'short'
+   
   },
   {
     key: 'status',
     label: t('Status'),
-    type: 'badge' as const,
+    type: 'custom' as const,
     sortable: true,
     translatable: true,
-    variant: (value: string) => {
-      switch (value) {
-        case 'completed': return 'success'
-        case 'in_progress': return 'warning'
-        case 'assigned': return 'info'
-      
-        default: return 'secondary'
-      }
-    }
   }
 ])
+
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case 'assigned':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+    case 'completed':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'in_progress':
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  }
+}
+
+
+const getPriorityClass = (priority: string) => {
+  switch (priority) {
+    case 'high':
+    case 'urgent':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    case 'medium':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+    case 'low':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  }
+}
 
 // Table actions
 const actions = computed(() => [
@@ -225,8 +279,9 @@ const fetchWorkOrders = async () => {
     }
 
     const response = await getWorkOrder(hotelId)
+    console.log('fetchWorkOrders',response)
 
-    workOrders.value = response.data.data || []
+    workOrders.value = response.data.data.data || []
   } catch (error: any) {
     console.error('Error fetching work orders:', error)
     toast.error(error.message || t('ErrorFetchingWorkOrders'))
@@ -250,6 +305,7 @@ const handleWorkOrderSave = async (eventData: any) => {
 
 // Action handlers
 const handleEdit = (workOrder: any) => {
+  console.log('Editing workOrder:', workOrder)
   selectedWorkOrder.value = workOrder
   isEditing.value = true
   isAddWorkModalOpen.value = true

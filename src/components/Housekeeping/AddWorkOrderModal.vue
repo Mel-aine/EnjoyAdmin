@@ -1,22 +1,23 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="$t('AddWorkOrder')" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="modalTitle" @close="closeModal">
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">
-        {{ isEditing ? $t('EditWorkOrder') : $t('AddWorkOrder') }}
+        {{ modalTitle }}
+       
       </h3>
     </template>
     
     <div class="space-y-6">
       <!-- Order & Date Block -->
-      <div class="grid md:grid-cols-2 grid-cols-1 gap-2">
-        <div>
+     <div class="grid md:grid-cols-1 grid-cols-1 gap-2">
+        <!--  <div>
           <Input 
             v-model="formData.recVouNumber" 
             type="text" 
             :lb="$t('Order#')" 
             :disabled="!isEditing" 
           />
-        </div>
+        </div> -->
         <div>
           <InputDoubleDatePicker :title="$t('Block')" v-model="formData.blockDates" />
         </div>
@@ -27,6 +28,7 @@
         <Select 
           v-model="formData.unit" 
           :options="Rooms" 
+          :isLoading="loading"
           :lb="$t('Unit/Room')" 
           required
         />
@@ -39,6 +41,7 @@
           :title="$t('Duedate')" 
           required
         />
+        
       </div>
 
       <!-- Description -->
@@ -90,6 +93,7 @@
             v-model="formData.assignTo" 
             :options="Users" 
             :lb="$t('AssignTo')" 
+            :isLoading="loading"
             required
           />
         </div>
@@ -114,11 +118,6 @@
           class="dark:bg-dark-900 h-20 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
         ></textarea>
       </div>
-
-      <!-- Error Message -->
-      <div v-if="errorMessage" class="text-red-500 text-sm">
-        {{ errorMessage }}
-      </div>
     </div>
 
     <template #footer>
@@ -142,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed, onMounted } from 'vue'
+import { ref, reactive, watch, computed, onMounted,nextTick } from 'vue'
 import RightSideModal from '../modal/RightSideModal.vue'
 import BasicButton from '../buttons/BasicButton.vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
@@ -156,6 +155,7 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { getRoomsByHotelId } from '@/services/configrationApi'
 import { createWorkOrder, updateWorkOrder } from '@/services/workOrderApi'
 import { useToast } from 'vue-toastification'
+
 
 interface Props {
   isOpen: boolean
@@ -216,8 +216,8 @@ const priorityOptions = computed(() => [
 const formData = reactive({
   recVouNumber: '',
   unit: '',
-  blockDates: null,
-  dueDate: '',
+  blockDates: null as any,
+  dueDate: null as string | any,
   description: '',
   category: '',
   priority: '',
@@ -227,39 +227,57 @@ const formData = reactive({
   reason: '',
 })
 
+const modalTitle = computed(() => {
+  return props.isEditing ? t('EditWorkOrder') : t('AddWorkOrder')
+})
 
+watch(
+  () => formData.dueDate,
+  (newVal, oldVal) => {
+    console.log('🔍 formData.dueDate changed from:', oldVal, 'to:', newVal, 'type:', typeof newVal)
+  },
+  { deep: true }
+)
 
-// Validation
+//  la validation pour inclure dueDate
 const validateForm = () => {
   errorMessage.value = ''
   
+  console.log('🔍 Validating form - dueDate:', formData.dueDate)
+  
   if (!formData.unit) {
-    errorMessage.value = t('PleaseSelectRoom')
+    toast.error(t('PleaseSelectRoom')) 
+    return false
+  }
+  
+  // Validation obligatoire pour dueDate
+  if (!formData.dueDate || formData.dueDate === '' || formData.dueDate === null) {
+    toast.error(t('PleaseSelectDueDate')) 
     return false
   }
   
   if (!formData.description.trim()) {
-    errorMessage.value = t('PleaseEnterDescription')
+    toast.error(t('PleaseEnterDescription')) 
     return false
   }
   
   if (!formData.category) {
-    errorMessage.value = t('PleaseSelectCategory')
+    toast.error(t('PleaseSelectCategory')) 
     return false
   }
   
   if (!formData.priority) {
-    errorMessage.value = t('PleaseSelectPriority')
+    toast.error(t('PleaseSelectPriority')) 
     return false
   }
   
   if (!formData.assignTo) {
-    errorMessage.value = t('PleaseAssignUser')
+    toast.error(t('PleaseAssignUser')) 
     return false
   }
-   // Validate block dates if provided
-   if (formData.blockDates) {
-    // Assuming blockDates is an object like { from: Date, to: Date } or array [fromDate, toDate]
+  
+  // Validation des dates de blocage
+  if (formData.blockDates) {
     let fromDate, toDate
     
     if (Array.isArray(formData.blockDates)) {
@@ -275,7 +293,7 @@ const validateForm = () => {
       const to = new Date(toDate)
       
       if (from > to) {
-        errorMessage.value = t('BlockFromDateMustBeBeforeToDate')
+        toast.error(t('BlockFromDateMustBeBeforeToDate')) 
         return false
       }
     }
@@ -284,56 +302,68 @@ const validateForm = () => {
   return true
 }
 
-// Initialize form data
+// 3. Modifiez initializeForm pour mieux gérer dueDate
 const initializeForm = () => {
-  if (isEditing.value && props.workOrderData) {
-    // Pour l'édition, reconstruire l'objet blockDates pour InputDoubleDatePicker
-    let blockDates = null
-    if (props.workOrderData.block_from_date && props.workOrderData.block_to_date) {
-      // Adapter selon le format attendu par votre InputDoubleDatePicker
+  console.log('🔍 Initializing form, isEditing:', isEditing.value, 'workOrderData:', props.workOrderData)
+
+  if (props.isEditing && props.workOrderData) {
+    // Bloc de dates
+   
+    let blockDates: { from: Date | null; to: Date | null } | null = null
+    if (props.workOrderData.blockFromDate && props.workOrderData.blockToDate) {
       blockDates = {
-        from: props.workOrderData.block_from_date,
-        to: props.workOrderData.block_to_date
+        from: new Date(props.workOrderData.blockFromDate),
+        to: new Date(props.workOrderData.blockToDate),
       }
-      // Ou si c'est un array: blockDates = [props.workOrderData.block_from_date, props.workOrderData.block_to_date]
     }
 
+    // Due date
+    let dueDate: string = ''
+    if (props.workOrderData.dueDateTime) {
+      const d = props.workOrderData.dueDateTime
+      const dateObj = new Date(d)
+      const date = dateObj.toISOString().split('T')[0]
+      const time = dateObj.toTimeString().slice(0, 5)
+      dueDate = `${date} ${time}` // format "YYYY-MM-DD HH:mm"
+    }
+
+    // Assigner toutes les valeurs au formData
     Object.assign(formData, {
-      roomId: props.workOrderData.room_id || '',
+      unit: props.workOrderData.roomId || '',
       blockDates: blockDates,
-      dueDateTime: props.workOrderData.due_date_time || '',
+      dueDate: dueDate,
       description: props.workOrderData.description || '',
       category: props.workOrderData.category || '',
       priority: props.workOrderData.priority || '',
       status: props.workOrderData.status || '',
-      assignTo: props.workOrderData.assigned_to || '',
-      roomStatus: props.workOrderData.room_status || '',
+      assignTo: props.workOrderData.assignedToUserId || '',
+      roomStatus: props.workOrderData.roomStatus || '',
       reason: props.workOrderData.reason || '',
     })
   } else {
-    // Reset form for new work order
+    // Reset form pour nouvelle WorkOrder
     Object.assign(formData, {
-      roomId: '',
+      unit: '',
       blockDates: null,
-      dueDateTime: '',
+      dueDate: '',
       description: '',
       category: '',
       priority: 'medium',
-      status: '',
+      status: 'assigned',
       assignTo: '',
       roomStatus: '',
       reason: '',
     })
   }
+
+  console.log('🔍 Form initialized with:', formData)
 }
 
 
-const closeModal = () => {
-  errorMessage.value = ''
-  emit('close')
-}
 
 const saveWorkOrder = async () => {
+  console.log('🔍 SaveWorkOrder called - formData.dueDate:', formData.dueDate)
+  
   if (!validateForm()) {
     return
   }
@@ -342,7 +372,6 @@ const saveWorkOrder = async () => {
   errorMessage.value = ''
 
   try {
-
     let blockFromDate = null
     let blockToDate = null
     
@@ -355,30 +384,38 @@ const saveWorkOrder = async () => {
         blockToDate = formData.blockDates.to || formData.blockDates.end
       }
     }
+
+    // S'assurer que dueDateTime n'est pas vide
+    let dueDateTime = formData.dueDate
+    if (!dueDateTime || (typeof dueDateTime === 'string' && dueDateTime.trim() === '')) {
+      dueDateTime = null
+    }
+    
+    console.log('🔍 Final dueDateTime value:', dueDateTime)
+
     const workOrderData = {
       hotelId: serviceStore.serviceId,
       roomId: formData.unit,
-      dueDateTime: formData.dueDate,
-      blockFromDate:blockFromDate,
-      blockToDate:blockToDate,
+      dueDateTime: dueDateTime,
+      blockFromDate: blockFromDate,
+      blockToDate: blockToDate,
       description: formData.description,
       category: formData.category,
       priority: formData.priority,
       status: formData.status,
       assignedToUserId: formData.assignTo,
-      roomStatus: formData.roomStatus,
-      reason: formData.reason,
+      roomStatus: formData.roomStatus || null,
+      reason: formData.reason || null,
     }
 
-    console.log("workOrderData",workOrderData)
+    console.log("🔍 Final workOrderData:", workOrderData)
+    
     let response
     
     if (isEditing.value && props.workOrderData) {
-      // Update existing work order
       response = await updateWorkOrder(props.workOrderData.id, workOrderData)
       toast.success(t('WorkOrderUpdatedSuccessfully'))
     } else {
-      // Create new work order
       response = await createWorkOrder(workOrderData)
       toast.success(t('WorkOrderCreatedSuccessfully'))
     }
@@ -407,6 +444,17 @@ const saveWorkOrder = async () => {
   }
 }
 
+
+
+
+
+
+const closeModal = () => {
+  errorMessage.value = ''
+  emit('close')
+}
+
+
 // Fetch users
 const fetchUsers = async () => {
   try {
@@ -427,6 +475,7 @@ const fetchUsers = async () => {
 // Fetch rooms
 const fetchRooms = async () => {
   try {
+    loading.value=true
     const hotelId = serviceStore.serviceId
     if (!hotelId) throw new Error('hotelId is not defined')
     
@@ -438,43 +487,38 @@ const fetchRooms = async () => {
   } catch (error) {
     console.error('Failed to fetch rooms:', error)
     toast.error(t('ErrorFetchingRooms'))
+  }finally{
+    loading.value=false
   }
 }
 
-// Watch for modal open/close and props changes
-watch(
-  () => props.isOpen,
-  (newVal) => {
-    if (newVal) {
-      initializeForm()
-      
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          closeModal()
-        }
-      }
-      
-      document.addEventListener('keydown', handleEscape)
-      
-      return () => {
-        document.removeEventListener('keydown', handleEscape)
-      }
-    }
-  }
-)
+
 
 watch(
-  () => props.workOrderData,
-  () => {
-    if (props.isOpen) {
-      initializeForm()
+  [() => props.isOpen, () => props.workOrderData],
+  ([isOpen, workOrderData]) => {
+    if (isOpen && workOrderData) {
+      nextTick(() => {
+        console.log('🔍 Modal opened and workOrderData ready')
+        initializeForm()
+      })
     }
-  }
+  },
+  { immediate: true, deep: true }
 )
 
-onMounted(() => {
-  fetchUsers()
-  fetchRooms()
+
+watch(() => props.workOrderData, () => {
+  if (props.isOpen) {
+    nextTick(() => {
+      initializeForm()
+    })
+  }
+}, { deep: true })
+
+onMounted(async() => {
+  await fetchUsers()
+  await fetchRooms()
 })
 </script>
 
