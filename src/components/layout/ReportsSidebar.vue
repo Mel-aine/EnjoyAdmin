@@ -457,14 +457,14 @@ const auditReports = ref([
 
 // Statistical Reports
 const statisticalReports = ref([
-  //TO DO   { name: 'business-analysis', path: '/reports/statistical/business-analysis', label: 'reports.statistical.businessAnalysis' },
+  { name: 'business-analysis', path: '/reports/statistical/business-analysis', label: 'reports.statistical.businessAnalysis' },
   //TO DO   { name: 'contribution-analysis-report', path: '/reports/statistical/contribution-analysis-report', label: 'reports.statistical.contributionAnalysisReport' },
   //TO DO   { name: 'monthly-country-wise-pax-analysis', path: '/reports/statistical/monthly-country-wise-pax-analysis', label: 'reports.statistical.monthlyCountryWisePaxAnalysis' },
   //TO DO   { name: 'monthly-revenue-by-income-stream', path: '/reports/statistical/monthly-revenue-by-income-stream', label: 'reports.statistical.monthlyRevenueByIncomeStream' },
-  //TO DO   { name: 'monthly-statistics', path: '/reports/statistical/monthly-statistics', label: 'reports.statistical.monthlyStatistics' },
+     { name: 'monthly-statistics', path: '/reports/statistical/monthly-statistics', label: 'reports.statistical.monthlyStatistics' },
   //TO DO   { name: 'monthly-summary', path: '/reports/statistical/monthly-summary', label: 'reports.statistical.monthlySummary' },
   //TO DO   { name: 'monthly-tax', path: '/reports/statistical/monthly-tax', label: 'reports.statistical.monthlyTax' },
-  //TO DO   { name: 'room-sale-statistics', path: '/reports/statistical/room-sale-statistics', label: 'reports.statistical.roomSaleStatistics' },
+  { name: 'room-sale-statistics', path: '/reports/statistical/room-sale-statistics', label: 'reports.statistical.roomSaleStatistics' },
   //TO DO  { name: 'room-statistics', path: '/reports/statistical/room-statistics', label: 'reports.statistical.roomStatistics' },
   //TO DO  { name: 'room-on-books', path: '/reports/statistical/room-on-books', label: 'reports.statistical.roomOnBooks' },
   //TO DO  { name: 'yearly-statistics', path: '/reports/statistical/yearly-statistics', label: 'reports.statistical.yearlyStatistics' },

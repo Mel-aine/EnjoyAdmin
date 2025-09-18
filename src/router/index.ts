@@ -777,6 +777,33 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/reports/statistical/business-analysis',
+      name: 'BusinessAnalysis',
+      component: () => import('../views/Reports/Statistical/BusinessAnalysis.vue'),
+      meta: {
+        title: 'Source of Business Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/room-sale-statistics',
+      name: 'RoomSaleStatistics',
+      component: () => import('../views/Reports/Statistical/RoomSaleStatistics.vue'),
+      meta: {
+        title: 'Room Sale Statistics',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/monthly-statistics',
+      name: 'MonthlyStatistics',
+      component: () => import('../views/Reports/Statistical/MonthlyStatistics.vue'),
+      meta: {
+        title: 'Monthly Statistics',
+        requiresAuth: true,
+      },
+    },
     // Configuration Routes
     {
       path: '/configuration',

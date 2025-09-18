@@ -12,17 +12,13 @@
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Date Type Selection -->
           <div class="md:col-span-3">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('reports.folio.dateType') }}
             </label>
-            <div class="flex gap-4">
+            <div class="flex gap-4 flex-wrap">
               <label class="flex items-center gap-2">
                 <input v-model="filters.dateType" type="radio" value="transaction" class="text-blue-600" />
                 {{ t('reports.folio.transaction') }}
@@ -38,26 +34,20 @@
             </div>
           </div>
 
-          <!-- Date Range -->
+          <!-- Date From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.from') }}
             </label>
-            <input 
-              v-model="filters.dateFrom" 
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            />
+            <InputDatepicker v-model="filters.dateFrom" placeholder="From" class="w-full" />
           </div>
+
+          <!-- Date To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.to') }}
             </label>
-            <input 
-              v-model="filters.dateTo" 
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            />
+            <InputDatepicker v-model="filters.dateTo" placeholder="To" class="w-full" />
           </div>
 
           <!-- Business Source -->
@@ -65,21 +55,13 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('business_source') }}
             </label>
-            <select 
-              v-model="filters.businessSource"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">{{ t('SelectBusinessSource') }}</option>
-              <option v-for="source in BusinessSource" :key="source.id" :value="source.name">
-                {{ source.name }}
-              </option>
-            </select>
+            <SelectComponent v-model="filters.businessSource" :options="businessSourceOptions" placeholder="Select Business Source..." class="w-full" />
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
           <!-- Status -->
-          <div class="md:col-span-3">
+          <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.status') }}
             </label>
@@ -98,13 +80,13 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
           <!-- Include Options -->
-          <div class="md:col-span-3">
+          <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('reports.folio.include') }}
             </label>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
               <label class="flex items-center gap-2">
                 <input v-model="filters.include.reserved" type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
@@ -142,64 +124,62 @@
               </label>
             </div>
           </div>
-        </div>
 
-        <!-- Error Message - Only show for actual errors, not for no data -->
-        <div v-if="error" class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {{ error }}
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto ml-auto">
-            <ButtonComponent @click="exportData" variant="secondary" class="min-w-24 w-full sm:w-auto"
+          <div class="flex justify-end gap-2 items-end mt-4">
+            <ButtonComponent @click="exportData" variant="secondary" class="min-w-24"
               :disabled="!showResults || loading">
               {{ t('common.export') }}
             </ButtonComponent>
 
-            <ButtonComponent @click="generateReport" variant="primary" class="min-w-24 w-full sm:w-auto"
+            <ButtonComponent @click="generateReport" variant="primary" class="min-w-20 flex gap-1"
               :disabled="loading || !filters.dateFrom || !filters.dateTo">
-              <span v-if="loading" class="mr-2">
-                <svg class="animate-spin h-4 w-4 inline" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-              </span>
-              {{ loading ? t('common.generating') : t('common.report') }}
+              <Spinner v-if="loading" />
+              <span>{{ loading ? t('common.generating') : t('common.report') }}</span>
             </ButtonComponent>
 
-            <ButtonComponent @click="resetForm" variant="outline" class="min-w-24 w-full sm:w-auto">
+            <ButtonComponent @click="resetForm" variant="outline" class="min-w-20">
               {{ t('common.reset') }}
             </ButtonComponent>
           </div>
         </div>
       </div>
 
+      <!-- Error Message -->
+      <div v-if="error" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {{ error }}
+      </div>
+
       <!-- Results Table -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <!-- Header -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('reports.folio.folioListResults') }}
-          </h2>
-          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ hotelName }}</span> •
-            <span>{{ t('common.dateFrom') }}: {{ filters.dateFrom }} {{ t('common.to') }} {{ filters.dateTo }}</span>
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ hotelName }}
+            </h2>
+            <h2 class="text-lg font-semibold text-blue-600 dark:text-blue-400">
+              {{ t('reports.folio.folioListResults') }}
+            </h2>
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            <span><strong>{{ t('common.dateFrom') }}:</strong> {{ filters.dateFrom }} <strong>{{ t('common.to') }}:</strong> {{ filters.dateTo }}</span>
           </div>
         </div>
 
+        <!-- Report Table -->
         <div class="overflow-x-auto">
           <ResultTable 
             :title="t('reports.folio.folioListResults')" 
             :data="folioData" 
             :columns="selectedTableColumns"
-            :show-header="false"
             :loading="loading"
             :empty-message="folioData.length === 0 && !loading ? t('reports.noDataAvailable') : ''"
             class="w-full mb-4 min-w-max" 
           />
         </div>
 
-        <!-- Total Row - Only show if there's data -->
+        <!-- Total Row -->
         <div v-if="reportTotals && folioData.length > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
             <div>{{ t('reports.folio.totalFolios') }}: {{ reportTotals.totalFolios }}</div>
@@ -215,18 +195,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SelectComponent from '@/components/forms/FormElements/Select.vue'
+import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import Spinner from '../../../components/spinner/Spinner.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getFolioListReport } from '@/services/reportsApi'
 
 const { t } = useI18n();
 const serviceStore = useServiceStore()
-const businessSourcesLo = ref<any>([...serviceStore.businessSources])
-const BusinessSource = computed(() => businessSourcesLo.value || [])
+
+interface FilterOptions {
+  value: string;
+  label: string;
+}
 
 interface FolioData {
   folioNo: string;
@@ -259,7 +245,6 @@ interface Filters {
   };
   businessSource: string;
   include: {
-    all: boolean;
     reserved: boolean;
     cancelled: boolean;
     noShow: boolean;
@@ -268,28 +253,21 @@ interface Filters {
     void: boolean;
     unconfirmedReservation: boolean;
   };
-  hotelId?: string;
 }
 
-const hotelName = ref<string>('Hotel Name')
-const showResults = ref<boolean>(false)
-const currency = ref<string>('USD')
-const loading = ref<boolean>(false)
-const error = ref<string>('')
-const exportMenuOpen = ref<boolean>(false)
-const exportLoading = ref<boolean>(false)
+// Set default dates to today
+const today = new Date().toISOString().split('T')[0]
 
 const filters = ref<Filters>({
   dateType: 'transaction',
-  dateFrom: '',
-  dateTo: '',
+  dateFrom: today,
+  dateTo: today,
   status: {
     paid: true,
     unpaid: true
   },
   businessSource: '',
   include: {
-    all: true,
     reserved: true,
     cancelled: true,
     noShow: true,
@@ -300,10 +278,29 @@ const filters = ref<Filters>({
   },
 })
 
+// State
+const loading = ref<boolean>(false)
+const showResults = ref<boolean>(false)
+const error = ref<string>('')
+const currency = ref<string>('USD')
 const folioData = ref<FolioData[]>([])
 const reportTotals = ref<ReportTotals | null>(null)
 
+// Options for selects
+const businessSourceOptions = computed(() => {
+  const options = [{ value: '', label: 'All' }]
+  const sources = serviceStore.businessSources || []
+  sources.forEach((source: any) => {
+    options.push({ value: source.name, label: source.name })
+  })
+  return options
+})
+
 // Computed properties
+const hotelName = computed(() => {
+  return useServiceStore().getCurrentService?.hotelName
+})
+
 const selectedTableColumns = computed(() => [
   { key: 'folioNo', label: t('reports.folio.folioNo'), type: 'text' },
   { key: 'invoiceNo', label: t('reports.folio.invoiceNo'), type: 'text' },
@@ -325,11 +322,10 @@ const generateReport = async (): Promise<void> => {
   }
 
   loading.value = true
-  error.value = ''  // Clear any previous errors
+  error.value = ''
   showResults.value = false
   
   try {
-    // Préparer les paramètres selon ce que le contrôleur attend
     const params = {
       dateType: filters.value.dateType,
       dateFrom: filters.value.dateFrom,
@@ -337,7 +333,7 @@ const generateReport = async (): Promise<void> => {
       status: filters.value.status,
       businessSource: filters.value.businessSource,
       include: filters.value.include,
-      hotelId: useServiceStore().serviceId // Si vous avez un hotelId
+      hotelId: useServiceStore().serviceId
     }
 
     console.log('Generating folio list report with params:', params)
@@ -346,7 +342,6 @@ const generateReport = async (): Promise<void> => {
     console.log('Folio list report response:', response)
     
     if (response && response.data && response.success) {
-      // Mapper les données du backend vers le format attendu par le frontend
       const folios = response.data.folios || []
       folioData.value = folios.map((folio: any) => ({
         folioNo: folio.folioNo,
@@ -364,38 +359,29 @@ const generateReport = async (): Promise<void> => {
       reportTotals.value = response.data.totals
       showResults.value = true
       
-      // Ne pas afficher d'erreur s'il n'y a simplement pas de données
-      // Le tableau vide sera affiché avec le message "no data available"
-      
     } else if (response && response.data) {
-      // Seulement afficher une erreur si c'est une vraie erreur du serveur
       if (response.data.message && !response.data.message.includes('no data') && !response.data.message.includes('aucune donnée')) {
         error.value = response.data.message
       }
       folioData.value = []
       reportTotals.value = null
-      showResults.value = true  // Montrer les résultats même si vides
+      showResults.value = true
     }
   } catch (err) {
     console.error('Error fetching folio list:', err)
-    // Seulement afficher une erreur pour les vraies erreurs réseau/serveur
-    error.value = t('errors.failedToLoadData')
+    error.value = t('anErrorOcurr')
     folioData.value = []
     reportTotals.value = null
-    showResults.value = false  // Ne pas montrer les résultats en cas d'erreur réseau
+    showResults.value = false
   } finally {
     loading.value = false
   }
 }
 
 const exportData = async (): Promise<void> => {
-  // Implémentation de l'export (CSV par défaut)
   if (folioData.value.length === 0) return
   
   try {
-    exportLoading.value = true
-    
-    // Créer les données CSV
     const headers = selectedTableColumns.value.map(col => col.label).join(',')
     const rows = folioData.value.map(folio => 
       selectedTableColumns.value.map(col => {
@@ -419,29 +405,27 @@ const exportData = async (): Promise<void> => {
     console.log('CSV exported successfully')
   } catch (error) {
     console.error('Error exporting CSV:', error)
-  } finally {
-    exportLoading.value = false
   }
 }
 
 const resetForm = (): void => {
   filters.value = {
     dateType: 'transaction',
-    dateFrom: '',
-    dateTo: '',
+    dateFrom: today,
+    dateTo: today,
     status: {
       paid: true,
       unpaid: true
     },
     businessSource: '',
     include: {
-      reserved: false,
-      cancelled: false,
-      noShow: false,
-      checkedIn: false,
-      checkedOut: false,
-      void: false,
-      unconfirmedReservation: false
+      reserved: true,
+      cancelled: true,
+      noShow: true,
+      checkedIn: true,
+      checkedOut: true,
+      void: true,
+      unconfirmedReservation: true
     },
   }
   showResults.value = false
@@ -450,26 +434,13 @@ const resetForm = (): void => {
   error.value = ''
 }
 
-const handleAllChange = (): void => {
-  if (filters.value.include.all) {
-    // Si "All" est coché, cocher toutes les options
-    filters.value.include.reserved = true
-    filters.value.include.cancelled = true
-    filters.value.include.noShow = true
-    filters.value.include.checkedIn = true
-    filters.value.include.checkedOut = true
-    filters.value.include.void = true
-    filters.value.include.unconfirmedReservation = true
-  }
-}
-
-// Initialiser les dates par défaut
+// Initialize default dates
 onMounted(() => {
-  const today = new Date()
-  const weekAgo = new Date(today)
+  const todayDate = new Date()
+  const weekAgo = new Date(todayDate)
   weekAgo.setDate(weekAgo.getDate() - 7)
   
-  filters.value.dateTo = today.toISOString().split('T')[0]
+  filters.value.dateTo = todayDate.toISOString().split('T')[0]
   filters.value.dateFrom = weekAgo.toISOString().split('T')[0]
 })
 </script>
@@ -477,46 +448,32 @@ onMounted(() => {
 <style scoped>
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  .flex-col>div {
-    width: 100%;
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
-
-  .flex-col>div+div {
-    margin-top: 1rem;
-  }
-
-  .items-end {
-    align-items: stretch;
-  }
-
-  .grid-cols-2 {
+  
+  .grid-cols-2.md\:grid-cols-4.lg\:grid-cols-7 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 768px) {
-  .grid-cols-2.md\:grid-cols-4 {
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
-
-@media (min-width: 1024px) {
-  .grid-cols-2.md\:grid-cols-4 {
+  
+  .grid-cols-2.md\:grid-cols-4.lg\:grid-cols-7 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-/* Styles pour les boutons d'export */
-.export-button {
-  transition: all 0.2s ease-in-out;
-}
-
-.export-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.export-button:active {
-  transform: translateY(0);
+@media (min-width: 1024px) {
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  
+  .grid-cols-2.md\:grid-cols-4.lg\:grid-cols-7 {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
 }
 </style>
