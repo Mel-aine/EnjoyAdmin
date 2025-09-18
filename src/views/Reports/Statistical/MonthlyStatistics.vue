@@ -55,9 +55,9 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+        <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Report Template -->
-          <div class="flex items-center gap-3 w-full sm:w-auto">
+<!--           <div class="flex items-center gap-3 w-full sm:w-auto">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Template</label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
               <SelectComponent 
@@ -77,7 +77,7 @@
               </button>
             </div>
           </div>
-
+ -->
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <ButtonComponent 
@@ -121,6 +121,7 @@
             :title="'Monthly Statistics'"
             :data="monthlyStatsData"
             :columns="monthlyStatsColumns"
+            :show-header=false
             class="w-full mb-4 min-w-max"
           />
         </div>
