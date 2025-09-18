@@ -239,7 +239,7 @@ export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promi
 export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `${API_URL}/custom/guest-checkout`,
+      `${API_URL}/statistics/guest-checkout`,
       filters,
       headers 
     )
@@ -253,7 +253,7 @@ export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Pr
 export const generatePickupDropoff = async (filters: PickupDropoffFilters): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `${API_URL}/custom/pickup-dropoff`,
+      `${API_URL}/statistics/pickup-dropoff`,
       filters,
       headers 
     )

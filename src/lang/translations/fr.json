@@ -3689,6 +3689,11 @@
   "reports": {
     "title": "Rapports",
     "description": "Accédez à des rapports et des analyses complètes pour les opérations de votre hôtel",
+    "backOffice": {
+      "title": "Rapports Back Office",
+      "description": "Rapports financiers et administratifs",
+      "workOrderList": "Liste des ordres de travail"
+    },
     "reservation": {
       "title": "Rapports de réservation",
       "description": "Suivre et analyser les données de réservation",

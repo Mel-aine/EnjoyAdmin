@@ -3711,6 +3711,11 @@
   "reports": {
     "title": "Reports",
     "description": "Access comprehensive reports and analytics for your hotel operations",
+    "backOffice": {
+      "title": "Back Office Reports",
+      "description": "Financial and administrative reports",
+      "workOrderList": "Work Order List"
+    },
     "reservation": {
       "title": "Reservation Reports",
       "description": "Track and analyze reservation data",

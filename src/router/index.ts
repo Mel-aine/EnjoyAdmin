@@ -392,6 +392,24 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // TODO: Uncomment and update the path when the AdvanceDepositLedger component is created
+    // {
+    //   path: '/reports/back-office/advance-deposit-ledger',
+    //   component: () => import('@/views/Reports/BackOffice/AdvanceDepositLedger.vue'),
+    //   meta: {
+    //     title: 'Advance Deposit Ledger',
+    //     requiresAuth: true,
+    //   },
+    // },
+    {
+      path: '/reports/back-office/work-order-list',
+      name: 'WorkOrderList',
+      component: () => import('@/views/Reports/BackOffice/WorkOrderList.vue'),
+      meta: {
+        title: 'Work Order List',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/reports/back-office/daily-receipt-detail',
       name: 'DailyReceiptDetail',

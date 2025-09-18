@@ -185,33 +185,9 @@
           </div>
         </div> -->
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Tax Inclusive -->
-<div class="flex flex-col">
-  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-    {{ t('reports.frontOffice.FilterBy') }}
-  </label>
-  <div class="flex gap-6">
-    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-      <input
-        v-model="filters.filterBy"
-        type="radio"
-        value="booking"
-        class="border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-      />
-      {{ t('reports.frontOffice.bookingWise') }}
-    </label>
-    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-      <input
-        v-model="filters.filterBy"
-        type="radio"
-        value="folio"
-        class="border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-      />
-      {{ t('reports.frontOffice.folioWise') }}
-    </label>
-  </div>
-</div>
+        <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4"> -->
+                      <!-- Tax Inclusive -->
+           
 <!--           <div class="flex items-end">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               <input 
@@ -223,11 +199,11 @@
             </label>
           </div> -->
           
-        </div>
+        <!-- </div> -->
 
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4 justify-end">
           <!-- Report Template -->
-          <div class="flex items-center gap-3 w-full sm:w-auto">
+          <!-- <div class="flex items-center gap-3 w-full sm:w-auto">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
               <SelectComponent 
@@ -246,7 +222,7 @@
                 </svg>
               </button>
             </div>
-          </div>
+          </div> -->
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
