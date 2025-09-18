@@ -211,9 +211,9 @@ const menu = computed(() => {
       return []
     }
     menuGroups.forEach((e) => {
-      e.items = e.items.filter((pe) => authStore.hasPermission(pe.permission)) || [];
-      e.items.forEach((sub) => {
-        sub.subItems = sub.subItems?.filter((suv) => authStore.hasPermission(suv.permission))
+      e.items = e.items.filter((pe:any) => authStore.hasPermission(pe.permission)) || [];
+      e.items.forEach((sub:any) => {
+        sub.subItems = sub.subItems?.filter((suv:any) => authStore.hasPermission(suv.permission))
       })
     })
 

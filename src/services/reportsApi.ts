@@ -339,6 +339,110 @@ export const generateOccupancyReport = async (filters: ReportFilters = {}): Prom
   }
 }
 
+
+///***
+// 
+// getVoidPaymentReport
+//  */
+
+export const getVoidPaymentReport = async (data: any) => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/void-payment`,
+      data,
+      headers
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/***
+ * 
+ * void-charge
+ * 
+ */
+
+export const getVoidChargeReport = async (data: any) => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/void-charge`,
+      data,
+      headers
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/***
+ * void-transaction
+ */
+export const getVoidTransactionReport = async (data: any) => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/void-transaction`,
+      data,
+      headers
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+/**
+ * guest-list
+ */
+export const getGuestListReport = async (data: any) => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/guest-list`,
+      data,
+      headers
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/**
+ * folio-list
+ */
+export const getFolioListReport = async (data: any) => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/folio-list`,
+      data,
+      headers
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/***
+ *  audit
+ */
+export const getAuditReport = async (data: any) => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/audit`,
+      data,
+      headers
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/***
+ * 
+ */
 export const generateADRReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
@@ -400,10 +504,10 @@ export const exportData = async (
   try {
     const response: AxiosResponse = await apiClient.post(
       `${API_URL}/exports/${URL_TYPE}`,
-      { 
-        reportType: reportTypes, 
-        format, 
-        filters 
+      {
+        reportType: reportTypes,
+        format,
+        filters
       },
       {
         ...headers,
@@ -423,21 +527,21 @@ export const exportData = async (
 
     // Pour PDF, ne pas essayer de valider le blob immédiatement
     // Créer le blob avec le type MIME correct
-    const blob = new Blob([response.data], { 
+    const blob = new Blob([response.data], {
       type: response.headers['content-type'] || getMimeType(format)
     });
-    
+
     // Télécharger le fichier sans validation préalable pour PDF
     const filename = `${reportTypes}_${new Date().toISOString().split('T')[0]}.${getFileExtension(format)}`;
     downloadFile(blob, filename);
-    
-    return { 
-      success: true, 
-      message: `Fichier ${format.toUpperCase()} téléchargé avec succès` 
+
+    return {
+      success: true,
+      message: `Fichier ${format.toUpperCase()} téléchargé avec succès`
     };
   } catch (error) {
     console.error('Erreur détaillée lors de l\'export:', error);
-    
+
     // Gestion des erreurs
     if ((error as any).response?.status === 400) {
       try {
@@ -453,7 +557,7 @@ export const exportData = async (
         throw new Error('Erreur de format de réponse du serveur');
       }
     }
-    
+
     throw error;
   }
 };
@@ -481,24 +585,24 @@ const getFileExtension = (format: 'pdf' | 'csv' | 'excel'): string => {
 const getFileInfo = (format: string): { mimeType: string; fileExtension: string } => {
   switch (format) {
     case 'csv':
-      return { 
-        mimeType: 'text/csv; charset=utf-8', 
-        fileExtension: 'csv' 
+      return {
+        mimeType: 'text/csv; charset=utf-8',
+        fileExtension: 'csv'
       };
     case 'pdf':
-      return { 
-        mimeType: 'application/pdf', 
-        fileExtension: 'pdf' 
+      return {
+        mimeType: 'application/pdf',
+        fileExtension: 'pdf'
       };
     case 'excel':
-      return { 
-        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-        fileExtension: 'xlsx' 
+      return {
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        fileExtension: 'xlsx'
       };
     default:
-      return { 
-        mimeType: 'text/csv; charset=utf-8', 
-        fileExtension: 'csv' 
+      return {
+        mimeType: 'text/csv; charset=utf-8',
+        fileExtension: 'csv'
       };
   }
 };
@@ -529,23 +633,23 @@ const validatePdfBlob = async (blob: Blob): Promise<void> => {
     reader.onload = (e) => {
       const arrayBuffer = e.target?.result as ArrayBuffer;
       const uint8Array = new Uint8Array(arrayBuffer.slice(0, 5));
-      
+
       // Vérifier le header PDF (%PDF-)
-      const header = Array.from(uint8Array).map(byte => 
+      const header = Array.from(uint8Array).map(byte =>
         String.fromCharCode(byte)).join('');
-      
+
       if (!header.startsWith('%PDF-')) {
         reject(new Error('Le fichier ne semble pas être un PDF valide'));
         return;
       }
-      
+
       resolve();
     };
-    
+
     reader.onerror = () => {
       reject(new Error('Impossible de lire le fichier PDF'));
     };
-    
+
     reader.readAsArrayBuffer(blob.slice(0, 1024)); // Lire seulement les premiers 1KB
   });
 };
@@ -554,12 +658,12 @@ const validatePdfBlob = async (blob: Blob): Promise<void> => {
 const quickPdfValidation = (blob: Blob): boolean => {
   // Un PDF valide doit avoir une certaine taille
   if (blob.size < 100) return false;
-  
+
   // Vérifier le type MIME
   if (!blob.type.includes('pdf')) {
     console.warn('Type MIME inattendu pour PDF:', blob.type);
   }
-  
+
   return true;
 };
 

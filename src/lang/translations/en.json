@@ -3915,6 +3915,39 @@
       "paymentSummary": "Payment Summary",
       "revenueByRateTypeSummary": "Revenue By Rate Type Summary",
       "statisticsByRoomType": "Statistics By Room Type"
+    },
+    "folio":{
+      "transaction": "Transaction",
+      "arrival":"Arrival",
+      "departure":"Departure",
+      "paid":"Paid",
+      "unpaid":"UnPaid",
+      "type":"Type",
+      "folioMode":"Folio Mode",
+      "roomFolio":"Room Folio",
+      "dateType":"Date Type",
+      "folioList":"Folio List",
+      "folioListResults":"Folio List Results",
+      "reserved":"Reserved",
+      "checkedOut":"Checked Out",
+      "include":"Include",
+      "cancelled":"Cancelled",
+      "void":"void",
+      "noShow":"noShow",
+      "unconfirmedReservation":"Unconfirmed Reservation",
+      "checkedIn":"Checked In",
+      "folioNo":"Folio No",
+      "invoiceNo":"Invoice No",
+      "date":"Date",
+      "pax":"Pax",
+      "name":"Name",
+      "status":"Status",
+      "chargeAmount":"Charge Amount",
+      "taxAmount":"Tax Amount",
+      "creditAmount":"Credit Amount",
+      "balanceAmount":"Balance Amount",
+      "totalFolios": "Total Folios",
+      "totalBalance": "Total Balance"
     }
   },
   "payments": {
@@ -5998,8 +6031,9 @@
   "Voucher email is required when email booking vouchers is enabled": "Voucher email is required when email booking vouchers is enabled",
   "Invalid voucher email address": "Invalid voucher email address",
   "Profile photo upload incomplete": "Profile photo upload incomplete",
-  "ID photo upload incomplete": "ID photo upload incomplete"
-
+  "ID photo upload incomplete": "ID photo upload incomplete",
+  "roomrate_change": "Roomrate Change",
+  "room_assignment": "Room Assignment"
 
 
 }

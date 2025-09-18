@@ -196,18 +196,16 @@ import BasicButton from '../../components/buttons/BasicButton.vue'
 import { CheckIcon, InfoIcon } from 'lucide-vue-next'
 import { formatDateT } from '../../components/utilities/UtilitiesFunction'
 import type { Action, Column } from '../../utils/models'
-import { getFoglioWithParams, settleFolio, getFolioStatement, processCheckout, postRoomCharges, postTaxesAndFees, postTransaction, addRoomChargeHandler } from '@/services/foglioApi'
-import { useReservation } from '@/composables/useReservation'
+import { settleFolio } from '@/services/foglioApi'
 import {
   getReleaseReservations
 } from '@/services/reservation'
-import { createPayment, confirmPayment, checkExtendStay } from '@/services/api'
+import { createPayment, confirmPayment } from '@/services/api'
 import { useServiceStore } from '../../composables/serviceStore'
 import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations, postNightlyCharges } from '../../services/nightAudit'
 // Lazy load modal components for better code splitting
 const VoidReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/VoidReservation.vue'))
 const NoShowReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/NoShowReservation.vue'))
-import AssignRoomReservation from '../../components/reservations/AssignRoomReservation.vue'
 const CheckInReservation = defineAsyncComponent(() => import('../../components/reservations/CheckInReservation.vue'))
 const CheckOutReservation = defineAsyncComponent(() => import('../../components/reservations/CheckOutReservation.vue'))
 const AmendStay = defineAsyncComponent(() => import('../../components/reservations/foglio/AmendStay.vue'))
@@ -221,11 +219,8 @@ const getYesterday = () => {
   return date.toISOString().split('T')[0]
 }
 // State - Load saved step from localStorage or default to 1
-const getSavedStep = () => {
-  const saved = localStorage.getItem('nightAuditCurrentStep')
-  return saved ? parseInt(saved, 10) : 1
-}
-const currentStep = ref(getSavedStep())
+
+const currentStep = ref(1)
 const loading = ref(false)
 const postingCharges = ref(false)
 const finishingAudit = ref(false)

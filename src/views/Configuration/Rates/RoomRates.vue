@@ -203,7 +203,7 @@
               <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                 :disabled="isSaving" />
               <BasicButton type="submit" variant="primary" :icon="Save"
-                :label="isEditing ? $t('configuration.identity_type.update_identity_type') : $t('configuration.identity_type.save_identity_type')"
+                :label="isEditing ? $t('edit') : $t('save')"
                 :loading="isSaving" />
             </div>
           </form>

@@ -15,7 +15,7 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Filters
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Date Type Selection -->
           <div class="md:col-span-3">
@@ -24,30 +24,15 @@
             </label>
             <div class="flex gap-4">
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.dateType" 
-                  type="radio" 
-                  value="transaction"
-                  class="text-blue-600"
-                />
+                <input v-model="filters.dateType" type="radio" value="transaction" class="text-blue-600" />
                 {{ t('reports.folio.transaction') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.dateType" 
-                  type="radio" 
-                  value="arrival"
-                  class="text-blue-600"
-                />
+                <input v-model="filters.dateType" type="radio" value="arrival" class="text-blue-600" />
                 {{ t('reports.folio.arrival') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.dateType" 
-                  type="radio" 
-                  value="departure"
-                  class="text-blue-600"
-                />
+                <input v-model="filters.dateType" type="radio" value="departure" class="text-blue-600" />
                 {{ t('reports.folio.departure') }}
               </label>
             </div>
@@ -58,23 +43,23 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.from') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.dateFrom" 
-              :placeholder="t('common.from')"
-              class="w-full"
-            />
+            <InputDatepicker v-model="filters.dateFrom" :placeholder="t('common.from')" class="w-full" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.to') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.dateTo" 
-              :placeholder="t('common.to')"
-              class="w-full"
-            />
+            <InputDatepicker v-model="filters.dateTo" :placeholder="t('common.to')" class="w-full" />
           </div>
-          <div></div>
+
+          <!-- Business Source -->
+          <div>
+           <div>
+                  <AutoCompleteSelect v-model="filters.businessSource" :options="BusinessSource"
+                    :defaultValue="$t('SelectBusinessSource')" :lb="$t('business_source')" :is-required="false"
+                 />
+                </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -85,87 +70,19 @@
             </label>
             <div class="flex gap-4 flex-wrap">
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.status.paid" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.status.paid" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.paid') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.status.unpaid" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.status.unpaid" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.unpaid') }}
               </label>
             </div>
           </div>
 
-          <!-- Folio Type -->
-          <div class="md:col-span-3">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.folio.type') }}
-            </label>
-            <div class="flex gap-4">
-              <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.folioType.roomFolio" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
-                {{ t('reports.folio.roomFolio') }}
-              </label>
-              <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.folioType.posFolio" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
-                {{ t('reports.folio.posFolio') }}
-              </label>
-            </div>
-          </div>
 
-          <!-- Folio Mode -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.folio.folioMode') }}
-            </label>
-            <SelectComponent 
-              v-model="filters.folioMode"
-              :options="folioModeOptions"
-              :placeholder="t('common.select')"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Sort By -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('common.sortBy') }}
-            </label>
-            <SelectComponent 
-              v-model="filters.sortBy"
-              :options="sortByOptions"
-              :placeholder="t('common.select')"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Business Source -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('common.businessSource') }}
-            </label>
-            <SelectComponent 
-              v-model="filters.businessSource"
-              :options="businessSourceOptions"
-              :placeholder="t('common.select')"
-              class="w-full"
-            />
-          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -176,119 +93,67 @@
             </label>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.all" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.all" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('common.all') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.reserved" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.reserved" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.reserved') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.cancelled" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.cancelled" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.cancelled') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.noShow" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.noShow" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.noShow') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.checkedIn" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.checkedIn" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.checkedIn') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.checkedOut" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.checkedOut" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.checkedOut') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.void" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.void" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.void') }}
               </label>
               <label class="flex items-center gap-2">
-                <input 
-                  v-model="filters.include.unconfirmedReservation" 
-                  type="checkbox"
-                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                />
+                <input v-model="filters.include.unconfirmedReservation" type="checkbox"
+                  class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
                 {{ t('reports.folio.unconfirmedReservation') }}
               </label>
             </div>
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+        <div
+          class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Report Template -->
           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <SelectComponent 
-                v-model="filters.reportTemplate"
-                :options="reportTemplateOptions"
-                :placeholder="t('common.default')"
-                class="min-w-32 w-full sm:w-auto"
-              />
-              <button 
-                @click="editTemplate"
-                class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :title="t('common.editTemplate')"
-              >
-                <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-            </div>
+
           </div>
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <ButtonComponent 
-              @click="exportData"
-              variant="secondary"
-              class="min-w-24 w-full sm:w-auto"
-            >
+            <ButtonComponent @click="exportData" variant="secondary" class="min-w-24 w-full sm:w-auto">
               {{ t('common.export') }}
             </ButtonComponent>
-            
-            <ButtonComponent 
-              @click="generateReport"
-              variant="primary"
-              class="min-w-24 w-full sm:w-auto"
-            >
+
+            <ButtonComponent @click="generateReport" variant="primary" class="min-w-24 w-full sm:w-auto">
               {{ t('common.report') }}
             </ButtonComponent>
-            
-            <ButtonComponent 
-              @click="resetForm"
-              variant="outline"
-              class="min-w-24 w-full sm:w-auto"
-            >
+
+            <ButtonComponent @click="resetForm" variant="outline" class="min-w-24 w-full sm:w-auto">
               {{ t('common.reset') }}
             </ButtonComponent>
           </div>
@@ -302,19 +167,15 @@
             {{ t('reports.folio.folioListResults') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ hotelName }}</span> • 
-            <span>{{ t('common.dateFrom') }}: {{ filters.dateFrom }} {{ t('common.to') }} {{ filters.dateTo }}</span> • 
+            <span>{{ hotelName }}</span> •
+            <span>{{ t('common.dateFrom') }}: {{ filters.dateFrom }} {{ t('common.to') }} {{ filters.dateTo }}</span> •
             <span>{{ t('common.sortBy') }}: {{ filters.sortBy }}</span>
           </div>
         </div>
-        
+
         <div class="overflow-x-auto">
-          <ResultTable 
-            :title="t('reports.folio.folioListResults')"
-            :data="folioData"
-            :columns="selectedTableColumns"
-            class="w-full mb-4 min-w-max"
-          />
+          <ResultTable :title="t('reports.folio.folioListResults')" :data="folioData" :columns="selectedTableColumns"
+            class="w-full mb-4 min-w-max" />
         </div>
 
         <!-- Total Row -->
@@ -337,8 +198,13 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import AutoCompleteSelect from '../../../components/forms/FormElements/AutoCompleteSelect.vue'
 
-const { t } = useI18n()
+const { t } = useI18n();
+const serviceStore = useServiceStore()
+const businessSourcesLo = ref<any>([...serviceStore.businessSources])
+const BusinessSource = computed(() => businessSourcesLo.value || [])
 
 interface FilterOptions {
   value: string;
@@ -366,12 +232,6 @@ interface Filters {
     paid: boolean;
     unpaid: boolean;
   };
-  folioType: {
-    roomFolio: boolean;
-    posFolio: boolean;
-  };
-  folioMode: string;
-  sortBy: string;
   businessSource: string;
   include: {
     all: boolean;
@@ -383,7 +243,6 @@ interface Filters {
     void: boolean;
     unconfirmedReservation: boolean;
   };
-  reportTemplate: string;
 }
 
 const hotelName = ref<string>('Karma eZee')
@@ -398,12 +257,6 @@ const filters = ref<Filters>({
     paid: true,
     unpaid: true
   },
-  folioType: {
-    roomFolio: true,
-    posFolio: true
-  },
-  folioMode: 'both',
-  sortBy: 'folioNo',
   businessSource: '',
   include: {
     all: true,
@@ -415,7 +268,6 @@ const filters = ref<Filters>({
     void: true,
     unconfirmedReservation: true
   },
-  reportTemplate: 'default'
 })
 
 // Options for selects
@@ -557,7 +409,6 @@ const resetForm = (): void => {
       void: false,
       unconfirmedReservation: false
     },
-    reportTemplate: 'default'
   }
   showResults.value = false
 }
@@ -570,18 +421,18 @@ const editTemplate = (): void => {
 <style scoped>
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  .flex-col > div {
+  .flex-col>div {
     width: 100%;
   }
-  
-  .flex-col > div + div {
+
+  .flex-col>div+div {
     margin-top: 1rem;
   }
-  
+
   .items-end {
     align-items: stretch;
   }
-  
+
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }

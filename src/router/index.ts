@@ -510,6 +510,24 @@ const router = createRouter({
       },
     },
     {
+      path: '/reports/audit/void-payment',
+      name: 'voidPayment',
+      component: () => import('../views/Reports/Audit/VoidPayment.vue'),
+      meta: {
+        title: 'Void Payment',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/void-transaction',
+      name: 'voidTransaction',
+      component: () => import('../views/Reports/Audit/VoidTransaction.vue'),
+      meta: {
+        title: 'Void Transaction',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/reports/back-office/house-status',
       name: 'HouseStatusReport',
       component: () => import('../views/Reports/BackOffice/HouseStatus.vue'),

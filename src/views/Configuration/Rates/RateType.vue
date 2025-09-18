@@ -13,8 +13,7 @@
       <ReusableTable :title="t('rateTypesList')" :columns="columns" :data="rateTypes" :actions="actions"
         :search-placeholder="t('searchRateTypes')" :selectable="true" :empty-state-title="t('noRateTypesFound')"
         :empty-state-message="t('addRateTypeMessage')" @action="onAction" @selection-change="onSelectionChange"
-        :loading="loading"
-        >
+        :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRateType')" :icon="Plus">
           </BasicButton>
@@ -78,51 +77,12 @@
                 <Input v-model="formData.rateTypeName" :placeholder="t('enterRateTypeNamePlaceholder')" required
                   :is-required="true" :lb="t('rateTypeName')" />
               </div>
-
-              <!-- Nights 
-              <div>
-                <Input v-model="formData.nights" type="number" min="1" :placeholder="t('enterNightsPlaceholder')"
-                  :is-required="true" :lb="t('nights')" />
-              </div>-->
-
-              <!-- Max Adults
-              <div>
-                <Input v-model="formData.maxAdult" type="number" min="1"
-                  :placeholder="t('enterMaxAdultsPlaceholder')" :is-required="true" :lb="t('maxAdult')" />
-              </div> -->
-
-              <!-- Min Nights -->
-              <!-- <div>
-                <Input v-model="formData.minNight" type="number" min="1"
-                  :placeholder="t('enterMinNightsPlaceholder')" :is-required="true" :lb="t('minNight')" />
-              </div> -->
-
-              <!-- Status -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('status') }}
                 </label>
                 <Select v-model="formData.status" :options="statusOptions"
                   :placeholder="t('selectStatusPlaceholder')" />
-              </div>
-            </div>
-
-            <!-- Room Types Selection Section -->
-            <div class="mt-6">
-              <h4 class="text-md font-semibold mb-3 text-gray-900">{{ t('selectRoomTypes') }}</h4>
-              <div class="border rounded-lg p-4">
-                <ReusableTable :title="t('availableRoomTypes')" :columns="roomTypeColumns" :data="roomTypeOptions"
-                  :selectable="true" :search-placeholder="t('searchRoomTypes')"
-                  :empty-state-title="t('noRoomTypesFound')" :empty-state-message="t('noRoomTypesMessage')"
-                  @selection-change="onRoomTypeSelectionChange" :selected-items="selectedRoomTypes">
-                  <!-- Custom column for room type info -->
-                  <template #column-roomTypeInfo="{ item }">
-                    <div>
-                      <div class="text-sm font-medium text-gray-900">{{ item.label }}({{ item.baseAdult }}/{{
-                        item.baseChild }})</div>
-                    </div>
-                  </template>
-                </ReusableTable>
               </div>
             </div>
 
@@ -254,7 +214,7 @@ const roomTypeColumns: Column[] = [
 ]
 
 const serviceStore = useServiceStore()
-const loading =ref(false);
+const loading = ref(false);
 // Sample data
 const rateTypes = ref([
 
@@ -374,8 +334,12 @@ const saveRateType = async () => {
     } else {
       // Update existing rate type
       const updateData = {
-        ...formData.value,
+        shortCode: formData.value.shortCode,
+        rateTypeName: formData.value.rateTypeName,
+        status: formData.value.status,
+        hotelId: serviceStore.serviceId,
       }
+      console.log('Update data:', updateData)
       await updateRateTypeById(editingRateType.value.id, updateData)
       toast.success(t('rateTypeUpdatedSuccessfully'))
       await loadData()
@@ -430,7 +394,7 @@ const updateRoomRatesArray = () => {
 
 // Load data from API
 const loadData = async () => {
-loading.value = true
+  loading.value = true
   try {
     const response = await getRateTypes()
     rateTypes.value = response.data.data.data || []
@@ -438,8 +402,8 @@ loading.value = true
     console.error('Error loading rate types:', error)
     toast.error(t('errorLoadingRateTypes'))
     // Keep existing mock data as fallback
-  }finally{
-  loading.value = false
+  } finally {
+    loading.value = false
   }
 }
 

@@ -72,7 +72,7 @@ export const deleteAmenity = (id: number): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/room-types`, getHeaders())
+  return axios.get(`${API_URL}/room_types`, getHeaders())
 }
 
 /**
@@ -81,7 +81,7 @@ export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/room-types/sort-order`, data, getHeaders())
+  return axios.put(`${API_URL}/room_types/sort-order`, data, getHeaders())
 }
 
 /**
@@ -90,7 +90,7 @@ export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> 
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const postRoomType = (data: RoomTypeData): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/room-types`, data, getHeaders())
+  return axios.post(`${API_URL}/room_types`, data, getHeaders())
 }
 /**
  * Get a room type
@@ -98,7 +98,7 @@ export const postRoomType = (data: RoomTypeData): Promise<AxiosResponse<any>> =>
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomTypeById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/room-types/${id}`, getHeaders())
+  return axios.get(`${API_URL}/room_types/${id}`, getHeaders())
 }
 /**
  * Update a room type
@@ -108,7 +108,7 @@ export const getRoomTypeById = (id: number): Promise<AxiosResponse<any>> => {
  */
 export const updateRoomTypeById = (id: number, data: RoomTypeData): Promise<AxiosResponse<any>> => {
 
-  return axios.put(`${API_URL}/room-types/${id}`, data, getHeaders())
+  return axios.put(`${API_URL}/room_types/${id}`, data, getHeaders())
 }
 /**
  * Delete a room type
@@ -116,7 +116,7 @@ export const updateRoomTypeById = (id: number, data: RoomTypeData): Promise<Axio
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const deleteRoomType = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/room-types/${id}`, getHeaders())
+  return axios.delete(`${API_URL}/room_types/${id}`, getHeaders())
 }
 
 
