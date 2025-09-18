@@ -4,12 +4,15 @@ import { useAuthStore } from '@/composables/user'
 import axios from 'axios'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+
+const getHeaders  = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {  
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 export interface ApiResponse<T = any> {
@@ -82,7 +85,7 @@ export const getAvailableReports = async (): Promise<ApiResponse | undefined | u
   try {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}`,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -100,7 +103,7 @@ export const generateReport = async (
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/generate`,
       { reportType, filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -116,7 +119,7 @@ export const generateArrivalList = async (filters: ReportFilters = {}): Promise<
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/arrival-list`,
       { reportType: 'arrivalList', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -130,7 +133,7 @@ export const generateDepatureList = async (filters: ReportFilters = {}): Promise
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/departure-list`,
       { reportType: 'departureList', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -144,7 +147,7 @@ export const generateCancelledList = async (filters: ReportFilters = {}): Promis
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/cancelled`,
       { reportType: 'cancelledReservations', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -158,7 +161,7 @@ export const generateVoidList = async (filters: ReportFilters = {}): Promise<Api
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/void`,
       { reportType: 'voidReservations', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -171,7 +174,7 @@ export const generateDepartureList = async (filters: ReportFilters = {}): Promis
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/departure-list`,
       { reportType: 'departureList', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -184,7 +187,7 @@ export const generateConfirmedReservations = async (filters: ReportFilters = {})
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/confirmed`,
       { reportType: 'confirmedReservations', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -197,7 +200,7 @@ export const generateCancelledReservations = async (filters: ReportFilters = {})
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/cancelled`,
       { reportType: 'cancelledReservations', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -210,7 +213,7 @@ export const generateNoShowReservations = async (filters: ReportFilters = {}): P
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/no-show`,
       { reportType: 'noShowReservations', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -223,7 +226,7 @@ export const generateReservationForecast = async (filters: ReportFilters = {}): 
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/forecast`,
       { reportType: 'reservationForecast', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -237,7 +240,7 @@ export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promi
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/checked-in`,
       { reportType: 'guestCheckedIn', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -250,7 +253,7 @@ export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Pr
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/guest-checkout`,
       filters,
-      headers 
+      getHeaders() 
     )
     
     return response.data
@@ -264,7 +267,7 @@ export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promis
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-detail`,
       filters,
-      headers 
+      getHeaders() 
     )
     
     return response.data
@@ -278,7 +281,7 @@ export const generateDailyReceiptDetail = async (filters: DailyReceipt): Promise
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-detail`,
       filters,
-      headers 
+      getHeaders() 
     )
     return response.data
   } catch (error) {
@@ -291,7 +294,7 @@ export const generatePickupDropoff = async (filters: PickupDropoffFilters): Prom
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/pickup-dropoff`,
       filters,
-      headers 
+      getHeaders() 
     )
     
     return response.data
@@ -305,7 +308,7 @@ export const generateRoomAvailability = async (filters: ReportFilters = {}): Pro
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/room-availability`,
       { reportType: 'roomAvailability', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -318,7 +321,7 @@ export const generateRoomStatus = async (filters: ReportFilters = {}): Promise<A
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/room-status`,
       { reportType: 'roomStatus', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -331,7 +334,7 @@ export const generateTaskList = async (filters: ReportFilters = {}): Promise<Api
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/front-office/task-list`,
       { reportType: 'taskList', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -345,7 +348,7 @@ export const generateRevenueReport = async (filters: ReportFilters = {}): Promis
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/back-office/revenue`,
       { reportType: 'revenueReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -358,7 +361,7 @@ export const generateExpenseReport = async (filters: ReportFilters = {}): Promis
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/back-office/expenses`,
       { reportType: 'expenseReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -371,7 +374,7 @@ export const generateCashierReport = async (filters: ReportFilters = {}): Promis
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/back-office/cashier`,
       { reportType: 'cashierReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -385,7 +388,7 @@ export const generateUserActivityLog = async (filters: ReportFilters = {}): Prom
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/audit/user-activity`,
       { reportType: 'userActivityLog', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -399,7 +402,7 @@ export const generateOccupancyReport = async (filters: ReportFilters = {}): Prom
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/occupancy`,
       { reportType: 'occupancyReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -418,7 +421,7 @@ export const getVoidPaymentReport = async (data: any) => {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/void-payment`,
       data,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -437,7 +440,7 @@ export const getVoidChargeReport = async (data: any) => {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/void-charge`,
       data,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -453,7 +456,7 @@ export const getVoidTransactionReport = async (data: any) => {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/void-transaction`,
       data,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -468,7 +471,7 @@ export const getGuestListReport = async (data: any) => {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/guest-list`,
       data,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -484,7 +487,7 @@ export const getFolioListReport = async (data: any) => {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/folio-list`,
       data,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -500,7 +503,7 @@ export const getAuditReport = async (data: any) => {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/audit`,
       data,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -516,7 +519,7 @@ export const generateADRReport = async (filters: ReportFilters = {}): Promise<Ap
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/adr`,
       { reportType: 'adrReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -529,7 +532,7 @@ export const generateRevPARReport = async (filters: ReportFilters = {}): Promise
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/revpar`,
       { reportType: 'revparReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -542,7 +545,7 @@ export const generateMarketSegmentAnalysis = async (filters: ReportFilters = {})
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/market-segment`,
       { reportType: 'marketSegmentAnalysis', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -555,7 +558,7 @@ export const generateSourceOfBusinessReport = async (filters: ReportFilters = {}
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/statistics/source-of-business`,
       { reportType: 'sourceOfBusinessReport', filters },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -578,7 +581,7 @@ export const exportData = async (
         filters
       },
       {
-        ...headers,
+        ...getHeaders(),
         responseType: 'blob'
       }
     )
@@ -587,11 +590,6 @@ export const exportData = async (
     if (!response.data) {
       throw new Error('Aucune donnée reçue du serveur');
     }
-
-    // DEBUG: Informations utiles pour le débogage
-    console.log('Headers de réponse:', response.headers);
-    console.log('Taille des données:', response.data.size);
-    console.log('Type de contenu:', response.headers['content-type']);
 
     // Pour PDF, ne pas essayer de valider le blob immédiatement
     // Créer le blob avec le type MIME correct
@@ -749,7 +747,7 @@ export const generateCustomReport = async (
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/custom`,
       { tableName, selectedFields, filters, joins, groupBy, orderBy },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -762,7 +760,7 @@ export const getReportTemplates = async (): Promise<ApiResponse | undefined> => 
   try {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/templates`,
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -777,7 +775,7 @@ export const getReportStats = async (hotelId?: number): Promise<ApiResponse | un
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/stats`,
       {
-        ...headers,
+        ...getHeaders(),
         params
       }
     )
@@ -815,7 +813,7 @@ export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Bl
     
     // Configuration axios pour recevoir une réponse blob
     const config = {
-      ...headers,
+      ...getHeaders(),
       responseType: 'blob' as const,
     }
 

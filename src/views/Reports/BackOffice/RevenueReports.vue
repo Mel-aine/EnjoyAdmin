@@ -264,16 +264,17 @@ const revenueBySource = ref<RevenueSource[]>([])
 const revenueByRoomType = ref<RevenueSource[]>([])
 
 const summary = computed(() => {
-  const totalRevenue = revenueData.value.reduce((sum, entry) => sum + entry.total, 0)
-  const roomRevenue = revenueData.value.reduce((sum, entry) => sum + entry.rooms, 0)
-  const fbRevenue = revenueData.value.reduce((sum, entry) => sum + entry.food + entry.beverage, 0)
-  const otherRevenue = revenueData.value.reduce((sum, entry) => sum + entry.spa + entry.other, 0)
+  const data = revenueData.value || []
+  const totalRevenue = data.reduce((sum, entry) => sum + (entry?.total || 0), 0)
+  const roomRevenue = data.reduce((sum, entry) => sum + (entry?.rooms || 0), 0)
+  const fbRevenue = data.reduce((sum, entry) => sum + (entry?.food || 0) + (entry?.beverage || 0), 0)
+  const otherRevenue = data.reduce((sum, entry) => sum + (entry?.spa || 0) + (entry?.other || 0), 0)
   
   return {
-    totalRevenue,
-    roomRevenue,
-    fbRevenue,
-    otherRevenue,
+    totalRevenue: totalRevenue || 0,
+    roomRevenue: roomRevenue || 0,
+    fbRevenue: fbRevenue || 0,
+    otherRevenue: otherRevenue || 0,
     roomRevenuePercentage: totalRevenue > 0 ? (roomRevenue / totalRevenue) * 100 : 0,
     fbRevenuePercentage: totalRevenue > 0 ? (fbRevenue / totalRevenue) * 100 : 0,
     otherRevenuePercentage: totalRevenue > 0 ? (otherRevenue / totalRevenue) * 100 : 0,
@@ -313,36 +314,37 @@ const loadRevenueData = async () => {
     }
   ]
   
-  const totalRevenue = revenueData.value.reduce((sum, entry) => sum + entry.total, 0)
+  const data = revenueData.value || []
+  const totalRevenue = data.reduce((sum, entry) => sum + (entry?.total || 0), 0)
   
   revenueBySource.value = [
     {
       source: 'rooms',
-      amount: revenueData.value.reduce((sum, entry) => sum + entry.rooms, 0),
+      amount: data.reduce((sum, entry) => sum + (entry?.rooms || 0), 0),
       percentage: 0,
       color: 'bg-blue-500'
     },
     {
       source: 'food',
-      amount: revenueData.value.reduce((sum, entry) => sum + entry.food, 0),
+      amount: data.reduce((sum, entry) => sum + (entry?.food || 0), 0),
       percentage: 0,
       color: 'bg-green-500'
     },
     {
       source: 'beverage',
-      amount: revenueData.value.reduce((sum, entry) => sum + entry.beverage, 0),
+      amount: data.reduce((sum, entry) => sum + (entry?.beverage || 0), 0),
       percentage: 0,
       color: 'bg-purple-500'
     },
     {
       source: 'spa',
-      amount: revenueData.value.reduce((sum, entry) => sum + entry.spa, 0),
+      amount: data.reduce((sum, entry) => sum + (entry?.spa || 0), 0),
       percentage: 0,
       color: 'bg-pink-500'
     },
     {
       source: 'other',
-      amount: revenueData.value.reduce((sum, entry) => sum + entry.other, 0),
+      amount: data.reduce((sum, entry) => sum + (entry?.other || 0), 0),
       percentage: 0,
       color: 'bg-orange-500'
     }

@@ -273,7 +273,10 @@ const filteredData = computed(() => {
 })
 
 const getNestedValue = (obj: any, path: string) => {
-  return path.split('.').reduce((current, key) => current?.[key], obj)
+  if (!obj || !path) return undefined
+  return path.split('.').reduce((current, key) => {
+    return (current && typeof current === 'object') ? current[key] : undefined
+  }, obj)
 }
 
 const getItemKey = (item: any, index: number) => {
@@ -407,6 +410,11 @@ const getColumnLabel = (column: Column) => {
 
 const getColumnValue = (item: any, column: Column) => {
   const value = getNestedValue(item, column.key)
+
+  // Return empty string or dash for undefined/null values
+  if (value === undefined || value === null) {
+    return column.type === 'text' ? '-' : ''
+  }
 
   // Apply translation if the column is marked as translatable
   if (column.translatable && value) {
