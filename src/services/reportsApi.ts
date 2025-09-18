@@ -1,6 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
+import axios from 'axios'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`
 const authStore = useAuthStore()
@@ -16,6 +17,31 @@ export interface ApiResponse<T = any> {
   message: string
   data?: T
   error?: string
+}
+export interface GuestCheckoutFilters {
+  fromDate: string
+  toDate: string
+  hotelId: number
+}
+
+export interface DailyReceipt {
+  fromDate:string
+  toDate: string
+  hotelId: number
+  receiptByUserId: number
+  currencyId: number
+  paymentMethodId: number
+}
+export interface PickupDropoffFilters {
+  startDate: string
+  endDate: string
+  type?: string
+  hotelId: number
+}
+export interface DailyRevenueParams {
+  hotelId: number | string;
+  asOnDate: string; // Format: YYYY-MM-DD
+  revenueBy?: string; // Types de revenus séparés par virgules
 }
 
 export interface ReportFilters {
@@ -219,19 +245,61 @@ export const generateGuestCheckedIn = async (filters: ReportFilters = {}): Promi
   }
 }
 
-export const generateGuestCheckedOut = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
+export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
-      `${API_URL}/front-office/checked-out`,
-      { reportType: 'guestCheckedOut', filters },
-      headers
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/guest-checkout`,
+      filters,
+      headers 
+    )
+    
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+    return undefined
+  }
+}
+export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-detail`,
+      filters,
+      headers 
+    )
+    
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+    return undefined
+  }
+}
+export const generateDailyReceiptDetail = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-detail`,
+      filters,
+      headers 
     )
     return response.data
   } catch (error) {
     handleApiError(error)
+    return undefined
   }
 }
-
+export const generatePickupDropoff = async (filters: PickupDropoffFilters): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/pickup-dropoff`,
+      filters,
+      headers 
+    )
+    
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+    return undefined
+  }
+}
 export const generateRoomAvailability = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
@@ -728,5 +796,97 @@ export const checkReportsHealth = async (): Promise<ApiResponse | undefined> => 
     return response.data
   } catch (error) {
     handleApiError(error)
+  }
+}
+
+// daily-revenue-report
+export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Blob> => {
+  try {
+    const queryParams = new URLSearchParams()
+    
+    // Construire les paramètres de requête
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, String(value))
+      }
+    })
+
+    const url = `${API_URL}/statistics/daily-revenue-pdf?${queryParams.toString()}`
+    
+    // Configuration axios pour recevoir une réponse blob
+    const config = {
+      ...headers,
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Valider que nous avons reçu un blob PDF
+    if (response.data.type && response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching daily revenue PDF:', error)
+    throw error
+  }
+}
+
+// Fonction pour générer l'URL du PDF des revenus quotidiens
+export const getDailyRevenuePDFUrl = async (params: DailyRevenueParams): Promise<string> => {
+  try {
+    const blob = await getDailyRevenuePDF(params)
+    return URL.createObjectURL(blob)
+  } catch (error) {
+    console.error('Error generating daily revenue PDF URL:', error)
+    throw error
+  }
+}
+
+// Fonction pour télécharger directement le PDF des revenus quotidiens
+export const downloadDailyRevenuePDF = async (params: DailyRevenueParams, filename?: string): Promise<void> => {
+  try {
+    const blob = await getDailyRevenuePDF(params)
+    const url = URL.createObjectURL(blob)
+    
+    // Créer un élément de téléchargement temporaire
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename || `daily-revenue-${params.asOnDate}.pdf`
+    
+    // Déclencher le téléchargement
+    document.body.appendChild(link)
+    link.click()
+    
+    // Nettoyer
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Error downloading daily revenue PDF:', error)
+    throw error
+  }
+}
+
+// Fonction de validation des paramètres
+export const validateDailyRevenueParams = (params: DailyRevenueParams): void => {
+  if (!params.hotelId) {
+    throw new Error('Hotel ID is required')
+  }
+  
+  if (!params.asOnDate) {
+    throw new Error('As On Date is required')
+  }
+  
+  // Valider le format de la date (YYYY-MM-DD)
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+  if (!dateRegex.test(params.asOnDate)) {
+    throw new Error('Date must be in YYYY-MM-DD format')
+  }
+  
+  // Valider que la date est valide
+  const date = new Date(params.asOnDate)
+  if (isNaN(date.getTime())) {
+    throw new Error('Invalid date provided')
   }
 }

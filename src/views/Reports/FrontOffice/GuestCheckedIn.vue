@@ -93,31 +93,7 @@
           </div>
         </div>
 
-        <!-- ... reste du formulaire inchangé ... -->
-
         <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
-          <!-- Report Template -->
-<!--           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <SelectComponent 
-                v-model="filters.reportTemplate"
-                :options="reportTemplateOptions"
-                :placeholder="t('common.default')"
-                class="min-w-32 w-full sm:w-auto"
-              />
-              <button 
-                @click="editTemplate"
-                class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :title="t('common.editTemplate')"
-              >
-                <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-            </div>
-          </div> -->
-
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <!-- Bouton d'export avec menu déroulant -->
@@ -201,7 +177,35 @@
 
       <!-- Results Table avec ResultTable -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
-        <!-- ... contenu des résultats inchangé ... -->
+        <!-- En-tête du rapport -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ reportTitle }}
+          </h2>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <span>Generated: {{ formatDate(new Date()) }}</span>
+          </div>
+        </div>
+        
+        <!-- Contenu HTML du rapport -->
+        <div v-if="reportHtml" v-html="reportHtml" class="report-html-container p-6"></div>
+        
+        <!-- Fallback si pas de HTML (affichage normal du tableau) -->
+        <div v-else>
+          <div class="overflow-x-auto">
+            <ResultTable 
+              :title="t('reports.frontOffice.guestCheckedIn')"
+              :data="reservationData"
+              :columns="selectedTableColumns"
+              class="w-full"
+            />
+          </div>
+          
+          <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span>Total Reservation: #{{ totalReservations }}</span> • 
+            <span>Total Pax: {{ totalPax }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </ReportsLayout>
@@ -276,6 +280,8 @@ const serviceStore = useServiceStore()
 const idHotel = serviceStore.serviceId
 const pdfUrl = ref('')
 const router = useRouter()
+const reportHtml = ref<string>('')
+const reportTitle = ref<string>(t('reports.frontOffice.guestCheckedIn'))
 
 const {
   // Options
@@ -402,7 +408,15 @@ const generateReport = async (): Promise<void> => {
       hotelId: idHotel !== null ? idHotel : undefined,
     })
     console.log('Report generation response:', response)
-    if (response && response.success) {
+    
+    if (response && response.success && response.data) {
+      // Si l'API retourne du HTML, l'utiliser
+      if (response.data.html) {
+        reportHtml.value = response.data.html
+        if (response.data.title) {
+          reportTitle.value = response.data.title
+        }
+      }
       showResults.value = true
     }
   } catch (error) {
@@ -491,6 +505,16 @@ const openPDFInNewPage = () => {
   }
 }
 
+const formatDate = (date: Date): string => {
+  return date.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 const resetForm = (): void => {
   filters.value = {
     arrivalFrom: '',
@@ -512,6 +536,7 @@ const resetForm = (): void => {
     reportTemplate: 'default'
   }
   showResults.value = false
+  reportHtml.value = ''
 }
 
 const toggleExportMenu = () => {
@@ -623,5 +648,32 @@ onUnmounted(() => {
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+/* Styles pour le conteneur du rapport */
+.report-html-container {
+  width: 100%;
+}
+
+.report-html-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-html-container th,
+.report-html-container td {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Adaptation pour le mode sombre */
+.dark .report-html-container {
+  color: #e5e7eb;
+}
+
+.dark .report-html-container th,
+.dark .report-html-container td {
+  border-color: #4b5563;
+  color: #e5e7eb;
 }
 </style>
