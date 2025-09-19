@@ -541,8 +541,8 @@ const filteredAuditReports = computed(() => {
   })
 })
 
-const filteredStatisticalReports = computed(() => {
-  return statisticalReports.value.filter(report => {
+const filteredStatisticalReports = computed<any[]>(() => {
+  return statisticalReports.value.filter((report:any) => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
