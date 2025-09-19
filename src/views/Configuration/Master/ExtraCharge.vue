@@ -19,7 +19,7 @@
           <div class="flex flex-wrap gap-1">
             <span v-for="tax in item.taxRates" :key="tax"
               class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-              {{ tax }}%
+              {{ tax.taxName }}
             </span>
             <span v-if="!item.taxRates || item.taxRates.length === 0"
               class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -90,8 +90,8 @@
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                     <span class="ml-2 text-sm text-gray-700">No Tax (0%)</span>
                   </label>
-                  <label class="flex items-center" v-for="(tax, index) in taxes" :key="index">
-                    <input v-model="formData.taxes" :value="tax.value" type="checkbox"
+                  <label class="flex items-center" v-for="tax in taxes" :key="tax.taxRateId">
+                    <input v-model="formData.taxes" :value="tax.taxRateId" type="checkbox"
                       @change="calculateRateInclusiveTax"
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                     <span class="ml-2 text-sm text-gray-700">{{ tax.taxName }}</span>
@@ -279,8 +279,17 @@ const extraCharges = ref<any[]>([
 
 const calculateRateInclusiveTax = () => {
   const rate = parseFloat(formData.rate.toString()) || 0
-  const totalTax = formData.taxes.reduce((sum, tax) => sum + parseFloat(tax), 0)
-  formData.rateInclusiveTax = rate + (rate * totalTax / 100)
+  let totalTaxRate = 0;
+  if (formData.taxes.includes('0')) {
+    totalTaxRate = 0;
+  } else {
+    totalTaxRate = formData.taxes.reduce((sum, taxId) => {
+      const selectedTax = taxes.value.find((t: any) => t.taxRateId == taxId);
+      const taxValue = selectedTax ? parseFloat(selectedTax.value) : 0;
+      return sum + taxValue;
+    }, 0)
+  }
+  formData.rateInclusiveTax = rate + (rate * totalTaxRate / 100)
 }
 
 const openAddModal = () => {
@@ -308,9 +317,12 @@ const openAddModal = () => {
 }
 
 const editExtraCharge = (charge: any) => {
+  console.log("charge",charge)
   isEditing.value = true
   editingId.value = charge.id
   Object.assign(formData, charge)
+  formData.taxes = charge.taxRates.taxRateId || [] // Correctly assign the tax IDs
+  calculateRateInclusiveTax() // Recalculate rate with taxes
   showModal.value = true
 }
 
@@ -340,8 +352,10 @@ const saveExtraCharge = async () => {
   try {
     isSaving.value = true;
 
+    const taxRateIds = formData.taxes.filter(id => id !== '0');
+
     if (isEditing.value && editingId.value) {
-      const editExtraCharge = { ...formData,  taxRateIds: formData.taxes.map((i:any)=>i.id)  }
+      const editExtraCharge = { ...formData,  taxRateIds: taxRateIds  }
       const res = await updateExtraChargeById(editingId.value!, editExtraCharge);
       if (res.status === 200 || res.status === 201) {
         toast.success(t('configuration.extra_charge.update_extra_charge') + ' successfully');
@@ -351,7 +365,7 @@ const saveExtraCharge = async () => {
         toast.error(t('something_went_wrong'))
       }
     } else {
-      const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId,taxRateIds: formData.taxes.map((i:any)=>i.id)  }
+      const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId, taxRateIds: taxRateIds  }
       const res = await postExtraCharge(newExtraCgarge)
       if (res.status === 200 || res.status === 201) {
         toast.success(t('configuration.extra_charge.save_extra_charge') + ' successfully');
