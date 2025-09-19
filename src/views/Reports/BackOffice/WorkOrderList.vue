@@ -24,7 +24,7 @@
             </label>
             <InputDatepicker 
               v-model="filters.startDate"
-              :placeholder="$t('common.selectDate')"
+              :placeholder="$t('selectDate')"
               class="w-full"
             />
           </div>
@@ -36,7 +36,7 @@
             </label>
             <InputDatepicker 
               v-model="filters.endDate"
-              :placeholder="$t('common.selectDate')"
+              :placeholder="$t('selectDate')"
               class="w-full"
             />
           </div>
@@ -44,18 +44,18 @@
           <!-- Statut -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.status') }}
+              {{ $t('status') }}
             </label>
             <select 
               v-model="filters.status"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">{{ $t('common.select') }}</option>
-              <option value="pending">{{ $t('workOrder.status.pending') }}</option>
-              <option value="in_progress">{{ $t('workOrder.status.inProgress') }}</option>
-              <option value="on_hold">{{ $t('workOrder.status.onHold') }}</option>
-              <option value="completed">{{ $t('workOrder.status.completed') }}</option>
-              <option value="cancelled">{{ $t('workOrder.status.cancelled') }}</option>
+              <option value="">{{ $t('select') }}</option>
+              <option value="pending">{{ $t('pending') }}</option>
+              <option value="in_progress">{{ $t('in Progress') }}</option>
+              <option value="on_hold">{{ $t('on Hold') }}</option>
+              <option value="completed">{{ $t('completed') }}</option>
+              <option value="cancelled">{{ $t('cancelled') }}</option>
             </select>
           </div>
         </div>
@@ -71,15 +71,15 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option value="low">{{ $t('common.low') }}</option>
-              <option value="medium">{{ $t('common.medium') }}</option>
-              <option value="high">{{ $t('common.high') }}</option>
-              <option value="urgent">{{ $t('common.urgent') }}</option>
+              <option value="low">{{ $t('low') }}</option>
+              <option value="medium">{{ $t('medium') }}</option>
+              <option value="high">{{ $t('high') }}</option>
+              <option value="urgent">{{ $t('urgent') }}</option>
             </select>
           </div>
           
           <!-- Département -->
-          <div>
+   <!--        <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.department') }}
             </label>
@@ -92,7 +92,7 @@
                 {{ department.name }}
               </option>
             </select>
-          </div>
+          </div> -->
           
           <!-- Assigné à -->
           <div>
@@ -104,8 +104,8 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option v-for="user in staffMembers" :key="user.id" :value="user.id">
-                {{ user.name }}
+              <option v-for="user in userOptions" :key="user.id" :value="user.id">
+                {{ user.label }}
               </option>
             </select>
           </div>
@@ -120,8 +120,8 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option v-for="room in rooms" :key="room.id" :value="room.id">
-                {{ room.number }} - {{ room.type }}
+              <option v-for="room in roomOptions" :key="room.id" :value="room.id">
+                {{ room.label }} - {{ room.type }}
               </option>
             </select>
           </div>
@@ -138,25 +138,25 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option value="maintenance">{{ $t('workOrder.categories.maintenance') }}</option>
-              <option value="cleaning">{{ $t('workOrder.categories.cleaning') }}</option>
-              <option value="repair">{{ $t('workOrder.categories.repair') }}</option>
-              <option value="inspection">{{ $t('workOrder.categories.inspection') }}</option>
+              <option value="maintenance">{{ $t('wmaintenance') }}</option>
+              <option value="cleaning">{{ $t('cleaning') }}</option>
+              <option value="repair">{{ $t('repair') }}</option>
+              <option value="inspection">{{ $t('inspection') }}</option>
             </select>
           </div>
           
           <!-- Créé par -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.createdBy') }}
+              {{ $t('User') }}
             </label>
             <select 
               v-model="filters.createdBy"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option v-for="user in staffMembers" :key="user.id" :value="user.id">
-                {{ user.name }}
+              <option v-for="user in userOptions" :key="user.id" :value="user.id">
+                {{ user.label }}
               </option>
             </select>
           </div>
@@ -179,9 +179,7 @@
               >
               <label :for="report.id" class="ml-2 text-sm text-gray-900 dark:text-white cursor-pointer">
                 <span class="font-medium">{{ report.name }}</span>
-                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  {{ report.description }}
-                </p>
+            
               </label>
             </div>
           </div>
@@ -310,20 +308,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue';
 import ResultTable from '@/components/tables/ReusableTable.vue';
 import { 
   getAvailableWorkOrderReports, 
-  generateWorkOrderReport, 
-  exportWorkOrderReport,
+  generateWorkOrderReport,
   type WorkOrderFilters,
   type WorkOrderReportResponse,
   type AvailableReport
 } from '@/services/workOrderReportsApi.ts';
 import { useServiceStore } from '@/composables/serviceStore';
+// import { useBooking } from '@/composables/useBooking2'
+import { getEmployeesForService } from '@/services/userApi'
+import { getRooms } from '@/services/configrationApi'
+// import SelectComponent from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n();
 
@@ -333,37 +334,29 @@ const hotelId = serviceStore.serviceId;
 
 // États réactifs
 const loading = ref<boolean>(false);
-const exportLoading = ref<boolean>(false);
+// const exportLoading = ref<boolean>(false);
 const showResults = ref<boolean>(false);
 const selectedReportType = ref<string>('');
 const reportData = ref<WorkOrderReportResponse | null>(null);
+interface UserOption { id: number | string; label: string }
+interface RoomOption { id: number | string; label: string; type: string }
+const userOptions = ref<UserOption[]>([])
+const roomOptions = ref<RoomOption[]>([])
+
+// const {
+//   BookingSource,
+//   BusinessSource,
+//   BookingType,
+//   creditTypes,
+//   billToOptions,
+//   MarketCode,
+//   reservationId,
+// } = useBooking()
 
 // Données disponibles
 const availableReports = ref<AvailableReport[]>([]);
 
-const departments = ref([
-  { id: 1, name: 'Maintenance' },
-  { id: 2, name: 'Housekeeping' },
-  { id: 3, name: 'Front Office' },
-  { id: 4, name: 'Food & Beverage' },
-  { id: 5, name: 'Security' }
-]);
-
-const staffMembers = ref([
-  { id: 1, name: 'John Doe' },
-  { id: 2, name: 'Jane Smith' },
-  { id: 3, name: 'Mike Johnson' },
-  { id: 4, name: 'Sarah Wilson' }
-]);
-
-const rooms = ref([
-  { id: 1, number: '101', type: 'Standard' },
-  { id: 2, number: '102', type: 'Standard' },
-  { id: 3, number: '201', type: 'Suite' },
-  { id: 4, number: '202', type: 'Suite' },
-  { id: 5, number: 'Lobby', type: 'Common Area' },
-  { id: 6, number: 'Restaurant', type: 'F&B' }
-]);
+// Déclarations d'exemple non utilisées supprimées pour éviter les erreurs de lint
 
 // Filtres
 const filters = reactive<WorkOrderFilters>({
@@ -380,17 +373,17 @@ const filters = reactive<WorkOrderFilters>({
 });
 
 // Méthodes
-const selectReportType = (reportType: string) => {
-  selectedReportType.value = reportType;
-  showResults.value = false;
-  reportData.value = null;
-};
+// selectReportType supprimée car non utilisée
 
 const resetFilters = () => {
+  const todayDate = new Date();
+  const weekAgo = new Date(todayDate);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
   Object.assign(filters, {
     hotelId: hotelId || undefined,
-    startDate: '',
-    endDate: '',
+    startDate: weekAgo.toISOString().split('T')[0],
+    endDate: todayDate.toISOString().split('T')[0],
     status: '',
     priority: '',
     departmentId: undefined,
@@ -399,9 +392,40 @@ const resetFilters = () => {
     roomId: undefined,
     category: ''
   });
+  // Réinitialiser l'affichage et le contenu du rapport
   showResults.value = false;
   reportData.value = null;
+  // Définir un type de rapport par défaut
+  selectedReportType.value = 'workOrdersByStatus';
 };
+
+const fetchUsers = async () => {
+  try {
+    const resp = await getEmployeesForService(hotelId!)
+    console.log('Users:', resp)
+    userOptions.value = resp.data.data.map((u: { id: number | string; firstName: string; lastName: string }) => ({
+      id: u.id,
+      label: `${u.firstName} ${u.lastName}`
+    }))
+  } catch (error) {
+    console.error('Error fetching users:', error)
+  }
+} 
+ 
+
+const fetchRooms = async () => {
+  try {
+    const resp = await getRooms()
+    console.log('Rooms:', resp)
+    roomOptions.value = resp.data.data.data.map((r: { id: number | string; roomNumber: string; roomType: { roomTypeName: string } }) => ({
+      id: r.id,
+      label: r.roomNumber,
+      type: r.roomType.roomTypeName
+    }))
+  } catch (error) {
+    console.error('Error fetching rooms:', error)
+  }
+} 
 
 const generateReport = async (): Promise<void> => {
   if (!selectedReportType.value) return;
@@ -463,17 +487,18 @@ const getTotalCount = (): number => {
   return 0;
 };
 
-const formatTableData = (): any[] => {
+type GenericRow = Record<string, unknown>
+const formatTableData = (): GenericRow[] => {
   if (!reportData.value?.data?.data) return [];
   
   // Si les données sont déjà un tableau
   if (Array.isArray(reportData.value.data.data)) {
-    return reportData.value.data.data;
+    return reportData.value.data.data as GenericRow[];
   }
   
   // Si les données sont groupées (par statut, priorité, etc.)
   if (typeof reportData.value.data.data === 'object') {
-    const flattenedData: any[] = [];
+    const flattenedData: GenericRow[] = [];
     
     Object.entries(reportData.value.data.data).forEach(([groupKey, items]) => {
       if (Array.isArray(items)) {
@@ -492,8 +517,9 @@ const formatTableData = (): any[] => {
   return [];
 };
 
-const getTableColumns = (): any[] => {
-  const baseColumns = [
+interface TableColumn { key: string; label: string }
+const getTableColumns = (): TableColumn[] => {
+  const baseColumns: TableColumn[] = [
     { key: 'id', label: t('common.id') },
     { key: 'title', label: t('common.title') },
     { key: 'description', label: t('common.description') },
@@ -548,43 +574,43 @@ const loadAvailableReports = async () => {
 const getDefaultReports = (): AvailableReport[] => [
   {
     id: 'workOrdersByStatus',
-    name: t('workOrder.reports.byStatus'),
-    description: t('workOrder.reports.byStatusDesc'),
+    name: t('By Status'),
+    description: t('By StatusDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersByPriority',
-    name: t('workOrder.reports.byPriority'),
+    name: t('By Priority'),
     description: t('workOrder.reports.byPriorityDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersByDepartment',
-    name: t('workOrder.reports.byDepartment'),
+    name: t('By Department'),
     description: t('workOrder.reports.byDepartmentDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersByAssignee',
-    name: t('workOrder.reports.byAssignee'),
+    name: t('By Assignee'),
     description: t('workOrder.reports.byAssigneeDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersOverdue',
-    name: t('workOrder.reports.overdue'),
+    name: t('Overdue'),
     description: t('workOrder.reports.overdueDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersCompleted',
-    name: t('workOrder.reports.completed'),
+    name: t('Completed'),
     description: t('workOrder.reports.completedDesc'),
     category: 'Analytics'
   },
   {
     id: 'workOrdersSummary',
-    name: t('workOrder.reports.summary'),
+    name: t('Summary'),
     description: t('workOrder.reports.summaryDesc'),
     category: 'Analytics'
   }
@@ -595,6 +621,14 @@ onMounted(() => {
   console.log('=== WORK ORDER REPORTS COMPONENT MOUNTED ===');
   console.log('Hotel ID:', hotelId);
   loadAvailableReports();
+  fetchUsers();
+  fetchRooms();
+  // Définir un type de rapport par défaut si disponible après chargement
+  setTimeout(() => {
+    if (availableReports.value && availableReports.value.length > 0 && !selectedReportType.value) {
+      selectedReportType.value = availableReports.value[0].id;
+    }
+  }, 0);
 });
 </script>
 

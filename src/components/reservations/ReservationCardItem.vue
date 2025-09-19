@@ -550,7 +550,7 @@ const formatDate = (dateString: string) => {
 
   <!-- Cancel Reservation Modal -->
   <template v-if="showCancelModal">
-    <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+    <CancelReservation :is-open="showCancelModal" :reservation-id="reservation.id" :reservation-data="reservation" @close="showCancelModal = false"
       @cancel-confirmed="handleCancelConfirmed" />
   </template>
   <template v-if="showVoidModal">

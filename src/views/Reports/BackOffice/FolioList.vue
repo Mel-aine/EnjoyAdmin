@@ -127,20 +127,43 @@
 
           <!-- Action Buttons -->
           <div class="flex justify-end gap-2 items-end mt-4">
-            <ButtonComponent @click="exportData" variant="secondary" class="min-w-24"
-              :disabled="!showResults || loading">
-              {{ t('common.export') }}
-            </ButtonComponent>
+            <div class="relative">
+              <button
+                @click="exportData"
+                :disabled="!showResults || loading"
+                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+              >
+                <span v-if="!loading">{{ t('common.export') }}</span>
+                <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </button>
+            </div>
 
-            <ButtonComponent @click="generateReport" variant="primary" class="min-w-20 flex gap-1"
-              :disabled="loading || !filters.dateFrom || !filters.dateTo">
-              <Spinner v-if="loading" />
-              <span>{{ loading ? t('common.generating') : t('common.report') }}</span>
-            </ButtonComponent>
+            <div class="relative">
+              <button
+                @click="generateReport"
+                :disabled="loading || !filters.dateFrom || !filters.dateTo"
+                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+              >
+                <span v-if="!loading">{{ t('common.report') }}</span>
+                <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="loading" class="ml-2">{{ t('common.generating') }}</span>
+              </button>
+            </div>
 
-            <ButtonComponent @click="resetForm" variant="outline" class="min-w-20">
-              {{ t('common.reset') }}
-            </ButtonComponent>
+            <div class="relative">
+              <button
+                @click="resetForm"
+                class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+              >
+                {{ t('common.reset') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>

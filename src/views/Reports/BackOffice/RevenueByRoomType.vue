@@ -11,60 +11,65 @@
       </div>
 
       <!-- Filters -->
-      <div class=" p-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Report Date -->
           <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('asOnDate') }}
+            </label>
             <InputDatepicker 
               v-model="filters.reportDate" 
               placeholder="Select date"
               class="w-full"
-              :title="t('asOnDate')"
             />
           </div>
 
           <!-- Room Type -->
           <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('roomType') }}
+            </label>
             <Select 
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              :placeholder="'All Room Types'"
+              placeholder="All Room Types"
               class="w-full"
-              :lb="t('roomType')"
             />
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-2 mt-6">
-          <button @click="generateReport" :disabled="isLoading || !filters.reportDate"
-            class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/25 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
-            </svg>
-            <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            Export
-          </button>
+          <!-- Bouton Export -->
+          <div class="relative">
+            <button 
+              @click="generateReport" 
+              :disabled="isLoading || !filters.reportDate"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+            >
+              <span v-if="!isLoading">{{ t('common.export') }}</span>
+              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
           
-          <ButtonComponent 
-            @click="resetForm"
-            variant="outline"
-            class="min-w-20"
-          >
-            Reset
-          </ButtonComponent>
+          <!-- Bouton Reset -->
+          <div class="relative">
+            <button
+              @click="resetForm"
+              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+            >
+              {{ t('common.reset') }}
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="bg-red-50 border-l-4 border-red-400 p-4 mx-6 mt-4">
+      <div v-if="errorMessage" class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">

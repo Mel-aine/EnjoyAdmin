@@ -9,69 +9,65 @@
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
-        </h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- As On Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              As On Date
+              {{ t('asOnDate') }}
             </label>
             <InputDatepicker 
               v-model="filters.asOnDate" 
-              :placeholder="'DD/MM/YYYY'"
+              placeholder="DD/MM/YYYY"
               class="w-full"
-            ></InputDatepicker>
+            />
           </div>
           
           <!-- Revenue Types -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Revenue Types
+              {{ t('revenueType') }}
             </label>
             <SelectComponent 
               v-model="filters.revenueBy"
               :options="revenueTypeOptions"
-              :placeholder="'--Select--'"
+              placeholder="--Select--"
               :multiple="false"
               class="w-full"
-            ></SelectComponent>
+            />
           </div>
         </div>
-        
-        <!-- Buttons -->
-        <div class="flex items-center justify-end mt-6">
-          <div class="flex gap-2">
-            <button @click="exportData" :disabled="isLoading || !filters.asOnDate"
-              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
-              </svg>
-              <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Export
-            </button>
-            
-            <ButtonComponent 
-              @click="resetForm"
-              variant="outline"
-              class="px-6 py-2"
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-2 mt-6">
+          <!-- Bouton Export -->
+          <div class="relative">
+            <button 
+              @click="exportData" 
+              :disabled="isLoading || !filters.asOnDate"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
-              Reset
-            </ButtonComponent>
+              <span v-if="!isLoading">{{ t('common.export') }}</span>
+              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Bouton Reset -->
+          <div class="relative">
+            <button
+              @click="resetForm"
+              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+            >
+              {{ t('common.reset') }}
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-4">
+      <div v-if="errorMessage" class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-6 dark:bg-red-900/20">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
