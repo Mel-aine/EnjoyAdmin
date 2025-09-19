@@ -2,7 +2,7 @@
   <AdminLayout>
     <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('work_order')" :breadcrumb="breadcrumb"/>
-      
+
       <div class="mt-10">
         <ReusableTable
           :title="$t('work_order')"
@@ -58,27 +58,27 @@
 
           <template #column-roomNumber="{ item }">
             <div class="text-sm text-gray-600">
-              {{ item.room.roomNumber }} 
+              {{ item.room.roomNumber }}
             </div>
           </template>
 
           <template #column-block_dates="{ item }">
             <div class="text-sm">
-              <div class="font-medium">{{ formatDateT(item.blockFromDate) }}</div>
-              <div class="text-gray-500">{{ $t('to') }} {{ formatDateT(item.blockToDate) }}</div>
+              <div class="font-medium">{{ formatDate(item.blockFromDate) }}</div>
+              <div class="text-gray-500">{{ $t('to') }} {{ formatDate(item.blockToDate) }}</div>
             </div>
           </template>
         </ReusableTable>
       </div>
 
       <!-- Add/Edit Work Order Modal -->
-      <AddWorkOrderModal 
+      <AddWorkOrderModal
         v-if="isAddWorkModalOpen"
-        :is-open="isAddWorkModalOpen" 
+        :is-open="isAddWorkModalOpen"
         :work-order-data="selectedWorkOrder"
         :is-editing="isEditing"
-        @close="closeAddWorkModal" 
-        @save="handleWorkOrderSave" 
+        @close="closeAddWorkModal"
+        @save="handleWorkOrderSave"
       />
 
       <!-- Delete Confirmation Modal -->
@@ -107,7 +107,7 @@
         @cancel="cancelStatusUpdate"
       >
         <template #content>
-          
+
           <div class="mt-4 mx-8">
             <label for="statusNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('Notes') }} ({{ $t('Optional') }})
@@ -119,11 +119,11 @@
           rows="6"
           class="dark:bg-dark-900 h-20 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
         ></textarea>
-          
+
           </div>
         </template>
       </ConfirmationModal>
-    
+
     </FullScreenLayout>
   </AdminLayout>
 </template>
@@ -142,10 +142,10 @@ import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
 import { formatDateT } from '@/components/utilities/UtilitiesFunction'
-import { 
-  getWorkOrder, 
+import {
+  getWorkOrder,
   deleteWorkOrder,
-  updateStatusWorkOrder 
+  updateStatusWorkOrder
 } from '@/services/workOrderApi'
 
 const { t } = useI18n()
@@ -178,7 +178,7 @@ const breadcrumb = [
 // Computed properties for status modal
 const statusUpdateTitle = computed(() => {
   if (!workOrderToUpdateStatus.value || !newStatusToUpdate.value) return ''
-  
+
   switch (newStatusToUpdate.value) {
     case 'in_progress':
       return t('Mark as In Progress')
@@ -191,7 +191,7 @@ const statusUpdateTitle = computed(() => {
 
 const statusUpdateMessage = computed(() => {
   if (!workOrderToUpdateStatus.value || !newStatusToUpdate.value) return ''
-  
+
   const orderNumber = workOrderToUpdateStatus.value.orderNumber
   switch (newStatusToUpdate.value) {
     case 'in_progress':
@@ -341,7 +341,7 @@ const handleStatusUpdate = (workOrder: any, newStatus: string) => {
     toast.error(t('Can only mark assigned work orders as in progress'))
     return
   }
-  
+
   if (newStatus === 'completed' && workOrder.status !== 'in_progress') {
     toast.error(t('Can only mark in progress work orders as completed'))
     return
@@ -358,17 +358,17 @@ const confirmStatusUpdate = async () => {
 
   try {
     loadingStatusUpdate.value = true
-    
+
     const payload = {
       status: newStatusToUpdate.value,
       notes: statusUpdateNotes.value.trim() || undefined
     }
 
     await updateStatusWorkOrder(workOrderToUpdateStatus.value.id, payload)
-    
+
     toast.success(t('Work order status updated successfully'))
     await fetchWorkOrders()
-    
+
   } catch (error: any) {
     console.error('Error updating work order status:', error)
     toast.error(error.message || t('Error updating work order status'))
@@ -414,8 +414,8 @@ const handleWorkOrderSave = async (eventData: any) => {
   if (eventData.success) {
     await fetchWorkOrders()
     toast.success(
-      eventData.isEditing 
-        ? t('WorkOrderUpdatedSuccessfully') 
+      eventData.isEditing
+        ? t('WorkOrderUpdatedSuccessfully')
         : t('WorkOrderCreatedSuccessfully')
     )
   }
@@ -466,6 +466,25 @@ const onSearchChange = (query: string) => {
     fetchWorkOrders()
   }, 500)
 }
+
+const formatDate = (dateString: string): string => {
+  if (!dateString) return ''
+
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString
+
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  } catch (error) {
+    console.error('Error formatting date:', error)
+    return dateString
+  }
+}
+
 
 // Lifecycle
 onMounted(() => {

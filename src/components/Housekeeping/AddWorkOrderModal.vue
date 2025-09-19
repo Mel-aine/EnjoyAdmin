@@ -3,19 +3,19 @@
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">
         {{ modalTitle }}
-       
+
       </h3>
     </template>
-    
+
     <div class="space-y-6">
       <!-- Order & Date Block -->
      <div class="grid md:grid-cols-1 grid-cols-1 gap-2">
         <!--  <div>
-          <Input 
-            v-model="formData.recVouNumber" 
-            type="text" 
-            :lb="$t('Order#')" 
-            :disabled="!isEditing" 
+          <Input
+            v-model="formData.recVouNumber"
+            type="text"
+            :lb="$t('Order#')"
+            :disabled="!isEditing"
           />
         </div> -->
         <div>
@@ -25,23 +25,24 @@
 
       <!-- Folio -->
       <div>
-        <Select 
-          v-model="formData.unit" 
-          :options="Rooms" 
+        <Select
+          v-model="formData.unit"
+          :options="Rooms"
           :isLoading="loading"
-          :lb="$t('Unit/Room')" 
+          :lb="$t('Unit/Room')"
+          :placeholder="$t('taskManagement.selectRoom')"
           required
         />
       </div>
 
       <!-- Due Date -->
       <div>
-        <InputDateTimePicker 
-          v-model="formData.dueDate" 
-          :title="$t('Duedate')" 
+        <InputDateTimePicker
+          v-model="formData.dueDate"
+          :title="$t('Duedate')"
           required
         />
-        
+
       </div>
 
       <!-- Description -->
@@ -59,41 +60,64 @@
       </div>
 
       <!-- Category / Priority / Status -->
-      <div class="grid md:grid-cols-3 grid-cols-1 gap-2">
+       <div  v-if="!isEditing" class="grid md:grid-cols-3 grid-cols-1 gap-2">
         <div>
-          <Select 
-            v-model="formData.category" 
-            :options="categoryOptions" 
-            :lb="$t('Category')" 
+          <Select
+            v-model="formData.category"
+            :options="categoryOptions"
+            :lb="$t('Category')"
+            :placeholder="$t('-Select-')"
             required
           />
         </div>
         <div>
-          <Select 
-            v-model="formData.priority" 
-            :options="priorityOptions" 
-            :lb="$t('Priority')" 
+          <Select
+            v-model="formData.priority"
+            :options="priorityOptions"
+            :lb="$t('Priority')"
             required
           />
         </div>
-        <div v-if="!isEditing"> 
-          <Select 
-            v-model="formData.status" 
-            :options="statusOptions" 
-            :lb="$t('Status')" 
+        <div>
+          <Select
+            v-model="formData.status"
+            :options="statusOptions"
+            :lb="$t('Status')"
             required
           />
         </div>
       </div>
+      <div v-else class="grid md:grid-cols-2 grid-cols-1 gap-2">
+        <div>
+          <Select
+            v-model="formData.category"
+            :options="categoryOptions"
+            :lb="$t('Category')"
+            :placeholder="$t('-Select-')"
+            required
+          />
+        </div>
+        <div>
+          <Select
+            v-model="formData.priority"
+            :options="priorityOptions"
+            :lb="$t('Priority')"
+            required
+          />
+        </div>
+
+      </div>
+
 
       <!-- AssignTo / Room Status -->
       <div class="grid md:grid-cols-2 grid-cols-1 gap-2">
         <div>
-          <Select 
-            v-model="formData.assignTo" 
-            :options="Users" 
-            :lb="$t('AssignTo')" 
+          <Select
+            v-model="formData.assignTo"
+            :options="Users"
+            :lb="$t('AssignTo')"
             :isLoading="loading"
+            :placeholder="$t('-Select-')"
             required
           />
         </div>
@@ -102,6 +126,7 @@
             v-model="formData.roomStatus"
             :options="roomStatusOptions"
             :lb="$t('configuration.housekeeping.roomStatus')"
+            :placeholder="$t('-Select-')"
           />
         </div>
       </div>
@@ -122,15 +147,15 @@
 
     <template #footer>
       <div class="flex justify-end gap-4">
-        <BasicButton 
-          variant="outline" 
-          @click="closeModal" 
+        <BasicButton
+          variant="outline"
+          @click="closeModal"
           :label="$t('Cancel')"
           :disabled="isSaving"
         />
-        <BasicButton 
-          variant="primary" 
-          @click="saveWorkOrder" 
+        <BasicButton
+          variant="primary"
+          @click="saveWorkOrder"
           :label="isEditing ? $t('Update') : $t('Save')"
           :loading="isSaving"
           :disabled="isSaving"
@@ -182,6 +207,7 @@ const Rooms = ref<any[]>([])
 const loading = ref(false)
 const isSaving = ref(false)
 const errorMessage = ref('')
+const isDataInitialized = ref(false)
 const toast = useToast()
 const serviceStore = useServiceStore()
 
@@ -196,7 +222,7 @@ const statusOptions = computed(() => [
 const roomStatusOptions = computed(() => [
   { value: 'dirty', label: t('roomStatus.dirty') },
   { value: 'clean', label: t('Clean') },
-  { value: 'out_of_order', label: t('roomStatus.out_of_order') },
+  { value: 'out_of_order', label: t('roomStatus.out-of-order') },
 ])
 
 const categoryOptions = computed(() => [
@@ -210,13 +236,13 @@ const priorityOptions = computed(() => [
   { value: 'low', label: t('taskManagement.priorities.low') },
   { value: 'medium', label: t('taskManagement.priorities.medium') },
   { value: 'high', label: t('taskManagement.priorities.high') },
- 
+
 ])
 
 const formData = reactive({
   recVouNumber: '',
   unit: '',
-  blockDates: { from: null, to: null } as any,
+  blockDates: { start: null, end: null } as any,
   dueDate: null as string | any,
   description: '',
   category: '',
@@ -242,89 +268,90 @@ watch(
 //  la validation pour inclure dueDate
 const validateForm = () => {
   errorMessage.value = ''
-  
+
   console.log('🔍 Validating form - dueDate:', formData.dueDate)
-  
+
   if (!formData.unit) {
-    toast.error(t('PleaseSelectRoom')) 
+    toast.error(t('PleaseSelectRoom'))
     return false
   }
-  
+
   // Validation obligatoire pour dueDate
   if (!formData.dueDate || formData.dueDate === '' || formData.dueDate === null) {
-    toast.error(t('PleaseSelectDueDate')) 
+    toast.error(t('PleaseSelectDueDate'))
     return false
   }
-  
+
   if (!formData.description.trim()) {
-    toast.error(t('PleaseEnterDescription')) 
+    toast.error(t('PleaseEnterDescription'))
     return false
   }
-  
+
   if (!formData.category) {
-    toast.error(t('PleaseSelectCategory')) 
+    toast.error(t('PleaseSelectCategory'))
     return false
   }
-  
+
   if (!formData.priority) {
-    toast.error(t('PleaseSelectPriority')) 
+    toast.error(t('PleaseSelectPriority'))
     return false
   }
-  
+
   if (!formData.assignTo) {
-    toast.error(t('PleaseAssignUser')) 
+    toast.error(t('PleaseAssignUser'))
     return false
   }
-  
+
   // Validation des dates de blocage
-  if (formData.blockDates) {
-    let fromDate, toDate
-    
-    if (Array.isArray(formData.blockDates)) {
-      fromDate = formData.blockDates[0]
-      toDate = formData.blockDates[1]
-    } else if (typeof formData.blockDates === 'object') {
-      fromDate = formData.blockDates.from || formData.blockDates.start
-      toDate = formData.blockDates.to || formData.blockDates.end
-    }
-    
-    if (fromDate && toDate) {
-      const from = new Date(fromDate)
-      const to = new Date(toDate)
-      
-      if (from > to) {
-        toast.error(t('BlockFromDateMustBeBeforeToDate')) 
-        return false
-      }
+
+if (formData.blockDates) {
+  let startDate, endDate
+
+  if (Array.isArray(formData.blockDates)) {
+    startDate = formData.blockDates[0]
+    endDate = formData.blockDates[1]
+  } else if (typeof formData.blockDates === 'object') {
+    startDate = formData.blockDates.start
+    endDate = formData.blockDates.end
+  }
+
+  if (startDate && endDate) {
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+
+    if (start > end) {
+      toast.error(t('BlockFromDateMustBeBeforeToDate'))
+      return false
     }
   }
-  
+}
+
   return true
 }
 
-// 3. Modifiez initializeForm pour mieux gérer dueDate
+//  la fonction initializeForm() :
+
 const initializeForm = () => {
   console.log('🔍 Initializing form, isEditing:', isEditing.value, 'workOrderData:', props.workOrderData)
 
   if (props.isEditing && props.workOrderData) {
-    // Bloc de dates
-   
-    let blockDates: { from: Date | null; to: Date | null } | null = null
+    // Bloc de dates - CORRECTION: utiliser start/end au lieu de from/to
+    let blockDates = { start: null, end: null };
     if (props.workOrderData.blockFromDate && props.workOrderData.blockToDate) {
       blockDates = {
-        from: new Date(props.workOrderData.blockFromDate),
-        to: new Date(props.workOrderData.blockToDate),
-      }
+        start: props.workOrderData.blockFromDate,
+        end: props.workOrderData.blockToDate
+      };
     }
 
     // Due date
-    let dueDate: string = ''
+    let dueDate = ''
     if (props.workOrderData.dueDateTime) {
       const d = props.workOrderData.dueDateTime
       const dateObj = new Date(d)
       const date = dateObj.toISOString().split('T')[0]
       const time = dateObj.toTimeString().slice(0, 5)
-      dueDate = `${date} ${time}` // format "YYYY-MM-DD HH:mm"
+      dueDate = `${date} ${time}`
     }
 
     // Assigner toutes les valeurs au formData
@@ -344,7 +371,7 @@ const initializeForm = () => {
     // Reset form pour nouvelle WorkOrder
     Object.assign(formData, {
       unit: '',
-      blockDates: null,
+      blockDates: { start: null, end: null },
       dueDate: '',
       description: '',
       category: '',
@@ -356,14 +383,18 @@ const initializeForm = () => {
     })
   }
 
-  console.log('🔍 Form initialized with:', formData)
-}
+  console.log('🔍 Form initialized with blockDates:', formData.blockDates)
 
+  // Debug temporaire - à supprimer après résolution
+  console.log('🔍 Raw workOrderData:', props.workOrderData)
+  console.log('🔍 blockFromDate:', props.workOrderData?.blockFromDate)
+  console.log('🔍 blockToDate:', props.workOrderData?.blockToDate)
+}
 
 
 const saveWorkOrder = async () => {
   console.log('🔍 SaveWorkOrder called - formData.dueDate:', formData.dueDate)
-  
+
   if (!validateForm()) {
     return
   }
@@ -372,25 +403,27 @@ const saveWorkOrder = async () => {
   errorMessage.value = ''
 
   try {
+
     let blockFromDate = null
-    let blockToDate = null
-    
-    if (formData.blockDates) {
-      if (Array.isArray(formData.blockDates)) {
-        blockFromDate = formData.blockDates[0]
-        blockToDate = formData.blockDates[1]
-      } else if (typeof formData.blockDates === 'object') {
-        blockFromDate = formData.blockDates.from || formData.blockDates.start
-        blockToDate = formData.blockDates.to || formData.blockDates.end
-      }
-    }
+let blockToDate = null
+
+if (formData.blockDates) {
+  if (Array.isArray(formData.blockDates)) {
+    blockFromDate = formData.blockDates[0]
+    blockToDate = formData.blockDates[1]
+  } else if (typeof formData.blockDates === 'object') {
+    blockFromDate = formData.blockDates.start
+    blockToDate = formData.blockDates.end
+  }
+}
+
 
     // S'assurer que dueDateTime n'est pas vide
     let dueDateTime = formData.dueDate
     if (!dueDateTime || (typeof dueDateTime === 'string' && dueDateTime.trim() === '')) {
       dueDateTime = null
     }
-    
+
     console.log('🔍 Final dueDateTime value:', dueDateTime)
 
     const workOrderData = {
@@ -409,15 +442,15 @@ const saveWorkOrder = async () => {
     }
 
     console.log("🔍 Final workOrderData:", workOrderData)
-    
+
     let response
-    
+
     if (isEditing.value && props.workOrderData) {
       response = await updateWorkOrder(props.workOrderData.id, workOrderData)
-      toast.success(t('WorkOrderUpdatedSuccessfully'))
+
     } else {
       response = await createWorkOrder(workOrderData)
-      toast.success(t('WorkOrderCreatedSuccessfully'))
+
     }
 
     emit('save', {
@@ -425,11 +458,11 @@ const saveWorkOrder = async () => {
       data: response.data,
       success: true
     })
-    
+
     closeModal()
   } catch (error: any) {
     console.error('Error saving work order:', error)
-    
+
     if (error.response?.status === 422) {
       errorMessage.value = t('ValidationError')
     } else if (error.response?.status === 409) {
@@ -437,7 +470,7 @@ const saveWorkOrder = async () => {
     } else {
       errorMessage.value = error.response?.data?.message || error.message || t('ErrorSavingWorkOrder')
     }
-    
+
     toast.error(errorMessage.value)
   } finally {
     isSaving.value = false
@@ -460,7 +493,7 @@ const fetchUsers = async () => {
   try {
     const hotelId = serviceStore.serviceId
     if (!hotelId) throw new Error('hotelId is not defined')
-    
+
     const response = await getEmployeesForService(hotelId)
     Users.value = response.data.data.map((user: any) => ({
       value: user.id,
@@ -478,7 +511,7 @@ const fetchRooms = async () => {
     loading.value=true
     const hotelId = serviceStore.serviceId
     if (!hotelId) throw new Error('hotelId is not defined')
-    
+
     const response = await getRoomsByHotelId(hotelId)
     Rooms.value = response.data.data.data.map((room: any) => ({
       value: room.id,
@@ -495,30 +528,20 @@ const fetchRooms = async () => {
 
 
 watch(
-  [() => props.isOpen, () => props.workOrderData],
-  ([isOpen, workOrderData]) => {
-    if (isOpen && workOrderData) {
+  [() => props.isOpen, isDataInitialized],
+  ([isOpen, isInitialized]) => {
+    if (isOpen && isInitialized) {
       nextTick(() => {
-        console.log('🔍 Modal opened and workOrderData ready')
-        initializeForm()
-      })
+        initializeForm();
+      });
     }
   },
   { immediate: true, deep: true }
-)
-
-
-watch(() => props.workOrderData, () => {
-  if (props.isOpen) {
-    nextTick(() => {
-      initializeForm()
-    })
-  }
-}, { deep: true })
+);
 
 onMounted(async() => {
-  await fetchUsers()
-  await fetchRooms()
+  await Promise.all([fetchUsers(), fetchRooms()]);
+  isDataInitialized.value = true;
 })
 </script>
 
