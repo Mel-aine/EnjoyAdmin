@@ -128,6 +128,14 @@ export const deleteRoomType = (id: number): Promise<AxiosResponse<any>> => {
 export const getRooms = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/rooms`, getHeaders())
 }
+
+/**
+ * Get rooms by hotel id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRoomsByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rooms?hotelId=${hotelId}`, getHeaders())
+}
 /**
  * Post a new room
  * @param data

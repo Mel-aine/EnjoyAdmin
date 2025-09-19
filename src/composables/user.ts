@@ -91,14 +91,29 @@ export const useAuthStore = defineStore('auth', {
      * Vérifie si l'utilisateur a une ou plusieurs permissions
      * @param names string | string[]
      */
-    hasReportPermission(permissionName:any) {
-      if (!this.user?.permisReports) return false;
-
+    hasReportPermission(permissionName: string) {
       try {
-        const permissions = JSON.parse(this.user.permisReports);
-        return permissions.includes(permissionName);
+        // Si l'utilisateur n'a pas de permissions définies, on refuse l'accès
+        if (!this.user?.permisReports) {
+          console.warn('Aucune permission définie pour l\'utilisateur');
+          return false;
+        }
+
+        // Si permisReports est déjà un tableau, on l'utilise directement
+        if (Array.isArray(this.user.permisReports)) {
+          return this.user.permisReports.includes(permissionName);
+        }
+        
+        // Sinon, on essaie de le parser comme une chaîne JSON
+        if (typeof this.user.permisReports === 'string') {
+          const permissions = JSON.parse(this.user.permisReports);
+          return Array.isArray(permissions) && permissions.includes(permissionName);
+        }
+
+        console.warn('Format de permissions non reconnu:', this.user.permisReports);
+        return false;
       } catch (error) {
-        console.error('Erreur lors de la vérification des permissions:', error);
+        console.error('Erreur lors de la vérification des permissions:', error, 'Permission demandée:', permissionName);
         return false;
       }
     },
