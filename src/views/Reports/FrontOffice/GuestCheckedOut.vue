@@ -346,6 +346,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useServiceStore } from '@/composables/serviceStore'
+import type { GuestCheckoutFilters } from '@/services/reportsApi'
+import { generateGuestCheckedOut } from '@/services/reportsApi'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
@@ -353,9 +356,10 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 
 const router = useRouter()
 const { t } = useI18n()
+const serviceStore = useServiceStore()
 
-// Récupérer l'ID de l'hôtel depuis le store ou une autre source
-const idHotel = ref<string | null>(null) // Vous devrez peut-être initialiser cette valeur différemment
+// Récupérer l'ID de l'hôtel depuis le store
+const idHotel = computed(() => serviceStore.serviceId as number)
 
 // Export data function
 const exportData = async (
@@ -431,11 +435,15 @@ interface Filters {
   filterBy: string;
 }
 
+// États de l'interface
 const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
 const exportMenuOpen = ref<boolean>(false)
 const exportLoading = ref<boolean>(false)
 const loading = ref<boolean>(false)
+const error = ref<string>('')
+const reportData = ref<any>([])
+const reservationData = ref<Reservation[]>([])
 const pdfUrl = ref<string>('')
 
 const filters = ref<Filters>({
@@ -516,25 +524,27 @@ const reportTemplateOptions = ref<FilterOptions[]>([
   { value: 'custom', label: t('reportTemplates.custom') }
 ])
 
-// Sample data for the table
-const reservationData = ref<Reservation[]>([
-  {
-    resNo: 'BE306',
-    guest: t('sampleData.guest'),
-    room: `101 - ${t('roomTypes.suite')}`,
-    rate: '100.00',
-    arrival: '28/04/2019 11:30:00 AM',
-    departure: '01/05/2019',
-    pax: '1/0',
-    pickUp: '',
-    dropOff: '',
-    resType: t('reservationTypes.confirmed'),
-    company: '',
-    user: t('users.helpdesk'),
-    BusiSour: t('businessSources.online'),
-    restyp: t('reservationTypes.confirmed')
-  }
-])
+// Initialisation des données de réservation dans onMounted
+onMounted(() => {
+  reservationData.value = [
+    {
+      resNo: 'BE306',
+      guest: t('sampleData.guest'),
+      room: `101 - ${t('roomTypes.suite')}`,
+      rate: '100.00',
+      arrival: '28/04/2019 11:30:00 AM',
+      departure: '01/05/2019',
+      pax: '1/0',
+      pickUp: '',
+      dropOff: '',
+      resType: t('reservationTypes.confirmed'),
+      company: '',
+      user: t('users.helpdesk'),
+      BusiSour: t('businessSources.online'),
+      restyp: t('reservationTypes.confirmed')
+    }
+  ]
+})
 
 // Computed properties
 const selectedTableColumns = computed(() => {
@@ -574,10 +584,52 @@ const totalPax = computed(() => {
   }, 0)
 })
 
-// Methods
-const generateReport = (): void => {
-  showResults.value = true
-  console.log('Generating report with filters:', filters.value)
+// Méthode pour générer le rapport des départs de clients
+const generateReport = async (): Promise<void> => {
+  // Vérifier que les dates sont renseignées
+  if (!filters.value.arrivalFrom || !filters.value.arrivalTo) {
+    error.value = 'Veuillez sélectionner les dates de début et de fin'
+    return
+  }
+
+  // Réinitialiser les états
+  loading.value = true
+  error.value = ''
+  showResults.value = false
+  
+  try {
+    console.log('Génération du rapport des départs avec les filtres:', filters.value)
+    
+    // Préparer les paramètres pour l'API
+    const params: GuestCheckoutFilters = {
+      fromDate: filters.value.arrivalFrom,
+      toDate: filters.value.arrivalTo,
+      hotelId: idHotel.value
+    }
+
+    // Appeler l'API pour générer le rapport
+    const response = await generateGuestCheckedOut(params)
+    console.log('Réponse du rapport des départs:', response)
+
+    // Traiter la réponse
+    if (response && response.success) {
+      // Mettre à jour les données du rapport
+      reportData.value = response.data || []
+      // Mettre à jour les données de réservation pour l'affichage
+      reservationData.value = response.data?.reservations || []
+      // Afficher les résultats
+      showResults.value = true
+    } else {
+      error.value = response?.message || 'Erreur lors de la génération du rapport des départs'
+      console.error('Erreur du serveur:', error.value)
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Une erreur inconnue est survenue'
+    error.value = `Erreur lors de la génération du rapport: ${errorMessage}`
+    console.error('Erreur détaillée:', err)
+  } finally {
+    loading.value = false
+  }
 }
 
 const toggleExportMenu = (): void => {
@@ -591,7 +643,7 @@ const exportCSV = async (): Promise<void> => {
     console.log('Export CSV avec filtres:', filters.value)
     const result = await exportData('csv', 'guestCheckedOut', 'guest-checked-out', {
       ...filters.value,
-      hotelId: idHotel.value !== null ? idHotel.value : undefined
+      hotelId: idHotel.value
     })
     console.log('Résultat export CSV:', result)
   } catch (error) {
@@ -614,7 +666,7 @@ const exportPDF = async (): Promise<void> => {
     console.log('Export PDF avec filtres:', filters.value)
     const result = await exportData('pdf', 'guestCheckedOut', 'guest-checked-out', {
       ...filters.value,
-      hotelId: idHotel.value !== null ? idHotel.value : undefined
+      hotelId: idHotel.value
     })
     pdfUrl.value = result?.fileUrl || ''
     openPDFInNewPage()
@@ -633,7 +685,7 @@ const exportExcel = async (): Promise<void> => {
     console.log('Export Excel avec filtres:', filters.value)
     const result = await exportData('excel', 'guestCheckedOut', 'guest-checked-out', {
       ...filters.value,
-      hotelId: idHotel.value !== null ? idHotel.value : undefined
+      hotelId: idHotel.value
     })
     console.log('Résultat export Excel:', result)
   } catch (error) {
