@@ -187,9 +187,9 @@
                       >{{ $t('SignUp') }}</router-link
                     >
                   </p>-->
-                  <div class="mt-3 flex md:justify-end justify-center">
+                  <!-- <div class="mt-3 flex md:justify-end justify-center">
           <ButtonLanguage></ButtonLanguage>
-          </div>
+          </div> -->
 
                 </div>
               </div>

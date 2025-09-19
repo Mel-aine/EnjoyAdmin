@@ -81,25 +81,25 @@
             <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
               {{ $t(`statuses.${item.status}`) }}
             </span>
-              <button
+              <!-- <button
                 @click="openStatusModal(item)"
                 class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
                 :title="$t('changeStatus')"
               >
                 <Edit class="w-4 h-4" />
-              </button>
+              </button> -->
               </div>
           </template>
         </ReusableTable>
       </div>
 
-       <!-- Modal de changement de statut -->
+       <!-- Modal de changement de statut
      <template v-if="showStatusModal">
         <Modal @close="closeStatusModal">
           <template #body>
 
              <div class="no-scrollbar relative w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
-          <!-- Close button -->
+
           <button
             @click="closeStatusModal"
             class="transition-color absolute right-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -128,7 +128,7 @@
                   </h3>
 
                   <div class="space-y-4">
-                    <!-- Informations sur le bloc -->
+
                     <div class="bg-gray-50 p-3 rounded-lg">
                       <p class="text-sm text-gray-600">
                         <strong>{{ $t('room') }}:</strong> {{ selectedStatusBlock?.room?.roomNumber }}
@@ -141,7 +141,7 @@
                       </p>
                     </div>
 
-                    <!-- Sélection du nouveau statut -->
+
                     <div>
                        <Select
                            v-model="newStatus"
@@ -157,7 +157,7 @@
                 </div>
               </div>
 
-              <!-- Boutons -->
+
               <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
@@ -188,9 +188,36 @@
             </div>
           </template>
         </Modal>
-      </template>
+      </template> -->
 
+ <ConfirmationModal
+        v-model:show="showStatusModal"
+        :title="statusUpdateTitle"
+        :message="statusUpdateMessage"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="warning"
+        :loading="loadingStatusUpdate"
+        @confirm="confirmStatusUpdate"
+        @cancel="cancelStatusUpdate"
+      >
+        <template #content>
 
+          <div class="mt-4 mx-8">
+            <label for="statusNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ $t('Notes') }} ({{ $t('Optional') }})
+            </label>
+            <textarea
+           id="statusNotes"
+              v-model="statusUpdateNotes"
+          :placeholder="$t('Add notes about this status change...')"
+          rows="6"
+          class="dark:bg-dark-900 h-20 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+        ></textarea>
+
+          </div>
+        </template>
+      </ConfirmationModal>
       <!-- Modal de confirmation de suppression -->
       <ConfirmationModal
         v-model:show="showDeleteConfirmation"
@@ -226,7 +253,7 @@ import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import CreateBlockModal from '@/components/Housekeeping/CreateBlockModal.vue'
-import { KeyRound, FileDown, Edit, Trash2 } from 'lucide-vue-next'
+import { KeyRound, FileDown, Edit, Trash2,Play,CheckCircle } from 'lucide-vue-next'
 import { createRoomBlock, getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification';
@@ -280,6 +307,10 @@ const isBlockModalOpen = ref(false)
 const blocks = ref<MaintenanceBlock[]>([])
 const serviceStore = useServiceStore()
 const showStatusModal = ref(false)
+const loadingStatusUpdate = ref(false)
+const blockToUpdateStatus = ref<any>(null)
+const newStatusToUpdate = ref('')
+const statusUpdateNotes = ref('')
 const newStatus = ref('')
 const statusChangeComment = ref('')
 const statusUpdateLoading = ref(false)
@@ -407,6 +438,34 @@ const statusOptions = computed(()=>[
   { value: 'completed', label: t('statuses.completed') },
 ])
 
+// Computed properties for status modal
+const statusUpdateTitle = computed(() => {
+  if (!blockToUpdateStatus.value || !newStatusToUpdate.value) return ''
+
+  switch (newStatusToUpdate.value) {
+    case 'inProgress':
+      return t('Mark as In Progress')
+    case 'completed':
+      return t('Mark as Completed')
+    default:
+      return t('Update Status')
+  }
+})
+
+const statusUpdateMessage = computed(() => {
+  if (!blockToUpdateStatus.value || !newStatusToUpdate.value) return ''
+
+  const roomNumber = blockToUpdateStatus.value.roomNumber
+  switch (newStatusToUpdate.value) {
+    case 'inProgress':
+      return t('statusUpdate.confirmInProgressBlock', { roomNumber })
+    case 'completed':
+      return t('statusUpdate.confirmCompletedBlock', { roomNumber })
+    default:
+      return t('statusUpdate.confirmDefaultBlock', { roomNumber })
+  }
+})
+
 // Actions configuration
 const actions = computed(() => [
   {
@@ -415,6 +474,16 @@ const actions = computed(() => [
     icon: Edit,
     variant: 'primary',
     handler: (item: MaintenanceBlock) => editBlock(item)
+  },
+   {
+    label: t('Mark as In Progress'),
+    icon: Play,
+    handler: (item: any) => handleStatusUpdate(item, 'inProgress')
+  },
+  {
+    label: t('Mark as Completed'),
+    icon: CheckCircle,
+    handler: (item: any) => handleStatusUpdate(item, 'completed')
   },
   {
     label: t('common.delete'),
@@ -425,6 +494,25 @@ const actions = computed(() => [
   }
 ])
 
+
+// Status update handlers
+const handleStatusUpdate = (block: any, newStatus: string) => {
+  // Validate status transition
+  if (newStatus === 'inProgress' && block.status !== 'pending') {
+    toast.error(t('Can only mark pending block as in progress'))
+    return
+  }
+
+  if (newStatus === 'completed' && block.status !== 'inProgress') {
+    toast.error(t('Can only mark in progress block as completed'))
+    return
+  }
+
+  blockToUpdateStatus.value = block
+  newStatusToUpdate.value = newStatus
+  statusUpdateNotes.value = ''
+  showStatusModal.value = true
+}
 // Utility functions
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
@@ -445,52 +533,41 @@ const formatDate = (dateString: string): string => {
 }
 
 // Status change functions
-const openStatusModal = (block: MaintenanceBlock) => {
-  selectedStatusBlock.value = { ...block }
-  newStatus.value = block.status
-  statusChangeComment.value = ''
-  showStatusModal.value = true
-}
-
-const closeStatusModal = () => {
-  showStatusModal.value = false
-  selectedStatusBlock.value = null
-  newStatus.value = ''
-  statusChangeComment.value = ''
-}
-
-const confirmStatusChange = async () => {
-  if (!selectedStatusBlock.value || !newStatus.value || newStatus.value === selectedStatusBlock.value.status) {
-    return
-  }
-
-  statusUpdateLoading.value = true
+const confirmStatusUpdate = async () => {
+  if (!blockToUpdateStatus.value || !newStatusToUpdate.value) return
 
   try {
-    // Préparer les données pour la mise à jour
-    const updateData = {
-      ...selectedStatusBlock.value,
-      status: newStatus.value,
+    loadingStatusUpdate.value = true
+
+    const payload = {
+      status: newStatusToUpdate.value,
+      notes: statusUpdateNotes.value.trim() || undefined
     }
 
-    // Appeler l'API pour mettre à jour le statut
-    await updateRoomBlock(selectedStatusBlock.value.id, updateData)
+    await updateRoomBlock(blockToUpdateStatus.value.id, payload)
 
-    // Mettre à jour la liste locale
+    toast.success(t('Block status updated successfully'))
     await fetchBlocks()
 
-    toast.success(t('statusUpdatedSuccessfully'))
-    closeStatusModal()
-
   } catch (error: any) {
-    console.error('Error updating status:', error)
-    const errorMsg = error.response?.data?.message || error.message || t('errorUpdatingStatus')
-    console.error("error",errorMsg)
-    toast.error(t('errorUpdatingStatus'))
+    console.error('Error updating work order status:', error)
+    toast.error(error.message || t('Error updating block status'))
   } finally {
-    statusUpdateLoading.value = false
+    loadingStatusUpdate.value = false
+    showStatusModal.value = false
+    blockToUpdateStatus.value = null
+    newStatusToUpdate.value = ''
+    statusUpdateNotes.value = ''
   }
 }
+
+const cancelStatusUpdate = () => {
+  showStatusModal.value = false
+  blockToUpdateStatus.value = null
+  newStatusToUpdate.value = ''
+  statusUpdateNotes.value = ''
+}
+
 
 
 

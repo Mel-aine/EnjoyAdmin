@@ -402,9 +402,9 @@ const reservationReports = ref([
   { name: 'departure-list', path: '/reports/reservation/departure-list', label: 'reports.reservation.departureList' },
   { name: 'cancelled-reservations', path: '/reports/reservation/cancelled-reservations', label: 'reports.reservation.cancelledReservations' },
   { name: 'no-show-reservations', path: '/reports/reservation/no-show-reservations', label: 'reports.reservation.noShowReservations' },
-  { name: 'country-wise-reservation-statistics', path: '/reports/reservation/country-wise-reservation-statistics', label: 'reports.reservation.countryWiseReservationStatistics' },
-  { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
-  { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
+  //TO DO { name: 'country-wise-reservation-statistics', path: '/reports/reservation/country-wise-reservation-statistics', label: 'reports.reservation.countryWiseReservationStatistics' },
+  //TO DO   { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
+  //TO DO { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
   { name: 'void-reservation', path: '/reports/reservation/void-reservation', label: 'reports.reservation.voidReservation' },
 ])
 
@@ -414,9 +414,9 @@ const frontOfficeReports = ref([
   { name: 'guest-checked-out', path: '/reports/front-office/guest-checked-out', label: 'reports.frontOffice.guestCheckedOut' },
   { name: 'guest-list', path: '/reports/front-office/guest-list', label: 'reports.frontOffice.guestList' },
   //TO DO { name: 'guest-message', path: '/reports/front-office/guest-message', label: 'reports.frontOffice.guestMessage' },
-  // { name: 'inclusion-report', path: '/reports/front-office/inclusion-report', label: 'reports.frontOffice.inclusionReport' },
-  { name: 'inventory-by-room-type', path: '/reports/front-office/inventory-by-room-type', label: 'reports.frontOffice.inventoryByRoomType' },
-  { name: 'invoice-breakdown', path: '/reports/front-office/invoice-breakdown', label: 'reports.frontOffice.invoiceBreakdown' },
+  // TOD DO { name: 'inclusion-report', path: '/reports/front-office/inclusion-report', label: 'reports.frontOffice.inclusionReport' },
+  //TO DO  { name: 'inventory-by-room-type', path: '/reports/front-office/inventory-by-room-type', label: 'reports.frontOffice.inventoryByRoomType' },
+  //TO DO  { name: 'invoice-breakdown', path: '/reports/front-office/invoice-breakdown', label: 'reports.frontOffice.invoiceBreakdown' },
   { name: 'night-audit', path: '/reports/front-office/night-audit', label: 'reports.frontOffice.nightAudit' },
   { name: 'pickup-dropoff', path: '/reports/front-office/pickup-dropoff', label: 'reports.frontOffice.pickupDropoff' },
   { name: 'room-availability', path: '/reports/front-office/room-availability', label: 'reports.frontOffice.roomAvailability' },
@@ -427,10 +427,10 @@ const frontOfficeReports = ref([
 // Back Office Reports
 const backOfficeReports = ref([
   { name: 'work-order-list', path: '/reports/back-office/work-order-list', label: 'reports.backOffice.workOrderList' },
-  { name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
-  { name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
-  { name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
-  { name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
+  // TOD DO{ name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
+  // TOD DO{ name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
+  // TOD DO{ name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
+  // TOD DO{ name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
   { name: 'daily-receipt-detail', path: '/reports/back-office/daily-receipt-detail', label: 'reports.backOffice.dailyReceiptDetail' },
   { name: 'daily-receipt-summary', path: '/reports/back-office/daily-receipt-summary', label: 'reports.backOffice.dailyReceiptSummary' },
   //TODO { name: 'daily-refund-report', path: '/reports/back-office/daily-refund-report', label: 'reports.backOffice.dailyRefundReport' },
@@ -438,7 +438,7 @@ const backOfficeReports = ref([
   //TODO  { name: 'expense-voucher', path: '/reports/back-office/expense-voucher', label: 'reports.backOffice.expenseVoucher' },
   { name: 'folio-list', path: '/reports/back-office/folio-list', label: 'reports.backOffice.folioList' },
   //TO DO   { name: 'guest-ledger', path: '/reports/back-office/guest-ledger', label: 'reports.backOffice.guestLedger' },
-  { name: 'house-status', path: '/reports/back-office/house-status', label: 'reports.backOffice.houseStatus' },
+  // TODO { name: 'house-status', path: '/reports/back-office/house-status', label: 'reports.backOffice.houseStatus' },
   { name: 'manager-report', path: '/reports/back-office/manager-report', label: 'reports.backOffice.managerReport' },
   { name: 'revenue-by-rate-type', path: '/reports/back-office/revenue-by-rate-type', label: 'reports.backOffice.revenueByRateType' },
   { name: 'revenue-by-room-type', path: '/reports/back-office/revenue-by-room-type', label: 'reports.backOffice.revenueByRoomType' },
@@ -503,11 +503,11 @@ const filteredBackOfficeReports = computed(() => {
   console.log('=== DÉBUT FILTRAGE RAPPORTS BACK OFFICE ===');
   console.log('Tous les rapports Back Office:', backOfficeReports.value);
   console.log('Utilisateur actuel:', authStore.user);
-  
+
   // Afficher les permissions brutes et parsées
   const rawPermissions = authStore.user?.permisReports;
   console.log('Permissions brutes (permisReports):', rawPermissions);
-  
+
   try {
     const parsedPermissions = rawPermissions ? JSON.parse(rawPermissions) : [];
     console.log('Permissions parsées:', parsedPermissions);
@@ -515,20 +515,20 @@ const filteredBackOfficeReports = computed(() => {
   } catch (e) {
     console.error('Erreur lors du parsing des permissions:', e);
   }
-  
+
   const filtered = backOfficeReports.value.filter(report => {
     // Forcer l\'affichage du rapport Work Office pour le test
     if (report.name === 'work-order-list') {
       console.log('Forçage de l\'affichage du rapport Work Office pour le test');
       return true;
     }
-    
+
     const permission = reportPermissions[report.name as keyof typeof reportPermissions];
     const hasPermission = permission ? authStore.hasReportPermission(permission) : false;
     console.log(`Rapport: ${report.name}, Permission: ${permission}, Accès: ${hasPermission}`);
     return hasPermission;
   });
-  
+
   console.log('Rapports Back Office filtrés:', filtered);
   console.log('=== FIN FILTRAGE RAPPORTS BACK OFFICE ===');
   return filtered;
