@@ -101,25 +101,27 @@
           <div class="flex gap-2 w-full sm:w-auto">
             <ButtonComponent 
               @click="exportData"
-              variant="secondary"
-              class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"
+              variant=""
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
               {{ t('common.export') }}
             </ButtonComponent>
-            
+     <!--        
             <ButtonComponent 
               @click="generateReport"
               variant="primary"
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
             >
               {{ t('common.report') }}
-            </ButtonComponent>
+            </ButtonComponent> -->
             
             <ButtonComponent 
               @click="resetForm"
               variant="outline"
-              class="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
-            >
+               class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+            ><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
               {{ t('common.reset') }}
             </ButtonComponent>
           </div>
@@ -170,6 +172,7 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
 
 const { t } = useI18n()
 
@@ -202,7 +205,9 @@ interface Filters {
   reportTemplate: string;
 }
 
-//const hotelName = ref<string>('Hotel Nihal')
+const hotelName = computed(() => {
+  return useServiceStore().getCurrentService?.hotelName
+})
 const showResults = ref<boolean>(false)
 
 const filters = ref<Filters>({

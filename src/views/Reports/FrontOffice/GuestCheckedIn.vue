@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+        <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <!-- Bouton d'export avec menu déroulant -->
