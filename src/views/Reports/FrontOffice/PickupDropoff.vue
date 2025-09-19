@@ -5,9 +5,9 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Pickup / Dropoff Guest Report
         </h1>
-        <p class="text-gray-600 dark:text-gray-400">
+        <!-- <p class="text-gray-600 dark:text-gray-400">
           View and manage guest pickup and dropoff services
-        </p>
+        </p> -->
       </div>
 
       <!-- Filters -->
@@ -63,14 +63,14 @@
           <div class="relative">
             <button
               @click="toggleExportMenu"
-              :disabled="exportLoading || !showResults"
+              :disabled="exportLoading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
               <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">Export</span>
+              <span v-if="!exportLoading">{{ $t('common.export') }}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -110,7 +110,7 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Bouton Report -->
           <button 
             @click="generateReport"
@@ -121,9 +121,9 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Report
+            {{ $t('common.report') }}
           </button>
-          
+
           <!-- Bouton Reset -->
           <button 
             @click="resetForm"
@@ -132,7 +132,7 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{ $t('common.reset') }}
           </button>
         </div>
       </div>
@@ -534,7 +534,10 @@ onUnmounted(() => {
     align-items: flex-start !important;
   }
   
-  .min-w-[150px], .min-w-[120px], .min-w-[80px], .min-w-[100px] {
+  .min-width-150,
+  .min-width-120,
+  .min-width-80,
+  .min-width-100 {
     min-width: auto;
     width: 100%;
   }
@@ -549,42 +552,42 @@ onUnmounted(() => {
 }
 
 /* Styles pour le contenu HTML du rapport */
-:deep(.report-html-container) {
+:deep .report-html-container {
   width: 100%;
 }
 
-:deep(.report-html-container table) {
+:deep .report-html-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-:deep(.report-html-container th),
-:deep(.report-html-container td) {
+:deep .report-html-container th,
+:deep .report-html-container td {
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
 }
 
-:deep(.report-html-container .report-container) {
+:deep .report-html-container .report-container {
   margin: 0;
   box-shadow: none;
   border-radius: 0;
 }
 
-:deep(.report-html-container .results-table) {
+:deep .report-html-container .results-table {
   font-size: 12px;
 }
 
 /* Adaptation pour le mode sombre */
-.dark :deep(.report-html-container) {
+.dark :deep .report-html-container {
   color: #e5e7eb;
 }
 
-.dark :deep(.report-html-container .report-container) {
+.dark :deep .report-html-container .report-container {
   background-color: transparent;
 }
 
-.dark :deep(.report-html-container th),
-.dark :deep(.report-html-container td) {
+.dark :deep .report-html-container th,
+.dark :deep .report-html-container td {
   border-color: #4b5563;
   color: #e5e7eb;
 }

@@ -17,7 +17,7 @@
           <!-- Check-in Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reports.checkedinFrom') }}
+              {{ t('Date From') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -27,7 +27,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reports.checkedinTo') }}
+              {{ t('Date To') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
@@ -55,7 +55,7 @@
           <!-- Show Options -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('common.Show') }}
+              {{ t('Common Show') }}
             </label>
             <SelectComponent 
               v-model="filters.showAmount"
@@ -93,7 +93,29 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4 justify-end">
+          <!-- Report Template -->
+          <!-- <div class="flex items-center gap-3 w-full sm:w-auto">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <SelectComponent 
+                v-model="filters.reportTemplate"
+                :options="reportTemplateOptions"
+                :placeholder="t('common.default')"
+                class="min-w-32 w-full sm:w-auto"
+              />
+              <button 
+                @click="editTemplate"
+                class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :title="t('common.editTemplate')"
+              >
+                <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+          </div> -->
+
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <!-- Bouton d'export avec menu déroulant -->

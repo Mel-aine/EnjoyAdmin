@@ -5,9 +5,9 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ $t('reports.frontOffice.roomAvailability') }}
         </h1>
-        <p class="text-gray-600 dark:text-gray-400">
+        <!-- <p class="text-gray-600 dark:text-gray-400">
           {{ $t('reports.frontOffice.roomAvailabilityDescription') }}
-        </p>
+        </p> -->
       </div>
 
       <!-- Filters -->
@@ -53,11 +53,11 @@
           </div>
         </div>
 
-        <div class="mt-4 flex gap-2">
+        <div class="mt-4 flex justify-end">
           <button
             @click="generatePDF"
             :disabled="isGeneratingPDF || !isDateRangeValid"
-            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             <svg v-if="isGeneratingPDF" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
