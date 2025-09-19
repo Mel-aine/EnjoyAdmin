@@ -278,19 +278,37 @@ const extraCharges = ref<any[]>([
 ])
 
 const calculateRateInclusiveTax = () => {
-  const rate = parseFloat(formData.rate.toString()) || 0
-  let totalTaxRate = 0;
+  const rate = parseFloat(formData.rate.toString()) || 0;
+  let totalTax = 0;
+
+  // Si "No Tax" est sélectionné
   if (formData.taxes.includes('0')) {
-    totalTaxRate = 0;
+    totalTax = 0;
   } else {
-    totalTaxRate = formData.taxes.reduce((sum, taxId) => {
+    totalTax = formData.taxes.reduce((sum, taxId) => {
       const selectedTax = taxes.value.find((t: any) => t.taxRateId == taxId);
-      const taxValue = selectedTax ? parseFloat(selectedTax.value) : 0;
-      return sum + taxValue;
-    }, 0)
+      if (!selectedTax) return sum;
+
+      let taxAmount = 0;
+
+      if (selectedTax.postingType === 'flat_percentage') {
+        taxAmount = rate * (parseFloat(selectedTax.percentage) || 0) / 100;
+      } else if (selectedTax.postingType === 'flat_amount') {
+        taxAmount = parseFloat(selectedTax.amount) || 0;
+      }
+
+      return sum + taxAmount;
+    }, 0);
   }
-  formData.rateInclusiveTax = rate + (rate * totalTaxRate / 100)
-}
+
+  formData.rateInclusiveTax = rate + totalTax;
+
+  console.log('Rate:', rate);
+  console.log('Selected Taxes:', formData.taxes);
+  console.log('Total Tax Amount:', totalTax);
+  console.log('Rate Inclusive Tax:', formData.rateInclusiveTax);
+};
+
 
 const openAddModal = () => {
   isEditing.value = false
@@ -321,7 +339,8 @@ const editExtraCharge = (charge: any) => {
   isEditing.value = true
   editingId.value = charge.id
   Object.assign(formData, charge)
-  formData.taxes = charge.taxRates.taxRateId || [] // Correctly assign the tax IDs
+
+   formData.taxes = (charge.taxRates || []).map((tax: any) => String(tax.taxRateId));
   calculateRateInclusiveTax() // Recalculate rate with taxes
   showModal.value = true
 }
