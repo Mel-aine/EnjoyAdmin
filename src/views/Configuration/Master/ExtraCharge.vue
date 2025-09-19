@@ -94,7 +94,7 @@
                     <input v-model="formData.taxes" :value="tax.value" type="checkbox"
                       @change="calculateRateInclusiveTax"
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">{{ tax.name }}</span>
+                    <span class="ml-2 text-sm text-gray-700">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
@@ -339,7 +339,7 @@ const closeModal = () => {
 const saveExtraCharge = async () => {
   try {
     isSaving.value = true;
-    
+
     if (isEditing.value && editingId.value) {
       const editExtraCharge = { ...formData,  taxRateIds: formData.taxes.map((i:any)=>i.id)  }
       const res = await updateExtraChargeById(editingId.value!, editExtraCharge);
@@ -407,6 +407,7 @@ const fetchTaxes = async () => {
   try {
     const response = await getTaxes()
     taxes.value = response.data.data.data || []
+    console.log("taxes",taxes.value)
   } catch (error) {
     console.error('Error fetching taxes:', error)
     toast.error(t('configuration.tax.fetch_error'))
@@ -414,5 +415,5 @@ const fetchTaxes = async () => {
 }
 
 fetchTaxes()
-loadata() 
+loadata()
 </script>
