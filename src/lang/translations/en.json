@@ -6037,7 +6037,9 @@
   "Profile photo upload incomplete": "Profile photo upload incomplete",
   "ID photo upload incomplete": "ID photo upload incomplete",
   "roomrate_change": "Roomrate Change",
-  "room_assignment": "Room Assignment"
+  "room_assignment": "Room Assignment",
+  "voidReason":"Void reason",
+  "enterVoidReason":"Enter Void reason"
 
 
 }

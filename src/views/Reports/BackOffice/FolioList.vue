@@ -174,19 +174,19 @@
             :data="folioData" 
             :columns="selectedTableColumns"
             :loading="loading"
-            :empty-message="folioData.length === 0 && !loading ? t('reports.noDataAvailable') : ''"
+            :empty-message="folioData?.length === 0 && !loading ? t('reports.noDataAvailable') : ''"
             class="w-full mb-4 min-w-max" 
           />
         </div>
 
         <!-- Total Row -->
-        <div v-if="reportTotals && folioData.length > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>{{ t('reports.folio.totalFolios') }}: {{ reportTotals.totalFolios }}</div>
-            <div>{{ t('reports.folio.totalCharges') }}: {{ reportTotals.totalChargeAmount }} {{ currency }}</div>
-            <div>{{ t('reports.folio.totalTax') }}: {{ reportTotals.totalTaxAmount }} {{ currency }}</div>
-            <div>{{ t('reports.folio.totalCredit') }}: {{ reportTotals.totalCreditAmount }} {{ currency }}</div>
-            <div>{{ t('reports.folio.totalBalance') }}: {{ reportTotals.totalBalance }} {{ currency }}</div>
+        <div v-if="reportTotals && folioData?.length > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm font-medium text-gray-900 dark:text-white">
+            <div>{{ t('reports.folio.totalFolios') }}: {{ reportTotals?.totalFolios || 0 }}</div>
+            <div>{{ t('reports.folio.totalCharges') }}: {{ reportTotals?.totalChargeAmount || 0 }} {{ currency || 'USD' }}</div>
+            <div>{{ t('reports.folio.totalTax') }}: {{ reportTotals?.totalTaxAmount || 0 }} {{ currency || 'USD' }}</div>
+            <div>{{ t('reports.folio.totalCredit') }}: {{ reportTotals?.totalCreditAmount || 0 }} {{ currency || 'USD' }}</div>
+            <div>{{ t('reports.folio.totalBalance') }}: {{ reportTotals?.totalBalance || 0 }} {{ currency || 'USD' }}</div>
           </div>
         </div>
       </div>
@@ -205,6 +205,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import Spinner from '../../../components/spinner/Spinner.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getFolioListReport } from '@/services/reportsApi'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n();
 const serviceStore = useServiceStore()
@@ -290,18 +291,22 @@ const reportTotals = ref<ReportTotals | null>(null)
 const businessSourceOptions = computed(() => {
   const options = [{ value: '', label: 'All' }]
   const sources = serviceStore.businessSources || []
-  sources.forEach((source: any) => {
-    options.push({ value: source.name, label: source.name })
-  })
+  if (Array.isArray(sources)) {
+    sources.forEach((source: any) => {
+      if (source && source.name) {
+        options.push({ value: source.name, label: source.name })
+      }
+    })
+  }
   return options
 })
 
 // Computed properties
 const hotelName = computed(() => {
-  return useServiceStore().getCurrentService?.hotelName
+  return useServiceStore().getCurrentService?.hotelName || 'Hotel'
 })
 
-const selectedTableColumns = computed(() => [
+const selectedTableColumns = computed<Column[]>(() => [
   { key: 'folioNo', label: t('reports.folio.folioNo'), type: 'text' },
   { key: 'invoiceNo', label: t('reports.folio.invoiceNo'), type: 'text' },
   { key: 'date', label: t('common.date'), type: 'date' },
@@ -379,7 +384,7 @@ const generateReport = async (): Promise<void> => {
 }
 
 const exportData = async (): Promise<void> => {
-  if (folioData.value.length === 0) return
+  if (!folioData.value || folioData.value.length === 0) return
   
   try {
     const headers = selectedTableColumns.value.map(col => col.label).join(',')

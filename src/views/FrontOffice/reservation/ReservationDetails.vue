@@ -144,6 +144,11 @@ const actionColorMap = {
 }
 
 const dropdownOptions = computed(() => {
+  // If reservation is voided, disable all actions
+  if (reservation.value?.status === 'voided') {
+    return []
+  }
+  
   if (!reservation.value?.availableActions) {
     return []
   }
@@ -496,7 +501,7 @@ onMounted(() => {
     <ReservationDetailsSkeleton v-if="isLoading" />
 
     <!-- Show actual content when data is loaded -->
-    <div class="h-full" v-else-if="reservation && reservation.id">
+    <div class="h-full" v-else-if="reservation && reservation.id" :class="{ 'void-status': reservation.status === 'voided' }">
       <!--Header-->
       <div class="shadow-sm px-4 py-2 mx-4 bg-white flex justify-between">
         <div class="flex gap-2 align-middle self-center items-center">

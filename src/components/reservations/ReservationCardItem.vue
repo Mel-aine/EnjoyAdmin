@@ -373,6 +373,11 @@ const handleOptionSelected = async (option: any) => {
 
 // Modifier le computed dropdownOptions pour désactiver pendant les actions
 const dropdownOptions = computed(() => {
+  // If reservation is voided, disable all actions
+  if (props.reservation?.status === 'voided') {
+    return []
+  }
+  
   const options = [{
     id: 'view',
     label: t('view'),
@@ -424,7 +429,8 @@ const formatDate = (dateString: string) => {
 <template>
   <div class="z-10">
     <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-visible group">
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-visible group"
+      :class="{ 'void-status': reservation.status === 'voided' }">
       <!-- Card Header -->
       <div class="p-4 border-b border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-2">
