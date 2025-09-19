@@ -1,5 +1,6 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg" :class="{ 'void-status': reservation.status === 'voided' }">
+  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg"
+    :class="{ 'void-status': reservation.status === 'voided' }">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col">
         <div class="bg-white flex-grow overflow-y-auto">
@@ -50,9 +51,12 @@
         <div class="flex-grow overflow-y-auto custom-scrollbar">
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
-            <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal" :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
-            <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
-            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
+            <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal"
+              :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
+            <BasicButton :label="$t('addCharges')" @click="openAddChargeModal"
+              :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
+            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal"
+              :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <!-- More Actions Dropdown -->
@@ -303,11 +307,6 @@ const handleSaveSendFolio = (sendFolioData: any) => {
 
 // More actions dropdown options
 const moreActionOptions = computed(() => {
-  // Return empty array if reservation is voided
-  if (props.reservation.status === 'voided') {
-    return []
-  }
-  
   const menus = [
 
   ]
@@ -516,15 +515,26 @@ const getFolosReservations = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            allTransactions.value.push({
-              ...transaction,
-              amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
-                grossAmount,
-              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
-              folioId: folio.id,
-              guest: folio.guest
+            transaction.noaction = (transaction.isVoided || transaction.status==="voided") || (transaction.category==="room" && transaction.transactionType==="charge");
+            if (transaction.transactionType === 'payment') {
+              allTransactions.value.push({
+                ...transaction,
+                amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                  grossAmount,
+                category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+                folioId: folio.id,
+                guest: folio.guest
 
-            })
+              })
+            } else {
+              allTransactions.value.push({
+                ...transaction, 
+                category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+                folioId: folio.id,
+                guest: folio.guest
+              })
+            }
+
           })
         }
       })
