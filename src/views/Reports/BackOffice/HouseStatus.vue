@@ -178,21 +178,31 @@
         <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <ButtonComponent 
-              @click="generateReport"
-              variant="primary"
-              class="min-w-24 w-full sm:w-auto"
-            >
-              Report
-            </ButtonComponent>
+            <!-- Bouton Report -->
+            <div class="relative w-full sm:w-auto">
+              <button
+                @click="generateReport"
+                :disabled="loading"
+                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24 w-full sm:w-auto"
+              >
+                <span v-if="!loading">{{ t('common.report') }}</span>
+                <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="loading" class="ml-2">{{ t('common.generating') }}</span>
+              </button>
+            </div>
             
-            <ButtonComponent 
-              @click="resetForm"
-              variant="outline"
-              class="min-w-24 w-full sm:w-auto"
-            >
-              Reset
-            </ButtonComponent>
+            <!-- Bouton Reset -->
+            <div class="relative w-full sm:w-auto">
+              <button
+                @click="resetForm"
+                class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24 w-full sm:w-auto"
+              >
+                {{ t('common.reset') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -282,6 +292,7 @@ interface Filters {
 
 const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
+const loading = ref<boolean>(false)
 
 const filters = ref<Filters>({
   asOnDate: '27/04/2019',
