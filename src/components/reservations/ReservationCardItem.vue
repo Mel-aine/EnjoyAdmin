@@ -377,7 +377,7 @@ const dropdownOptions = computed(() => {
   if (props.reservation?.status === 'voided') {
     return []
   }
-  
+
   const options = [{
     id: 'view',
     label: t('view'),

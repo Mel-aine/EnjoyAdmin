@@ -3744,7 +3744,6 @@
       "reservationForecastDescription": "View reservation forecast and projections",
       "projectedOccupancy": "Projected Occupancy",
       "projectedRevenue": "Projected Revenue",
-      "totalReservations": "Total Reservations",
       "averageADR": "Average ADR",
       "occupancyForecastChart": "Occupancy Forecast Chart",
       "forecastDetails": "Forecast Details",
@@ -4669,9 +4668,12 @@
       "save_extra_charge": "Save Extra Charge",
       "update_extra_charge": "Update Extra Charge",
       "delete_extra_charge": "Delete Extra Charge",
-      "confirm_delete": "Are you sure you want to delete this extra charge?",
       "delete_confirmation_message": "Are you sure you want to delete this extra charge? This action cannot be undone.",
-      "fetch_error": "Failed to load extra charges"
+      "fetch_error": "Failed to load extra charges",
+       "confirm_delete_title": "Confirm Deletion",
+      "confirm_delete": "Are you sure you want to delete '{name}'? This action cannot be undone.",
+      "delete_success": "Extra charge deleted successfully",
+      "delete_error": "Error deleting extra charge"
     },
     "identity_type": {
       "title": "Identity Type",
@@ -5432,7 +5434,8 @@
     "pending": "Pending",
     "in_progress": "In Progress",
     "inProgress": "In Progress",
-    "completed": "Completed"
+    "completed": "Completed",
+    "assigned" : "Assigned"
   },
   "successBlockDeleted": "Maintenance block deleted successfully",
   "blocksExportedSuccessfully": "Blocks exported successfully",

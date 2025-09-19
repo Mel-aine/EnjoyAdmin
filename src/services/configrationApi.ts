@@ -1192,9 +1192,11 @@ export const getBookingSourcesByHotelId = (hotelId: number): Promise<AxiosRespon
  * Get all extra charges
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getExtraCharges = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/extra_charges`, getHeaders())
+export const getExtraCharges = (params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/extra_charges`, { ...getHeaders(), params })
 }
+
+
 
 /**
  * Post a new extra charge

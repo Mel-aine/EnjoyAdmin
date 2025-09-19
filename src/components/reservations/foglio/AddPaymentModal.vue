@@ -83,6 +83,7 @@ import { useAuthStore } from '../../../composables/user'
 interface Props {
   isOpen: boolean
   reservationId: number
+  reservationData?: any
 }
 
 interface Emits {
@@ -119,20 +120,49 @@ const formData = reactive({
 })
 
 // Methods
-const closeModal = () => {
-  // Reset form data
+// initialiser les données du formulaire
+const initializeFormData = () => {
+  // Réinitialiser avec les valeurs par défaut
   Object.assign(formData, {
     date: new Date().toISOString().split('T')[0],
     folio: '',
     recVouNumber: '',
     type: 'cash',
-    method: null, // Reset to null for method ID
+    method: null,
     amount: 0,
     currency: 'XAF',
     comment: ''
   })
+
+  // Si nous avons des données de réservation, pré-remplir le montant
+  if (props.reservationData) {
+
+    if (props.reservationData.payment_type) {
+      formData.type = props.reservationData.payment_type
+    }
+
+    if (props.reservationData.payment_type) {
+      formData.type = props.reservationData.payment_method
+    }
+
+    // Ajouter un commentaire automatique
+    formData.comment = `Payment for reservation #${props.reservationId}`
+  }
+}
+
+// Modifier la méthode closeModal
+const closeModal = () => {
+  initializeFormData()
   emit('close')
 }
+
+// Watch pour les changements de données de réservation
+watch(() => props.reservationData, (newData) => {
+  if (newData && props.isOpen) {
+    initializeFormData()
+  }
+}, { deep: true })
+
 const folioSelected = (item: any) => {
   formData.amount = item.balance;
 }

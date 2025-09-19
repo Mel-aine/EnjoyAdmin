@@ -958,7 +958,7 @@ const validateAllRooms = () => {
 
         // Payment info
         bill_to: billing.value.billTo,
-        payment: billing.value.paymentMode,
+        payment_mod: billing.value.paymentMode,
         credit_type: billing.value.creditType || undefined,
         tax_exempt: Boolean(billing.value.taxExempt),
 

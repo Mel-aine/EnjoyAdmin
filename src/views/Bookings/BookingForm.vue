@@ -363,8 +363,9 @@
             </BasicButton>
 
             <div class="flex space-x-3">
-              <BasicButton v-if="showCheckinButton" type="button" @click="openCheckInReservationModal"
-                :label="$t('Check-In')">
+             <BasicButton v-if="showCheckinButton" type="button" @click="handleCheckIn"
+                :loading="isLoading" :disabled="isLoading"
+                :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
@@ -568,7 +569,7 @@
   </AdminLayout>
   <!-- Add Payment Modal -->
   <template v-if="isAddPaymentModalOpen && reservationId">
-    <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
+    <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"  :reservation-data="reservationDetails"
       @save="handleSavePayment" />
   </template>
 
@@ -605,12 +606,24 @@ import { useRoute } from 'vue-router'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
+import { useReservation } from '@/composables/useReservation'
+import { getReservationDetailsById } from '../../services/reservation'
+import { useToast } from 'vue-toastification'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+
+
+interface ReservationDetails {
+  payment_method : any
+  payment_type : any
+}
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
+const reservationDetails = ref<{ payment_method?: number; payment_type?: string }>({})
+const {performCheckIn}= useReservation()
 
 const isAddPaymentModalOpen = ref(false)
 const performChecking = () => { }
+const toast = useToast()
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
@@ -627,8 +640,24 @@ const handleSavePayment = (payment: any) => {
     params: { id: reservationId.value },
   })
 }
-const openAddPaymentModal = () => {
-  isAddPaymentModalOpen.value = true
+
+
+const openAddPaymentModal = async () => {
+  try {
+
+    if (!reservationDetails.value && reservationId.value) {
+      const reponse = await getReservationDetailsById(reservationId.value)
+         reservationDetails.value = {
+            payment_method: reponse.paymentMode,
+            payment_type: reponse.value.paymentType,
+          }
+    }
+
+    isAddPaymentModalOpen.value = true
+  } catch (error) {
+    console.error('Error loading reservation details:', error)
+    isAddPaymentModalOpen.value = true
+  }
 }
 
 const openCheckInReservationModal = () => {
@@ -743,6 +772,71 @@ const {
 const hasPendingUploads = computed(() => {
   return pendingUploads.value.size > 0
 })
+const isGroupReservation = computed(() => {
+  return roomConfigurations.value.length > 1
+})
+
+
+const handleCheckIn = async () => {
+  try {
+    if (isGroupReservation.value) {
+      // Pour les réservations de groupe, ouvrir la modal
+      openCheckInReservationModal()
+    } else {
+      isLoading.value = true
+
+      let currentReservationRooms = []
+
+      try {
+        const reservationDetails = await getReservationDetailsById(reservationId.value!)
+        currentReservationRooms = reservationDetails.reservationRooms || []
+      } catch (error) {
+        console.error('Error fetching reservation details:', error)
+        return
+      }
+
+      // Trouver une reservationRoom disponible
+      const availableReservationRoom : any = currentReservationRooms.find((resRoom: any) => {
+        return !resRoom.actualCheckInTime &&
+               !resRoom.checkedIn &&
+               resRoom.status !== 'checked_in' &&
+               resRoom.status !== 'occupied'
+      })
+
+      if (!availableReservationRoom) {
+        console.error(t('No available rooms for check-in'))
+        return
+      }
+
+      const checkInDateTime = new Date().toISOString()
+      const payload = {
+        reservationRooms: [availableReservationRoom.id],
+        actualCheckInTime: checkInDateTime,
+        notes: '',
+        keyCardsIssued: 2,
+        depositAmount: 0
+      }
+
+      console.log('Quick check-in payload:', payload)
+      console.log('ReservationRoom being checked in:', availableReservationRoom)
+      const result = await performCheckIn(reservationId.value!, payload)
+
+      if (result) {
+        handleCheckInComplete()
+        toast.success(t('toast.checkInSuccess'))
+
+        await router.push({
+          name: 'ReservationDetails',
+          params: { id: reservationId.value },
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Error during check-in:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const initializeForm = () => {
   // Call the original initialize from useBooking if it sets default values
