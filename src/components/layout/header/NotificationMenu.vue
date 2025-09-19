@@ -32,12 +32,12 @@
     <!-- Dropdown Start -->
     <div
       v-if="dropdownOpen"
-      class="absolute -right-[240px] mt-[17px] flex h-[480px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
+      class="absolute -right-[240px] mt-[17px] flex h-[300px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
     >
       <div
         class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-800"
       >
-        <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Notification</h5>
+        <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ $t('notifications') }}</h5>
 
         <button @click="closeDropdown" class="text-gray-500 dark:text-gray-400">
           <svg
@@ -58,7 +58,7 @@
         </button>
       </div>
 
-      <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar">
+      <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar" v-if="notifications">
         <li v-for="notification in notifications" :key="notification.id" @click="handleItemClick">
           <a
             class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
@@ -92,108 +92,23 @@
           </a>
         </li>
       </ul>
+      <div v-else>
 
-      <router-link
-        to="#"
-        class="mt-3 flex justify-center rounded-lg border border-gray-300 bg-white p-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-        @click="handleViewAllClick"
-      >
-        View All Notification
-      </router-link>
+      </div>
     </div>
     <!-- Dropdown End -->
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const dropdownOpen = ref(false)
-const notifying = ref(true)
+const notifying = computed(()=> notifications.value.length > 0)
 const dropdownRef = ref(null)
 
 const notifications = ref([
-  {
-    id: 1,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-02.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 2,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-03.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'offline',
-  },
-  {
-    id: 3,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-04.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 4,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-05.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 5,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-06.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'offline',
-  },
-  {
-    id: 6,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-07.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 7,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-08.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 7,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-09.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
+
   // Add more notifications here...
 ])
 

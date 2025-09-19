@@ -392,6 +392,24 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // TODO: Uncomment and update the path when the AdvanceDepositLedger component is created
+    // {
+    //   path: '/reports/back-office/advance-deposit-ledger',
+    //   component: () => import('@/views/Reports/BackOffice/AdvanceDepositLedger.vue'),
+    //   meta: {
+    //     title: 'Advance Deposit Ledger',
+    //     requiresAuth: true,
+    //   },
+    // },
+    {
+      path: '/reports/back-office/work-order-list',
+      name: 'WorkOrderList',
+      component: () => import('@/views/Reports/BackOffice/WorkOrderList.vue'),
+      meta: {
+        title: 'Work Order List',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/reports/back-office/daily-receipt-detail',
       name: 'DailyReceiptDetail',
@@ -506,6 +524,24 @@ const router = createRouter({
       component: () => import('../views/Reports/Audit/VoidCharge.vue'),
       meta: {
         title: 'Void Charge',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/void-payment',
+      name: 'voidPayment',
+      component: () => import('../views/Reports/Audit/VoidPayment.vue'),
+      meta: {
+        title: 'Void Payment',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/audit/void-transaction',
+      name: 'voidTransaction',
+      component: () => import('../views/Reports/Audit/VoidTransaction.vue'),
+      meta: {
+        title: 'Void Transaction',
         requiresAuth: true,
       },
     },
@@ -756,6 +792,33 @@ const router = createRouter({
       component: () => import('../views/Reports/Statistical/SourceOfBusinessReport.vue'),
       meta: {
         title: 'Source of Business Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/business-analysis',
+      name: 'BusinessAnalysis',
+      component: () => import('../views/Reports/Statistical/BusinessAnalysis.vue'),
+      meta: {
+        title: 'Source of Business Report',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/room-sale-statistics',
+      name: 'RoomSaleStatistics',
+      component: () => import('../views/Reports/Statistical/RoomSaleStatistics.vue'),
+      meta: {
+        title: 'Room Sale Statistics',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/statistical/monthly-statistics',
+      name: 'MonthlyStatistics',
+      component: () => import('../views/Reports/Statistical/MonthlyStatistics.vue'),
+      meta: {
+        title: 'Monthly Statistics',
         requiresAuth: true,
       },
     },

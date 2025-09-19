@@ -8,7 +8,7 @@
     </svg>
   </div>
 
-  <aside >
+  <aside>
     <div :class="[
       'fixed mt-16 flex flex-col lg:mt-0 top-19 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
       {
@@ -23,19 +23,17 @@
 
 
       <!-- Zone de navigation scrollable -->
-      <div class="flex-1 overflow-hidden"
-        @mouseenter="!isExpanded && (isHovered = true)"
+      <div class="flex-1 overflow-hidden" @mouseenter="!isExpanded && (isHovered = true)"
         @mouseleave="isHovered = false">
 
         <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
           <div class="flex flex-col gap-2 pb-6">
             <div v-for="(menuGroup, groupIndex) in menu" :key="groupIndex">
               <ul class="flex flex-col gap-3" v-if="menuGroup">
-                <li v-for="(item, index) in menuGroup.items" :key="item.name" >
+                <li v-for="(item, index) in menuGroup.items" :key="item.name">
 
                   <!-- Menu avec sous-éléments -->
-                  <button v-if="item.subItems && item.subItems.length > 0"
-                    @click="toggleSubmenu(groupIndex, index)"
+                  <button v-if="item.subItems && item.subItems.length > 0" @click="toggleSubmenu(groupIndex, index)"
                     :class="[
                       'menu-item group text-md w-full',
                       {
@@ -51,30 +49,25 @@
                     ]">
                       <component :is="item.icon" />
                     </span>
-                    <span v-if="isExpanded || isHovered || isMobileOpen"
-                      class="menu-item-text">
+                    <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                       {{ item.name }}
                     </span>
-                    <ChevronDownIcon v-if="isExpanded || isHovered || isMobileOpen"
-                      :class="[
-                        'ml-auto w-5 h-5 transition-transform duration-200',
-                        {
-                          'rotate-180 text-purple-400': isSubmenuOpen(groupIndex, index),
-                        },
-                      ]" />
+                    <ChevronDownIcon v-if="isExpanded || isHovered || isMobileOpen" :class="[
+                      'ml-auto w-5 h-5 transition-transform duration-200',
+                      {
+                        'rotate-180 text-purple-400': isSubmenuOpen(groupIndex, index),
+                      },
+                    ]" />
                   </button>
 
                   <!-- Menu sans sous-éléments -->
-                  <router-link v-else-if="item.path"
-                    :to="item.path"
-                    @click="startLoading"
-                    :class="[
-                      'menu-item group',
-                      {
-                        'menu-item-active': isActive(item.path),
-                        'menu-item-inactive': !isActive(item.path),
-                      },
-                    ]">
+                  <router-link v-else-if="item.path" :to="item.path" @click="startLoading" :class="[
+                    'menu-item group',
+                    {
+                      'menu-item-active': isActive(item.path),
+                      'menu-item-inactive': !isActive(item.path),
+                    },
+                  ]">
                     <span :class="[
                       isActive(item.path)
                         ? 'menu-item-icon-active'
@@ -82,29 +75,27 @@
                     ]">
                       <component :is="item.icon" />
                     </span>
-                    <span v-if="isExpanded || isHovered || isMobileOpen"
-                      class="menu-item-text">
+                    <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
                       {{ item.name }}
                     </span>
                   </router-link>
 
                   <!-- Sous-menus avec transition -->
-                  <transition @enter="startTransition" @after-enter="endTransition"
-                    @before-leave="startTransition" @after-leave="endTransition">
+                  <transition @enter="startTransition" @after-enter="endTransition" @before-leave="startTransition"
+                    @after-leave="endTransition">
                     <div v-show="isSubmenuOpen(groupIndex, index) && (isExpanded || isHovered || isMobileOpen)">
                       <ul class="mt-2 space-y-1 ml-9">
                         <li v-for="subItem in item.subItems" :key="subItem.name">
 
                           <!-- Submenu avec sous-sous-éléments -->
                           <div v-if="subItem.subItems && subItem.subItems.length > 0">
-                            <button @click="toggleSubSubmenu(groupIndex, index, subItem.name)"
-                              :class="[
-                                'menu-dropdown-item text-md flex items-center justify-between w-full',
-                                {
-                                  'menu-dropdown-item-active': isSubSubmenuOpen(groupIndex, index, subItem.name) || isActive(subItem.path),
-                                  'menu-dropdown-item-inactive': !isSubSubmenuOpen(groupIndex, index, subItem.name) && !isActive(subItem.path),
-                                },
-                              ]">
+                            <button @click="toggleSubSubmenu(groupIndex, index, subItem.name)" :class="[
+                              'menu-dropdown-item text-md flex items-center justify-between w-full',
+                              {
+                                'menu-dropdown-item-active': isSubSubmenuOpen(groupIndex, index, subItem.name) || isActive(subItem.path),
+                                'menu-dropdown-item-inactive': !isSubSubmenuOpen(groupIndex, index, subItem.name) && !isActive(subItem.path),
+                              },
+                            ]">
                               <span>{{ subItem.name }}</span>
                               <ChevronDownIcon :class="[
                                 'w-4 h-4 transition-transform duration-200',
@@ -120,15 +111,13 @@
                               <ul v-show="isSubSubmenuOpen(groupIndex, index, subItem.name)"
                                 class="mt-1 space-y-1 ml-4">
                                 <li v-for="subSubItem in subItem.subItems" :key="subSubItem.name">
-                                  <router-link :to="subSubItem.path"
-                                    @click="startLoading"
-                                    :class="[
-                                      'menu-dropdown-item text-md',
-                                      {
-                                        'menu-dropdown-item-active': isActive(subSubItem.path),
-                                        'menu-dropdown-item-inactive': !isActive(subSubItem.path),
-                                      },
-                                    ]">
+                                  <router-link :to="subSubItem.path" @click="startLoading" :class="[
+                                    'menu-dropdown-item text-md',
+                                    {
+                                      'menu-dropdown-item-active': isActive(subSubItem.path),
+                                      'menu-dropdown-item-inactive': !isActive(subSubItem.path),
+                                    },
+                                  ]">
                                     {{ subSubItem.name }}
                                   </router-link>
                                 </li>
@@ -137,16 +126,13 @@
                           </div>
 
                           <!-- Submenu simple -->
-                          <router-link v-else
-                            :to="subItem.path"
-                            @click="startLoading"
-                            :class="[
-                              'menu-dropdown-item text-md',
-                              {
-                                'menu-dropdown-item-active': isActive(subItem.path),
-                                'menu-dropdown-item-inactive': !isActive(subItem.path),
-                              },
-                            ]">
+                          <router-link v-else :to="subItem.path" @click="startLoading" :class="[
+                            'menu-dropdown-item text-md',
+                            {
+                              'menu-dropdown-item-active': isActive(subItem.path),
+                              'menu-dropdown-item-inactive': !isActive(subItem.path),
+                            },
+                          ]">
                             {{ subItem.name }}
                           </router-link>
                         </li>
@@ -176,7 +162,6 @@ import { isLoading } from '@/composables/spinner';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from '@/composables/user'
-import { filterMenuByPermissions } from '@/utils/menuUtil'
 
 const route = useRoute();
 const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar();
@@ -184,20 +169,6 @@ const serviceStore = useServiceStore();
 const authStore = useAuthStore()
 const { t } = useI18n();
 const openSubSubmenu = ref<string | null>(null);
-
-
-const serviceName = computed(() => {
-  try {
-    console.log('currentService:', serviceStore.currentService)
-    const service = JSON.parse(serviceStore.currentService || '{}');
-    return service.hotelName;
-  } catch (e) {
-    console.error('Erreur lors du parsing de currentService:', e);
-    return 'Nom inconnu';
-  }
-});
-
-
 
 const startLoading = () => {
   isLoading.value = true;
@@ -232,80 +203,21 @@ export interface MenuGroupWrapper {
 }
 
 
-
-
-// const filteredMenu = computed(() => {
-//   try {
-//     console.log(' Permissions dans le store :', serviceStore.permissions.map(p => p.name))
-
-//     if (!serviceStore.permissions.length) {
-//       console.log(' Aucune permission trouvée, menu vide.')
-//       return []
-//     }
-
-//     const categoryName = 'hotel'
-//     console.log(' Catégorie de service:', categoryName)
-
-//     const menuGroups = getMenuByCategoryName(categoryName, t)
-//     console.log(' Groupes de menu récupérés:', menuGroups.length)
-
-//     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
-//       console.warn(' Aucun menu trouvé pour la catégorie:', categoryName)
-//       return []
-//     }
-
-//     // Filtrer chaque groupe de menu
-//     const result = menuGroups.map(group => {
-//       if (!group || !Array.isArray(group.items)) {
-//         console.warn(' Groupe de menu invalide:', group)
-//         return null
-//       }
-
-//       const filteredItems = filterMenuByPermissions(group.items, serviceStore.hasPermission)
-
-//       if (filteredItems.length === 0) {
-//         console.log(` Groupe exclu (aucun item autorisé): ${group.title}`)
-//         return null
-//       }
-
-//       return {
-//         ...group,
-//         items: filteredItems,
-//       }
-//     }).filter(Boolean)
-
-//     console.log(' Menu final filtré:', result.length, 'groupes')
-//     return result
-
-//   } catch (error) {
-//     console.error(' Erreur dans filteredMenu:', error)
-//     return []
-//   }
-// })
-
-
-
 const menu = computed(() => {
   try {
     const categoryName = 'hotel'
-    console.log('Catégorie de service:', categoryName)
-
     const menuGroups : any = getMenuByCategoryName(categoryName, t)
-    console.log('Groupes de menu récupérés:', menuGroups.length)
-
     if (!Array.isArray(menuGroups) || menuGroups.length === 0) {
-      console.warn('Aucun menu trouvé pour la catégorie:', categoryName)
       return []
     }
-
-    // Retourner tous les groupes de menu sans filtrage
-    const result = menuGroups.filter(group => {
-      return group && Array.isArray(group.items) && group.items.length > 0
+    menuGroups.forEach((e) => {
+      e.items = e.items.filter((pe:any) => authStore.hasPermission(pe.permission)) || [];
+      e.items.forEach((sub:any) => {
+        sub.subItems = sub.subItems?.filter((suv:any) => authStore.hasPermission(suv.permission))
+      })
     })
 
-    console.log('Menu final (sans filtrage):', result.length, 'groupes')
-    return result
-
+    return menuGroups
   } catch (error) {
     console.error('Erreur dans menu:', error)
     return []
@@ -330,16 +242,6 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
       (item.subItems.some((subItem: any) => isActive(subItem.path)) || isSubSubmenuActive))
   );
 };
-
-
-const currentService = computed(() => {
-  try {
-    return JSON.parse(serviceStore.currentService || '{}');
-  } catch (e:any) {
-    return {};
-  }
-});
-
 
 const isSubSubmenuOpen = (
   groupIndex: number,
@@ -411,11 +313,14 @@ const endTransition = (el: Element): void => {
 @reference "tailwindcss";
 
 .sidebar-scroll {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .sidebar-scroll::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+  display: none;
+  /* Safari and Chrome */
 }
 </style>

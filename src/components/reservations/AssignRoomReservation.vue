@@ -2,7 +2,7 @@
   <div class="flex items-center gap-2">
 
     <!-- Assign Room Button -->
-    <button @click.stop="handleAssignRoom" :disabled="isAssigning"
+    <button @click.stop="handleAssignRoom" :disabled="isAssigning || !canAssignRoom"
       class=" underline hover:text-primary/25 text-primary text-xs rounded-md transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
       {{ $t('AssignRoom')}}
     </button>
@@ -15,8 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue' 
+import { computed, ref } from 'vue' 
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue'
+import { useAuthStore } from '@/composables/user'
+
+const authStore = useAuthStore()
 
 interface Props {
   reservation: any
@@ -29,7 +32,9 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 const props = defineProps<Props>()
-
+const canAssignRoom = computed(() => {
+  return authStore.hasPermission('assign_room')
+})
 const isOpen = ref(false);
 const isAssigning = ref(false)
 

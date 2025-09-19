@@ -301,17 +301,10 @@ const handleSubmit = async () => {
       }
       const userServices = res.data.data.userServices || [];
 
-      if (userServices.length > 1) {
-        router.push('/service');
-      } else if (userServices.length === 1) {
         const service = userServices[0];
         serviceStore.setServiceId(service.id);
         serviceStore.setCurrentService(service);
         router.push('/front-office/dashboard');
-      } else {
-        // Aucun service : afficher une erreur
-        error.value = "Aucun service disponible pour cet utilisateur.";
-      }
     } else {
       error.value = "Erreur d'authentification utilisateur.";
     }

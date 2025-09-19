@@ -5,88 +5,139 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ $t('reports.frontOffice.guestList') }}
         </h1>
-        <p class="text-gray-600 dark:text-gray-400">
+<!--         <p class="text-gray-600 dark:text-gray-400">
           {{ $t('reports.frontOffice.guestListDescription') }}
-        </p>
+        </p> -->
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ $t('common.filters') }}
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Start Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.dateRange') }}
+              {{ $t('common.startDate') }}
             </label>
-            <input
-              v-model="filters.startDate"
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            />
+            <InputDatepicker v-model="filters.startDate" placeholder="Start Date" class="w-full" />
           </div>
+
+          <!-- End Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.endDate') }}
             </label>
-            <input
-              v-model="filters.endDate"
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            />
+            <InputDatepicker v-model="filters.endDate" placeholder="End Date" class="w-full" />
           </div>
+
+          <!-- Status -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.status') }}
             </label>
-            <select
-              v-model="filters.status"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">{{ $t('common.all') }}</option>
-              <option value="checked-in">{{ $t('bookings.status.checked-in') }}</option>
-              <option value="checked-out">{{ $t('bookings.status.checked-out') }}</option>
-            </select>
+            <SelectComponent v-model="filters.status" :options="statusOptions" placeholder="Select Status..." class="w-full" />
           </div>
         </div>
-        <div class="mt-4">
-          <button
-            @click="loadGuestList"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
-          >
-            {{ $t('common.generateReport') }}
-          </button>
+
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-2 items-end">
+            <ButtonComponent @click="generateReport" variant="primary" class="min-w-20 flex gap-1"
+              :disabled="!filters.startDate || !filters.endDate || loading">
+              <Spinner v-if="loading" />
+              <span>{{ loading ? $t('common.generating') : $t('Report') }}</span>
+            </ButtonComponent>
+
+            <ButtonComponent @click="resetForm" variant="outline" class="min-w-20">
+              {{ $t('common.reset') }}
+            </ButtonComponent>
+          </div>
         </div>
       </div>
 
+      <!-- Error Message -->
+      <div v-if="error" class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {{ error }}
+      </div>
+
       <!-- Results -->
-      <ReusableTable
-        :title="$t('reports.frontOffice.guestList')"
-        :columns="tableColumns"
-        :data="filteredGuests"
-        :actions="tableActions"
-        :searchable="true"
-        :loading="loading"
-        :empty-message="$t('reports.noDataAvailable')"
-      />
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ hotelName }}
+            </h2>
+            <h2 class="text-lg font-semibold text-green-600 dark:text-green-400">
+              {{ $t('reports.frontOffice.guestList') }}
+            </h2>
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            <span><strong>{{ $t('common.startDate') }}:</strong> {{ filters.startDate }} <strong>{{ $t('common.endDate') }}:</strong> {{ filters.endDate }}</span>
+          </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="overflow-x-auto">
+          <ResultTable
+            :title="$t('reports.frontOffice.guestList')"
+            :columns="tableColumns"
+            :data="guests"
+            :actions="tableActions"
+            :searchable="true"
+            :loading="loading"
+            :empty-message="guests.length === 0 && !loading ? $t('reports.noDataAvailable') : ''"
+            class="w-full mb-4 min-w-max"
+          />
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div v-if="guests.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {{ $t('reports.summary') }}
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ totalGuests }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.totalGuests') }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">{{ checkedInGuests }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.checkedIn') }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-gray-600">{{ checkedOutGuests }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.checkedOut') }}</div>
+          </div>
+        </div>
+      </div>
     </div>
   </ReportsLayout>
 </template>
 
 <script setup lang="ts">
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import SelectComponent from '@/components/forms/FormElements/Select.vue'
+import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
+import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import ResultTable from '@/components/tables/ReusableTable.vue'
+import Spinner from '../../../components/spinner/Spinner.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { getGuestListReport } from '@/services/reportsApi'
 import type { Action, Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const router = useRouter()
 
+interface FilterOptions {
+  value: string;
+  label: string;
+}
+
 interface Guest {
-  id: string
   guestName: string
   roomNumber: string
   checkInDate: string
@@ -94,86 +145,116 @@ interface Guest {
   status: string
 }
 
-const filters = ref({
-  startDate: '',
-  endDate: '',
+interface Filters {
+  startDate: string;
+  endDate: string;
+  status: string;
+}
+
+// Set default dates to today
+const today = new Date().toISOString().split('T')[0]
+
+const filters = ref<Filters>({
+  startDate: today,
+  endDate: today,
   status: ''
 })
 
+// State
 const guests = ref<Guest[]>([])
 const loading = ref(false)
+const error = ref('')
+const showResults = ref<boolean>(false)
 
-const filteredGuests = computed(() => {
-  return guests.value.filter(guest => {
-    if (filters.value.status && guest.status !== filters.value.status) {
-      return false
-    }
-    return true
-  })
+// Options for selects
+const statusOptions = ref<FilterOptions[]>([
+  { value: '', label: t('common.all') },
+  { value: 'check_in', label: t('checked-in') },
+  { value: 'check_out', label: t('checked-out') }
+])
+
+// Computed properties
+const hotelName = computed(() => {
+  return useServiceStore().getCurrentService?.hotelName
 })
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString()
-}
+const totalGuests = computed(() => guests.value.length)
 
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case 'checked-in':
-      return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-    case 'checked-out':
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
-    default:
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
+const checkedInGuests = computed(() => 
+  guests.value.filter(guest => guest.status === 'Checked-In').length
+)
+
+const checkedOutGuests = computed(() => 
+  guests.value.filter(guest => guest.status === 'Checked-Out').length
+)
+
+// Methods
+const generateReport = async () => {
+  if (!filters.value.startDate || !filters.value.endDate) {
+    error.value = t('validation.dateRangeRequired')
+    return
   }
-}
 
-const loadGuestList = async () => {
   loading.value = true
+  error.value = ''
+  showResults.value = false
+  
   try {
-    // Mock data - replace with actual API call
-    guests.value = [
-      {
-        id: '1',
-        guestName: 'John Doe',
-        roomNumber: '101',
-        checkInDate: '2024-01-15',
-        checkOutDate: '2024-01-18',
-        status: 'checked-in'
-      },
-      {
-        id: '2',
-        guestName: 'Jane Smith',
-        roomNumber: '102',
-        checkInDate: '2024-01-14',
-        checkOutDate: '2024-01-17',
-        status: 'checked-out'
-      }
-    ]
-  } catch (error) {
-    console.error('Error loading guest list:', error)
+    console.log('Generating guest list report with filters:', filters.value)
+    const response = await getGuestListReport(filters.value)
+    
+    if (response && response.data && response.data.success) {
+      guests.value = response.data.data.guestList || []
+      showResults.value = true
+    } else {
+      error.value = response && response.data && response.data.message ? response.data.message : t('errors.genericError')
+      guests.value = []
+      showResults.value = true
+    }
+  } catch (err) {
+    console.error('Error fetching guest list:', err)
+    error.value = t('anErrorOcurr')
+    guests.value = []
+    showResults.value = false
   } finally {
     loading.value = false
   }
 }
 
-const viewDetails = (guestId: string) => {
-  router.push(`/customer_detail/${guestId}`)
+const resetForm = (): void => {
+  const todayDate = new Date()
+  const weekAgo = new Date(todayDate)
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  
+  filters.value = {
+    startDate: weekAgo.toISOString().split('T')[0],
+    endDate: todayDate.toISOString().split('T')[0],
+    status: ''
+  }
+  showResults.value = false
+  guests.value = []
+  error.value = ''
+}
+
+const viewDetails = (guest: Guest) => {
+  console.log('View details for:', guest.guestName)
+  // Navigate to guest details if available
 }
 
 // Table configuration
 const tableColumns = computed<Column[]>(() => [
   { key: 'guestName', label: t('common.guestName'), type: 'text' },
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },
-  { key: 'checkInDate', label: t('common.checkInDate'), type: 'date' },
-  { key: 'checkOutDate', label: t('common.checkOutDate'), type: 'date' },
+  { key: 'checkInDate', label: t('common.checkInDate'), type: 'text' },
+  { key: 'checkOutDate', label: t('common.checkOutDate'), type: 'text' },
   { 
     key: 'status', 
     label: t('common.status'), 
     type: 'badge',
     translatable: true,
     badgeColors: {
-      'checked-in': 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
-      'checked-out': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
+      'Checked-In': 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+      'Checked-Out': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
     }
   }
 ])
@@ -181,12 +262,39 @@ const tableColumns = computed<Column[]>(() => [
 const tableActions = computed<Action[]>(() => [
   {
     label: t('common.view'),
-    handler: (item: Guest) => viewDetails(item.id),
+    handler: (item: Guest) => viewDetails(item),
     variant: 'primary'
   }
 ])
 
+// Initialize default dates (7 days ago to today)
 onMounted(() => {
-  loadGuestList()
+  const todayDate = new Date()
+  const weekAgo = new Date(todayDate)
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  
+  filters.value.endDate = todayDate.toISOString().split('T')[0]
+  filters.value.startDate = weekAgo.toISOString().split('T')[0]
 })
 </script>
+
+<style scoped>
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+</style>

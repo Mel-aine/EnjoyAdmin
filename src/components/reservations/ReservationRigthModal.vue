@@ -106,7 +106,7 @@
                 </div>
 
                 <!-- Actual Content -->
-                <div v-else-if="reservation" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">
+                <div v-else-if="reservation" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900" :class="{ 'void-status': reservation.status === 'voided' }">
                     <!-- Header -->
                     <div
                         class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -755,6 +755,11 @@ const actionColorMap = {
 
 const dropdownOptions = computed(() => {
     if (!reservation.value.availableActions) {
+        return [];
+    }
+
+    // If reservation is voided, return empty array to disable all actions
+    if (reservation.value.status === 'voided') {
         return [];
     }
 

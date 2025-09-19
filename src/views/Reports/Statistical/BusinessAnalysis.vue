@@ -3,7 +3,7 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('reports.business.hotelBusinessReport') }}
+          hotel Business Report
         </h1>
       </div>
 
@@ -14,7 +14,7 @@
           <!-- Arrival Date From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.arrivalDateFrom') }}
+              From
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -38,7 +38,7 @@
           <!-- By (Business Source) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('common.by') }}
+              {{ t('by') }}
             </label>
             <SelectComponent 
               v-model="filters.businessSource"
@@ -63,16 +63,16 @@
         </div>
 
         <!-- Note -->
-        <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
+<!--         <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
           <p class="text-sm text-blue-800 dark:text-blue-200">
             <strong>{{ t('common.note') }}:</strong> {{ t('reports.nightsCalculationNote') }}
           </p>
-        </div>
+        </div> -->
 
         <!-- Report Template and Actions -->
-        <div class="flex flex-col sm:flex-row items-end justify-between gap-4">
+        <div class="flex flex-col sm:flex-row items-end justify-end gap-4">
           <!-- Report Template -->
-          <div class="flex items-end gap-3 w-full sm:w-auto">
+<!--           <div class="flex items-end gap-3 w-full sm:w-auto">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('reports.reportTemplate') }}
@@ -95,7 +95,7 @@
                 </button>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- Action Buttons -->
           <div class="flex gap-2 w-full sm:w-auto">
@@ -130,20 +130,20 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('reports.business.reservationSummary') }}
+            {{ t('hotel Business Report') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ hotelName }}</span> • 
-            <span>{{ t('reports.dateRange') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span> • 
-            <span>{{ t('reports.businessSource') }}: {{ selectedBusinessSourceLabel }}</span>
+            <span>{{ t('Date Range') }}: {{ filters.arrivalFrom }} {{ t('to') }} {{ filters.arrivalTo }}</span> • 
+            <span>{{ t('BusinessSource') }}: {{ selectedBusinessSourceLabel }}</span>
           </div>
         </div>
         
         <div class="overflow-x-auto">
           <ResultTable 
-            :title="t('reports.business.reservationAnalysis')"
+            :title="t('hotel Business Reports')"
             :data="reservationData"
             :columns="selectedTableColumns"
+            :show-header=false
             class="w-full mb-4 min-w-max"
           />
         </div>
@@ -151,10 +151,10 @@
         <!-- Summary Row -->
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>{{ t('reports.summary.totalReservations') }}: {{ totalReservations }}</div>
-            <div>{{ t('reports.summary.totalGuests') }}: {{ totalGuests }}</div>
-            <div>{{ t('reports.summary.totalRevenue') }}: {{ totalRevenue }}</div>
-            <div>{{ t('reports.summary.avgRate') }}: {{ averageRate }}</div>
+            <div>{{ t('TotalReservations') }}: {{ totalReservations }}</div>
+            <div>{{ t('TotalGuests') }}: {{ totalGuests }}</div>
+            <div>{{ t('TotalRevenue') }}: {{ totalRevenue }}</div>
+            <div>{{ t('AvgRate') }}: {{ averageRate }}</div>
           </div>
         </div>
       </div>
@@ -202,7 +202,7 @@ interface Filters {
   reportTemplate: string;
 }
 
-const hotelName = ref<string>('Hotel Nihal')
+//const hotelName = ref<string>('Hotel Nihal')
 const showResults = ref<boolean>(false)
 
 const filters = ref<Filters>({
@@ -215,19 +215,19 @@ const filters = ref<Filters>({
 
 // Options for selects
 const businessSourceOptions = ref<FilterOptions[]>([
-  { value: 'all', label: t('businessSources.all') },
-  { value: 'direct', label: t('businessSources.direct') },
-  { value: 'online', label: t('businessSources.online') },
-  { value: 'travel_agent', label: t('businessSources.travelAgent') },
-  { value: 'corporate', label: t('businessSources.corporate') },
-  { value: 'walk_in', label: t('businessSources.walkIn') }
+  { value: 'all', label: t('All') },
+  { value: 'direct', label: t('Direct') },
+  { value: 'online', label: t('Online') },
+  { value: 'travel_agent', label: t('Travel Agent') },
+  { value: 'corporate', label: t('Corporate') },
+  { value: 'walk_in', label: t('WalkIn') }
 ])
 
 const additionalFilterOptions = ref<FilterOptions[]>([
-  { value: 'room_type', label: t('filters.roomType') },
-  { value: 'rate_type', label: t('filters.rateType') },
-  { value: 'guest_type', label: t('filters.guestType') },
-  { value: 'package', label: t('filters.package') }
+  { value: 'room_type', label: t('Room Type') },
+  { value: 'rate_type', label: t('Rate Type') },
+  { value: 'guest_type', label: t('Guest Type') },
+  { value: 'package', label: t('Package') }
 ])
 
 const reportTemplateOptions = ref<FilterOptions[]>([
@@ -289,23 +289,23 @@ const reservationData = ref<Reservation[]>([
 
 // Computed properties
 const selectedTableColumns = computed(() => [
-  { key: 'resNo', label: t('tableColumns.reservationNo') },
-  { key: 'guest', label: t('tableColumns.guestName') },
-  { key: 'room', label: t('tableColumns.roomNo') },
-  { key: 'roomType', label: t('tableColumns.roomType') },
-  { key: 'rate', label: t('tableColumns.dailyRate') },
-  { key: 'arrival', label: t('tableColumns.checkInDate') },
-  { key: 'departure', label: t('tableColumns.checkOutDate') },
-  { key: 'nights', label: t('tableColumns.nights') },
-  { key: 'pax', label: t('tableColumns.guests') },
-  { key: 'businessSource', label: t('tableColumns.businessSource') },
-  { key: 'totalAmount', label: t('tableColumns.totalRevenue') },
-  { key: 'user', label: t('tableColumns.bookedBy') }
+  { key: 'resNo', label: t('Reservation No') },
+  { key: 'guest', label: t('Guest Name') },
+  { key: 'room', label: t('Room No') },
+  { key: 'roomType', label: t('Room Type') },
+  { key: 'rate', label: t('Daily Rate') },
+  { key: 'arrival', label: t('check InDate') },
+  { key: 'departure', label: t('check OutDate') },
+  { key: 'nights', label: t('Nights') },
+  { key: 'pax', label: t('Guests') },
+  { key: 'businessSource', label: t('BusinessSource') },
+  { key: 'totalAmount', label: t('TotalRevenue') },
+  { key: 'user', label: t('BookedBy') }
 ])
 
 const selectedBusinessSourceLabel = computed(() => {
   const selected = businessSourceOptions.value.find(option => option.value === filters.value.businessSource)
-  return selected ? selected.label : t('businessSources.all')
+  return selected ? selected.label : t('All')
 })
 
 const totalReservations = computed(() => {

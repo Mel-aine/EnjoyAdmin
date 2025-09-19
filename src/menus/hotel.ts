@@ -18,32 +18,32 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
           icon: Building2,
           name: t('front_office'),
-          permission: 'dashboard_view',
+          permission: 'access_to_reservation_panel',
           subItems: [
             {
               name: t('Dashboard'),
               path: '/front-office/dashboard',
-              permission: 'dashboard_view',
+              permission: 'access_to_dashboard_view',
             },
             {
               name: t('reservations'),
               path: '/reservations_grid',
-              permission: 'dashboard_view',
+              permission: 'access_to_reservation_panel',
             },
             {
               name: t('stay_view'),
               path: '/stay_view',
-              permission: 'dashboard_view',
+              permission: 'access_to_stay_view',
             },
             {
               name: t('room_view'),
               path: '/room_view',
-              permission: 'dashboard_view',
+              permission: 'access_to_room_view',
             },
             {
               name: t('guest_database'),
               path: '/guest_database',
-              permission: 'dashboard_view',
+              permission: 'access_to_guest_database',
             },
            /* {
               name: t('insert_transaction'),
@@ -53,7 +53,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             {
               name: t('lost_and_found'),
               path: '/lost_and_found',
-              permission: 'dashboard_view',
+              permission: 'access_to_lost_and_found',
             },
            /*
             {
@@ -64,7 +64,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             {
               name: t('unsettled_folios'),
               path: '/front-office/unsettled_folios',
-              permission: 'dashboard_view',
+              permission: 'access_to_unsettled_folios',
             },
           ]
         },
@@ -72,12 +72,12 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
           icon: CreditCard,
           name: t('cashiering'),
-          permission: 'dashboard_view',
+          permission: 'access_to_cashiering_panel',
           subItems: [
             {
               name: t('cashiering_center'),
               path: '/cashiering/center',
-              permission: 'dashboard_view',
+              permission: 'access_to_city_ledger_payment_feature',
             },
             /*{
               name: t('travel_agent_database'),
@@ -92,7 +92,7 @@ export const getHotelMenu = (t: (key: string) => string) => {
             {
               name: t('company_database'),
               path: '/cashiering/company_database',
-              permission: 'dashboard_view',
+              permission: 'access_to_company_database',
             },
            /* {
               name: t('expense_voucher'),
@@ -102,12 +102,12 @@ export const getHotelMenu = (t: (key: string) => string) => {
             {
               name: t('pos'),
               path: '/cashiering/pos',
-              permission: 'dashboard_view',
+              permission: 'access_to_pos',
             },
             {
               name: t('exchange_rate'),
               path: '/cashiering/exchange-rate',
-              permission: 'dashboard_view',
+              permission: 'access_to_exchange_rate',
               openInModal: true,
               component: ExchangeRateModal,
             }
@@ -120,21 +120,22 @@ export const getHotelMenu = (t: (key: string) => string) => {
         {
           icon: Home,
           name: t('Housekeeping'),
+          permission: 'access_to_house_keeping',
           subItems: [
             {
               name: t('house_status'),
               path: '/house_status',
-              permission: 'bookings_read',
+              permission: 'access_to_house_keeping',
             },
             {
               name: t('maintenance_block'),
               path: '/maintenance_block',
-              permission: 'bookings_create',
+              permission: 'access_to_house_keeping',
             },
             {
               name: t('work_order'),
               path: '/work_order',
-              permission: 'bookings_create',
+              permission: 'access_to_house_keeping',
             },
           ],
         },
@@ -144,14 +145,14 @@ export const getHotelMenu = (t: (key: string) => string) => {
               icon: ClipboardList,
               name: t('night_audit'),
               path: '/front-office/night-audit',
-              permission: 'dashboard_view',
+              permission: 'access_to_night_audit',
         },
         //Reports
         {
               icon: BarChart3,
               name: t('Reports'),
               path: '/reports',
-              permission: 'dashboard_view',
+              permission: 'access_to_reports',
         },
         //Net Locks
         /*{

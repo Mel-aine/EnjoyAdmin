@@ -53,7 +53,7 @@
         class="items-center justify-between w-full gap-4 px-5 py-4 bg-gradient-to-r from-white/80 via-gray-50/80 to-white/80 backdrop-blur-sm shadow-xl border-t border-gray-100 dark:border-gray-700 dark:from-gray-800/80 dark:via-gray-700/80 dark:to-gray-800/80 lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:bg-transparent lg:border-t-0 lg:backdrop-blur-none">
         <div class="flex items-center gap-1 sm:gap-2">
 
-          <button
+          <button v-if="canviewListBooking"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="gotoReservation">
             <List class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
@@ -63,7 +63,7 @@
             </span>
           </button>
 
-          <button
+          <button v-if="canAddBooking"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="gotoAddReservation">
             <PlusCircle class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
@@ -73,7 +73,7 @@
             </span>
           </button>
 
-          <button
+          <button v-if="canviewStayView"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="gotoCalendar">
             <Calendar class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import SearchBar from './header/SearchBar.vue'
 import HeaderLogo from './header/HeaderLogo.vue'
@@ -109,6 +109,10 @@ import Backdrop from './Backdrop.vue'
 import { Calendar, X, PlusCircle, List } from 'lucide-vue-next'
 import AddBookingModal from "@/components/modal/AddBookingModal.vue"
 import router from '@/router'
+import { useAuthStore } from '../../composables/user'
+
+const authStore = useAuthStore();
+
 const showModalAddingModal = ref(false);
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
 
@@ -137,7 +141,15 @@ const gotoReservation = () => {
 const gotoAddReservation = () => {
   router.push({ name: "New Booking" })
 }
-
+const canAddBooking = computed(()=>{
+  return authStore.hasPermission("add_reservation")
+})
+const canviewListBooking = computed(()=>{
+  return authStore.hasPermission("access_to_reservation_panel")
+})
+const canviewStayView = computed(()=>{
+  return authStore.hasPermission("access_to_stay_view")
+})
 interface HeaderProps {
   showSidebar?: boolean
 }

@@ -91,8 +91,8 @@
         </div>
 
         <!-- Add Booking Button -->
-        <BasicButton :label="$t('AddBooking')" @click="openBookingModal" variant="primary"
-          class="transform hover:scale-105">
+        <BasicButton :label="$t('AddBooking')" @click="openBookingModal" variant="primary" 
+          class="transform hover:scale-105" :disabled="!canAddBooking">
         </BasicButton>
         <BookingFilter @filter="applyFilter" />
       </div>
@@ -236,6 +236,7 @@ import { filterReservation } from '../../services/hotelApi'
 import ReservationCardItem from '../reservations/ReservationCardItem.vue'
 import ReservationStatus from '@/components/common/ReservationStatus.vue'
 import { Users, User } from 'lucide-vue-next'
+import { useAuthStore } from '../../composables/user'
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -257,7 +258,7 @@ const currentPage = ref(1)
 const pageSize = ref(12)
 const filter =ref<FitlterItem>()
 const allReservations = ref<ReservationType[]>([])
-
+const authStore = useAuthStore();
 // Utility functions
 const safeTranslate = (key: string) => {
   try {
@@ -283,7 +284,9 @@ const formatCurrency = (amount: number) => {
     currency: 'XOF' // or your preferred currency
   }).format(amount)
 }
-
+const canAddBooking = computed(()=>{
+  return authStore.hasPermission("add_reservation")
+})
 // Table configuration for ReusableTable
 const tableColumns = computed(() => [
   {

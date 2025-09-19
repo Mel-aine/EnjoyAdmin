@@ -1,11 +1,13 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg">
+  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg" :class="{ 'void-status': reservation.status === 'voided' }">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col">
         <div class="bg-white flex-grow overflow-y-auto">
           <div class="flex justify-between pt-2 px-2 pb-2">
             <span>{{ $t('roomFolios') }}</span>
-            <PlusCircle class="text-primary cursor-pointer" @click="openCreateFolioModal" />
+            <PlusCircle class="text-primary cursor-pointer" @click="openCreateFolioModal" v-if="canCreateFolio" />
+            <PlusCircle v-else class="text-gray-200 cursor-not-allowed" />
+
           </div>
           <!-- Show All Transactions Button -->
           <div class="px-2 pb-2">
@@ -15,12 +17,13 @@
               {{ $t('showAllTransactions') }}
             </button>
           </div>
-          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber || 'No Room Number'">
+          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind"
+            :title="re.room?.roomNumber || 'No Room Number'">
             <div v-for="(fo, index) in folioList" :key="index">
               <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
                 :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
                 @click="selectFolio(fo)">
-                <span class="capitalize">{{fo.folioNumber}} {{ fo.folioName }}</span>
+                <span class="capitalize">{{ fo.folioNumber }} {{ fo.folioName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
             </div>
@@ -47,9 +50,9 @@
         <div class="flex-grow overflow-y-auto custom-scrollbar">
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
-            <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal" />
-            <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" />
-            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
+            <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal" :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
+            <BasicButton :label="$t('addCharges')" @click="openAddChargeModal" :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
+            <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
             <!-- More Actions Dropdown -->
@@ -90,7 +93,7 @@
             </div>
           </div>
           <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false"
-            :selectable="false" :searchable="false" :title="$t('folio')">
+            :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
               <div class="text-sm text-gray-900">
@@ -127,7 +130,8 @@
 
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
-          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal" @refresh="refreshFolio" />
+          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal"
+            @refresh="refreshFolio" />
         </template>
 
         <!-- Add Payment Modal -->
@@ -145,8 +149,8 @@
             @close="closeSplitFolioModal" @save="handleSaveSplitFolio" @refresh="refreshFolio" />
         </template>
         <template v-if="isTransferModal">
-          <TransferFolioModal :reservation-id="reservationId" :is-open="isTransferModal"
-            @close="closeTransferModal" @save="handleSaveTransfer" />
+          <TransferFolioModal :reservation-id="reservationId" :is-open="isTransferModal" @close="closeTransferModal"
+            @save="handleSaveTransfer" />
         </template>
         <template v-if="isCutFolioModal">
           <CutFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isCutFolioModal"
@@ -157,28 +161,28 @@
             @close="closeRoomChargesModal" @save="handleSaveRoomCharges" @refresh="refreshFolio" />
         </template>
         <template v-if="isAdjustmentModal">
-          <AdjustmentFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isAdjustmentModal"
-            @close="closeAdjustmentModal" @save="handleSaveAdjustment" @refresh="refreshFolio" />
+          <AdjustmentFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id"
+            :is-open="isAdjustmentModal" @close="closeAdjustmentModal" @save="handleSaveAdjustment"
+            @refresh="refreshFolio" />
         </template>
         <template v-if="isSendFolioModal">
-          <SendFolioModal :reservation-id="reservationId" :is-open="isSendFolioModal"
-            @close="closeSendFolioModal" @save="handleSaveSendFolio" />
+          <SendFolioModal :reservation-id="reservationId" :is-open="isSendFolioModal" @close="closeSendFolioModal"
+            @save="handleSaveSendFolio" />
         </template>
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
           <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
-           @print-error="handlePrintError"
-          :reservation-id="reservationId" />
+            @print-error="handlePrintError" :reservation-id="reservationId" />
         </template>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountRoomCharge
-            :is-open="isApplyDiscountModal"
-            :reservation-id="reservationId"
-            :reservation-number="reservation?.reservationNumber"
-            @close="closeApplyDiscountModal"
-            @discount-applied="handleDiscountApplied"
-          />
+          <ApplyDiscountRoomCharge :is-open="isApplyDiscountModal" :reservation-id="reservationId"
+            :reservation-number="reservation?.reservationNumber" @close="closeApplyDiscountModal"
+            @discount-applied="handleDiscountApplied" />
+        </template>
+        <template v-if="isVoidTrasaction">
+          <VoidTransactionModal :is-open="isVoidTrasaction" :transaction-details="selectedTransaction"
+            @close="closeVoidTransactionModal" @success="refreshFolio" />
         </template>
       </div>
     </div>
@@ -191,31 +195,40 @@ import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 const AddPaymentModal = defineAsyncComponent(() => import('./AddPaymentModal.vue'))
 import CreateFolioModal from './CreateFolioModal.vue'
-import { SettingsIcon, ChevronDown, ChevronUp, PlusCircle, ChevronRight } from 'lucide-vue-next'
+import { PlusCircle, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
-import type { Column } from '../../../utils/models'
+import type { Action, Column } from '../../../utils/models'
 import { getReservationFolios } from '../../../services/foglioApi'
 import Accordion from '../../common/Accordion.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
-import { safeParseFloat, prepareFolioAmount } from '../../../utils/numericUtils'
+import { prepareFolioAmount } from '../../../utils/numericUtils'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
 import SplitFolioModal from './SplitFolioModal.vue'
-import RefreshIcon from '../../../icons/RefreshIcon.vue'
 import CutFolioModal from './CutFolioModal.vue'
 import RoomChargeModal from './RoomChargeModal.vue'
 import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
 import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
+import { useAuthStore } from '@/composables/user'
+import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
+
+const authStore = useAuthStore()
+
+const canCreateFolio = computed(() => {
+  return authStore.hasPermission('creating_new_folio')
+})
+const canAddItemInFolio = computed(() => {
+  return authStore.hasPermission('add_item_to_open_folio')
+})
 const { t } = useI18n()
-const isOpen = ref(false)
 // Modal state
 const isAddChargeModalOpen = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCreateFolioModalOpen = ref(false)
 const isPrintModalOpen = ref(false)
 const selectedMoreAction = ref<any>(null)
-const isSplitFolioModalOpen = ref(false)
+const isVoidTrasaction = ref(false);
 /// manage more action folio
 
 const isAdjustmentModal = ref(false);
@@ -225,7 +238,7 @@ const isSplitFolioModal = ref(false);
 const isCutFolioModal = ref(false);
 const isSendFolioModal = ref(false);
 const isApplyDiscountModal = ref(false);
-
+const selectedTransaction = ref<any>(null)
 
 const closeSplitFolioModal = () => {
   isSplitFolioModal.value = false
@@ -255,6 +268,10 @@ const handleSaveRoomCharges = (roomChargesData: any) => {
   console.log('Save room charges:', roomChargesData)
   // Add save logic here
 }
+const closeVoidTransactionModal = () => {
+  isVoidTrasaction.value = false;
+  selectedTransaction.value = null;
+}
 const closeApplyDiscountModal = () => {
   isApplyDiscountModal.value = false
 }
@@ -283,15 +300,39 @@ const handleSaveSendFolio = (sendFolioData: any) => {
 }
 
 
+
 // More actions dropdown options
-const moreActionOptions = ref([
-  { label: t('adjustment'), id: 'adjustment' },
-  { label: t('roomCharges'), id: 'roomCharges' },
-  { label: t('transfer'), id: 'transfer' },
-  { label: t('splitFolio'), id: 'split' },
-  { label: t('cutFolio'), id: 'cut' },
-  { label: t('sendFolio'), id: 'send' }
-])
+const moreActionOptions = computed(() => {
+  // Return empty array if reservation is voided
+  if (props.reservation.status === 'voided') {
+    return []
+  }
+  
+  const menus = [
+
+  ]
+  if (authStore.hasPermission('add_item_to_open_folio')) {
+    menus.push({ label: t('adjustment'), id: 'adjustment' })
+  }
+  if (props.reservation.status === 'checked_in' && authStore.hasPermission('change_room_rate_after_check_in')) {
+    menus.push({ label: t('roomCharges'), id: 'roomCharges' })
+  } else if (authStore.hasPermission('change_room_rate_before_check_in')) {
+    menus.push({ label: t('roomCharges'), id: 'roomCharges' })
+  }
+  if (authStore.hasPermission('transfer_item_from_folio')) {
+    menus.push({ label: t('transfer'), id: 'transfer' })
+  }
+  if (authStore.hasPermission('transfer_item_from_folio')) {
+    menus.push({ label: t('splitFolio'), id: 'split' })
+  }
+  if (authStore.hasPermission('cut_folio')) {
+    menus.push({ label: t('cutFolio'), id: 'cut' })
+  }
+  if (authStore.hasPermission('send_folio')) {
+    menus.push({ label: t('sendFolio'), id: 'send' })
+  }
+  return menus
+})
 const props = defineProps({
   reservationId: {
     type: Number,
@@ -340,7 +381,26 @@ const columns = computed<Column[]>(() => [
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
 ])
+const actionTransactions = computed<Action[]>(() => {
+  return [
+    {
+      label: t('void'),
+      handler: (item) => onAction('void', item),
+      icon: 'void'
+    },]
+})
 
+
+const onAction = (action: any, item: any) => {
+
+  switch (action) {
+    case 'void':
+      isVoidTrasaction.value = true;
+      selectedTransaction.value = item;
+      break
+  }
+
+}
 // Helper functions
 const formatDate = (dateStr: string) => {
   return dateStr
@@ -400,7 +460,7 @@ const selectFolio = (folio: any) => {
 const showAllTransactions = () => {
   selectedFolio.value = null
 }
-const refreshFolio =async ()=>{
+const refreshFolio = async () => {
   try {
     const resp = await getReservationFolios(props.reservationId)
     console.log(resp)
@@ -601,9 +661,12 @@ const printDocumentData = computed(() => ({
 <style scoped>
 /* Scrollbar invisible mais toujours scrollable */
 .custom-scrollbar {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .custom-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  display: none;
+  /* Chrome, Safari, Edge */
 }
 </style>

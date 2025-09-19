@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Void Charge
+          Void Transaction
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage voided charges
+          View and manage voided transactions
         </p>
       </div>
 
@@ -64,7 +64,7 @@
               {{ hotelName }}
             </h2>
             <h2 class="text-lg font-semibold text-red-600 dark:text-red-400">
-              Void Charge
+              Void Transaction
             </h2>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -74,7 +74,7 @@
 
         <!-- Report Table -->
         <div class="overflow-x-auto">
-          <ResultTable title="Void Charge Details" :data="voidChargeData" :columns="voidChargeColumns"
+          <ResultTable title="Void Transaction Details" :data="voidTransactionData" :columns="voidTransactionColumns"
             class="w-full mb-4 min-w-max" />
         </div>
       </div>
@@ -92,7 +92,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { getEmployeesForService } from '../../../services/userApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { onMounted } from 'vue'
-import { getVoidChargeReport } from '../../../services/reportsApi'
+import { getVoidTransactionReport } from '../../../services/reportsApi'
 import Spinner from '../../../components/spinner/Spinner.vue'
 
 interface FilterOptions {
@@ -100,10 +100,10 @@ interface FilterOptions {
   label: string;
 }
 
-interface VoidChargeItem {
+interface VoidTransactionItem {
   date: string;
   voucher: string;
-  charge: string;
+  transaction: string;
   reference: string;
   amount: string;
   voidByDateTime: string;
@@ -114,45 +114,46 @@ interface Filters {
   voidTo: string;
   voidBy: string;
 }
+
+const showResults = ref<boolean>(false)
+
 // Set default dates to today
 const today = new Date().toISOString().split('T')[0]
-const hotelName = computed(()=>{
+const hotelName = computed(() => {
   return useServiceStore().getCurrentService?.hotelName
 })
-const showResults = ref<boolean>(false)
-const totalRecords = ref(0);
-const totalAmount = ref(0);
 const filters = ref<Filters>({
   voidFrom: today,
   voidTo: today,
   voidBy: '',
 })
-const isLoading = ref(false)
+const totalRecords = ref(0);
+const totalAmount = ref(0);
 // Options for selects
 const voidByOptions = ref<FilterOptions[]>([
   { value: '', label: 'All' },
 ])
 
-
-
-// Sample void charge data based on the image
-const voidChargeDataRaw = ref<VoidChargeItem[]>([])
+// Sample void transaction data
+const voidTransactionDataRaw = ref<VoidTransactionItem[]>([
+])
 
 // Computed properties for ResultTable
-const voidChargeColumns = computed(() => [
+const voidTransactionColumns = computed(() => [
   { key: 'date', label: 'Date' },
   { key: 'voucher', label: 'Voucher' },
-  { key: 'charge', label: 'Charge' },
+  { key: 'transaction', label: 'Transaction' },
   { key: 'reference', label: 'Reference' },
   { key: 'amount', label: 'Amount ' },
   { key: 'voidByDateTime', label: 'Void By/Date/Time' }
 ])
+const isLoading = ref(false)
 
-const voidChargeData = computed(() => {
-  return voidChargeDataRaw.value.map(item => ({
+const voidTransactionData = computed(() => {
+  return voidTransactionDataRaw.value.map(item => ({
     date: item.date,
     voucher: item.voucher,
-    charge: item.charge,
+    transaction: item.transaction,
     reference: item.reference,
     amount: item.amount,
     voidByDateTime: item.voidByDateTime
@@ -162,14 +163,13 @@ const voidChargeData = computed(() => {
 // Methods
 const generateReport = async (): Promise<void> => {
   isLoading.value = true
-  console.log('Generating void charge report with filters:', filters.value)
   const data = {
     from: filters.value.voidFrom,
     to: filters.value.voidTo,
     by: filters.value.voidBy,
   }
-  const response = await getVoidChargeReport(data);
-  voidChargeDataRaw.value = response?.data?.voidCharges || [];
+  const response = await getVoidTransactionReport(data);
+  voidTransactionDataRaw.value = response?.data?.voidTransactions || [];
   totalRecords.value = response?.data?.totalRecords || 0;
   totalAmount.value = response?.data?.totalAmount || 0;
   showResults.value = true
@@ -179,15 +179,17 @@ const generateReport = async (): Promise<void> => {
 
 const resetForm = (): void => {
   filters.value = {
-    voidFrom: '',
-    voidTo: '',
+    voidFrom: today,
+    voidTo: today,
     voidBy: '',
   }
   showResults.value = false
 }
+
 const loading = ref(false)
 const users = ref<any>([]);
 const serviceStore: any = useServiceStore()
+
 const fetchUser = async () => {
   loading.value = true
   try {

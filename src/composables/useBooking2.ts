@@ -1,16 +1,15 @@
 import { ref, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {  useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { getRoomTypes } from '@/services/roomTypeApi'
-import { getRateTypes, getRateTypesByRoomTypes } from '@/services/rateTypeApi'
-import { createReservation, getReservationDetailsById } from '@/services/reservation'
+import {  getRateTypesByRoomTypes } from '@/services/rateTypeApi'
+import { createReservation } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
-import { getPaymentMethods } from '@/services/paymentMethodApi'
-import { safeParseFloat, safeSum, prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getBusinessSourcesByHotelId, getAvailableRoomsByTypeId, getMarketCodesByHotelId, getReservationTypesByHotelId, getBookingSourcesByHotelId } from '../services/configrationApi'
+import { prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
+import { getAvailableRoomsByTypeId, getMarketCodesByHotelId } from '../services/configrationApi'
 
 // Types existants...
 interface RoomConfiguration {
@@ -1598,7 +1597,9 @@ const validateAllRooms = () => {
     const today = new Date().toISOString().split('T')[0]
     return reservation.value.checkinDate === today
   })
-
+  const canCityLedgerPay = computed(()=>{
+    return authStore.hasPermission('access_to_transfer_charges_to_city_ledger')
+  })
 
   const voucherEmailError = ref('')
 
@@ -1628,6 +1629,7 @@ watch(() => otherInfo.value.voucherEmail, () => {
 })
   return {
     // Data
+    canCityLedgerPay,
     reservation,
     guest,
     otherInfo,
