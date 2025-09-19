@@ -7,76 +7,73 @@
         </h1>
       </div>
 
-      <div class=" p-6 mb-6">
+      <!-- Filters -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {{ t('common.filters') }}
+        </h2>
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Date From -->
+          <!-- Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Date
+              {{ t('common.date') }}
             </label>
-            <InputDatepicker v-model="filters.arrivalFrom" :placeholder="t('common.from')" class="w-full">
-            </InputDatepicker>
+            <InputDatepicker 
+              v-model="filters.arrivalFrom" 
+              :placeholder="t('common.date')"
+              class="w-full"
+            />
           </div>
+          
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Currency
+              {{ t('Common Currency') }}
             </label>
-            <Select v-model="filters.currency" :options="currencyOptions" :placeholder="'XAF'" class="w-full">
-            </Select>
+            <Select 
+              v-model="filters.currency" 
+              :options="currencyOptions" 
+              :placeholder="'XAF'" 
+              class="w-full"
+            />
           </div>
         </div>
-        <!-- Buttons -->
-        <div class="flex items-end justify-end">
-          <div class="flex gap-2">
-            <div class="flex items-end">
-              <button @click="generateReport" :disabled="isLoading || !filters.arrivalFrom"
-                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/25 focus:outline-none  disabled:opacity-50 disabled:cursor-not-allowed">
-                <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
-                  viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                  </path>
-                </svg>
-                <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                Export
-              </button>
-            </div>
 
-            <ButtonComponent @click="resetForm" variant="outline" class="px-6 py-2">
-              Reset
-            </ButtonComponent>
+        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4 justify-end">
+          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <!-- Bouton Report -->
+            <button 
+              @click="generateReport"
+              :disabled="isLoading || !filters.arrivalFrom"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Spinner v-if="isLoading" class="w-4 h-4 mr-1" />
+              <span class="flex items-center">
+                {{ isLoading ? t('common.generating') : t('Report') }}
+                <svg v-if="!isLoading" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </button>
+
+            <!-- Bouton Reset -->
+            <button 
+              @click="resetForm"
+              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {{ t('common.reset') }}
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="bg-red-50 border-l-4 border-red-400 p-4 mx-6 mt-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-red-700">{{ errorMessage }}</p>
-          </div>
-          <div class="ml-auto pl-3">
-            <button @click="errorMessage = ''" class="text-red-400 hover:text-red-600">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </div>
+      <div v-if="errorMessage" class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {{ errorMessage }}
       </div>
     </div>
   </ReportsLayout>

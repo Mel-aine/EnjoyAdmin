@@ -20,7 +20,7 @@
           <!-- Departure Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reports.checkedinFrom') }}
+              {{ t('Date From') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -30,7 +30,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reservation.departure') }} To
+              {{ t('Date To') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
