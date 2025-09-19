@@ -153,7 +153,85 @@
           </button>
         </div>
       </div>
-      
+
+      <!-- Results Section -->
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ $t('Work Order List') }}
+          </h2>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <span>{{ $t('common.dateFrom') }}: {{ filters.createdFrom || $t('common.none') }}</span> • 
+            <span>{{ $t('common.to') }}: {{ filters.createdTo || $t('common.none') }}</span> • 
+            <span>{{ $t('common.status') }}: {{ filters.status ? $t(`workOrder.status.${filters.status}`) : $t('common.all') }}</span>
+          </div>
+        </div>
+        
+        <!-- Work Orders Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ $t('common.id') }}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ $t('common.title') }}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ $t('common.status') }}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ $t('common.priority') }}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ $t('common.assignedTo') }}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ $t('common.dueDate') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr v-for="order in workOrders" :key="order.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ order.id }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ order.title }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span :class="getStatusBadgeClass(order.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                    {{ $t(`workOrder.status.${order.status}`) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ $t(`common.${order.priority}`) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ getAssignedToName(order.assignedTo) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ formatDate(order.dueDate) }}
+                </td>
+              </tr>
+              <tr v-if="workOrders.length === 0">
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  {{ $t('common.noDataAvailable') }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Summary Row -->
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+          <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div>{{ $t('common.total') }}: {{ workOrders.length }} {{ $t('common.workOrders') }}</div>
+            <div v-if="filters.status">{{ $t(`workOrder.status.${filters.status}`) }}: {{ getStatusCount(filters.status) }}</div>
+          </div>
+        </div>
+      </div>
     </div>
   </ReportsLayout>
 </template>
@@ -193,7 +271,8 @@ interface Filters {
   [key: string]: string; // Signature d'index pour permettre l'accès par chaîne de caractères
 }
 
-// Données réactives
+// Reactive data
+const showResults = ref(false);
 const filters = reactive<Filters>({
   createdFrom: '',
   createdTo: '',
@@ -228,7 +307,47 @@ const units = ref<Unit[]>([
   { id: '8', name: 'Gym' }
 ]);
 
-// Méthodes
+// Sample work orders data - replace with actual API call
+const workOrders = ref([
+  {
+    id: 'WO-001',
+    title: 'Leaking faucet in bathroom',
+    status: 'open',
+    priority: 'medium',
+    assignedTo: '1',
+    dueDate: '2023-06-15',
+    description: 'The faucet in the bathroom is leaking and needs to be fixed.'
+  },
+  {
+    id: 'WO-002',
+    title: 'AC not working in room 205',
+    status: 'in_progress',
+    priority: 'high',
+    assignedTo: '2',
+    dueDate: '2023-06-10',
+    description: 'Guest reported that the AC is not cooling properly.'
+  },
+  {
+    id: 'WO-003',
+    title: 'TV remote not working',
+    status: 'completed',
+    priority: 'low',
+    assignedTo: '1',
+    dueDate: '2023-06-05',
+    description: 'Guest reported that the TV remote is not working.'
+  },
+  {
+    id: 'WO-004',
+    title: 'Toilet clogged',
+    status: 'open',
+    priority: 'high',
+    assignedTo: '3',
+    dueDate: '2023-06-12',
+    description: 'Guest reported that the toilet is clogged.'
+  }
+]);
+
+// Methods
 const resetFilters = () => {
   Object.assign(filters, {
     createdFrom: '',
@@ -239,12 +358,13 @@ const resetFilters = () => {
     workOrderType: '',
     unit: ''
   });
+  showResults.value = false;
 };
 
 const searchWorkOrders = () => {
-  console.log('Recherche avec les filtres :', filters);
-  // TODO: Implémenter la logique de recherche avec les filtres
-  // Par exemple : appeler une API ou filtrer des données locales
+  // TODO: Implement search functionality
+  console.log('Searching work orders with filters:', filters);
+  showResults.value = true;
 };
 
 const updateDateFilter = (field: string, value: string) => {
@@ -252,9 +372,35 @@ const updateDateFilter = (field: string, value: string) => {
 };
 
 const generateReport = () => {
-  console.log('Génération du rapport avec les filtres :', filters);
-  // TODO: Implémenter la logique de génération du rapport
-  // Par exemple : exporter en PDF, Excel, ou afficher un aperçu
+  // TODO: Implement report generation
+  console.log('Generating report with filters:', filters);
+  showResults.value = true;
+};
+
+// Helper methods for the results section
+const getStatusBadgeClass = (status: string) => {
+  const statusClasses: Record<string, string> = {
+    'open': 'bg-yellow-100 text-yellow-800',
+    'in_progress': 'bg-blue-100 text-blue-800',
+    'on_hold': 'bg-purple-100 text-purple-800',
+    'completed': 'bg-green-100 text-green-800',
+    'cancelled': 'bg-red-100 text-red-800'
+  };
+  return statusClasses[status] || 'bg-gray-100 text-gray-800';
+};
+
+const getAssignedToName = (userId: string) => {
+  const user = staffMembers.value.find(user => user.id === userId);
+  return user ? user.name : 'Unassigned';
+};
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A';
+  return new Date(dateString).toLocaleDateString();
+};
+
+const getStatusCount = (status: string) => {
+  return workOrders.value.filter(order => order.status === status).length;
 };
 
 // Cycle de vie

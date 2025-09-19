@@ -18,7 +18,7 @@ export interface ApiResponse<T = any> {
   data?: T
   error?: string
 }
-interface GuestCheckoutFilters {
+export interface GuestCheckoutFilters {
   fromDate: string
   toDate: string
   hotelId: number
