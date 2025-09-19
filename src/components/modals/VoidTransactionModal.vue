@@ -19,7 +19,6 @@
           :is-required="true"
           :use-dropdown="useDropdownReason"
           @update:useDropdown="useDropdownReason = $event"
-          @clear-error="emit('clear-error')"
         />
       </div>
 
