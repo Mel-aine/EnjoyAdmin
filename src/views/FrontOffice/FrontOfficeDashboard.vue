@@ -2,9 +2,10 @@
   <AdminLayout>
     <div class="min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <!-- Enhanced Header -->
-      <div class="relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 dark:from-blue-400/5 dark:to-indigo-400/5"></div>
-        <div class="relative px-8 py-6">
+       <div class=" px-8 ">
+      <div class=" px-2 relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
+        <div class="absolute inset-0 bg-white dark:from-blue-400/5 dark:to-indigo-400/5"></div>
+        <div class="relative py-6">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div class="mb-6 lg:mb-0">
               <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent mb-2">
@@ -54,7 +55,7 @@
                 <button 
                   @click="loadDashboardData" 
                   :disabled="isLoading"
-                  class="group relative flex items-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-0.5"
+                  class="group relative flex items-center px-6 py-3  focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-60 disabled:cursor-not-allowed  transform hover:-translate-y-0.5   group/refresh text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-all duration-200"
                 >
                   <RefreshCw class="w-4 h-4 mr-2 transition-transform duration-300" :class="{ 'animate-spin': isLoading, 'group-hover:rotate-180': !isLoading }" />
                   Actualiser
@@ -65,6 +66,7 @@
           </div>
         </div>
       </div>
+    </div>
 
       <div class="px-8">
         <!-- Premium Alerts -->
@@ -227,6 +229,11 @@
             </div>
           </div>
         </div>
+
+        <!-- Revenue Chart Section -->
+      <div class="mb-10">
+        <RevenueChart :dashboardData="dashboardData" :selectedRange="selectedRange" />
+      </div>
 
 
         <!-- Premium Chart Section -->
@@ -564,25 +571,25 @@
             </div>
             
             <!-- Loading State -->
-            <div v-if="isLoading" class="flex items-center justify-center py-16">
+            <!-- <div v-if="isLoading" class="flex items-center justify-center py-16">
               <div class="relative">
                 <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
                 <div class="absolute inset-0 rounded-full h-12 w-12 border-4 border-transparent border-r-blue-400 animate-ping"></div>
               </div>
-            </div>
+            </div> -->
             
             <!-- Activities List -->
-            <div v-else-if="dashboardData?.activityFeeds?.length > 0" class="space-y-4">
+            <div v-if="dashboardData?.activityFeeds?.length > 0" class="space-y-4">
               <div 
                 v-for="activity in dashboardData.activityFeeds" 
                 :key="activity.id"
-                class="group/activity relative overflow-hidden flex items-center p-6 bg-slate-50/80 dark:bg-slate-700/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-600/60 hover:bg-slate-100/80 dark:hover:bg-slate-600/80 cursor-pointer"
+                class="group/activity relative overflow-hidden flex items-center p-4 bg-white dark:bg-slate-700/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-600/60 hover:bg-slate-100/80 dark:hover:bg-slate-600/80 cursor-pointer"
               >
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent to-blue-500/5 opacity-0 group-hover/activity:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute inset-0 bg-white opacity-0 group-hover/activity:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative flex items-center flex-1">
                   <div class="flex-shrink-0 mr-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-                      <User class="w-6 h-6 text-white" />
+                    <div class="w-8 h-8 bg-white rounded-xl flex items-center justify-center">
+                      <User class="w-4 h-4 text-gray-500" />
                     </div>
                   </div>
                   <div class="flex-1">
@@ -644,6 +651,7 @@ import {
 } from 'lucide-vue-next'
 import { getFrontOfficeDashboard } from '@/services/dashboard'
 import { useServiceStore } from '@/composables/serviceStore'
+import RevenueChart from '@/components/frontOffice/RevenueChart.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -712,99 +720,7 @@ const occupancyRate = computed(() => {
   return dashboardData.value.roomStatus.occupancyRate || 0
 })
 
-// NEW: Revenue Chart Data
-const revenueChartData = computed(() => {
-  if (!dashboardData.value) return []
-  
-  const data = []
-  const today = new Date()
-  
-  // Generate data based on selected range
-  switch (selectedRange.value) {
-    case 'today':
-    case 'yesterday':
-      // Hourly data for single day
-      for (let hour = 0; hour < 24; hour += 4) {
-        const baseRevenue = Math.random() * 2000 + 500
-        const baseOccupancy = Math.random() * 40 + 30
-        
-        data.push({
-          label: `${hour.toString().padStart(2, '0')}:00`,
-          fullLabel: `${hour.toString().padStart(2, '0')}:00 - ${formatSelectedDate.value}`,
-          revenue: baseRevenue,
-          occupancy: Math.min(100, baseOccupancy),
-          revpar: baseRevenue * (baseOccupancy / 100)
-        })
-      }
-      break
-      
-    case 'thisWeek':
-    case 'lastWeek':
-      // Daily data for week
-      const weekStart = selectedRange.value === 'thisWeek' ? 
-        new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay()) :
-        new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() - 7)
-      
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(weekStart)
-        date.setDate(weekStart.getDate() + i)
-        const baseRevenue = Math.random() * 5000 + 1000
-        const baseOccupancy = Math.random() * 50 + 40
-        
-        data.push({
-          label: date.toLocaleDateString('fr-FR', { weekday: 'short' }),
-          fullLabel: date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }),
-          revenue: baseRevenue,
-          occupancy: Math.min(100, baseOccupancy),
-          revpar: baseRevenue * (baseOccupancy / 100)
-        })
-      }
-      break
-      
-    case 'thisMonth':
-    case 'lastMonth':
-      // Weekly data for month
-      const monthStart = selectedRange.value === 'thisMonth' ? 
-        new Date(today.getFullYear(), today.getMonth(), 1) :
-        new Date(today.getFullYear(), today.getMonth() - 1, 1)
-      
-      const weeksInMonth = Math.ceil((new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate() + monthStart.getDay()) / 7)
-      
-      for (let week = 0; week < weeksInMonth; week++) {
-        const weekStartDate = new Date(monthStart)
-        weekStartDate.setDate(monthStart.getDate() + (week * 7))
-        const baseRevenue = Math.random() * 15000 + 5000
-        const baseOccupancy = Math.random() * 30 + 50
-        
-        data.push({
-          label: `S${week + 1}`,
-          fullLabel: `Semaine ${week + 1} - ${weekStartDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}`,
-          revenue: baseRevenue,
-          occupancy: Math.min(100, baseOccupancy),
-          revpar: baseRevenue * (baseOccupancy / 100)
-        })
-      }
-      break
-      
-    default:
-      // Default single day view
-      data.push({
-        label: 'Aujourd\'hui',
-        fullLabel: formatSelectedDate.value,
-        revenue: dashboardData.value?.revenue?.total || 0,
-        occupancy: occupancyRate.value,
-        revpar: (dashboardData.value?.revenue?.total || 0) * (occupancyRate.value / 100)
-      })
-  }
-  
-  return data
-})
 
-const maxRevenueValue = computed(() => {
-  if (!revenueChartData.value.length) return 1000
-  const max = Math.max(...revenueChartData.value.map(d => d.revenue))
-  return Math.ceil(max * 1.2)
-})
 
 const formatSelectedDate = computed(() => {
   return new Date(currentDate.value).toLocaleDateString('fr-FR', {
@@ -867,7 +783,7 @@ const filteredSuites = computed(() => {
   }
   
   const query = suiteSearchQuery.value.toLowerCase().trim()
-  const filtered = {}
+  const filtered : any = {}
   
   Object.entries(suites).forEach(([suiteName, count]) => {
     if (suiteName.toLowerCase().includes(query)) {
@@ -889,7 +805,7 @@ const paginatedSuites = computed(() => {
   const endIndex = startIndex + itemsPerPage.value
   
   const paginatedEntries = entries.slice(startIndex, endIndex)
-  const result = {}
+  const result : any = {}
   
   paginatedEntries.forEach(([suiteName, count]) => {
     result[suiteName] = count
@@ -901,7 +817,7 @@ const paginatedSuites = computed(() => {
 const visiblePages = computed(() => {
   const total = totalSuitePages.value
   const current = currentSuitePage.value
-  const pages = []
+  const pages :any[] = []
   
   if (total <= 5) {
     for (let i = 1; i <= total; i++) {
@@ -959,33 +875,8 @@ const handleDateRangeChange = () => {
   loadDashboardData()
 }
 
-// const formatCurrency = (amount: number) => {
-//   return new Intl.NumberFormat('fr-FR', {
-//     style: 'currency',
-//     currency: 'EUR'
-//   }).format(amount)
-// }
 
-// Revenue Chart Methods
-const getRevenueBarHeight = (revenue: number) => {
-  if (maxRevenueValue.value === 0) return 4
-  const height = Math.max((revenue / maxRevenueValue.value) * 200, 4)
-  return height
-}
 
-const showRevenueTooltip = (index: number, data: any, event: MouseEvent) => {
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-  revenueTooltip.value = {
-    show: true,
-    x: rect.left + rect.width / 2,
-    y: rect.top - 10,
-    data: data
-  }
-}
-
-const hideRevenueTooltip = () => {
-  revenueTooltip.value.show = false
-}
 
 // Enhanced styling methods
 const getSuiteTypeClass = (suiteName: any) => {
@@ -998,25 +889,25 @@ const getSuiteTypeClass = (suiteName: any) => {
   return 'bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-slate-200/60 dark:border-slate-700/60'
 }
 
-const getSuiteIcon = (suiteName: string) => {
+const getSuiteIcon = (suiteName: any) => {
   if (suiteName.toLowerCase().includes('home')) return Home
   if (suiteName.toLowerCase().includes('lifestyle')) return Star
   return Home
 }
 
-const getSuiteIconColor = (suiteName: string) => {
+const getSuiteIconColor = (suiteName: any) => {
   if (suiteName.toLowerCase().includes('home')) return 'text-blue-600 dark:text-blue-400'
   if (suiteName.toLowerCase().includes('lifestyle')) return 'text-purple-600 dark:text-purple-400'
   return 'text-slate-600 dark:text-slate-400'
 }
 
-const getSuiteIconBg = (suiteName: string) => {
+const getSuiteIconBg = (suiteName: any) => {
   if (suiteName.toLowerCase().includes('home')) return 'bg-blue-100 dark:bg-blue-900/40'
   if (suiteName.toLowerCase().includes('lifestyle')) return 'bg-purple-100 dark:bg-purple-900/40'
   return 'bg-slate-100 dark:bg-slate-900/40'
 }
 
-const getSuiteTextColor = (suiteName: string) => {
+const getSuiteTextColor = (suiteName: any) => {
   if (suiteName.toLowerCase().includes('home')) return 'text-blue-600 dark:text-blue-400'
   if (suiteName.toLowerCase().includes('lifestyle')) return 'text-purple-600 dark:text-purple-400'
   return 'text-slate-600 dark:text-slate-400'
@@ -1062,7 +953,7 @@ const getNotificationBadgeClass = (count: number) => {
 }
 
 const getActivityTypeClass = (type: string) => {
-  const classes = {
+  const classes : any = {
     'arrival': 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700',
     'departure': 'bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/40 dark:to-red-900/40 text-orange-800 dark:text-orange-200 border border-orange-200 dark:border-orange-700',
     'booking': 'bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/40 dark:to-cyan-900/40 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700',
