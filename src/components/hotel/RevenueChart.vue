@@ -293,7 +293,7 @@ const initChart = async () => {
           let result = `<div style="margin-bottom: 8px; font-weight: bold;">${params[0].axisValueLabel}</div>`
           params.forEach((param:any) => {
             const value = param.data
-            if (param.seriesName === "Taux d'occupation 2025") {
+            if (param.seriesName === "Earning_2025") {
               result += `<div style="margin: 4px 0;">
                 <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px;"></span>
                 ${param.seriesName}: ${value !== null && value !== undefined ? value.toFixed(2) : 'N/A'}%

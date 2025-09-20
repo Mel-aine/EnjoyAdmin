@@ -34,6 +34,8 @@ export interface TransactionData {
   departmentId?: number
   reference?: string
   notes?: string
+  discountId?: number,
+
 }
 
 export interface SettlementData {
@@ -879,8 +881,8 @@ export const printHotelPdf = async (data: {
 }
 
 export const getUnsetteledFolio = async (hotelId: number): Promise<any> => {
-  
-  try { 
+
+  try {
     const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, getHeaders())
     return response.data
   } catch (error) {
@@ -931,7 +933,7 @@ export const findFolio = async (params: {
  * @param data 
  * @returns 
  */
-export const splitFolioHandler = async (data:any): Promise<any> => {
+export const splitFolioHandler = async (data: any): Promise<any> => {
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/split`, data, getHeaders())
     return response.data
@@ -946,7 +948,7 @@ export const splitFolioHandler = async (data:any): Promise<any> => {
  * @param data 
  * @returns 
  */
-export const cutFolioHandler = async (data:any): Promise<any> => {
+export const cutFolioHandler = async (data: any): Promise<any> => {
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/cut`, data, getHeaders())
     return response.data
@@ -961,7 +963,7 @@ export const cutFolioHandler = async (data:any): Promise<any> => {
  * @param data 
  * @returns   room charge
  */
-export const addRoomChargeHandler = async (data:any): Promise<any> => {
+export const addRoomChargeHandler = async (data: any): Promise<any> => {
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/add`, data, getHeaders())
     return response.data
@@ -976,7 +978,7 @@ export const addRoomChargeHandler = async (data:any): Promise<any> => {
  * @param data 
  * @returns   adjustment
  */
-export const addAdjustmentHandler = async (data:any): Promise<any> => {
+export const addAdjustmentHandler = async (data: any): Promise<any> => {
   try {
     const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/add`, data, getHeaders())
     return response.data
