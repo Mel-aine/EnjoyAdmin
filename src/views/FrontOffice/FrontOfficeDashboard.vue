@@ -3,7 +3,7 @@
     <div class="min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <!-- Enhanced Header -->
        <div class=" px-8 ">
-      <div class=" px-2 relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
+      <div class=" px-2 relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
         <div class="absolute inset-0 bg-white dark:from-blue-400/5 dark:to-indigo-400/5"></div>
         <div class="relative py-6">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
@@ -14,18 +14,18 @@
             </div>
             
             <!-- Enhanced Controls -->
-            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center ">
               <!-- Premium Date Filter -->
               <div class=" space-y-2">
-                <Select :lb="$t('Période d analyse')" :options = " Periodes" v-model="selectedRange"   @change="handleDateRangeChange"/>
-                <!-- <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <!-- <Select :lb="$t('Période d analyse')" :options = " Periodes" v-model="selectedRange"   @change="handleDateRangeChange"/> -->
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Période d'analyse
                 </label>
                 <div class="relative">
                   <select 
                     v-model="selectedRange"
                     @change="handleDateRangeChange"
-                    class="appearance-none bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-300/60 dark:border-slate-600/60 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 transition-all duration-200"
+                    class="appearance-none bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-300/60 dark:border-slate-600/60 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 transition-all duration-200"
                   >
                     <option value="today">Aujourd'hui</option>
                     <option value="yesterday">Hier</option>
@@ -37,7 +37,7 @@
                   </select>
                   <ChevronDown class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
-                 -->
+                
                 <!-- Custom Date Input -->
                 <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="customDate"  v-if="selectedRange === 'custom'" @change="loadDashboardData"/>
                 <!-- <input 
@@ -69,6 +69,7 @@
         </div>
       </div>
     </div>
+    
 
       <div class="px-8">
         <!-- Premium Alerts -->
