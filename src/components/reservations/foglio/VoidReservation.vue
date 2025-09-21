@@ -136,13 +136,20 @@ const handleSubmit = async () => {
         const resp = await voidReservation(voidData);
         console.log('response')
         // Emit the cancel confirmation event
-        emit('cancel-confirmed', voidData)
+        // Au lieu de juste émettre, passer les données
+            emit('cancel-confirmed', {
+            ...voidData,
+            updatedStatus: 'voided',
+            updatedActions: []
+            })
+        // emit('cancel-confirmed', voidData)
 
         // Show success message
         toast.success(t('reservation_void_successfully'))
 
         // Close modal
         closeModal()
+      
     } catch (error) {
         console.error('Error cancelling reservation:', error)
         toast.error(t('error_voiding_reservation'))
