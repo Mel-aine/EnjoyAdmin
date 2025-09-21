@@ -16,8 +16,9 @@
             <!-- Enhanced Controls -->
             <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <!-- Premium Date Filter -->
-              <div class="relative">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <div class=" space-y-2">
+                <Select :lb="$t('Période d analyse')" :options = " Periodes" v-model="selectedRange"   @change="handleDateRangeChange"/>
+                <!-- <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Période d'analyse
                 </label>
                 <div class="relative">
@@ -36,15 +37,16 @@
                   </select>
                   <ChevronDown class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
-                
+                 -->
                 <!-- Custom Date Input -->
-                <input 
+                <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="customDate"  v-if="selectedRange === 'custom'" @change="loadDashboardData"/>
+                <!-- <input 
                   v-if="selectedRange === 'custom'"
                   type="date" 
                   v-model="customDate"
                   @change="loadDashboardData"
                   class="mt-2 w-full px-4 py-3 border border-slate-300/60 dark:border-slate-600/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-slate-800/90 dark:text-slate-100 backdrop-blur-sm transition-all duration-200"
-                />
+                /> -->
               </div>
 
               <!-- Premium Refresh Button -->
@@ -71,7 +73,7 @@
       <div class="px-8">
         <!-- Premium Alerts -->
         <div v-if="dashboardData?.alerts?.length > 0" class="mb-8">
-          <div class="relative overflow-hidden bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/60 dark:border-red-800/60 rounded-2xl p-6 shadow-xl shadow-red-500/10">
+          <div class="relative overflow-hidden bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/60 dark:border-red-800/60 rounded-2xl p-4 shadow-xl shadow-red-500/10">
             <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400/10 to-orange-400/10 rounded-full -mr-16 -mt-16"></div>
             <div class="relative">
               <h3 class="text-xl font-bold text-red-800 dark:text-red-200 mb-4 flex items-center">
@@ -296,7 +298,7 @@
                   <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg mr-3">
                     <Star class="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
-                  Occupation des Suites
+                  Occupation des Types de Chambres
                   <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
                     ({{ Object.keys(dashboardData?.suites || {}).length }} types)
                   </span>
@@ -642,7 +644,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted,nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { 
@@ -652,6 +654,9 @@ import {
 import { getFrontOfficeDashboard } from '@/services/dashboard'
 import { useServiceStore } from '@/composables/serviceStore'
 import RevenueChart from '@/components/frontOffice/RevenueChart.vue'
+import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
+import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -670,48 +675,70 @@ const suiteSearchQuery = ref('')
 const currentSuitePage = ref(1)
 const itemsPerPage = ref(12)
 
-// Tooltip state
-const tooltip = ref({
-  show: false,
-  x: 0,
-  y: 0,
-  data: null as any
-})
 
-// Revenue tooltip state
-const revenueTooltip = ref({
-  show: false,
-  x: 0,
-  y: 0,
-  data: null as any
-})
 
 // Computed properties
-const currentDate = computed(() => {
-  if (selectedRange.value === 'custom') {
-    return customDate.value
-  }
-  
+
+const Periodes = computed(()=>[
+  {value:'today' , label:t('today')},
+  {value:'yesterday' , label:t('yesterday')},
+  {value:'thisWeek' , label:t('thisWeek')},
+  {value:'lastWeek' , label:t('lastWeek')},
+  {value:'thisMonth' , label:t('thisMonth')},
+  {value:'lastMonth' , label:t('lastMonth')},
+  {value:'custom' , label:t('customDate')},
+
+])
+const getStartOfWeek = (date: Date) => {
+  const d = new Date(date)
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1) // adjust when day is sunday
+  return new Date(d.setDate(diff))
+}
+
+const dateRange = computed(() => {
   const today = new Date()
+  let startDate = new Date()
+  let endDate = new Date()
+
   switch (selectedRange.value) {
     case 'today':
-      return today.toISOString().split('T')[0]
+      startDate = today
+      endDate = today
+      break
     case 'yesterday':
-      const yesterday = new Date(today)
-      yesterday.setDate(today.getDate() - 1)
-      return yesterday.toISOString().split('T')[0]
+      startDate.setDate(today.getDate() - 1)
+      endDate.setDate(today.getDate() - 1)
+      break
     case 'thisWeek':
-      return today.toISOString().split('T')[0]
+      startDate = getStartOfWeek(today)
+      endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 6)
+      break
     case 'lastWeek':
-      const lastWeek = new Date(today)
-      lastWeek.setDate(today.getDate() - 7)
-      return lastWeek.toISOString().split('T')[0]
+      const lastWeekStartDate = new Date()
+      lastWeekStartDate.setDate(today.getDate() - 7)
+      startDate = getStartOfWeek(lastWeekStartDate)
+      endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 6)
+      break
     case 'thisMonth':
-      return new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
+      startDate = new Date(today.getFullYear(), today.getMonth(), 1)
+      endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      break
     case 'lastMonth':
-      return new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0]
-    default:
-      return today.toISOString().split('T')[0]
+      startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+      endDate = new Date(today.getFullYear(), today.getMonth(), 0)
+      break
+    case 'custom':
+      startDate = new Date(customDate.value)
+      endDate = new Date(customDate.value)
+      break
+  }
+
+  return {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0],
   }
 })
 
@@ -720,10 +747,8 @@ const occupancyRate = computed(() => {
   return dashboardData.value.roomStatus.occupancyRate || 0
 })
 
-
-
 const formatSelectedDate = computed(() => {
-  return new Date(currentDate.value).toLocaleDateString('fr-FR', {
+  return new Date(dateRange.value.startDate).toLocaleDateString('fr-FR', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -837,6 +862,40 @@ const visiblePages = computed(() => {
 })
 
 // Methods
+// const loadDashboardData = async () => {
+//   try {
+//     isLoading.value = true
+//     const hotelId = serviceStore.serviceId
+//     if (!hotelId) {
+//       console.warn("Aucun hotelId trouvé")
+//       return
+//     }
+
+//     const params = {
+//       startDate: dateRange.value.startDate,
+//       endDate: dateRange.value.endDate,
+//     }
+
+//     console.log('Loading dashboard with params:', params)
+//     const response = await getFrontOfficeDashboard(hotelId, params)
+//     console.log('Dashboard response:', response)
+    
+//     if (response.success) {
+//       dashboardData.value = response.data
+//     } else {
+//       console.error('Erreur:', response.message)
+//       dashboardData.value = null
+//     }
+//     lastUpdate.value = new Date()
+//   } catch (error) {
+//     console.error("Erreur lors du chargement du dashboard:", error)
+//     dashboardData.value = null
+//   } finally {
+//     isLoading.value = false
+//   }
+// }
+// Dans votre composant Vue.js, corrigez la méthode loadDashboardData
+
 const loadDashboardData = async () => {
   try {
     isLoading.value = true
@@ -846,12 +905,18 @@ const loadDashboardData = async () => {
       return
     }
 
+    // CORRECTION: Utiliser dateRange computed property qui calcule les bonnes dates
     const params = {
-      date: currentDate.value,
-      range: selectedRange.value
+      range: selectedRange.value,  // Ajouter le range
+      date: selectedRange.value === 'custom' ? customDate.value : undefined,
+      startDate: dateRange.value.startDate,  // Utiliser les dates calculées
+      endDate: dateRange.value.endDate
     }
 
     console.log('Loading dashboard with params:', params)
+    console.log('Selected range:', selectedRange.value)
+    console.log('Date range computed:', dateRange.value)
+    
     const response = await getFrontOfficeDashboard(hotelId, params)
     console.log('Dashboard response:', response)
     
@@ -870,10 +935,20 @@ const loadDashboardData = async () => {
   }
 }
 
+// Aussi, assurez-vous que handleDateRangeChange déclenche bien le rechargement
 const handleDateRangeChange = () => {
   console.log('Date range changed to:', selectedRange.value)
-  loadDashboardData()
+  console.log('New date range will be:', dateRange.value)
+  // Forcer le recalcul des dates
+  nextTick(() => {
+    loadDashboardData()
+  })
 }
+
+// const handleDateRangeChange = () => {
+//   console.log('Date range changed to:', selectedRange.value)
+//   loadDashboardData()
+// }
 
 
 
@@ -1021,14 +1096,6 @@ watch(filteredSuites, (newSuites) => {
 onUnmounted(() => {
   stopAutoRefresh()
 })
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR'
-  }).format(amount)
-}
-
 
 
 

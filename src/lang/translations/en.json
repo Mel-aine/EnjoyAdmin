@@ -5162,7 +5162,25 @@
       "guestMessage": "Guest Message",
       "carvertyFailed": "Carverty Failed",
       "tasks": "Tasks",
-      "review": "Review"
+      "review": "Review",
+      "unpaidFolios" : "Unpaid Folios",
+      "guestMessages" : "Guest Messages",
+      "bookingInquiries" : "Booking Inquiries",
+      "workOrders" : "Work Orders" ,
+      "reviews" : "Reviews",
+        "activityTypes" : {
+          "system" : "System",
+          "arrival" : "Arrival" ,
+          "departure" : "Departure" ,
+          "booking" : "Booking",
+          "modification" : "Modification",
+          "cancellation" : "Cancellation",
+          "payment" : "Payment" ,
+          "maintenance" : "Maintenance",
+          "housekeeping" : "Housekeeping",
+          "communication" : "Communication"
+        
+      }
     }
   },
   "segment": "Segment",
