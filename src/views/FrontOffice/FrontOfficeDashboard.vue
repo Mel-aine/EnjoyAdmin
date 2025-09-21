@@ -532,7 +532,7 @@
                 <div 
                   v-for="notification in notificationItems" 
                   :key="notification.key"
-                  class="group/notif relative overflow-hidden flex items-center justify-between p-4 rounded-xl cursor-pointer"
+                  class="group/notif relative overflow-hidden flex items-center justify-between p-2 rounded-xl cursor-pointer"
                   :class="getNotificationClass(notification.count)"
                 >
                   <div class="absolute inset-0 bg-gradient-to-r from-transparent to-white/5 opacity-0 group-hover/notif:opacity-100 transition-opacity"></div>
@@ -586,7 +586,7 @@
               <div 
                 v-for="activity in dashboardData.activityFeeds" 
                 :key="activity.id"
-                class="group/activity relative overflow-hidden flex items-center p-4 bg-white dark:bg-slate-700/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-600/60 hover:bg-slate-100/80 dark:hover:bg-slate-600/80 cursor-pointer"
+                class="group/activity relative overflow-hidden flex items-center p-3 bg-white dark:bg-slate-700/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-600/60 hover:bg-slate-100/80 dark:hover:bg-slate-600/80 cursor-pointer"
               >
                 <div class="absolute inset-0 bg-white opacity-0 group-hover/activity:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative flex items-center flex-1">
