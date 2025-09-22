@@ -206,7 +206,7 @@
                                                 {{ $t('arrivalDate') }}
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">{{
-                                                formatDate(reservation.arrivedDate) }}</p>
+                                                formatDate(reservation.arrivedDate) }} {{localReservation.checkInTime  }}</p>
                                         </div>
 
                                         <div>
@@ -215,7 +215,7 @@
                                                 {{ $t('departureDate') }}
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white">{{
-                                                formatDate(localReservation.departDate) }}</p>
+                                                formatDate(localReservation.departDate) }} {{localReservation.checkOutTime  }}</p>
                                         </div>
 
                                         <div>
@@ -887,8 +887,7 @@ const formatDate = (dateString?: string) => {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+
         })
     } catch {
         return dateString
