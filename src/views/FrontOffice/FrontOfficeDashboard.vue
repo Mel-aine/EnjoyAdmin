@@ -278,10 +278,7 @@
           </div>
           <div class="flex items-center justify-center mb-4">
             <div class="relative w-24 h-24">
-              <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div> -->
+
               <!-- Circular Progress for Guest In House -->
               <svg  class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                 <circle
@@ -296,21 +293,32 @@
                   cx="50"
                   cy="50"
                   r="40"
-                  stroke="#3b82f6"
                   stroke-width="8"
                   fill="none"
+                  :stroke="getOccupancyColor(dashboardData?.roomStatus?.occupancyRate)"
                   :stroke-dasharray="`${(dashboardData?.guestInHouse?.adult / dashboardData?.guestInHouse?.total) * 251.2} 251.2`"
                   stroke-linecap="round"
                 />
               </svg>
               <div  class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.roomStatus?.occupancyRate || 0 }}
+                  {{ dashboardData?.roomStatus?.occupancyRate || 0 }}%
+                </span>
+
+              </div>
+            </div>
+
+          </div>
+           <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                   {{ dashboardData?.roomStatus?.sold || 0 }}/{{ dashboardData?.roomStatus?.total || 0 }} chambres occupées
                 </span>
               </div>
             </div>
-          </div>
-
+            </div>
         </div>
 
         <!-- Room Status Card -->
@@ -718,38 +726,7 @@
           </div>
         </div>
 
-        <!-- <div class="group relative bg-white dark:bg-gray-800 p-6">
 
-            <div class="relative">
-              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
-                <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
-                  <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
-                </div>
-                  {{ $t('frontOffice.dashboard.notifications') }}
-              </h3>
-              <div class="space-y-8 mt-4">
-                <div
-                  v-for="notification in notificationItems"
-                  :key="notification.key"
-                  class="group/notif relative overflow-hidden flex items-center justify-between p-2 rounded-xl cursor-pointer"
-                  :class="getNotificationClass(notification.count)"
-                >
-
-                  <div class="relative flex items-center">
-                    <div class="p-2 rounded-lg mr-3" :class="getNotificationIconBg(notification.count)">
-                      <component :is="notification.icon" class="w-4 h-4" :class="getNotificationIconClass(notification.count)" />
-                    </div>
-                    <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $t(notification.label) }}</span>
-                  </div>
-                  <div class="relative flex items-center">
-                    <span class="px-3 py-1.5 text-xs font-black rounded-lg" :class="getNotificationBadgeClass(notification.count)">
-                      {{ notification.count }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div> -->
         <!-- Activity Feeds -->
         <div class="bg-white dark:bg-gray-800 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -834,10 +811,8 @@ import {
 } from 'lucide-vue-next'
 import { getFrontOfficeDashboard } from '@/services/dashboard'
 import { useServiceStore } from '@/composables/serviceStore'
-import RevenueChart from '@/components/frontOffice/RevenueChart.vue'
 import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
-import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
+
 
 
 const { t } = useI18n()
@@ -856,7 +831,7 @@ const suiteViewMode = ref<'grid' | 'list'>('grid')
 const suiteSearchQuery = ref('')
 const currentSuitePage = ref(1)
 const itemsPerPage = ref(12)
-const UnsettledFolios = ref([])
+const UnsettledFolios = ref<any[]>([])
 
 
 
@@ -932,44 +907,7 @@ const occupancyRate = computed(() => {
   return dashboardData.value.roomStatus.occupancyRate || 0
 })
 
-const formatSelectedDate = computed(() => {
-  return new Date(dateRange.value.startDate).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-})
 
-const roomStatusData = computed(() => {
-  const status = dashboardData.value?.roomStatus || {}
-  return {
-    vacant: {
-      count: status.vacant || 0,
-      label: 'frontOffice.dashboard.vacant',
-      colorClass: 'bg-green-500',
-      bgClass: 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200/60 dark:border-green-700/60'
-    },
-    sold: {
-      count: status.sold || 0,
-      label: 'frontOffice.dashboard.sold',
-      colorClass: 'bg-red-500',
-      bgClass: 'bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-red-200/60 dark:border-red-700/60'
-    },
-    dayUse: {
-      count: status.dayUse || 0,
-      label: 'frontOffice.dashboard.dayUse',
-      colorClass: 'bg-blue-500',
-      bgClass: 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200/60 dark:border-blue-700/60'
-    },
-    complimentary: {
-      count: status.complimentary || 0,
-      label: 'frontOffice.dashboard.complimentary',
-      colorClass: 'bg-purple-500',
-      bgClass: 'bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200/60 dark:border-purple-700/60'
-    }
-  }
-})
 
 const notificationItems = computed(() => {
   const notifications = dashboardData.value?.notifications || {}
@@ -1046,40 +984,6 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// Methods
-// const loadDashboardData = async () => {
-//   try {
-//     isLoading.value = true
-//     const hotelId = serviceStore.serviceId
-//     if (!hotelId) {
-//       console.warn("Aucun hotelId trouvé")
-//       return
-//     }
-
-//     const params = {
-//       startDate: dateRange.value.startDate,
-//       endDate: dateRange.value.endDate,
-//     }
-
-//     console.log('Loading dashboard with params:', params)
-//     const response = await getFrontOfficeDashboard(hotelId, params)
-//     console.log('Dashboard response:', response)
-
-//     if (response.success) {
-//       dashboardData.value = response.data
-//     } else {
-//       console.error('Erreur:', response.message)
-//       dashboardData.value = null
-//     }
-//     lastUpdate.value = new Date()
-//   } catch (error) {
-//     console.error("Erreur lors du chargement du dashboard:", error)
-//     dashboardData.value = null
-//   } finally {
-//     isLoading.value = false
-//   }
-// }
-// Dans votre composant Vue.js, corrigez la méthode loadDashboardData
 
 const loadDashboardData = async () => {
   try {
@@ -1090,11 +994,10 @@ const loadDashboardData = async () => {
       return
     }
 
-    // CORRECTION: Utiliser dateRange computed property qui calcule les bonnes dates
     const params = {
-      range: selectedRange.value,  // Ajouter le range
+      range: selectedRange.value,
       date: selectedRange.value === 'custom' ? customDate.value : undefined,
-      startDate: dateRange.value.startDate,  // Utiliser les dates calculées
+      startDate: dateRange.value.startDate,
       endDate: dateRange.value.endDate
     }
 
@@ -1122,20 +1025,6 @@ const loadDashboardData = async () => {
   }
 }
 
-// Aussi, assurez-vous que handleDateRangeChange déclenche bien le rechargement
-const handleDateRangeChange = () => {
-  console.log('Date range changed to:', selectedRange.value)
-  console.log('New date range will be:', dateRange.value)
-  // Forcer le recalcul des dates
-  nextTick(() => {
-    loadDashboardData()
-  })
-}
-
-// const handleDateRangeChange = () => {
-//   console.log('Date range changed to:', selectedRange.value)
-//   loadDashboardData()
-// }
 
 
 
@@ -1175,44 +1064,13 @@ const getSuiteTextColor = (suiteName: any) => {
   return 'text-slate-600 dark:text-slate-400'
 }
 
-const getOccupancyColor = (rate: number, isBg = false) => {
-  if (rate >= 90) return isBg ? 'bg-gradient-to-r from-red-500 to-red-600' : 'text-red-600 dark:text-red-400'
-  if (rate >= 70) return isBg ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'text-yellow-600 dark:text-yellow-400'
-  return isBg ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'text-green-600 dark:text-green-400'
+const getOccupancyColor = (rate: number) => {
+  if (rate >= 90) return '#dc2626'
+  if (rate >= 70) return '#f59e0b'
+  return '#16a34a'
 }
 
-const getAlertClass = (type: string) => {
-  switch (type) {
-    case 'critical': return 'bg-gradient-to-r from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700'
-    case 'warning': return 'bg-gradient-to-r from-yellow-100 to-orange-50 dark:from-yellow-900/30 dark:to-orange-800/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700'
-    case 'info': return 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700'
-    default: return 'bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-900/30 dark:to-slate-800/20 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-  }
-}
 
-const getNotificationClass = (count: number) => {
-  return count > 0
-    ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/60 dark:border-red-700/60'
-    : 'bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 border border-slate-200/60 dark:border-slate-600/60'
-}
-
-const getNotificationIconClass = (count: number) => {
-  return count > 0
-    ? 'text-red-600 dark:text-red-400'
-    : 'text-slate-600 dark:text-slate-400'
-}
-
-const getNotificationIconBg = (count: number) => {
-  return count > 0
-    ? 'bg-red-100 dark:bg-red-900/40'
-    : 'bg-slate-100 dark:bg-slate-700'
-}
-
-const getNotificationBadgeClass = (count: number) => {
-  return count > 0
-    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25'
-    : 'bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 text-slate-600 dark:text-slate-300'
-}
 
 const getActivityTypeClass = (type: string) => {
   const classes : any = {
