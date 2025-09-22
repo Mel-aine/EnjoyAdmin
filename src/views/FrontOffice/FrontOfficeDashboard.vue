@@ -408,7 +408,7 @@
        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- folio unpaid Panel -->
           <!-- Unpaid Folios Panel - Nouveau -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <div class="bg-white dark:bg-gray-800 p-6 ">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
               <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
@@ -416,32 +416,27 @@
               </div>
               {{ $t('frontOffice.dashboard.folioUnpaid.list') }}
               <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
-                ({{ dashboardData?.unpaidFolios?.length || 0 }})
+                ({{ UnsettledFolios.length || 0 }})
               </span>
             </h3>
           </div>
 
-          <div v-if="dashboardData?.unpaidFolios?.length > 0" class="space-y-3 max-h-80">
+          <div v-if="UnsettledFolios.length > 0" class="space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
             <div
-              v-for="folio in dashboardData.unpaidFolios"
+              v-for="folio in UnsettledFolios"
               :key="folio.id"
-              class="flex items-center justify-between p-3 bg-red-50/50 dark:bg-red-900/10 border border-red-200/60 dark:border-red-700/60 rounded-lg"
+              class="flex items-center justify-between p-2 bg-gray-50 dark:bg-red-900/10 rounded-lg"
             >
               <div class="flex-1">
                 <div class="flex items-center justify-between">
                   <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                    Folio #{{ folio.folioNumber }}
+                    Folio #{{ folio.folioNumber }} : {{ folio.guestName }}
                   </p>
                   <span class="text-lg font-bold text-red-600 dark:text-red-400">
                     {{ formatCurrency(folio.balance) }}
                   </span>
                 </div>
-                <p class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ folio.guestName }} - Chambre {{ folio.roomNumber }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-500">
-                  Créé: {{ folio.createdDate }}
-                </p>
+
               </div>
             </div>
           </div>
@@ -641,7 +636,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Notifications Panel -->
-        <div class="bg-white dark:bg-gray-800 p-6">
+        <!-- <div class="bg-white dark:bg-gray-800 p-6">
            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
                 <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
                   <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -663,8 +658,40 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
+        <div class="group relative bg-white dark:bg-gray-800 p-6">
+
+            <div class="relative">
+              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
+                <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
+                  <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+                  {{ $t('frontOffice.dashboard.notifications') }}
+              </h3>
+              <div class="space-y-8 mt-4">
+                <div
+                  v-for="notification in notificationItems"
+                  :key="notification.key"
+                  class="group/notif relative overflow-hidden flex items-center justify-between p-2 rounded-xl cursor-pointer"
+                  :class="getNotificationClass(notification.count)"
+                >
+                  <!-- <div class="absolute inset-0 bg-gradient-to-r from-transparent to-white/5 opacity-0 group-hover/notif:opacity-100 transition-opacity"></div> -->
+                  <div class="relative flex items-center">
+                    <div class="p-2 rounded-lg mr-3" :class="getNotificationIconBg(notification.count)">
+                      <component :is="notification.icon" class="w-4 h-4" :class="getNotificationIconClass(notification.count)" />
+                    </div>
+                    <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $t(notification.label) }}</span>
+                  </div>
+                  <div class="relative flex items-center">
+                    <span class="px-3 py-1.5 text-xs font-black rounded-lg" :class="getNotificationBadgeClass(notification.count)">
+                      {{ notification.count }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         <!-- Activity Feeds -->
         <div class="bg-white dark:bg-gray-800 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -754,6 +781,7 @@ import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 
+
 const { t } = useI18n()
 const serviceStore = useServiceStore()
 
@@ -770,6 +798,7 @@ const suiteViewMode = ref<'grid' | 'list'>('grid')
 const suiteSearchQuery = ref('')
 const currentSuitePage = ref(1)
 const itemsPerPage = ref(12)
+const UnsettledFolios = ref([])
 
 
 
@@ -1020,6 +1049,8 @@ const loadDashboardData = async () => {
 
     if (response.success) {
       dashboardData.value = response.data
+      UnsettledFolios.value = dashboardData.value.unpaidFoliosData?.unpaidFolios?.foliosList || []
+      console.log('UnsettledFolios:', UnsettledFolios.value)
     } else {
       console.error('Erreur:', response.message)
       dashboardData.value = null
@@ -1265,4 +1296,18 @@ onUnmounted(() => {
 .shadow-red-500\/10 {
   box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.1), 0 4px 6px -2px rgba(239, 68, 68, 0.05);
 }
+
+
+/* Scrollbar invisible pour tous les navigateurs */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Safari et Chrome */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 </style>
