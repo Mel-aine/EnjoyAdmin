@@ -1,8 +1,8 @@
 <template>
   <AdminLayout>
-    <div class="min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <!-- Enhanced Header -->
-       <div class=" px-8 ">
+
+      <!-- Header -->
+     <div class=" ">
       <div class=" px-2 relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
         <div class="absolute inset-0 bg-white dark:from-blue-400/5 dark:to-indigo-400/5"></div>
         <div class="relative py-6">
@@ -12,7 +12,7 @@
                 {{ $t('frontOffice.dashboard.title') }}
               </h1>
             </div>
-            
+
             <!-- Enhanced Controls -->
             <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center ">
               <!-- Premium Date Filter -->
@@ -22,7 +22,7 @@
                   Période d'analyse
                 </label>
                 <div class="relative">
-                  <select 
+                  <select
                     v-model="selectedRange"
                     @change="handleDateRangeChange"
                     class="appearance-none bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-300/60 dark:border-slate-600/60 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 transition-all duration-200"
@@ -37,12 +37,12 @@
                   </select>
                   <ChevronDown class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
-                
+
                 <!-- Custom Date Input -->
                 <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="customDate"  v-if="selectedRange === 'custom'" @change="loadDashboardData"/>
-                <!-- <input 
+                <!-- <input
                   v-if="selectedRange === 'custom'"
-                  type="date" 
+                  type="date"
                   v-model="customDate"
                   @change="loadDashboardData"
                   class="mt-2 w-full px-4 py-3 border border-slate-300/60 dark:border-slate-600/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-slate-800/90 dark:text-slate-100 backdrop-blur-sm transition-all duration-200"
@@ -54,8 +54,8 @@
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 opacity-0">
                   Action
                 </label>
-                <button 
-                  @click="loadDashboardData" 
+                <button
+                  @click="loadDashboardData"
                   :disabled="isLoading"
                   class="group relative flex items-center px-6 py-3  focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-60 disabled:cursor-not-allowed  transform hover:-translate-y-0.5   group/refresh text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-all duration-200"
                 >
@@ -69,229 +69,401 @@
         </div>
       </div>
     </div>
-    
 
-      <div class="px-8">
-        <!-- Premium Alerts -->
-        <div v-if="dashboardData?.alerts?.length > 0" class="mb-8">
-          <div class="relative overflow-hidden bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/60 dark:border-red-800/60 rounded-2xl p-4 shadow-xl shadow-red-500/10">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400/10 to-orange-400/10 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative">
-              <h3 class="text-xl font-bold text-red-800 dark:text-red-200 mb-4 flex items-center">
-                <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
-                  <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
+      <!-- Main Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
+        <!-- Arrival Card -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ $t('frontOffice.dashboard.arrival') }}
+            </h3>
+          </div>
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <!-- Loading Spinner -->
+              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div> -->
+              <!-- Circular Progress for Arrival -->
+              <svg  class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#e5e7eb"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#3b82f6"
+                  stroke-width="8"
+                  fill="none"
+                  :stroke-dasharray="`${(dashboardData?.arrival?.pending / dashboardData?.arrival?.total) * 251.2} 251.2`"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ dashboardData?.arrival?.total || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.pending') }} ({{ dashboardData?.arrival?.pending || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.arrived') }} ({{ dashboardData?.arrival?.arrived || 0 }})
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checked Out Card -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ $t('frontOffice.dashboard.checkedOut') }}
+            </h3>
+          </div>
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <!-- Loading Spinner -->
+              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+              </div> -->
+              <!-- Circular Progress for Checked Out -->
+              <svg  class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#e5e7eb"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#f59e0b"
+                  stroke-width="8"
+                  fill="none"
+                  :stroke-dasharray="`${(dashboardData?.departure?.pending / dashboardData?.departure?.total) * 251.2} 251.2`"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                   {{ dashboardData?.departure?.total || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-amber-500 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.pending') }} ({{ dashboardData?.departure?.pending || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.checkedOut') }} ({{ dashboardData?.departure?.checkedOut || 0 }})
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest In House Card -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ $t('frontOffice.dashboard.guestInHouse') }}
+            </h3>
+          </div>
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <!-- Loading Spinner -->
+              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div> -->
+              <!-- Circular Progress for Guest In House -->
+              <svg  class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#e5e7eb"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#3b82f6"
+                  stroke-width="8"
+                  fill="none"
+                  :stroke-dasharray="`${(dashboardData?.guestInHouse?.adult / dashboardData?.guestInHouse?.total) * 251.2} 251.2`"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ dashboardData?.guestInHouse?.total || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.adult') }} ({{ dashboardData?.guestInHouse?.adult || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.child') }} ({{ dashboardData?.guestInHouse?.child || 0 }})
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room Status Card -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ $t('frontOffice.dashboard.roomStatus') }}
+            </h3>
+          </div>
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <!-- Loading Spinner -->
+              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+              </div> -->
+              <!-- Circular Progress for Room Status -->
+              <svg  class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#e5e7eb"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#ef4444"
+                  stroke-width="8"
+                  fill="none"
+                  :stroke-dasharray="`${(dashboardData?.roomStatus?.vacant / dashboardData?.roomStatus?.total) * 251.2} 251.2`"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ dashboardData?.roomStatus?.total }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.vacant') }} ({{ dashboardData?.roomStatus?.vacant || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.sold') }} ({{ dashboardData?.roomStatus?.sold || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.dayUse') }} ({{ dashboardData?.roomStatus?.dayUse || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.complimentary') }} ({{ dashboardData?.roomStatus?.complimentary || 0 }})
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-gray-500 rounded-full mr-2"></div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('frontOffice.dashboard.blocked') }} ({{ dashboardData?.roomStatus?.blocked || 0 }})
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Housekeeping Status Card -->
+
+                <div class="lg:col-span-2">
+          <div class="bg-white dark:bg-gray-800 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              {{ $t('frontOffice.dashboard.housekeepingStatus') }}
+            </h3>
+            <div class="flex items-center justify-center h-52">
+              <!-- Loading Spinner for Bar Chart -->
+              <div v-if="isLoading" class="flex items-center justify-center h-full">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+              </div>
+              <!-- Bar Chart for Housekeeping Status - Corrigé -->
+              <div v-else class="flex items-end justify-center space-x-4 h-48 w-full">
+                <div class="flex flex-col items-center">
+                  <div
+                    class="bg-green-500 rounded-t transition-all duration-300"
+                    :style="{
+                      height: `${housekeepingStats.clean > 0 ? Math.max((housekeepingStats.clean / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
+                      width: '40px'
+                    }"
+                  ></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{ $t('frontOffice.dashboard.clean') }}</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.clean || 0 }}</span>
                 </div>
-                Alertes Critiques
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div 
-                  v-for="alert in dashboardData.alerts" 
-                  :key="alert.message"
-                  :class="['p-4 rounded-xl backdrop-blur-sm border', getAlertClass(alert.type)]"
-                >
-                  <p class="font-semibold text-sm">{{ alert.message }}</p>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="bg-yellow-500 rounded-t transition-all duration-300"
+                    :style="{
+                      height: `${housekeepingStats.inspected > 0 ? Math.max((housekeepingStats.inspected / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
+                      width: '40px'
+                    }"
+                  ></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{ $t('frontOffice.dashboard.inspect') }}</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.inspected || 0 }}</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="bg-orange-500 rounded-t transition-all duration-300"
+                    :style="{
+                      height: `${housekeepingStats.dirty > 0 ? Math.max((housekeepingStats.dirty / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
+                      width: '40px'
+                    }"
+                  ></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{ $t('frontOffice.dashboard.dirty') }}</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.dirty || 0 }}</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div
+                    class="bg-red-500 rounded-t transition-all duration-300"
+                    :style="{
+                      height: `${housekeepingStats.blocked > 0 ? Math.max((housekeepingStats.blocked / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
+                      width: '40px'
+                    }"
+                  ></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{ $t('frontOffice.dashboard.block') }}</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ housekeepingStats.blocked || 0 }}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Premium KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
-          <!-- Occupancy Rate Card -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -mr-12 -mt-12"></div>
-            <div class="relative">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Taux d'Occupation
-                </h3>
-                <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                  <div class="w-4 h-4 bg-blue-500 rounded"></div>
-                </div>
-              </div>
-              <div class="text-3xl font-black mb-4" :class="getOccupancyColor(occupancyRate)">
-                {{ occupancyRate }}%
-              </div>
-              <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-3">
-                <div 
-                  class="h-2 rounded-full transition-all duration-500" 
-                  :class="getOccupancyColor(occupancyRate, true)"
-                  :style="{ width: `${occupancyRate}%` }"
-                ></div>
-              </div>
-              <p class="text-xs text-slate-600 dark:text-slate-400 font-medium">
-                {{ dashboardData?.roomStatus?.sold || 0 }}/{{ dashboardData?.roomStatus?.total || 0 }} chambres occupées
-              </p>
-            </div>
-          </div>
-
-          <!-- In House Guests Card -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full -mr-12 -mt-12"></div>
-            <div class="relative">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Clients Présents
-                </h3>
-                <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
-                  <User class="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                </div>
-              </div>
-              <div class="text-3xl font-black text-purple-600 dark:text-purple-400 mb-4">
-                {{ dashboardData?.guestInHouse?.total || 0 }}
-              </div>
-              <div class="space-y-2 text-xs">
-                <div class="flex justify-between items-center">
-                  <span class="text-slate-600 dark:text-slate-400">Adultes:</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ dashboardData?.guestInHouse?.adult || 0 }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-slate-600 dark:text-slate-400">Enfants:</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ dashboardData?.guestInHouse?.child || 0 }}</span>
-                </div>
-                <div class="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-600">
-                  <span class="text-slate-600 dark:text-slate-400 font-semibold">Total invités:</span>
-                  <span class="font-black text-slate-800 dark:text-slate-200">{{ dashboardData?.guestInHouse?.totalGuests || 0 }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Revenue Card -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full -mr-12 -mt-12"></div>
-            <div class="relative">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Revenus Total
-                </h3>
-                <div class="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
-                  <div class="w-4 h-4 bg-green-500 rounded-full"></div>
-                </div>
-              </div>
-              <div class="text-3xl font-black text-green-600 dark:text-green-400 mb-4 flex justify-center">
-                {{ formatCurrency(dashboardData?.revenue?.total || 0) }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Arrivals Card -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full -mr-12 -mt-12"></div>
-            <div class="relative">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Arrivées
-                </h3>
-                <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                  <Calendar class="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-              <div class="text-3xl font-black text-blue-600 dark:text-blue-400 mb-4">
-                {{ dashboardData?.arrival?.total || 0 }}
-              </div>
-              <div class="space-y-2 text-xs">
-                <div class="flex justify-between items-center">
-                  <span class="text-slate-600 dark:text-slate-400">En attente:</span>
-                  <span class="font-bold">{{ dashboardData?.arrival?.pending || 0 }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-slate-600 dark:text-slate-400">Arrivés:</span>
-                  <span class="font-bold">{{ dashboardData?.arrival?.arrived || 0 }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Departures Card -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full -mr-12 -mt-12"></div>
-            <div class="relative">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Départs
-                </h3>
-                <div class="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-lg">
-                  <Clock class="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                </div>
-              </div>
-              <div class="text-3xl font-black text-orange-600 dark:text-orange-400 mb-4">
-                {{ dashboardData?.departure?.total || 0 }}
-              </div>
-              <div class="space-y-2 text-xs">
-                <div class="flex justify-between items-center">
-                  <span class="text-slate-600 dark:text-slate-400">En attente:</span>
-                  <span class="font-bold">{{ dashboardData?.departure?.pending || 0 }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-slate-600 dark:text-slate-400">Partis:</span>
-                  <span class="font-bold">{{ dashboardData?.departure?.checkedOut || 0 }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Revenue Chart Section -->
-      <div class="mb-10">
-        <RevenueChart :dashboardData="dashboardData" :selectedRange="selectedRange" />
       </div>
 
-
-        <!-- Premium Chart Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-          <!-- Room Status -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-8 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative">
-              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
-                <div class="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg mr-3">
-                  <Home class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                Statut des Chambres
-              </h3>
-              <div class="grid grid-cols-2 gap-4">
-                <div 
-                  v-for="(status, key) in roomStatusData" 
-                  :key="key"
-                  class="p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60"
-                  :class="status.bgClass"
-                >
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                      <div class="w-3 h-3 rounded-full mr-3" :class="status.colorClass"></div>
-                      <div>
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $t(status.label) }}</p>
-                        <p class="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">{{ status.count }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- folio unpaid Panel -->
+          <!-- Unpaid Folios Panel - Nouveau -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
+              <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
+                <DollarSign class="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
-              
-              <!-- Maintenance Section -->
-              <div class="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border border-red-200/60 dark:border-red-700/60">
+              {{ $t('frontOffice.dashboard.folioUnpaid.list') }}
+              <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
+                ({{ dashboardData?.unpaidFolios?.length || 0 }})
+              </span>
+            </h3>
+          </div>
+
+          <div v-if="dashboardData?.unpaidFolios?.length > 0" class="space-y-3 max-h-80">
+            <div
+              v-for="folio in dashboardData.unpaidFolios"
+              :key="folio.id"
+              class="flex items-center justify-between p-3 bg-red-50/50 dark:bg-red-900/10 border border-red-200/60 dark:border-red-700/60 rounded-lg"
+            >
+              <div class="flex-1">
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="p-2 bg-yellow-100 dark:bg-yellow-900/40 rounded-lg mr-3">
-                      <Wrench class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                    </div>
-                    <span class="text-sm font-bold text-yellow-800 dark:text-yellow-200">
-                      Maintenance
-                    </span>
-                  </div>
-                  <span class="text-2xl font-black text-yellow-800 dark:text-yellow-200">
-                    {{ dashboardData?.roomStatus?.maintenance || 0 }}
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                    Folio #{{ folio.folioNumber }}
+                  </p>
+                  <span class="text-lg font-bold text-red-600 dark:text-red-400">
+                    {{ formatCurrency(folio.balance) }}
                   </span>
                 </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ folio.guestName }} - Chambre {{ folio.roomNumber }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-500">
+                  Créé: {{ folio.createdDate }}
+                </p>
               </div>
             </div>
           </div>
 
-          <!-- Suite Occupancy with Enhanced Management -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-8 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-full -mr-16 -mt-16"></div>
+          <div v-else class="text-center py-8">
+            <div class="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
+              <CheckCircle class="w-8 h-8 text-green-600 dark:text-green-400" />
+            </div>
+            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+              Aucun folio impayé
+            </p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">
+              Tous les folios sont à jour
+            </p>
+          </div>
+        </div>
+
+
+        <!-- roomtype -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+
+
             <div class="relative">
               <!-- Header with Controls -->
               <div class="flex items-center justify-between mb-6">
@@ -304,15 +476,15 @@
                     ({{ Object.keys(dashboardData?.suites || {}).length }} types)
                   </span>
                 </h3>
-                
+
                 <!-- View Toggle -->
                 <div class="flex items-center space-x-2">
                   <button
                     @click="suiteViewMode = 'grid'"
                     :class="[
                       'p-2 rounded-lg',
-                      suiteViewMode === 'grid' 
-                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400' 
+                      suiteViewMode === 'grid'
+                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400'
                         : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                     ]"
                   >
@@ -324,8 +496,8 @@
                     @click="suiteViewMode = 'list'"
                     :class="[
                       'p-2 rounded-lg transition-all duration-200',
-                      suiteViewMode === 'list' 
-                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400' 
+                      suiteViewMode === 'list'
+                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400'
                         : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                     ]"
                   >
@@ -354,12 +526,12 @@
               <!-- Grid View -->
               <div v-if="suiteViewMode === 'grid'" :class="[
                 'grid gap-4',
-                filteredSuites.length <= 4 ? 'grid-cols-1' : 
-                filteredSuites.length <= 8 ? 'grid-cols-2' : 
+                filteredSuites.length <= 4 ? 'grid-cols-1' :
+                filteredSuites.length <= 8 ? 'grid-cols-2' :
                 'grid-cols-2 lg:grid-cols-3'
               ]">
-                <div 
-                  v-for="(count, suiteName) in paginatedSuites" 
+                <div
+                  v-for="(count, suiteName) in paginatedSuites"
                   :key="suiteName"
                   class="group/item relative overflow-hidden p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60 cursor-pointer"
                   :class="getSuiteTypeClass(suiteName)"
@@ -382,8 +554,8 @@
 
               <!-- List View -->
               <div v-else class="space-y-3">
-                <div 
-                  v-for="(count, suiteName) in paginatedSuites" 
+                <div
+                  v-for="(count, suiteName) in paginatedSuites"
                   :key="suiteName"
                   class="group/item relative overflow-hidden p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60 cursor-pointer"
                   :class="getSuiteTypeClass(suiteName)"
@@ -418,7 +590,7 @@
                   >
                     <ChevronDown class="w-4 h-4 rotate-90" />
                   </button>
-                  
+
                   <div class="flex items-center space-x-1">
                     <button
                       v-for="page in visiblePages"
@@ -434,7 +606,7 @@
                       {{ page }}
                     </button>
                   </div>
-                  
+
                   <button
                     @click="currentSuitePage = Math.min(totalSuitePages, currentSuitePage + 1)"
                     :disabled="currentSuitePage === totalSuitePages"
@@ -443,9 +615,9 @@
                     <ChevronDown class="w-4 h-4 -rotate-90" />
                   </button>
                 </div>
-                
+
                 <div class="text-xs text-slate-600 dark:text-slate-400">
-                  {{ (currentSuitePage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentSuitePage * itemsPerPage, filteredSuites.length) }} 
+                  {{ (currentSuitePage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentSuitePage * itemsPerPage, filteredSuites.length) }}
                   sur {{ filteredSuites.length }} types
                 </div>
               </div>
@@ -463,184 +635,107 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Premium Housekeeping & Notifications -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-          <!-- Housekeeping Status -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-8 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative">
-              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
-                <div class="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg mr-3">
-                  <CheckCircle class="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                État du Ménage
-              </h3>
-              <div class="grid grid-cols-2 gap-4">
-                <div class="group/card relative overflow-hidden p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200/60 dark:border-green-700/60">
-                  <div class="absolute top-0 right-0 w-12 h-12 bg-green-500/10 rounded-full -mr-6 -mt-6"></div>
-                  <div class="relative text-center">
-                    <div class="text-3xl font-black text-green-600 dark:text-green-400 mb-1">
-                      {{ dashboardData?.housekeepingStatus?.clean || 0 }}
-                    </div>
-                    <p class="text-sm font-semibold text-green-700 dark:text-green-300">Propres</p>
-                  </div>
-                </div>
-                <div class="group/card relative overflow-hidden p-6 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-xl border border-yellow-200/60 dark:border-yellow-700/60">
-                  <div class="absolute top-0 right-0 w-12 h-12 bg-yellow-500/10 rounded-full -mr-6 -mt-6"></div>
-                  <div class="relative text-center">
-                    <div class="text-3xl font-black text-yellow-600 dark:text-yellow-400 mb-1">
-                      {{ dashboardData?.housekeepingStatus?.inspected || 0 }}
-                    </div>
-                    <p class="text-sm font-semibold text-yellow-700 dark:text-yellow-300">Inspectées</p>
-                  </div>
-                </div>
-                <div class="group/card relative overflow-hidden p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl border border-orange-200/60 dark:border-orange-700/60">
-                  <div class="absolute top-0 right-0 w-12 h-12 bg-orange-500/10 rounded-full -mr-6 -mt-6"></div>
-                  <div class="relative text-center">
-                    <div class="text-3xl font-black text-orange-600 dark:text-orange-400 mb-1">
-                      {{ dashboardData?.housekeepingStatus?.dirty || 0 }}
-                    </div>
-                    <p class="text-sm font-semibold text-orange-700 dark:text-orange-300">Sales</p>
-                  </div>
-                </div>
-                <div class="group/card relative overflow-hidden p-6 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-xl border border-red-200/60 dark:border-red-700/60">
-                  <div class="absolute top-0 right-0 w-12 h-12 bg-red-500/10 rounded-full -mr-6 -mt-6"></div>
-                  <div class="relative text-center">
-                    <div class="text-3xl font-black text-red-600 dark:text-red-400 mb-1">
-                      {{ dashboardData?.housekeepingStatus?.toClean || 0 }}
-                    </div>
-                    <p class="text-sm font-semibold text-red-700 dark:text-red-300">À nettoyer</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      </div>
 
-          <!-- Premium Notifications Panel -->
-          <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-8 hover:shadow-2xl">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/5 to-orange-500/5 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative">
-              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Notifications Panel -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+           <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
                 <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
                   <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
-                Centre de Notifications
+                  {{ $t('frontOffice.dashboard.notifications') }}
               </h3>
-              <div class="space-y-3">
-                <div 
-                  v-for="notification in notificationItems" 
-                  :key="notification.key"
-                  class="group/notif relative overflow-hidden flex items-center justify-between p-2 rounded-xl cursor-pointer"
-                  :class="getNotificationClass(notification.count)"
-                >
-                  <div class="absolute inset-0 bg-gradient-to-r from-transparent to-white/5 opacity-0 group-hover/notif:opacity-100 transition-opacity"></div>
-                  <div class="relative flex items-center">
-                    <div class="p-2 rounded-lg mr-3" :class="getNotificationIconBg(notification.count)">
-                      <component :is="notification.icon" class="w-4 h-4" :class="getNotificationIconClass(notification.count)" />
-                    </div>
-                    <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $t(notification.label) }}</span>
-                  </div>
-                  <div class="relative flex items-center">
-                    <span class="px-3 py-1.5 text-xs font-black rounded-lg" :class="getNotificationBadgeClass(notification.count)">
-                      {{ notification.count }}
-                    </span>
-                  </div>
+
+          <div class="space-y-4 grid grid-cols-3 gap-4">
+            <div v-for="notification in notificationItems"
+                  :key="notification.key" :class="getNotificationClass(notification.count)" class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex-shrink-0 mr-3">
+                <div  class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <component :is="notification.icon" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ notification.count }}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $t(notification.label) }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Premium Activity Feed -->
-        <div class="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60 p-8 transition-all duration-300 hover:shadow-2xl">
-          <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full -mr-20 -mt-20"></div>
-          <div class="relative">
-            <div class="flex items-center justify-between mb-8">
-              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
+        <!-- Activity Feeds -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+             <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
                 <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg mr-3">
                   <Clock class="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                Activité Récente
+               {{ $t('frontOffice.dashboard.activityFeeds') }}
               </h3>
-              <button 
-                @click="loadDashboardData" 
-                class="group/refresh flex items-center px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-all duration-200"
-              >
-                <RefreshCw class="w-4 h-4 mr-2 transition-transform duration-300" :class="{ 'animate-spin': isLoading, 'group-hover/refresh:rotate-180': !isLoading }" />
-                Actualiser
+
+            <div class="flex space-x-2">
+              <button class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                {{ $t('common.all') }}
+              </button>
+              <button @click="loadDashboardData" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
               </button>
             </div>
-            
-            <!-- Loading State -->
-            <!-- <div v-if="isLoading" class="flex items-center justify-center py-16">
-              <div class="relative">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
-                <div class="absolute inset-0 rounded-full h-12 w-12 border-4 border-transparent border-r-blue-400 animate-ping"></div>
-              </div>
+          </div>
+          <div class="space-y-3">
+            <!-- Loading state -->
+            <!-- <div v-if="isLoading" class="flex items-center justify-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div> -->
-            
-            <!-- Activities List -->
+            <!-- Activities list -->
+             <!-- Activities List -->
             <div v-if="dashboardData?.activityFeeds?.length > 0" class="space-y-4">
-              <div 
-                v-for="activity in dashboardData.activityFeeds" 
+              <div
+                v-for="activity in dashboardData.activityFeeds"
                 :key="activity.id"
-                class="group/activity relative overflow-hidden flex items-center p-3 bg-white dark:bg-slate-700/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-600/60 hover:bg-slate-100/80 dark:hover:bg-slate-600/80 cursor-pointer"
-              >
-                <div class="absolute inset-0 bg-white opacity-0 group-hover/activity:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative flex items-center flex-1">
-                  <div class="flex-shrink-0 mr-4">
-                    <div class="w-8 h-8 bg-white rounded-xl flex items-center justify-center">
-                      <User class="w-4 h-4 text-gray-500" />
-                    </div>
-                  </div>
-                  <div class="flex-1">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">{{ activity.description }}</p>
-                    <div class="flex items-center space-x-3 text-xs text-slate-600 dark:text-slate-400">
-                      <div class="flex items-center">
-                        <div class="w-1.5 h-1.5 bg-slate-400 rounded-full mr-1"></div>
-                        <span class="font-medium">{{ activity.user }}</span>
-                      </div>
-                      <div class="flex items-center">
-                        <Clock class="w-3 h-3 mr-1" />
-                        <span>{{ activity.timestamp }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex-shrink-0 ml-4">
-                    <span 
-                      class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm"
-                      :class="getActivityTypeClass(activity.type)"
-                    >
-                      {{ $t(`frontOffice.dashboard.activityTypes.${activity.type}`) }}
-                    </span>
+             class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 mr-3">
+                  <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                    <User class="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </div>
                 </div>
+                <div>
+                  <p class="text-sm text-gray-900 dark:text-white">{{ activity.description }}</p>
+                  <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.timestamp }}</p>
+                </div>
               </div>
+
+
+
+              <span :class="getActivityTypeClass(activity.type)" class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+           {{ $t(`frontOffice.dashboard.activityTypes.${activity.type}`) }}
+              </span>
             </div>
-            
-            <!-- Empty State -->
-            <div v-else class="flex flex-col items-center justify-center py-16 text-center">
-              <div class="relative mb-6">
-                <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-2xl flex items-center justify-center shadow-xl">
-                  <Clock class="w-10 h-10 text-slate-400 dark:text-slate-500" />
-                </div>
-                <div class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                  <div class="w-2 h-2 bg-white rounded-full"></div>
-                </div>
+            </div>
+            <!-- Empty state -->
+            <div v-else class="flex flex-col items-center justify-center py-12 text-center">
+              <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <Clock class="w-8 h-8 text-gray-400 dark:text-gray-500" />
               </div>
-              <h4 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-                Aucune activité récente
-              </h4>
-              <p class="text-sm text-slate-600 dark:text-slate-400 max-w-sm">
-                Les nouvelles activités apparaîtront ici en temps réel
+              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                {{ $t('no_recente_activity') }}
+              </p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">
+                {{ $t('new_activities') }}
               </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+
+
+
+
+
   </AdminLayout>
 </template>
 
@@ -648,9 +743,9 @@
 import { ref, computed, onMounted, watch, onUnmounted,nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { 
-  RefreshCw, User, FileText, Calendar, MessageSquare, AlertTriangle, 
-  CheckCircle, Clock, Home, Star, Wrench, ChevronDown, DollarSign 
+import {
+  RefreshCw, User, FileText, Calendar, MessageSquare, AlertTriangle,
+  CheckCircle, Clock, Home, Star, Wrench, ChevronDown, DollarSign
 } from 'lucide-vue-next'
 import { getFrontOfficeDashboard } from '@/services/dashboard'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -680,16 +775,18 @@ const itemsPerPage = ref(12)
 
 // Computed properties
 
-const Periodes = computed(()=>[
-  {value:'today' , label:t('today')},
-  {value:'yesterday' , label:t('yesterday')},
-  {value:'thisWeek' , label:t('thisWeek')},
-  {value:'lastWeek' , label:t('lastWeek')},
-  {value:'thisMonth' , label:t('thisMonth')},
-  {value:'lastMonth' , label:t('lastMonth')},
-  {value:'custom' , label:t('customDate')},
+const housekeepingStats = computed(() => {
+  if (!dashboardData.value?.housekeepingStatus) {
+    return { clean: 0, inspected: 0, dirty: 0, blocked: 0 }
+  }
 
-])
+  return {
+    clean: dashboardData.value.housekeepingStatus.clean || 0,
+    inspected: dashboardData.value.housekeepingStatus.inspected || 0,
+    dirty: dashboardData.value.housekeepingStatus.dirty || 0,
+    blocked: dashboardData.value.roomStatus?.blocked || 0
+  }
+})
 const getStartOfWeek = (date: Date) => {
   const d = new Date(date)
   const day = d.getDay()
@@ -807,16 +904,16 @@ const filteredSuites = computed(() => {
   if (!suiteSearchQuery.value.trim()) {
     return suites
   }
-  
+
   const query = suiteSearchQuery.value.toLowerCase().trim()
   const filtered : any = {}
-  
+
   Object.entries(suites).forEach(([suiteName, count]) => {
     if (suiteName.toLowerCase().includes(query)) {
       filtered[suiteName] = count
     }
   })
-  
+
   return filtered
 })
 
@@ -829,14 +926,14 @@ const paginatedSuites = computed(() => {
   const entries = Object.entries(suites)
   const startIndex = (currentSuitePage.value - 1) * itemsPerPage.value
   const endIndex = startIndex + itemsPerPage.value
-  
+
   const paginatedEntries = entries.slice(startIndex, endIndex)
   const result : any = {}
-  
+
   paginatedEntries.forEach(([suiteName, count]) => {
     result[suiteName] = count
   })
-  
+
   return result
 })
 
@@ -844,7 +941,7 @@ const visiblePages = computed(() => {
   const total = totalSuitePages.value
   const current = currentSuitePage.value
   const pages :any[] = []
-  
+
   if (total <= 5) {
     for (let i = 1; i <= total; i++) {
       pages.push(i)
@@ -858,7 +955,7 @@ const visiblePages = computed(() => {
       pages.push(current - 2, current - 1, current, current + 1, current + 2)
     }
   }
-  
+
   return pages
 })
 
@@ -880,7 +977,7 @@ const visiblePages = computed(() => {
 //     console.log('Loading dashboard with params:', params)
 //     const response = await getFrontOfficeDashboard(hotelId, params)
 //     console.log('Dashboard response:', response)
-    
+
 //     if (response.success) {
 //       dashboardData.value = response.data
 //     } else {
@@ -917,10 +1014,10 @@ const loadDashboardData = async () => {
     console.log('Loading dashboard with params:', params)
     console.log('Selected range:', selectedRange.value)
     console.log('Date range computed:', dateRange.value)
-    
+
     const response = await getFrontOfficeDashboard(hotelId, params)
     console.log('Dashboard response:', response)
-    
+
     if (response.success) {
       dashboardData.value = response.data
     } else {
@@ -1005,26 +1102,26 @@ const getAlertClass = (type: string) => {
 }
 
 const getNotificationClass = (count: number) => {
-  return count > 0 
-    ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/60 dark:border-red-700/60' 
+  return count > 0
+    ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/60 dark:border-red-700/60'
     : 'bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 border border-slate-200/60 dark:border-slate-600/60'
 }
 
 const getNotificationIconClass = (count: number) => {
-  return count > 0 
-    ? 'text-red-600 dark:text-red-400' 
+  return count > 0
+    ? 'text-red-600 dark:text-red-400'
     : 'text-slate-600 dark:text-slate-400'
 }
 
 const getNotificationIconBg = (count: number) => {
-  return count > 0 
-    ? 'bg-red-100 dark:bg-red-900/40' 
+  return count > 0
+    ? 'bg-red-100 dark:bg-red-900/40'
     : 'bg-slate-100 dark:bg-slate-700'
 }
 
 const getNotificationBadgeClass = (count: number) => {
-  return count > 0 
-    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25' 
+  return count > 0
+    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25'
     : 'bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 text-slate-600 dark:text-slate-300'
 }
 
@@ -1049,7 +1146,7 @@ const startAutoRefresh = () => {
   if (autoRefreshInterval.value) {
     clearInterval(autoRefreshInterval.value)
   }
-  
+
   autoRefreshInterval.value = setInterval(() => {
     if (!isLoading.value) {
       loadDashboardData()
