@@ -1337,13 +1337,23 @@ function navigateToAddReservationFromCells() {
       const checkoutHour = Math.floor(checkoutPercentage * 24);
       checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
   }
+  //   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
+  // const checkoutDate = new Date(selectionInfo.endDate)
+  // checkoutDate.setDate(checkoutDate.getDate() )
+  // const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
+
+  // router.push({
+  //   name: 'New Booking',
+  //   query: {
+  //     checkin: checkinDate,
+  //     checkout: checkoutDateStr,
 
 
   router.push({
     name: 'New Booking',
     query: {
-      checkin: `${checkinDate}T${checkinTime}`,
-      checkout: `${checkoutDateStr}T${checkoutTime}`,
+      checkin: checkinDate,
+      checkout: checkoutDateStr,
       roomType: selectionInfo.roomType,
       roomNumber: selectionInfo.roomNumber,
       checkInTime: checkinTime,
