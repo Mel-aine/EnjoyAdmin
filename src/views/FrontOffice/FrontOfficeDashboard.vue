@@ -71,13 +71,21 @@
       </div>
     </div> -->
     <div class="mb-6">
-        <h1 class="bg-white shadow-md font-bold text-gray-900 dark:text-white mb-2 p-3 text-md">
+      <div class="flex items-center justify-between bg-white shadow-md ">
+        <h1 class=" font-bold text-gray-900 dark:text-white mb-2 p-3 text-md">
           {{ $t('frontOffice.dashboard.title') }}
-        </h1>
+          </h1>
+          <div class="mr-3 flex items-center">
+           <button @click="loadDashboardData" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
+              </button>
+              </div>
+        </div>
+
       </div>
 
       <!-- Main Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-0 mb-8">
         <!-- Arrival Card -->
         <div class="bg-white dark:bg-gray-800 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -112,7 +120,7 @@
                   stroke-linecap="round"
                 />
               </svg>
-              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div  class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
                   {{ dashboardData?.arrival?.total || 0 }}
                 </span>
@@ -173,7 +181,7 @@
                   stroke-linecap="round"
                 />
               </svg>
-              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div  class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
                    {{ dashboardData?.departure?.total || 0 }}
                 </span>
@@ -234,7 +242,7 @@
                   stroke-linecap="round"
                 />
               </svg>
-              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div  class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
                   {{ dashboardData?.guestInHouse?.total || 0 }}
                 </span>
@@ -259,6 +267,50 @@
               </div>
             </div>
           </div>
+        </div>
+
+         <!-- Occupancy -->
+        <div class="bg-white dark:bg-gray-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ $t('occupancy') }}
+            </h3>
+          </div>
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <!-- Loading Spinner -->
+              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div> -->
+              <!-- Circular Progress for Guest In House -->
+              <svg  class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#e5e7eb"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#3b82f6"
+                  stroke-width="8"
+                  fill="none"
+                  :stroke-dasharray="`${(dashboardData?.guestInHouse?.adult / dashboardData?.guestInHouse?.total) * 251.2} 251.2`"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div  class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ dashboardData?.roomStatus?.occupancyRate || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Room Status Card -->
@@ -295,7 +347,7 @@
                   stroke-linecap="round"
                 />
               </svg>
-              <div v-if="!isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div  class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
                   {{ dashboardData?.roomStatus?.total }}
                 </span>
@@ -355,11 +407,11 @@
             </h3>
             <div class="flex items-center justify-center h-52">
               <!-- Loading Spinner for Bar Chart -->
-              <div v-if="isLoading" class="flex items-center justify-center h-full">
+              <!-- <div v-if="isLoading" class="flex items-center justify-center h-full">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-              </div>
+              </div> -->
               <!-- Bar Chart for Housekeeping Status - Corrigé -->
-              <div v-else class="flex items-end justify-center space-x-4 h-48 w-full">
+              <div class="flex items-end justify-center space-x-4 h-48 w-full">
                 <div class="flex flex-col items-center">
                   <div
                     class="bg-green-500 rounded-t transition-all duration-300"
@@ -642,7 +694,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Notifications Panel -->
-        <!-- <div class="bg-white dark:bg-gray-800 p-6">
+         <div class="bg-white dark:bg-gray-800 p-6">
            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
                 <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
                   <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -652,7 +704,7 @@
 
           <div class="space-y-4 grid grid-cols-3 gap-4">
             <div v-for="notification in notificationItems"
-                  :key="notification.key" :class="getNotificationClass(notification.count)" class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  :key="notification.key"  class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div class="flex-shrink-0 mr-3">
                 <div  class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                   <component :is="notification.icon" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -664,9 +716,9 @@
               </div>
             </div>
           </div>
-        </div> -->
+        </div>
 
-        <div class="group relative bg-white dark:bg-gray-800 p-6">
+        <!-- <div class="group relative bg-white dark:bg-gray-800 p-6">
 
             <div class="relative">
               <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
@@ -682,7 +734,7 @@
                   class="group/notif relative overflow-hidden flex items-center justify-between p-2 rounded-xl cursor-pointer"
                   :class="getNotificationClass(notification.count)"
                 >
-                  <!-- <div class="absolute inset-0 bg-gradient-to-r from-transparent to-white/5 opacity-0 group-hover/notif:opacity-100 transition-opacity"></div> -->
+
                   <div class="relative flex items-center">
                     <div class="p-2 rounded-lg mr-3" :class="getNotificationIconBg(notification.count)">
                       <component :is="notification.icon" class="w-4 h-4" :class="getNotificationIconClass(notification.count)" />
@@ -697,7 +749,7 @@
                 </div>
               </div>
             </div>
-          </div>
+        </div> -->
         <!-- Activity Feeds -->
         <div class="bg-white dark:bg-gray-800 p-6">
           <div class="flex items-center justify-between mb-4">
