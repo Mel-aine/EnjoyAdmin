@@ -56,12 +56,9 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 // Créer une copie réactive des données de réservation
-const localReservation = ref({ ...props.reservation })
+const localReservation = ref<any>(null)
 
-// Watcher pour mettre à jour les données locales quand les props changent
-watch(() => props.reservation, (newReservation) => {
-  localReservation.value = { ...newReservation }
-}, { deep: true })
+
 
 // Cancel modal state
 const showCancelModal = ref(false)
@@ -73,20 +70,41 @@ const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
 const toast = useToast()
 
-// Fonction pour mettre à jour les données locales après une action
+
+watch(() => props.reservation, (newReservation) => {
+  if (newReservation) {
+    localReservation.value = { ...newReservation }
+    console.log('Local reservation updated:', localReservation.value)
+  }
+}, { deep: true, immediate: true })
+
 const updateLocalReservation = (updates: any) => {
-  localReservation.value = { ...localReservation.value, ...updates }
+  console.log('Updating reservation with:', updates)
+  console.log('Current reservation:', localReservation.value)
+
+  localReservation.value = {
+    ...localReservation.value,
+    ...updates
+  }
+
   console.log('Updated reservation:', localReservation.value)
-  // Émettre l'événement vers le parent
   emit('reservation-updated', localReservation.value)
 }
+
+// // Fonction pour mettre à jour les données locales après une action
+// const updateLocalReservation = (updates: any) => {
+//   localReservation.value = { ...localReservation.value, ...updates }
+//   console.log('Updated reservation:', localReservation.value)
+//   // Émettre l'événement vers le parent
+//   emit('reservation-updated', localReservation.value)
+// }
 
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
   // Mettre à jour le statut localement
-  updateLocalReservation({ 
+  updateLocalReservation({
     status: 'cancelled',
-    availableActions: [] 
+    availableActions: []
   })
 }
 
@@ -100,15 +118,25 @@ const handlePrintError = (error: any) => {
   console.error('Print error:', error)
 }
 
-const handleVoidConfirmed = () => {
-  showVoidModal.value = false
-  // Mettre à jour le statut localement
-  updateLocalReservation({ 
-    status: 'voided',
-    availableActions: [] 
-  })
-  // Émettre également l'événement save pour compatibilité
-  emit('save', { action: 'void', reservationId: localReservation.value?.id })
+
+const handleVoidConfirmed = (voidData: any) => {
+    console.log('Void confirmed with data:', voidData)
+
+    showVoidModal.value = false
+
+    // Mise à jour immédiate de l'état local
+    updateLocalReservation({
+        status: 'voided',
+        availableActions: []
+    })
+
+
+    // Émettre pour notifier le parent
+    emit('save', {
+        action: 'void',
+        reservationId: localReservation.value?.id,
+        data: voidData
+    })
 }
 
 
@@ -160,12 +188,12 @@ const handleRoomAssigned = (data: any) => {
 const handleSavePayment = async (data: any) => {
   console.log('Add payment data received:', data)
   console.log('Current balance summary:', localReservation.value.balanceSummary)
-  
+
   closeAddPaymentModal()
-  
+
   try {
     let updates: any = {}
-    
+
     // Stratégie 1: Utiliser les données complètes de la réservation si disponibles
     if (data.reservation && data.reservation.balanceSummary) {
       console.log('Using complete reservation data from API')
@@ -189,17 +217,17 @@ const handleSavePayment = async (data: any) => {
         totalPayments: 0,
         outstandingBalance: 0
       }
-      
+
       const paymentAmount = parseFloat(data.payment.amount.toString())
       const newTotalPayments = (currentBalance.totalPayments || 0) + paymentAmount
       const newOutstandingBalance = (currentBalance.totalChargesWithTaxes || 0) - newTotalPayments
-      
+
       updates.balanceSummary = {
         ...currentBalance,
         totalPayments: newTotalPayments,
         outstandingBalance: Math.max(0, newOutstandingBalance) // S'assurer que ce n'est pas négatif
       }
-      
+
       console.log('New calculated balance:', updates.balanceSummary)
     }
     // Stratégie 4: Utiliser les données calculées si disponibles
@@ -210,18 +238,18 @@ const handleSavePayment = async (data: any) => {
         totalPayments: 0,
         outstandingBalance: 0
       }
-      
+
       const paymentAmount = parseFloat(data.calculatedUpdate.paymentAmount.toString())
       const newTotalPayments = (currentBalance.totalPayments || 0) + paymentAmount
       const newOutstandingBalance = (currentBalance.totalChargesWithTaxes || 0) - newTotalPayments
-      
+
       updates.balanceSummary = {
         ...currentBalance,
         totalPayments: newTotalPayments,
         outstandingBalance: Math.max(0, newOutstandingBalance)
       }
     }
-    
+
     // Appliquer les mises à jour
     if (Object.keys(updates).length > 0) {
       console.log('Applying payment updates:', updates)
@@ -230,25 +258,25 @@ const handleSavePayment = async (data: any) => {
     } else {
       console.warn('No payment updates could be calculated, falling back to parent refresh')
       // Fallback: émettre save pour que le parent gère le refresh
-      emit('save', { 
-        action: 'addPayment', 
-        reservationId: localReservation.value?.id, 
+      emit('save', {
+        action: 'addPayment',
+        reservationId: localReservation.value?.id,
         data,
         needsRefresh: true
       })
       return
     }
-    
+
     // Émettre l'événement save pour compatibilité (sans needsRefresh car on a mis à jour localement)
     emit('save', { action: 'addPayment', reservationId: localReservation.value?.id, data })
-    
+
   } catch (error) {
     console.error('Error updating payment display:', error)
     toast.error(t('Error updating payment display'))
     // Fallback: émettre save pour que le parent gère
-    emit('save', { 
-      action: 'addPayment', 
-      reservationId: localReservation.value?.id, 
+    emit('save', {
+      action: 'addPayment',
+      reservationId: localReservation.value?.id,
       data,
       needsRefresh: true
     })
@@ -364,8 +392,8 @@ const performAutoCheckIn = async (availableRoom: any) => {
   // Mettre à jour les données locales après le check-in
   const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
     if (room.id === availableRoom.id) {
-      return { 
-        ...room, 
+      return {
+        ...room,
         status: 'checked_in',
         actualCheckInTime: checkInDateTime,
         checkedIn: true
@@ -404,8 +432,8 @@ const performAutoCheckOut = async (availableRoom: any) => {
   // Mettre à jour les données locales après le check-out
   const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
     if (room.id === availableRoom.id) {
-      return { 
-        ...room, 
+      return {
+        ...room,
         status: 'checked_out',
         actualCheckOutTime: checkOutDateTime
       }
@@ -433,7 +461,7 @@ const performAutoCheckOut = async (availableRoom: any) => {
 const handleNoShowConfirmedLocal = async (noShowData: any) => {
   await handleNoShowConfirmed(noShowData)
   // Mettre à jour le statut localement
-  updateLocalReservation({ 
+  updateLocalReservation({
     status: 'no_show',
     availableActions: [] // Les actions disponibles changent après no-show
   })
@@ -600,27 +628,27 @@ const formatDate = (dateString: string) => {
 
 const handleAmendConfirmed = (amendData: any) => {
   showAmendModal.value = false
-  
+
   // Mettre à jour les données localement avec les nouvelles dates
-  updateLocalReservation({ 
+  updateLocalReservation({
     arrivedDate: amendData.newArrivalDate,
     departDate: amendData.newDepartureDate,
     nights: amendData.nights,
     numberOfNights: amendData.nights
   })
-  
+
   // Émettre l'événement pour compatibilité
   emit('save', { action: 'amend', reservationId: localReservation.value?.id, data: amendData })
 }
 // Ajoutez cette méthode pour gérer les événements du modal check-in
 const handleCheckInSuccess = (data: any) => {
   console.log('Check-in success data:', data)
-  
+
   // Mettre à jour les chambres localement
   const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
     if (data.updatedRooms.includes(room.id)) {
-      return { 
-        ...room, 
+      return {
+        ...room,
         status: 'checked_in',
         actualCheckInTime: data.checkInDateTime,
         checkedIn: true
@@ -630,10 +658,10 @@ const handleCheckInSuccess = (data: any) => {
   })
 
   // Vérifier si toutes les chambres sont check-in
-  const allRoomsCheckedIn = updatedRooms.every((room: any) => 
+  const allRoomsCheckedIn = updatedRooms.every((room: any) =>
     room.status === 'checked_in' || room.checkedIn
   )
-  
+
   // Mettre à jour le statut de la réservation si nécessaire
   const reservationStatus = allRoomsCheckedIn ? 'checked_in' : localReservation.value.status
 
@@ -645,24 +673,24 @@ const handleCheckInSuccess = (data: any) => {
 
   // Fermer le modal
   closeCheckInReservationModal()
-  
+
   // Émettre pour compatibilité
-  emit('save', { 
-    action: 'checkIn', 
-    reservationId: localReservation.value.id, 
-    data 
+  emit('save', {
+    action: 'checkIn',
+    reservationId: localReservation.value.id,
+    data
   })
 }
 
 // Nouvelle méthode pour gérer le check-out
 const handleCheckOutSuccess = (data: any) => {
   console.log('Check-out success data:', data)
-  
+
   // Mettre à jour les chambres localement
   const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
     if (data.updatedRooms.includes(room.id)) {
-      return { 
-        ...room, 
+      return {
+        ...room,
         status: 'checked_out',
         actualCheckOutTime: data.checkOutDateTime,
         checkedOut: true
@@ -672,10 +700,10 @@ const handleCheckOutSuccess = (data: any) => {
   })
 
   // Vérifier si toutes les chambres sont check-out
-  const allRoomsCheckedOut = updatedRooms.every((room: any) => 
+  const allRoomsCheckedOut = updatedRooms.every((room: any) =>
     room.status === 'checked_out' || room.checkedOut
   )
-  
+
   // Mettre à jour le statut de la réservation si nécessaire
   const reservationStatus = allRoomsCheckedOut ? 'checked_out' : localReservation.value.status
 
@@ -687,12 +715,12 @@ const handleCheckOutSuccess = (data: any) => {
 
   // Fermer le modal
   closeCheckOutReservationModal()
-  
+
   // Émettre pour compatibilité
-  emit('save', { 
-    action: 'checkOut', 
-    reservationId: localReservation.value.id, 
-    data 
+  emit('save', {
+    action: 'checkOut',
+    reservationId: localReservation.value.id,
+    data
   })
 }
 </script>
