@@ -1,8 +1,9 @@
 <template>
   <AdminLayout>
+    <div class="p-6">
 
       <!-- Header -->
-     <div class=" ">
+     <!-- <div class=" ">
       <div class=" px-2 relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
         <div class="absolute inset-0 bg-white dark:from-blue-400/5 dark:to-indigo-400/5"></div>
         <div class="relative py-6">
@@ -13,11 +14,11 @@
               </h1>
             </div>
 
-            <!-- Enhanced Controls -->
+
             <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center ">
-              <!-- Premium Date Filter -->
+
               <div class=" space-y-2">
-                <!-- <Select :lb="$t('Période d analyse')" :options = " Periodes" v-model="selectedRange"   @change="handleDateRangeChange"/> -->
+
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Période d'analyse
                 </label>
@@ -38,18 +39,18 @@
                   <ChevronDown class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
 
-                <!-- Custom Date Input -->
+
                 <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="customDate"  v-if="selectedRange === 'custom'" @change="loadDashboardData"/>
-                <!-- <input
+                 <input
                   v-if="selectedRange === 'custom'"
                   type="date"
                   v-model="customDate"
                   @change="loadDashboardData"
                   class="mt-2 w-full px-4 py-3 border border-slate-300/60 dark:border-slate-600/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-slate-800/90 dark:text-slate-100 backdrop-blur-sm transition-all duration-200"
-                /> -->
+                />
               </div>
 
-              <!-- Premium Refresh Button -->
+
               <div class="relative">
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 opacity-0">
                   Action
@@ -68,7 +69,12 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
+    <div class="mb-6">
+        <h1 class="bg-white shadow-md font-bold text-gray-900 dark:text-white mb-2 p-3 text-md">
+          {{ $t('frontOffice.dashboard.title') }}
+        </h1>
+      </div>
 
       <!-- Main Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
@@ -761,7 +767,7 @@
 
 
 
-
+</div>
 
   </AdminLayout>
 </template>
