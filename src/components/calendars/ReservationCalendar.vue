@@ -361,10 +361,9 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2 } from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon,HandIcon, Cigarette, CigaretteOff, CrownIcon, StarIcon, Paintbrush,CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2, CreditCardIcon, CheckCircleIcon, LinkIcon, WrenchIcon, HeartIcon, SplitIcon} from 'lucide-vue-next'
 
 import { watch,onUnmounted } from 'vue'
-import { CheckCircle, X } from 'lucide-vue-next'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 import AddBookingModal from '../modal/AddBookingModal.vue';
 import AssignRoomReservation from '../reservations/AssignRoomReservation.vue';
@@ -372,8 +371,19 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getDailyOccupancyAndReservations } from "@/services/api"
-import CrownIcon from '@/icons/CrownIcon.vue'
-import AdminLayout from '../layout/AdminLayout.vue';
+//import CrownIcon from '@/icons/CrownIcon.vue'
+import AdminLayout from '../layout/AdminLayout.vue'
+import DollarsIcons from '@/icons/BookingStatus/dollarsIcone.vue'
+import CrownIcons from '@/icons/BookingStatus/CrownIcon.vue'
+import UsersIcons from '@/icons/BookingStatus/UserGroupIcon.vue'
+import HandIcons from '@/icons/BookingStatus/HandIcon.vue'
+import StarIcons from '@/icons/BookingStatus/starIcon.vue'
+import SplitIcons from '@/icons/BookingStatus/splitIcon.vue'
+import LadyIcons from '@/icons/BookingStatus/ladyIcon.vue'
+import BroomIcons from '@/icons/BookingStatus/BroomIcon.vue'
+import PetIcons from '@/icons/BookingStatus/petIcon.vue'
+import WorkOdersIcons from '@/icons/BookingStatus/WorkOdersIcon.vue'
+import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
 
 const isLoading = ref(false);
 function getReservationTypeIcon(type: string) {
@@ -471,6 +481,7 @@ const selectedUnassignedDate = ref<string>('')
 const unassignedReservations = ref<any[]>([])
 const showAssignRoomModal = ref<boolean>(false)
 const selectedReservationForAssignment = ref<any>(null)
+
 const legends = [
   { type: 'confirmed', label: t('Confirmed reservation') },
   { type: 'request', label: t('Reservation Request') },
@@ -976,26 +987,26 @@ const legendSections = [
   {
     title: 'Booking Indicators',
     items: [
-      { label: 'Group Owner', icon: 'UserGroupIcon' },
-      { label: 'Group Booking', icon: 'UserGroupIcon' },
-      { label: 'Payment Pending', icon: 'CreditCardIcon' },
-      { label: 'Stop Room Move', icon: 'NoSymbolIcon' },
-      { label: 'Single Lady', icon: 'UserIcon' },
-      { label: 'VIP Guest', icon: 'StarIcon' },
-      { label: 'Split Reservation', icon: 'ScissorsIcon' }
+      { label: 'Group Owner', icon: CrownIcons },
+      { label: 'Group Booking', icon: UsersIcons },
+      { label: 'Payment Pending', icon: DollarsIcons },
+      { label: 'Stop Room Move', icon: HandIcons },
+      { label: 'Single Lady', icon: LadyIcons },
+      { label: 'VIP Guest', icon: StarIcons},
+      { label: 'Split Reservation', icon: SplitIcons }
     ]
   },
   {
     title: 'Room Indicators',
     items: [
-      { label: 'No Smoking', icon: 'NoSymbolIcon' },
-      { label: 'Smoking', icon: 'FireIcon' },
-      { label: 'Dirty', icon: 'ExclamationCircleIcon' },
-      { label: 'Clean', icon: 'CheckCircleIcon' },
-      { label: 'Connected Rooms', icon: 'LinkIcon' },
-      { label: 'Work Order', icon: 'WrenchIcon' },
-      { label: 'ADA / Accessible Room', icon: 'UserIcon' },
-      { label: 'Pet Friendly Room', icon: 'HeartIcon' },
+      { label: 'No Smoking', icon: CigaretteOff },
+      { label: 'Smoking', icon: Cigarette },
+      { label: 'Dirty', icon:BroomIcons},
+      { label: 'Clean', icon: CheckCircleIcon },
+      { label: 'Connected Rooms', icon: LinkIcon },
+      { label: 'Work Order', icon: WorkOdersIcons },
+      { label: 'ADA / Accessible Room', icon: AccessibleIcons },
+      { label: 'Pet Friendly Room', icon: PetIcons },
       { label: 'Unassigned Room', color: '#e5e7eb' },
       { label: 'Inventory', color: '#fecaca' },
       { label: 'Unconfirmed Bookings', color: '#f87171' }
