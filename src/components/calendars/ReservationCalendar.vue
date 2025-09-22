@@ -212,7 +212,7 @@
                           @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
                           <div v-if="isCellSelected(group.room_type, room.room_number, cell.date)"
-                               class="absolute h-8 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 border-l-2 border-r-2 border-blue-700 rounded-sm"
+                               class="absolute h-6 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 border-l-2 border-r-2 border-blue-700 rounded-sm"
                                :style="getSelectionStyle(group.room_type, room.room_number, cell.date)">
                           </div>
                         </td>
@@ -1346,6 +1346,9 @@ function navigateToAddReservationFromCells() {
       checkout: `${checkoutDateStr}T${checkoutTime}`,
       roomType: selectionInfo.roomType,
       roomNumber: selectionInfo.roomNumber,
+      checkInTime: checkinTime,
+      checkOutTime: checkoutTime,
+
     },
   })
 }
