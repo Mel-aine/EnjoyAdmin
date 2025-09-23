@@ -209,15 +209,36 @@ export const getReservationType = async (serviceId: number | null): Promise<any>
 /**
  * dashboard front office routes
  */
-
-export const getFrontOfficeDashboard = async (serviceId: number | null): Promise<any> => {
+export const getFrontOfficeDashboard = async (serviceId: number | null, params?: any): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/dashboard/front-office/${serviceId}`, getHeaders()
+    // Construction de l'URL avec les paramètres de requête
+    const queryParams = new URLSearchParams()
+    
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+          queryParams.append(key, params[key].toString())
+        }
+      })
+    }
+    
+    const queryString = queryParams.toString()
+    const url = `/dashboard/front-office/${serviceId}${queryString ? `?${queryString}` : ''}`
+    
+    const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
+      url,
+      getHeaders()
     )
-    return response.data || []
-  } catch (error) {
+    
+    return response.data || { success: false, data: null }
+  } catch (error:any) {
     console.error('Erreur récupération de getFrontOfficeDashboard:', error)
-    return []
+    return { success: false, data: null, error: error.message }
   }
 }
+
+
+
+
+
+

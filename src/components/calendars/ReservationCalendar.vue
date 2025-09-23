@@ -205,12 +205,16 @@
                         <td v-else-if="shouldShowCell(group, room, cell)"
                           :colspan="getUnifiedColspan(group, room, cell)"
                           :class="[
-                            'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable',
+                            'px-0 py-0 h-12 border border-gray-300 cell-transition cell-selectable cell-hoverable relative',
                             getUnifiedCellClass(group, room, cell)
                           ]"
                           @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
-                          @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date)"
-                          @mouseup="endCellSelection">
+                          @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
+                          @mouseup="endCellSelection($event)">
+                          <div v-if="isCellSelected(group.room_type, room.room_number, cell.date)"
+                               class="absolute h-6 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 border-l-2 border-r-2 border-blue-700 rounded-sm"
+                               :style="getSelectionStyle(group.room_type, room.room_number, cell.date)">
+                          </div>
                         </td>
                       </template>
 
@@ -270,7 +274,7 @@
     <!-- Confirmed Selection Tooltip with Action -->
     <div
       v-if="getSelectionInfo()"
-      :style="`position:fixed;left:${selectionTooltipPosition.x - 150}px;top:${selectionTooltipPosition.y + 20}px;z-index:1000;`"
+      :style="tooltipStyle"
       class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm"
     >
       <div class="bg-gray-100 border-b border-gray-200 rounded-t-lg px-4 py-2">
@@ -286,10 +290,10 @@
           <div>{{ getSelectionInfo()?.roomType }}</div>
 
           <div><strong>{{ $t('from') }}:</strong></div>
-          <div>{{ formatDate(getSelectionInfo()?.startDate ?? new Date()) }}</div>
+          <div>{{ formatDate(getSelectionInfo()?.startDate ?? new Date()) }} {{ getSelectionTimes().checkinTime }}</div>
 
           <div class="capitalize"><strong>{{ $t('to') }}:</strong></div>
-          <div>{{ formatDate(getSelectionInfo()?.endDate ?? new Date()) }}</div>
+          <div>{{ formatDate(getSelectionInfo()?.endDate ?? new Date()) }} {{ getSelectionTimes().checkoutTime }}</div>
 
           <!-- <div><strong>{{ $t('Nights') }}:</strong></div>
           <div>{{ getSelectionInfo()?.totalNights }}</div> -->
@@ -419,6 +423,31 @@ import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
 
 const router = useRouter()
 const selectionTooltipPosition = ref({ x: 0, y: 0 })
+const isTooltipAbove = ref(false)
+
+const tooltipStyle = computed(() => {
+    const pos = selectionTooltipPosition.value;
+    if (!pos) return {};
+    const x = pos.x - 150;
+
+    if (isTooltipAbove.value) {
+        const bottom = window.innerHeight - pos.y + 20;
+        return {
+            position: 'fixed',
+            left: `${x}px`,
+            bottom: `${bottom}px`,
+            zIndex: 1000,
+        }
+    } else {
+        const top = pos.y + 20;
+        return {
+            position: 'fixed',
+            left: `${x}px`,
+            top: `${top}px`,
+            zIndex: 1000,
+        }
+    }
+});
 // Date selection state
 const dateSelection = ref({
   isSelecting: false,
@@ -1017,8 +1046,8 @@ const legendSections = [
 const cellSelection = ref({
   selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
   isSelecting: false,
-  startCell: null as { roomType: string; roomNumber: string; date: Date } | null,
-  currentCell: null as { roomType: string; roomNumber: string; date: Date } | null,
+  startCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
+  currentCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
 })
 
 // Fonction pour créer une clé unique pour une cellule
@@ -1030,10 +1059,12 @@ function getCellKey(roomType: string, roomNumber: string, date: Date): string {
 // Fonction pour démarrer la sélection de cellules
 function startCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
   event.preventDefault()
+  const target = event.currentTarget as HTMLElement;
+  const cellWidth = target.offsetWidth;
 
   cellSelection.value.isSelecting = true
-  cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date) }
-  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date) }
+  cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
   // Effacer la sélection précédente
   cellSelection.value.selectedCells.clear()
@@ -1043,11 +1074,12 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
   cellSelection.value.selectedCells.add(cellKey)
 
   document.addEventListener('mouseup', endCellSelection)
+  // We use mousemove on the document to have a smoother experience
   document.addEventListener('mousemove', handleCellMouseMove)
 }
 
 // Fonction pour mettre à jour la sélection de cellules lors du survol
-function updateCellSelection(roomType: string, roomNumber: string, date: Date) {
+function updateCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
   if (!cellSelection.value.isSelecting || !cellSelection.value.startCell) return
 
   // Autoriser uniquement la sélection sur la même chambre
@@ -1057,8 +1089,10 @@ function updateCellSelection(roomType: string, roomNumber: string, date: Date) {
   ) {
     return
   }
+  const target = event.currentTarget as HTMLElement;
+  const cellWidth = target.offsetWidth;
 
-  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date) }
+  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
   // Recalculer les cellules sélectionnées
   calculateSelectedCells()
@@ -1095,11 +1129,19 @@ function endCellSelection(event?: MouseEvent) {
   cellSelection.value.isSelecting = false
 
   if (event) {
-    selectionTooltipPosition.value = { x: event.clientX, y: event.clientY };
-  }
+    const elements = document.elementsFromPoint(event.clientX, event.clientY);
+    const cellElement = elements.find(el => el.tagName === 'TD' && el.classList.contains('cell-selectable'));
+    if (cellElement) {
+        const rect = cellElement.getBoundingClientRect();
+        const tooltipHeight = 180; // Estimated height in pixels
+        const spaceBelow = window.innerHeight - rect.bottom;
 
-  // La sélection reste active même après la fin du glisser-déposer
-  console.log('Cellules sélectionnées:', Array.from(cellSelection.value.selectedCells))
+        isTooltipAbove.value = spaceBelow < tooltipHeight;
+        selectionTooltipPosition.value = { x: rect.left + rect.width / 2, y: isTooltipAbove.value ? rect.top : rect.bottom };
+    } else {
+        selectionTooltipPosition.value = { x: event.clientX, y: event.clientY };
+    }
+  }
 
   document.removeEventListener('mouseup', endCellSelection)
   document.removeEventListener('mousemove', handleCellMouseMove)
@@ -1107,13 +1149,107 @@ function endCellSelection(event?: MouseEvent) {
 
 // Gestionnaire de mouvement de souris
 function handleCellMouseMove(event: MouseEvent) {
-  // Vous pouvez ajouter ici des fonctionnalités supplémentaires si nécessaire
+    if (cellSelection.value.isSelecting) {
+        // This is a bit of a hack to update the offsetX of the current cell
+        // as we are listening on the document, not on the cell itself.
+        // A better implementation would use a transparent overlay.
+        const currentCellInfo = cellSelection.value.currentCell;
+        if (currentCellInfo) {
+            const elements = document.elementsFromPoint(event.clientX, event.clientY);
+            const cellElement = elements.find(el => el.tagName === 'TD' && el.classList.contains('cell-selectable'));
+            if (cellElement) {
+                const rect = cellElement.getBoundingClientRect();
+                const offsetX = event.clientX - rect.left;
+                currentCellInfo.offsetX = offsetX;
+            }
+        }
+    }
 }
 
 // Fonction pour vérifier si une cellule est sélectionnée
 function isCellSelected(roomType: string, roomNumber: string, date: Date): boolean {
   const cellKey = getCellKey(roomType, roomNumber, date)
   return cellSelection.value.selectedCells.has(cellKey)
+}
+
+function getSelectionStyle(roomType: string, roomNumber: string, date: Date) {
+  const selection = cellSelection.value;
+  if (!selection.startCell || !selection.currentCell) return {};
+
+  const startCellInfo = selection.startCell.date.getTime() < selection.currentCell.date.getTime() ? selection.startCell : selection.currentCell;
+  const endCellInfo = selection.startCell.date.getTime() < selection.currentCell.date.getTime() ? selection.currentCell : selection.startCell;
+
+  if (selection.isSelecting) {
+    // Case 1: During selection, individual cells
+    const selectionStartDate = new Date(Math.min(selection.startCell.date.getTime(), selection.currentCell.date.getTime()));
+    const selectionEndDate = new Date(Math.max(selection.startCell.date.getTime(), selection.currentCell.date.getTime()));
+
+    const isStart = date.getTime() === selectionStartDate.getTime();
+    const isEnd = date.getTime() === selectionEndDate.getTime();
+
+    let width = '100%';
+    let left = '0';
+
+    if (isStart && isEnd) {
+        const startOffset = Math.min(startCellInfo.offsetX, endCellInfo.offsetX);
+        const endOffset = Math.max(startCellInfo.offsetX, endCellInfo.offsetX);
+        const cellWidth = startCellInfo.cellWidth;
+        if (cellWidth > 0) {
+            left = `${(startOffset / cellWidth) * 100}%`;
+            width = `${((endOffset - startOffset) / cellWidth) * 100}%`;
+        }
+    } else if (isStart) {
+        const cellWidth = startCellInfo.cellWidth;
+        if (cellWidth > 0) {
+            left = `${(startCellInfo.offsetX / cellWidth) * 100}%`;
+            width = `${100 - ((startCellInfo.offsetX / cellWidth) * 100)}%`;
+        }
+    } else if (isEnd) {
+        const cellWidth = endCellInfo.cellWidth;
+        if (cellWidth > 0) {
+            width = `${(endCellInfo.offsetX / cellWidth) * 100}%`;
+        }
+    }
+    return { width, left };
+  } else {
+    // Case 2: After selection, merged cell
+    const selectionInfo = getSelectionInfo();
+    if (!selectionInfo) return {};
+    const colspan = selectionInfo.cellCount;
+    if (colspan <= 0) return {};
+
+    const startOffset = (startCellInfo.offsetX / startCellInfo.cellWidth);
+    const endOffset = (endCellInfo.offsetX / endCellInfo.cellWidth);
+
+    const left = `${startOffset * 100 / colspan}%`;
+
+    const widthInCells = (colspan - 1) + endOffset - startOffset;
+    const width = `${widthInCells * 100 / colspan}%`;
+
+    return { width, left };
+  }
+}
+
+
+function getSelectionTimes() {
+    const startCellInfo = cellSelection.value.startCell;
+    const endCellInfo = cellSelection.value.currentCell;
+
+    let checkinTime = '14:00';
+    let checkoutTime = '12:00';
+
+    if (startCellInfo && startCellInfo.cellWidth > 0) {
+        const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
+        const checkinHour = Math.floor(checkinPercentage * 24);
+        checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
+    }
+    if (endCellInfo && endCellInfo.cellWidth > 0) {
+        const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
+        const checkoutHour = Math.floor(checkoutPercentage * 24);
+        checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
+    }
+
+    return { checkinTime, checkoutTime };
 }
 
 // Fonction pour effacer la sélection de cellules
@@ -1144,8 +1280,8 @@ function getSelectionInfo() {
     roomNumber,
     startDate: dates[0],
     endDate: dates[dates.length - 1],
-    totalNights: dates.length,
-    cellCount: cells.length -1,
+    totalNights: dates.length > 0 ? dates.length - 1 : 0,
+    cellCount: dates.length,
   }
 }
 
@@ -1196,6 +1332,24 @@ function navigateToAddReservationFromCells() {
   checkoutDate.setDate(checkoutDate.getDate() )
   const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
 
+  const startCellInfo = cellSelection.value.startCell;
+  const endCellInfo = cellSelection.value.currentCell;
+
+  let checkinTime = '14:00';
+  let checkoutTime = '12:00';
+
+  if (startCellInfo && startCellInfo.cellWidth > 0) {
+      const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
+      const checkinHour = Math.floor(checkinPercentage * 24);
+      checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
+  }
+  if (endCellInfo && endCellInfo.cellWidth > 0) {
+      const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
+      const checkoutHour = Math.floor(checkoutPercentage * 24);
+      checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
+  }
+
+
   router.push({
     name: 'New Booking',
     query: {
@@ -1203,6 +1357,9 @@ function navigateToAddReservationFromCells() {
       checkout: checkoutDateStr,
       roomType: selectionInfo.roomType,
       roomNumber: selectionInfo.roomNumber,
+      checkInTime: checkinTime,
+      checkOutTime: checkoutTime,
+
     },
   })
 }
@@ -1239,24 +1396,7 @@ function getUnifiedColspan(group:any, room:any, cell:any) {
 // Fonction pour déterminer la classe CSS unifiée
 function getUnifiedCellClass(group:any, room:any, cell:any) {
   const baseClasses :any[]= []
-
-  // Si on est en mode sélection
-  if (cellSelection.value.isSelecting) {
-    if (isCellSelected(group.room_type, room.room_number, cell.date)) {
-      baseClasses.push('bg-blue-400', 'cell-selected')
-    } else {
-      baseClasses.push(isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
-    }
-  }
-  // Si on n'est pas en mode sélection
-  else {
-    if (isStartOfSelection(group.room_type, room.room_number, cell.date)) {
-      baseClasses.push('bg-blue-400', 'cell-selected')
-    } else {
-      baseClasses.push(isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
-    }
-  }
-
+  baseClasses.push(isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
   return baseClasses.join(' ')
 }
 
@@ -1269,25 +1409,7 @@ onUnmounted(() => {
 <style scoped>
 @reference "tailwindcss";
 
-/* Style pour les cellules sélectionnées individuellement */
-.cell-selected {
-  background-color: #3b82f6 !important;
-  border-color: #2860fb !important;
-  position: relative;
-}
 
-.cell-selected::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px #4473f4;
-}
 
 /* Effet de survol uniquement sur les cellules libres */
 .cell-hoverable:hover {

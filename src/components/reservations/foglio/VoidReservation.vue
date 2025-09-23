@@ -53,13 +53,15 @@ interface Props {
 
 interface Emits {
     (e: 'close'): void
-    (e: 'cancel-confirmed', data: CancelReservationData): void
+    (e: 'confirmed', data: VoidReservationData): void
 }
 
-interface CancelReservationData {
+interface VoidReservationData {
     reason: string
     reservationId?: string | number
     reservationNumber?: string
+    updatedStatus?: string
+    updatedActions?: any[]
 }
 const isloadingReason = ref(false)
 const props = withDefaults(defineProps<Props>(), {
@@ -114,6 +116,8 @@ const laodReason = async () => {
     }
 
 }
+
+
 const handleSubmit = async () => {
     try {
         loading.value = true
@@ -124,7 +128,6 @@ const handleSubmit = async () => {
             return
         }
 
-
         // Prepare data for emission
         const voidData: any = {
             reason: formData.value.reason,
@@ -134,17 +137,22 @@ const handleSubmit = async () => {
         console.log('void', voidData)
 
         const resp = await voidReservation(voidData);
-        console.log('response')
-        // Emit the cancel confirmation event
-        emit('cancel-confirmed', voidData)
+        console.log('response', resp)
+
+        emit('void-confirmed', {
+            ...voidData,
+            updatedStatus: 'voided',
+            updatedActions: []
+        })
 
         // Show success message
         toast.success(t('reservation_void_successfully'))
 
         // Close modal
         closeModal()
+
     } catch (error) {
-        console.error('Error cancelling reservation:', error)
+        console.error('Error voiding reservation:', error)
         toast.error(t('error_voiding_reservation'))
     } finally {
         loading.value = false

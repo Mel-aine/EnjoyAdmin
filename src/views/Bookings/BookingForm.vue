@@ -849,6 +849,12 @@ const initializeForm = () => {
   if (route.query.checkout) {
     reservation.value.checkoutDate = route.query.checkout as string
   }
+   if (route.query.checkInTime) {
+    reservation.value.checkinTime = route.query.checkInTime as string
+  }
+   if (route.query.checkOutTime) {
+    reservation.value.checkoutTime = route.query.checkOutTime as string
+  }
 }
 
 // Dropdown options pour les actions de chambre

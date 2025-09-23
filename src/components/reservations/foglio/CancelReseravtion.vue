@@ -140,6 +140,8 @@ interface CancelReservationData {
     reservationNumber?: string
     cancelType?: string
     selectedRooms?: number[]
+    updatedStatus?: any
+    updatedActions?: any[]
 }
 
 const isloadingReason = ref(false)
@@ -293,7 +295,11 @@ const handleSubmit = async () => {
 
         const resp = await cancelReservation(cancelData);
         // Emit the cancel confirmation event
-        emit('cancel-confirmed', cancelData)
+        emit('cancel-confirmed', {
+        ...cancelData,
+        updatedStatus: 'cancelled',
+        updatedActions: []
+        })
 
         // Show success message
         toast.success(t('reservation_cancellation_initiated'))

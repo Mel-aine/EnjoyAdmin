@@ -98,7 +98,6 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 const { t } = useI18n()
 
-
 const typeOptions = computed(() => {
   const canCityLedgerPay = useAuthStore().hasPermission('access_to_transfer_charges_to_city_ledger')
   return [
@@ -113,16 +112,14 @@ const formData = reactive({
   folio: '',
   recVouNumber: '',
   type: 'cash',
-  method: null as number | null, // Changed to number for method ID
+  method: null as number | null,
   amount: 0,
   currency: 'XAF',
   comment: ''
 })
 
 // Methods
-// initialiser les données du formulaire
 const initializeFormData = () => {
-  // Réinitialiser avec les valeurs par défaut
   Object.assign(formData, {
     date: new Date().toISOString().split('T')[0],
     folio: '',
@@ -134,29 +131,24 @@ const initializeFormData = () => {
     comment: ''
   })
 
-  // Si nous avons des données de réservation, pré-remplir le montant
   if (props.reservationData) {
-
     if (props.reservationData.payment_type) {
       formData.type = props.reservationData.payment_type
     }
 
-    if (props.reservationData.payment_type) {
+    if (props.reservationData.payment_method) {
       formData.type = props.reservationData.payment_method
     }
 
-    // Ajouter un commentaire automatique
     formData.comment = `Payment for reservation #${props.reservationId}`
   }
 }
 
-// Modifier la méthode closeModal
 const closeModal = () => {
   initializeFormData()
   emit('close')
 }
 
-// Watch pour les changements de données de réservation
 watch(() => props.reservationData, (newData) => {
   if (newData && props.isOpen) {
     initializeFormData()
@@ -166,7 +158,9 @@ watch(() => props.reservationData, (newData) => {
 const folioSelected = (item: any) => {
   formData.amount = item.balance;
 }
+
 const methodeSelected = ref<any>(null)
+
 const savePayment = async () => {
   // Validate required fields
   if (!formData.folio || !formData.type || formData.method === null || !formData.amount) {
@@ -188,7 +182,7 @@ const savePayment = async () => {
       transactionType: 'payment',
       transactionCategory: formData.type,
       category: 'room',
-      description: `Payment - ${methodeSelected.value.name}`,
+      description: `Payment - ${methodeSelected.value?.name || 'Unknown'}`,
       amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
       notes: formData.comment,
@@ -204,12 +198,33 @@ const savePayment = async () => {
 
     // Call the API to create folio transaction
     const response = await createFolioTransaction(transactionData)
+    
+    console.log('Payment API response:', response)
 
     // Show success message
     toast.success('Payment saved successfully')
 
-    // Emit the form data with API response
-    emit('save', { ...formData, transactionId: response.id })
+    // Émettre les données nécessaires pour la mise à jour
+    const paymentData = {
+      payment: {
+        amount: formData.amount,
+        method: methodeSelected.value?.name || 'Unknown',
+        type: formData.type,
+        transactionId: response.id,
+        date: formData.date
+      },
+      // Si la réponse contient les données mises à jour de la réservation
+      reservation: response.reservation || null,
+      balanceSummary: response.balanceSummary || response.reservation?.balanceSummary || null,
+      // Données calculées pour la mise à jour locale
+      calculatedUpdate: {
+        paymentAmount: formData.amount
+      }
+    }
+
+    console.log('Emitting payment data:', paymentData)
+    
+    emit('save', paymentData)
     closeModal()
   } catch (error) {
     console.error('Error saving payment:', error)

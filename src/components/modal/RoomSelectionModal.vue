@@ -241,7 +241,7 @@ const getBookingDetailsById = async () => {
 
 const confirmRoomSelection = async () => {
   // Emit room selection for each reservation room that has a selected room
-  const roomSelections = []
+  const roomSelections :any[] = []
 
   if (reservation.value?.reservationRooms) {
     for (let i = 0; i < reservation.value.reservationRooms.length; i++) {
@@ -271,7 +271,7 @@ const confirmRoomSelection = async () => {
     } finally {
       isLoading.value = false
     }
-  } 
+  }
 }
 
 // Watch for prop changes
@@ -286,7 +286,7 @@ watch(() => props.reservationId, async (newId) => {
 onMounted(() => {
   if (props.reservationId) {
     getBookingDetailsById()
-  } 
+  }
 })
 
 

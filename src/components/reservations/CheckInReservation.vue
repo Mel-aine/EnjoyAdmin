@@ -408,13 +408,21 @@ const performCheckIn = async () => {
 
     // Perform check-in
     const response = await checkInReservation(props.reservationId, payload)
+    
 
     // Show success message
     const checkedInCount = selectedAvailableRooms.length
     toast.success(t('Successfully checked in {count} room(s)', { count: checkedInCount }))
 
-    // Emit success event
-    emit('success', { ...payload, response })
+
+    // Émettez avec les données nécessaires pour la mise à jour locale
+    emit('success', { 
+      ...payload, 
+      response,
+      updatedRooms: selectedAvailableRooms,
+      checkInDateTime: checkInDateTime,
+      action: 'check_in'
+    })
     emit('check-in-complete')
 
     // Close modal

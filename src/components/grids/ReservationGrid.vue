@@ -120,7 +120,10 @@
     <!-- Grid View -->
     <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div v-for="reservation in paginatedReservations" :key="reservation.id">
-        <ReservationCardItem :reservation="reservation" />
+        <ReservationCardItem     :reservation="reservation" 
+            @reservation-updated="handleReservationUpdate"
+            @save="handleSave"
+        />
       </div>
     </div>
 
@@ -276,6 +279,22 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   }
   return new Date(dateString).toLocaleDateString(locale.value, options)
+}
+
+
+const handleReservationUpdate = (updatedReservation) => {
+  // Mettre à jour la réservation dans votre liste/store
+  // Par exemple, si vous avez une liste de réservations :
+  const index = allReservations.value.findIndex(r => r.id === updatedReservation.id)
+  if (index !== -1) {
+    allReservations.value[index] = updatedReservation
+  }
+}
+
+const handleSave = (data) => {
+  // Logique existante pour les actions qui nécessitent un refresh complet
+  // ou des actions spéciales
+  console.log('Save event:', data)
 }
 
 const formatCurrency = (amount: number) => {

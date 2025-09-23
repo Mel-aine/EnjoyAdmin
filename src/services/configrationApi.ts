@@ -234,6 +234,19 @@ export const getHouseStatus = (hotelId: number): Promise<AxiosResponse<any>> => 
   return axios.get(`${API_URL}/rooms/houseview/${hotelId}`, getHeaders())
 }
 
+/**u
+ * update housekeeping status
+ */
+export const updateHouseStatus = (roomId: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/rooms/${roomId}/housekeeping`, { data }, getHeaders())
+}
+
+// Fonction supprimer une remarque
+export const deleteHousekeepingRemark = (roomId: number, remarkId: string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/rooms/${roomId}/housekeeping`, { removeRemarkId: remarkId }, getHeaders())
+}
+
+
 /**
  * bulkUpdate
  */
