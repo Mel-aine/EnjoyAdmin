@@ -51,6 +51,19 @@
 
             <!-- Reports Menu -->
             <div class="space-y-2">
+              <!--Dashboard-->
+              <div v-if="dashbordReport.length > 0">
+              <router-link v-for="report in dashbordReport" :key="report.path" :to="report.path"
+                      :class="[
+                        'menu-dropdown-item text-sm flex items-center gap-2',
+                        {
+                          'menu-dropdown-item-active': isActive(report.path),
+                          'menu-dropdown-item-inactive': !isActive(report.path),
+                        },
+                      ]">
+                      {{ $t(report.label) }}
+                    </router-link>
+              </div>
 
               <!-- Reservation Report -->
               <div v-if="filteredReservationReports.length > 0">
@@ -395,7 +408,9 @@ const reportPermissions = {
   'revenue-by-rate-type-summary': 'revenue_by_rate_type_summary',
   'statistics-by-room-type': 'statistics_by_room_type'
 }
-
+const dashbordReport = ref([
+  { name: 'dashbord', path: '/reports/dashboard', label: 'Dashboard' },
+]);
 // Reservation Reports
 const reservationReports = ref([
   { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList' },

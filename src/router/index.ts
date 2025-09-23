@@ -10,7 +10,7 @@ const router = createRouter({
   },
   routes: [
     {
-      path: '/dashboard',
+      path: '/reports/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
       meta: { requiresAuth: true },
@@ -1749,6 +1749,9 @@ router.beforeEach(async (to, from, next) => {
     if (to.path === '/' && isAuthenticated) {
       console.log(' Redirection vers dashboard - utilisateur complètement connecté')
       return next('/front-office/dashboard')
+    }
+    if (to.path === '/reports' || to.path === '/reports/') {
+      return next('/reports/dashboard')
     }
 
     if (to.path === '/') {
