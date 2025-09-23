@@ -610,7 +610,6 @@
     "departure": "Guest departure scheduled",
     "inhouse": "Guest is currently staying in the room"
   },
-  "notifications":"Notifications",
   "receiveemailnotifications": "Receive email notifications",
   "emailNotifications": "Email Notifications",
   "darkMode": "Dark Mode",
@@ -1484,7 +1483,6 @@
     "floor": "Floor",
     "currentGuest": "Current Guest",
     "nextAvailable": "Next Available",
-    "generating" : "generating ...",
     "today": "Today",
     "book": "Book",
     "standard": "Standard",
@@ -1686,6 +1684,7 @@
     "ascending": "Ascending",
     "descending": "Descending",
     "sendEmail": "Send Email",
+    "filters": "Filters",
     "from": "From",
     "company": "Company",
     "select": "Select",
