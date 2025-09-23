@@ -97,11 +97,11 @@
           <div class="flex items-center justify-center mb-4">
             <div class="relative w-24 h-24">
               <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div> -->
+              </div>
               <!-- Circular Progress for Arrival -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+              <svg v-else class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
                 <circle
                   cx="50"
@@ -116,7 +116,7 @@
               </svg>
               <div class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.arrival?.total || 0 }}
+                  {{ dashboardData?.arrival?.total  }}
                 </span>
               </div>
             </div>
@@ -155,11 +155,11 @@
           <div class="flex items-center justify-center mb-4">
             <div class="relative w-24 h-24">
               <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
-              </div> -->
+              </div>
               <!-- Circular Progress for Checked Out -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+              <svg v-else class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
                 <circle
                   cx="50"
@@ -174,7 +174,7 @@
               </svg>
               <div class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.departure?.total || 0 }}
+                  {{ dashboardData?.departure?.total }}
                 </span>
               </div>
             </div>
@@ -213,11 +213,11 @@
           <div class="flex items-center justify-center mb-4">
             <div class="relative w-24 h-24">
               <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div> -->
+              </div>
               <!-- Circular Progress for Guest In House -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+              <svg v-else class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
                 <circle
                   cx="50"
@@ -232,7 +232,7 @@
               </svg>
               <div class="absolute inset-0 flex items-center justify-center">
                 <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.guestInHouse?.total || 0 }}
+                  {{ dashboardData?.guestInHouse?.total }}
                 </span>
               </div>
             </div>
@@ -273,11 +273,11 @@
           <div class="flex items-center justify-center mb-4">
             <div class="relative w-24 h-24">
               <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
+              <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-              </div> -->
+              </div>
               <!-- Circular Progress for Room Status -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+              <svg v-else class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
                 <circle
                   cx="50"
@@ -360,11 +360,11 @@
             </h3>
             <div class="flex items-center justify-center h-52">
               <!-- Loading Spinner for Bar Chart -->
-              <!-- <div v-if="isLoading" class="flex items-center justify-center h-full">
+              <div v-if="isLoading" class="flex items-center justify-center h-full">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-              </div> -->
+              </div>
               <!-- Bar Chart for Housekeeping Status - Corrigé -->
-              <div class="flex items-end justify-center space-x-4 h-48 w-full">
+              <div v-else class="flex items-end justify-center space-x-4 h-48 w-full">
                 <div class="flex flex-col items-center">
                   <div
                     class="bg-green-500 rounded-t transition-all duration-300"
@@ -855,7 +855,7 @@ const dashboardData = ref<any>(null)
 const selectedRange = ref('today')
 const customDate = ref(new Date().toISOString().split('T')[0])
 const lastUpdate = ref<Date | null>(null)
-const autoRefreshInterval = ref<NodeJS.Timeout | null>(null)
+
 
 // Suite management state
 const suiteViewMode = ref<'grid' | 'list'>('grid')
@@ -1158,30 +1158,11 @@ const getActivityTypeClass = (type: string) => {
   return classes[type] || classes['system']
 }
 
-// Auto-refresh setup
-const startAutoRefresh = () => {
-  if (autoRefreshInterval.value) {
-    clearInterval(autoRefreshInterval.value)
-  }
 
-  autoRefreshInterval.value = setInterval(() => {
-    if (!isLoading.value) {
-      loadDashboardData()
-    }
-  }, 30000)
-}
-
-const stopAutoRefresh = () => {
-  if (autoRefreshInterval.value) {
-    clearInterval(autoRefreshInterval.value)
-    autoRefreshInterval.value = null
-  }
-}
 
 // Lifecycle
 onMounted(() => {
   loadDashboardData()
-  startAutoRefresh()
 })
 
 // Watch for date changes to trigger data reload
