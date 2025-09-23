@@ -44,8 +44,10 @@
       :room-data="roomData"
       :existingRemarkData="existingRemarkData"
       :housekeeperOptions = "HousekeeperOptions"
+      :isLoadingRemark = "isLoadingRemark"
       @close="closeRemarkModal"
       @saved="onRemarkSaved"
+      @remark-deleted="handleRemarkDeleted"
     />
   </div>
 </template>
@@ -79,6 +81,7 @@ const emit = defineEmits(['remark-updated'])
 
 // État de la modal de remarque
 const isRemarkModalOpen = ref(false)
+const isLoadingRemark = ref(false)
 
 // Détermine la couleur de fond
 const getBgColor = () => {
@@ -118,6 +121,12 @@ const openRemarkModal = () => {
 
 const closeRemarkModal = () => {
   isRemarkModalOpen.value = false
+}
+
+const handleRemarkDeleted = (data: { remainingRemarks: any[] }) => {
+  console.log('Remarque supprimée, données restantes:', data)
+  isLoadingRemark.value = false
+  emit('remark-updated')
 }
 
 const onRemarkSaved = (remark: any) => {

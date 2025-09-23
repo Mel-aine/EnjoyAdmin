@@ -441,7 +441,7 @@
               <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
                 <DollarSign class="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
-              {{ $t('frontOffice.dashboard.folioUnpaid.list') }}
+              {{ $t('frontOffice.dashboard.folioUnpaidList') }}
               <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
                 ({{ UnsettledFolios.length || 0 }})
               </span>
@@ -481,8 +481,8 @@
             >
               <CheckCircle class="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
-            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Aucun folio impayé</p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">Tous les folios sont à jour</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ $t('unsettledFolios.noFoliosFound') }}</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">{{ $t('unsettledFolios.allPaid') }}</p>
           </div>
         </div>
 
@@ -495,9 +495,9 @@
                 <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg mr-3">
                   <Star class="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
-                Occupation des Types de Chambres
+                {{ $t('roomTypesOccupancy') }}
                 <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
-                  ({{ Object.keys(dashboardData?.suites || {}).length }} types)
+                  ({{ Object.keys(dashboardData?.suites || {}).length }} {{ $t('Types') }})
                 </span>
               </h3>
 

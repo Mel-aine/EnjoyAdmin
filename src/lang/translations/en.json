@@ -24,6 +24,7 @@
   "Customer": "Customer",
   "Room": "Room",
   "Type": "Type",
+  "Types": "Types",
   "PaymentMethod": "Payment Method",
   "ConfirmPay": "Confirm & Pay",
   "Processing": "Processing",
@@ -5167,6 +5168,7 @@
       "guestMessages" : "Guest Messages",
       "bookingInquiries" : "Booking Inquiries",
       "workOrders" : "Work Orders" ,
+      "folioUnpaidList" : "Folio Unpaid List",
       "reviews" : "Reviews",
         "activityTypes" : {
           "system" : "System",
@@ -5295,6 +5297,7 @@
     "title": "Unsettled Folios",
     "tableTitle": "Unsettled Folios",
     "noFoliosFound": "No Folios Found",
+    "allPaid" : "All the records are up to date.",
     "noFoliosMessage": "No unsettled folios match your current filters",
     "columns": {
       "folioNumber": "Folio Number",
@@ -6101,7 +6104,33 @@
   "Can only mark pending block as in progress": "You can only mark pending blocks as in progress.",
   "Can only mark in progress block as completed": "You can only mark in-progress blocks as completed.",
   "Block status updated successfully": "Block status updated successfully.",
-  "Error updating block status": "Error updating block status."
+  "Error updating block status": "Error updating block status.", 
+  "roomTypesOccupancy" : "Room Type Occupancy",
+  "ConfirmDeleteRemark": "Are you sure you want to delete this remark?",
+  "loadingRemark": "Loading remark...",
+  "remark": "Remark",
+  "EnterRemarkHere": "Enter remark here...",
+  "FD Remark": "FD Remark",
+  "EnterRemarkDescription": "Enter FD remark here...",
+  "HK status": "HK Status",
+  "SelectStatus": "Select a status",
+  "Housekeeper": "Housekeeper",
+  "SelectHousekeeper": "Select a housekeeper",
+  "ExistingRemarks": "Existing Remarks",
+  "DeleteRemark": "Delete remark",
+  "NoRemarkProvided": "No remark provided",
+  "Created": "Created",
+  "CreateRemark": "Create Remark",
+  "RemarkCreated": "Remark created successfully",
+  "RemarkUpdated": "Remark updated successfully",
+  "RemarkDeleted": "Remark deleted successfully",
+  "ErrorSavingRemark": "Error saving remark",
+  "ErrorDeletingRemark": "Error deleting remark",
+  "TitleRequired": "Remark is required",
+  "OutOfOrder": "Out of Order",
+  "NotAssigned": "Not assigned"
+
+
 
 
 

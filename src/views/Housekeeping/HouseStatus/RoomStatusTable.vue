@@ -163,7 +163,7 @@
                 <input
                   type="checkbox"
                   :checked="room.isChecked"
-                  @change="handleCheckboxChange(Number(room.id), room.name)"
+                  @change="handleCheckboxChange(room.id, room.name)"
                   class="form-checkbox"
                   :disabled="!canSelectRoom(room)"
                 />
@@ -533,8 +533,15 @@ const transformRoomData = (apiRoom: any): Room => {
   let status = apiRoom.status || 'available'
   let housekeepingStatus = 'No Status'
 
+  // Check for active blocks
+  const hasActiveBlock = apiRoom.blocks && apiRoom.blocks.some((block: any) => block.status !== 'completed')
+
+  if (hasActiveBlock) {
+    status = 'out_of_order'
+    housekeepingStatus = 'Out Of Order'
+  }
   // Logique métier: si occupé, housekeeping = No Status
-  if (status === 'occupied') {
+  else if (status === 'occupied') {
     housekeepingStatus = 'No Status'
   }
   // Si disponible et que la chambre était occupée, elle devient dirty
@@ -547,7 +554,7 @@ const transformRoomData = (apiRoom: any): Room => {
   else if (status === 'available') {
     housekeepingStatus = apiRoom.housekeepingStatus || 'clean'
   }
-  // Si hors service
+  // Si hors service (original logic, now potentially overridden by blocks)
   else if (status === 'out_of_order') {
     housekeepingStatus = 'Out Of Order'
   }
@@ -563,7 +570,7 @@ const transformRoomData = (apiRoom: any): Room => {
 }
 
 // Methods
-const handleCheckboxChange = (roomId: number, roomName: string) => {
+const handleCheckboxChange = (roomId: string, roomName: string) => {
   const roomIndex = rooms.value.findIndex((room) => room.id === roomId && room.name === roomName)
   if (roomIndex !== -1 && canSelectRoom(rooms.value[roomIndex])) {
     rooms.value[roomIndex].isChecked = !rooms.value[roomIndex].isChecked

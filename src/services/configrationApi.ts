@@ -241,6 +241,12 @@ export const updateHouseStatus = (roomId: number, data: any): Promise<AxiosRespo
   return axios.patch(`${API_URL}/rooms/${roomId}/housekeeping`, { data }, getHeaders())
 }
 
+// Fonction supprimer une remarque
+export const deleteHousekeepingRemark = (roomId: number, remarkId: string): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/rooms/${roomId}/housekeeping`, { removeRemarkId: remarkId }, getHeaders())
+}
+
+
 /**
  * bulkUpdate
  */
