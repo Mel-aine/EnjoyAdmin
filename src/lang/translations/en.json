@@ -352,16 +352,7 @@
     "info": "Drag to move, pull edges to change duration"
   },
   "EditUser": "Edit User",
-  "invalidRoomNumber": "Invalid or unavailable room number",
   "toast": {
-    "validation": {
-      "roomTypeRequired": "Room {index}: Please select a Room Type.",
-      "roomTypeInvalid": "Room {index}: Room Type \"{value}\" is not valid.",
-      "rateTypeRequired": "Room {index}: Please select a Rate Type.",
-      "rateTypeInvalid": "Room {index}: Rate Type \"{value}\" is not valid for the selected Room Type.",
-      "roomNumberRequired": "Room {index}: Please select a Room Number.",
-      "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
-    },
     "userUpdatedSuccess": "User successfully updated ✅",
     "updateError": "An error occurred while updating ❌",
     "userDeleted": "User successfully deleted ✅",
@@ -3721,7 +3712,9 @@
       "arrivalList": "Arrival List",
       "arrivalListDescription": "View guests arriving today and upcoming dates",
       "arrivalResults": "Arrival Results",
+      "departureList": "Departure List",
       "departureListDescription": "View guests departing today and upcoming dates",
+      "departureResults": "Departure Results",
       "confirmedReservations": "Confirmed Reservations",
       "confirmedReservationsDescription": "View all confirmed reservations",
       "confirmedReservationsResults": "Confirmed Reservations Results",
@@ -3848,10 +3841,7 @@
       "revenueByRateType": "Revenue By Rate Type",
       "revenueByRoomType": "Revenue By Room Type",
       "travelAgentCommissionDetail": "Travel Agent Commission - Detail",
-      "travelAgentCommissionSummary": "Travel Agent Commission - Summary",
-      "titles": "Back Office Reports",
-      "descriptions": "Financial and administrative reports",
-      "workOrderList": "Work Order List"
+      "travelAgentCommissionSummary": "Travel Agent Commission - Summary"
     },
     "audit": {
       "title": "Audit Reports",
@@ -3918,39 +3908,6 @@
       "paymentSummary": "Payment Summary",
       "revenueByRateTypeSummary": "Revenue By Rate Type Summary",
       "statisticsByRoomType": "Statistics By Room Type"
-    },
-    "folio":{
-      "transaction": "Transaction",
-      "arrival":"Arrival",
-      "departure":"Departure",
-      "paid":"Paid",
-      "unpaid":"UnPaid",
-      "type":"Type",
-      "folioMode":"Folio Mode",
-      "roomFolio":"Room Folio",
-      "dateType":"Date Type",
-      "folioList":"Folio List",
-      "folioListResults":"Folio List Results",
-      "reserved":"Reserved",
-      "checkedOut":"Checked Out",
-      "include":"Include",
-      "cancelled":"Cancelled",
-      "void":"void",
-      "noShow":"noShow",
-      "unconfirmedReservation":"Unconfirmed Reservation",
-      "checkedIn":"Checked In",
-      "folioNo":"Folio No",
-      "invoiceNo":"Invoice No",
-      "date":"Date",
-      "pax":"Pax",
-      "name":"Name",
-      "status":"Status",
-      "chargeAmount":"Charge Amount",
-      "taxAmount":"Tax Amount",
-      "creditAmount":"Credit Amount",
-      "balanceAmount":"Balance Amount",
-      "totalFolios": "Total Folios",
-      "totalBalance": "Total Balance"
     }
   },
   "payments": {
@@ -4058,10 +4015,7 @@
     "reasonRequired": "Please select a reason",
     "customReasonRequired": "Please provide a custom reason",
     "customReasonTooShort": "Reason must be at least 10 characters long",
-    "reasonTooShort": "Reason must be at least 5 characters long",
-    "invalidRoomType": "Invalid Room Type",
-    "invalidRateType": "Invalid Rate Type",
-    "required": "This field is required"
+    "reasonTooShort": "Reason must be at least 5 characters long"
   },
   "Currency": "Currency",
   "Add Currency": "Add Currency",
@@ -5429,10 +5383,9 @@
     "blocked": "Blocked",
     "maintenance": "Maintenance",
     "outOfOrder": "Out of order",
-    "pending": "Pending",
-    "in_progress": "In Progress",
-    "inProgress": "In Progress",
-    "completed": "Completed"
+    "available": "Available",
+    "occupied": "Occupied",
+    "dirty": "Dirty"
   },
   "successBlockDeleted": "Maintenance block deleted successfully",
   "blocksExportedSuccessfully": "Blocks exported successfully",
@@ -6026,20 +5979,7 @@
     "addToBlacklist": "Add to Blacklist",
     "removeFromBlacklist": "Remove from Blacklist"
   },
-  "asOnDate":"As on date",
-  "generatePdf" : "Generate PDF",
-  "Guest information is incomplete": "Guest information is incomplete",
-  "Service ID is missing": "Service ID is missing",
-  "Please select the payment method": "Please select the payment method",
-  "Invalid guest email address": "Invalid guest email address",
-  "Voucher email is required when email booking vouchers is enabled": "Voucher email is required when email booking vouchers is enabled",
-  "Invalid voucher email address": "Invalid voucher email address",
-  "Profile photo upload incomplete": "Profile photo upload incomplete",
-  "ID photo upload incomplete": "ID photo upload incomplete",
-  "roomrate_change": "Roomrate Change",
-  "room_assignment": "Room Assignment",
-  "voidReason":"Void reason",
-  "enterVoidReason":"Enter Void reason"
+  "asOnDate":"As on date"
 
 
 }

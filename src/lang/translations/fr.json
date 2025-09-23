@@ -352,16 +352,7 @@
     "info": "Faites glisser pour déplacer, tirez sur les bords pour changer la durée"
   },
   "EditUser": "Modifier l'utilisateur",
-  "invalidRoomNumber": "Numéro de chambre invalide ou non disponible",
   "toast": {
-    "validation": {
-      "roomTypeRequired": "Chambre {index} : Veuillez sélectionner un type de chambre.",
-      "roomTypeInvalid": "Chambre {index} : Le type de chambre \"{value}\" n'est pas valide.",
-      "rateTypeRequired": "Chambre {index} : Veuillez sélectionner un type de tarif.",
-      "rateTypeInvalid": "Chambre {index} : Le type de tarif \"{value}\" n'est pas valide pour le type de chambre sélectionné.",
-      "roomNumberRequired": "Chambre {index} : Veuillez sélectionner un numéro de chambre.",
-      "roomNumberInvalid": "Chambre {index} : Le numéro de chambre \"{value}\" n'est pas disponible pour {roomTypeName}."
-    },
     "userUpdatedSuccess": "Utilisateur mis à jour avec succès ✅",
     "updateError": "Une erreur est survenue lors de la mise à jour ❌",
     "userDeleted": "Utilisateur supprimé avec succès ✅",
@@ -3698,11 +3689,6 @@
   "reports": {
     "title": "Rapports",
     "description": "Accédez à des rapports et des analyses complètes pour les opérations de votre hôtel",
-    "backOffice": {
-      "title": "Rapports Back Office",
-      "description": "Rapports financiers et administratifs",
-      "workOrderList": "Liste des ordres de travail"
-    },
     "reservation": {
       "title": "Rapports de réservation",
       "description": "Suivre et analyser les données de réservation",
@@ -4002,10 +3988,7 @@
     "reasonRequired": "Veuillez sélectionner une raison",
     "customReasonRequired": "Veuillez fournir une raison personnalisée",
     "customReasonTooShort": "La raison doit comporter au moins 10 caractères",
-    "reasonTooShort": "La raison doit comporter au moins 5 caractères",
-    "invalidRoomType": "Type de chambre invalide",
-    "invalidRateType": "Type de tarif invalide",
-    "required": "Ce champ est requis"
+    "reasonTooShort": "La raison doit comporter au moins 5 caractères"
   },
   "Currency": "Devise",
   "Add Currency": "Ajouter une devise",
@@ -5967,19 +5950,7 @@
   "actionsBlackList": {
   "addToBlacklist": "Ajouter à la liste noire",
   "removeFromBlacklist": "Retirer de la liste noire"
-  },
-  "generatePdf" : "Générer PDF",
-  "asOnDate": "À la date",
-  "Guest information is incomplete": "Les informations invité sont incomplètes",
-  "Service ID is missing": "L'identifiant du service est manquant",
-  "Please select the payment method": "Veuillez sélectionner le mode de paiement",
-  "Invalid guest email address": "Adresse e-mail de l'invité invalide",
-  "Voucher email is required when email booking vouchers is enabled": "L'e-mail du bon est requis lorsque l'envoi des bons par e-mail est activé",
-  "Invalid voucher email address": "Adresse e-mail du bon invalide",
-  "Profile photo upload incomplete": "Le téléversement de la photo de profil est incomplet",
-  "ID photo upload incomplete": "Le téléversement de la photo d'identité est incomplet"
-
-
+}
 
 
 
