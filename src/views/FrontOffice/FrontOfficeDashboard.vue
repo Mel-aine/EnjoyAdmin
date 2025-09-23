@@ -824,7 +824,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import {
@@ -1196,9 +1196,7 @@ watch(filteredSuites, (newSuites) => {
   }
 })
 
-onUnmounted(() => {
-  stopAutoRefresh()
-})
+
 </script>
 
 <style scoped>
