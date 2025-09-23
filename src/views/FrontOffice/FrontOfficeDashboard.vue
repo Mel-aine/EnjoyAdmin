@@ -86,7 +86,7 @@
       </div>
 
       <!-- Main Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-0 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
         <!-- Arrival Card -->
         <div class="bg-white dark:bg-gray-800 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -261,50 +261,7 @@
           </div>
         </div>
 
-        <!-- Occupancy -->
-        <div class="bg-white dark:bg-gray-800 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ $t('occupancy') }}
-            </h3>
-          </div>
-          <div class="flex items-center justify-center mb-4">
-            <div class="relative w-24 h-24">
-              <!-- Circular Progress for Guest In House -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  stroke-width="8"
-                  fill="none"
-                  :stroke="getOccupancyColor(dashboardData?.roomStatus?.occupancyRate)"
-                  :stroke-dasharray="`${dashboardData?.roomStatus?.occupancyRate * 251.2} 251.2`"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.roomStatus?.occupancyRate || 0 }}%
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-                <span class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ dashboardData?.roomStatus?.sold || 0 }}/{{
-                    dashboardData?.roomStatus?.total || 0
-                  }}
-                  chambres occupées
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Room Status Card -->
         <div class="bg-white dark:bg-gray-800 p-6">
