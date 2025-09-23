@@ -6161,7 +6161,8 @@
   "ErrorDeletingRemark": "Error deleting remark",
   "TitleRequired": "Remark is required",
   "OutOfOrder": "Out of Order",
-  "NotAssigned": "Not assigned"
+  "NotAssigned": "Not assigned",
+  "CompanyAccount": "Company Account"
 
 
 
