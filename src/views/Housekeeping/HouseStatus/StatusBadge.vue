@@ -75,6 +75,8 @@ interface StatusBadgeProps {
 
 const props = defineProps<StatusBadgeProps>()
 
+const emit = defineEmits(['remark-updated'])
+
 // État de la modal de remarque
 const isRemarkModalOpen = ref(false)
 
@@ -121,5 +123,6 @@ const closeRemarkModal = () => {
 const onRemarkSaved = (remark: any) => {
   console.log('Remarque sauvegardée:', remark)
   closeRemarkModal()
+  emit('remark-updated')
 }
 </script>

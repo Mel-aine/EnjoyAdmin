@@ -206,6 +206,7 @@
                       roomTypeName: room.roomType
                     }
                   }"
+                  @remark-updated="fetchHousekeepingStatus"
                   type="red"
                 />
               </td>
@@ -223,6 +224,7 @@
                   :HousekeeperOptions="housekeeperOptions"
                   :existingRemarkData = "room.housekeepersRemarks"
                   :tag="room.tag"
+                  @remark-updated="fetchHousekeepingStatus"
                   type="yellow"
                 />
               </td>
@@ -248,6 +250,7 @@
                       roomTypeName: room.roomType
                     }
                   }"
+                  @remark-updated="fetchHousekeepingStatus"
                   type="green"
                 />
 
@@ -274,6 +277,7 @@
                       roomTypeName: room.roomType
                     }
                   }"
+                  @remark-updated="fetchHousekeepingStatus"
                   type="gray"
                 />
 
