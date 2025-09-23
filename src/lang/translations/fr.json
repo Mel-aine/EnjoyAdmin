@@ -5352,12 +5352,14 @@
     "unblacklistGuest": "Retirer le client de la liste noire"
   },
   "statuses": {
-    "blocked": "Bloqué",
+    "blocked": "Bloquée",
     "maintenance": "Maintenance",
-    "outOfOrder": "Hors d'usage",
-    "available": "Disponible",
-    "occupied": "Occupée",
-    "dirty": "Sale"
+    "outOfOrder": "Hors service",
+    "pending": "En attente",
+    "in_progress": "En cours",
+    "inProgress": "En cours",
+    "completed": "Terminé",
+    "assigned": "Assigné"
   },
   "successBlockDeleted": "Blocage pour maintenance supprimé avec succès",
   "blocksExportedSuccessfully": "Blocages exportés avec succès",
@@ -5950,7 +5952,63 @@
   "actionsBlackList": {
   "addToBlacklist": "Ajouter à la liste noire",
   "removeFromBlacklist": "Retirer de la liste noire"
-}
+  },
+  "generatePdf" : "Générer PDF",
+  "asOnDate": "À la date",
+  "Guest information is incomplete": "Les informations invité sont incomplètes",
+  "Service ID is missing": "L'identifiant du service est manquant",
+  "Please select the payment method": "Veuillez sélectionner le mode de paiement",
+  "Invalid guest email address": "Adresse e-mail de l'invité invalide",
+  "Voucher email is required when email booking vouchers is enabled": "L'e-mail du bon est requis lorsque l'envoi des bons par e-mail est activé",
+  "Invalid voucher email address": "Adresse e-mail du bon invalide",
+  "Profile photo upload incomplete": "Le téléversement de la photo de profil est incomplet",
+  "ID photo upload incomplete": "Le téléversement de la photo d'identité est incomplet",
+  "others_tasks": "Autres tâches",
+  "repair": "Réparation",
+  "statusUpdate": {
+    "confirmInProgress": "Êtes-vous sûr de vouloir marquer le bon de travail n°{orderNumber} comme en cours ?",
+    "confirmCompleted": "Êtes-vous sûr de vouloir marquer le bon de travail n°{orderNumber} comme terminé ?",
+    "confirmDefault": "Êtes-vous sûr de vouloir mettre à jour le statut du bon de travail n°{orderNumber} ?",
+    "confirmInProgressBlock": "Êtes-vous sûr de vouloir marquer la chambre {roomNumber} comme en cours ?",
+    "confirmCompletedBlock": "Êtes-vous sûr de vouloir marquer la chambre {roomNumber} comme terminée ?",
+    "confirmDefaultBlock": "Êtes-vous sûr de vouloir mettre à jour le statut de la chambre {roomNumber} ?"
+
+  },
+  "PleaseSelectDueDate": "Veuillez sélectionner une date d'échéance.",
+  "PleaseEnterDescription": "Veuillez entrer une description.",
+  "PleaseSelectCategory": "Veuillez sélectionner une catégorie.",
+  "PleaseSelectPriority": "Veuillez sélectionner une priorité.",
+  "PleaseAssignUser": "Veuillez assigner un utilisateur.",
+  "BlockFromDateMustBeBeforeToDate": "La date de début doit être avant la date de fin.",
+  "ValidationError": "La validation a échoué. Veuillez vérifier vos saisies.",
+  "ErrorSavingWorkOrder": "Une erreur est survenue lors de l'enregistrement du bon de travail.",
+  "ErrorFetchingUsers": "Échec du chargement des utilisateurs.",
+  "ErrorFetchingRooms": "Échec du chargement des chambres.",
+  "EditWorkOrder": "Modifier le bon de travail",
+  "Mark as In Progress": "Marquer comme en cours",
+  "Mark as Completed": "Marquer comme terminé",
+  "DeleteWorkOrder": "Supprimer le bon de travail",
+  "Can only mark assigned work orders as in progress": "Vous ne pouvez marquer comme en cours que les bons de travail assignés.",
+  "Can only mark in progress work orders as completed": "Vous ne pouvez marquer comme terminés que les bons de travail en cours.",
+  "Work order status updated successfully": "Le statut du bon de travail a été mis à jour avec succès.",
+  "Error updating work order status": "Erreur lors de la mise à jour du statut du bon de travail.",
+  "ErrorFetchingWorkOrders": "Échec du chargement des bons de travail.",
+  "WorkOrderUpdatedSuccessfully": "Bon de travail mis à jour avec succès.",
+  "WorkOrderCreatedSuccessfully": "Bon de travail créé avec succès.",
+  "WorkOrderDeletedSuccessfully": "Bon de travail supprimé avec succès.",
+  "ErrorDeletingWorkOrder": "Erreur lors de la suppression du bon de travail.",
+  "AreYouSureDeleteWorkOrder": "Êtes-vous sûr de vouloir supprimer cet ordre de travail ?",
+  "Confirm": "Confirmer",
+  "Notes": "Notes",
+  "Can only mark pending block as in progress": "Vous ne pouvez marquer qu’un bloc en attente comme en cours.",
+  "Can only mark in progress block as completed": "Vous ne pouvez marquer qu’un bloc en cours comme terminé.",
+  "Block status updated successfully": "Statut du bloc mis à jour avec succès.",
+  "Error updating block status": "Erreur lors de la mise à jour du statut du bloc."
+
+
+
+
+
 
 
 

@@ -136,6 +136,7 @@ interface AmendReservationData {
     reservationNumber?: string
     amendType?: 'individual' | 'group'
     selectedRooms?: number[]
+    updatedReservation?: {}
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -177,6 +178,8 @@ const canAmend = computed(() => {
 const closeModal = () => {
     emit('close')
 }
+
+
 
 // Fetch booking details using getReservationDetailsById
 const getBookingDetailsById = async () => {
@@ -242,7 +245,15 @@ const handleSubmit = async () => {
         const resp = await amendReservation(amendData);
         console.log("resp",resp)
         // Emit the cancel confirmation event
-        emit('amend-confirmed', amendData)
+        emit('amend-confirmed', {
+            ...amendData,
+            updatedReservation: {
+                arrivedDate: amendData.newArrivalDate,
+                departDate: amendData.newDepartureDate,
+                nights: amendData.nights
+            }
+        })
+        // emit('amend-confirmed', amendData)
 
 
         // Show success message

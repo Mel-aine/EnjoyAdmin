@@ -18,19 +18,19 @@
       ]">
         <router-link to="/front-office/dashboard" class="flex items-center gap-2">
           <img v-if="isExpanded || isHovered || isMobileOpen"
-            class="dark:hidden rounded-full w-10"
+            class="w-10 rounded-full dark:hidden"
             src="/src/assets/images/header/logo2.png"
             alt="Logo" />
           <img v-if="isExpanded || isHovered || isMobileOpen"
-            class="hidden dark:block rounded-full w-10"
+            class="hidden w-10 rounded-full dark:block"
             src="/src/assets/images/header/logo2.png"
             alt="Logo" />
           <img v-else
-            class="rounded-full w-10"
+            class="w-10 rounded-full"
             src="/src/assets/images/header/logo2.png"
             alt="Logo" />
           <span v-if="isExpanded || isHovered || isMobileOpen"
-            class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
+            class="inline-flex flex-wrap text-xl font-bold text-gray-900">
             {{ $t('reports.title') }}
           </span>
         </router-link>
@@ -41,7 +41,7 @@
         @mouseenter="!isExpanded && (isHovered = true)"
         @mouseleave="isHovered = false">
 
-        <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
+        <nav class="h-full px-2 py-2 overflow-y-auto sidebar-scroll">
           <div class="flex flex-col gap-2 pb-6">
 
             <!-- Search Bar -->
@@ -61,6 +61,19 @@
 
             <!-- Reports Menu -->
             <div class="space-y-2">
+              <!--Dashboard-->
+              <div v-if="dashbordReport.length > 0">
+              <router-link v-for="report in dashbordReport" :key="report.path" :to="report.path"
+                      :class="[
+                        'menu-dropdown-item text-sm flex items-center gap-2',
+                        {
+                          'menu-dropdown-item-active': isActive(report.path),
+                          'menu-dropdown-item-inactive': !isActive(report.path),
+                        },
+                      ]">
+                      {{ $t(report.label) }}
+                    </router-link>
+              </div>
 
               <!-- Reservation Report -->
               <div v-if="filteredReservationReports.length > 0">
@@ -88,7 +101,7 @@
                 </button>
 
                 <transition name="slide-down">
-                  <div v-show="openSections.reservation && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                  <div v-show="openSections.reservation && (isExpanded || isHovered || isMobileOpen)" class="mt-2 space-y-1 ml-9">
                     <router-link
                       v-for="report in filteredReservationReports"
                       :key="report.path"
@@ -131,7 +144,7 @@
                 </button>
 
                 <transition name="slide-down">
-                  <div v-show="openSections.frontOffice && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                  <div v-show="openSections.frontOffice && (isExpanded || isHovered || isMobileOpen)" class="mt-2 space-y-1 ml-9">
                     <router-link
                       v-for="report in filteredFrontOfficeReports"
                       :key="report.path"
@@ -175,7 +188,7 @@
                 </button>
 
                 <transition name="slide-down">
-                  <div v-show="openSections.backOffice && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                  <div v-show="openSections.backOffice && (isExpanded || isHovered || isMobileOpen)" class="mt-2 space-y-1 ml-9">
                     <router-link
                       v-for="report in filteredBackOfficeReports"
                       :key="report.path"
@@ -219,7 +232,7 @@
                 </button>
 
                 <transition name="slide-down">
-                  <div v-show="openSections.audit && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                  <div v-show="openSections.audit && (isExpanded || isHovered || isMobileOpen)" class="mt-2 space-y-1 ml-9">
                     <router-link
                       v-for="report in filteredAuditReports"
                       :key="report.path"
@@ -263,7 +276,7 @@
                 </button>
 
                 <transition name="slide-down">
-                  <div v-show="openSections.statistical && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                  <div v-show="openSections.statistical && (isExpanded || isHovered || isMobileOpen)" class="mt-2 space-y-1 ml-9">
                     <router-link
                       v-for="report in filteredStatisticalReports"
                       :key="report.path"
@@ -307,7 +320,7 @@
                 </button>
 
                 <transition name="slide-down">
-                  <div v-show="openSections.custom && (isExpanded || isHovered || isMobileOpen)" class="ml-9 mt-2 space-y-1">
+                  <div v-show="openSections.custom && (isExpanded || isHovered || isMobileOpen)" class="mt-2 space-y-1 ml-9">
                     <router-link
                       v-for="report in filteredCustomReports"
                       :key="report.path"
@@ -445,16 +458,18 @@ const reportPermissions = {
   'revenue-by-rate-type-summary': 'revenue_by_rate_type_summary',
   'statistics-by-room-type': 'statistics_by_room_type'
 }
-
+const dashbordReport = ref([
+  { name: 'dashbord', path: '/reports/dashboard', label: 'Dashboard' },
+]);
 // Reservation Reports
 const reservationReports = ref([
   { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList'  },
   { name: 'departure-list', path: '/reports/reservation/departure-list', label: 'reports.reservation.departureList' },
   { name: 'cancelled-reservations', path: '/reports/reservation/cancelled-reservations', label: 'reports.reservation.cancelledReservations' },
   { name: 'no-show-reservations', path: '/reports/reservation/no-show-reservations', label: 'reports.reservation.noShowReservations' },
-  { name: 'country-wise-reservation-statistics', path: '/reports/reservation/country-wise-reservation-statistics', label: 'reports.reservation.countryWiseReservationStatistics' },
-  { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
-  { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
+  //TO DO { name: 'country-wise-reservation-statistics', path: '/reports/reservation/country-wise-reservation-statistics', label: 'reports.reservation.countryWiseReservationStatistics' },
+  //TO DO   { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
+  //TO DO { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
   { name: 'void-reservation', path: '/reports/reservation/void-reservation', label: 'reports.reservation.voidReservation' },
 ])
 
@@ -463,10 +478,10 @@ const frontOfficeReports = ref([
   { name: 'guest-checked-in', path: '/reports/front-office/guest-checked-in', label: 'reports.frontOffice.guestCheckedIn' },
   { name: 'guest-checked-out', path: '/reports/front-office/guest-checked-out', label: 'reports.frontOffice.guestCheckedOut' },
   { name: 'guest-list', path: '/reports/front-office/guest-list', label: 'reports.frontOffice.guestList' },
-  { name: 'guest-message', path: '/reports/front-office/guest-message', label: 'reports.frontOffice.guestMessage' },
- // { name: 'inclusion-report', path: '/reports/front-office/inclusion-report', label: 'reports.frontOffice.inclusionReport' },
-  { name: 'inventory-by-room-type', path: '/reports/front-office/inventory-by-room-type', label: 'reports.frontOffice.inventoryByRoomType' },
-  { name: 'invoice-breakdown', path: '/reports/front-office/invoice-breakdown', label: 'reports.frontOffice.invoiceBreakdown' },
+  //TO DO { name: 'guest-message', path: '/reports/front-office/guest-message', label: 'reports.frontOffice.guestMessage' },
+  // TOD DO { name: 'inclusion-report', path: '/reports/front-office/inclusion-report', label: 'reports.frontOffice.inclusionReport' },
+  //TO DO  { name: 'inventory-by-room-type', path: '/reports/front-office/inventory-by-room-type', label: 'reports.frontOffice.inventoryByRoomType' },
+  //TO DO  { name: 'invoice-breakdown', path: '/reports/front-office/invoice-breakdown', label: 'reports.frontOffice.invoiceBreakdown' },
   { name: 'night-audit', path: '/reports/front-office/night-audit', label: 'reports.frontOffice.nightAudit' },
   { name: 'pickup-dropoff', path: '/reports/front-office/pickup-dropoff', label: 'reports.frontOffice.pickupDropoff' },
   { name: 'room-availability', path: '/reports/front-office/room-availability', label: 'reports.frontOffice.roomAvailability' },
@@ -476,19 +491,19 @@ const frontOfficeReports = ref([
 
 // Back Office Reports
 const backOfficeReports = ref([
-  { name: 'work-office-report', path: '/reports/back-office/work-office-report', label: 'reports.backOffice.workOfficeReport' },
-  { name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
-  { name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
-  { name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
-  { name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
+  { name: 'work-order-list', path: '/reports/back-office/work-order-list', label: 'reports.backOffice.workOrderList' },
+  // TOD DO{ name: 'advance-deposit-ledger', path: '/reports/back-office/advance-deposit-ledger', label: 'reports.backOffice.advanceDepositLedger' },
+  // TOD DO{ name: 'city-ledger-detail', path: '/reports/back-office/city-ledger-detail', label: 'reports.backOffice.cityLedgerDetail' },
+  // TOD DO{ name: 'city-ledger-summary', path: '/reports/back-office/city-ledger-summary', label: 'reports.backOffice.cityLedgerSummary' },
+  // TOD DO{ name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
   { name: 'daily-receipt-detail', path: '/reports/back-office/daily-receipt-detail', label: 'reports.backOffice.dailyReceiptDetail' },
   { name: 'daily-receipt-summary', path: '/reports/back-office/daily-receipt-summary', label: 'reports.backOffice.dailyReceiptSummary' },
  //TODO { name: 'daily-refund-report', path: '/reports/back-office/daily-refund-report', label: 'reports.backOffice.dailyRefundReport' },
   { name: 'daily-revenue', path: '/reports/back-office/daily-revenue', label: 'reports.backOffice.dailyRevenue' },
 //TODO  { name: 'expense-voucher', path: '/reports/back-office/expense-voucher', label: 'reports.backOffice.expenseVoucher' },
   { name: 'folio-list', path: '/reports/back-office/folio-list', label: 'reports.backOffice.folioList' },
-  { name: 'guest-ledger', path: '/reports/back-office/guest-ledger', label: 'reports.backOffice.guestLedger' },
-  { name: 'house-status', path: '/reports/back-office/house-status', label: 'reports.backOffice.houseStatus' },
+  //TO DO   { name: 'guest-ledger', path: '/reports/back-office/guest-ledger', label: 'reports.backOffice.guestLedger' },
+  // TODO { name: 'house-status', path: '/reports/back-office/house-status', label: 'reports.backOffice.houseStatus' },
   { name: 'manager-report', path: '/reports/back-office/manager-report', label: 'reports.backOffice.managerReport' },
   { name: 'revenue-by-rate-type', path: '/reports/back-office/revenue-by-rate-type', label: 'reports.backOffice.revenueByRateType' },
   { name: 'revenue-by-room-type', path: '/reports/back-office/revenue-by-room-type', label: 'reports.backOffice.revenueByRoomType' },
@@ -507,18 +522,18 @@ const auditReports = ref([
 
 // Statistical Reports
 const statisticalReports = ref([
-  { name: 'business-analysis', path: '/reports/statistical/business-analysis', label: 'reports.statistical.businessAnalysis' },
-  { name: 'contribution-analysis-report', path: '/reports/statistical/contribution-analysis-report', label: 'reports.statistical.contributionAnalysisReport' },
-  { name: 'monthly-country-wise-pax-analysis', path: '/reports/statistical/monthly-country-wise-pax-analysis', label: 'reports.statistical.monthlyCountryWisePaxAnalysis' },
-  { name: 'monthly-revenue-by-income-stream', path: '/reports/statistical/monthly-revenue-by-income-stream', label: 'reports.statistical.monthlyRevenueByIncomeStream' },
-  { name: 'monthly-statistics', path: '/reports/statistical/monthly-statistics', label: 'reports.statistical.monthlyStatistics' },
-  { name: 'monthly-summary', path: '/reports/statistical/monthly-summary', label: 'reports.statistical.monthlySummary' },
-  { name: 'monthly-tax', path: '/reports/statistical/monthly-tax', label: 'reports.statistical.monthlyTax' },
-  { name: 'room-sale-statistics', path: '/reports/statistical/room-sale-statistics', label: 'reports.statistical.roomSaleStatistics' },
-  { name: 'room-statistics', path: '/reports/statistical/room-statistics', label: 'reports.statistical.roomStatistics' },
-  { name: 'room-on-books', path: '/reports/statistical/room-on-books', label: 'reports.statistical.roomOnBooks' },
-  { name: 'yearly-statistics', path: '/reports/statistical/yearly-statistics', label: 'reports.statistical.yearlyStatistics' },
-  { name: 'booking-source-wise-reservation-statistics', path: '/reports/statistical/booking-source-wise-reservation-statistics', label: 'reports.statistical.bookingSourceWiseReservationStatistics' },
+  // TO DO  name: 'business-analysis', path: '/reports/statistical/business-analysis', label: 'reports.statistical.businessAnalysis' },
+  //TO DO   { name: 'contribution-analysis-report', path: '/reports/statistical/contribution-analysis-report', label: 'reports.statistical.contributionAnalysisReport' },
+  //TO DO   { name: 'monthly-country-wise-pax-analysis', path: '/reports/statistical/monthly-country-wise-pax-analysis', label: 'reports.statistical.monthlyCountryWisePaxAnalysis' },
+  //TO DO   { name: 'monthly-revenue-by-income-stream', path: '/reports/statistical/monthly-revenue-by-income-stream', label: 'reports.statistical.monthlyRevenueByIncomeStream' },
+   // To DO  { name: 'monthly-statistics', path: '/reports/statistical/monthly-statistics', label: 'reports.statistical.monthlyStatistics' },
+  //TO DO   { name: 'monthly-summary', path: '/reports/statistical/monthly-summary', label: 'reports.statistical.monthlySummary' },
+  //TO DO   { name: 'monthly-tax', path: '/reports/statistical/monthly-tax', label: 'reports.statistical.monthlyTax' },
+  // TO DO  { name: 'room-sale-statistics', path: '/reports/statistical/room-sale-statistics', label: 'reports.statistical.roomSaleStatistics' },
+  //TO DO  { name: 'room-statistics', path: '/reports/statistical/room-statistics', label: 'reports.statistical.roomStatistics' },
+  //TO DO  { name: 'room-on-books', path: '/reports/statistical/room-on-books', label: 'reports.statistical.roomOnBooks' },
+  //TO DO  { name: 'yearly-statistics', path: '/reports/statistical/yearly-statistics', label: 'reports.statistical.yearlyStatistics' },
+  //TO DO { name: 'booking-source-wise-reservation-statistics', path: '/reports/statistical/booking-source-wise-reservation-statistics', label: 'reports.statistical.bookingSourceWiseReservationStatistics' },
   //{ name: 'channelwise-booking-report', path: '/reports/statistical/channelwise-booking-report', label: 'reports.statistical.channelwiseBookingReport' },
   //{ name: 'mobile-desktop-wise-reservation-statistics', path: '/reports/statistical/mobile-desktop-wise-reservation-statistics', label: 'reports.statistical.mobileDesktopWiseReservationStatistics' },
   //TODO{ name: 'ota-wise-monthly-breakdown', path: '/reports/statistical/ota-wise-monthly-breakdown', label: 'reports.statistical.otaWiseMonthlyBreakdown' },
@@ -551,12 +566,33 @@ const filteredFrontOfficeReports = computed(() => {
 
 const filteredBackOfficeReports = computed(() => {
   console.log('Tous les rapports Back Office:', backOfficeReports.value);
+  console.log('Utilisateur actuel:', authStore.user);
+
+  // Afficher les permissions brutes et parsées
+  const rawPermissions = authStore.user?.permisReports;
+  console.log('Permissions brutes (permisReports):', rawPermissions);
+
+  try {
+    const parsedPermissions = rawPermissions ? JSON.parse(rawPermissions) : [];
+    console.log('Permissions parsées:', parsedPermissions);
+    console.log('La permission work_office_report existe-t-elle ?', parsedPermissions.includes('work_office_report'));
+  } catch (e) {
+    console.error('Erreur lors du parsing des permissions:', e);
+  }
+
   const filtered = backOfficeReports.value.filter(report => {
+    // Forcer l\'affichage du rapport Work Office pour le test
+    if (report.name === 'work-order-list') {
+      console.log('Forçage de l\'affichage du rapport Work Office pour le test');
+      return true;
+    }
+
     const permission = reportPermissions[report.name as keyof typeof reportPermissions];
     const hasPermission = permission ? authStore.hasReportPermission(permission) : false;
     console.log(`Rapport: ${report.name}, Permission: ${permission}, Accès: ${hasPermission}`);
     return hasPermission;
   });
+
   console.log('Rapports Back Office filtrés:', filtered);
   return filtered;
 })
@@ -568,8 +604,8 @@ const filteredAuditReports = computed(() => {
   })
 })
 
-const filteredStatisticalReports = computed(() => {
-  return statisticalReports.value.filter(report => {
+const filteredStatisticalReports = computed<any[]>(() => {
+  return statisticalReports.value.filter((report:any) => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })

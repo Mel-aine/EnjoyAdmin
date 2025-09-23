@@ -9,25 +9,18 @@
         
 
         <!-- Void Reason Form -->
-        <div class="space-y-4">
-          <div>
-            <label for="voidReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('voidReason') }} <span class="text-red-500">*</span>
-            </label>
-            <textarea
-              id="voidReason"
-              v-model="voidForm.reason"
-              rows="4"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"
-              :placeholder="$t('enterVoidReason')"
-              required
-            ></textarea>
-            <p v-if="errors.reason" class="mt-1 text-sm text-red-600 dark:text-red-400">
-              {{ errors.reason }}
-            </p>
-          </div>
-
-        </div>
+            <!-- Reason Section -->
+      <div>
+        <AutoCompleteSelect
+          v-model="voidForm.reason"
+          :options="voidReasons"
+          :defaultValue="$t('SelectReason')"
+          :lb="$t('Reason')"
+          :is-required="true"
+          :use-dropdown="useDropdownReason"
+          @update:useDropdown="useDropdownReason = $event"
+        />
+      </div>
 
       </div>
     </template>
@@ -60,10 +53,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { voidFolioTransaction } from '@/services/foglioApi'
 import RightSideModal from '../modal/RightSideModal.vue'
+import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
+import { getByCategory } from '../../services/configrationApi'
+import { useServiceStore } from '../../composables/serviceStore'
 
 const { t } = useI18n()
 
@@ -101,13 +97,13 @@ const voidForm = reactive({
 const errors = reactive({
   reason: ''
 })
-
+const voidReasons = ref<any>([])
 // Methods
 const closeModal = () => {
   resetForm()
   emit('close')
 }
-
+const useDropdownReason = ref(true);
 const resetForm = () => {
   voidForm.reason = ''
   voidForm.notes = ''
@@ -130,7 +126,25 @@ const validateForm = () => {
   
   return true
 }
+// Load initial data
+const loadInitialData = async () => {
+  try {
+    const hotel_id = useServiceStore().serviceId
+    // Load void reasons
+    const reasonsResponse = await getByCategory(hotel_id!, 'Void Reservation')
+    const reasonsData = reasonsResponse.data
 
+    if (Array.isArray(reasonsData)) {
+      voidReasons.value = reasonsData.map((reason: any) => ({
+        value: reason.reasonName || reason.name,
+        label: reason.reasonName || reason.name
+      }))
+    }
+
+  } catch (error) {
+    console.error('Error loading initial data:', error)
+  }
+}
 const handleVoidTransaction = async () => {
   if (!validateForm()) {
     return
@@ -168,18 +182,16 @@ const handleVoidTransaction = async () => {
   }
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
 
 // Watch for modal open/close to reset form
 watch(() => props.isOpen, (newValue) => {
   if (!newValue) {
     resetForm()
   }
+})
+
+onMounted(()=>{
+  loadInitialData()
 })
 </script>
 

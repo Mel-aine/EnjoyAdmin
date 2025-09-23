@@ -108,20 +108,20 @@
       <!-- Summary -->
       <div v-if="guests.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ $t('reports.summary') }}
+          {{ $t('Summary') }}
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="text-center">
             <div class="text-2xl font-bold text-blue-600">{{ totalGuests }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.totalGuests') }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('TotalGuests') }}</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-green-600">{{ checkedInGuests }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.checkedIn') }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('CheckedIn') }}</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-gray-600">{{ checkedOutGuests }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.checkedOut') }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('CheckedOut') }}</div>
           </div>
         </div>
       </div>
@@ -216,15 +216,12 @@ const generateReport = async () => {
   try {
     console.log('Generating guest list report with filters:', filters.value)
     const response = await getGuestListReport(filters.value)
-    
-    if (response && response.data && response.data.success) {
-      guests.value = response.data.data.guestList || []
-      showResults.value = true
-    } else {
-      error.value = response && response.data && response.data.message ? response.data.message : t('errors.genericError')
-      guests.value = []
-      showResults.value = true
-    }
+    console.log('Guest list report response:', response)
+    // Certaines API ne renvoient pas de drapeau "success"; on lit directement guestList
+    const payload = response?.data?.data ?? response?.data ?? {}
+    const list = payload?.guestList
+    guests.value = Array.isArray(list) ? list : []
+    showResults.value = true
   } catch (err) {
     console.error('Error fetching guest list:', err)
     error.value = t('anErrorOcurr')

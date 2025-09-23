@@ -415,10 +415,17 @@ const performCheckOut = async () => {
     toast.success(t('Successfully checked out {count} room(s)', { count: checkedOutCount }))
 
     // Emit success event
-    emit('success', { ...payload, response })
+    emit('success', { 
+      ...payload, 
+      response,
+      updatedRooms: selectedAvailableRooms,
+      checkOutDateTime: checkOutDateTime,
+      action: 'check_out'
+    })
 
     // Close modal
     closeModal()
+
   } catch (error:any) {
     console.error('Check-out error:', error)
      const errorMessage =

@@ -3736,7 +3736,6 @@
       "reservationForecastDescription": "View reservation forecast and projections",
       "projectedOccupancy": "Projected Occupancy",
       "projectedRevenue": "Projected Revenue",
-      "totalReservations": "Total Reservations",
       "averageADR": "Average ADR",
       "occupancyForecastChart": "Occupancy Forecast Chart",
       "forecastDetails": "Forecast Details",
@@ -4622,9 +4621,12 @@
       "save_extra_charge": "Save Extra Charge",
       "update_extra_charge": "Update Extra Charge",
       "delete_extra_charge": "Delete Extra Charge",
-      "confirm_delete": "Are you sure you want to delete this extra charge?",
       "delete_confirmation_message": "Are you sure you want to delete this extra charge? This action cannot be undone.",
-      "fetch_error": "Failed to load extra charges"
+      "fetch_error": "Failed to load extra charges",
+       "confirm_delete_title": "Confirm Deletion",
+      "confirm_delete": "Are you sure you want to delete '{name}'? This action cannot be undone.",
+      "delete_success": "Extra charge deleted successfully",
+      "delete_error": "Error deleting extra charge"
     },
     "identity_type": {
       "title": "Identity Type",
@@ -5113,7 +5115,25 @@
       "guestMessage": "Guest Message",
       "carvertyFailed": "Carverty Failed",
       "tasks": "Tasks",
-      "review": "Review"
+      "review": "Review",
+      "unpaidFolios" : "Unpaid Folios",
+      "guestMessages" : "Guest Messages",
+      "bookingInquiries" : "Booking Inquiries",
+      "workOrders" : "Work Orders" ,
+      "reviews" : "Reviews",
+        "activityTypes" : {
+          "system" : "System",
+          "arrival" : "Arrival" ,
+          "departure" : "Departure" ,
+          "booking" : "Booking",
+          "modification" : "Modification",
+          "cancellation" : "Cancellation",
+          "payment" : "Payment" ,
+          "maintenance" : "Maintenance",
+          "housekeeping" : "Housekeeping",
+          "communication" : "Communication"
+        
+      }
     }
   },
   "segment": "Segment",
@@ -5382,9 +5402,11 @@
     "blocked": "Blocked",
     "maintenance": "Maintenance",
     "outOfOrder": "Out of order",
-    "available": "Available",
-    "occupied": "Occupied",
-    "dirty": "Dirty"
+    "pending": "Pending",
+    "in_progress": "In Progress",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "assigned" : "Assigned"
   },
   "successBlockDeleted": "Maintenance block deleted successfully",
   "blocksExportedSuccessfully": "Blocks exported successfully",
@@ -5978,7 +6000,63 @@
     "addToBlacklist": "Add to Blacklist",
     "removeFromBlacklist": "Remove from Blacklist"
   },
-  "asOnDate":"As on date"
+  "asOnDate":"As on date",
+  "generatePdf" : "Generate PDF",
+  "Guest information is incomplete": "Guest information is incomplete",
+  "Service ID is missing": "Service ID is missing",
+  "Please select the payment method": "Please select the payment method",
+  "Invalid guest email address": "Invalid guest email address",
+  "Voucher email is required when email booking vouchers is enabled": "Voucher email is required when email booking vouchers is enabled",
+  "Invalid voucher email address": "Invalid voucher email address",
+  "Profile photo upload incomplete": "Profile photo upload incomplete",
+  "ID photo upload incomplete": "ID photo upload incomplete",
+  "roomrate_change": "Roomrate Change",
+  "room_assignment": "Room Assignment",
+  "voidReason":"Void reason",
+  "enterVoidReason":"Enter Void reason",
+  "others_tasks" : "Others Tasks",
+  "repair" : "Repair",
+  "statusUpdate": {
+    "confirmInProgress": "Are you sure you want to mark work order #{orderNumber} as in progress?",
+    "confirmCompleted": "Are you sure you want to mark work order #{orderNumber} as completed?",
+    "confirmDefault": "Are you sure you want to update the status of work order #{orderNumber}?",
+    "confirmInProgressBlock": "Are you sure you want to mark room {roomNumber} as in progress?",
+    "confirmCompletedBlock": "Are you sure you want to mark room {roomNumber} as completed?",
+    "confirmDefaultBlock": "Are you sure you want to update the status of room {roomNumber}?"
+
+  },
+  "PleaseSelectDueDate": "Please select a due date.",
+  "PleaseEnterDescription": "Please enter a description.",
+  "PleaseSelectCategory": "Please select a category.",
+  "PleaseSelectPriority": "Please select a priority.",
+  "PleaseAssignUser": "Please assign a user.",
+  "BlockFromDateMustBeBeforeToDate": "The start date must be before the end date.",
+  "ValidationError": "Validation failed. Please check your inputs.",
+  "ErrorSavingWorkOrder": "An error occurred while saving the work order.",
+  "ErrorFetchingUsers": "Failed to fetch users.",
+  "ErrorFetchingRooms": "Failed to fetch rooms.",
+  "EditWorkOrder": "Edit work order",
+  "Mark as In Progress": "Mark as in progress",
+  "Mark as Completed": "Mark as completed",
+  "DeleteWorkOrder": "Delete work order",
+  "Can only mark assigned work orders as in progress": "You can only mark assigned work orders as in progress.",
+  "Can only mark in progress work orders as completed": "You can only mark in progress work orders as completed.",
+  "Work order status updated successfully": "Work order status updated successfully.",
+  "Error updating work order status": "Error updating work order status.",
+  "ErrorFetchingWorkOrders": "Failed to fetch work orders.",
+  "WorkOrderUpdatedSuccessfully": "Work order updated successfully.",
+  "WorkOrderCreatedSuccessfully": "Work order created successfully.",
+  "WorkOrderDeletedSuccessfully": "Work order deleted successfully.",
+  "ErrorDeletingWorkOrder": "Error deleting work order.",
+  "AreYouSureDeleteWorkOrder": "Are you sure you want to delete this work order?",
+  "Confirm": "Confirm",
+  "Notes": "Notes",
+  "Can only mark pending block as in progress": "You can only mark pending blocks as in progress.",
+  "Can only mark in progress block as completed": "You can only mark in-progress blocks as completed.",
+  "Block status updated successfully": "Block status updated successfully.",
+  "Error updating block status": "Error updating block status."
+
+
 
 
 }

@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4 justify-end">
+        <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4 justify-end">
           <!-- Report Template -->
           <!-- <div class="flex items-center gap-3 w-full sm:w-auto">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>

@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch, onMounted } from 'vue'
 
 interface Option {
   value: string
@@ -45,4 +45,23 @@ const localValue = computed({
   get: () => props.modelValue,
   set: (val: string) => emit('update:modelValue', val),
 })
+
+// Sélectionner la première option par défaut si aucune valeur n'est définie
+const ensureDefaultSelected = () => {
+  if (!props.modelValue && Array.isArray(props.options) && props.options.length > 0) {
+    emit('update:modelValue', props.options[0].value)
+  }
+}
+
+onMounted(() => {
+  ensureDefaultSelected()
+})
+
+watch(
+  () => props.options,
+  () => {
+    ensureDefaultSelected()
+  },
+  { deep: true }
+)
 </script>

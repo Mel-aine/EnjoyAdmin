@@ -1,5 +1,5 @@
 <template>
-  <admin-layout>
+  <ReportsLayout>
     <div class="grid grid-cols-12 gap-4 md:gap-6">
       <!-- Métriques principales de l'hôtel -->
       <div class="col-span-12 space-y-6 xl:col-span-7">
@@ -50,7 +50,7 @@
         <recent-bookings :recent-bookings = "reservations" />
       </div>
     </div>
-  </admin-layout>
+  </ReportsLayout>
 </template>
 
 <script lang="ts" setup>
@@ -81,6 +81,7 @@ import {
   LazyGuestDemographics as GuestDemographics,
   preloadCriticalComponents
 } from '@/utils/lazyLoader'
+import ReportsLayout from '../components/layout/ReportsLayout.vue'
 const RecentBookings = defineAsyncComponent(() => import('../components/hotel/RecentBookings.vue'))
 const serviceStore = useServiceStore()
 const generalStats = ref<any>({})
@@ -202,6 +203,7 @@ const fetchRevenuAndOccupancyData = async () => {
     const revenueCurrent = revenueRes.data.currentYear
     const revenuePrevious = revenueRes.data.previousYear
      EarningsData.value = {}
+    console.log("EarningsData.value",revenueCurrent)
 
     revenueCurrent.forEach(({ month, totalRevenue }: any) => {
       const shortMonth = month as keyof typeof monthMap
@@ -209,7 +211,7 @@ const fetchRevenuAndOccupancyData = async () => {
       const formattedRevenue =
         totalRevenue >= 1000
           ? (totalRevenue / 1000).toFixed(1) + 'K'
-          : totalRevenue.toString()
+          : totalRevenue?.toString() || '0'
       EarningsData.value[fullMonth] = formattedRevenue
     })
     console.log("EarningsData.value",EarningsData.value)

@@ -19,7 +19,7 @@
           <div class="flex flex-wrap gap-1">
             <span v-for="tax in item.taxRates" :key="tax"
               class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-              {{ tax }}%
+              {{ tax.taxName }}
             </span>
             <span v-if="!item.taxRates || item.taxRates.length === 0"
               class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -40,6 +40,11 @@
           </span>
         </template>
       </ReusableTable>
+       <TablePagination
+              v-if="paginationMeta"
+              :meta="paginationMeta"
+              @page-change="handlePageChange"
+            />
     </div>
 
     <!-- Add/Edit Modal -->
@@ -90,11 +95,11 @@
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                     <span class="ml-2 text-sm text-gray-700">No Tax (0%)</span>
                   </label>
-                  <label class="flex items-center" v-for="(tax, index) in taxes" :key="index">
-                    <input v-model="formData.taxes" :value="tax.value" type="checkbox"
+                  <label class="flex items-center" v-for="tax in taxes" :key="tax.taxRateId">
+                    <input v-model="formData.taxes" :value="tax.taxRateId" type="checkbox"
                       @change="calculateRateInclusiveTax"
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">{{ tax.name }}</span>
+                    <span class="ml-2 text-sm text-gray-700">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
@@ -213,11 +218,21 @@
         </div>
       </div>
     </div>
+     <ConfirmationModal
+      v-model:show="showConfirmModal"
+      :is-open="showConfirmModal"
+      :is-loading="isDeletingLoading"
+      :title="t('configuration.extra_charge.confirm_delete_title')"
+      :message="t('configuration.extra_charge.confirm_delete', { name: itemToDelete?.name || '' })"
+      action="DANGER"
+      @close="closeConfirmModal"
+      @confirm="confirmDelete"
+    />
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive,onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
@@ -226,10 +241,12 @@ import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
 import InputDatePicker from '../../../components/forms/FormElements/InputDatePicker.vue'
 import Plus from '../../../icons/Plus.vue'
-import { getExtraCharges, getTaxes, postExtraCharge, updateExtraChargeById } from '../../../services/configrationApi'
+import { getExtraCharges, getTaxes, postExtraCharge, updateExtraChargeById,deleteExtraChargeById } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { Save } from 'lucide-vue-next'
+import TablePagination from '@/components/tables/TablePagination.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()
 
@@ -240,7 +257,11 @@ const loading = ref(false)
 const toast = useToast()
 const serviceStore = useServiceStore();
 const isSaving = ref(false);
+const paginationMeta = ref(null)
 const taxes = ref<any>([])
+const showConfirmModal = ref(false)
+const itemToDelete = ref<any>(null)
+const isDeletingLoading = ref(false)
 const columns: Column[] = [
   { key: 'shortCode', label: t('configuration.extra_charge.short_code'), type: 'text' },
   { key: 'name', label: t('configuration.extra_charge.name'), type: 'text' },
@@ -278,10 +299,37 @@ const extraCharges = ref<any[]>([
 ])
 
 const calculateRateInclusiveTax = () => {
-  const rate = parseFloat(formData.rate.toString()) || 0
-  const totalTax = formData.taxes.reduce((sum, tax) => sum + parseFloat(tax), 0)
-  formData.rateInclusiveTax = rate + (rate * totalTax / 100)
-}
+  const rate = parseFloat(formData.rate.toString()) || 0;
+  let totalTax = 0;
+
+  // Si "No Tax" est sélectionné
+  if (formData.taxes.includes('0')) {
+    totalTax = 0;
+  } else {
+    totalTax = formData.taxes.reduce((sum, taxId) => {
+      const selectedTax = taxes.value.find((t: any) => t.taxRateId == taxId);
+      if (!selectedTax) return sum;
+
+      let taxAmount = 0;
+
+      if (selectedTax.postingType === 'flat_percentage') {
+        taxAmount = rate * (parseFloat(selectedTax.percentage) || 0) / 100;
+      } else if (selectedTax.postingType === 'flat_amount') {
+        taxAmount = parseFloat(selectedTax.amount) || 0;
+      }
+
+      return sum + taxAmount;
+    }, 0);
+  }
+
+  formData.rateInclusiveTax = rate + totalTax;
+
+  console.log('Rate:', rate);
+  console.log('Selected Taxes:', formData.taxes);
+  console.log('Total Tax Amount:', totalTax);
+  console.log('Rate Inclusive Tax:', formData.rateInclusiveTax);
+};
+
 
 const openAddModal = () => {
   isEditing.value = false
@@ -308,9 +356,13 @@ const openAddModal = () => {
 }
 
 const editExtraCharge = (charge: any) => {
+  console.log("charge",charge)
   isEditing.value = true
   editingId.value = charge.id
   Object.assign(formData, charge)
+
+   formData.taxes = (charge.taxRates || []).map((tax: any) => String(tax.taxRateId));
+  calculateRateInclusiveTax() // Recalculate rate with taxes
   showModal.value = true
 }
 
@@ -339,9 +391,11 @@ const closeModal = () => {
 const saveExtraCharge = async () => {
   try {
     isSaving.value = true;
-    
+
+    const taxRateIds = formData.taxes.filter(id => id !== '0');
+
     if (isEditing.value && editingId.value) {
-      const editExtraCharge = { ...formData,  taxRateIds: formData.taxes.map((i:any)=>i.id)  }
+      const editExtraCharge = { ...formData,  taxRateIds: taxRateIds  }
       const res = await updateExtraChargeById(editingId.value!, editExtraCharge);
       if (res.status === 200 || res.status === 201) {
         toast.success(t('configuration.extra_charge.update_extra_charge') + ' successfully');
@@ -351,7 +405,7 @@ const saveExtraCharge = async () => {
         toast.error(t('something_went_wrong'))
       }
     } else {
-      const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId,taxRateIds: formData.taxes.map((i:any)=>i.id)  }
+      const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId, taxRateIds: taxRateIds  }
       const res = await postExtraCharge(newExtraCgarge)
       if (res.status === 200 || res.status === 201) {
         toast.success(t('configuration.extra_charge.save_extra_charge') + ' successfully');
@@ -369,14 +423,41 @@ const saveExtraCharge = async () => {
   }
 }
 
-const deleteExtraCharge = (id: number) => {
-  if (confirm(t('configuration.extra_charge.confirm_delete'))) {
-    const index = extraCharges.value.findIndex(c => c.id === id)
-    if (index !== -1) {
-      extraCharges.value.splice(index, 1)
+const deleteExtraCharge = (item: any) => {
+  itemToDelete.value = item
+  showConfirmModal.value = true
+}
+
+// Fonction pour confirmer la suppression
+const confirmDelete = async () => {
+  if (!itemToDelete.value) return
+
+  try {
+    isDeletingLoading.value = true
+    const response = await deleteExtraChargeById(itemToDelete.value.id)
+
+    if (response.status === 200 || response.status === 204) {
+      toast.success(t('configuration.extra_charge.delete_success') || 'Extra charge deleted successfully')
+      await loadata()
+    } else {
+      toast.error(t('configuration.extra_charge.delete_error') || 'Error deleting extra charge')
     }
+  } catch (error) {
+    console.error('Error deleting extra charge:', error)
+    toast.error(t('something_went_wrong'))
+  } finally {
+    isDeletingLoading.value = false
+    closeConfirmModal()
   }
 }
+
+// Fonction pour fermer la modal de confirmation
+const closeConfirmModal = () => {
+  showConfirmModal.value = false
+  itemToDelete.value = null
+  isDeletingLoading.value = false
+}
+
 
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
@@ -389,12 +470,19 @@ const onAction = (action: string, item: any) => {
 
 
 // Fetch identity types from API
-const loadata = async () => {
+const loadata = async (page = 1) => {
   try {
     loading.value = true
-    const response = await getExtraCharges()
+    const serviceId = serviceStore.serviceId
+     const allParams = {
+      hotel_id: serviceId,
+      page: page,
+      limit: 10,
+    };
+    const response = await getExtraCharges(allParams)
     console.log('response',response)
     extraCharges.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta;
   } catch (error) {
     console.error('Error fetching identity types:', error)
     toast.error(t('configuration.identity_type.fetch_error'))
@@ -403,10 +491,15 @@ const loadata = async () => {
   }
 }
 
+const handlePageChange = (newPage: number) => {
+  loadata(newPage);
+};
+
 const fetchTaxes = async () => {
   try {
     const response = await getTaxes()
     taxes.value = response.data.data.data || []
+    console.log("taxes",taxes.value)
   } catch (error) {
     console.error('Error fetching taxes:', error)
     toast.error(t('configuration.tax.fetch_error'))
@@ -414,5 +507,9 @@ const fetchTaxes = async () => {
 }
 
 fetchTaxes()
-loadata() 
+onMounted(async () => {
+  await loadata(1)
+})
+
+
 </script>

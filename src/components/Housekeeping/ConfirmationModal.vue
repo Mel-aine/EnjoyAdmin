@@ -64,6 +64,8 @@
           </p>
         </div>
 
+        <slot name="content"></slot>
+
         
         <!-- Actions -->
         <div class="flex gap-3 px-6 py-4 bg-gray-50">

@@ -4,12 +4,14 @@ import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports/work-orders`
-const authStore = useAuthStore()
-const headers = {
-  headers: {
-    Authorization: `Bearer ${authStore.token}`,
-  },
-  withCredentials: true,
+const getHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
 }
 
 export interface ApiResponse<T = any> {
@@ -87,7 +89,7 @@ export const getAvailableWorkOrderReports = async (): Promise<ApiResponse<Availa
   try {
     const response: AxiosResponse<ApiResponse<AvailableReport[]>> = await apiClient.get(
       API_URL,
-      headers
+        getHeaders()
     )
     return response.data
   } catch (error) {
@@ -112,7 +114,7 @@ const generateWorkOrderReportBase = async (
           format: 'json'
         }
       },
-      headers
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -228,7 +230,7 @@ export const exportWorkOrderReport = async (
         }
       },
       {
-        ...headers,
+        ...getHeaders(),
         responseType: 'blob'
       }
     )
@@ -333,7 +335,7 @@ export const getWorkOrderStats = async (
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/stats`,
       {
-        ...headers,
+        ...getHeaders(),
         params
       }
     )
@@ -404,7 +406,7 @@ export const exportWorkOrderData = async (
         filters
       },
       {
-        ...headers,
+        ...getHeaders(),
         responseType: 'blob'
       }
     )

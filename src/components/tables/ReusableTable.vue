@@ -12,15 +12,12 @@
           <div v-if="searchable" class="relative flex-1 sm:flex-none sm:w-64">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="searchPlaceholder"
-              class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            />
+            <input v-model="searchQuery" type="text" :placeholder="searchPlaceholder"
+              class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
           </div>
 
           <!-- Header Actions Slot -->
@@ -36,29 +33,24 @@
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th v-if="selectable" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
-              <input
-                type="checkbox"
-                v-model="selectAll"
-                @change="toggleSelectAll"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
+            <th v-if="selectable"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
+              <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
+                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
             </th>
-            <th
-              v-for="column in columns"
-              :key="column.key"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300  capitalize tracking-wider"
-            >
+            <th v-for="column in columns" :key="column.key"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300  capitalize tracking-wider">
               {{ getColumnLabel(column) }}
             </th>
-            <th v-if="hasActions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
+            <th v-if="hasActions"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
             </th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
           <!-- Skeleton Loading Rows -->
-           <template v-if="loading">
-            <tr  v-for="n in 5" :key="`skeleton-${n}`" class="animate-pulse">
+          <template v-if="loading">
+            <tr v-for="n in 5" :key="`skeleton-${n}`" class="animate-pulse">
               <td v-if="selectable" class="px-6 py-4">
                 <div class="w-4 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
               </td>
@@ -72,55 +64,42 @@
           </template>
 
           <!-- Actual Data Rows -->
-           <template v-else>
-            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"  class="transition-colors cursor-pointer"
-              :class="[
+          <template v-else>
+            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"
+              class="transition-colors cursor-pointer" :class="[
                 'hover:bg-gray-50 dark:hover:bg-gray-700',
+                item.isVoided ? 'bg-gray-100 dark:bg-gray-700 void-status' : '',
                 rowClass(item)
-              ]"
-              @click="emit('row-click', item)">
+              ]" @click="emit('row-click', item)">
               <td v-if="selectable" class="px-6 py-4">
-                <input
-                  type="checkbox"
-                  v-model="selectedItems"
-                  :value="item"
+                <input type="checkbox" v-model="selectedItems" :value="item"
                   :disabled="props.canSelectItem && !props.canSelectItem(item)"
-                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" />
               </td>
-              <td
-                v-for="column in columns"
-                :key="column.key"
-                class="px-6 py-4 break-words max-w-xs"
-              >
+              <td v-for="column in columns" :key="column.key" class="px-6 py-4 break-words max-w-xs">
                 <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white break-words">
                   {{ getColumnValue(item, column) }}
                 </div>
 
                 <div v-else-if="column.type === 'email'" class="text-sm">
-                  <a :href="`mailto:${getNestedValue(item, column.key)}`" class="text-blue-600 dark:text-blue-400 hover:underline">
+                  <a :href="`mailto:${getNestedValue(item, column.key)}`"
+                    class="text-blue-600 dark:text-blue-400 hover:underline">
                     {{ getColumnValue(item, column) }}
                   </a>
                 </div>
 
                 <div v-else-if="column.type === 'badge'" class="text-sm">
-                  <span
-                    v-if="getNestedValue(item, column.key)"
+                  <span v-if="getNestedValue(item, column.key)"
                     :class="getBadgeClass(getNestedValue(item, column.key), column.badgeColors)"
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  >
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                     {{ getColumnValue(item, column) }}
                   </span>
                   <span v-else class="text-gray-400 dark:text-gray-500">-</span>
                 </div>
 
                 <div v-else-if="column.type === 'image' && column.imageKey" class="flex items-center gap-2">
-                  <img
-                    v-if="getNestedValue(item, column.imageKey)"
-                    :src="getNestedValue(item, column.imageKey)"
-                    :alt="getNestedValue(item, column.key)"
-                    class="w-4 h-3 object-cover rounded-sm"
-                  />
+                  <img v-if="getNestedValue(item, column.imageKey)" :src="getNestedValue(item, column.imageKey)"
+                    :alt="getNestedValue(item, column.key)" class="w-4 h-3 object-cover rounded-sm" />
                   <span class="text-sm text-gray-900 dark:text-white">{{ getColumnValue(item, column) }}</span>
                 </div>
 
@@ -143,47 +122,39 @@
                 <div class="flex items-center gap-2">
                   <!-- Dropdown Actions -->
                   <div class="relative" v-if="getItemActions(item).length > 0">
-                    <button
-                      @click="toggleDropdown(index, $event)"
+                    <button @click="toggleDropdown(index, $event)"
                       class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                      :title="'More options'"
-                    >
+                      :title="'More options'">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                       </svg>
                     </button>
 
-                  <!-- Dropdown Menu -->
-                  <div
-                    v-if="openDropdown === index"
-                    ref="dropdownMenu"
-                    :class="{ 'dropdown-up': dropdownDirection === 'up' }"
-                    class="absolute right-0  w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
-                    @click.stop
-                  >
-                    <div class="py-1">
-                      <button
-                        v-for="action in getItemActions(item)"
-                        :key="action.label"
-                        @click="handleAction(action, item)"
-                        :class="[
-                          'block w-full text-left px-4 py-2 text-sm transition-colors',
-                          action.variant === 'danger'
-                            ? 'text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                        ]"
-                      >
-                        <div class="flex items-center gap-2">
-                          <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
-                          {{ action.label }}
-                        </div>
-                      </button>
+                    <!-- Dropdown Menu -->
+                    <div v-if="openDropdown === index" ref="dropdownMenu"
+                      :class="{ 'dropdown-up': dropdownDirection === 'up' }"
+                      class="absolute right-0  w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
+                      @click.stop>
+                      <div class="py-1">
+                        <button v-for="action in getItemActions(item)" :key="action.label"
+                          @click="handleAction(action, item)" :class="[
+                            'block w-full text-left px-4 py-2 text-sm transition-colors',
+                            action.variant === 'danger'
+                              ? 'text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                          ]">
+                          <div class="flex items-center gap-2">
+                            <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
+                            {{ action.label }}
+                          </div>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
           </template>
         </tbody>
       </table>
@@ -192,7 +163,8 @@
     <!-- Empty State -->
     <div v-if="!loading && filteredData.length === 0" class="text-center py-12">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
       <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ emptyStateTitle }}</h3>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessage }}</p>
@@ -201,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted,nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
 
@@ -289,7 +261,7 @@ const getItemActions = (item: any) => {
     return []
   }
 
-  return props.actions.filter((action:any) =>
+  return props.actions.filter((action: any) =>
     !action.condition || action.condition(item)
   )
 }
@@ -465,10 +437,12 @@ onUnmounted(() => {
 
 /* Scrollbar invisible mais toujours scrollable */
 .custom-scrollbar {
-  scrollbar-width: none; /* Firefox */
-}
-.custom-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Edge */
+}
 </style>

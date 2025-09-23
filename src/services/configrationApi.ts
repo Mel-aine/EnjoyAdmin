@@ -128,6 +128,14 @@ export const deleteRoomType = (id: number): Promise<AxiosResponse<any>> => {
 export const getRooms = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/rooms`, getHeaders())
 }
+
+/**
+ * Get rooms by hotel id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getRoomsByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/rooms?hotelId=${hotelId}`, getHeaders())
+}
 /**
  * Post a new room
  * @param data
@@ -1184,9 +1192,11 @@ export const getBookingSourcesByHotelId = (hotelId: number): Promise<AxiosRespon
  * Get all extra charges
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getExtraCharges = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/extra_charges`, getHeaders())
+export const getExtraCharges = (params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/extra_charges`, { ...getHeaders(), params })
 }
+
+
 
 /**
  * Post a new extra charge
