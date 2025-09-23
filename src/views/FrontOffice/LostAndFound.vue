@@ -30,7 +30,7 @@
               variant="secondary"
               icon="folder-output"
             />
-            <UserFilters />
+           
           </template>
         </ReusableTable>
       </div>
@@ -157,6 +157,10 @@ const actions = computed(() => [
   {
     label: t('Edit'),
     handler: (item: any) => handleLostFoundAction('edit', item)
+  },
+  {
+    label: t('Delete'),
+    handler: (item: any) => handleLostFoundAction('delete', item)
   }
 ])
 
@@ -240,14 +244,37 @@ const handleSubmitLostFound = async (payload: any) => {
     loading.value = true
 
     const { data, isEdit, isFound } = payload
-    data.service_id = serviceStore.serviceId
+
+    // Normaliser les dates en format YYYY-MM-DD et nettoyer les champs vides
+    const normalizeDateToYMD = (value: any) => {
+      if (!value) return undefined
+      if (typeof value === 'string') {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value
+        const match = value.match(/^\d{4}-\d{2}-\d{2}/)
+        if (match) return match[0]
+      }
+      return value
+    }
+
+    const payloadData: any = { ...data }
+    payloadData.service_id = serviceStore.serviceId
+
+    // foundOn: convertir en YYYY-MM-DD ou supprimer si vide
+    const normalizedFoundOn = normalizeDateToYMD(payloadData.foundOn)
+    if (normalizedFoundOn) payloadData.foundOn = normalizedFoundOn
+    else delete payloadData.foundOn
+
+    // lostOn: convertir en YYYY-MM-DD ou supprimer si vide
+    const normalizedLostOn = normalizeDateToYMD(payloadData.lostOn)
+    if (normalizedLostOn) payloadData.lostOn = normalizedLostOn
+    else delete payloadData.lostOn
 
     // Ajouter le type d'item selon le mode
     if (!isEdit) {
-      data.type = isFound ? 'found' : 'lost'
+      payloadData.type = isFound ? 'found' : 'lost'
     }
 
-    console.log('Submit lost found:', data)
+    console.log('Submit lost found:', payloadData)
 
     if (isEdit) {
       // Appel API pour modifier
@@ -255,19 +282,20 @@ const handleSubmitLostFound = async (payload: any) => {
       if (!id) {
         throw new Error('ID de l\'item non trouvé pour la mise à jour')
       }
-
-      await updateLostFoundItem(id, data)
-
+ 
       // Mise à jour locale pour la démo
+      await updateLostFoundItem(id, payloadData)
       const index = lostFoundItems.value.findIndex(item => item.id === selectedItem.value?.id)
       if (index !== -1) {
-        lostFoundItems.value[index] = { ...lostFoundItems.value[index], ...data }
+        lostFoundItems.value[index] = { ...lostFoundItems.value[index], ...payloadData }
       }
 
       toast.success(t('toast.Updated'))
     } else {
       // Appel API pour créer
-       await addLostFound(data)
+      console.log("data.send", payloadData)
+       const response = await addLostFound(payloadData)
+       console.log("data.receive", response)
 
       toast.success(t('toast.Created'))
     }

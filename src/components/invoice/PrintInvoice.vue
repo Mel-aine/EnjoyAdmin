@@ -213,6 +213,7 @@ const handlePrint = async () => {
         })
         // Show PDF exporter
         showPdfExporter.value = true
+        console.log('data.send:',folio.value,props.reservationId,currency.value)
         const res =await printFolioPdf({folioId: Number(folio.value),reservationId: props.reservationId,currencyId: Number(currency.value)})
         console.log(res)
         pdfurl.value = window.URL.createObjectURL(res)
