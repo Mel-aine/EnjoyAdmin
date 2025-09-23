@@ -1,44 +1,82 @@
 <template>
-  <div v-if="!status" class="text-center">
-    {{ room }}
-  </div>
-  <div v-else class="flex items-center justify-center">
-    <div
-      :class="[
-        'flex items-center px-2 py-1 rounded w-full',
-        getBgColor()
-      ]"
-    >
-      <BedIcon
-        :size="14"
-        :class="['mr-1', getTextColor()]"
-      />
-      <span :class="['text-xs font-medium', getTextColor()]">
-        {{ room }}
-        <template v-if="status !== room">
-          <span class="mx-1 text-xs">·</span>
-          <span class="text-xs">{{ status }}</span>
-        </template>
-        <template v-if="tag">
-          <span class="mx-1 text-xs">·</span>
-          <span class="text-xs">{{ tag }}</span>
-        </template>
-      </span>
+  <div>
+    <div v-if="!status" class="text-center">
+      {{ room }}
     </div>
+    <div v-else class="flex items-center justify-center relative">
+      <div
+        :class="[
+          'flex items-center px-2 py-1 rounded w-full',
+          getBgColor()
+        ]"
+      >
+        <BedIcon
+          :size="14"
+          :class="['mr-1', getTextColor()]"
+        />
+        <span :class="['text-xs font-medium flex-1', getTextColor()]">
+          {{ room }}
+          <template v-if="status !== room">
+            <span class="mx-1 text-xs">·</span>
+            <span class="text-xs">{{ status }}</span>
+          </template>
+          <template v-if="tag">
+            <span class="mx-1 text-xs">·</span>
+            <span class="text-xs">{{ tag }}</span>
+          </template>
+        </span>
+      </div>
+
+      <button
+        @click="openRemarkModal"
+        class="absolute -top-1 -right-1 p-1 bg-white rounded-full shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 z-10"
+        title="Ajouter une remarque"
+      >
+        <MessageSquareMore :size="10" class="text-gray-600 hover:text-blue-600" />
+      </button>
+    </div>
+
+    <!-- Modal de remarque -->
+    <RemarkModal
+      :is-open="isRemarkModalOpen"
+      :room-name="room"
+      :room-id="roomId"
+      :room-data="roomData"
+      :existingRemarkData="existingRemarkData"
+      :housekeeperOptions = "HousekeeperOptions"
+      @close="closeRemarkModal"
+      @saved="onRemarkSaved"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bed as BedIcon } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { Bed as BedIcon, MessageSquareMore } from 'lucide-vue-next'
+import RemarkModal from '@/components/Housekeeping/RemarkModal.vue'
 
 interface StatusBadgeProps {
   room: string
   status: string
   tag?: string
   type: 'red' | 'green' | 'gray' | 'yellow'
+  roomId?: string
+  HousekeeperOptions: Array<{ value: string; label: string }>
+  existingRemarkData?: any
+  roomData?: {
+    id: string
+    roomNumber: string
+    roomType?: {
+      id: any
+      roomTypeName: string
+    }
+  }
 }
 
 const props = defineProps<StatusBadgeProps>()
+
+// État de la modal de remarque
+const isRemarkModalOpen = ref(false)
 
 // Détermine la couleur de fond
 const getBgColor = () => {
@@ -69,5 +107,19 @@ const getTextColor = () => {
     default:
       return 'text-gray-600'
   }
+}
+
+// Méthodes pour gérer la modal
+const openRemarkModal = () => {
+  isRemarkModalOpen.value = true
+}
+
+const closeRemarkModal = () => {
+  isRemarkModalOpen.value = false
+}
+
+const onRemarkSaved = (remark: any) => {
+  console.log('Remarque sauvegardée:', remark)
+  closeRemarkModal()
 }
 </script>

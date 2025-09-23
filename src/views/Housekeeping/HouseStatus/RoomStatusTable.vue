@@ -16,7 +16,11 @@
               />
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center w-50">
-              <Select :options="roomTypesOptions" :placeholder="$t('RoomTypes')" v-model="selectedRoomTypeFilter"/>
+              <Select
+                :options="roomTypesOptions"
+                :placeholder="$t('RoomTypes')"
+                v-model="selectedRoomTypeFilter"
+              />
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center">
               <div class="flex items-center justify-center">
@@ -31,7 +35,7 @@
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-yellow-50">
               <div class="flex items-center justify-center">
-                <div class="w-4 h-4  bg-orange-500 mr-1"></div>
+                <div class="w-4 h-4 bg-orange-500 mr-1"></div>
                 <span class="text-sm">{{ $t('dirty') }}</span>
               </div>
             </th>
@@ -54,28 +58,45 @@
             <th colspan="7" class="py-3 px-4 border-b border-gray-200">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                  <span class="text-sm font-medium">{{ selectedRoomsCount }} {{ $t('RecordsSelected') }}</span>
+                  <span class="text-sm font-medium"
+                    >{{ selectedRoomsCount }} {{ $t('RecordsSelected') }}</span
+                  >
 
-                  <div class="flex items-center space-x-2">
+                  <div class="flex items-center space-x-2 text-gray-750 font-normal">
                     <div class="w-48">
-                      <Select :placeholder="$t('Selectoperation')" :options="availableOperations" v-model="selectedOperation" @change="onOperationChange"/>
+                      <Select
+                        :placeholder="$t('Selectoperation')"
+                        :options="availableOperations"
+                        v-model="selectedOperation"
+                        @change="onOperationChange"
+                      />
                     </div>
 
                     <!-- Select pour le statut si "Set Status" est sélectionné -->
                     <div v-if="selectedOperation === 'set_clean_status'" class="w-48">
-                      <Select :placeholder="$t('set_to_clean')" :options="[{value: 'clean', label: t('Clean')}]" v-model="selectedStatus"/>
+                      <Select
+                        :placeholder="$t('set_to_clean')"
+                        :options="[{ value: 'clean', label: t('Clean') }]"
+                        v-model="selectedStatus"
+                      />
                     </div>
 
                     <!-- Select pour le housekeeper si "Assign Housekeeper" est sélectionné -->
-                    <div v-if="selectedOperation === 'assign_housekeeper'" class="w-48">
-                      <Select :placeholder="$t('select_housekeeper')" :options="housekeeperOptions" v-model="selectedHousekeeper"/>
+                    <div v-if="selectedOperation === 'assign_housekeeper'" class="w-48 text-gray-750">
+                      <Select
+                        :placeholder="$t('select_housekeeper')"
+                        :options="housekeeperOptions"
+                        v-model="selectedHousekeeper"
+                      />
                     </div>
 
                     <button
                       class="bg-purple-500 hover:bg-purple-600 text-white rounded px-4 py-2 text-sm transition-colors"
                       @click="applyBulkAction"
                       :disabled="!canApplyOperation || isBulkUpdating"
-                      :class="{ 'opacity-50 cursor-not-allowed': !canApplyOperation || isBulkUpdating }"
+                      :class="{
+                        'opacity-50 cursor-not-allowed': !canApplyOperation || isBulkUpdating,
+                      }"
                     >
                       <span v-if="isBulkUpdating">{{ $t('Applying...') }}</span>
                       <span v-else>{{ $t('commons.apply') }}</span>
@@ -136,13 +157,13 @@
               <td
                 :class="[
                   'py-2 px-3 border-b border-r border-gray-200 text-center',
-                  getRoomBorderColor(room)
+                  getRoomBorderColor(room),
                 ]"
               >
                 <input
                   type="checkbox"
                   :checked="room.isChecked"
-                  @change="handleCheckboxChange(room.id, room.name)"
+                  @change="handleCheckboxChange(Number(room.id), room.name)"
                   class="form-checkbox"
                   :disabled="!canSelectRoom(room)"
                 />
@@ -152,7 +173,10 @@
                   <span>{{ room.name }}</span>
                   <BedIcon :size="16" class="ml-2" />
                   <!-- Indicateur housekeeper assigné -->
-                  <span v-if="room.assignedHousekeeper" class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                  <span
+                    v-if="room.assignedHousekeeper"
+                    class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                  >
                     {{ room.assignedHousekeeper }}
                   </span>
                 </div>
@@ -163,27 +187,41 @@
               <td
                 :class="[
                   'py-2 px-3 border-b border-r border-gray-200 text-center',
-                  getStatusColumn(room) === 3 ? 'bg-red-50' : ''
+                  getStatusColumn(room) === 3 ? 'bg-red-50' : '',
                 ]"
               >
                 <StatusBadge
                   v-if="getStatusColumn(room) === 3"
                   :room="room.name"
+                  :room-id="room.id"
                   :status="$t('occupied')"
                   :tag="room.tag"
+                  :HousekeeperOptions="housekeeperOptions"
+                  :existingRemarkData = "room.housekeepersRemarks"
+                  :room-data="{
+                    id: room.id,
+                    roomNumber: room.name,
+                    roomType: {
+                      id: getRoomTypeId(room.roomType),
+                      roomTypeName: room.roomType
+                    }
+                  }"
                   type="red"
                 />
               </td>
               <td
                 :class="[
                   'py-2 px-3 border-b border-r border-gray-200 text-center',
-                  getStatusColumn(room) === 4 ? 'bg-orange-50' : ''
+                  getStatusColumn(room) === 4 ? 'bg-orange-50' : '',
                 ]"
               >
                 <StatusBadge
                   v-if="getStatusColumn(room) === 4"
                   :room="room.name"
+                  :room-id="room.id"
                   :status="$t('dirty')"
+                  :HousekeeperOptions="housekeeperOptions"
+                  :existingRemarkData = "room.housekeepersRemarks"
                   :tag="room.tag"
                   type="yellow"
                 />
@@ -191,36 +229,60 @@
               <td
                 :class="[
                   'py-2 px-3 border-b border-r border-gray-200 text-center',
-                  getStatusColumn(room) === 5 ? 'bg-green-50' : ''
+                  getStatusColumn(room) === 5 ? 'bg-green-50' : '',
                 ]"
               >
                 <StatusBadge
                   v-if="getStatusColumn(room) === 5"
                   :room="room.name"
+                  :room-id="room.id"
                   :status="$t('available')"
                   :tag="room.tag"
+                  :HousekeeperOptions="housekeeperOptions"
+                  :existingRemarkData = "room.housekeepersRemarks"
+                  :room-data="{
+                    id: room.id,
+                    roomNumber: room.name,
+                    roomType: {
+                      id: getRoomTypeId(room.roomType),
+                      roomTypeName: room.roomType
+                    }
+                  }"
                   type="green"
                 />
+
               </td>
               <td
                 :class="[
                   'py-2 px-3 border-b border-r border-gray-200 text-center',
-                  getStatusColumn(room) === 6 ? 'bg-gray-100' : ''
+                  getStatusColumn(room) === 6 ? 'bg-gray-100' : '',
                 ]"
               >
                 <StatusBadge
                   v-if="getStatusColumn(room) === 6"
                   :room="room.name"
+                  :room-id="room.id"
                   :status="$t('statut.outOfOrder')"
                   :tag="room.tag"
+                  :HousekeeperOptions="housekeeperOptions"
+                  :existingRemarkData = "room.housekeepersRemarks"
+                  :room-data="{
+                    id: room.id,
+                    roomNumber: room.name,
+                    roomType: {
+                      id: getRoomTypeId(room.roomType),
+                      roomTypeName: room.roomType
+                    }
+                  }"
                   type="gray"
                 />
+
               </td>
             </tr>
           </template>
 
           <!-- Ligne de total -->
-          <tr class="bg-orange-50 sticky bottom-0">
+          <tr class="bg-orange-50 sticky bottom-0 z-10">
             <td class="py-2 px-3 border-b border-r border-gray-200"></td>
             <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
               {{ $t('total') }} ({{ selectedCount }} {{ $t('selected') }})
@@ -229,16 +291,16 @@
               {{ filteredRooms.length }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.filter(r => r.status === 'occupied').length }}
+              {{ filteredRooms.filter((r) => r.status === 'occupied').length }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.filter(r => isDirtyRoom(r)).length }}
+              {{ filteredRooms.filter((r) => isDirtyRoom(r)).length }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.filter(r => isCleanRoom(r)).length }}
+              {{ filteredRooms.filter((r) => isCleanRoom(r)).length }}
             </td>
             <td class="py-2 px-3 border-b border-gray-200 text-center">
-              {{ filteredRooms.filter(r => r.status === 'out_of_order').length }}
+              {{ filteredRooms.filter((r) => r.status === 'out_of_order').length }}
             </td>
           </tr>
         </tbody>
@@ -272,13 +334,14 @@
 import { ref, computed, watch, onMounted, toRefs } from 'vue'
 import { Bed as BedIcon } from 'lucide-vue-next'
 import StatusBadge from './StatusBadge.vue'
-import { PersonStanding } from 'lucide-vue-next';
-import Select from '@/components/forms/FormElements/Select.vue';
-import {getHouseStatus, bulkUpdateRooms} from '@/services/configrationApi'
+import { PersonStanding } from 'lucide-vue-next'
+import Select from '@/components/forms/FormElements/Select.vue'
+import { getHouseStatus, bulkUpdateRooms } from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
-import { useAuthStore } from '@/composables/user';
-import { useToast } from 'vue-toastification';
+import { useAuthStore } from '@/composables/user'
+import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import RemarkModal from '@/components/Housekeeping/RemarkModal.vue'
 
 // Define room data type
 interface Room {
@@ -293,6 +356,7 @@ interface Room {
   tag: string
   statusType: 'red' | 'green' | 'gray' | 'yellow'
   assignedHousekeeper?: string
+  housekeepersRemarks?: any
 }
 
 // Props pour recevoir la recherche du parent
@@ -301,7 +365,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  searchQuery: ''
+  searchQuery: '',
 })
 
 const { searchQuery } = toRefs(props)
@@ -328,22 +392,22 @@ const { t } = useI18n()
 
 // Initialize empty arrays for API data
 const rooms = ref<Room[]>([])
-const roomTypesOptions = ref<Array<{value: number, label: string}>>([])
-const housekeepingStatusOptions = ref<Array<{value: string, label: string}>>([])
-const housekeeperOptions = ref<Array<{value: string, label: string}>>([])
+const roomTypesOptions = ref<Array<{ value: number; label: string ;roomTypeId:number}>>([])
+const housekeepingStatusOptions = ref<Array<{ value: string; label: string }>>([])
+const housekeeperOptions = ref<Array<{ value: string; label: string }>>([])
 
 // Operations disponibles selon le contexte
 const availableOperations = computed(() => {
-  const selectedRooms = rooms.value.filter(room => room.isChecked)
-  const operations :any[] = []
+  const selectedRooms = rooms.value.filter((room) => room.isChecked)
+  const operations: any[] = []
 
   // Si toutes les chambres sélectionnées sont dirty, on peut les nettoyer
-  if (selectedRooms.length > 0 && selectedRooms.every(room => isDirtyRoom(room))) {
+  if (selectedRooms.length > 0 && selectedRooms.every((room) => isDirtyRoom(room))) {
     operations.push({ value: 'set_clean_status', label: t('Mark as Clean') })
   }
 
   // Si toutes les chambres sélectionnées sont dirty, on peut assigner un housekeeper
-  if (selectedRooms.length > 0 && selectedRooms.every(room => isDirtyRoom(room))) {
+  if (selectedRooms.length > 0 && selectedRooms.every((room) => isDirtyRoom(room))) {
     operations.push({ value: 'assign_housekeeper', label: t('Assign Housekeeper') })
   }
 
@@ -368,6 +432,10 @@ const canSelectRoom = (room: Room): boolean => {
   return isDirtyRoom(room)
 }
 
+const getRoomTypeId = (roomTypeName: string): number => {
+  const roomType = roomTypesOptions.value.find(rt => rt.label === roomTypeName)
+  return roomType ? roomType.roomTypeId : 0
+}
 // Computed property pour déterminer si on peut appliquer l'opération
 const canApplyOperation = computed(() => {
   if (!selectedOperation.value || isBulkUpdating.value) return false
@@ -385,12 +453,12 @@ const canApplyOperation = computed(() => {
 
 // Computed properties pour la sélection
 const hasDirtyRoomsInFiltered = computed(() => {
-  return filteredRooms.value.some(room => isDirtyRoom(room))
+  return filteredRooms.value.some((room) => isDirtyRoom(room))
 })
 
 const allFilteredDirtyRoomsSelected = computed(() => {
-  const dirtyRooms = filteredRooms.value.filter(room => isDirtyRoom(room))
-  return dirtyRooms.length > 0 && dirtyRooms.every(room => room.isChecked)
+  const dirtyRooms = filteredRooms.value.filter((room) => isDirtyRoom(room))
+  return dirtyRooms.length > 0 && dirtyRooms.every((room) => room.isChecked)
 })
 
 // Fonction appelée quand l'opération change
@@ -405,18 +473,19 @@ const filteredRooms = computed(() => {
 
   // Filtrer par type de chambre
   if (selectedRoomTypeFilter.value) {
-    filtered = filtered.filter(room => room.roomType === selectedRoomTypeFilter.value)
+    filtered = filtered.filter((room) => room.roomType === selectedRoomTypeFilter.value)
   }
 
   // Filtrer par recherche
   if (searchQuery.value && searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
-    filtered = filtered.filter(room =>
-      room.name.toLowerCase().includes(query) ||
-      room.section.toLowerCase().includes(query) ||
-      room.roomType.toLowerCase().includes(query) ||
-      room.housekeepingStatus.toLowerCase().includes(query) ||
-      room.tag.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      (room) =>
+        room.name.toLowerCase().includes(query) ||
+        room.section.toLowerCase().includes(query) ||
+        room.roomType.toLowerCase().includes(query) ||
+        room.housekeepingStatus.toLowerCase().includes(query) ||
+        room.tag.toLowerCase().includes(query),
     )
   }
 
@@ -435,7 +504,7 @@ const filteredGroupedRooms = computed(() => {
 })
 
 const selectedCount = computed(() => {
-  return rooms.value.filter(room => room.isChecked).length
+  return rooms.value.filter((room) => room.isChecked).length
 })
 
 // Helper function to get room border color based on status
@@ -484,14 +553,14 @@ const transformRoomData = (apiRoom: any): Room => {
     status,
     housekeepingStatus,
     isChecked: false,
-    statusType: getStatusType({...apiRoom, status, housekeepingStatus} as Room),
-    assignedHousekeeper: apiRoom.assignedHousekeeper || ''
+    statusType: getStatusType({ ...apiRoom, status, housekeepingStatus } as Room),
+    assignedHousekeeper: apiRoom.assignedHousekeeper || '',
   }
 }
 
 // Methods
-const handleCheckboxChange = (roomId: string, roomName: string) => {
-  const roomIndex = rooms.value.findIndex(room => room.id === roomId && room.name === roomName)
+const handleCheckboxChange = (roomId: number, roomName: string) => {
+  const roomIndex = rooms.value.findIndex((room) => room.id === roomId && room.name === roomName)
   if (roomIndex !== -1 && canSelectRoom(rooms.value[roomIndex])) {
     rooms.value[roomIndex].isChecked = !rooms.value[roomIndex].isChecked
   }
@@ -499,9 +568,9 @@ const handleCheckboxChange = (roomId: string, roomName: string) => {
 
 const toggleAllFilteredDirtyRooms = () => {
   const allSelected = allFilteredDirtyRoomsSelected.value
-  filteredRooms.value.forEach(room => {
+  filteredRooms.value.forEach((room) => {
     if (isDirtyRoom(room)) {
-      const roomIndex = rooms.value.findIndex(r => r.id === room.id && r.name === room.name)
+      const roomIndex = rooms.value.findIndex((r) => r.id === room.id && r.name === room.name)
       if (roomIndex !== -1) {
         rooms.value[roomIndex].isChecked = !allSelected
       }
@@ -510,7 +579,7 @@ const toggleAllFilteredDirtyRooms = () => {
 }
 
 const unselectAll = () => {
-  rooms.value.forEach(room => {
+  rooms.value.forEach((room) => {
     room.isChecked = false
   })
   selectedOperation.value = ''
@@ -519,13 +588,13 @@ const unselectAll = () => {
 }
 
 const toggleSectionDirtyRooms = (section: string) => {
-  const sectionDirtyRooms = filteredRooms.value.filter(room =>
-    room.section === section && isDirtyRoom(room)
+  const sectionDirtyRooms = filteredRooms.value.filter(
+    (room) => room.section === section && isDirtyRoom(room),
   )
-  const allSectionDirtySelected = sectionDirtyRooms.every(room => room.isChecked)
+  const allSectionDirtySelected = sectionDirtyRooms.every((room) => room.isChecked)
 
-  sectionDirtyRooms.forEach(room => {
-    const roomIndex = rooms.value.findIndex(r => r.id === room.id && r.name === room.name)
+  sectionDirtyRooms.forEach((room) => {
+    const roomIndex = rooms.value.findIndex((r) => r.id === room.id && r.name === room.name)
     if (roomIndex !== -1) {
       rooms.value[roomIndex].isChecked = !allSectionDirtySelected
     }
@@ -533,14 +602,14 @@ const toggleSectionDirtyRooms = (section: string) => {
 }
 
 const isSectionDirtyRoomsSelected = (section: string): boolean => {
-  const sectionDirtyRooms = filteredRooms.value.filter(room =>
-    room.section === section && isDirtyRoom(room)
+  const sectionDirtyRooms = filteredRooms.value.filter(
+    (room) => room.section === section && isDirtyRoom(room),
   )
-  return sectionDirtyRooms.length > 0 && sectionDirtyRooms.every(room => room.isChecked)
+  return sectionDirtyRooms.length > 0 && sectionDirtyRooms.every((room) => room.isChecked)
 }
 
 const sectionHasDirtyRooms = (section: string): boolean => {
-  return filteredRooms.value.some(room => room.section === section && isDirtyRoom(room))
+  return filteredRooms.value.some((room) => room.section === section && isDirtyRoom(room))
 }
 
 // Calculate section totals
@@ -566,12 +635,12 @@ const getStatusColumn = (room: Room): number => {
 
 // Watch for changes and emit to parent
 watch(
-  () => rooms.value.map(room => room.isChecked),
+  () => rooms.value.map((room) => room.isChecked),
   () => {
     selectedRoomsCount.value = selectedCount.value
     emit('selection-change', selectedCount.value)
   },
-  { deep: true }
+  { deep: true },
 )
 
 // Handle bulk action apply
@@ -581,14 +650,14 @@ const applyBulkAction = async () => {
   isBulkUpdating.value = true
 
   try {
-    const selectedRooms = rooms.value.filter(room => room.isChecked)
-    const roomIds = selectedRooms.map(room => room.id)
+    const selectedRooms = rooms.value.filter((room) => room.isChecked)
+    const roomIds = selectedRooms.map((room) => room.id)
 
     // Préparer les données pour l'API
     const bulkUpdateData: any = {
       room_ids: roomIds,
       operation: selectedOperation.value,
-      user_id: authStore?.UserId
+      user_id: authStore?.UserId,
     }
 
     // Ajouter les paramètres spécifiques selon l'opération
@@ -606,8 +675,8 @@ const applyBulkAction = async () => {
 
     if (response.data) {
       // Mettre à jour l'interface utilisateur localement
-      selectedRooms.forEach(room => {
-        const roomIndex = rooms.value.findIndex(r => r.id === room.id)
+      selectedRooms.forEach((room) => {
+        const roomIndex = rooms.value.findIndex((r) => r.id === room.id)
         if (roomIndex !== -1) {
           switch (selectedOperation.value) {
             case 'set_clean_status':
@@ -622,16 +691,18 @@ const applyBulkAction = async () => {
         }
       })
 
-      console.log(`Bulk update successful: ${selectedOperation.value} applied to ${selectedRoomsCount.value} rooms`)
+      console.log(
+        `Bulk update successful: ${selectedOperation.value} applied to ${selectedRoomsCount.value} rooms`,
+      )
       toast.success(t('bulk_update'))
       unselectAll()
       // Recharger les données pour être sûr
       setTimeout(() => fetchHousekeepingStatus(), 1000)
     }
-
   } catch (error: any) {
     console.error('Bulk update error:', error)
-    const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de la mise à jour en lot'
+    const errorMessage =
+      error.response?.data?.message || error.message || 'Erreur lors de la mise à jour en lot'
     toast.error(`${t('bulk_update_error')}: ${errorMessage}`)
   } finally {
     isBulkUpdating.value = false
@@ -644,47 +715,48 @@ const fetchHousekeepingStatus = async () => {
     isLoading.value = true
     error.value = null
 
-    const hotelId = serviceStore.serviceId;
-    const response = await getHouseStatus(hotelId!);
+    const hotelId = serviceStore.serviceId
+    const response = await getHouseStatus(hotelId!)
 
     const apiData = response.data
-    console.log("Housekeeping status fetched:", apiData);
+    console.log('Housekeeping status fetched:', apiData)
 
     if (apiData.rooms && Array.isArray(apiData.rooms)) {
       // Transform rooms according to business logic
       rooms.value = apiData.rooms.map(transformRoomData)
     }
 
-console.log("Housekeeping status fetched:", rooms.value);
+    console.log('Housekeeping status fetched:', rooms.value)
     // Transform other options
     if (apiData.roomTypes && Array.isArray(apiData.roomTypes)) {
-      roomTypesOptions.value = apiData.roomTypes.map((rt:any )=> ({
+      roomTypesOptions.value = apiData.roomTypes.map((rt: any) => ({
+        roomTypeId: rt.value,
         value: rt.label,
-        label: rt.label
+        label: rt.label,
       }))
     }
+    console.log("roomTypesOptions",roomTypesOptions.value)
 
     if (apiData.housekeepingStatusOptions && Array.isArray(apiData.housekeepingStatusOptions)) {
-      housekeepingStatusOptions.value = apiData.housekeepingStatusOptions.map((hs:any )=> ({
+      housekeepingStatusOptions.value = apiData.housekeepingStatusOptions.map((hs: any) => ({
         value: hs.value,
-        label: hs.label
+        label: hs.label,
       }))
     }
 
     if (apiData.housekeepers && Array.isArray(apiData.housekeepers)) {
-      housekeeperOptions.value = apiData.housekeepers.map((hk:any )=> ({
+      housekeeperOptions.value = apiData.housekeepers.map((hk: any) => ({
         value: hk.value,
-        label: hk.label
+        label: hk.label,
       }))
     }
-
   } catch (err) {
-    console.error("Error fetching housekeeping status:", err);
-    error.value = "Erreur lors du chargement des données"
+    console.error('Error fetching housekeeping status:', err)
+    error.value = 'Erreur lors du chargement des données'
   } finally {
     isLoading.value = false
   }
-};
+}
 
 onMounted(() => {
   fetchHousekeepingStatus()

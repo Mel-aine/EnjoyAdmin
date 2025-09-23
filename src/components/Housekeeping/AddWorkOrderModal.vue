@@ -186,6 +186,12 @@ interface Props {
   isOpen: boolean
   workOrderData?: any
   isEditing?: boolean
+   preSelectedRoom?: {
+    roomId: any
+    roomNumber: string
+    roomTypeId?: any
+    roomTypeName?: string
+  } | null
 }
 
 interface Emits {
@@ -367,7 +373,15 @@ const initializeForm = () => {
       roomStatus: props.workOrderData.roomStatus || '',
       reason: props.workOrderData.reason || '',
     })
-  } else {
+  } else if (props.preSelectedRoom && !props.isEditing) {
+    console.log('Pre-selecting room from RemarkModal:', props.preSelectedRoom)
+
+          formData.unit = props.preSelectedRoom.roomId
+          console.log('Pre-selected room:', props.preSelectedRoom.roomId)
+
+
+    }
+  else {
     // Reset form pour nouvelle WorkOrder
     Object.assign(formData, {
       unit: '',
