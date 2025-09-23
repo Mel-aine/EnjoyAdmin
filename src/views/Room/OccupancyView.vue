@@ -1070,7 +1070,7 @@ const onTableAction = (action: string, room: any) => {
 
 // Open audit trail
 const openAuditTrail = () => {
-  router.push({ name: 'AuditTrailEntity', params: { entityType: 'room', entityId: 'all' } })
+  router.push({ name: 'AuditTrailEntity', params: { entityType: 'Room', entityId: 'all' } })
 }
 
 const exportData = () => {
