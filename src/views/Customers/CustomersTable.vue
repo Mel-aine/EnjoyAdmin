@@ -24,14 +24,13 @@
                 @click="goToCreatePage"
               />
               <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" @click="exportToCSV"/>
-              <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" />
+              <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" @click="showAuditTrial"  />
               <GuestFilter @filter="handleFilterChange" />
             </template>
             <!-- Custom column templates -->
             <template #column-country="{ item }">
               <div class="font-medium text-gray-900">
-                <!-- {{ $t(`countries_lists.${item.country.toLowerCase()}`) }} -->
-                {{item.country  }}
+                <span v-if="item.country">{{ $t(`countries_lists.${item.country.toLowerCase()}`) }} </span>
               </div>
             </template>
             <template #column-vipStatus="{ item }">
@@ -116,7 +115,6 @@ const authStore = useAuthStore()
 const router = useRouter()
 const showModal = ref(false)
 const loading = ref(false)
-const store = useBookingStore()
 const toast = useToast()
 const selectedCustomer = ref<any>(null)
 const customerToDelete = ref<any>(null)
@@ -129,6 +127,9 @@ const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
 const activeFilters = ref({})
 const paginationMeta = ref(null)
+const showAuditTrial =(item:any)=>{
+  //router.push({ name: 'AuditTrial', params: { id: item.id } })
+}
 const breadcrumb = [
   { label: t('navigation.frontOffice'), href: '#' },
   { label: t('guest_database'), href: '#' },

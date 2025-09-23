@@ -1,41 +1,34 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="$t('unsettledFolios.title')" :breadcrumb="breadcrumb" />
-    
+
     <div class="space-y-6">
-      
+
       <!-- Unsettled Folios Table -->
-      <ReusableTable
-        :title="'Unsettled Folios'"
-        :columns="columns"
-        :data="filteredFolios"
-        :actions="actions"
-        :loading="loading"
-        :searchable="false"
-        :selectable="true"
+      <ReusableTable :title="'Unsettled Folios'" :columns="columns" :data="filteredFolios" :actions="actions"
+        :loading="loading" :searchable="false" :selectable="true"
         :empty-state-title="$t('unsettledFolios.noFoliosFound')"
-        :empty-state-message="$t('unsettledFolios.noFoliosMessage')"
-        @selection-change="onSelectionChange"
-        @action="onAction"
-      >
+        :empty-state-message="$t('unsettledFolios.noFoliosMessage')" @selection-change="onSelectionChange"
+        @action="onAction">
         <!-- Custom header slot for filters -->
         <template #header-actions>
           <UnsettledFoliosFilter @filter="handleFilter" :show-date="true" />
         </template>
         <!-- Custom column templates -->
-        
+
         <template #column-balance="{ item }">
           <span :class="getBalanceClass(item.balance)" class="text-sm font-semibold">
-          {{ formatBalance(item.balance) }}
+            {{ formatBalance(item.balance) }}
           </span>
         </template>
-        
+
         <template #column-status="{ item }">
-          <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-            {{ $t(`folioStatus.${item.status}`) }}
+          <span :class="getStatusClass(item.status)"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+            {{ $t(`${item.status}`) }}
           </span>
         </template>
-        
+
         <template #column-daysPending="{ item }">
           <span :class="getDaysClass(item.daysPending)" class="text-sm font-medium">
             {{ item.daysPending }} {{ $t('common.days') }}
@@ -43,21 +36,39 @@
         </template>
       </ReusableTable>
     </div>
+
+    <!-- Add Payment Modal -->
+    <template v-if="isAddPaymentModalOpen && selectedFolio">
+      <AddPaymentModal :reservation-id="selectedFolio.reservationId" :is-open="isAddPaymentModalOpen"
+        @close="closeAddPaymentModal" @save="handleSavePayment" />
+    </template>
+
+    <!-- PDF Exporter -->
+    <template v-if="showPdfExporter">
+      <PdfExporterNode :pdf-url="pdfurl" is-modal-open :title="`Print Invoice`" :is-generating="printLoading"
+        :loading="printLoading" @pdf-generated="handlePdfGenerated" @pdf-error="handlePdfError"
+        @close="showPdfExporter = false" />
+    </template>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import UnsettledFoliosFilter from '@/components/filters/UnsettledFoliosFilter.vue'
-import { FileTextIcon, DollarSignIcon, TrendingUpIcon, ClockIcon, EyeIcon, PrinterIcon, MailIcon } from 'lucide-vue-next'
-import { getUnsetteledFolio } from '@/services/foglioApi.ts' // Assume this API exists
+import { EyeIcon, PrinterIcon, MailIcon } from 'lucide-vue-next'
+import { getUnsetteledFolio, printFolioPdf } from '@/services/foglioApi.ts'
 import { useServiceStore } from '@/composables/serviceStore'
+import PaymentIcon from '../../icons/PaymentIcon.vue'
+import PdfExporterNode from '@/components/common/PdfExporterNode.vue'
 
-const serviceStore = useServiceStore()  
+// Async components
+const AddPaymentModal = defineAsyncComponent(() => import('@/components/reservations/foglio/AddPaymentModal.vue'))
+
+const serviceStore = useServiceStore()
 const { t } = useI18n()
 
 // Define interfaces
@@ -75,7 +86,8 @@ interface UnsettledFolio {
   balance: number
   status: string,
   lastActivity: string
-  daysPending: number
+  daysPending: number,
+  reservationId: number
 }
 
 interface FolioFilterItem {
@@ -87,17 +99,24 @@ interface FolioFilterItem {
   dateTo: string
 }
 
-// Reactive data
+// State management
 const loading = ref(false)
 const selectedFolios = ref<UnsettledFolio[]>([])
 const currentFilters = ref<FolioFilterItem>({
   searchBy: 'all',
   searchText: '',
-  status: '',
+  status: 'all',
   arrivalEnabled: false,
   dateFrom: '',
   dateTo: ''
 })
+
+// Modal states
+const isAddPaymentModalOpen = ref(false)
+const showPdfExporter = ref(false)
+const printLoading = ref(false)
+const pdfurl = ref<string>('')
+const selectedFolio = ref<UnsettledFolio | null>(null)
 
 // Breadcrumb
 const breadcrumb = [
@@ -114,8 +133,8 @@ const columns = computed(() => [
   { key: 'folioNumber', label: 'Folio#', type: 'text' as const },
   { key: 'reservationNumber', label: 'Reservation#', type: 'text' as const },
   { key: 'guestName', label: 'Guest Name', type: 'text' as const },
-  { key: 'checkInDate', label: 'Arrival', type: 'date' as const },
-  { key: 'checkOutDate', label: 'Departure', type: 'date' as const },
+  { key: 'arrival', label: 'Arrival', type: 'date' as const },
+  { key: 'departure', label: 'Departure', type: 'date' as const },
   { key: 'status', label: 'Status', type: 'custom' as const },
   { key: 'balance', label: 'Balance', type: 'custom' as const }
 ])
@@ -123,32 +142,34 @@ const columns = computed(() => [
 // Table actions
 const actions = ref([
   {
-    label: t('common.view'),
-    action: 'view',
-    icon: EyeIcon
+    label: t('AddPayment'),
+    action: 'add',
+    icon: PaymentIcon,
+    handler: (item: any) => onAction('add', item)
   },
   {
-    label: t('common.print'),
+    label: t('printInvoice'),
     action: 'print',
-    icon: PrinterIcon
+    icon: PrinterIcon,
+    handler: (item: any) => onAction('print', item)
   },
-  {
+  /*{
     label: t('common.sendEmail'),
     action: 'email',
     icon: MailIcon
-  }
+  }*/
 ])
 
 // Computed properties
 const filteredFolios = computed(() => {
   let filtered = folios.value
-  
+
   // Apply search filter
   if (currentFilters.value.searchText) {
     const searchTerm = currentFilters.value.searchText.toLowerCase()
-    
+
     if (currentFilters.value.searchBy === 'all') {
-      filtered = filtered.filter(folio => 
+      filtered = filtered.filter(folio =>
         folio.guestName.toLowerCase().includes(searchTerm) ||
         folio.folioNumber.toLowerCase().includes(searchTerm) ||
         folio.reservationNumber.toLowerCase().includes(searchTerm)
@@ -161,40 +182,26 @@ const filteredFolios = computed(() => {
       filtered = filtered.filter(folio => folio.reservationNumber.toLowerCase().includes(searchTerm))
     }
   }
-  
+
   // Apply status filter
   if (currentFilters.value.status) {
     filtered = filtered.filter(folio => folio.status === currentFilters.value.status)
   }
-  
+
   // Apply arrival date range filter
   if (currentFilters.value.arrivalEnabled) {
     if (currentFilters.value.dateFrom) {
       filtered = filtered.filter(folio => folio.checkInDate >= currentFilters.value.dateFrom)
     }
-    
+
     if (currentFilters.value.dateTo) {
       filtered = filtered.filter(folio => folio.checkInDate <= currentFilters.value.dateTo)
     }
   }
-  
+
   return filtered
 })
 
-const summary = computed(() => {
-  const filtered = filteredFolios.value
-  const totalBalance = filtered.reduce((sum, folio) => sum + folio.balance, 0)
-  const oldestFolio = filtered.reduce((oldest, folio) => 
-    folio.daysPending > oldest ? folio.daysPending : oldest, 0
-  )
-  
-  return {
-    totalFolios: filtered.length,
-    totalBalance,
-    avgBalance: filtered.length > 0 ? totalBalance / filtered.length : 0,
-    oldestFolioDays: oldestFolio
-  }
-})
 const formatBalance = (balance: string | number) => {
   // Convertir en nombre si c'est une string
   const balanceValue = typeof balance === 'string' ? parseFloat(balance) : balance
@@ -210,31 +217,71 @@ const onSelectionChange = (selected: UnsettledFolio[]) => {
 }
 
 const onAction = (action: any, folio: UnsettledFolio) => {
-  switch (action.action) {
-    case 'view':
-      console.log('View folio:', folio)
-      // Navigate to folio details
+  selectedFolio.value = folio
+  switch (action) {
+    case 'add':
+      console.log('Add payment for folio:', folio)
+      openAddPaymentModal()
       break
     case 'print':
       console.log('Print folio:', folio)
-      // Print folio
-      break
-    case 'email':
-      console.log('Email folio:', folio)
-      // Send email
+      printInvoiceDirect()
       break
   }
+}
+
+// Payment modal handlers
+const openAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = true
+}
+
+const closeAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = false
+  selectedFolio.value = null
+}
+
+const handleSavePayment = (paymentData: any) => {
+  console.log('Payment saved:', paymentData)
+  // Refresh the folios list after payment
+  fetchUnsettledFolios()
+  closeAddPaymentModal()
+}
+
+// Print functionality
+const printInvoiceDirect = async () => {
+  try {
+    if (!selectedFolio.value?.id) return
+    printLoading.value = true
+    showPdfExporter.value = true
+
+    // Use the folio ID and a dummy reservation ID (you might need to adjust this based on your data structure)
+    const res = await printFolioPdf({
+      folioId: Number(selectedFolio.value.id),
+      reservationId: selectedFolio.value.reservationId
+    })
+    pdfurl.value = window.URL.createObjectURL(res)
+    console.log('pdfurl', pdfurl.value)
+  } catch (e) {
+    console.error('Print error:', e)
+  } finally {
+    printLoading.value = false
+  }
+}
+
+const handlePdfGenerated = (_blob: Blob) => {
+  // PDF generated successfully
+}
+
+const handlePdfError = (err: any) => {
+  console.error('PDF generation error:', err)
 }
 const fetchUnsettledFolios = async () => {
   const serviceId = serviceStore.serviceId
   loading.value = true
   try {
     const data = await getUnsetteledFolio(serviceId!)
-    folios.value = data.data.data.map((folio: any) => ({
-      ...folio,
-      guestName: folio.folioName,
-      reservationNumber: folio.reservationId
-    }))
+    console.log('unsettled folios:', data.data.data)
+    folios.value = data.data.data;
     console.log('Fetched unsettled folios:', folios.value)
   } catch (error) {
     console.error('Error fetching unsettled folios:', error)
@@ -253,17 +300,13 @@ const getBalanceClass = (balance: number) => {
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'Checked Out':
+    case 'checkout':
       return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-    case 'Cancel':
+    case 'cancelled':
       return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-    case 'Open':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-    case 'Pending':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-    case 'Disputed':
+    case 'noshow':
       return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-    case 'Closed':
+    case 'inhouse':
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
     default:
       return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'

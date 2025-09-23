@@ -282,7 +282,7 @@ const formatDate = (dateString: string) => {
 }
 
 
-const handleReservationUpdate = (updatedReservation) => {
+const handleReservationUpdate = (updatedReservation: any) => {
   // Mettre à jour la réservation dans votre liste/store
   // Par exemple, si vous avez une liste de réservations :
   const index = allReservations.value.findIndex(r => r.id === updatedReservation.id)
@@ -291,7 +291,7 @@ const handleReservationUpdate = (updatedReservation) => {
   }
 }
 
-const handleSave = (data) => {
+const handleSave = (data: any) => {
   // Logique existante pour les actions qui nécessitent un refresh complet
   // ou des actions spéciales
   console.log('Save event:', data)

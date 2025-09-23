@@ -29,7 +29,7 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-y-auto custom-scrollbar" :style="{ maxHeight: props.maxHeight }">
+    <div :style="{ maxHeight: props.maxHeight }">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
