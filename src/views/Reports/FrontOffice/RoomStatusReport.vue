@@ -6,9 +6,9 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ $t('reports.frontOffice.roomStatusReport') }}
         </h1>
-        <!-- <p class="text-gray-600 dark:text-gray-400">
+        <p class="text-gray-600 dark:text-gray-400">
           {{ $t('reports.frontOffice.roomStatusReportDescription') }}
-        </p> -->
+        </p>
       </div>
 
       <!-- Filters -->

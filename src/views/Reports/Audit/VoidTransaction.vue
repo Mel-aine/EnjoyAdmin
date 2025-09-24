@@ -7,7 +7,7 @@
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
           View and manage voided transactions
-        </p>
+        </p> 
       </div>
 
       <!-- Filters -->

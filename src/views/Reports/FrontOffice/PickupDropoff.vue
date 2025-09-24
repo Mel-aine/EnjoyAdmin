@@ -5,9 +5,9 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Pickup / Dropoff Guest Report
         </h1>
-        <!-- <p class="text-gray-600 dark:text-gray-400">
+        <p class="text-gray-600 dark:text-gray-400">
           View and manage guest pickup and dropoff services
-        </p> -->
+        </p>
       </div>
 
       <!-- Filters -->
