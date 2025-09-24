@@ -305,6 +305,8 @@
   "Save": "Save",
   "LostOn": "Lost On",
   "LostLocation": "Lost Location",
+  "lostFoundExportedSuccessfully": "Lost & Found data exported successfully",
+  "errorExportingLostFound": "Error exporting Lost & Found data",
   "tooltip": {
     "email": "Email",
     "room": "Room",
@@ -5491,7 +5493,13 @@
     "in_progress": "In Progress",
     "inProgress": "In Progress",
     "completed": "Completed",
-    "assigned" : "Assigned"
+    "assigned" : "Assigned",
+    "returned": "Returned",
+    "discarded": "Discarded"
+  },
+  "types": {
+    "found": "Found",
+    "lost": "Lost"
   },
   "successBlockDeleted": "Maintenance block deleted successfully",
   "blocksExportedSuccessfully": "Blocks exported successfully",
