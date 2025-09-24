@@ -35,6 +35,7 @@ const props = defineProps<{
   label?: string
   options: Option[]
   modelValue: string
+  disabled?:boolean
 }>()
 
 const emit = defineEmits<{

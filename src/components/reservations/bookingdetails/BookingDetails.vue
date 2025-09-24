@@ -52,15 +52,44 @@
       <!-- Middle Section - Billing Information -->
       <div class="lg:col-span-5">
         <div class="bg-gray-50 rounded-lg p-3 md:p-4">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl">
+          <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+            <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl mb-2 md:mb-0">
               {{ $t('BillingInformation') }}
             </h3>
+            <!-- Edit button visible on mobile and small screens -->
+            <button
+              class="flex lg:hidden items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors self-start"
+              @click="toggleEditMode"
+            >
+              <svg
+                v-if="!editMode"
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              <span>{{ editMode ? $t('Cancel') : $t('Edit') }}</span>
+            </button>
           </div>
 
           <div class="space-y-4">
-            <!-- Bill To and Type Section -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Bill To Section -->
+            <div class="grid grid-cols-1 gap-4">
               <div>
                 <Select
                   :lb="$t('BillTo')"
@@ -70,19 +99,37 @@
                   :disabled="!editMode"
                 />
               </div>
+            </div>
 
-              <!-- Type Section -->
+            <!-- Payment Type (Radio buttons) -->
+            <div class="grid grid-cols-1 gap-4">
               <div>
-                <div class="flex flex-col md:flex-row md:space-x-4">
-                  <Radio
-                    :label="$t('type')"
-                    :options="[
-                      { value: 'cash', label: $t('Cash') },
-                      { value: 'credit', label: $t('Credit') }
-                    ]"
-                    v-model="billingData.type"
-                    :disabled="!editMode"
-                  />
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('PaymentType') }}</label>
+                <div class="flex space-x-4">
+                  <label class="flex items-center" :class="{ 'opacity-50 cursor-not-allowed': !editMode }">
+                    <input 
+                      type="radio" 
+                      v-model="billing.paymentType" 
+                      value="cash" 
+                      class="mr-2" 
+                      :disabled="!editMode"
+                    />
+                    <span :class="{ 'text-gray-400': !editMode }">{{ $t('cash') }}</span>
+                  </label>
+                  <label 
+                    v-if="canCityLedgerPay" 
+                    class="flex items-center" 
+                    :class="{ 'opacity-50 cursor-not-allowed': !editMode }"
+                  >
+                    <input 
+                      type="radio" 
+                      v-model="billing.paymentType" 
+                      value="city_ledger" 
+                      class="mr-2" 
+                      :disabled="!editMode"
+                    />
+                    <span :class="{ 'text-gray-400': !editMode }">{{ $t('city_ledger') }}</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -90,11 +137,11 @@
             <!-- Payment Mode and GSTIN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Select
-                  :lb="$t('PaymentMode')"
-                  v-model="billingData.paymentMode"
-                  :options="paymentModeOptions"
-                  :placeholder="$t('Cash')"
+                <InputPaymentMethodSelect 
+                  :label="$t('PaymentMode')" 
+                  :paymentType="billing.paymentType" 
+                  v-model="billing.paymentMode"
+                  :hide-label="false" 
                   :disabled="!editMode"
                 />
               </div>
@@ -111,26 +158,33 @@
             </div>
 
             <!-- Reservation Type -->
-            <div>
-              <Select
-                :lb="$t('ReservationType')"
-                v-model="billingData.reservationType"
-                :options="reservationTypeOptions"
-                :placeholder="$t('ConfirmBooking')"
-                :disabled="!editMode"
-              />
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <AutoCompleteSelect 
+                  v-model="billingData.reservationType" 
+                  :options="BookingType"
+                  :defaultValue="$t('SelectReservationType')" 
+                  :lb="$t('ReservationType')" 
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking" 
+                  :disabled="!editMode"
+                  @clear-error="emit('clear-error')" 
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
 
       <!-- Right Section - Source Information -->
       <div class="lg:col-span-5">
         <div class="bg-gray-50 rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('SourceInformation') }}</h3>
+            <!-- Edit Button for Desktop -->
             <button
-              class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+              class="hidden lg:flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
               @click="toggleEditMode"
             >
               <svg
@@ -245,7 +299,6 @@
               class="mr-2"
             />
             {{ $t('SendMail') }}
-
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -256,7 +309,6 @@
               class="mr-2"
             />
             {{ $t('CheckOutMail') }}
-
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -267,7 +319,6 @@
               class="mr-2"
             />
             {{ $t('thankYouEmail') }}
-
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -278,7 +329,6 @@
               class="mr-2"
             />
             {{ $t('SupressRateOnGRCard') }}
-
           </label>
           <label class="flex items-center">
             <InputCheckbox
@@ -289,7 +339,6 @@
               class="mr-2"
             />
             {{ $t('AccessGuestPortal') }}
-
           </label>
         </div>
 
@@ -318,13 +367,14 @@ import { useToast } from 'vue-toastification'
 import BasicButton from '../../buttons/BasicButton.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import InputCheckbox from '../../forms/FormElements/InputCheckBox.vue'
-import Radio from '@/components/forms/FormElements/RadioGroup .vue'
 import Select from '../../forms/FormElements/Select.vue'
 import { ChevronRight, Building } from 'lucide-vue-next'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import { useBooking } from '@/composables/useBooking2'
 import { getCompanies } from '@/services/companyApi'
 import { updateReservationRoomById } from '@/services/configrationApi'
+import InputPaymentMethodSelect from '../foglio/InputPaymentMethodSelect.vue'
+import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 
 interface Props {
   booking?: any
@@ -334,14 +384,14 @@ interface Props {
 interface BillingData {
   billTo: string
   paymentMode: string
-  type: string
+  paymentType: string
   gstinNo: string
   reservationType: string
 }
 
 interface SourceData {
   marketCode: string
-  sourceOfBusiness:string
+  sourceOfBusiness: string
   travelAgent: string
   voucherNo: string
   commissionPlan: string
@@ -362,13 +412,20 @@ const props = withDefaults(defineProps<Props>(), {
   booking: () => ({}),
   guest: () => ({})
 })
+interface Emits {
+  (e: 'clear-error'): void
+}
 
+const emit = defineEmits<Emits>()
 const { t, locale } = useI18n()
 const toast = useToast()
 const editMode = ref(false)
 const isSaving = ref(false)
 const selectedRoom = ref<any>(null)
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
+const useDropdownBooking = ref(true)
+const bookingData = computed(() => props.booking || {})
+const guestData = computed(() => props.guest || {})
 
 // CHANGEMENT PRINCIPAL : Utiliser ref au lieu de reactive pour roomOptions
 const roomOptions = ref<RoomOptions>({
@@ -380,8 +437,6 @@ const roomOptions = ref<RoomOptions>({
 })
 
 // Computed properties for booking data
-const bookingData = computed(() => props.booking || {})
-const guestData = computed(() => props.guest || {})
 
 // Computed properties for room data
 const getCompaniesList = async () => {
@@ -411,13 +466,27 @@ const UpdateReservationRoom = async () => {
       throw new Error('No room selected')
     }
 
-    // Créer l'objet de mise à jour avec les options actuelles
+    // Créer l'objet de mise à jour avec toutes les données
     const updateData = {
+      // Room options
       sendMail: roomOptions.value.sendMail,
       checkOutMail: roomOptions.value.checkOutMail,
       thankYouEmail: roomOptions.value.thankYouEmail,
       supressRate: roomOptions.value.suppressRate,
-      accessGuestPortal: roomOptions.value.accessGuestPortal
+      accessGuestPortal: roomOptions.value.accessGuestPortal,
+      
+      // Billing data
+      billTo: billingData.billTo,
+      paymentMode: billingData.paymentMode,
+      paymentType: billingData.paymentType,
+      gstinNo: billingData.gstinNo,
+      reservationType: billingData.reservationType,
+      
+      // Source data
+      marketCode: sourceData.marketCode,
+      sourceOfBusiness: sourceData.sourceOfBusiness,
+      voucherNo: sourceData.voucherNo,
+      company: sourceData.company
     }
 
     console.log('Updating reservation room with ID:', selectedRoomId.value)
@@ -474,8 +543,8 @@ const statusCounts = computed(() => {
   return counts
 })
 
-const totalAmount = computed(() => bookingData.value.balanceSummary.totalChargesWithTaxes || 0)
-const balanceAmount = computed(() => bookingData.value.balanceSummary.outstandingBalance || 0)
+const totalAmount = computed(() => bookingData.value.balanceSummary?.totalChargesWithTaxes || 0)
+const balanceAmount = computed(() => bookingData.value.balanceSummary?.outstandingBalance || 0)
 
 const remarkCount = computed(() => bookingData.value.remarks?.length || 0)
 const taskCount = computed(() => bookingData.value.tasks?.length || 0)
@@ -486,7 +555,7 @@ const preferenceCount = computed(() => guestData.value.preferences?.length || 0)
 const billingData = reactive<BillingData>({
   billTo: '',
   paymentMode: '',
-  type: 'cash',
+  paymentType: 'cash',
   gstinNo: '',
   reservationType: ''
 })
@@ -502,15 +571,10 @@ const sourceData = reactive<SourceData>({
   salesPerson: ''
 })
 
-// Options for select fields
-const paymentModeOptions = computed(() => [
-  { label: t('Cash'), value: 'cash' },
-  { label: t('Credit Card'), value: 'credit_card' },
-  { label: t('Bank Transfer'), value: 'bank_transfer' },
-  { label: t('Check'), value: 'check' }
-])
-
 const {
+  //Data
+  billing,
+
   // Options
   BookingSource,
   BusinessSource,
@@ -519,14 +583,10 @@ const {
   billToOptions,
   MarketCode,
   reservationId,
-} = useBooking()
 
-const reservationTypeOptions = computed(() => [
-  { label: t('Confirm Booking'), value: 'confirm_booking' },
-  { label: t('Tentative Booking'), value: 'tentative_booking' },
-  { label: t('Waitlist'), value: 'waitlist' },
-  { label: t('Booking inquiry'), value: 'Booking inquiry' }
-])
+  //customer methods
+  canCityLedgerPay
+} = useBooking()
 
 // Methods
 const getGuestName = (room: any) => {
@@ -564,12 +624,28 @@ const selectRoom = (room: any) => {
   // Forcer la mise à jour des options de la chambre
   nextTick(() => {
     updateRoomOptions(room)
+    updateBillingDataFromRoom(room)
+    updateSourceDataFromRoom(room)
   })
+}
 
-  // Mettre à jour les données de source avec les informations de la chambre sélectionnée
+const updateBillingDataFromRoom = (room: any) => {
   if (room) {
-    sourceData.voucherNo = bookingData.value.reservationNumber || ''
-    sourceData.planValue = room.roomRate || ''
+    billingData.billTo = room.billTo || billingData.billTo
+    billingData.paymentMode = room.paymentMode || billingData.paymentMode
+    billingData.paymentType = room.paymentType || billingData.paymentType
+    billingData.gstinNo = room.gstinNo || billingData.gstinNo
+    billingData.reservationType = room.reservationType || billingData.reservationType
+  }
+}
+
+const updateSourceDataFromRoom = (room: any) => {
+  if (room) {
+    sourceData.marketCode = room.marketCode || sourceData.marketCode
+    sourceData.sourceOfBusiness = room.sourceOfBusiness || sourceData.sourceOfBusiness
+    sourceData.voucherNo = room.voucherNo || bookingData.value.reservationNumber || ''
+    sourceData.company = room.company || sourceData.company
+    sourceData.planValue = room.roomRate || sourceData.planValue
   }
 }
 
@@ -578,15 +654,14 @@ const toggleEditMode = () => {
   if (!editMode.value) {
     // Reset data when canceling edit - remettre les valeurs originales de la chambre
     updateRoomOptions(selectedRoom.value)
-    initBillingData()
-    initSourceData()
+    updateBillingDataFromRoom(selectedRoom.value)
+    updateSourceDataFromRoom(selectedRoom.value)
   }
 }
 
 const saveChanges = async () => {
   isSaving.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
     await UpdateReservationRoom()
     console.log('Saving billing data:', billingData)
     console.log('Saving source data:', sourceData)
@@ -620,7 +695,7 @@ const initBillingData = () => {
     }
 
     // Set payment type based on VIP status
-    billingData.type = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
+    billingData.paymentType = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
 
     // Set GSTIN from company registration if available
     if (guestData.value.company && guestData.value.registrationNo) {
@@ -669,6 +744,8 @@ onMounted(async () => {
   if (reservationRooms.value.length > 0) {
     selectedRoom.value = reservationRooms.value[0]
     updateRoomOptions(selectedRoom.value)
+    updateBillingDataFromRoom(selectedRoom.value)
+    updateSourceDataFromRoom(selectedRoom.value)
     console.log('Initial room selected:', selectedRoom.value)
   }
 
@@ -687,6 +764,8 @@ watch(() => props.booking, (newBooking) => {
     if (!selectedRoom.value && reservationRooms.value.length > 0) {
       selectedRoom.value = reservationRooms.value[0]
       updateRoomOptions(selectedRoom.value)
+      updateBillingDataFromRoom(selectedRoom.value)
+      updateSourceDataFromRoom(selectedRoom.value)
     }
 
     initBillingData()
@@ -694,19 +773,16 @@ watch(() => props.booking, (newBooking) => {
   }
 }, { deep: true, immediate: true })
 
-// NOUVEAU WATCHER : Watch for changes in selected room avec deep watching
+// Watch for changes in selected room avec deep watching
 watch(selectedRoom, (newRoom, oldRoom) => {
   console.log('Room changed from:', oldRoom?.id, 'to:', newRoom?.id)
   if (newRoom && newRoom.id !== oldRoom?.id) {
     // Forcer la mise à jour des options avec les valeurs de la nouvelle chambre
     nextTick(() => {
       updateRoomOptions(newRoom)
+      updateBillingDataFromRoom(newRoom)
+      updateSourceDataFromRoom(newRoom)
     })
-
-    // Mettre à jour les données spécifiques à la chambre
-    if (newRoom.roomRate) {
-      sourceData.planValue = newRoom.roomRate
-    }
   }
 }, { deep: true, immediate: false })
 
