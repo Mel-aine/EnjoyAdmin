@@ -5180,6 +5180,8 @@
       "ooo": "OOO",
       "sold": "Sold",
       "dayUse": "Day Use",
+      "available" : "Available",
+      "inspected": "Inspected",
       "complimentary": "Complimentary",
       "blocked": "Blocked",
       "clean": "Clean",
@@ -5484,6 +5486,7 @@
     "blocked": "Blocked",
     "maintenance": "Maintenance",
     "outOfOrder": "Out of order",
+    "out_of_order": "Out of order",
     "pending": "Pending",
     "in_progress": "In Progress",
     "inProgress": "In Progress",
@@ -5680,6 +5683,7 @@
   "ADD_PAYMENT": "Payment",
   "CONFIRM_RESERVATION": "Reservation Confirmed",
   "RESERVATION_CREATED": "Reservation Created",
+  "FOLIOS_CREATED": "Folio Created",
   "CANCEL_RESERVATION": "Reservation Cancelled",
   "CANCEL": "Cancel",
   "BLACKLIST": "Blacklist",
@@ -6162,7 +6166,10 @@
   "TitleRequired": "Remark is required",
   "OutOfOrder": "Out of Order",
   "NotAssigned": "Not assigned",
-  "CompanyAccount": "Company Account"
+  "CompanyAccount": "Company Account",
+  "no_roomtype_found": "No room type found",
+  "all_rooms_vacant": "All rooms are vacant",
+  "set_to_dirty": "Set to Dirty"
 
 
 

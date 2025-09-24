@@ -3,21 +3,21 @@
     <!-- Tableau avec scrollbar invisible -->
     <div class="w-full overflow-auto border border-gray-200 rounded max-h-[600px] scrollbar-hide">
       <table class="w-full text-sm">
-        <thead class="sticky top-0 bg-white z-10">
+        <thead class="sticky top-0 bg-white z-12">
           <!-- En-tête normal quand aucune sélection -->
-          <tr class="bg-gray-100" v-if="!selectedRoomsCount">
+          <tr class="bg-gray-100 border-l-4 border-l-gray-200" v-if="!selectedRoomsCount">
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center w-10">
-              <input
+              <!-- <input
                 type="checkbox"
-                :checked="allFilteredDirtyRoomsSelected"
-                @change="toggleAllFilteredDirtyRooms"
+                :checked="allFilteredSelectableRoomsSelected"
+                @change="toggleAllFilteredSelectableRooms"
                 class="form-checkbox"
-                :disabled="!hasDirtyRoomsInFiltered"
-              />
+                :disabled="!hasSelectableRoomsInFiltered"
+              /> -->
             </th>
             <th class="py-2 px-3 border-b border-r border-gray-200 text-center w-50">
               <Select
-                :options="roomTypesOptions"
+                :options="roomTypesOptionsWithAll"
                 :placeholder="$t('RoomTypes')"
                 v-model="selectedRoomTypeFilter"
               />
@@ -54,7 +54,7 @@
           </tr>
 
           <!-- En-tête avec contrôles de sélection quand des chambres sont sélectionnées -->
-          <tr class="bg-gray-50" v-if="selectedRoomsCount > 0">
+          <tr class="bg-gray-50 " v-if="selectedRoomsCount > 0">
             <th colspan="7" class="py-3 px-4 border-b border-gray-200">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -77,6 +77,14 @@
                       <Select
                         :placeholder="$t('set_to_clean')"
                         :options="[{ value: 'clean', label: t('Clean') }]"
+                        v-model="selectedStatus"
+                      />
+                    </div>
+
+                    <div v-if="selectedOperation === 'set_dirty_status'" class="w-48">
+                      <Select
+                        :placeholder="$t('set_to_dirty')"
+                        :options="[{ value: 'dirty', label: t('dirty') }]"
                         v-model="selectedStatus"
                       />
                     </div>
@@ -118,14 +126,14 @@
         <tbody v-if="!isLoading">
           <template v-for="section in Object.keys(filteredGroupedRooms)" :key="section">
             <!-- En-tête de section avec checkbox pour sélectionner toute la section (seulement les dirty) -->
-            <tr class="bg-gray-100">
+            <tr class="bg-gray-100 border-l-4 border-l-gray-200">
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
                 <input
                   type="checkbox"
-                  :checked="isSectionDirtyRoomsSelected(section)"
-                  @change="toggleSectionDirtyRooms(section)"
+                  :checked="isSectionSelectableRoomsSelected(section)"
+                  @change="toggleSectionSelectableRooms(section)"
                   class="form-checkbox"
-                  :disabled="!sectionHasDirtyRooms(section)"
+                  :disabled="!sectionHasSelectableRooms(section)"
                 />
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
@@ -390,6 +398,7 @@ const serviceStore = useServiceStore()
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const isBulkUpdating = ref<boolean>(false)
+const activeSelectionType = ref<'dirty' | 'clean' | null>(null)
 const authStore = useAuthStore()
 const toast = useToast()
 const { t } = useI18n()
@@ -401,19 +410,25 @@ const housekeepingStatusOptions = ref<Array<{ value: string; label: string }>>([
 const housekeeperOptions = ref<Array<{ value: string; label: string }>>([])
 
 // Operations disponibles selon le contexte
+
+const roomTypesOptionsWithAll = computed(() => [
+  { value: 'all', label: t('All') },
+  ...roomTypesOptions.value
+])
+
 const availableOperations = computed(() => {
   const selectedRooms = rooms.value.filter((room) => room.isChecked)
   const operations: any[] = []
 
-  // Si toutes les chambres sélectionnées sont dirty, on peut les nettoyer
-  if (selectedRooms.length > 0 && selectedRooms.every((room) => isDirtyRoom(room))) {
-    operations.push({ value: 'set_clean_status', label: t('Mark as Clean') })
-  }
+  if (selectedRooms.every((room) => isDirtyRoom(room))) {
+      operations.push({ value: 'set_clean_status', label: t('Mark as Clean') })
+      operations.push({ value: 'assign_housekeeper', label: t('Assign Housekeeper') })
+    }
 
-  // Si toutes les chambres sélectionnées sont dirty, on peut assigner un housekeeper
-  if (selectedRooms.length > 0 && selectedRooms.every((room) => isDirtyRoom(room))) {
-    operations.push({ value: 'assign_housekeeper', label: t('Assign Housekeeper') })
-  }
+    if (selectedRooms.every((room) => isCleanRoom(room))) {
+      operations.push({ value: 'set_dirty_status', label: t('Mark as Dirty') })
+      operations.push({ value: 'assign_housekeeper', label: t('Assign Housekeeper') })
+    }
 
   return operations
 })
@@ -432,9 +447,12 @@ const isOccupiedRoom = (room: Room): boolean => {
 }
 
 const canSelectRoom = (room: Room): boolean => {
-  // Seules les chambres dirty peuvent être sélectionnées
-  return isDirtyRoom(room)
+  if (activeSelectionType.value === 'dirty') return isDirtyRoom(room)
+  if (activeSelectionType.value === 'clean') return isCleanRoom(room)
+  // Si aucune sélection active, toutes les chambres sélectionnables sont possibles
+  return isDirtyRoom(room) || isCleanRoom(room)
 }
+
 
 const getRoomTypeId = (roomTypeName: string): number => {
   const roomType = roomTypesOptions.value.find(rt => rt.label === roomTypeName)
@@ -448,6 +466,8 @@ const canApplyOperation = computed(() => {
   switch (selectedOperation.value) {
     case 'set_clean_status':
       return true
+    case 'set_dirty_status':
+      return true
     case 'assign_housekeeper':
       return !!selectedHousekeeper.value
     default:
@@ -456,14 +476,18 @@ const canApplyOperation = computed(() => {
 })
 
 // Computed properties pour la sélection
-const hasDirtyRoomsInFiltered = computed(() => {
-  return filteredRooms.value.some((room) => isDirtyRoom(room))
+const hasSelectableRoomsInFiltered = computed(() => {
+  return filteredRooms.value.some((room) => isDirtyRoom(room) || isCleanRoom(room))
 })
 
-const allFilteredDirtyRoomsSelected = computed(() => {
-  const dirtyRooms = filteredRooms.value.filter((room) => isDirtyRoom(room))
-  return dirtyRooms.length > 0 && dirtyRooms.every((room) => room.isChecked)
+
+const allFilteredSelectableRoomsSelected = computed(() => {
+  const selectableRooms = filteredRooms.value.filter(
+    (room) => isDirtyRoom(room) || isCleanRoom(room)
+  )
+  return selectableRooms.length > 0 && selectableRooms.every((room) => room.isChecked)
 })
+
 
 // Fonction appelée quand l'opération change
 const onOperationChange = () => {
@@ -475,9 +499,11 @@ const onOperationChange = () => {
 const filteredRooms = computed(() => {
   let filtered = rooms.value
 
-  // Filtrer par type de chambre
-  if (selectedRoomTypeFilter.value) {
-    filtered = filtered.filter((room) => room.roomType === selectedRoomTypeFilter.value)
+  // Filtrer par type de chambre, sauf si "all" est sélectionné
+  if (selectedRoomTypeFilter.value && selectedRoomTypeFilter.value !== 'all') {
+    filtered = filtered.filter(
+      (room) => room.roomType === selectedRoomTypeFilter.value
+    )
   }
 
   // Filtrer par recherche
@@ -495,6 +521,7 @@ const filteredRooms = computed(() => {
 
   return filtered
 })
+
 
 const filteredGroupedRooms = computed(() => {
   const grouped: { [key: string]: Room[] } = {}
@@ -570,17 +597,40 @@ const transformRoomData = (apiRoom: any): Room => {
 }
 
 // Methods
+
+
 const handleCheckboxChange = (roomId: string, roomName: string) => {
   const roomIndex = rooms.value.findIndex((room) => room.id === roomId && room.name === roomName)
-  if (roomIndex !== -1 && canSelectRoom(rooms.value[roomIndex])) {
-    rooms.value[roomIndex].isChecked = !rooms.value[roomIndex].isChecked
+  if (roomIndex === -1) return
+
+  const room = rooms.value[roomIndex]
+
+  if (!canSelectRoom(room)) return
+
+  // Définir le type actif si première sélection
+  if (!activeSelectionType.value) {
+    if (isDirtyRoom(room)) activeSelectionType.value = 'dirty'
+    else if (isCleanRoom(room)) activeSelectionType.value = 'clean'
   }
+
+  rooms.value[roomIndex].isChecked = !rooms.value[roomIndex].isChecked
+
+  // Si on a désélectionné toutes les chambres du type actif, on réinitialise
+  const anySelectedOfType =
+    rooms.value.some(r => r.isChecked && (activeSelectionType.value === 'dirty' ? isDirtyRoom(r) : isCleanRoom(r)))
+  if (!anySelectedOfType) activeSelectionType.value = null
 }
 
-const toggleAllFilteredDirtyRooms = () => {
-  const allSelected = allFilteredDirtyRoomsSelected.value
+
+const toggleAllFilteredSelectableRooms = () => {
+  if (!activeSelectionType.value) return
+
+  const allSelected = filteredRooms.value
+    .filter(r => (activeSelectionType.value === 'dirty' ? isDirtyRoom(r) : isCleanRoom(r)))
+    .every(r => r.isChecked)
+
   filteredRooms.value.forEach((room) => {
-    if (isDirtyRoom(room)) {
+    if (activeSelectionType.value === 'dirty' ? isDirtyRoom(room) : isCleanRoom(room)) {
       const roomIndex = rooms.value.findIndex((r) => r.id === room.id && r.name === room.name)
       if (roomIndex !== -1) {
         rooms.value[roomIndex].isChecked = !allSelected
@@ -589,6 +639,7 @@ const toggleAllFilteredDirtyRooms = () => {
   })
 }
 
+
 const unselectAll = () => {
   rooms.value.forEach((room) => {
     room.isChecked = false
@@ -596,32 +647,52 @@ const unselectAll = () => {
   selectedOperation.value = ''
   selectedStatus.value = 'clean'
   selectedHousekeeper.value = ''
+  activeSelectionType.value = null
 }
 
-const toggleSectionDirtyRooms = (section: string) => {
-  const sectionDirtyRooms = filteredRooms.value.filter(
-    (room) => room.section === section && isDirtyRoom(room),
-  )
-  const allSectionDirtySelected = sectionDirtyRooms.every((room) => room.isChecked)
 
-  sectionDirtyRooms.forEach((room) => {
+
+const toggleSectionSelectableRooms = (section: string) => {
+  if (!activeSelectionType.value) return
+
+  const sectionSelectableRooms = filteredRooms.value.filter(
+    (room) =>
+      room.section === section &&
+      (activeSelectionType.value === 'dirty' ? isDirtyRoom(room) : isCleanRoom(room))
+  )
+
+  const allSectionSelected = sectionSelectableRooms.every((room) => room.isChecked)
+
+  sectionSelectableRooms.forEach((room) => {
     const roomIndex = rooms.value.findIndex((r) => r.id === room.id && r.name === room.name)
     if (roomIndex !== -1) {
-      rooms.value[roomIndex].isChecked = !allSectionDirtySelected
+      rooms.value[roomIndex].isChecked = !allSectionSelected
     }
   })
 }
 
-const isSectionDirtyRoomsSelected = (section: string): boolean => {
-  const sectionDirtyRooms = filteredRooms.value.filter(
-    (room) => room.section === section && isDirtyRoom(room),
+
+const isSectionSelectableRoomsSelected = (section: string): boolean => {
+  if (!activeSelectionType.value) return false
+
+  const sectionSelectableRooms = filteredRooms.value.filter(
+    (room) =>
+      room.section === section &&
+      (activeSelectionType.value === 'dirty' ? isDirtyRoom(room) : isCleanRoom(room))
   )
-  return sectionDirtyRooms.length > 0 && sectionDirtyRooms.every((room) => room.isChecked)
+
+  return sectionSelectableRooms.length > 0 && sectionSelectableRooms.every((room) => room.isChecked)
 }
 
-const sectionHasDirtyRooms = (section: string): boolean => {
-  return filteredRooms.value.some((room) => room.section === section && isDirtyRoom(room))
+
+
+
+const sectionHasSelectableRooms = (section: string): boolean => {
+  return filteredRooms.value.some(
+    (room) => room.section === section && (isDirtyRoom(room) || isCleanRoom(room))
+  )
 }
+
 
 // Calculate section totals
 const getSectionTotals = (section: string) => {

@@ -655,8 +655,9 @@ function getRoomRowCellsApi(group: any, room: any) {
   })
 
   // --- Récupération des room blocks ---
+  console.log("apiRoomBlocks",apiRoomBlocks.value)
   const roomBlocks = apiRoomBlocks.value.filter(
-    (b: any) => b.room && b.room.room_number === room.room_number
+    (b: any) => b.room && b.room.room_number === room.room_number && b.status !== 'completed'
   )
 
   while (i < visibleDates.value.length) {
