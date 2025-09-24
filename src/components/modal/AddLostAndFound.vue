@@ -152,7 +152,7 @@
                       :id="'city'"
                       :forLabel="'city'"
                       v-model="lostFoundForm.city"
-                      :is-required="false"
+                      :is-required="true"
                     />
                   </div>
 
@@ -162,7 +162,7 @@
                       :id="'state'"
                       :forLabel="'state'"
                       v-model="lostFoundForm.state"
-                      :is-required="false"
+                      :is-required="true"
                     />
                   </div>
 
@@ -177,7 +177,7 @@
                       :id="'zip_code'"
                       :forLabel="'zip_code'"
                       v-model="lostFoundForm.zipCode"
-                      :is-required="false"
+                      :is-required="true"
                     />
                   </div>
 
@@ -367,7 +367,7 @@
                       :id="'city'"
                       :forLabel="'city'"
                       v-model="lostFoundForm.city"
-                      :is-required="false"
+                      :is-required="true"
                     />
                   </div>
 
@@ -377,7 +377,7 @@
                       :id="'state'"
                       :forLabel="'state'"
                       v-model="lostFoundForm.state"
-                      :is-required="false"
+                      :is-required="true"
                     />
                   </div>
 
@@ -392,7 +392,7 @@
                       :id="'zip_code'"
                       :forLabel="'zip_code'"
                       v-model="lostFoundForm.zipCode"
-                      :is-required="false"
+                      :is-required="true"
                     />
                   </div>
 
@@ -400,7 +400,7 @@
               </div>
 
               <!-- Found Information -->
-              <div class="mb-4">
+  <!--             <div class="mb-4">
                 <h5
                   class="mb-4 text-lg font-medium text-gray-800 dark:text-white/90 border-b border-gray-200 dark:border-gray-700 pb-2"
                 >
@@ -408,7 +408,7 @@
                 </h5>
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 </div>
-              </div>
+              </div> -->
 
               <!-- Status -->
               <div class="mb-4">

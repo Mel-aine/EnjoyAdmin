@@ -1,11 +1,12 @@
 <template>
   <div>
     <AdminLayout>
+      <PageBreadcrumb :pageTitle="$t('LostAndFound')" :breadcrumb="breadcrumb" />
       <div class="min-h-screen">
         <ReusableTable
           :title="$t('LostAndFound')"
           :columns="columns"
-          :data="lostFoundItems"
+          :data="filteredLostFoundItems"
           :actions="actions"
           :selectable="false"
           :loading="loading"
@@ -28,12 +29,38 @@
             <BasicButton
               :label="$t('export')"
               variant="secondary"
-              icon="folder-output"
+              :icon="FileDown"
+              @click="exportLostFound"
+              :loading="exportLoading"
             />
            
           </template>
+          <!-- Template pour la colonne status -->
+          <template #column-status="{ item }">
+            <span :class="getStatusClass(item.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+              {{ $t(`statuses.${item.status}`) }}
+            </span>
+          </template>
+          
+          <!-- Template pour la colonne type -->
+          <template #column-type="{ item }">
+            <span :class="getTypeClass(item.type)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+              {{ $t(`types.${item.type}`) }}
+            </span>
+          </template>
         </ReusableTable>
       </div>
+      <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
+        :title="$t('confirmDelete')"
+        :message="$t('deleteBlockConfirmMessage')"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="deleteLoading"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
     </AdminLayout>
 
     <ModalLostAndFound
@@ -50,13 +77,13 @@
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import type { ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import { UserIcon, FolderOutputIcon, IdCard } from 'lucide-vue-next'
-
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from '@/composables/booking'
@@ -65,7 +92,8 @@ import { useToast } from 'vue-toastification';
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import UserFilters from '../../components/filters/UserFilters.vue'
 import { getLostFound, addLostFound, updateLostFoundItem, deleteLostFoundItem } from '@/services/lostfound'
-
+import {  Edit, Trash2, FileDown } from 'lucide-vue-next'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -80,19 +108,17 @@ const toast = useToast();
 const currentPageTitle = computed(() => t('LostAndFoundList'))
 const selectedItem = ref<any>(null)
 const lostFoundItems = ref<any[]>([])
+const showDeleteConfirmation = ref(false)
+const deleteLoading = ref(false)
+const exportLoading = ref(false)
 
 const columns = computed(() => [
   {
     key: 'status',
     label: t('Status'),
-    type: 'badge' as const,
+    type: 'custom' as const, // Changé de 'status' à 'custom'
     sortable: true,
     translatable: true,
-    badgeVariant: (value: string) => {
-      if (value === 'returned') return 'green';
-      if (value === 'Discarded') return 'red';
-      return 'gray'; // Couleur par défaut pour les autres statuts
-    }
   },
   {
     key: 'lost_on',
@@ -140,36 +166,159 @@ const columns = computed(() => [
   {
     key: 'type',
     label: t('Type'),
-    type: 'badge' as const,
+    type: 'custom' as const, // Changé de 'text' à 'custom'
     sortable: true,
     translatable: true,
-    badgeVariant: (value: string) => {
-      return value === 'found' ? 'blue' : 'red';
-    }
   }
 ])
 
 const actions = computed(() => [
   {
-    label: t('view'),
-    handler: (item: any) => handleLostFoundAction('view', item)
-  },
-  {
     label: t('Edit'),
+    action: 'edit',
+    icon: Edit,
+    variant: 'primary',
     handler: (item: any) => handleLostFoundAction('edit', item)
   },
   {
     label: t('Delete'),
+    action: 'delete',
+    icon: Trash2,
+    variant: 'danger',
     handler: (item: any) => handleLostFoundAction('delete', item)
   }
 ])
 
+const breadcrumb = [
+  { label: t('navigation.frontOffice'), href: '#' },
+  { label: t('LostAndFound'), href: '#' }
+]
+
 // Search functionality
 const searchQuery = ref('')
 
+// Propriété computed pour les données filtrées
+const filteredLostFoundItems = computed(() => {
+  let filtered = lostFoundItems.value
+
+  if (searchQuery.value) {
+    const searchTerm = searchQuery.value.toLowerCase().trim()
+    
+    if (searchTerm) {
+      filtered = filtered.filter(item => {
+        // Recherche dans tous les champs pertinents
+        const status = item.status?.toLowerCase() || ''
+        const whoFound = item.whoFound?.toLowerCase() || ''
+        const itemName = item.itemName?.toLowerCase() || ''
+        const itemColor = item.itemColor?.toLowerCase() || ''
+        const location = item.lostLocation?.toLowerCase() || ''
+        const roomNumber = item.room?.roomNumber?.toLowerCase() || ''
+        const type = item.type?.toLowerCase() || ''
+        const date = formatDate(item.lost_on).toLowerCase()
+
+        return status.includes(searchTerm) ||
+               whoFound.includes(searchTerm) ||
+               itemName.includes(searchTerm) ||
+               itemColor.includes(searchTerm) ||
+               location.includes(searchTerm) ||
+               roomNumber.includes(searchTerm) ||
+               type.includes(searchTerm) ||
+               date.includes(searchTerm)
+      })
+    }
+  }
+
+  return filtered
+})
+
 const onSearchChange = (query: string) => {
   console.log('Search query changed:', query)
-  // Add any additional search logic here if needed
+  searchQuery.value = query
+}
+
+// Fonction pour formater les dates
+const formatDate = (dateString: string) => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString
+    
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  } catch (error) {
+    console.error('Error formatting date:', error)
+    return dateString
+  }
+}
+
+// Fonction d'exportation modifiée pour utiliser les données filtrées
+const exportLostFound = async () => {
+  if (filteredLostFoundItems.value.length === 0) {
+    toast.error(t('noDataToExport'))
+    return
+  }
+
+  exportLoading.value = true
+
+  try {
+    // Utiliser filteredLostFoundItems au lieu de lostFoundItems
+    const csvData = filteredLostFoundItems.value.map(item => ({
+      'Status': item.status || '',
+      'Date': formatDate(item.lost_on),
+      'Who Found': item.whoFound || '',
+      'Item Name': item.itemName || '',
+      'Item Color': item.itemColor || '',
+      'Location': item.lostLocation || '',
+      'Room Number': item.room?.roomNumber || '',
+      'Type': item.type || ''
+    }))
+
+    // Convert to CSV string
+    const headers = Object.keys(csvData[0] || {})
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row =>
+        headers.map(header => {
+          const value = row[header as keyof typeof row] || ''
+          // Escape quotes and wrap in quotes if contains comma or quote
+          const escapedValue = value.toString().replace(/"/g, '""')
+          return escapedValue.includes(',') || escapedValue.includes('"')
+            ? `"${escapedValue}"`
+            : escapedValue
+        }).join(',')
+      )
+    ].join('\n')
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `lost_and_found_filtered_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    // Message d'exportation amélioré
+    const totalItems = lostFoundItems.value.length
+    const filteredItems = filteredLostFoundItems.value.length
+
+    if (filteredItems < totalItems) {
+      toast.success(t('lostFoundExportedSuccessfully') + ` (${filteredItems}/${totalItems} items)`)
+    } else {
+      toast.success(t('lostFoundExportedSuccessfully'))
+    }
+  } catch (error: any) {
+    console.error('Error exporting lost & found items:', error)
+    toast.error(t('errorExportingLostFound'))
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 // Fonction pour ouvrir le modal avec le bon type
@@ -184,23 +333,26 @@ const openModal = (type: 'lost' | 'found') => {
 const handleLostFoundAction = async (action: string, item: any) => {
   console.log('Lost Found action:', action, item)
 
+  const foundItem = lostFoundItems.value.find((lf: any) => lf.id === parseInt(item.id))
+
+  if (!foundItem) {
+    console.error('Item introuvable pour ID:', item.id)
+    return
+  }
+
+  selectedItem.value = foundItem
+
   if (action === 'view' || action === 'edit') {
-    const foundItem = lostFoundItems.value.find((lf: any) => lf.id === parseInt(item.id))
-
-    if (foundItem) {
-      selectedItem.value = foundItem
-
-      if (action === 'edit') {
-        isEditMode.value = true
-        // Définir le mode Found basé sur le type de l'item
-        isFoundMode.value = foundItem.type === 'found'
-        showModal.value = true
-      }
-
-      console.log('Selected item:', selectedItem.value)
-    } else {
-      console.error('Item introuvable pour ID:', item.id)
+    if (action === 'edit') {
+      isEditMode.value = true
+      isFoundMode.value = foundItem.type === 'found'
+      showModal.value = true
     }
+    // Vous pouvez ajouter la logique pour 'view' ici si nécessaire
+    console.log('Selected item:', selectedItem.value)
+  } 
+  else if (action === 'delete') {
+    showDeleteConfirmation.value = true
   }
 }
 
@@ -285,6 +437,7 @@ const handleSubmitLostFound = async (payload: any) => {
  
       // Mise à jour locale pour la démo
       await updateLostFoundItem(id, payloadData)
+      fetchLostFoundItems()
       const index = lostFoundItems.value.findIndex(item => item.id === selectedItem.value?.id)
       if (index !== -1) {
         lostFoundItems.value[index] = { ...lostFoundItems.value[index], ...payloadData }
@@ -294,14 +447,14 @@ const handleSubmitLostFound = async (payload: any) => {
     } else {
       // Appel API pour créer
       console.log("data.send", payloadData)
-       const response = await addLostFound(payloadData)
-       console.log("data.receive", response)
+
+      const response = await addLostFound(payloadData)
+      fetchLostFoundItems()
+      console.log("data.receive", response)
 
       toast.success(t('toast.Created'))
     }
 
-    // Rafraîchir la liste (optionnel si vous faites les modifications locales)
-    // await fetchLostFoundItems()
     showModal.value = false
 
   } catch (error: any) {
@@ -315,6 +468,63 @@ const handleSubmitLostFound = async (payload: any) => {
     loading.value = false
   }
 }
+
+const confirmDelete = async () => {
+  deleteLoading.value = true
+
+  try {
+    await deleteLostFoundItem(selectedItem.value?.id)
+    fetchLostFoundItems()
+    toast.success(t('successBlockDeleted'))
+
+  } catch (error: any) {
+    console.error('Error deleting block:', error)
+    const errorMsg = error.response?.data?.message || error.message || t('errorDeletingBlock')
+    console.log('errorMsg',errorMsg)
+    toast.error(t('errorDeleteBlock'))
+  } finally {
+    deleteLoading.value = false
+    showDeleteConfirmation.value = false
+  }
+}
+
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case 'returned':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'discarded':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  }
+}
+
+const getTypeClass = (type: string) => {
+  switch (type) {
+    case 'found':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'lost':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  }
+}
+
+const cancelDelete = () => {
+  showDeleteConfirmation.value = false
+}
+
+// Debounce search pour améliorer les performances
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+watch(searchQuery, () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  searchTimeout = setTimeout(() => {
+    console.log('Search query changed to:', searchQuery.value)
+  }, 300)
+})
 
 onMounted(async () => {
   await fetchLostFoundItems()
