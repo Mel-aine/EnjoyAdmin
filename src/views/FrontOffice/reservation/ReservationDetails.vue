@@ -28,7 +28,7 @@ import { getReservationDetailsById } from '../../../services/api'
 import AdminLayout from '../../../components/layout/AdminLayout.vue'
 import Adult from '../../../icons/Adult.vue'
 import Child from '../../../icons/Child.vue'
-import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { formatDateT, formatTimeFromTimeString } from '../../../components/utilities/UtilitiesFunction'
 import GuestDetails from '../../../components/reservations/GuestDetails.vue'
 import Spinner from '../../../components/spinner/Spinner.vue'
 import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue'
@@ -262,7 +262,7 @@ const roomRateTypeSummary = computed(() => {
   console.log('reservationRooms', reservationRooms)
   // Get room numbers and create summary
   const roomNumbers = reservationRooms.map((room: any) => {
-    return `${room.room?.roomNumber} / ${room.room?.roomType?.roomTypeName}`
+    return `${room.room?.roomNumber} -${room?.roomType?.roomTypeName} / ${room?.roomRates?.rateType?.rateTypeName} `
   })
 
   return roomNumbers[0]
@@ -391,7 +391,14 @@ const handleVoidConfirmed = () => {
   // Emit save event to notify parent components
   emit('save', { action: 'void', reservationId: id })
 }
-
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  }
+  return new Date(dateString).toLocaleDateString('en', options)
+}
 const handleUnassignRoom = async () => {
   const payload = {
     roomIds: reservation.value?.reservationRooms.map((e: any) => e.room?.id).filter(Boolean),
@@ -526,7 +533,7 @@ onMounted(() => {
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
               <span class="text-xs flex gap-2">
-                <span>{{ formatDateT(reservation.arrivedDate) }}</span>
+                <span>{{ formatDate(reservation.arrivedDate)}}, {{ formatTimeFromTimeString(reservation.checkInTime)  }}</span>
                 <!--<span>
                   <PencilIcon class="w-3" />
                 </span>-->
@@ -536,7 +543,7 @@ onMounted(() => {
             <div class="flex flex-col">
               <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
               <span class="text-xs flex gap-2">
-                <span>{{ formatDateT(reservation.departDate) }}</span>
+                <span>{{ formatDate(reservation.departDate) }}, {{ formatTimeFromTimeString(reservation.checkOutTime) }}</span>
                <!-- <span>
                   <PencilIcon class="w-3" />
                 </span>-->
