@@ -5658,6 +5658,7 @@
   "sourceFolio": "Source Folio",
   "destinationFolio": "Destination Folio",
   "inHouse": "In house",
+  "inhouse": "In house",
   "reservation": "Reservation",
   "billingContact": "Billing contact",
   "filtersGuest": {
@@ -6168,7 +6169,8 @@
   "ErrorDeletingRemark": "Error deleting remark",
   "TitleRequired": "Remark is required",
   "OutOfOrder": "Out of Order",
-  "NotAssigned": "Not assigned"
+  "NotAssigned": "Not assigned",
+  "CompanyAccount": "Company Account"
 
 
 

@@ -248,25 +248,11 @@ import {
   Settings
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import type { AuditLog } from '../../utils/models'
 
 const { t,locale } = useI18n()
 
-// Props
-interface AuditLog {
-  id: string | number
-  action: string
-  description: string
-  changes?: Record<string, { old: any; new: any }> | null
-  timestamp: string
-  userId: string | number
-  userName?: string | null
-  ipAddress?: string | null
-  userAgent?: string | null
-  sessionId?: string | null
-  entityId?: string | number | null
-  entityType?: string | null
-  meta?: Record<string, any> | null
-}
+
 
 interface Props {
   logs: AuditLog[]

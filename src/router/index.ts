@@ -1437,6 +1437,25 @@ const router = createRouter({
       },
     },
     {
+      path: '/audit-trail',
+      name: 'AuditTrail',
+      component: () => import('../views/Others/AuditTrailDetails.vue'),
+      meta: {
+        title: 'Audit Trail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/audit-trail/:entityType/:entityId',
+      name: 'AuditTrailEntity',
+      component: () => import('../views/Others/AuditTrailDetails.vue'),
+      props: true,
+      meta: {
+        title: 'Audit Trail Details',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/profile',
       name: 'Profile',
       component: () => import('../views/Others/UserProfile.vue'),

@@ -1070,13 +1070,7 @@ const onTableAction = (action: string, room: any) => {
 
 // Open audit trail
 const openAuditTrail = () => {
-  // TODO: Implement audit trail functionality
-  toast({
-    severity: 'info',
-    summary: t('Info'),
-    detail: t('Audit trail functionality will be implemented'),
-    life: 3000,
-  })
+  router.push({ name: 'AuditTrailEntity', params: { entityType: 'Room', entityId: 'all' } })
 }
 
 const exportData = () => {

@@ -24,14 +24,13 @@
                 @click="goToCreatePage"
               />
               <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" @click="exportToCSV"/>
-              <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" />
+              <BasicButton :label="$t('audit_trial')" variant="secondary" :icon="FileTextIcon" @click="showAuditTrial"  />
               <GuestFilter @filter="handleFilterChange" />
             </template>
             <!-- Custom column templates -->
             <template #column-country="{ item }">
               <div class="font-medium text-gray-900">
-                <!-- {{ $t(`countries_lists.${item.country.toLowerCase()}`) }} -->
-                {{item.country  }}
+                <span v-if="item.country">{{ $t(`countries_lists.${item.country.toLowerCase()}`) }} </span>
               </div>
             </template>
             <template #column-vipStatus="{ item }">
@@ -97,7 +96,6 @@ import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useRouter } from 'vue-router'
-import { useBookingStore } from '@/composables/booking'
 import ModalCustomer from './ModalCustomer.vue'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../../components/buttons/BasicButton.vue'
@@ -112,11 +110,9 @@ import TablePagination from '@/components/tables/TablePagination.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
-const authStore = useAuthStore()
 const router = useRouter()
 const showModal = ref(false)
 const loading = ref(false)
-const store = useBookingStore()
 const toast = useToast()
 const selectedCustomer = ref<any>(null)
 const customerToDelete = ref<any>(null)
@@ -129,6 +125,9 @@ const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
 const activeFilters = ref({})
 const paginationMeta = ref(null)
+const showAuditTrial = () => {
+  router.push({ name: 'AuditTrailEntity', params: { entityType: 'Guest', entityId: 'all' } })
+}
 const breadcrumb = [
   { label: t('navigation.frontOffice'), href: '#' },
   { label: t('guest_database'), href: '#' },

@@ -176,14 +176,10 @@ const exportCompaniesData = async () => {
 const auditCompaniesData = async () => {
   try {
     auditing.value = true
-    const result = await auditCompanies()
-    if (result) {
-      toast.success(t('companyDatabase.audit_success'))
-    } else {
-      toast.error(t('companyDatabase.audit_error'))
-    }
+    // Navigate to audit trail page for companies
+    router.push({ name: 'AuditTrailEntity', params: { entityType: 'CompanyAccount', entityId: 'all' } })
   } catch (error) {
-    console.error('Error auditing companies:', error)
+    console.error('Error navigating to audit trail:', error)
     toast.error(t('companyDatabase.audit_error'))
   } finally {
     auditing.value = false

@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n';
 import ButtomDropdownAction from '../common/ButtomDropdownAction.vue';
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, HouseIcon, List, StopCircle, Trash2, UserMinus, Users, X } from 'lucide-vue-next';
 import { computed, ref, defineAsyncComponent, watch } from 'vue';
-import { formatCurrency, formatTime } from '../utilities/UtilitiesFunction';
+import { formatCurrency, formatTime, formatTimeFromTimeString } from '../utilities/UtilitiesFunction';
 import router from '../../router';
 import Child from '../../icons/Child.vue';
 import Adult from '../../icons/Adult.vue';
@@ -756,8 +756,8 @@ const handleCheckOutSuccess = (data: any) => {
             </div>
 
             <!-- Dropdown normal -->
-            <ButtomDropdownAction
-              v-else
+            <ButtomDropdownAction 
+              v-else-if="dropdownOptions && dropdownOptions.length > 0"
               :id="`${localReservation.id}`"
               :options="dropdownOptions"
               @option-selected="handleOptionSelected"
@@ -770,7 +770,7 @@ const handleCheckOutSuccess = (data: any) => {
         <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100">
           <span>{{ formatDate(localReservation.date) }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
-            {{ formatTime(localReservation.date) }}
+            {{ formatTimeFromTimeString(localReservation.checkInTime) }}
           </span>
         </div>
         <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
@@ -782,7 +782,7 @@ const handleCheckOutSuccess = (data: any) => {
         <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100">
           <span>{{ formatDate(localReservation.departDate) }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
-            {{ formatTime(localReservation.departDate) }}
+            {{ formatTimeFromTimeString(localReservation.checkOutTime) }}
           </span>
         </div>
 
