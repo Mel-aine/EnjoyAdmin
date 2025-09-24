@@ -91,13 +91,9 @@ const updateLocalReservation = (updates: any) => {
   emit('reservation-updated', localReservation.value)
 }
 
-// // Fonction pour mettre à jour les données locales après une action
-// const updateLocalReservation = (updates: any) => {
-//   localReservation.value = { ...localReservation.value, ...updates }
-//   console.log('Updated reservation:', localReservation.value)
-//   // Émettre l'événement vers le parent
-//   emit('reservation-updated', localReservation.value)
-// }
+
+
+
 
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
@@ -756,7 +752,7 @@ const handleCheckOutSuccess = (data: any) => {
             </div>
 
             <!-- Dropdown normal -->
-            <ButtomDropdownAction 
+            <ButtomDropdownAction
               v-else-if="dropdownOptions && dropdownOptions.length > 0"
               :id="`${localReservation.id}`"
               :options="dropdownOptions"

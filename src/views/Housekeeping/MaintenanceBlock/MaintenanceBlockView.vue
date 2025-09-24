@@ -71,7 +71,7 @@
           <template #column-reason="{ item }">
             <div class="max-w-xs">
               <p class="text-sm text-gray-600 truncate" :title="item.reason">
-                {{ item.reason }}
+                {{ $t(`statuses.${item.reason}`) }}
               </p>
             </div>
           </template>
@@ -93,102 +93,7 @@
         </ReusableTable>
       </div>
 
-       <!-- Modal de changement de statut
-     <template v-if="showStatusModal">
-        <Modal @close="closeStatusModal">
-          <template #body>
 
-             <div class="no-scrollbar relative w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
-
-          <button
-            @click="closeStatusModal"
-            class="transition-color absolute right-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            <svg
-              class="fill-current"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-                fill=""
-              />
-            </svg>
-          </button>
-            <div class="">
-              <div class="sm:flex sm:items-start">
-                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                    {{ $t('changeBlockStatus') }}
-                  </h3>
-
-                  <div class="space-y-4">
-
-                    <div class="bg-gray-50 p-3 rounded-lg">
-                      <p class="text-sm text-gray-600">
-                        <strong>{{ $t('room') }}:</strong> {{ selectedStatusBlock?.room?.roomNumber }}
-                      </p>
-                      <p class="text-sm text-gray-600">
-                        <strong>{{ $t('currentStatus') }}:</strong>
-                        <span :class="getStatusClass(selectedStatusBlock?.status)" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-1">
-                          {{ $t(`statuses.${selectedStatusBlock?.status}`) }}
-                        </span>
-                      </p>
-                    </div>
-
-
-                    <div>
-                       <Select
-                           v-model="newStatus"
-                          :options="statusOptions"
-                          :placeholder="$t('selectStatusPlaceholder')"
-                          :lb="$t('newStatus')"
-                        />
-
-                    </div>
-
-
-                  </div>
-                </div>
-              </div>
-
-
-              <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                <button
-                  type="button"
-                  @click="confirmStatusChange"
-                  :disabled="statusUpdateLoading || !newStatus || newStatus === selectedStatusBlock?.status"
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  <span v-if="statusUpdateLoading" class="inline-flex items-center">
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    {{ $t('updating') }}...
-                  </span>
-                  <span v-else>{{ $t('updateStatus') }}</span>
-                </button>
-
-                <button
-                  type="button"
-                  @click="closeStatusModal"
-                  :disabled="statusUpdateLoading"
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
-                >
-                  {{ $t('cancel') }}
-                </button>
-              </div>
-            </div>
-            </div>
-          </template>
-        </Modal>
-      </template> -->
 
  <ConfirmationModal
         v-model:show="showStatusModal"
@@ -311,10 +216,6 @@ const loadingStatusUpdate = ref(false)
 const blockToUpdateStatus = ref<any>(null)
 const newStatusToUpdate = ref('')
 const statusUpdateNotes = ref('')
-const newStatus = ref('')
-const statusChangeComment = ref('')
-const statusUpdateLoading = ref(false)
-const selectedStatusBlock = ref<any | null>(null)
 const toast = useToast()
 
 // Breadcrumb
@@ -432,11 +333,7 @@ const getStatusClass = (status: string) => {
   }
 }
 
-const statusOptions = computed(()=>[
-  { value: 'pending', label: t('statuses.pending') },
-  { value: 'inProgress', label: t('statuses.in_progress') },
-  { value: 'completed', label: t('statuses.completed') },
-])
+
 
 // Computed properties for status modal
 const statusUpdateTitle = computed(() => {
