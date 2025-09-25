@@ -64,6 +64,7 @@ interface Props {
   placeholder?: string
   hideLabel?: boolean
   paymentType?: string // Filter parameter
+  disabled?:boolean
 }
 
 interface Emits {

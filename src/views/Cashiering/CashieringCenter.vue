@@ -10,8 +10,8 @@
 
                     <BasicButton :icon="PlusIcon" :label="$t('new_payment')" @click="openNewPaymentModal"/>
                     <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" />
-                    <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />
-                    <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
+                 <!-- <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />-->  
+                  <!---->  <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
 
                 </div>
             </div>

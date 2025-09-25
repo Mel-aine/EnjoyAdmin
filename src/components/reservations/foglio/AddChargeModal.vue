@@ -159,7 +159,7 @@ const saveCharge = async () => {
       departmentId: selectedCharge.value?.departmentId || '',
       reference: formData.recVouNumber || '',
       notes: formData.comment || '',
-      discountId:Number(formData.discount)
+      discountId: formData.discount ? Number(formData.discount) : undefined
     }
 
     console.log('Sending charge data:', chargeData)

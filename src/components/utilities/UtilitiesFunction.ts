@@ -85,3 +85,8 @@ export const  formatTime = (datetimeStr : any) => {
   const date = new Date(datetimeStr)
   return date.toISOString().substring(11, 16)
 }
+
+export const formatTimeFromTimeString = (timeString: string) => {
+  const [hours, minutes] = timeString.split(':')
+  return `${hours}:${minutes}`
+}

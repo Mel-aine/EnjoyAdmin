@@ -272,7 +272,7 @@
     </div>
 
     <!-- Confirmed Selection Tooltip with Action -->
-    <div
+   <div
       v-if="getSelectionInfo()"
       :style="tooltipStyle"
       class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm"
@@ -298,7 +298,7 @@
           <!-- <div><strong>{{ $t('Nights') }}:</strong></div>
           <div>{{ getSelectionInfo()?.totalNights }}</div> -->
         </div>
-      </div>
+      </div >
 
       <div class="bg-gray-50 border-t border-gray-200 rounded-b-lg px-4 py-3 flex justify-end gap-2">
         <button
@@ -365,7 +365,7 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon,HandIcon, Cigarette, CigaretteOff, CrownIcon, StarIcon, Paintbrush,CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2, CreditCardIcon, CheckCircleIcon, LinkIcon, WrenchIcon, HeartIcon, SplitIcon} from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon,HandIcon, Cigarette, CigaretteOff, CrownIcon, StarIcon, Paintbrush,CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2, CreditCardIcon, CheckCircleIcon, LinkIcon, WrenchIcon, HeartIcon, SplitIcon, CheckCircle} from 'lucide-vue-next'
 
 import { watch,onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
@@ -425,7 +425,7 @@ const router = useRouter()
 const selectionTooltipPosition = ref({ x: 0, y: 0 })
 const isTooltipAbove = ref(false)
 
-const tooltipStyle = computed(() => {
+const tooltipStyle = computed((): Record<string, string | number> => {
     const pos = selectionTooltipPosition.value;
     if (!pos) return {};
     const x = pos.x - 150;
@@ -655,8 +655,9 @@ function getRoomRowCellsApi(group: any, room: any) {
   })
 
   // --- Récupération des room blocks ---
+  console.log("apiRoomBlocks",apiRoomBlocks.value)
   const roomBlocks = apiRoomBlocks.value.filter(
-    (b: any) => b.room && b.room.room_number === room.room_number
+    (b: any) => b.room && b.room.room_number === room.room_number && b.status !== 'completed'
   )
 
   while (i < visibleDates.value.length) {
@@ -1282,7 +1283,7 @@ function getSelectionInfo() {
     endDate: dates[dates.length - 1],
     totalNights: dates.length > 0 ? dates.length - 1 : 0,
     cellCount: dates.length,
-  }
+  } as any
 }
 
 // Helper functions for cell selection merging

@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import ReusableTable from './ReusableTable.vue'
 import type { Action, Column } from '../../utils/models'
 
@@ -235,6 +236,8 @@ const onSelectionChange = (selectedItems: Guest[]) => {
   console.log('Selection changed:', selectedItems)
 }
 
+const router = useRouter()
+
 const onAction = (action:any, item:any) => {
   
     switch (action) {
@@ -247,8 +250,11 @@ const onAction = (action:any, item:any) => {
       case 'delete':
         console.log('Deleting guest:', item)
         break
+      case 'audit':
+        // Navigate to audit trail page for specific guest
+        router.push({ name: 'AuditTrailEntity', params: { entityType: 'guest', entityId: item.id.toString() } })
+        break
     }
-  
 }
 </script>
 

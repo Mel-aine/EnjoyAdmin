@@ -195,7 +195,13 @@ interface MaintenanceBlock {
 interface Props {
   isOpen: boolean
   blockData?: MaintenanceBlock | null
-  isEditing?: boolean
+  isEditing?: boolean,
+  preSelectedRoom?: {
+    roomId: any
+    roomNumber: string
+    roomTypeId?: any
+    roomTypeName?: string
+  } | null
 }
 
 interface Emits {
@@ -296,6 +302,47 @@ const isFormValid = computed(() => {
 })
 
 // Methods
+// const populateFormData = () => {
+//   if (props.blockData && props.isEditing) {
+//     console.log('Populating form data for editing:', props.blockData)
+
+//     // Sélectionner le type de chambre - Correction
+//     const roomTypeId = props.blockData.roomType?.id || props.blockData.room?.roomType?.id
+//     if (roomTypeId) {
+//       selectedRoomTypeId.value = Number(roomTypeId)
+
+//       // Attendre que les options soient chargées et que Vue mette à jour le computed
+//       nextTick(() => {
+//         // Une fois que filteredRooms est mis à jour, sélectionner la chambre
+//         if (filteredRooms.value.length > 0) {
+//           const roomToSelect = filteredRooms.value.find((room:any) =>
+//             room.value === props.blockData!.room.id
+//           )
+
+//           if (roomToSelect) {
+//             formData.selectedRooms = [roomToSelect]
+//             console.log('Room selected:', roomToSelect)
+//           }
+//         }
+//       })
+//     }
+
+//     // Définir les dates
+//     formData.dateRanges = [{
+//       start: props.blockData.blockFromDate || null,
+//       end: props.blockData.blockToDate || null
+//     }]
+
+//     formData.reason = props.blockData.reason || ''
+//     formData.status = props.blockData.status || ''
+//     formData.status = props.blockData.description || ''
+//   }
+//   else {
+//     resetForm()
+//   }
+// }
+
+
 const populateFormData = () => {
   if (props.blockData && props.isEditing) {
     console.log('Populating form data for editing:', props.blockData)
@@ -304,10 +351,8 @@ const populateFormData = () => {
     const roomTypeId = props.blockData.roomType?.id || props.blockData.room?.roomType?.id
     if (roomTypeId) {
       selectedRoomTypeId.value = Number(roomTypeId)
-
-      // Attendre que les options soient chargées et que Vue mette à jour le computed
       nextTick(() => {
-        // Une fois que filteredRooms est mis à jour, sélectionner la chambre
+
         if (filteredRooms.value.length > 0) {
           const roomToSelect = filteredRooms.value.find((room:any) =>
             room.value === props.blockData!.room.id
@@ -329,8 +374,55 @@ const populateFormData = () => {
 
     formData.reason = props.blockData.reason || ''
     formData.status = props.blockData.status || ''
-    formData.status = props.blockData.description || ''
-  } else {
+    formData.description = props.blockData.description || ''
+  }
+
+  else if (props.preSelectedRoom && !props.isEditing) {
+    console.log('Pre-selecting room from RemarkModal:', props.preSelectedRoom)
+
+    if (props.preSelectedRoom.roomTypeId) {
+      selectedRoomTypeId.value = Number(props.preSelectedRoom.roomTypeId)
+
+      // Attendre que filteredRooms soit mis à jour
+      nextTick(() => {
+
+        const roomToSelect = filteredRooms.value.find((room: any) =>
+          room.value === props.preSelectedRoom!.roomId
+        )
+
+        if (roomToSelect) {
+          formData.selectedRooms = [roomToSelect]
+          console.log('Pre-selected room:', roomToSelect)
+        }
+      })
+    }
+    // Si pas de roomTypeId, chercher le type dans les options chargées
+    else if (props.preSelectedRoom.roomId) {
+      // Chercher dans toutes les chambres de tous les types
+      nextTick(() => {
+        for (const roomType of roomTypeOptions.value) {
+          const roomFound = roomType.rooms?.find((room: any) =>
+            room.id === props.preSelectedRoom!.roomId
+          )
+          if (roomFound) {
+            selectedRoomTypeId.value = roomType.id
+            // Attendre encore une fois que filteredRooms soit mis à jour
+            nextTick(() => {
+              const roomToSelect = filteredRooms.value.find((room: any) =>
+                room.value === props.preSelectedRoom!.roomId
+              )
+              if (roomToSelect) {
+                formData.selectedRooms = [roomToSelect]
+                console.log('Auto-found and pre-selected room:', roomToSelect)
+              }
+            })
+            break
+          }
+        }
+      })
+    }
+  }
+  else {
     resetForm()
   }
 }

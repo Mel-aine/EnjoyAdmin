@@ -58,7 +58,7 @@
             <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal"
               :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
-            <BasicButton :label="$t('printInvoice')" @click="openPrintModal" />
+            <BasicButton :label="$t('printInvoice')" @click="printInvoiceDirect" />
             <!-- More Actions Dropdown -->
             <div class="relative">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
@@ -176,8 +176,12 @@
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
           <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
-            @print-error="handlePrintError" :reservation-id="reservationId" />
+            @print-error="handlePrintError" :reservation-id="reservationId" :folio-id="selectedFolio?.id" />
         </template>
+        <!-- Direct PDF Preview (same viewer as PrintInvoice) -->
+        <div v-if="showPdfExporter">
+          <PdfExporterNode @close="showPdfExporter=false" :is-modal-open="showPdfExporter" :is-generating="printLoading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated" @error="handlePdfError" />
+        </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
           <ApplyDiscountRoomCharge :is-open="isApplyDiscountModal" :reservation-id="reservationId"
@@ -209,6 +213,8 @@ import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
 import { prepareFolioAmount } from '../../../utils/numericUtils'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
+import PdfExporterNode from '../../common/PdfExporterNode.vue'
+import { printFolioPdf } from '@/services/foglioApi'
 import SplitFolioModal from './SplitFolioModal.vue'
 import CutFolioModal from './CutFolioModal.vue'
 import RoomChargeModal from './RoomChargeModal.vue'
@@ -231,6 +237,10 @@ const isAddChargeModalOpen = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCreateFolioModalOpen = ref(false)
 const isPrintModalOpen = ref(false)
+const showPdfExporter = ref(false)
+const printLoading = ref(false)
+const pdfurl = ref<string>('')
+const pdfTheme = ref<Record<string, any>>({})
 const selectedMoreAction = ref<any>(null)
 const isVoidTrasaction = ref(false);
 /// manage more action folio
@@ -591,6 +601,29 @@ const handlePrintSuccess = (data: any) => {
 
 const handlePrintError = (error: any) => {
   console.error('Print error:', error)
+}
+
+// Impression directe comme PrintInvoice
+const printInvoiceDirect = async () => {
+  try {
+    if (!selectedFolio.value?.id) return
+    printLoading.value = true
+    showPdfExporter.value = true
+    const res = await printFolioPdf({ folioId: Number(selectedFolio.value.id), reservationId: props.reservationId })
+    pdfurl.value = window.URL.createObjectURL(res)
+  } catch (e) {
+    console.error(e)
+  } finally {
+    printLoading.value = false
+  }
+}
+
+const handlePdfGenerated = (_blob: Blob) => {
+  // rien à faire ici pour l’instant
+}
+
+const handlePdfError = (err: any) => {
+  console.error(err)
 }
 
 // Handle more actions dropdown selection

@@ -18,8 +18,8 @@
                 <form @submit.prevent="handleSubmit">
                     <!-- Reason Selection -->
                     <div class="mb-4">
-                        <Select :lb="$t('reason')" :is-loading="isloadingReason" v-model="formData.reason" :options="reasonOptions"
-                            :is-required="true" />
+                        <Select :lb="$t('reason')" :is-loading="isloadingReason" v-model="formData.reason"
+                            :options="reasonOptions" :is-required="true" />
                     </div>
 
                     <!-- Action Buttons -->
@@ -54,6 +54,7 @@ interface Props {
 interface Emits {
     (e: 'close'): void
     (e: 'confirmed', data: VoidReservationData): void
+    (e: 'void-confirmed', data: VoidReservationData): void
 }
 
 interface VoidReservationData {

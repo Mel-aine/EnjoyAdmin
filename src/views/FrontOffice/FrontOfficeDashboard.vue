@@ -88,268 +88,51 @@
       <!-- Main Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
         <!-- Arrival Card -->
-        <div class="bg-white dark:bg-gray-800 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ $t('frontOffice.dashboard.arrival') }}
-            </h3>
-          </div>
-          <div class="flex items-center justify-center mb-4">
-            <div class="relative w-24 h-24">
-              <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div> -->
-              <!-- Circular Progress for Arrival -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  stroke="#3b82f6"
-                  stroke-width="8"
-                  fill="none"
-                  :stroke-dasharray="`${(dashboardData?.arrival?.pending / dashboardData?.arrival?.total) * 251.2} 251.2`"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.arrival?.total || 0 }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.pending') }} ({{
-                    dashboardData?.arrival?.pending || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.arrived') }} ({{
-                    dashboardData?.arrival?.arrived || 0
-                  }})
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DashboardCircle
+          :title="$t('frontOffice.dashboard.arrival')"
+          :isLoading="isLoading"
+          :data="{
+            pending: dashboardData?.arrival?.pending || 0,
+            arrived: dashboardData?.arrival?.arrived || 0,
+          }"
+          :colors="['#3b82f6', '#10b981']"
+        />
 
         <!-- Checked Out Card -->
-        <div class="bg-white dark:bg-gray-800 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ $t('frontOffice.dashboard.checkedOut') }}
-            </h3>
-          </div>
-          <div class="flex items-center justify-center mb-4">
-            <div class="relative w-24 h-24">
-              <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
-              </div> -->
-              <!-- Circular Progress for Checked Out -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  stroke="#f59e0b"
-                  stroke-width="8"
-                  fill="none"
-                  :stroke-dasharray="`${(dashboardData?.departure?.pending / dashboardData?.departure?.total) * 251.2} 251.2`"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.departure?.total || 0 }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-amber-500 rounded-full mr-2"></div>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.pending') }} ({{
-                    dashboardData?.departure?.pending || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.checkedOut') }} ({{
-                    dashboardData?.departure?.checkedOut || 0
-                  }})
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DashboardCircle
+          :title="$t('frontOffice.dashboard.checkedOut')"
+          :isLoading="isLoading"
+          :data="{
+            pending: dashboardData?.departure?.pending || 0,
+            checkedOut: dashboardData?.departure?.checkedOut || 0,
+          }"
+          :colors="['#f59e0b', '#10b981']"
+        />
 
         <!-- Guest In House Card -->
-        <div class="bg-white dark:bg-gray-800 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ $t('frontOffice.dashboard.guestInHouse') }}
-            </h3>
-          </div>
-          <div class="flex items-center justify-center mb-4">
-            <div class="relative w-24 h-24">
-              <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div> -->
-              <!-- Circular Progress for Guest In House -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  stroke="#3b82f6"
-                  stroke-width="8"
-                  fill="none"
-                  :stroke-dasharray="`${(dashboardData?.guestInHouse?.adult / dashboardData?.guestInHouse?.total) * 251.2} 251.2`"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.guestInHouse?.total || 0 }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.adult') }} ({{
-                    dashboardData?.guestInHouse?.adult || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.child') }} ({{
-                    dashboardData?.guestInHouse?.child || 0
-                  }})
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
+        <DashboardCircle
+          :title="$t('frontOffice.dashboard.guestInHouse')"
+          :isLoading="isLoading"
+          :data="{
+            adult: dashboardData?.guestInHouse?.adult || 0,
+            child: dashboardData?.guestInHouse?.child || 0,
+          }"
+          :colors="['#3b82f6', '#10b981']"
+        />
         <!-- Room Status Card -->
-        <div class="bg-white dark:bg-gray-800 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ $t('frontOffice.dashboard.roomStatus') }}
-            </h3>
-          </div>
-          <div class="flex items-center justify-center mb-4">
-            <div class="relative w-24 h-24">
-              <!-- Loading Spinner -->
-              <!-- <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-              </div> -->
-              <!-- Circular Progress for Room Status -->
-              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  stroke="#ef4444"
-                  stroke-width="8"
-                  fill="none"
-                  :stroke-dasharray="`${(dashboardData?.roomStatus?.vacant / dashboardData?.roomStatus?.total) * 251.2} 251.2`"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ dashboardData?.roomStatus?.total }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                <span class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.vacant') }} ({{
-                    dashboardData?.roomStatus?.vacant || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                <span class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.sold') }} ({{
-                    dashboardData?.roomStatus?.sold || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.dayUse') }} ({{
-                    dashboardData?.roomStatus?.dayUse || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.complimentary') }} ({{
-                    dashboardData?.roomStatus?.complimentary || 0
-                  }})
-                </span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-gray-500 rounded-full mr-2"></div>
-                <span class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ $t('frontOffice.dashboard.blocked') }} ({{
-                    dashboardData?.roomStatus?.blocked || 0
-                  }})
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+
+        <DashboardCircle
+          :title="$t('frontOffice.dashboard.roomStatus')"
+          :isLoading="isLoading"
+          :data="{
+            available: dashboardData?.roomStatus?.availableRooms || 0,
+            sold: dashboardData?.roomStatus?.sold || 0,
+            dayUse: dashboardData?.roomStatus?.dayUse || 0,
+            complimentary: dashboardData?.roomStatus?.complimentary || 0,
+            blocked: dashboardData?.roomStatus?.blockedForDate || 0,
+          }"
+          :colors="['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#6b7280']"
+        />
 
         <!-- Housekeeping Status Card -->
 
@@ -360,72 +143,31 @@
             </h3>
             <div class="flex items-center justify-center h-52">
               <!-- Loading Spinner for Bar Chart -->
-              <!-- <div v-if="isLoading" class="flex items-center justify-center h-full">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-              </div> -->
+              <div v-if="isLoading" class="flex items-center justify-center h-full">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+              </div>
               <!-- Bar Chart for Housekeeping Status - Corrigé -->
-              <div class="flex items-end justify-center space-x-4 h-48 w-full">
-                <div class="flex flex-col items-center">
+             <div v-else class="flex items-end justify-center space-x-4 h-48 w-full">
+                <div
+                  v-for="stat in housekeepingStatsArray"
+                  :key="stat.key"
+                  class="flex flex-col items-center"
+                >
                   <div
-                    class="bg-green-500 rounded-t transition-all duration-300"
+                    class="rounded-t transition-all duration-300"
+                    :class="stat.color"
                     :style="{
-                      height: `${housekeepingStats.clean > 0 ? Math.max((housekeepingStats.clean / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
-                      width: '40px',
+                      height: `${Math.max((stat.value / maxHousekeepingValue) * 160, 5)}px`,
+                      width: '40px'
                     }"
                   ></div>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{
-                    $t('frontOffice.dashboard.clean')
-                  }}</span>
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
-                    housekeepingStats.clean || 0
-                  }}</span>
-                </div>
-                <div class="flex flex-col items-center">
-                  <div
-                    class="bg-yellow-500 rounded-t transition-all duration-300"
-                    :style="{
-                      height: `${housekeepingStats.inspected > 0 ? Math.max((housekeepingStats.inspected / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
-                      width: '40px',
-                    }"
-                  ></div>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{
-                    $t('frontOffice.dashboard.inspect')
-                  }}</span>
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
-                    housekeepingStats.inspected || 0
-                  }}</span>
-                </div>
-                <div class="flex flex-col items-center">
-                  <div
-                    class="bg-orange-500 rounded-t transition-all duration-300"
-                    :style="{
-                      height: `${housekeepingStats.dirty > 0 ? Math.max((housekeepingStats.dirty / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
-                      width: '40px',
-                    }"
-                  ></div>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{
-                    $t('frontOffice.dashboard.dirty')
-                  }}</span>
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
-                    housekeepingStats.dirty || 0
-                  }}</span>
-                </div>
-                <div class="flex flex-col items-center">
-                  <div
-                    class="bg-red-500 rounded-t transition-all duration-300"
-                    :style="{
-                      height: `${housekeepingStats.blocked > 0 ? Math.max((housekeepingStats.blocked / Math.max(...Object.values(housekeepingStats))) * 160, 20) : 20}px`,
-                      width: '40px',
-                    }"
-                  ></div>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">{{
-                    $t('frontOffice.dashboard.block')
-                  }}</span>
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
-                    housekeepingStats.blocked || 0
-                  }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">
+                    {{ $t(`frontOffice.dashboard.${stat.key}`) }}
+                  </span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ stat.value }}</span>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -441,7 +183,7 @@
               <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
                 <DollarSign class="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
-              {{ $t('frontOffice.dashboard.folioUnpaid.list') }}
+              {{ $t('frontOffice.dashboard.folioUnpaidList') }}
               <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
                 ({{ UnsettledFolios.length || 0 }})
               </span>
@@ -449,8 +191,11 @@
           </div>
 
           <!-- List -->
+          <div v-if="isLoading" class="flex items-center justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          </div>
           <div
-            v-if="UnsettledFolios.length > 0"
+            v-else-if="UnsettledFolios.length > 0"
             class="space-y-3 max-h-96 overflow-y-auto scrollbar-hide"
           >
             <div
@@ -477,12 +222,16 @@
           <!-- Empty state -->
           <div v-else class="text-center py-10">
             <div
-              class="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/20 rounded-2xl flex items-center justify-center shadow-sm"
+              class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-green-900/20 rounded-full flex items-center justify-center"
             >
-              <CheckCircle class="w-8 h-8 text-green-600 dark:text-green-400" />
+              <CheckCircle class="w-8 h-8 text-gray-400 dark:text-gray-500" />
             </div>
-            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Aucun folio impayé</p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">Tous les folios sont à jour</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+              {{ $t('unsettledFolios.noFoliosFound') }}
+            </p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">
+              {{ $t('unsettledFolios.allPaid') }}
+            </p>
           </div>
         </div>
 
@@ -495,213 +244,63 @@
                 <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg mr-3">
                   <Star class="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
-                Occupation des Types de Chambres
+                {{ $t('roomTypesOccupancy') }}
                 <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
-                  ({{ Object.keys(dashboardData?.suites || {}).length }} types)
+                  ({{ Object.keys(dashboardData?.suites || {}).length }})
                 </span>
               </h3>
-
-              <!-- View Toggle -->
-              <div class="flex items-center space-x-2">
-                <button
-                  @click="suiteViewMode = 'grid'"
-                  :class="[
-                    'p-2 rounded-lg',
-                    suiteViewMode === 'grid'
-                      ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-900/20',
-                  ]"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                    ></path>
-                  </svg>
-                </button>
-                <button
-                  @click="suiteViewMode = 'list'"
-                  :class="[
-                    'p-2 rounded-lg transition-all duration-200',
-                    suiteViewMode === 'list'
-                      ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-900/20',
-                  ]"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Search Bar -->
-            <div v-if="Object.keys(dashboardData?.suites || {}).length > 8" class="mb-4">
-              <div class="relative">
-                <input
-                  v-model="suiteSearchQuery"
-                  type="text"
-                  placeholder="Rechercher un type de chambre..."
-                  class="w-full px-4 py-2 pl-10 text-sm bg-slate-50/80 dark:bg-slate-700/80 border border-slate-200/60 dark:border-slate-600/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all duration-200"
-                />
-                <svg
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Grid View -->
-            <div
-              v-if="suiteViewMode === 'grid'"
-              :class="[
-                'grid gap-4',
-                filteredSuites.length <= 4
-                  ? 'grid-cols-1'
-                  : filteredSuites.length <= 8
-                    ? 'grid-cols-2'
-                    : 'grid-cols-2 lg:grid-cols-3',
-              ]"
-            >
-              <div
-                v-for="(count, suiteName) in paginatedSuites"
-                :key="suiteName"
-                class="group/item relative overflow-hidden p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60 cursor-pointer"
-                :class="getSuiteTypeClass(suiteName)"
-              >
-                <div
-                  class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-white/10 to-transparent rounded-full -mr-6 -mt-6"
-                ></div>
-                <div class="relative text-center space-y-2">
-                  <div class="mx-auto w-fit p-2 rounded-lg" :class="getSuiteIconBg(suiteName)">
-                    <component
-                      :is="getSuiteIcon(suiteName)"
-                      class="w-5 h-5"
-                      :class="getSuiteIconColor(suiteName)"
-                    />
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">
-                      {{ suiteName }}
-                    </p>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">occupées</p>
-                  </div>
-                  <div class="text-2xl font-black" :class="getSuiteTextColor(suiteName)">
-                    {{ count }}
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!-- List View -->
-            <div v-else class="space-y-3">
-              <div
-                v-for="(count, suiteName) in paginatedSuites"
-                :key="suiteName"
-                class="group/item relative overflow-hidden p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60 cursor-pointer"
-                :class="getSuiteTypeClass(suiteName)"
-              >
-                <div
-                  class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/10 to-transparent rounded-full -mr-8 -mt-8"
-                ></div>
-                <div class="relative flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="p-2 rounded-lg mr-3" :class="getSuiteIconBg(suiteName)">
-                      <component
-                        :is="getSuiteIcon(suiteName)"
-                        class="w-4 h-4"
-                        :class="getSuiteIconColor(suiteName)"
-                      />
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                        {{ suiteName }}
-                      </p>
-                      <p class="text-xs text-slate-600 dark:text-slate-400">Chambres occupées</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <span class="text-xl font-black" :class="getSuiteTextColor(suiteName)">
-                      {{ count }}
-                    </span>
-                  </div>
-                </div>
+            <div class="space-y-3">
+              <!-- Loader -->
+              <div v-if="isLoading" class="flex items-center justify-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
               </div>
-            </div>
 
-            <!-- Pagination -->
-            <div
-              v-if="totalSuitePages > 1"
-              class="flex items-center justify-between mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-600/60"
-            >
-              <div class="flex items-center space-x-2">
-                <button
-                  @click="currentSuitePage = Math.max(1, currentSuitePage - 1)"
-                  :disabled="currentSuitePage === 1"
-                  class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-100 dark:hover:bg-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronDown class="w-4 h-4 rotate-90" />
-                </button>
-
-                <div class="flex items-center space-x-1">
-                  <button
-                    v-for="page in visiblePages"
-                    :key="page"
-                    @click="currentSuitePage = page"
-                    :class="[
-                      'w-8 h-8 rounded-lg text-xs font-bold',
-                      page === currentSuitePage
-                        ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-100 dark:hover:bg-purple-900/20',
-                    ]"
+              <!-- Suites data -->
+              <div v-else-if="dashboardData?.suites?.length">
+                <ul class="text-sm space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
+                  <li
+                    v-for="suite in dashboardData.suites"
+                    :key="suite.roomTypeId"
+                    class="flex justify-between border-b py-1"
                   >
-                    {{ page }}
-                  </button>
-                </div>
+                    <span class="font-medium">{{ suite.roomTypeName }}</span>
+                    <span class="text-gray-600 dark:text-gray-400 font-normal">
+                      Occupées: {{ suite.occupied }} / {{ suite.totalRooms }} (Libres:
+                      {{ suite.free }},
+                      <span
+                        :class="{
+                          'text-green-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
+                          'text-yellow-600 font-semibold':
+                            parseFloat(suite.occupancyRate) >= 50 &&
+                            parseFloat(suite.occupancyRate) < 80,
+                          'text-red-600 font-semibold': parseFloat(suite.occupancyRate) >= 80,
+                        }"
+                      >
+                        {{ suite.occupancyRate }}
+                      </span>
+                      )
+                    </span>
+                  </li>
+                </ul>
+              </div>
 
-                <button
-                  @click="currentSuitePage = Math.min(totalSuitePages, currentSuitePage + 1)"
-                  :disabled="currentSuitePage === totalSuitePages"
-                  class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-purple-100 dark:hover:bg-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              <!-- Empty state -->
+              <div v-else class="text-center py-10">
+                <div
+                  class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-green-900/20 rounded-full flex items-center justify-center"
                 >
-                  <ChevronDown class="w-4 h-4 -rotate-90" />
-                </button>
+                  <CheckCircle class="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                </div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                  {{ $t('no_roomtype_found') }}
+                </p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('all_rooms_vacant') }}
+                </p>
               </div>
-
-              <div class="text-xs text-slate-600 dark:text-slate-400">
-                {{ (currentSuitePage - 1) * itemsPerPage + 1 }}-{{
-                  Math.min(currentSuitePage * itemsPerPage, filteredSuites.length)
-                }}
-                sur {{ filteredSuites.length }} types
-              </div>
-            </div>
-
-            <!-- Empty State for Search -->
-            <div v-if="filteredSuites.length === 0 && suiteSearchQuery" class="text-center py-8">
-              <div
-                class="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-xl flex items-center justify-center"
-              >
-                <svg class="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
-              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Aucun type de chambre trouvé pour "{{ suiteSearchQuery }}"
-              </p>
             </div>
           </div>
         </div>
@@ -769,12 +368,12 @@
           </div>
           <div class="space-y-3">
             <!-- Loading state -->
-            <!-- <div v-if="isLoading" class="flex items-center justify-center py-8">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            </div> -->
-            <!-- Activities list -->
+            <div v-if="isLoading" class="flex items-center justify-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            </div>
+
             <!-- Activities List -->
-            <div v-if="dashboardData?.activityFeeds?.length > 0" class="space-y-4">
+            <div v-else-if="dashboardData?.activityFeeds?.length > 0" class="space-y-4">
               <div
                 v-for="activity in dashboardData.activityFeeds"
                 :key="activity.id"
@@ -824,9 +423,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import DashboardCircle from '@/components/frontOffice/DashboardCircle.vue'
 import {
   RefreshCw,
   User,
@@ -855,13 +455,6 @@ const dashboardData = ref<any>(null)
 const selectedRange = ref('today')
 const customDate = ref(new Date().toISOString().split('T')[0])
 const lastUpdate = ref<Date | null>(null)
-const autoRefreshInterval = ref<NodeJS.Timeout | null>(null)
-
-// Suite management state
-const suiteViewMode = ref<'grid' | 'list'>('grid')
-const suiteSearchQuery = ref('')
-const currentSuitePage = ref(1)
-const itemsPerPage = ref(12)
 const UnsettledFolios = ref<any[]>([])
 
 // Computed properties
@@ -875,7 +468,7 @@ const housekeepingStats = computed(() => {
     clean: dashboardData.value.housekeepingStatus.clean || 0,
     inspected: dashboardData.value.housekeepingStatus.inspected || 0,
     dirty: dashboardData.value.housekeepingStatus.dirty || 0,
-    blocked: dashboardData.value.roomStatus?.blocked || 0,
+    blocked: dashboardData.value.housekeepingStatus?.blocked || 0,
   }
 })
 const getStartOfWeek = (date: Date) => {
@@ -931,10 +524,7 @@ const dateRange = computed(() => {
   }
 })
 
-const occupancyRate = computed(() => {
-  if (!dashboardData.value?.roomStatus) return 0
-  return dashboardData.value.roomStatus.occupancyRate || 0
-})
+
 
 const notificationItems = computed(() => {
   const notifications = dashboardData.value?.notifications || {}
@@ -990,67 +580,6 @@ const notificationItems = computed(() => {
   ]
 })
 
-// Suite management computed properties
-const filteredSuites = computed(() => {
-  const suites = dashboardData.value?.suites || {}
-  if (!suiteSearchQuery.value.trim()) {
-    return suites
-  }
-
-  const query = suiteSearchQuery.value.toLowerCase().trim()
-  const filtered: any = {}
-
-  Object.entries(suites).forEach(([suiteName, count]) => {
-    if (suiteName.toLowerCase().includes(query)) {
-      filtered[suiteName] = count
-    }
-  })
-
-  return filtered
-})
-
-const totalSuitePages = computed(() => {
-  return Math.ceil(Object.keys(filteredSuites.value).length / itemsPerPage.value)
-})
-
-const paginatedSuites = computed(() => {
-  const suites = filteredSuites.value
-  const entries = Object.entries(suites)
-  const startIndex = (currentSuitePage.value - 1) * itemsPerPage.value
-  const endIndex = startIndex + itemsPerPage.value
-
-  const paginatedEntries = entries.slice(startIndex, endIndex)
-  const result: any = {}
-
-  paginatedEntries.forEach(([suiteName, count]) => {
-    result[suiteName] = count
-  })
-
-  return result
-})
-
-const visiblePages = computed(() => {
-  const total = totalSuitePages.value
-  const current = currentSuitePage.value
-  const pages: any[] = []
-
-  if (total <= 5) {
-    for (let i = 1; i <= total; i++) {
-      pages.push(i)
-    }
-  } else {
-    if (current <= 3) {
-      pages.push(1, 2, 3, 4, 5)
-    } else if (current >= total - 2) {
-      pages.push(total - 4, total - 3, total - 2, total - 1, total)
-    } else {
-      pages.push(current - 2, current - 1, current, current + 1, current + 2)
-    }
-  }
-
-  return pages
-})
-
 const loadDashboardData = async () => {
   try {
     isLoading.value = true
@@ -1092,45 +621,6 @@ const loadDashboardData = async () => {
 }
 
 // Enhanced styling methods
-const getSuiteTypeClass = (suiteName: any) => {
-  if (suiteName.toLowerCase().includes('home')) {
-    return 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200/60 dark:border-blue-700/60'
-  }
-  if (suiteName.toLowerCase().includes('lifestyle')) {
-    return 'bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/60 dark:border-purple-700/60'
-  }
-  return 'bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-slate-200/60 dark:border-slate-700/60'
-}
-
-const getSuiteIcon = (suiteName: any) => {
-  if (suiteName.toLowerCase().includes('home')) return Home
-  if (suiteName.toLowerCase().includes('lifestyle')) return Star
-  return Home
-}
-
-const getSuiteIconColor = (suiteName: any) => {
-  if (suiteName.toLowerCase().includes('home')) return 'text-blue-600 dark:text-blue-400'
-  if (suiteName.toLowerCase().includes('lifestyle')) return 'text-purple-600 dark:text-purple-400'
-  return 'text-slate-600 dark:text-slate-400'
-}
-
-const getSuiteIconBg = (suiteName: any) => {
-  if (suiteName.toLowerCase().includes('home')) return 'bg-blue-100 dark:bg-blue-900/40'
-  if (suiteName.toLowerCase().includes('lifestyle')) return 'bg-purple-100 dark:bg-purple-900/40'
-  return 'bg-slate-100 dark:bg-slate-900/40'
-}
-
-const getSuiteTextColor = (suiteName: any) => {
-  if (suiteName.toLowerCase().includes('home')) return 'text-blue-600 dark:text-blue-400'
-  if (suiteName.toLowerCase().includes('lifestyle')) return 'text-purple-600 dark:text-purple-400'
-  return 'text-slate-600 dark:text-slate-400'
-}
-
-const getOccupancyColor = (rate: number) => {
-  if (rate >= 90) return '#dc2626'
-  if (rate >= 70) return '#f59e0b'
-  return '#16a34a'
-}
 
 const getActivityTypeClass = (type: string) => {
   const classes: any = {
@@ -1158,30 +648,22 @@ const getActivityTypeClass = (type: string) => {
   return classes[type] || classes['system']
 }
 
-// Auto-refresh setup
-const startAutoRefresh = () => {
-  if (autoRefreshInterval.value) {
-    clearInterval(autoRefreshInterval.value)
-  }
+const housekeepingStatsArray = computed(() => [
+  { key: 'clean', value: housekeepingStats.value.clean, color: 'bg-green-500' },
+  { key: 'inspected', value: housekeepingStats.value.inspected, color: 'bg-yellow-500' },
+  { key: 'dirty', value: housekeepingStats.value.dirty, color: 'bg-orange-500' },
+  { key: 'blocked', value: housekeepingStats.value.blocked, color: 'bg-gray-500' },
+])
 
-  autoRefreshInterval.value = setInterval(() => {
-    if (!isLoading.value) {
-      loadDashboardData()
-    }
-  }, 30000)
-}
+// Max pour calcul proportionnelle
+const maxHousekeepingValue = computed(() =>
+  Math.max(...Object.values(housekeepingStats.value).map(v => Number(v)), 1)
+)
 
-const stopAutoRefresh = () => {
-  if (autoRefreshInterval.value) {
-    clearInterval(autoRefreshInterval.value)
-    autoRefreshInterval.value = null
-  }
-}
 
 // Lifecycle
 onMounted(() => {
   loadDashboardData()
-  startAutoRefresh()
 })
 
 // Watch for date changes to trigger data reload
@@ -1196,28 +678,6 @@ watch(
   },
   { deep: true },
 )
-
-// Reset pagination when search changes
-watch(suiteSearchQuery, () => {
-  currentSuitePage.value = 1
-})
-
-// Auto-adjust view mode based on number of items
-watch(filteredSuites, (newSuites) => {
-  const count = Object.keys(newSuites).length
-  if (count > 12 && suiteViewMode.value === 'grid') {
-    suiteViewMode.value = 'list'
-  }
-  if (suiteViewMode.value === 'grid') {
-    itemsPerPage.value = 12
-  } else {
-    itemsPerPage.value = 10
-  }
-})
-
-onUnmounted(() => {
-  stopAutoRefresh()
-})
 </script>
 
 <style scoped>

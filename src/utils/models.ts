@@ -511,3 +511,19 @@ export interface Template {
   component?: any
   options?: any
 }
+// Props
+export interface AuditLog {
+  id: string | number
+  action: string
+  description: string
+  changes?: Record<string, { old: any; new: any }> | null
+  timestamp: string
+  userId: string | number
+  userName?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  sessionId?: string | null
+  entityId?: string | number | null
+  entityType?: string | null
+  meta?: Record<string, any> | null
+}
