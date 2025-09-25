@@ -307,6 +307,7 @@
   "LostLocation": "Lost Location",
   "lostFoundExportedSuccessfully": "Lost & Found data exported successfully",
   "errorExportingLostFound": "Error exporting Lost & Found data",
+  "nationality": "Nationality",
   "tooltip": {
     "email": "Email",
     "room": "Room",
@@ -6177,7 +6178,10 @@
   "CompanyAccount": "Company Account",
   "no_roomtype_found": "No room type found",
   "all_rooms_vacant": "All rooms are vacant",
-  "set_to_dirty": "Set to Dirty"
+  "set_to_dirty": "Set to Dirty",
+  "selectGender": "Select Gender",
+  "selectRole": "Select Role",
+  "selectDepartment": "Select Department"
 
 
 

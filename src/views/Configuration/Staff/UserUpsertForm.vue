@@ -580,6 +580,7 @@ onMounted(async () => {
                             :forLabel="'firstName'"
                             v-model="form.firstName"
                             :is-required="true"
+                            :placeholder="$t('FirstName')"
                           />
 
                           <Input
@@ -588,6 +589,7 @@ onMounted(async () => {
                             :forLabel="'lastName'"
                             v-model="form.lastName"
                             :is-required="true"
+                            :placeholder="$t('LastName')"
                           />
 
                           <Select
@@ -595,6 +597,7 @@ onMounted(async () => {
                             :lb="t('gender')"
                             v-model="form.gender"
                             :options="genders"
+                            :placeholder="$t('selectGender')"
                           />
 
                           <InputPhone
@@ -623,6 +626,7 @@ onMounted(async () => {
                             :id="'placeOfBirth'"
                             :forLabel="'placeOfBirth'"
                             v-model="form.placeOfBirth"
+                            :placeholder="$t('placeOfBirth')"
                             :is-required="true"
                           />
 
@@ -632,6 +636,7 @@ onMounted(async () => {
                             :forLabel="'nationalIdNumber'"
                             :inputType="'text'"
                             :is-required="true"
+                            :placeholder="$t('nationalIdNumber')"
                             v-model="form.nationalIdNumber"
                           />
 
@@ -695,11 +700,13 @@ onMounted(async () => {
                             v-model="form.roleId"
                             :options="roles"
                             :is-Loading="isLoadingRole"
+                            :placeholder="$t('selectRole')"
                           />
 
                           <Select
                             :is-required="true"
                             :lb="t('staffManager.department')"
+                            :placeholder="$t('selectDepartment')"
                             v-model="form.department"
                             :is-Loading="isLoadingDepartment"
                             :options="departments"
@@ -739,17 +746,17 @@ onMounted(async () => {
                             <Input
                               :lb="t('State/Province')"
                               v-model="form.stateProvince"
-                              placeholder="State"
+                              :placeholder="$t('State/Province')"
                             />
                           </div>
                           <div>
-                            <Input :lb="t('city')" v-model="form.city" placeholder="Ville" />
+                            <Input :lb="t('city')" v-model="form.city" :placeholder="$t('city')" />
                           </div>
                           <div>
                             <Input
                               :lb="t('postalCode')"
                               v-model="form.postalCode"
-                              placeholder="Code Postal"
+                              :placeholder="$t('postalCode')"
                             />
                           </div>
                           <div>
@@ -759,7 +766,7 @@ onMounted(async () => {
                             <Input
                               :lb="t('Company Name')"
                               v-model="form.companyName"
-                              placeholder="Société"
+                              :placeholder="$t('Company Name')"
                             />
                           </div>
                           <div>
