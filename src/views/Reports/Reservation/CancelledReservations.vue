@@ -215,7 +215,7 @@
                 </svg>
                 PDF
               </button>
-              <button 
+           <!--    <button 
                 @click="exportExcel" 
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
@@ -224,7 +224,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Excel
-              </button>
+              </button> -->
             </div>
           </div>
           
@@ -779,7 +779,7 @@ const exportToCSV = () => {
   downloadFile(csvContent, 'cancelled-reservations.csv', 'text/csv')
 }
 
-const exportToExcel = () => {
+/* const exportToExcel = () => {
   if (!reservationData.value || reservationData.value.length === 0) {
     console.warn('Aucune donnée à exporter')
     return
@@ -840,7 +840,7 @@ const exportToExcel = () => {
   
   XLSX.writeFile(wb, fileName)
 }
-
+ */
 // Fonction utilitaire pour télécharger les fichiers
 const downloadFile = (content: string, fileName: string, mimeType: string) => {
   const blob = new Blob([content], { type: mimeType + ';charset=utf-8;' })
@@ -866,7 +866,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = false
   }
 }
-
+/* 
 const exportExcel = async (): Promise<void> => {
   try {
     exportLoading.value = true
@@ -875,7 +875,7 @@ const exportExcel = async (): Promise<void> => {
   } finally {
     exportLoading.value = false
   }
-}
+} */
 
 // Garder l'export PDF via le backend car il utilise le template HTML
 const exportPDF = async (): Promise<void> => {
