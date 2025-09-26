@@ -26,7 +26,6 @@
               v-model="filters.arrivalFrom" 
               placeholder="From"
               class="w-full"
-              @update:modelValue="updateDateFilter('startDate', $event)"
             />
           </div>
           <div>
@@ -37,7 +36,6 @@
               v-model="filters.arrivalTo" 
               placeholder="To"
               class="w-full"
-              @update:modelValue="updateDateFilter('endDate', $event)"
             />
           </div>
           <div>
@@ -205,9 +203,9 @@
         </div>
 
         <!-- Select Columns -->
-        <!-- <div class="mt-6">
+        <div class="mt-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Select Columns (Any 5)
+            Select Additional Columns (Any 5)
           </label>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <label 
@@ -228,15 +226,15 @@
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
             Selected: {{ filters.selectedColumns.length }}/5 columns
           </p>
-        </div> -->
+        </div>
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200">
-          <!-- Bouton d'export avec menu déroulant - Style modifié pour correspondre à l'exemple -->
+          <!-- Bouton d'export avec menu déroulant -->
           <div class="relative">
             <button
               @click="toggleExportMenu"
-              :disabled="exportLoading"
+              :disabled="exportLoading || !showResults"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
               >
               <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -250,13 +248,12 @@
             </button>
             
             <!-- Menu déroulant Export -->
-            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+            <div v-if="exportMenuOpen && showResults" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
               <button 
                 @click="exportCSV" 
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
-
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
@@ -285,20 +282,20 @@
             </div>
           </div>
           
-          <!-- Bouton Report avec le style de l'exemple -->
+          <!-- Bouton Report -->
           <button 
             @click="generateArrivalReport"
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
-                   <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Report
+            <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Report
           </button>
           
-          <!-- Bouton Reset avec style secondaire -->
+          <!-- Bouton Reset -->
           <button 
             @click="resetForm"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
@@ -311,7 +308,7 @@
         </div>
       </div>
 
-      <!-- Results Table ou Rapport HTML -->
+      <!-- Results Table -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -323,23 +320,23 @@
           </div>
         </div>
         
-        <!-- Contenu HTML du rapport -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <!-- Table des résultats -->
+        <div class="overflow-x-auto">
+          <ResultTable 
+            title="Arrival List Results"
+            :data="tableData"
+            :columns="selectedTableColumns"
+            class="w-full"
+          />
+        </div>
         
-        <!-- Fallback si pas de HTML (affichage normal du tableau) -->
-        <div v-else>
-          <div class="overflow-x-auto">
-            <ResultTable 
-              title="Arrival List Results"
-              :data="reservationData"
-              :columns="selectedTableColumns"
-              class="w-full"
-            />
-          </div>
-          
-          <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <span>Total Reservation: #{{ totalReservations }}</span> • 
-            <span>Total Pax: {{ totalPax }}</span>
+        <!-- Summary -->
+        <div v-if="reportData?.datas?.summary" class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <span>Total Arrivals: {{ reportData.datas.summary.totalArrivals }}</span>
+            <span>Total Revenue: {{ formatCurrency(reportData.datas.summary.totalRevenue) }}</span>
+            <span>Total Nights: {{ reportData.datas.summary.totalNights }}</span>
+            <span>Total Pax: {{ reportData.datas.summary.totalAdults + reportData.datas.summary.totalChildren }}</span>
           </div>
         </div>
       </div>
@@ -360,27 +357,11 @@ import { getCompanies } from '@/services/companyApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { useRouter } from 'vue-router'
-import { getEmployeesForService } from '@/services/userApi'
+import { getEmployeesForService } from '@/services/userApi' 
 
 interface FilterOptions {
   value: string;
   label: string;
-}
-
-interface Reservation {
-  resNo: string;
-  guest: string;
-  room: string;
-  rate: string;
-  arrival: string;
-  departure: string;
-  pax: string;
-  pickUp: string;
-  dropOff: string;
-  resType: string;
-  company: string;
-  user: string;
-  taxInclusive?: string;
 }
 
 interface Filters {
@@ -406,6 +387,10 @@ interface ReportData {
   html: string;
   generatedAt: string;
   filters: any;
+  datas: {
+    data: any[];
+    summary: any;
+  };
 }
 
 const hotelName = ref<string>('Hotel Nihal')
@@ -420,13 +405,6 @@ const roomTypeOptions = ref<FilterOptions[]>([])
 const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
-
-// Filtres pour l'API
-const apiFilters = ref<ReportFilters>({
-  startDate: '',
-  endDate: '',
-  hotelId: idHotel !== null ? idHotel : undefined
-})
 
 // Filtres pour l'interface utilisateur
 const filters = ref<Filters>({
@@ -447,12 +425,35 @@ const filters = ref<Filters>({
   selectedColumns: []
 })
 
-
 const pdfUrl = ref('')
 const router = useRouter()
+
 const reportTitle = computed(() => {
   return reportData.value?.title || 'Arrival List Report'
 })
+
+// Computed pour les filtres API
+const apiFilters = computed<ReportFilters>(() => {
+  return {
+    startDate: filters.value.arrivalFrom,
+    endDate: filters.value.arrivalTo,
+    hotelId: idHotel !== null ? idHotel : undefined,
+    roomTypeId: filters.value.roomType ? parseInt(filters.value.roomType) : undefined,
+    ratePlanId: filters.value.rateType ? parseInt(filters.value.rateType) : undefined,
+    company: filters.value.company || undefined,
+    travelAgent: filters.value.travelAgent || undefined,
+    businessSource: filters.value.businessSource || undefined,
+    market: filters.value.market || undefined,
+    userId: filters.value.user ? parseInt(filters.value.user) : undefined,
+    rateFrom: filters.value.rateFrom ? parseFloat(filters.value.rateFrom) : undefined,
+    rateTo: filters.value.rateTo ? parseFloat(filters.value.rateTo) : undefined,
+    reservationType: filters.value.reservationType || undefined,
+    showAmount: filters.value.showAmount || undefined,
+    taxInclusive: filters.value.taxInclusive,
+    selectedColumns: filters.value.selectedColumns.length > 0 ? filters.value.selectedColumns : undefined,
+  }
+})
+
 // Options for selects
 const getCompaniesList = async () => {
   try {
@@ -468,25 +469,27 @@ const getCompaniesList = async () => {
     console.error('Error fetching companies:', error)
   }
 }
+
 const fetchRoomtype = async () => {
   try {
     const resp = await getRoomTypes(idHotel!)
     console.log('Room Type:', resp)
     roomTypeOptions.value = resp.data.data.data.map((c: any) => ({
       label: c.roomTypeName,
-      value: c.id
+      value: c.id.toString()
     }))
   } catch (error) {
     console.error('Error fetching roomType:', error)
   }
 }
+
 const fetchRatetype = async () => {
   try {
     const resp = await getRateTypes(idHotel!)
     console.log('Rate Type:', resp)
     rateTypeOptions.value = resp.data.data.map((c: any) => ({
       label: c.rateTypeName,
-      value: c.id
+      value: c.id.toString()
     }))
   } catch (error) {
     console.error('Error fetching roomType:', error)
@@ -499,7 +502,7 @@ const fetchUsers = async () => {
     console.log('Users:', resp)
     userOptions.value = resp.data.data.map((u: any) => ({
       label: `${u.firstName} ${u.lastName}`,
-      value: u.user_id
+      value: u.user_id.toString()
     }))
   } catch (error) {
     console.error('Error fetching users:', error)
@@ -517,7 +520,6 @@ const travelAgentOptions = ref<FilterOptions[]>([
 ])
 
 const {
-  // Options
   BookingSource,
   BusinessSource,
   BookingType,
@@ -526,7 +528,6 @@ const {
   MarketCode,
   reservationId,
 } = useBooking()
-
 
 const availableColumns = ref<FilterOptions[]>([
   { value: 'pickUp', label: 'Pick Up' },
@@ -542,87 +543,98 @@ const availableColumns = ref<FilterOptions[]>([
   { value: 'rateType', label: 'Rate Type' }
 ])
 
-// Sample data for the table
-const reservationData = ref<Reservation[]>([
-  {
-    resNo: 'BE306',
-    guest: 'Mr.eZee Test 03',
-    room: '101 - Suite Room',
-    rate: '100.00',
-    arrival: '28/04/2019 11:30:00 AM',
-    departure: '01/05/2019',
-    pax: '1/0',
-    pickUp: '',
-    dropOff: '',
-    resType: 'Confirm Booking',
-    company: '',
-    user: 'helpdesksupport'
-  }
-])
+// Computed pour les données du tableau
+const tableData = computed(() => {
+  if (!reportData.value?.datas?.data) return []
+  
+  return reportData.value.datas.data.map((item: any) => {
+    const baseRow: any = {
+      reservationNumber: item.reservationNumber,
+      guestName: item.guestName,
+      roomType: item.roomType,
+      roomNumber: item.roomNumber,
+      arrivalDate: item.arrivalDate,
+      departureDate: item.departureDate,
+      totalPax: item.totalPax,
+      status: item.status,
+    }
+    
+    // Ajouter les colonnes de montant selon showAmount
+    if (filters.value.showAmount === 'rent_per_night') {
+      baseRow.amount = formatCurrency(item.ratePerNight)
+    } else {
+      baseRow.amount = formatCurrency(item.totalAmount)
+    }
+    
+    // Ajouter les colonnes sélectionnées
+    filters.value.selectedColumns.forEach(col => {
+      switch(col) {
+        case 'pickUp':
+          baseRow.pickUp = item.pickUp || ''
+          break
+        case 'dropOff':
+          baseRow.dropOff = item.dropOff || ''
+          break
+        case 'resType':
+          baseRow.resType = item.reservationType
+          break
+        case 'company':
+          baseRow.company = item.company
+          break
+        case 'user':
+          baseRow.user = item.createdBy
+          break
+        case 'deposit':
+          baseRow.deposit = formatCurrency(item.depositPaid)
+          break
+        case 'balanceDue':
+          baseRow.balanceDue = formatCurrency(item.balanceDue)
+          break
+        case 'marketCode':
+          baseRow.marketCode = item.marketSegment
+          break
+        case 'businessSource':
+          baseRow.businessSource = item.businessSource
+          break
+        case 'mealPlan':
+          baseRow.mealPlan = item.mealPlan
+          break
+        case 'rateType':
+          baseRow.rateType = item.ratePlan
+          break
+      }
+    })
+    
+    return baseRow
+  })
+})
 
-// Mettre à jour les filtres API quand les filtres UI changent
-watch(filters, (newFilters) => {
-  // Mapper les filtres UI vers les filtres API
-  apiFilters.value = {
-    ...apiFilters.value,
-    startDate: newFilters.arrivalFrom,
-    // selectedColumns: newFilters.selectedColumns,
-    endDate: newFilters.arrivalTo,
-    roomTypeId: newFilters.roomType ? parseInt(newFilters.roomType) : undefined,
-    ratePlanId: newFilters.rateType ? parseInt(newFilters.rateType) : undefined,
-    company: newFilters.company,
-    travelAgent: newFilters.travelAgent,
-    businessSource: newFilters.businessSource,
-    market: newFilters.market,
-    user: newFilters.user,
-    rateFrom: newFilters.rateFrom ? parseFloat(newFilters.rateFrom) : undefined,
-    rateTo: newFilters.rateTo ? parseFloat(newFilters.rateTo) : undefined,
-    reservationType: newFilters.reservationType,
-    showAmount: newFilters.showAmount,
-    taxInclusive: newFilters.taxInclusive,
-  }
-}, { deep: true })
-
-// Computed properties
+// Computed pour les colonnes du tableau
 const selectedTableColumns = computed(() => {
   const baseColumns = [
-    { key: 'resNo', label: 'Res. No' },
-    { key: 'guest', label: 'Guest' },
-    { key: 'room', label: 'Room' },
-    { key: 'rate', label: 'Rate ' },
-    { key: 'arrival', label: 'Arrival' },
-    { key: 'departure', label: 'Departure' },
-    { key: 'pax', label: 'Pax' }
+    { key: 'reservationNumber', label: 'Res. No' },
+    { key: 'guestName', label: 'Guest' },
+    { key: 'roomType', label: 'Room Type' },
+    { key: 'roomNumber', label: 'Room #' },
+    { key: 'arrivalDate', label: 'Arrival' },
+    { key: 'departureDate', label: 'Departure' },
+    { key: 'totalPax', label: 'Pax' },
+    { key: 'amount', label: filters.value.showAmount === 'rent_per_night' ? 'Rate/Night' : 'Total Amount' },
+    { key: 'status', label: 'Status' }
   ]
   
-  // Add selected columns
+  // Ajouter les colonnes sélectionnées
   filters.value.selectedColumns.forEach(col => {
-    baseColumns.push({
-      key: col,
-      label: availableColumns.value.find(c => c.value === col)?.label || col
-    })
+    const columnConfig = availableColumns.value.find(c => c.value === col)
+    if (columnConfig) {
+      baseColumns.push({
+        key: col,
+        label: columnConfig.label
+      })
+    }
   })
-
-  // Add tax inclusive if selected
-  if (filters.value.taxInclusive) {
-    baseColumns.push({
-      key: 'taxInclusive',
-      label: 'Tax Inclusive'
-    })
-  }
   
   return baseColumns
-})
-
-const totalReservations = computed(() => {
-  return reservationData.value.length
-})
-
-const totalPax = computed(() => {
-  return reservationData.value.reduce((total, reservation) => {
-    const pax = reservation.pax.split('/')[0]
-    return total + parseInt(pax || '0')
-  }, 0)
 })
 
 // Methods
@@ -651,7 +663,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', apiFilters.value)
-    const result = await exportData('csv','arrivalList','arrival-list', apiFilters.value)
+    const result = await exportData('csv', 'arrivalList', 'arrival-list', apiFilters.value)
     console.log('Résultat export CSV:', result)
   } catch (error) {
     console.error('Erreur détaillée CSV:', error)
@@ -664,14 +676,14 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-        // Clear previous PDF URL
+    // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
 
     console.log('Export PDF avec filtres:', apiFilters.value)
-    const result = await exportData('pdf', 'arrivalList','arrival-list',apiFilters.value)
+    const result = await exportData('pdf', 'arrivalList', 'arrival-list', apiFilters.value)
     pdfUrl.value = result?.fileUrl || ''
     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
@@ -687,7 +699,7 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export Excel avec filtres:', apiFilters.value)
-    const result = await exportData('excel', 'arrivalList','arrival-list', apiFilters.value)
+    const result = await exportData('excel', 'arrivalList', 'arrival-list', apiFilters.value)
     console.log('Résultat export Excel:', result)
   } catch (error) {
     console.error('Erreur détaillée Excel:', error)
@@ -696,14 +708,6 @@ const exportExcel = async (): Promise<void> => {
   }
 }
 
-const updateDateFilter = (field: 'startDate' | 'endDate', value: string) => {
-  if (value) {
-    const date = new Date(value)
-    apiFilters.value[field] = date.toISOString().split('T')[0]
-  } else {
-    apiFilters.value[field] = ''
-  }
-}
 const openPDFInNewPage = () => {
   if (pdfUrl.value) {
     const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
@@ -717,6 +721,7 @@ const openPDFInNewPage = () => {
     window.open(routeData.href, '_blank')
   }
 }
+
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
   
@@ -732,6 +737,14 @@ const formatDate = (dateString: string): string => {
   } catch (error) {
     return dateString
   }
+}
+
+const formatCurrency = (amount: number): string => {
+  if (!amount && amount !== 0) return 'N/A'
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount)
 }
 
 const resetForm = (): void => {
@@ -768,7 +781,6 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   getCompaniesList()
@@ -792,47 +804,6 @@ onUnmounted(() => {
   .flex-col > div + div {
     margin-top: 1rem;
   }
-}
-
-/* Styles pour le contenu HTML du rapport */
-:deep(.report-html-container) {
-  width: 100%;
-}
-
-:deep(.report-html-container table) {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.report-html-container th),
-:deep(.report-html-container td) {
-  padding: 8px 12px;
-  border: 1px solid #e5e7eb;
-}
-
-:deep(.report-html-container .report-container) {
-  margin: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-:deep(.report-html-container .results-table) {
-  font-size: 12px;
-}
-
-/* Adaptation pour le mode sombre */
-.dark :deep(.report-html-container) {
-  color: #e5e7eb;
-}
-
-.dark :deep(.report-html-container .report-container) {
-  background-color: transparent;
-}
-
-.dark :deep(.report-html-container th),
-.dark :deep(.report-html-container td) {
-  border-color: #4b5563;
-  color: #e5e7eb;
 }
 
 /* Styles pour les boutons d'export */

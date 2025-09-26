@@ -446,9 +446,11 @@ const reportData = ref<any>([])
 const reservationData = ref<Reservation[]>([])
 const pdfUrl = ref<string>('')
 
+const today = new Date().toISOString().split('T')[0]
+
 const filters = ref<Filters>({
-  arrivalFrom: '27/04/2019',
-  arrivalTo: '30/04/2019',
+  arrivalFrom: today,
+  arrivalTo: today,
   departureFrom: '',
   departureTo: '',
   roomType: '',

@@ -180,7 +180,7 @@
           <div class="relative">
             <button
               @click="toggleExportMenu"
-              :disabled="exportLoading"
+              :disabled="exportLoading || !showResults"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
               <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -254,35 +254,42 @@
         </div>
       </div>
 
-      <!-- Results Table ou Rapport HTML -->
+      <!-- Results Table -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportData?.title || 'Cancelled Reservations Results' }}
+            Cancelled Reservations Results
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>Generated: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
+            <span>Generated: {{ new Date().toLocaleString('fr-FR') }}</span>
+            <span class="ml-4">Total Records: {{ reservationData.length }}</span>
           </div>
         </div>
         
-        <!-- Contenu HTML du rapport -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <!-- Message si aucune donnée -->
+        <div v-if="reservationData.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+          Aucune réservation annulée trouvée pour les critères sélectionnés.
+        </div>
         
-        <!-- Fallback si pas de HTML (affichage normal du tableau) -->
-        <div v-else>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th v-for="column in tableColumns" :key="column.key" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    {{ column.label }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <tr v-for="(item, index) in tableDataWithRemarks" :key="index" :class="{'bg-gray-50 dark:bg-gray-700': item.isRemarkRow}">
-                  <td v-for="column in tableColumns" :key="column.key" class="px-6 py-4 whitespace-nowrap text-sm" :class="{'font-medium text-gray-700 dark:text-gray-300': item.isRemarkRow, 'text-gray-900 dark:text-white': !item.isRemarkRow}">
+        <!-- Tableau des résultats -->
+        <div v-else class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th v-for="column in tableColumns" :key="column.key" 
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {{ column.label }}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <template v-for="(item, index) in tableDataWithRemarks" :key="item.id || index">
+                <tr :class="{'bg-gray-50 dark:bg-gray-700': item.isRemarkRow}">
+                  <td v-for="column in tableColumns" :key="column.key" 
+                      class="px-6 py-4 whitespace-nowrap text-sm" 
+                      :class="{'font-medium text-gray-700 dark:text-gray-300 italic': item.isRemarkRow, 
+                              'text-gray-900 dark:text-white': !item.isRemarkRow}">
                     <template v-if="column.key === 'resNo'">
                       <div :class="{'italic': item.isRemarkRow}">
                         {{ item[column.key] }}
@@ -301,21 +308,21 @@
                     </template>
                   </td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <!-- Total Row -->
-          <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-            <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-              <div>Total Cancelled Reservations: {{ totalReservations }}</div>
-              <div class="flex gap-4">
-                <div>ADR: {{ totalADR }}</div>
-                <div>Car Revenue: {{ totalCarRevenue }}</div>
-                <div>Charges: {{ totalCharges }}</div>
-                <div>Paid: {{ totalPaid }}</div>
-                <div>Balance: {{ totalBalance }}</div>
-              </div>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Total Row -->
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+          <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div>Total Cancelled Reservations: {{ totalReservations }}</div>
+            <div class="flex gap-4">
+              <div>ADR: {{ totalADR }}</div>
+              <div>Car Revenue: {{ totalCarRevenue }}</div>
+              <div>Charges: {{ totalCharges }}</div>
+              <div>Paid: {{ totalPaid }}</div>
+              <div>Balance: {{ totalBalance }}</div>
             </div>
           </div>
         </div>
@@ -345,7 +352,7 @@ interface FilterOptions {
   label: string;
 }
 
-interface Reservation {
+interface CancelledReservationData {
   resNo: string;
   bookingDate: string;
   guest: string;
@@ -405,6 +412,8 @@ interface ReportData {
   html: string;
   generatedAt: string;
   filters: any;
+  data?: CancelledReservationData[];
+  summary?: any;
 }
 
 const hotelName = ref<string>('Hotel Nihal')
@@ -419,6 +428,9 @@ const roomTypeOptions = ref<FilterOptions[]>([])
 const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
+
+// Données des réservations annulées (maintenant dynamiques)
+const reservationData = ref<CancelledReservationData[]>([])
 
 // Filtres pour l'API
 const apiFilters = ref<ReportFilters>({
@@ -554,46 +566,6 @@ const tableColumns = computed<TableColumn[]>(() => [
   { key: 'cancelledDate', label: t('reports.reservation.columns.cancelledDate'), type: 'custom' }
 ])
 
-// Sample data for the table
-const reservationData = ref<Reservation[]>([
-  {
-    resNo: 'BE205',
-    bookingDate: '28/05/2019',
-    guest: 'manual reservation',
-    rateType: 'Continental Plan',
-    arrival: '28/05',
-    departure: '29/05',
-    folioNo: 'FNH357',
-    adr: '400.00',
-    carRevenue: '0.00',
-    charges: '0.00',
-    paid: '0.00',
-    balance: '0.00',
-    source: 'Expedia',
-    cancelledBy: 'admin',
-    cancelledDate: '10/04/2020',
-    remarks: t('reports.reservation.remarks.noArrival')
-  },
-  {
-    resNo: 'BE306',
-    bookingDate: '12/02/2020',
-    guest: 'Mr. Danish Bhai',
-    rateType: 'Breakfast',
-    arrival: '24/04',
-    departure: '26/04',
-    folioNo: 'FNH554',
-    adr: '593.25',
-    carRevenue: '0.00',
-    charges: '0.00',
-    paid: '0.00',
-    balance: '0.00',
-    source: '',
-    cancelledBy: 'admin',
-    cancelledDate: '14/04/2020',
-    remarks: t('reports.reservation.remarks.cancelTest')
-  }
-])
-
 // Table data with integrated remarks rows
 const tableDataWithRemarks = computed(() => {
   const result: TableRow[] = []
@@ -649,20 +621,24 @@ const tableDataWithRemarks = computed(() => {
 
 // Mettre à jour les filtres API quand les filtres UI changent
 watch(filters, (newFilters) => {
-  // Mapper les filtres UI vers les filtres API
+  // Mapper les filtres UI vers les filtres API avec une meilleure gestion des types
   apiFilters.value = {
     ...apiFilters.value,
     startDate: newFilters.cancellationFrom,
     endDate: newFilters.cancellationTo,
-    roomTypeId: newFilters.roomType ? parseInt(newFilters.roomType) : undefined,
-    ratePlanId: newFilters.rateType ? parseInt(newFilters.rateType) : undefined,
-    company: newFilters.company,
-    travelAgent: newFilters.travelAgent,
-    businessSource: newFilters.businessSource,
-    market: newFilters.market,
-    user: newFilters.user,
-    rateFrom: newFilters.rateFrom ? parseFloat(newFilters.rateFrom) : undefined,
-    rateTo: newFilters.rateTo ? parseFloat(newFilters.rateTo) : undefined,
+    roomTypeId: newFilters.roomType && !isNaN(parseInt(newFilters.roomType)) 
+      ? parseInt(newFilters.roomType) : undefined,
+    ratePlanId: newFilters.rateType && !isNaN(parseInt(newFilters.rateType)) 
+      ? parseInt(newFilters.rateType) : undefined,
+    company: newFilters.company || undefined,
+    travelAgent: newFilters.travelAgent || undefined,
+    businessSource: newFilters.businessSource || undefined,
+    market: newFilters.market || undefined,
+    user: newFilters.user || undefined,
+    rateFrom: newFilters.rateFrom && !isNaN(parseFloat(newFilters.rateFrom))
+      ? parseFloat(newFilters.rateFrom) : undefined,
+    rateTo: newFilters.rateTo && !isNaN(parseFloat(newFilters.rateTo))
+      ? parseFloat(newFilters.rateTo) : undefined,
     taxInclusive: newFilters.taxInclusive
   }
 }, { deep: true })
@@ -713,39 +689,179 @@ const generateCancelledReport = async () => {
     console.log('Report Data:', response)
     
     if (response && response.success && response.data) {
-      reportData.value = response.data
-      showResults.value = true
+      // Récupérer les données brutes au lieu du HTML
+      if (response.data.datas && response.data.datas.data) {
+        // Mapper les données du backend vers le format attendu par le frontend
+        reservationData.value = response.data.datas.data.map((item: any) => ({
+          resNo: item.resNo || 'N/A',
+          bookingDate: item.bookingDate || 'N/A',
+          guest: item.guest || 'N/A',
+          rateType: item.rateType || 'N/A',
+          arrival: item.arrival || 'N/A',
+          departure: item.departure || 'N/A',
+          folioNo: item.folioNo || 'N/A',
+          adr: item.adr || '0.00',
+          carRevenue: item.carRevenue || '0.00',
+          charges: item.charges || '0.00',
+          paid: item.paid || '0.00',
+          balance: item.balance || '0.00',
+          source: item.source || 'N/A',
+          cancelledBy: item.cancelledBy || 'N/A',
+          cancelledDate: item.cancelledDate || 'N/A',
+          remarks: item.remarks || ''
+        }))
+        
+        // Stocker aussi les données pour les exports
+        reportData.value = {
+          title: response.data.title || 'Cancelled Reservations Report',
+          html: response.data.html, // Garder le HTML pour l'export PDF
+          generatedAt: response.data.generatedAt,
+          filters: response.data.filters,
+          data: reservationData.value, // Ajouter les données formatées
+          summary: response.data.datas?.summary
+        }
+        
+        showResults.value = true
+      } else {
+        console.warn('Aucune donnée trouvée dans la réponse')
+        reservationData.value = []
+        showResults.value = true
+      }
+    } else {
+      console.error('Réponse invalide du serveur:', response)
     }
   } catch (error) {
     console.error('Erreur:', error)
+    reservationData.value = []
   } finally {
     loading.value = false
   }
 }
 
+// Fonctions d'export côté frontend
+const exportToCSV = () => {
+  if (!reservationData.value || reservationData.value.length === 0) {
+    console.warn('Aucune donnée à exporter')
+    return
+  }
+
+  // En-têtes CSV
+  const headers = [
+    'Res No', 'Booking Date', 'Guest', 'Rate Type', 'Arrival', 'Departure',
+    'Folio No', 'ADR', 'Car Revenue', 'Charges', 'Paid', 'Balance',
+    'Source', 'Cancelled By', 'Cancelled Date', 'Remarks'
+  ]
+
+  // Convertir les données en CSV
+  const csvContent = [
+    headers.join(','),
+    ...reservationData.value.map(row => [
+      `"${row.resNo}"`,
+      `"${row.bookingDate}"`,
+      `"${row.guest}"`,
+      `"${row.rateType}"`,
+      `"${row.arrival}"`,
+      `"${row.departure}"`,
+      `"${row.folioNo}"`,
+      `"${row.adr}"`,
+      `"${row.carRevenue}"`,
+      `"${row.charges}"`,
+      `"${row.paid}"`,
+      `"${row.balance}"`,
+      `"${row.source}"`,
+      `"${row.cancelledBy}"`,
+      `"${row.cancelledDate}"`,
+      `"${row.remarks || ''}"`
+    ].join(','))
+  ].join('\n')
+
+  // Télécharger le fichier
+  downloadFile(csvContent, 'cancelled-reservations.csv', 'text/csv')
+}
+
+const exportToExcel = () => {
+  if (!reservationData.value || reservationData.value.length === 0) {
+    console.warn('Aucune donnée à exporter')
+    return
+  }
+
+  // Créer les données pour Excel
+  const worksheetData = [
+    // En-têtes
+    ['Res No', 'Booking Date', 'Guest', 'Rate Type', 'Arrival', 'Departure',
+     'Folio No', 'ADR', 'Car Revenue', 'Charges', 'Paid', 'Balance',
+     'Source', 'Cancelled By', 'Cancelled Date', 'Remarks'],
+    // Données
+    ...reservationData.value.map(row => [
+      row.resNo, row.bookingDate, row.guest, row.rateType, row.arrival, row.departure,
+      row.folioNo, row.adr, row.carRevenue, row.charges, row.paid, row.balance,
+      row.source, row.cancelledBy, row.cancelledDate, row.remarks || ''
+    ])
+  ]
+
+  // Ajouter une ligne de totaux
+  const totalRow = [
+    'TOTAL', '', '', '', '', '',
+    '', totalADR.value, totalCarRevenue.value, totalCharges.value, 
+    totalPaid.value, totalBalance.value, '', '', '', ''
+  ]
+  worksheetData.push(totalRow)
+
+  // Créer le classeur Excel
+  const wb = XLSX.utils.book_new()
+  const ws = XLSX.utils.aoa_to_sheet(worksheetData)
+  
+  // Ajuster la largeur des colonnes
+  const columnWidths = [
+    { wch: 10 }, { wch: 12 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 10 },
+    { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 },
+    { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 30 }
+  ]
+  ws['!cols'] = columnWidths
+
+  // Styliser la ligne de totaux
+  const totalRowIndex = worksheetData.length
+  const range = XLSX.utils.decode_range(ws['!ref'] || 'A1')
+  for (let col = range.s.c; col <= range.e.c; col++) {
+    const cellAddress = XLSX.utils.encode_cell({ r: totalRowIndex - 1, c: col })
+    if (ws[cellAddress]) {
+      ws[cellAddress].s = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: "FFDDDDDD" } }
+      }
+    }
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Cancelled Reservations')
+  
+  // Ajouter les métadonnées
+  const timestamp = new Date().toLocaleString('fr-FR')
+  const fileName = `cancelled-reservations-${new Date().toISOString().split('T')[0]}.xlsx`
+  
+  XLSX.writeFile(wb, fileName)
+}
+
+// Fonction utilitaire pour télécharger les fichiers
+const downloadFile = (content: string, fileName: string, mimeType: string) => {
+  const blob = new Blob([content], { type: mimeType + ';charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+// Modifier les fonctions d'export existantes
 const exportCSV = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    console.log('Export CSV avec filtres:', apiFilters.value)
-    const result = await exportData('csv','cancelledReservations','cancelled', apiFilters.value)
-    console.log('Résultat export CSV:', result)
+    exportToCSV()
   } catch (error) {
-    console.error('Erreur détaillée CSV:', error)
-  } finally {
-    exportLoading.value = false
-  }
-}
-
-const exportPDF = async (): Promise<void> => {
-  try {
-    exportLoading.value = true
-    exportMenuOpen.value = false
-    console.log('Export PDF avec filtres:', apiFilters.value)
-    const result = await exportData('pdf', 'cancelledReservations','cancelled', apiFilters.value)
-    console.log('Résultat export PDF:', result)
-  } catch (error) {
-    console.error('Erreur détaillée PDF:', error)
+    console.error('Erreur export CSV:', error)
   } finally {
     exportLoading.value = false
   }
@@ -755,11 +871,22 @@ const exportExcel = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    console.log('Export Excel avec filtres:', apiFilters.value)
-    const result = await exportData('excel', 'cancelledReservations','cancelled', apiFilters.value)
-    console.log('Résultat export Excel:', result)
+    exportToExcel()
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+// Garder l'export PDF via le backend car il utilise le template HTML
+const exportPDF = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export PDF avec filtres:', apiFilters.value)
+    const result = await exportData('pdf', 'cancelledReservations','cancelled', apiFilters.value)
+    console.log('Résultat export PDF:', result)
   } catch (error) {
-    console.error('Erreur détaillée Excel:', error)
+    console.error('Erreur détaillée PDF:', error)
   } finally {
     exportLoading.value = false
   }
@@ -806,6 +933,7 @@ const resetForm = (): void => {
     rateTo: '',
     taxInclusive: true
   }
+  reservationData.value = []
   showResults.value = false
   reportData.value = null
 }

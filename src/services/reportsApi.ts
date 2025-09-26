@@ -68,8 +68,9 @@ export interface ReportFilters {
   rateFrom?: number
   rateTo?: number
   reservationType?: string
-  taxInclusive?: boolean
+  taxInclusive?: boolean // ← AJOUTEZ CETTE LIGNE
   showAmount?: string
+  selectedColumns?: string[] // ← AJOUTEZ AUSSI CELUI-CI SI NÉCESSAIRE
 }
 
 const handleApiError = (error: any): never => {
@@ -116,6 +117,7 @@ export const generateReport = async (
 // Arrival Reports
 export const generateArrivalList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
+    console.log('filters@@@', filters)
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
       `${API_URL}/reservations/arrival-list`,
       { reportType: 'arrivalList', filters },
