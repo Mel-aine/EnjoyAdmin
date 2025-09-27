@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-50 h-screen overflow-hidden" @click="closeModal">
+    <div v-if="isOpen" class="fixed inset-0 z-50 h-screen overflow-hidden">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/25 bg-opacity-50 transition-opacity"></div>
 

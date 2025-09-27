@@ -8,28 +8,23 @@
 
     <div :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']">
       <!-- Input field for autocomplete -->
-      <input
-        ref="inputRef"
-        v-model="searchQuery"
-        type="text"
-        :placeholder="placeholder || $t('Search folios...')"
+      <input ref="inputRef" v-model="searchQuery" type="text" :placeholder="placeholder || $t('Search folios...')"
         :disabled="disabled || isLoading"
         class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300', customClass]"
-        @input="handleInput"
-        @keydown="handleKeydown"
-        @focus="handleFocus"
-      />
-      
+        @input="handleInput" @keydown="handleKeydown" @focus="handleFocus" />
+
       <!-- Loading spinner -->
       <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
         <DotSpinner></DotSpinner>
       </div>
-      
+
       <!-- Search icon when typing, dropdown arrow otherwise -->
       <div v-else class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-        <svg v-if="searchQuery.length > 0" class="w-4 h-4" :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        <svg v-if="searchQuery.length > 0" class="w-4 h-4" :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
         <span v-else :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'">▼</span>
       </div>
@@ -41,36 +36,31 @@
       <ul v-if="isDropdownOpen && !isLoading"
         class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
-        
+
         <!-- No results message -->
-        <li v-if="folioOptions.length === 0 && searchQuery.length > 0" 
+        <li v-if="folioOptions.length === 0 && searchQuery.length > 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('No folios found') }}
         </li>
-        
+
         <!-- Initial message when no search -->
-        <li v-else-if="folioOptions.length === 0 && searchQuery.length === 0" 
+        <li v-else-if="folioOptions.length === 0 && searchQuery.length === 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('Start typing to search folios...') }}
         </li>
-        
+
         <!-- Folio options -->
-        <li v-for="folio in folioOptions" 
-          :key="folio.id" 
-          @click="selectFolio(folio)" 
-          :class="[
-            'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
-            disabled ? 'cursor-not-allowed text-gray-400' : '',
-            selectedFolio?.id === folio.id ? 'bg-brand-50 text-brand-700' : ''
-          ]" 
-          role="option" 
-          :aria-selected="selectedFolio?.id === folio.id">
+        <li v-for="folio in folioOptions" :key="folio.id" @click="selectFolio(folio)" :class="[
+          'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
+          disabled ? 'cursor-not-allowed text-gray-400' : '',
+          selectedFolio?.id === folio.id ? 'bg-brand-50 text-brand-700' : ''
+        ]" role="option" :aria-selected="selectedFolio?.id === folio.id">
           <div class="flex flex-col">
             <div class="font-medium text-sm">
               {{ $t('Folio') }} #{{ folio.id }} - {{ folio.guestName }}
             </div>
             <div class="text-xs text-gray-500 mt-1">
-              {{ $t('Balance') }}: {{ formatCurrency(folio.balance) }} | 
+              {{ $t('Balance') }}: {{ formatCurrency(folio.balance) }} |
               {{ $t('Status') }}: {{ folio.status }}
             </div>
           </div>
@@ -90,6 +80,7 @@ import { debounce } from 'lodash'
 
 interface FolioOption {
   id: number
+  folioNumber: string
   guestName: string
   balance: number
   status: string
@@ -155,7 +146,25 @@ watch(
   },
   { immediate: true }
 )
-
+watch(
+  () => folioOptions.value,
+  (newVal) => {
+    if (newVal && newVal.length > 0) {
+      // Find the folio in current options or fetch it
+      if (props.modelValue) {
+        const found = folioOptions.value.find(folio => folio.id === Number(props.modelValue))
+        if (found) {
+          selectedFolio.value = found
+          searchQuery.value = `${t('Folio')} #${found.folioNumber} - ${found.guestName}`
+        }
+      }
+    } else if (!newVal) {
+      selectedFolio.value = null
+      searchQuery.value = ''
+    }
+  },
+  { immediate: true }
+)
 // Debounced search function
 const debouncedSearch = debounce(async (query: string) => {
   if (query.length < 2) {
@@ -165,29 +174,32 @@ const debouncedSearch = debounce(async (query: string) => {
 
   try {
     isLoading.value = true
-    
+
     const searchParams = {
       query: query,
       hotel_id: serviceStore.serviceId!,
       reservation_id: props.reservationId
     }
-    
+
     const response = await searchFolios(searchParams)
-    
+
     // Transform the response data
     folioOptions.value = (response.data || []).map((folio: any) => {
-      const guestName = folio.guest?.displayName || 
-                      `${folio.guest?.first_name || ''} ${folio.guest?.last_name || ''}`.trim() || 
-                      'Guest'
-      
+      const guestName = folio.guest?.displayName ||
+        `${folio.guest?.first_name || ''} ${folio.guest?.last_name || ''}`.trim() ||
+        'Guest'
+
       return {
         id: folio.id,
+        folioNumber:folio.folioNumber,
         guestName,
         balance: folio.balance || 0,
         status: folio.status || 'active',
         guest: folio.guest
       }
     })
+
+
   } catch (error) {
     console.error('Error searching folios:', error)
     folioOptions.value = []
@@ -200,18 +212,18 @@ const debouncedSearch = debounce(async (query: string) => {
 // Load folios for specific reservation
 const loadReservationFolios = async () => {
   if (!props.reservationId) return
-  
+
   try {
     isLoading.value = true
     const response = await getReservationFolios(props.reservationId)
-    
     folioOptions.value = (response.data || []).map((folio: any) => {
-      const guestName = folio.guest?.displayName || 
-                      `${folio.guest?.first_name || ''} ${folio.guest?.last_name || ''}`.trim() || 
-                      'Guest'
-      
+      const guestName = folio.guest?.displayName ||
+        `${folio.guest?.displayName}`.trim() ||
+        'Guest'
+
       return {
         id: folio.id,
+        folioNumber:folio.folioNumber,
         guestName,
         balance: folio.balance || 0,
         status: folio.status || 'active',
@@ -230,20 +242,20 @@ const loadReservationFolios = async () => {
 const loadInitialFolios = async () => {
   try {
     isLoading.value = true
-    
+
     const searchParams = {
       hotel_id: serviceStore.serviceId!,
-      query: '' ,// Empty query to get recent/default folios
-      reservation_id:props.reservationId
+      query: '',// Empty query to get recent/default folios
+      reservation_id: props.reservationId
     }
-    
+
     const response = await searchFolios(searchParams)
-    
+
     folioOptions.value = (response.data || []).map((folio: any) => {
-      const guestName = folio.guest?.displayName || 
-                      `${folio.guest?.first_name || ''} ${folio.guest?.last_name || ''}`.trim() || 
-                      'Guest'
-      
+      const guestName = folio.guest?.displayName ||
+        `${folio.guest?.first_name || ''} ${folio.guest?.last_name || ''}`.trim() ||
+        'Guest'
+
       return {
         id: folio.id,
         guestName,
@@ -264,13 +276,13 @@ const loadInitialFolios = async () => {
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value
-  
+
   // Clear selection if user is typing
   if (selectedFolio.value && searchQuery.value !== `${t('Folio')} #${selectedFolio.value.id} - ${selectedFolio.value.guestName}`) {
     selectedFolio.value = null
     //emit('update:modelValue', null)
   }
-  
+
   // Open dropdown and search
   isDropdownOpen.value = true
   debouncedSearch(searchQuery.value)
@@ -302,7 +314,7 @@ const selectFolio = (folio: FolioOption) => {
     selectedFolio.value = folio
     searchQuery.value = `${t('Folio')} #${folio.id} - ${folio.guestName}`
     isDropdownOpen.value = false
-    
+
     emit('update:modelValue', folio.id)
     emit('select', folio)
     emit('change', folio.id)

@@ -32,32 +32,20 @@
         </label>
         <div class="flex space-x-4">
           <label class="flex items-center">
-            <input
-              v-model="formData.checkInType"
-              type="radio"
-              value="group"
+            <input v-model="formData.checkInType" type="radio" value="group"
               :disabled="reservationRooms.length === 1 || availableRooms.length === 0"
-              class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <span
-              class="ml-2 text-sm"
-              :class="(reservationRooms.length === 1 || availableRooms.length === 0) ? 'text-gray-400' : 'text-gray-700'"
-            >
+              class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" />
+            <span class="ml-2 text-sm"
+              :class="(reservationRooms.length === 1 || availableRooms.length === 0) ? 'text-gray-400' : 'text-gray-700'">
               {{ $t('Group') }}
             </span>
           </label>
           <label class="flex items-center">
-            <input
-              v-model="formData.checkInType"
-              type="radio"
-              value="individual"
+            <input v-model="formData.checkInType" type="radio" value="individual"
               :disabled="reservationRooms.length === 1 || availableRooms.length === 0"
-              class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <span
-              class="ml-2 text-sm"
-              :class="(reservationRooms.length === 1 || availableRooms.length === 0) ? 'text-gray-400' : 'text-gray-700'"
-            >
+              class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" />
+            <span class="ml-2 text-sm"
+              :class="(reservationRooms.length === 1 || availableRooms.length === 0) ? 'text-gray-400' : 'text-gray-700'">
               {{ $t('IndividualReservation') }}
             </span>
           </label>
@@ -70,44 +58,27 @@
           {{ $t('SelectRooms') }}
         </label>
         <div class="space-y-2 max-h-40 overflow-y-auto">
-          <label
-            v-for="room in reservationRooms"
-            :key="room.id"
-            class="flex items-center p-2 border rounded transition-colors"
-            :class="{
+          <label v-for="room in reservationRooms" :key="room.id"
+            class="flex items-center p-2 border rounded transition-colors" :class="{
               'bg-gray-50 opacity-60 cursor-not-allowed': isRoomCheckedIn(room),
               'hover:bg-gray-50 cursor-pointer': !isRoomCheckedIn(room)
-            }"
-          >
-            <input
-              v-model="formData.selectedRooms"
-              type="checkbox"
-              :value="room.id"
-              :disabled="isRoomCheckedIn(room)"
-              class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50"
-            />
+            }">
+            <input v-model="formData.selectedRooms" type="checkbox" :value="room.id" :disabled="isRoomCheckedIn(room)"
+              class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50" />
             <div class="ml-2 flex-1">
               <div class="flex items-center justify-between">
-                <span
-                  class="text-sm"
-                  :class="{
-                    'text-gray-500': isRoomCheckedIn(room),
-                    'text-gray-700': !isRoomCheckedIn(room)
-                  }"
-                >
+                <span class="text-sm" :class="{
+                  'text-gray-500': isRoomCheckedIn(room),
+                  'text-gray-700': !isRoomCheckedIn(room)
+                }">
                   {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
                 </span>
-                <span
-                  v-if="isRoomCheckedIn(room)"
-                  class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium"
-                >
+                <span v-if="isRoomCheckedIn(room)"
+                  class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
                   {{ $t('reservationStatus.Checked-in') }}
                 </span>
               </div>
-              <div
-                v-if="isRoomCheckedIn(room) && room.actualCheckInTime"
-                class="text-xs text-gray-500 mt-1"
-              >
+              <div v-if="isRoomCheckedIn(room) && room.actualCheckInTime" class="text-xs text-gray-500 mt-1">
                 {{ $t('Check-in') }}: {{ formatCheckInDateTime(room.actualCheckInTime) }}
               </div>
             </div>
@@ -115,13 +86,12 @@
         </div>
 
         <!-- Info message if all rooms are checked in -->
-        <div
-          v-if="allRoomsCheckedIn"
-          class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md"
-        >
+        <div v-if="allRoomsCheckedIn" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
           <div class="flex items-center">
             <svg class="w-5 h-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd" />
             </svg>
             <span class="text-sm text-blue-800">
               {{ $t('Allroomsinthisreservationhavealreadybeencheckedin') }}
@@ -130,13 +100,13 @@
         </div>
 
         <!-- Warning if some rooms are checked in -->
-        <div
-          v-else-if="hasCheckedInRooms && !allRoomsCheckedIn"
-          class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md"
-        >
+        <div v-else-if="hasCheckedInRooms && !allRoomsCheckedIn"
+          class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <div class="flex items-center">
             <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd" />
             </svg>
             <span class="text-sm text-yellow-800">
               {{ $t('Someroomshavealreadybeencheckedinandcannotbeselected') }}
@@ -160,19 +130,10 @@
 
       <!-- Normal Footer -->
       <div v-else class="flex justify-end space-x-2">
-        <BasicButton
-          variant="secondary"
-          @click="closeModal"
-          :label="$t('Cancel')"
-          :disabled="isLoading"
-        />
-        <BasicButton
-          variant="primary"
-          @click="performCheckIn"
-          :label="formData.checkInType === 'group' ? $t('GroupCheck-in') : $t('Check-in')"
-          :loading="isLoading"
-          :disabled="isLoading || !canCheckIn"
-        />
+        <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')" :disabled="isLoading" />
+        <BasicButton variant="primary" @click="performCheckIn"
+          :label="formData.checkInType === 'group' ? $t('GroupCheck-in') : $t('Check-in')" :loading="isLoading"
+          :disabled="isLoading || !canCheckIn" />
       </div>
     </template>
   </RightSideModal>
@@ -236,9 +197,9 @@ const isRoomCheckedIn = (room: any) => {
   // You can customize this logic based on your data structure
   // Common indicators: actualCheckInTime exists, status is 'checked_in', etc.
   return room.actualCheckInTime ||
-         room.status === 'checked_in' ||
-         room.status === 'occupied' ||
-         room.checkedIn === true
+    room.status === 'checked_in' ||
+    room.status === 'occupied' ||
+    room.checkedIn === true
 }
 
 // Get available rooms (not checked in)
@@ -254,7 +215,7 @@ const hasCheckedInRooms = computed(() => {
 // Check if all rooms are checked in
 const allRoomsCheckedIn = computed(() => {
   return reservationRooms.value.length > 0 &&
-         reservationRooms.value.every((room: any) => isRoomCheckedIn(room))
+    reservationRooms.value.every((room: any) => isRoomCheckedIn(room))
 })
 
 // Computed properties
@@ -287,7 +248,7 @@ const formatCheckInDateTime = (dateTime: string) => {
 // Watch for check-in type changes
 watch(() => formData.checkInType, (newType) => {
   if (newType === 'group') {
-    formData.selectedRooms = availableRooms.value.map((room:any) => room.id)
+    formData.selectedRooms = availableRooms.value.map((room: any) => room.id)
   } else {
     formData.selectedRooms = []
   }
@@ -301,7 +262,7 @@ watch(() => reservationRooms.value, () => {
   )
 }, { deep: true })
 
-watch(()=>props.reservationId, (newVal) => {
+watch(() => props.reservationId, (newVal) => {
   if (newVal) {
     getBookingDetailsById()
   }
@@ -328,7 +289,7 @@ watch(() => reservationRooms.value, (newRooms) => {
   } else if (availableRoomsList.length > 1) {
     // Auto-select all available rooms for group check-in
     if (formData.checkInType === 'group') {
-      formData.selectedRooms = availableRoomsList.map((room:any) => room.id)
+      formData.selectedRooms = availableRoomsList.map((room: any) => room.id)
     }
   }
 }, { deep: true })
@@ -351,9 +312,6 @@ const getBookingDetailsById = async () => {
     reservationRooms.value = response.reservationRooms.map((e: any) => {
       return { ...e, guest: reservation.value.guest }
     })
-
-    console.log('Reservation data fetched:', reservation.value)
-    console.log('Available rooms:', availableRooms.value)
   } catch (error) {
     console.error('Error fetching reservation details:', error)
     toast.error(t('Failed to load reservation details'))
@@ -368,20 +326,10 @@ const closeModal = () => {
 }
 
 const performCheckIn = async () => {
-  // Validate if all rooms are already checked in
-  if (allRoomsCheckedIn.value) {
-    toast.info(t('All rooms have already been checked in'))
-    return
-  }
 
   // Validate required fields
   if (!canCheckIn.value) {
     toast.error(t('Please select at least one available room for check-in'))
-    return
-  }
-
-  if (!formData.checkInDate || !formData.checkInTime) {
-    toast.error(t('Please provide check-in date and time'))
     return
   }
 
@@ -391,10 +339,10 @@ const performCheckIn = async () => {
     // Prepare check-in payload - only include available rooms
     const checkInDateTime = `${formData.checkInDate}T${formData.checkInTime}:00`
     const selectedAvailableRooms = formData.checkInType === 'group'
-      ? availableRooms.value.map((room:any) => room.id)
+      ? availableRooms.value.map((room: any) => room.id)
       : formData.selectedRooms.filter(roomId =>
-          availableRooms.value.some((room: any) => room.id === roomId)
-        )
+        availableRooms.value.some((room: any) => room.id === roomId)
+      )
 
     const payload: CheckInReservationPayload = {
       reservationRooms: selectedAvailableRooms,
@@ -403,21 +351,11 @@ const performCheckIn = async () => {
       keyCardsIssued: formData.keyCardsIssued,
       depositAmount: formData.depositAmount
     }
-
-    console.log('Check-in payload:', payload)
-
     // Perform check-in
     const response = await checkInReservation(props.reservationId, payload)
-    
-
-    // Show success message
-    const checkedInCount = selectedAvailableRooms.length
-    toast.success(t('Successfully checked in {count} room(s)', { count: checkedInCount }))
-
-
     // Émettez avec les données nécessaires pour la mise à jour locale
-    emit('success', { 
-      ...payload, 
+    emit('success', {
+      ...payload,
       response,
       updatedRooms: selectedAvailableRooms,
       checkInDateTime: checkInDateTime,
@@ -442,7 +380,7 @@ const performCheckIn = async () => {
 }
 
 onMounted(() => {
-  if(props.reservationId) {
+  if (props.reservationId) {
     getBookingDetailsById()
   }
 })

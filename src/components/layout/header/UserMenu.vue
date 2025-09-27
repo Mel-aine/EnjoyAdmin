@@ -8,9 +8,9 @@
         <img src="" alt="User" />
       </span> -->
       <div class="relative flex-shrink-0">
-        <img v-if="picture" :src="picture" alt="Photo utilisateur"
-          class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg" />
-        <div v-else
+       <!-- <img v-if="picture" :src="picture" alt="Photo utilisateur"
+          class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg" />-->
+        <div 
           class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-lg sm:text-xl font-bold border-2 border-gray-500">
           {{ userInitials }}
         </div>
