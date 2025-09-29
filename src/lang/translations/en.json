@@ -6181,11 +6181,23 @@
   "set_to_dirty": "Set to Dirty",
   "selectGender": "Select Gender",
   "selectRole": "Select Role",
-  "selectDepartment": "Select Department"
-
-
-
-
-
+  "selectDepartment": "Select Department",
+  "hours":"Hours",
+  "Find folio":"Find folio",
+  "select":"Select",
+  "Search":"Search",
+  "Folio Operations":"Folio Operations",
+  "Guest Details":"Guest Details",
+  "Room Charges":"Room Charges",
+  "Audit Trail":"Audit Trail",
+  "Day":"Day",
+  "Ref No.":"Ref No.",
+  "Particulars":"Particulars",
+  "void":"Void",
+  "No reservation found":"No reservation found",
+  "roundOff":"Round Off",
+  "correction":"Correction",
+  "Search folios...":"Search folios...",
+  "paymentType":"Payment Type"
 
 }

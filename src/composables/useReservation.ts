@@ -87,7 +87,7 @@ export function useReservation() {
       const response = await checkInReservation(reservationId, payload)
       console.log('Check-in response:', response)
 
-      toast.success(t('toast.checkInSuccess') || 'Check-in completed successfully!')
+      toast.success(t('toast.checkInSuccess'))
 
       if (refreshCallback) {
         await refreshCallback()

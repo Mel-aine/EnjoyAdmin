@@ -21,7 +21,7 @@
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
       <!-- Left Section - Room Details -->
-      <div class="lg:col-span-2 border-r-0 lg:border-r-2 border-gray-100 bg-gray-50 rounded-lg">
+      <div class="lg:col-span-2 border-r-0 lg:border-r-2 border-gray-100 bg-gray-50 r">
         <div class="h-full flex flex-col">
           <div class="bg-white h-full rounded-lg">
             <div class="flex justify-between pt-2 px-2 pb-2">
@@ -30,17 +30,11 @@
             <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ roomTypeSummary }}</div>
 
             <div class="space-y-2 px-2">
-              <div
-                v-for="room in reservationRooms"
-                :key="room.id"
-                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 rounded"
-                :class="
-                  selectedRoom?.id === room.id
+              <div v-for="room in reservationRooms" :key="room.id"
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 rounded" :class="selectedRoom?.id === room.id
                     ? 'bg-blue-100 border-l-4 border-blue-500'
                     : 'bg-gray-100'
-                "
-                @click="selectRoom(room)"
-              >
+                  " @click="selectRoom(room)">
                 <span>{{ room.room?.roomNumber }} - {{ getGuestName(room) }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -51,7 +45,7 @@
 
       <!-- Middle Section - Billing Information -->
       <div class="lg:col-span-5">
-        <div class="bg-gray-50 rounded-lg p-3 md:p-4">
+        <div class="rounded-lg p-3 md:p-4">
           <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
             <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl mb-2 md:mb-0">
               {{ $t('BillingInformation') }}
@@ -59,29 +53,13 @@
             <!-- Edit button visible on mobile and small screens -->
             <button
               class="flex lg:hidden items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors self-start"
-              @click="toggleEditMode"
-            >
-              <svg
-                v-if="!editMode"
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
+              @click="toggleEditMode">
+              <svg v-if="!editMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               <span>{{ editMode ? $t('Cancel') : $t('Edit') }}</span>
             </button>
@@ -91,43 +69,24 @@
             <!-- Bill To Section -->
             <div class="grid grid-cols-1 gap-4">
               <div>
-                <Select
-                  :lb="$t('BillTo')"
-                  v-model="billingData.billTo"
-                  :options="billToOptions"
-                  :placeholder="$t('Company')"
-                  :disabled="!editMode"
-                />
+                <Select :lb="$t('BillTo')" v-model="billingData.billTo" :options="billToOptions"
+                  :placeholder="$t('Company')" :disabled="!editMode" />
               </div>
             </div>
 
             <!-- Payment Type (Radio buttons) -->
             <div class="grid grid-cols-1 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('PaymentType') }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('paymentType') }}</label>
                 <div class="flex space-x-4">
                   <label class="flex items-center" :class="{ 'opacity-50 cursor-not-allowed': !editMode }">
-                    <input 
-                      type="radio" 
-                      v-model="billing.paymentType" 
-                      value="cash" 
-                      class="mr-2" 
-                      :disabled="!editMode"
-                    />
+                    <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" :disabled="!editMode" />
                     <span :class="{ 'text-gray-400': !editMode }">{{ $t('cash') }}</span>
                   </label>
-                  <label 
-                    v-if="canCityLedgerPay" 
-                    class="flex items-center" 
-                    :class="{ 'opacity-50 cursor-not-allowed': !editMode }"
-                  >
-                    <input 
-                      type="radio" 
-                      v-model="billing.paymentType" 
-                      value="city_ledger" 
-                      class="mr-2" 
-                      :disabled="!editMode"
-                    />
+                  <label v-if="canCityLedgerPay" class="flex items-center"
+                    :class="{ 'opacity-50 cursor-not-allowed': !editMode }">
+                    <input type="radio" v-model="billing.paymentType" value="city_ledger" class="mr-2"
+                      :disabled="!editMode" />
                     <span :class="{ 'text-gray-400': !editMode }">{{ $t('city_ledger') }}</span>
                   </label>
                 </div>
@@ -137,39 +96,22 @@
             <!-- Payment Mode and GSTIN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <InputPaymentMethodSelect 
-                  :label="$t('PaymentMode')" 
-                  :paymentType="billing.paymentType" 
-                  v-model="billing.paymentMode"
-                  :hide-label="false" 
-                  :disabled="!editMode"
-                />
+                <InputPaymentMethodSelect :label="$t('PaymentMode')" :paymentType="billing.paymentType"
+                  v-model="billing.paymentMode" :hide-label="false" :disabled="!editMode" />
               </div>
 
               <div>
-                <Input
-                  :lb="$t('GSTINNo')"
-                  v-model="billingData.gstinNo"
-                  type="text"
-                  :placeholder="$t('GSTNumber')"
-                  :disabled="!editMode"
-                />
+                <Input :lb="$t('GSTINNo')" v-model="billingData.gstinNo" type="text" :placeholder="$t('GSTNumber')"
+                  :disabled="!editMode" />
               </div>
             </div>
 
             <!-- Reservation Type -->
             <div class="grid grid-cols-1 gap-4">
               <div>
-                <AutoCompleteSelect 
-                  v-model="billingData.reservationType" 
-                  :options="BookingType"
-                  :defaultValue="$t('SelectReservationType')" 
-                  :lb="$t('ReservationType')" 
-                  :is-required="false"
-                  :use-dropdown="useDropdownBooking" 
-                  :disabled="!editMode"
-                  @clear-error="emit('clear-error')" 
-                />
+                <AutoCompleteSelect v-model="billingData.reservationType" :options="BookingType"
+                  :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
+                  :use-dropdown="useDropdownBooking" :disabled="!editMode" @clear-error="emit('clear-error')" />
               </div>
             </div>
           </div>
@@ -179,35 +121,19 @@
 
       <!-- Right Section - Source Information -->
       <div class="lg:col-span-5">
-        <div class="bg-gray-50 rounded-lg p-3 md:p-4">
+        <div class=" rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('SourceInformation') }}</h3>
             <!-- Edit Button for Desktop -->
             <button
               class="hidden lg:flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
-              @click="toggleEditMode"
-            >
-              <svg
-                v-if="!editMode"
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
+              @click="toggleEditMode">
+              <svg v-if="!editMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               <span>{{ editMode ? $t('Cancel') : $t('Edit') }}</span>
             </button>
@@ -216,53 +142,32 @@
             <!-- Market Code and Business Source -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Select
-                  :lb="$t('MarketCode')"
-                  v-model="sourceData.marketCode"
-                  :options="MarketCode"
-                  :placeholder="$t('-Select-')"
-                  :disabled="!editMode"
-                />
+                <Select :lb="$t('MarketCode')" v-model="sourceData.marketCode" :options="MarketCode"
+                  :placeholder="$t('-Select-')" :disabled="!editMode" />
               </div>
 
               <div>
-                <Select
-                  :lb="$t('BusinessSource')"
-                  v-model="sourceData.sourceOfBusiness"
-                  :options="BusinessSource"
-                  :placeholder="$t('-Select-')"
-                  :disabled="!editMode"
-                />
+                <Select :lb="$t('BusinessSource')" v-model="sourceData.sourceOfBusiness" :options="BusinessSource"
+                  :placeholder="$t('-Select-')" :disabled="!editMode" />
               </div>
             </div>
 
             <!-- Travel agent and Voucher No -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Input
-                  :lb="$t('VoucherNo')"
-                  v-model="sourceData.voucherNo"
-                  type="text"
-                  :placeholder="$t('VoucherNo')"
-                  :disabled="!editMode"
-                />
+                <Input :lb="$t('VoucherNo')" v-model="sourceData.voucherNo" type="text" :placeholder="$t('VoucherNo')"
+                  :disabled="!editMode" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
                 <div class="flex">
                   <div class="flex-1">
-                    <Select
-                      v-model="sourceData.company"
-                      :options="companyOptions"
-                      :placeholder="$t('-Select-')"
-                      :disabled="!editMode"
-                      customClass="rounded-r-none h-11"
-                    />
+                    <Select v-model="sourceData.company" :options="companyOptions" :placeholder="$t('-Select-')"
+                      :disabled="!editMode" customClass="rounded-r-none h-11" />
                   </div>
                   <button
                     class="w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
-                    :disabled="!editMode"
-                  >
+                    :disabled="!editMode">
                     <Building class="w-4 h-4" />
                   </button>
                 </div>
@@ -274,23 +179,25 @@
     </div>
 
     <!-- Bottom Action Bar -->
-    <div class="mt-6 bg-gray-50 p-3 md:p-4 rounded-lg">
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div class="mt-6 p-3 md:p-4 rounded-lg bg-gray-50">
+      <div class="bg-gray-50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <!-- Left side - Financial Summary -->
         <div class="flex text-sm">
           <div class="flex flex-col space-y-1">
             <div class="text-gray-700 font-medium">{{ $t('Total') }}</div>
+            <div class="text-gray-700 font-medium">{{ $t('paid') }}</div>
             <div class="font-medium text-orange-600">{{ $t('Balance') }}</div>
           </div>
           <div class="flex flex-col space-y-1 ml-8">
             <div class="font-medium text-gray-700">{{ formatCurrency(totalAmount) }}</div>
+            <span>{{ formatCurrency(totalPayments) }}</span>
             <div class="font-medium text-orange-600">{{ formatCurrency(balanceAmount) }}</div>
           </div>
         </div>
 
         <!-- Center - Checkboxes with unique keys -->
         <div class="flex flex-col md:flex-row md:items-center md:space-x-6 gap-2 md:gap-0 text-sm">
-          <label class="flex items-center">
+          <!--    <label class="flex items-center">
             <InputCheckbox
               :key="`sendMail-${selectedRoom?.id}-${roomOptions.sendMail}`"
               type="checkbox"
@@ -339,21 +246,14 @@
               class="mr-2"
             />
             {{ $t('AccessGuestPortal') }}
-          </label>
+          </label>-->
         </div>
 
         <!-- Right side - Action Buttons -->
         <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
-          <BasicButton variant="secondary" :label="$t('ApplyToGroup')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />
-          <BasicButton
-            v-if="editMode"
-            variant="primary"
-            :label="$t('SaveChanges')"
-            @click="saveChanges"
-            :disabled="isSaving"
-            :loading="isSaving"
-            class="w-full md:w-auto"
-          />
+          <!--<BasicButton variant="secondary" :label="$t('ApplyToGroup')" @click="applyToGroup" :disabled="!editMode" class="w-full md:w-auto" />-->
+          <BasicButton v-if="editMode" variant="primary" :label="$t('SaveChanges')" @click="saveChanges"
+            :disabled="isSaving" :loading="isSaving" class="w-full md:w-auto" />
         </div>
       </div>
     </div>
@@ -441,7 +341,7 @@ const roomOptions = ref<RoomOptions>({
 // Computed properties for room data
 const getCompaniesList = async () => {
   try {
-    const resp:any = await getCompanies()
+    const resp: any = await getCompanies()
     console.log('Companies response:', resp)
     companyOptions.value = resp.map((c: any) => ({
       label: c.companyName,
@@ -474,14 +374,14 @@ const UpdateReservationRoom = async () => {
       thankYouEmail: roomOptions.value.thankYouEmail,
       supressRate: roomOptions.value.suppressRate,
       accessGuestPortal: roomOptions.value.accessGuestPortal,
-      
+
       // Billing data
       billTo: billingData.billTo,
       paymentMode: billingData.paymentMode,
       paymentType: billingData.paymentType,
       gstinNo: billingData.gstinNo,
       reservationType: billingData.reservationType,
-      
+
       // Source data
       marketCode: sourceData.marketCode,
       sourceOfBusiness: sourceData.sourceOfBusiness,
@@ -512,7 +412,7 @@ const totalRooms = computed(() => reservationRooms.value.length)
 const roomTypeSummary = computed(() => {
   if (reservationRooms.value.length === 0) return 'N/A'
 
-  const roomTypes = [...new Set(reservationRooms.value.map((room:any) => room.roomType?.roomTypeName || 'N/A'))]
+  const roomTypes = [...new Set(reservationRooms.value.map((room: any) => room.roomType?.roomTypeName || 'N/A'))]
   return roomTypes.join(', ')
 })
 
@@ -529,7 +429,7 @@ const statusCounts = computed(() => {
 
   if (!reservationRooms.value.length) return counts
 
-  reservationRooms.value.forEach((room:any) => {
+  reservationRooms.value.forEach((room: any) => {
     const status = room.status?.toLowerCase() || ''
     if (status.includes('reserved')) counts.reserved++
     if (status.includes('due_out')) counts.dueOut++
@@ -545,6 +445,7 @@ const statusCounts = computed(() => {
 
 const totalAmount = computed(() => bookingData.value.balanceSummary?.totalChargesWithTaxes || 0)
 const balanceAmount = computed(() => bookingData.value.balanceSummary?.outstandingBalance || 0)
+const totalPayments = computed(() => bookingData.value.balanceSummary?.totalPayments || 0)
 
 const remarkCount = computed(() => bookingData.value.remarks?.length || 0)
 const taskCount = computed(() => bookingData.value.tasks?.length || 0)
@@ -676,12 +577,6 @@ const saveChanges = async () => {
     isSaving.value = false
   }
 }
-
-const applyToGroup = () => {
-  console.log('Applying to group...')
-  toast.info(t('Applied to group'))
-}
-
 // Initialize billing data from booking
 const initBillingData = () => {
   if (bookingData.value) {
@@ -799,7 +694,7 @@ watch(() => props.guest, (newGuest) => {
   border-left-width: 4px;
 }
 
-input[type="radio"]:disabled + span {
+input[type="radio"]:disabled+span {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -814,7 +709,7 @@ input[type="checkbox"]:disabled {
 }
 
 @media (max-width: 768px) {
-  .grid > div {
+  .grid>div {
     margin-bottom: 1rem;
   }
 }

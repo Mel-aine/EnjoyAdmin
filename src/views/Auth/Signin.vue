@@ -226,11 +226,13 @@ import { auth, validateEmail, validatePassword } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
 import ButtonLanguage from '@/components/buttons/ButtonLanguage.vue'
 import { useI18n } from 'vue-i18n'
+import { useStatusColor } from '@/composables/statusColorStore'
 
 const { locale } = useI18n()
 const isLoading = ref(false);
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
+const statusColor = useStatusColor()
 const router = useRouter()
 
 const email = ref('')
@@ -260,13 +262,15 @@ const handleSubmit = async () => {
     const { user, user_token } = res.data.data;
     const token = user_token.token;
 
+
     // Stocker les services et permissions
     serviceStore.setService(res.data.data.userServices);
     serviceStore.setPermissions(res.data.data.permissions);
     serviceStore.setBookingSources(res.data.data.bookingSources)
     serviceStore.setBusinessSources(res.data.data.businessSources)
     serviceStore.setReservationType(res.data.data.reservationTypes)
-
+    statusColor.setStatusColors(res.data.data.userServices[0]?.statusColors || []);
+console.log("res.data.data", res.data.data.userServices[0]?.statusColors);
     if (user.permisReports) {
       try {
         const reportsPermissions = JSON.parse(user.permisReports);

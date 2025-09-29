@@ -46,7 +46,7 @@
                                     </label>
                                     <textarea v-model="formData.comment" rows="3"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        :placeholder="$t('enterComment')"></textarea>
+                                        :placeholder="$t('comment')"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -88,8 +88,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    folioId: undefined,
-    reservationId: undefined,
     isOpen: false
 })
 
@@ -102,8 +100,8 @@ const isLoading = ref(false)
 // Form data
 const formData = reactive({
     date: new Date().toISOString().split('T')[0], // Today's date
-    type: '',
-    folioId: 0 as number,
+    type: 'round_off',
+    folioId: props.folioId,
     amount: 0 as number,
     comment: ''
 })
@@ -120,7 +118,7 @@ const isFormValid = computed(() => {
 const closeModal = () => {
     // Reset form
     formData.date = new Date().toISOString().split('T')[0]
-    formData.type = ''
+    formData.type = 'round_off'
     formData.folioId = 0
     formData.amount = 0
     formData.comment = ''
@@ -132,10 +130,6 @@ const adjustmentTypeOptions = [
     {
         label: t('roundOff'),
         value: 'round_off'
-    },
-    {
-        label: t('adjustment'),
-        value: 'adjustment'
     },
     {
         label: t('correction'),

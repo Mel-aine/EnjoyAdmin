@@ -388,8 +388,10 @@ import BroomIcons from '@/icons/BookingStatus/BroomIcon.vue'
 import PetIcons from '@/icons/BookingStatus/petIcon.vue'
 import WorkOdersIcons from '@/icons/BookingStatus/WorkOdersIcon.vue'
 import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
+import { useStatusColor } from '@/composables/statusColorStore'
 
 const isLoading = ref(false);
+const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
   switch (type) {
     case 'Direct Booking': return BookIcon;
@@ -657,7 +659,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   // --- Récupération des room blocks ---
   console.log("apiRoomBlocks",apiRoomBlocks.value)
   const roomBlocks = apiRoomBlocks.value.filter(
-    (b: any) => b.room && b.room.room_number === room.room_number && b.status !== 'completed'
+    (b: any) => b.room && b.room.room_number === room.room_number
   )
 
   while (i < visibleDates.value.length) {
@@ -838,23 +840,15 @@ function getReservationStyle(cell: any) {
       width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
     }
   }
-
-  return { width, left };
-}
-function getReservationColor(type: string) {
-  switch (type) {
-    case 'confirmed': return 'bg-green-500'
-    case 'request': return 'bg-orange-500'
-    case 'complimentary': return 'bg-blue-500'
-    case 'blocked': return 'bg-purple-500'
-    case 'checkout': return 'bg-gray-700'
-    case 'departure': return 'bg-red-500'
-    case 'inhouse': return 'bg-teal-500'
-    case 'checked_in': return 'bg-green-700'
-    case 'occupied': return 'bg-green-700'
-    default: return 'bg-gray-400'
+  if(cell.reservation && cell.reservation.reservation_status){
+  const  backgroundColor = getReservationColor(cell.reservation.reservation_status);
+  return { width, left,backgroundColor };
+  }else{
+    return { width, left };
   }
 }
+const getReservationColor = statusColorStore.getReservationColor;
+
 
 function getRoomBlockColor(status: string) {
   switch (status) {
@@ -1000,18 +994,21 @@ const roomRateForDate = computed(() => {
 }
 )
 
-const legendSections = [
+const legendSections = computed(() => {
+  const colorGetter = statusColorStore.getReservationColor;
+
+  return [
   {
     title: 'Booking Status',
     items: [
-      { label: 'Arrived', color: '#f87171' },
-      { label: 'Checked Out', color: '#60a5fa' },
-      { label: 'Due Out', color: '#b91c1c' },
-      { label: 'Confirmed Reservation', color: '#4ade80' },
-      { label: 'Maintenance Block', color: '#1e3a8a' },
-      { label: 'Stayover', color: '#f97316' },
-      { label: 'Dayuse Reservation', color: '#22c55e' },
-      { label: 'Dayuse', color: '#7f1d1d' }
+      { label: 'Arrived', color: colorGetter('checked_in') },
+      { label: 'Checked Out', color: colorGetter('checkout') },
+      { label: 'Due Out', color: colorGetter('departure') },
+      { label: 'Confirmed Reservation', color: colorGetter('confirmed') },
+      { label: 'Maintenance Block', color: colorGetter('blocked') },
+      { label: 'Stayover', color: colorGetter('inhouse') },
+      { label: 'Dayuse Reservation', color: colorGetter('dayuse') },
+      // { label: 'Dayuse', color: colorGetter('dayuse') }
     ]
   },
   {
@@ -1042,7 +1039,7 @@ const legendSections = [
       { label: 'Unconfirmed Bookings', color: '#f87171' }
     ]
   }
-];
+]});
 // État de sélection modifié pour les cellules individuelles
 const cellSelection = ref({
   selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"

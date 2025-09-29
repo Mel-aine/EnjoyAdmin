@@ -22,13 +22,11 @@ const emit = defineEmits(['click'])
     <div>
         <button v-bind="$attrs" :type="type" @click="emit('click')" :disabled="loading || disabled"
             :class="`flex gap-2 text-sm text-primary btn btn-${variant} ${(loading || disabled) ? 'btn-disabled' : ''}`"
-            class="dark:bg-dark-900 items-center h-10 self-center align-middle w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:opacity-50 disabled:cursor-not-allowed">
-
+            class="dark:bg-dark-900  items-center content-center h-10 self-center align-middle w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:opacity-50 disabled:cursor-not-allowed">
             <div v-if="loading" class="w-4 h-4 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin">
             </div>
             <component v-else-if="icon" :is="icon" class="w-4 h-4"></component>
-
-            {{ label }}
+            <span class="text-center w-full">{{ label }}</span>
         </button>
         <slot></slot>
     </div>

@@ -2,7 +2,6 @@
 import {
   ArrowLeft,
   Building2Icon,
-  PencilIcon,
   CheckCircle,
   CreditCard,
   Calendar,
@@ -13,11 +12,15 @@ import {
   Eye,
   Trash2,
   UserMinus,
-  ChevronUp,
-  ChevronDown,
   Users,
 } from 'lucide-vue-next'
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
+
+// Define props to accept the id from the router
+const props = defineProps<{
+  id: string
+}>()
+
 import { useI18n } from 'vue-i18n'
 import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue'
 import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue'
@@ -28,7 +31,7 @@ import { getReservationDetailsById } from '../../../services/api'
 import AdminLayout from '../../../components/layout/AdminLayout.vue'
 import Adult from '../../../icons/Adult.vue'
 import Child from '../../../icons/Child.vue'
-import { formatDateT, formatTimeFromTimeString } from '../../../components/utilities/UtilitiesFunction'
+import {  formatTimeFromTimeString } from '../../../components/utilities/UtilitiesFunction'
 import GuestDetails from '../../../components/reservations/GuestDetails.vue'
 import Spinner from '../../../components/spinner/Spinner.vue'
 import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue'
@@ -53,11 +56,6 @@ const CheckInReservation = defineAsyncComponent(() => import('@/components/reser
 const CheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/CheckOutReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/reservations/UnAssignRoomReservation.vue'))
 
-// Simple Button component
-const Button = {
-  template:
-    '<button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background"><slot /></button>',
-}
 const isAddPaymentModalOpen = ref(false)
 const showCancelModal = ref(false)
 const showNoShowModal = ref(false)
@@ -73,37 +71,17 @@ const isCkeckInModalOpen = ref(false)
 const {
   isCheckingIn,
   isCheckingOut,
-  isAddingPayment,
-  isAmendingStay,
-  isMovingRoom,
-  isExchangingRoom,
-  isStoppingRoomMove,
-  isUpdatingInclusionList,
-  isCancellingReservation,
-  isMarkingNoShow,
-  isVoidingReservation,
   performCheckIn,
   performCheckOut,
-  addPayment,
-  amendStay,
-  moveRoom,
-  exchangeRoom,
-  stopRoomMove,
-  updateInclusionList,
-  cancelReservation,
-  markNoShow,
-  voidReservation,
 } = useReservation()
 const tabs = computed(() => [
   { id: 'folio_operations', label: t('Folio Operations') },
   { id: 'booking_details', label: t('Booking Details') },
   { id: 'guest_details', label: t('Guest Details') },
   { id: 'room_charges', label: t('Room Charges') },
-  // { id: 'credid_card', label: t('Credit Card') },
   { id: 'audit_trial', label: t('Audit Trail') },
 ])
 const activeTab = ref<string>('folio_operations')
-const isOpen = ref(false)
 interface Emits {
   (e: 'close'): void
   (e: 'save', data?: any): void
@@ -148,7 +126,7 @@ const dropdownOptions = computed(() => {
   if (reservation.value?.status === 'voided') {
     return []
   }
-  
+
   if (!reservation.value?.availableActions) {
     return []
   }
@@ -244,8 +222,7 @@ const handleOptionSelected = (option: any) => {
 }
 const getBookingDetailsById = async () => {
   isLoading.value = true
-  const id = router.currentRoute.value.params.id
-  const response = await getReservationDetailsById(Number(id))
+  const response = await getReservationDetailsById(Number(props.id))
   console.log('reservation resuolt', reservation)
   if (response.status === 200) {
     reservation.value = response.data
@@ -307,7 +284,6 @@ const handleRoomMove = async () => {
   console.log('Room move requires room selection modal')
   // await moveRoom(reservation.value.id, payload, getBookingDetailsById);
 }
-console.log('reservation value', useServiceStore().currentService)
 const handleExchangeRoom = async () => {
   const payload = {
     roomId1: reservation.value.reservationRooms[0]?.room?.id,
@@ -359,20 +335,9 @@ const handleCancelConfirmed = async (cancelData: any) => {
 const handleNoShowConfirmed = async (noshowData: any) => {
   showNoShowModal.value = false
 }
-
-const handleVoidReservation = async () => {
-  // Show confirmation dialog first
-  if (
-    confirm(t('toast.voidReservationConfirm') || 'Are you sure you want to void this reservation?')
-  ) {
-    const payload = {
-      voidReason: 'Administrative void',
-      voidDate: new Date().toISOString(),
-      notes: '',
-    }
-
-    await voidReservation(reservation.value.id, payload, getBookingDetailsById)
-  }
+const handleCheckInSuccess = () => {
+  isCkeckInModalOpen.value = false;
+  getBookingDetailsById()
 }
 
 const isUnAssignModalOpen = ref(false)
@@ -398,16 +363,6 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   }
   return new Date(dateString).toLocaleDateString('en', options)
-}
-const handleUnassignRoom = async () => {
-  const payload = {
-    roomIds: reservation.value?.reservationRooms.map((e: any) => e.room?.id).filter(Boolean),
-    unassignDate: new Date().toISOString(),
-    reason: 'Room unassignment requested',
-    notes: '',
-  }
-
-  //await unassignRoom(reservation.value.id, payload, getBookingDetailsById);
 }
 
 const openCheckOutReservationModal = () => {
@@ -496,7 +451,12 @@ const printDocumentData = computed(() => {
     },
   }
 })
-
+const refresReservation = async () => {
+  const response = await getReservationDetailsById(Number(props.id))
+  if (response.status === 200) {
+    reservation.value = response.data
+  }
+}
 onMounted(() => {
   getBookingDetailsById()
 })
@@ -508,7 +468,8 @@ onMounted(() => {
     <ReservationDetailsSkeleton v-if="isLoading" />
 
     <!-- Show actual content when data is loaded -->
-    <div class="h-full" v-else-if="reservation && reservation.id" :class="{ 'void-status': reservation.status === 'voided' }">
+    <div class="h-full" v-else-if="reservation && reservation.id"
+      :class="{ 'void-status': reservation.status === 'voided' }">
       <!--Header-->
       <div class="shadow-sm px-4 py-2 mx-4 bg-white flex justify-between">
         <div class="flex gap-2 align-middle self-center items-center">
@@ -520,20 +481,21 @@ onMounted(() => {
             <Adult class="w-5" />
             <span class="text-sm items-end align-center self-center pt-2">{{
               reservation.adults ?? 0
-            }}</span>
+              }}</span>
           </div>
           <div class="flex">
             <Child class="w-4" />
             <span class="text-sm items-end align-bottom self-center pt-2">{{
               reservation.child ?? 0
-            }}</span>
+              }}</span>
           </div>
           <div class="flex gap-8 ms-10">
             <!--arrival Days-->
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
               <span class="text-xs flex gap-2">
-                <span>{{ formatDate(reservation.arrivedDate)}}, {{ formatTimeFromTimeString(reservation.checkInTime)  }}</span>
+                <span>{{ formatDate(reservation.arrivedDate) }}, {{ formatTimeFromTimeString(reservation.checkInTime)
+                  }}</span>
                 <!--<span>
                   <PencilIcon class="w-3" />
                 </span>-->
@@ -543,8 +505,9 @@ onMounted(() => {
             <div class="flex flex-col">
               <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
               <span class="text-xs flex gap-2">
-                <span>{{ formatDate(reservation.departDate) }}, {{ formatTimeFromTimeString(reservation.checkOutTime) }}</span>
-               <!-- <span>
+                <span>{{ formatDate(reservation.departDate) }}, {{ formatTimeFromTimeString(reservation.checkOutTime)
+                  }}</span>
+                <!-- <span>
                   <PencilIcon class="w-3" />
                 </span>-->
               </span>
@@ -559,10 +522,12 @@ onMounted(() => {
             <!--room/roomtype-->
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
-              <span class="text-xs flex gap-2 flex-col" v-if="reservation.reservationRooms.length > 0 && reservation.reservationRooms.every((room:any) => room.room?.id)">
+              <span class="text-xs flex gap-2 flex-col"
+                v-if="reservation.reservationRooms.length > 0 && reservation.reservationRooms.every((room: any) => room.room?.id)">
                 <span>{{ roomRateTypeSummary }}</span>
               </span>
-              <AssignRoomReservation :reservation="reservation" v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room:any) => !room.room?.id)"/>
+              <AssignRoomReservation :reservation="reservation"
+                v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room: any) => !room.room?.id)" />
             </div>
             <!--depature-->
             <div class="flex flex-col">
@@ -575,21 +540,13 @@ onMounted(() => {
         </div>
         <div class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
           <ReservationStatus :status="reservation.status" />
-          <button
-            @click="checkInRerservation"
-            :disabled="isCheckingIn"
-            v-if="canCheckIn"
-            class="bg-green-600 rounded-lg text-white px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
-          >
+          <button @click="checkInRerservation" :disabled="isCheckingIn" v-if="canCheckIn"
+            class="bg-green-600 rounded-lg text-white px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
             <Spinner v-if="isCheckingIn" class="w-4 h-4" />
             <span>{{ isCheckingIn ? $t('processing') || 'Processing...' : $t('check in') }}</span>
           </button>
-          <button
-            @click="handleCheckOut"
-            :disabled="isCheckingOut"
-            v-if="canCheckout"
-            class="bg-red-600 rounded-lg text-white px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
-          >
+          <button @click="handleCheckOut" :disabled="isCheckingOut" v-if="canCheckout"
+            class="bg-red-600 rounded-lg text-white px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
             <Spinner v-if="isCheckingOut" class="w-4 h-4" />
             <span>{{ isCheckingOut ? $t('processing') || 'Processing...' : $t('check out') }}</span>
           </button>
@@ -601,17 +558,12 @@ onMounted(() => {
         <div class="flex justify-between w-full">
           <div class="border-b border-gray-200">
             <nav class="flex space-x-8 px-6">
-              <button
-                v-for="tab in tabs"
-                :key="tab.id"
-                @click="activeTab = tab.id"
-                :class="[
-                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                ]"
-              >
+              <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+                'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+                activeTab === tab.id
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+              ]">
                 <div class="flex items-center space-x-2">
                   <span>{{ tab.label }}</span>
                 </div>
@@ -619,13 +571,9 @@ onMounted(() => {
             </nav>
           </div>
           <div class="align-middle self-center items-center">
-            <ButtonDropdown
-              :options="dropdownOptions"
-              :button-text="$t('Options')"
-              button-class="bg-white text-primary border-primary hover:bg-primary/25"
-              dropdown-class="w-64"
-              @option-selected="handleOptionSelected"
-            />
+            <ButtonDropdown :options="dropdownOptions" :button-text="$t('Options')"
+              button-class="bg-white text-primary border-primary hover:bg-primary/25" dropdown-class="w-64"
+              @option-selected="handleOptionSelected" />
           </div>
         </div>
       </div>
@@ -634,10 +582,8 @@ onMounted(() => {
         <RoomCharge :reservation-id="reservation.id" :reservation="reservation"></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && reservation && reservation.id">
-        <FoglioOperation
-          :reservation-id="reservation.id"
-          :reservation="reservation"
-        ></FoglioOperation>
+        <FoglioOperation :reservation-id="reservation.id" :reservation="reservation" @refresh="refresReservation">
+        </FoglioOperation>
       </div>
       <div v-if="activeTab === 'booking_details'">
         <BookingDetails :booking="reservation" :guest="reservation.guest"></BookingDetails>
@@ -658,97 +604,52 @@ onMounted(() => {
     </div>
   </AdminLayout>
   <template v-if="isAddPaymentModalOpen">
-    <AddPaymentModal
-      :reservation-id="reservation.id"
-      :is-open="isAddPaymentModalOpen"
-      @close="closeAddPaymentModal"
-      @save="handleSavePayment"
-    />
+    <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
+      @save="handleSavePayment" />
   </template>
-
-  <!-- Cancel Reservation Modal -->
-  <!-- <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
-        @cancel-confirmed="handleCancelConfirmed" /> -->
-  <!-- NoShow Reservation Modal -->
-  <!-- <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
-        @noshow-confirmed="handleNoShowConfirmed" /> -->
-
-  <!-- Cancel Reservation Modal -->
   <template v-if="showCancelModal">
-    <CancelReservation
-      :is-open="showCancelModal"
-      :reservation-data="reservation"
-      @close="showCancelModal = false"
-      @cancel-confirmed="handleCancelConfirmed"
-    />
+    <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+      @cancel-confirmed="handleCancelConfirmed" />
   </template>
   <template v-if="showVoidModal">
-    <VoidReservation
-      :is-open="showVoidModal"
-      :reservation-data="reservation"
-      @close="showVoidModal = false"
-      :reservation-id="reservation.id"
-      :reservation-number="reservation.reservationNumber"
-      @void-confirmed="handleVoidConfirmed"
-    />
+    <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
+      :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+      @void-confirmed="handleVoidConfirmed" />
   </template>
   <template v-if="showAmendModal">
-    <AmendStay
-      :is-open="showAmendModal"
-      :reservation-data="reservation"
-      @close="showAmendModal = false"
-      :reservation-id="reservation.id"
-      :reservation-number="reservation.reservationNumber"
-      @amend-confirmed="handleAmendConfirmed"
-      :reservation="reservation"
-    />
+    <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+      :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+      @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
   </template>
   <!-- NoShow Reservation Modal -->
   <template v-if="showNoShowModal">
-    <NoShowReservation
-      :is-open="showNoShowModal"
-      :reservation-id="reservation.id"
-      @close="showNoShowModal = false"
-      @noshow-confirmed="handleNoShowConfirmed"
-    />
+    <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
+      @noshow-confirmed="handleNoShowConfirmed" />
   </template>
 
   <!--check out template-->
   <template v-if="isCkeckOutModalOpen">
-    <CheckOutReservation
-      :reservation-id="reservation.id"
-      :is-open="isCkeckOutModalOpen"
-      @close="closeCheckOutReservationModal"
-    />
+    <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
+      @close="closeCheckOutReservationModal" />
   </template>
 
   <!--check in template-->
   <template v-if="isCkeckInModalOpen">
-    <CheckInReservation
-      :reservation-id="reservation.id"
-      :is-open="isCkeckInModalOpen"
-      @close="closeCheckInReservationModal"
-    />
+    <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen" @success="handleCheckInSuccess"
+      @close="closeCheckInReservationModal" />
   </template>
 
   <!--unassign template-->
   <template v-if="isUnAssignModalOpen">
-    <UnAssignRoomReservation
-      :reservation-id="reservation.id"
-      :is-open="isUnAssignModalOpen"
-      @close="closeUnAssignReservationModal"
-    />
+    <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
+      @close="closeUnAssignReservationModal" />
   </template>
   <!-- Print Modal -->
-  <PrintModal
-    :is-open="showPrintModal"
-    :document-data="printDocumentData"
-    @close="handlePrintClose"
-    :reservation-id="reservation.id"
-    @print-success="handlePrintSuccess"
-    @print-error="handlePrintError"
-    :templates="templates"
-  />
+  <template v-if="showPrintModal">
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
+      :reservation-id="reservation.id" @print-success="handlePrintSuccess" @print-error="handlePrintError"
+      :templates="templates" />
+  </template>
 </template>
 
 <style></style>

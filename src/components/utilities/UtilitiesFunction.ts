@@ -90,3 +90,8 @@ export const formatTimeFromTimeString = (timeString: string) => {
   const [hours, minutes] = timeString.split(':')
   return `${hours}:${minutes}`
 }
+
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toISOString().substring(0, 10)
+}

@@ -6,85 +6,46 @@
         <div class="bg-white flex-grow overflow-y-auto ">
           <!-- Room/Group Header -->
           <div class="px-2 pb-2">
-            <button  class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors">
-              {{ isGroupReservation ? $t('GroupRooms') : $t('Room') }}
-            </button>
+            {{ $t('Rooms') }}
           </div>
-
-          <!-- Group Rooms Display -->
-          <div v-if="isGroupReservation">
-            <Accordion :title="$t('GroupInfo')" :is-open="true">
-              <div class="max-h-60 overflow-y-auto custom-scrollbar">
-                <div
-                  v-for="room in groupRooms"
-                  :key="room.id"
-                  class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 transition-colors"
-                  :class="{ 'bg-blue-100': selectedRoomId === room.id }"
-                  @click="selectRoom(room.id)"
-                >
-                  <div class="flex flex-col">
-                    <span class="capitalize font-medium">{{ room.roomNumber }}</span>
-                    <span class="text-xs text-gray-500">{{ room.guestName }}</span>
-                  </div>
-                  <ChevronRight class="w-4 h-4" />
-                </div>
-              </div>
-            </Accordion>
-          </div>
-
           <!-- Single Room Display -->
-          <div v-else>
-            <Accordion :title="$t('roomNumber')">
+          <div>
+            <div :title="$t('roomNumber')">
               <div>
                 <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
                   <div class="flex flex-col">
-                  <span class="capitalize">{{ singleRoom?.roomNumber || '---' }}</span>
-                  <span class="text-xs text-gray-500">{{ singleRoom?.guestName }}</span>
+                    <span class="capitalize">{{ singleRoom?.roomNumber }}-{{ singleRoom?.guestName }}</span>
+                    <span class="text-xs text-gray-500">{{ }}</span>
                   </div>
                   <ChevronRight class="w-4 h-4" />
                 </div>
               </div>
-            </Accordion>
+            </div>
           </div>
         </div>
 
         <!-- Footer Summary -->
         <div class="px-4 gap-1 py-2 text-sm flex flex-col border-t border-gray-200">
           <!-- Total Charges -->
-          <div class="flex justify-between text-xs text-gray-600">
-            <span>{{ $t('TotalCharges') }}</span>
-            <span>{{ formatAmount(summaryData?.totalCharges || 0) }}</span>
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>{{ $t('Total') }}</span>
+            <span>{{ formatAmount(summaryData?.totalChargesWithTaxes || 0) }}</span>
           </div>
           <!-- Total Tax -->
-          <!-- <div class="flex justify-between text-xs text-gray-600">
-            <span>{{ $t('TotalTax') }}</span>
-            <span>{{ formatAmount(summaryData?.totalTax || 0) }}</span>
-          </div> -->
-          <!-- Total Discounts -->
-          <div v-if="summaryData?.totalDiscounts > 0" class="flex justify-between text-xs text-green-600">
-            <span>{{ $t('TotalDiscounts') }}</span>
-            <span>-{{ formatAmount(summaryData?.totalDiscounts || 0) }}</span>
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>{{ $t('paid') }}</span>
+            <span>{{ formatAmount(summaryData?.outstandingBalance || 0) }}</span>
           </div>
-          <!-- Total Adjustments -->
-          <div v-if="summaryData?.totalAdjustments !== 0" class="flex justify-between text-xs" :class="summaryData?.totalAdjustments > 0 ? 'text-green-600' : 'text-red-600'">
-            <span>{{ $t('TotalAdjustments') }}</span>
-            <span>{{ formatAmount(summaryData?.totalAdjustments || 0) }}</span>
+          <!-- Total Discounts -->
+          <div class="flex justify-between text-xm text-red-600">
+            <span>{{ $t('Balance') }}</span>
+            <span>{{ formatAmount(summaryData?.totalPayments || 0) }}</span>
           </div>
 
-          <!-- <hr class="border-gray-300 my-1"> -->
-          <!-- Net Total -->
-          <!-- <div class="flex justify-between font-medium">
-            <span>{{ $t('NetTotal') }}</span>
-            <span>{{ formatAmount(summaryData?.totalNetAmount || 0) }}</span>
-          </div> -->
-          <!-- Balance Due -->
-          <!-- <div class="flex justify-between text-red-500 font-medium">
-            <span>{{ $t('BalanceDue') }}</span>
-            <span>{{ formatAmount(balanceAmount) }}</span>
-          </div> -->
           <!-- Room Info -->
           <div class="flex justify-between text-xs text-gray-500 mt-1 pt-1 border-t border-gray-100">
-            <span>{{ summaryData?.totalRooms }} {{ summaryData?.totalRooms === 1 ? $t('Room') : $t('Rooms') }} • {{ summaryData?.totalTransactions }} {{ $t('transactions') }}</span>
+            <span>{{ summaryData?.totalRooms }} {{ summaryData?.totalRooms === 1 ? $t('Room') : $t('Rooms') }} • {{
+              summaryData?.totalTransactions }} {{ $t('transactions') }}</span>
           </div>
         </div>
       </div>
@@ -97,7 +58,7 @@
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
         <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
 
-        <!-- More Actions Dropdown -->
+        <!-- More Actions Dropdown 
         <div class="relative">
           <ButtonDropdown
             v-model="selectedMoreAction"
@@ -106,9 +67,9 @@
             :button-class="'bg-white border border-gray-200'"
             @option-selected="handleMoreAction"
           />
-        </div>
+        </div>-->
 
-        <!-- Status Indicators -->
+        <!-- Status Indicators 
         <div class="ml-auto flex items-center gap-2">
           <span class="flex items-center gap-1 text-sm">
             <div class="w-3 h-3 bg-orange-400 rounded"></div>
@@ -120,27 +81,20 @@
           </span>
           <div class="flex gap-1">
             <button class="p-1 hover:bg-gray-100 rounded" @click="refreshData">
-              <RefreshCcw  class="w-4 h-4" />
+              <RefreshCcw class="w-4 h-4" />
             </button>
             <button class="p-1 hover:bg-gray-100 rounded">
               <SettingsIcon class="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </div>-->
       </div>
 
       <!-- Room Charges Table -->
       <div class="flex-grow overflow-y-auto custom-scrollbar">
-        <ReusableTable
-          :columns="columns"
-          :data="filteredRoomChargeData"
-          :loading="loading"
-          :show-header="true"
-          :selectable="true"
-          :searchable="false"
-          :title="getTableTitle()"
-          @selection-change="handleTableSelectionChange"
-        >
+        <ReusableTable :columns="columns" :data="filteredRoomChargeData" :loading="loading" :show-header="true"
+          :selectable="false" :searchable="false" :title="getTableTitle()"
+          @selection-change="handleTableSelectionChange">
           <!-- Custom Stay Column -->
           <template #column-transactionDate="{ item }">
             <div class="text-sm text-gray-900">
@@ -175,7 +129,7 @@
           <!-- Custom Charge Column -->
           <template #column-charge="{ item }">
             <div class="text-sm">
-              <div class="font-medium text-blue-600">{{ formatAmount(item.charge || 0) }}</div>
+              <div class="font-medium text-black">{{ formatAmount(item.charge || 0) }}</div>
               <div class="text-xs text-gray-500">{{ item.description || '' }}</div>
             </div>
           </template>
@@ -183,21 +137,21 @@
 
           <!-- Custom Tax Column -->
           <template #column-tax="{ item }">
-            <div class="text-sm text-green-600">
+            <div class="text-sm text-black">
               {{ formatAmount(item.tax || 0) }}
             </div>
           </template>
 
           <!-- Custom Adjustment Column -->
           <template #column-adjustment="{ item }">
-            <div class="text-sm" :class="getAmountColor(item.adjustment || 0)">
+            <div class="text-sm">
               {{ formatAmount(item.adjustment || 0) }}
             </div>
           </template>
 
           <!-- Custom Net Amount Column -->
           <template #column-netAmount="{ item }">
-            <div class="text-sm font-bold" :class="getAmountColor(item.netAmount)">
+            <div class="text-sm font-bold">
               {{ formatAmount(item.netAmount) }}
             </div>
           </template>
@@ -213,62 +167,55 @@
             {{ isGroupReservation ? $t('GroupTotalRoomCharges') : $t('TotalRoomCharges') }}
           </span>
           <div class="text-right">
-            <div class="text-sm font-medium text-blue-600">
+            <div class="text-sm font-medium">
               {{ $t('TotalAmount') }}: {{ formatAmount(calculatedTotalAmount) }}
-            </div>
-            <div class="text-xs text-gray-500 mt-1">
-              {{ $t('SelectedRoom') }}: {{ formatAmount(selectedRoomTotal) }}
             </div>
           </div>
         </div>
       </div>
 
       <!--Modals-->
-       <template v-if="isVoidReservationModalOpen">
-          <VoidReservation :reservation-id="reservationId" :is-open="isVoidReservationModalOpen"
-            @close="closeVoidReservationModal" :selected-items="selectedTableItems"  @void-success="handleVoidSuccess" :all-room-charges="filteredRoomChargeData" />
-        </template>
+      <template v-if="isVoidReservationModalOpen">
+        <VoidReservation :reservation-id="reservationId" :is-open="isVoidReservationModalOpen"
+          @close="closeVoidReservationModal" :selected-items="selectedTableItems" @void-success="handleVoidSuccess"
+          :all-room-charges="filteredRoomChargeData" />
+      </template>
 
-         <template v-if="isCheckInReservationModalOpen">
-          <CheckInReservation :reservation-id="reservationId" :is-open="isCheckInReservationModalOpen"
-            @close="closeCheckInReservationModal" />
-        </template>
+      <template v-if="isCheckInReservationModalOpen">
+        <CheckInReservation :reservation-id="reservationId" :is-open="isCheckInReservationModalOpen"
+          @close="closeCheckInReservationModal" />
+      </template>
 
-        <template v-if="isUnAssignReservationModalOpen">
-          <UnAssignRoomReservation :reservation-id="reservationId" :is-open="isUnAssignReservationModalOpen"
-            @close="closeUnAssignReservationModal" />
-        </template>
-        <template v-if="reservation">
-         <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
-            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-            @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
+      <template v-if="isUnAssignReservationModalOpen">
+        <UnAssignRoomReservation :reservation-id="reservationId" :is-open="isUnAssignReservationModalOpen"
+          @close="closeUnAssignReservationModal" />
+      </template>
+      <template v-if="reservation">
+        <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
+          :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+          @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
 
-         <CancelReseravtion :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
-            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-            @cancel-confirmed="handleCancelConfirmed" />
-        </template>
+        <CancelReseravtion :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
+          :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
+          @cancel-confirmed="handleCancelConfirmed" />
+      </template>
     </div>
-
-    <!-- Apply Discount Modal -->
-    <ApplyDiscountRoomCharge
-      v-if="isApplyDiscountModalOpen"
-      :is-open="isApplyDiscountModalOpen"
-      :reservation-id="reservationId"
-      :room-charges="roomChargeData"
-      @close="closeApplyDiscountModal"
-      @discount-applied="handleDiscountApplied"
-    />
+    <template v-if="isApplyDiscountModalOpen">
+      <!-- Apply Discount Modal -->
+      <ApplyDiscountRoomCharge v-if="isApplyDiscountModalOpen" :is-open="isApplyDiscountModalOpen"
+        :reservation-id="reservationId" :room-charges="roomChargeData" @close="closeApplyDiscountModal"
+        @discount-applied="handleDiscountApplied" />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PencilIcon, TrashIcon, RefreshCcw , SettingsIcon, ChevronRight } from 'lucide-vue-next'
+import { RefreshCcw, SettingsIcon, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import Accordion from '../../common/Accordion.vue'
-import ButtonDropdown from '../../common/ButtonDropdown.vue'
 import type { Column } from '../../../utils/models'
 import { getRoomCharges } from '../../../services/reservation'
 import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
@@ -316,15 +263,13 @@ interface RoomChargeItem {
 }
 
 interface Emits {
-    (e: 'close'): void
-    (e: 'save', data?: any): void
+  (e: 'close'): void
+  (e: 'save', data?: any): void
 }
 
 const loading = ref(false)
-const selectedMoreAction = ref<any>(null)
 const selectedRoomId = ref<number | null>(null)
 const totalAmount = ref(0)
-const balanceAmount = ref(0)
 const roomChargeData = ref<any[]>([])
 const groupRooms = ref<any[]>([])
 const singleRoom = ref<any>(null)
@@ -370,8 +315,8 @@ const selectedRoomTotal = computed(() => {
 const canCheckIn = computed(() => {
   // Vérifier si le statut est "confirmed" (ou équivalent)
   const isConfirmed = reservationStatus.value?.toLowerCase() === 'confirmed' ||
-                     reservationStatus.value?.toLowerCase() === 'confirmée' ||
-                     reservationStatus.value?.toLowerCase() === 'confirm'
+    reservationStatus.value?.toLowerCase() === 'confirmée' ||
+    reservationStatus.value?.toLowerCase() === 'confirm'
 
   // Vérifier si la date de check-in est aujourd'hui ou dans le passé
   const today = new Date()
@@ -386,7 +331,7 @@ const canCheckIn = computed(() => {
   return isConfirmed && isCheckInDateReached
 })
 
-const canCancel = computed(()=>{
+const canCancel = computed(() => {
   const isCancel = reservationStatus.value?.toLocaleLowerCase() != 'cancelled'
   return isCancel
 })
@@ -415,7 +360,7 @@ const getMoreActionOptions = () => {
   ]
 
   if (isGroupReservation.value) {
-    const groupOptions :any[] = []
+    const groupOptions: any[] = []
 
     // Récupérer les informations de statut et de dates
     const status = reservationStatus.value?.toLowerCase()
@@ -502,11 +447,6 @@ const formatDateRange = (checkIn: string, checkOut: string): string => {
   return `${formatDate(checkIn)} - ${formatDate(checkOut)}`
 }
 
-const getAmountColor = (amount: number): string => {
-  if (amount > 0) return 'text-green-600'
-  if (amount < 0) return 'text-red-600'
-  return 'text-gray-500'
-}
 
 
 // Event Handlers
@@ -531,7 +471,7 @@ const handleMoreAction = (action: any) => {
       break
 
     case 'voidGroup':
-      if(canVoidGroup.value){
+      if (canVoidGroup.value) {
         openVoidReservationModal()
       }
 
@@ -609,21 +549,21 @@ const loadRoomCharges = async () => {
       if (response.data.roomChargesTable && response.data.roomChargesTable.length > 0) {
         // Extract unique rooms from room charges
         const uniqueRooms = response.data.roomChargesTable
-        .map((charge: any) => ({
-          id: charge.room?.roomId,
-          roomNumber: charge.room?.roomNumber,
-          roomType: charge.room?.roomType,
-          guestName: charge.guestName || response.data.guestName || 'Guest'
-        }))
-        .filter((room: any, index: number, self: any[]) =>
-          room.id && index === self.findIndex(r => r.id === room.id)
-        )
+          .map((charge: any) => ({
+            id: charge.room?.roomId,
+            roomNumber: charge.room?.roomNumber,
+            roomType: charge.room?.roomType,
+            guestName: charge.guestName || response.data.guestName || 'Guest'
+          }))
+          .filter((room: any, index: number, self: any[]) =>
+            room.id && index === self.findIndex(r => r.id === room.id)
+          )
 
         if (uniqueRooms.length > 1) {
           // Multiple rooms - treat as group
           groupRooms.value = uniqueRooms
-          console.log("uniqueRooms",uniqueRooms)
-           selectedRoomId.value = null
+          console.log("uniqueRooms", uniqueRooms)
+          selectedRoomId.value = null
         } else if (uniqueRooms.length === 1) {
           // Single room
           singleRoom.value = uniqueRooms[0]
@@ -654,20 +594,20 @@ const getTableTitle = (): string => {
 
 //handle Modal
 
-const openCheckInReservationModal = () =>{
-   isCheckInReservationModalOpen.value = true
+const openCheckInReservationModal = () => {
+  isCheckInReservationModalOpen.value = true
 }
 
-const closeCheckInReservationModal = () =>{
-    isCheckInReservationModalOpen.value = false
+const closeCheckInReservationModal = () => {
+  isCheckInReservationModalOpen.value = false
 }
 
-const openUnAssignReservationModal = () =>{
-    isUnAssignReservationModalOpen.value = true
+const openUnAssignReservationModal = () => {
+  isUnAssignReservationModalOpen.value = true
 }
 
-const closeUnAssignReservationModal = () =>{
-    isUnAssignReservationModalOpen.value = false
+const closeUnAssignReservationModal = () => {
+  isUnAssignReservationModalOpen.value = false
 }
 
 const handleApplyRate = (rateData: any) => {
@@ -677,14 +617,14 @@ const handleApplyRate = (rateData: any) => {
 }
 
 const handleAmendConfirmed = () => {
-    showAmendModal.value = false
-    // Emit save event to notify parent components
-    emit('save', { action: 'amend', reservationId: props.reservation?.id })
+  showAmendModal.value = false
+  // Emit save event to notify parent components
+  emit('save', { action: 'amend', reservationId: props.reservation?.id })
 }
 
 const handleCancelConfirmed = () => {
-    showCancelModal.value = false
-    emit('save', { action: 'cancel', reservationId: props.reservation?.id })
+  showCancelModal.value = false
+  emit('save', { action: 'cancel', reservationId: props.reservation?.id })
 }
 
 // Apply Discount modal handlers
@@ -702,11 +642,11 @@ const handleDiscountApplied = (discountData: any) => {
   getTransactionFolio()
   closeApplyDiscountModal()
 }
-const getTransactionFolio =async()=>{
+const getTransactionFolio = async () => {
   loading.value = true;
-  const response  = await getRoomCharges(props.reservationId);
+  const response = await getRoomCharges(props.reservationId);
   console.log(response.data);
-  if(response.data){
+  if (response.data) {
     roomChargeData.value = response.data.roomChargesTable;
     totalAmount.value = response.data.summary?.totalNetAmount;
   }
@@ -810,9 +750,12 @@ watch(() => props.reservationId, (newId) => {
 <style scoped>
 /* Scrollbar invisible mais toujours scrollable */
 .custom-scrollbar {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .custom-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  display: none;
+  /* Chrome, Safari, Edge */
 }
 </style>

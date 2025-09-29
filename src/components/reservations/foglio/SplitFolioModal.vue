@@ -25,18 +25,16 @@
 
                                     <div class=" mb-3">
                                         <div class="grid grid-cols-5 gap-3">
-                                            <div class="col-span-2">
+                                            <div class="col-span-2 flex flex-col justify-end self-end">
                                                 <label
                                                     class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{
                                                         $t('sourceFolio') }}</label>
                                                 <FindFolio @selectFolio="selectSourceFolio" v-model="selectFolio" />
                                             </div>
-                                            <div class="col-span-3">
-
-                                                <RadioGroup v-model="formData.paymentType" :options="[
-                                                    { value: 'new', label: 'All Folio of this guest' },
-                                                    { value: 'existing', label: 'Selected Folio' }
-                                                ]" label="Scope" />
+                                            <div class="col-span-2"></div>
+                                            <div class="col-span-1 flex flex-col justify-end pb-3">
+                                                <BasicButton variant=""  @click="splitFolio" :disabled="!canSplit" :label="$t('Transfer')"
+                                                    :loading="isSpliting"></BasicButton>
                                             </div>
                                         </div>
                                     </div>
@@ -54,7 +52,7 @@
                                                 <label
                                                     class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{
                                                         $t('destinationFolio') }}</label>
-                                                <FindFolio @select-folio="destinationSelected"  />
+                                                <FindFolio @select-folio="destinationSelected" v-model="destinationFolioSelected" />
                                             </div>
                                         </div>
                                     </div>
@@ -64,13 +62,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- switch button-->
-                        <div @click="splitFolio" :class="{ 'text-primary cursor-pointer': canSplit }"
-                            class="flex text-gray-300 items-center cursor-pointer -ms-2 fixed top-1/2 left-[58%]">
-                            <Spinner v-if="isSpliting" />
-                            <ChevronRightCircle class="w-7 h-7" v-else />
-                        </div>
-
+                     
                     </div>
                 </div>
             </div>
@@ -83,12 +75,12 @@ import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ReusableTable from '../../tables/ReusableTable.vue'
-import { ChevronRightCircle, Save, Search, SearchCodeIcon, SearchIcon, SearchSlash, XIcon } from 'lucide-vue-next'
-import RadioGroup from '../../forms/FormElements/RadioGroup .vue'
+import {  XIcon } from 'lucide-vue-next'
 import type { Column } from '../../../utils/models'
 import FindFolio from './FindFolio.vue'
 import { getFolioStatement, splitFolioHandler } from '../../../services/foglioApi'
-import Spinner from '../../spinner/Spinner.vue'
+import BasicButton from '../../buttons/BasicButton.vue'
+import { formatDate } from '../../utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -102,15 +94,7 @@ const props = defineProps({
         default: () => ({})
     }
 })
-// Form data
-const formData = ref({
-    cityLedgerAccount: '',
-    paymentType: 'cash',
-    reference: '',
-    date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-    amount: null,
-    comment: ''
-})
+
 
 // Sample guest data
 const sourceFolios = ref<Column[]>([
@@ -125,7 +109,7 @@ const handleSelectionChange = (vals: any[]) => {
 // Table columns definition
 const columnsFolios = [
     { key: 'folio', label: 'Folio No.', sortable: true },
-    { key: 'date', label: 'Date ', sortable: true },
+    { key: 'transactionDate', label: 'Date ', sortable: true },
     { key: 'room', label: 'Room', sortable: true },
     { key: 'description', label: 'Description', sortable: true },
     { key: 'amount', label: 'Amount', sortable: true },
@@ -152,9 +136,11 @@ const fetchFoliotransaction = async () => {
     try {
         const response = await getFolioStatement(selectFolio.value.id);
         const resData = response.data;
-        sourceFolios.value = resData.transactions?.map((e: any) => {
+        console.log('list of folio returned')
+        sourceFolios.value = resData?.map((e: any) => {
             return {
                 ...e,
+                transactionDate:formatDate(e.transactionDate),
             }
         })
         console.log('response of fetching reservation', response)
@@ -173,24 +159,24 @@ const splitFolio = async () => {
                 destinationFolioId: destinationFolioSelected.value.id,
                 transactionsToMove: selectedFolios.value.map((e: any) => e.id)
             });
-            
+
             // Show success toast
             toast.success(t('toast.splitFolioSuccess'));
-            
+
             // Move selected transactions to destination
             const movedTransactions = selectedFolios.value;
             destinationFolios.value = [...destinationFolios.value, ...movedTransactions];
-            
+
             // Remove moved transactions from source
-            sourceFolios.value = sourceFolios.value.filter((transaction: any) => 
+            sourceFolios.value = sourceFolios.value.filter((transaction: any) =>
                 !selectedFolios.value.some((selected: any) => selected.id === transaction.id)
             );
-            
+
             // Clear selection
             selectedFolios.value = [];
 
             emit('refresh')
-            
+
         } catch (e) {
             console.error('Error splitting folio:', e);
             toast.error(t('splitFolioError'));

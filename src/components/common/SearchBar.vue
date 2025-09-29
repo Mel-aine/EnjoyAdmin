@@ -51,10 +51,10 @@
                 </div>
                 <div>
                   <div class="font-medium text-gray-900 dark:text-white text-sm">
-                    {{ result.guest?.displayName }} {{ result.guest?.lastName || t('guest') }}
+                    {{ result.guest?.displayName }}
                   </div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ result.reservationNumber || `#${result.id}` }}
+                    {{ result.reservationNumber}}
                   </div>
                 </div>
               </div>
@@ -64,19 +64,25 @@
                 <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100">
                   <span>{{ formatDate(result.arrivedDate) }}</span>
                   <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
-                    {{ formatTime(result.arrivedDate) }}
+                    {{ formatTimeFromTimeString(result.checkInTime) }}
                   </span>
                 </div>
-                <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
+                <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300" v-if="(Number((result.nights ?? result.numberOfNights)) >= 1)">
                   <span>{{ result.nights ?? result.numberOfNights }}</span>
                   <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
                     {{ t('nights') }}
                   </span>
                 </div>
+                <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300" v-else>
+                  <span>{{ result.dayuseDuration }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
+                    {{ t('hours') }}
+                  </span>
+                </div>
                 <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100">
                   <span>{{ formatDate(result.departDate) }}</span>
                   <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
-                    {{ formatTime(result.departDate) }}
+                    {{ formatTimeFromTimeString(result.checkOutTime) }}
                   </span>
                 </div>
 
@@ -123,13 +129,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { filterReservation } from '@/services/hotelApi'
 import type { FitlterItem, ReservationDetails } from '@/utils/models'
 import ReservationRigthModal from '@/components/reservations/ReservationRigthModal.vue'
-import { formatTime } from '../utilities/UtilitiesFunction'
+import {  formatTimeFromTimeString } from '../utilities/UtilitiesFunction'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
 
@@ -207,6 +213,7 @@ const performSearch = async () => {
     }
 
     const response = await filterReservation(serviceStore.serviceId, filter)
+    console.log('filter response', response)
     searchResults.value = response.data.reservations || []
     showDropdown.value = true
   } catch (error) {
@@ -221,11 +228,8 @@ const selectResult = (result: ReservationDetails) => {
   //searchQuery.value = result.reservationNumber || `#${result.id}`
   showDropdown.value = false
   selectedIndex.value = -1
-  selectedReservation.value = {...result, reservation_id:result.id}
-  isModalOpen.value = true,
-
-    console.log('open reservation', result)
-  emit('select', result)
+  selectedReservation.value = { ...result, reservation_id: result.id }
+  isModalOpen.value = true
 }
 
 const closeModal = () => {
@@ -233,11 +237,6 @@ const closeModal = () => {
   selectedReservation.value = null
 }
 
-const handleModalSave = (data: any) => {
-  // Handle save action here
-  console.log('Modal save:', data)
-  closeModal()
-}
 
 const handleBlur = () => {
   // Delay hiding dropdown to allow click events

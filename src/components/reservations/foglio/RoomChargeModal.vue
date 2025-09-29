@@ -51,7 +51,7 @@
                                     </label>
                                     <textarea v-model="formData.description" rows="3"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        :placeholder="$t('enterDescription')"></textarea>
+                                        :placeholder=" $t('comment')"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -169,16 +169,16 @@ const saveRoomCharge = async () => {
     isLoading.value = true
     try {
         const payload = {
-            folioId: props.folioId,
+            folioId: props.folioId ? Number(props.folioId) : formData.folioId,
             reservationId: props.reservationId,
             hotelId: useServiceStore().serviceId,
             chargeSubtype: formData.chargeSubtype,
-            amount: formData.amount,
+            amount: parseFloat(`${formData.amount}`),
             description: formData.description,
             date: formData.date,
             taxInclusive: formData.taxInclusive,
             complementary:formData.complementary,
-            discount:formData.discount,
+            discountId:formData.discount ? Number(formData.discount) : undefined,
         }
 
         // Here you would call the appropriate API function

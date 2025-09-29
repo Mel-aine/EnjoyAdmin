@@ -61,10 +61,13 @@ export interface ReservationDetails {
   payments: PaymentRecord[] // This array is empty in your example, but included for completeness
   reservationServiceProducts: ReservationServiceProduct[]
   reservation_id?: number
-  guest:Record<string,any>
-  nights:Number
-  child:Number
-  adults:Number
+  guest: Record<string, any>
+  nights: Number
+  child: Number
+  adults: Number
+  checkInTime: string
+  dayuseDuration: Number
+  checkOutTime: string
 }
 
 /**
@@ -338,7 +341,7 @@ export interface Form {
   contractEndDate: string
   dataProcessingConsent?: boolean
   consentDate: string
-  language:string
+  language: string
 }
 export const defaultData = (): Form => {
   return {
@@ -363,7 +366,7 @@ export const defaultData = (): Form => {
     contractEndDate: '',
     dataProcessingConsent: true,
     consentDate: '',
-    language:''
+    language: ''
   }
 }
 
@@ -443,38 +446,38 @@ export interface UpdateAmenityBookingPayload {
 
 // Interfaces
 export interface TableColumn {
+  name: string
+  label: string
+  type?: 'text' | 'date' | 'url' | 'badge' | 'percentage' | 'image' | 'action' | 'imageText' | 'rating' | 'currency' | 'TextRoom'
+  sortable?: boolean
+  filterable?: boolean
+  style?: string
+  minWidth?: string
+  width?: string
+  actions?: Array<{
     name: string
-    label: string
-    type?: 'text' | 'date' | 'url' | 'badge' | 'percentage' | 'image' | 'action' | 'imageText' | 'rating' | 'currency' | 'TextRoom'
-    sortable?: boolean
-    filterable?: boolean
-    style?: string
-    minWidth?: string
-    width?: string
-    actions?: Array<{
-        name: string
-        event: string
-        icone: string
-        color?: string
-    }>
-    inputField?: {
-        type: string
-        placeholder: string
-    }
-    event?: string | any
-    colored?: boolean,
-    isTranslatable: boolean
+    event: string
+    icone: string
+    color?: string
+  }>
+  inputField?: {
+    type: string
+    placeholder: string
+  }
+  event?: string | any
+  colored?: boolean,
+  isTranslatable: boolean
 }
 
 export interface PaymentFilterItem {
-  paymentId : number
+  paymentId: number
   searchText: string
   status: string,
   serviceId?: number
 }
 
 
-export  interface Column {
+export interface Column {
   key: string
   label: string
   type?: 'text' | 'email' | 'badge' | 'image' | 'custom' | 'date'

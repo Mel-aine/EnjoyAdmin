@@ -18,17 +18,17 @@
               {{ $t('showAllTransactions') }}
             </button>
           </div>
-          <Accordion v-for="(re, ind) in reservation.reservationRooms" :key="ind"
-            :title="re.room?.roomNumber || 'No Room Number'">
+          <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
+            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
             <div v-for="(fo, index) in folioList" :key="index">
               <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
                 :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
                 @click="selectFolio(fo)">
-                <span class="capitalize">{{ fo.folioNumber }} {{ fo.folioName }}</span>
+                <span class="capitalize">#{{ fo.folioNumber }} {{ fo.guest.displayName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
             </div>
-          </Accordion>
+          </div>
         </div>
         <div class="px-4 gap-1 py-2 text-sm flex flex-col">
           <div class="flex justify-between">
@@ -56,11 +56,12 @@
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal"
               :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
             <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal"
-              :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
+              :disabled="!canAddItemInFolio || reservation.status === 'voided' || !selectedFolio" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
-            <BasicButton :label="$t('printInvoice')" @click="printInvoiceDirect" />
+            <BasicButton :label="$t('printInvoice')" @click="printInvoiceDirect"
+              :disabled="!canAddItemInFolio || reservation.status === 'voided' || !selectedFolio" />
             <!-- More Actions Dropdown -->
-            <div class="relative">
+            <div class="relative" v-if="(canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
                 :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
             </div>
@@ -152,10 +153,6 @@
           <SplitFolioModal :reservation-id="reservationId" :is-open="isSplitFolioModal" :default-folio="selectedFolio"
             @close="closeSplitFolioModal" @save="handleSaveSplitFolio" @refresh="refreshFolio" />
         </template>
-        <template v-if="isTransferModal">
-          <TransferFolioModal :reservation-id="reservationId" :is-open="isTransferModal" @close="closeTransferModal"
-            @save="handleSaveTransfer" />
-        </template>
         <template v-if="isCutFolioModal">
           <CutFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isCutFolioModal"
             @close="closeCutFolioModal" @save="handleSaveCut" @refresh="refreshFolio" />
@@ -169,10 +166,6 @@
             :is-open="isAdjustmentModal" @close="closeAdjustmentModal" @save="handleSaveAdjustment"
             @refresh="refreshFolio" />
         </template>
-        <template v-if="isSendFolioModal">
-          <SendFolioModal :reservation-id="reservationId" :is-open="isSendFolioModal" @close="closeSendFolioModal"
-            @save="handleSaveSendFolio" />
-        </template>
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
           <PrintInvoice :is-open="isPrintModalOpen" :document-data="printDocumentData" @close="closePrintModal"
@@ -180,7 +173,9 @@
         </template>
         <!-- Direct PDF Preview (same viewer as PrintInvoice) -->
         <div v-if="showPdfExporter">
-          <PdfExporterNode @close="showPdfExporter=false" :is-modal-open="showPdfExporter" :is-generating="printLoading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated" @error="handlePdfError" />
+          <PdfExporterNode @close="showPdfExporter = false" :is-modal-open="showPdfExporter"
+            :is-generating="printLoading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated"
+            @error="handlePdfError" />
         </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
@@ -261,6 +256,7 @@ const handleSaveSplitFolio = (folioData: any) => {
   console.log('Save split folio:', folioData)
   // Add save logic here
 }
+const emit = defineEmits(['refresh'])
 const closeTransferModal = () => {
   isTransferModal.value = false
 }
@@ -331,9 +327,6 @@ const moreActionOptions = computed(() => {
   if (authStore.hasPermission('transfer_item_from_folio')) {
     menus.push({ label: t('transfer'), id: 'transfer' })
   }
-  if (authStore.hasPermission('transfer_item_from_folio')) {
-    menus.push({ label: t('splitFolio'), id: 'split' })
-  }
   if (authStore.hasPermission('cut_folio')) {
     menus.push({ label: t('cutFolio'), id: 'cut' })
   }
@@ -365,7 +358,7 @@ interface FoglioItem {
 }
 
 const loading = ref(false)
-const balance = ref(2000.00)
+const balance = ref(0)
 const selectedFolio = ref<any>(null)
 const allTransactions = ref<FoglioItem[]>([])
 const folioList = ref<any[]>([])
@@ -432,26 +425,6 @@ const closeAddChargeModal = () => {
   isAddChargeModalOpen.value = false
 }
 
-const handleSaveCharge = (chargeData: any) => {
-  console.log('Saving charge:', chargeData)
-  // Here you would typically send the data to your API
-  // For now, we'll just add it to our local data
-  const newCharge = {
-    id: allTransactions.value.length + 1,
-    day: chargeData.date,
-    refNo: chargeData.recVouNumber || `REF${Date.now()}`,
-    particulars: chargeData.charge,
-    description: chargeData.comment || chargeData.charge,
-    user: 'current_user',
-    amount: prepareFolioAmount(chargeData.amount),
-    status: 'unposted' as const,
-    folioId: selectedFolio.value?.id || folioList.value[0]?.id // Assign to selected folio or first folio
-  }
-
-  allTransactions.value.push(newCharge)
-  closeAddChargeModal()
-}
-
 // Payment modal handlers
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
@@ -471,6 +444,7 @@ const showAllTransactions = () => {
 }
 const refreshFolio = async () => {
   try {
+    emit('refresh')
     const resp = await getReservationFolios(props.reservationId)
     console.log(resp)
 
@@ -505,6 +479,7 @@ const refreshFolio = async () => {
       folioList.value = resp.data || []
       allTransactions.value = []
     }
+
   } catch (e) {
     console.log(e)
   }
@@ -525,7 +500,7 @@ const getFolosReservations = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status==="voided") || (transaction.category==="room" && transaction.transactionType==="charge");
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge");
             if (transaction.transactionType === 'payment') {
               allTransactions.value.push({
                 ...transaction,
@@ -538,7 +513,7 @@ const getFolosReservations = async () => {
               })
             } else {
               allTransactions.value.push({
-                ...transaction, 
+                ...transaction,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
                 folioId: folio.id,
                 guest: folio.guest
@@ -566,7 +541,7 @@ const getFolosReservations = async () => {
 getFolosReservations()
 const handleSavePayment = (paymentData: any) => {
   closeAddPaymentModal()
-
+  refreshFolio();
 }
 
 // Create Folio modal handlers
@@ -585,19 +560,11 @@ const handleSaveFolio = (folioData: any) => {
   closeCreateFolioModal()
 }
 
-// Print modal handlers
-const openPrintModal = () => {
-  isPrintModalOpen.value = true
-}
 
 const closePrintModal = () => {
   isPrintModalOpen.value = false
 }
 
-const handlePrintSuccess = (data: any) => {
-  console.log('Print successful:', data)
-  closePrintModal()
-}
 
 const handlePrintError = (error: any) => {
   console.error('Print error:', error)
@@ -634,9 +601,6 @@ const handleMoreAction = (action: any) => {
 
   switch (action.id) {
     case 'transfer':
-      handleTransferFolio()
-      break
-    case 'split':
       handleSplitFolio()
       break
     case 'cut':
@@ -657,11 +621,6 @@ const handleMoreAction = (action: any) => {
   }
 }
 
-// More action handlers (placeholder implementations)
-const handleTransferFolio = () => {
-  console.log('Transfer folio action')
-  isTransferModal.value = true
-}
 
 const handleSplitFolio = () => {
   console.log('Split folio action')

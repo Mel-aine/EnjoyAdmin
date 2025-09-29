@@ -130,7 +130,11 @@ const errorMessage = ref('')
 const pdfUrl = ref('')
 
 const filters = ref<Filters>({
-  reportDate: new Date().toISOString().split('T')[0],
+  reportDate: (() => {
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    return yesterday.toISOString().split('T')[0]
+  })(),
   currency: 'XAF'
 })
 
