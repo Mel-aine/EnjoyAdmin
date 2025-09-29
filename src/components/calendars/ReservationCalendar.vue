@@ -1,4 +1,3 @@
-
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
@@ -155,52 +154,15 @@
                       </td>
 
                       <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
-                        <!-- Réservations qui se chevauchent (colspan unifié) -->
-                        <td v-if="cell.type === 'overlapping_reservations'" :colspan="cell.colspan"
-                          class="relative px-0 py-0 h-12 border border-gray-300">
-                          <div v-for="(reservation, index) in cell.reservations" :key="reservation.id"
-                            :class="[
-                              'cursor-pointer absolute top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-white flex items-center gap-1',
-                            ]"
-                            :style="{
-                              backgroundColor: getReservationColor(reservation.reservation_status),
-                              left: reservation.startPosition + '%',
-                              width: reservation.width + '%',
-                              zIndex: 10 + index
-                            }"
-                            @click="showReservationModal(reservation)"
-                            @mouseenter="showReservationTooltip(reservation, $event)"
-                            @mouseleave="hideReservationTooltip">
-                            <span class="truncate text-xs">
-                              {{ reservation.guest_name }}
-                            </span>
-                            <div class="absolute -top-2 flex items-center gap-1">
-                              <Crown v-if="reservation.is_master"
-                                class="bg-white w-2 h-2 text-yellow-400 flex-shrink-0"
-                                :title="$t('Primary')" />
-                              <DollarSignIcon v-if="reservation?.is_balance" class="bg-red-400 w-2 h-2 text-yellow-400 flex-shrink-0" />
-                              <User2 v-if="reservation?.isWomen" class="bg-pink-400 w-2 h-2 text-white flex-shrink-0" :title="$t('Female Guest')" />
-                            </div>
-                          </div>
-                        </td>
-
                         <!-- Réservation -->
-                        <td v-else-if="cell.type === 'reservation'" :colspan="cell.colspan"
+                        <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
                           class="relative px-0 py-0 h-12 border border-gray-300">
-                          <!-- <div :class="[
+                          <div :class="[
                             'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
                             getReservationColor(cell.reservation.reservation_status),
                           ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
                             @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                            @mouseleave="hideReservationTooltip"> -->
-                            <div class="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%]"
-                              :style="{
-                                ...getReservationStyle(cell),
-                                backgroundColor: getReservationColor(cell.reservation.reservation_status)
-                              }"
-                              @click="showReservationModal(cell.reservation)"
-                              @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                              @mouseleave="hideReservationTooltip">
+                            @mouseleave="hideReservationTooltip">
                             <span class="truncate flex items-center gap-1">
                               {{ cell.reservation.guest_name }}
                               <br>
@@ -695,6 +657,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   })
 
   // --- Récupération des room blocks ---
+  console.log("apiRoomBlocks",apiRoomBlocks.value)
   const roomBlocks = apiRoomBlocks.value.filter(
     (b: any) => b.room && b.room.room_number === room.room_number
   )
@@ -729,97 +692,58 @@ function getRoomRowCellsApi(group: any, room: any) {
       continue
     }
 
-    // --- Chercher toutes les réservations qui touchent cette période ---
-    const overlappingReservations = reservations.filter((r: any) => {
-      const start = new Date(r.check_in_date)
-      const end = new Date(r.check_out_date)
-      return (start <= date && end > date) || r.check_in_date.startsWith(dStr)
+    // --- Sinon, on cherche une réservation ---
+    let reservation = reservations.find((r: any) => {
+      return r.check_in_date.startsWith(dStr)
     })
 
-    if (overlappingReservations.length > 0) {
-      // Calculer la période totale couverte par toutes les réservations qui se chevauchent
-      let earliestStart = new Date(Math.min(...overlappingReservations.map((r: any) => new Date(r.check_in_date).getTime())))
-      let latestEnd = new Date(Math.max(...overlappingReservations.map((r: any) => new Date(r.check_out_date).getTime())))
+    if (!reservation) {
+      reservation = reservations.find((r: any) => {
+        const start = new Date(r.check_in_date)
+        const end = new Date(r.check_out_date)
+        return start < date && end >= date
+      })
+    }
 
-      // Ajuster pour ne prendre que la partie visible
-      const currentDate = date
+    if (reservation) {
+          console.log('Reservation cell:', reservation)
+      // const start = new Date(reservation.check_in_date)
+      const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
 
-      if (earliestStart < currentDate) earliestStart = currentDate
-      if (latestEnd > lastVisible) latestEnd = lastVisible
-
-      // Calculer le colspan unifié pour toute la période
-      const unifiedColspan = visibleDates.value.filter(
-        (d: any) => d >= currentDate && d <= latestEnd
+      const colspan = visibleDates.value.filter(
+        (d:any) => d >= date && d <= end && d <= lastVisible
       ).length
 
-      // Calculer la position précise de chaque réservation dans ce colspan
-      const reservationsWithPosition = overlappingReservations.map((reservation:any) => {
-        const start = new Date(reservation.check_in_date)
-        const end = new Date(reservation.check_out_date)
-        const is_check_in = reservation.check_in_date.startsWith(dStr)
-        const is_check_out = end.toISOString().split('T')[0] === dStr
+      const is_check_in = reservation.check_in_date.startsWith(dStr)
 
-        // Calculer la position relative dans le colspan unifié
-        const reservationStart = start < currentDate ? currentDate : start
-        const reservationEnd = end > latestEnd ? latestEnd : end
+      const reservationDates = visibleDates.value.filter(
+        (d:any) => d >= date && d <= end && d <= lastVisible
+      )
+      const lastVisibleDateOfReservation =
+        reservationDates.length > 0
+          ? reservationDates[reservationDates.length - 1]
+          : null
+      const checkOutDate = new Date(reservation.check_out_date)
 
-        // Pour les réservations multi-jours, calculer la position basée sur les jours ET les heures
-        let startPosition = 0
-        let width = 100
-
-        // Calculer d'abord la position basée sur les jours complets
-        const totalPeriodDays = Math.ceil((latestEnd.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000))
-        const reservationStartDays = Math.floor((reservationStart.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000))
-        const reservationDurationDays = Math.ceil((reservationEnd.getTime() - reservationStart.getTime()) / (24 * 60 * 60 * 1000))
-
-        if (totalPeriodDays > 0) {
-          startPosition = (reservationStartDays / totalPeriodDays) * 100
-          width = (reservationDurationDays / totalPeriodDays) * 100
-        }
-
-        // Ajustements fins basés sur les heures pour le premier et dernier jour
-        if (is_check_in || is_check_out) {
-          const timePosition = calculateTimeBasedPosition(reservation, currentDate, is_check_in, is_check_out)
-
-          // Si c'est le jour de check-in, ajuster le début
-          if (is_check_in && !is_check_out) {
-            // Pour le premier jour, commencer à l'heure de check-in
-            const dayWidth = width / reservationDurationDays
-            startPosition = startPosition + (timePosition.startPosition * dayWidth / 100)
-            width = width - (timePosition.startPosition * dayWidth / 100)
-          }
-          // Si c'est le jour de check-out, ajuster la fin
-          else if (is_check_out && !is_check_in) {
-            // Pour le dernier jour, finir à l'heure de check-out
-            const dayWidth = width / reservationDurationDays
-            width = width - ((100 - timePosition.width) * dayWidth / 100)
-          }
-          // Si c'est le même jour (check-in et check-out)
-          else if (is_check_in && is_check_out) {
-            startPosition = timePosition.startPosition
-            width = timePosition.width
-          }
-        }
-
-        return {
-          ...reservation,
-          startPosition: Math.max(0, Math.min(100, startPosition)),
-          width: Math.max(0, Math.min(100, width)),
-          is_check_in,
-          is_check_out
-        }
-      })
+      const is_check_out =
+        lastVisibleDateOfReservation &&
+        lastVisibleDateOfReservation.getFullYear() ===
+          checkOutDate.getFullYear() &&
+        lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() &&
+        lastVisibleDateOfReservation.getDate() === checkOutDate.getDate()
 
       cells.push({
-        type: "overlapping_reservations",
-        reservations: reservationsWithPosition,
-        colspan: unifiedColspan,
-        date: currentDate,
+        type: "reservation",
+        reservation,
+        middle: reservation.check_in_date.startsWith(dStr),
+        colspan,
+        is_check_in,
+        is_check_out,
+        date,
         key: i,
       })
-
-      i += unifiedColspan
+      i += colspan
     } else {
       // Pas de réservation ni de block → cellule libre
       cells.push({
@@ -892,53 +816,6 @@ function isWeekend(date: Date): boolean {
   return day === 0 || day === 6 // Sunday = 0, Saturday = 6
 }
 
-function calculateTimeBasedPosition(reservation: any, currentDate: Date, is_check_in: boolean, is_check_out: boolean) {
-  let startPosition = 0
-  let width = 100
-
-  // Fonction helper pour parser l'heure au format HH:MM
-  const parseTime = (timeStr: string) => {
-    const [hours, minutes] = timeStr.split(':').map(Number)
-    return hours + (minutes / 60) // Convertir en heures décimales
-  }
-
-  // Si c'est le jour de check-in et check-out (même jour)
-  if (is_check_in && is_check_out) {
-    const checkInHours = parseTime(reservation.check_in_time || '14:00')
-    let checkOutHours = parseTime(reservation.check_out_time || '11:00')
-
-    // Si check-out est avant check-in (probablement le lendemain), ajuster
-    if (checkOutHours <= checkInHours) {
-      checkOutHours += 24 // Ajouter 24h
-    }
-
-    // Limiter à la journée courante (24h max)
-    const effectiveCheckOut = Math.min(checkOutHours, 24)
-
-    startPosition = (checkInHours / 24) * 100
-    width = ((effectiveCheckOut - checkInHours) / 24) * 100
-  }
-  // Si c'est seulement le jour de check-in
-  else if (is_check_in) {
-    const checkInHours = parseTime(reservation.check_in_time || '14:00')
-
-    startPosition = (checkInHours / 24) * 100
-    width = ((24 - checkInHours) / 24) * 100 // Du check-in jusqu'à la fin de la journée
-  }
-  // Si c'est seulement le jour de check-out
-  else if (is_check_out) {
-    const checkOutHours = parseTime(reservation.check_out_time || '11:00')
-
-    startPosition = 0 // Commence au début de la journée
-    width = (checkOutHours / 24) * 100 // Jusqu'à l'heure de check-out
-  }
-
-  return {
-    startPosition: Math.max(0, Math.min(100, startPosition)),
-    width: Math.max(0, Math.min(100, width))
-  }
-}
-
 function getReservationStyle(cell: any) {
   const { is_check_in, is_check_out, colspan } = cell;
 
@@ -963,8 +840,12 @@ function getReservationStyle(cell: any) {
       width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
     }
   }
-
-  return { width, left };
+  if(cell.reservation && cell.reservation.reservation_status){
+  const  backgroundColor = getReservationColor(cell.reservation.reservation_status);
+  return { width, left,backgroundColor };
+  }else{
+    return { width, left };
+  }
 }
 const getReservationColor = statusColorStore.getReservationColor;
 
