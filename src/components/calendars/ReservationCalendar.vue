@@ -161,7 +161,7 @@
                             :class="[
                               'cursor-pointer absolute top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-white flex items-center gap-1',
                               getReservationColor(reservation.reservation_status),
-                            ]" 
+                            ]"
                             :style="{
                               left: reservation.startPosition + '%',
                               width: reservation.width + '%',
@@ -186,10 +186,13 @@
                         <!-- Réservation -->
                         <td v-else-if="cell.type === 'reservation'" :colspan="cell.colspan"
                           class="relative px-0 py-0 h-12 border border-gray-300">
-                          <div :class="[
-                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
-                            getReservationColor(cell.reservation.reservation_status),
-                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
+                          <div class="
+                            cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%]
+
+                          "  @click="showReservationModal(cell.reservation)" :style="{
+                                    ...getReservationStyle(cell),
+                                    backgroundColor: getReservationColor(cell.reservation.reservation_status)
+                                  }"
                             @mouseenter="showReservationTooltip(cell.reservation, $event)"
                             @mouseleave="hideReservationTooltip">
                             <span class="truncate flex items-center gap-1">
@@ -417,8 +420,10 @@ import BroomIcons from '@/icons/BookingStatus/BroomIcon.vue'
 import PetIcons from '@/icons/BookingStatus/petIcon.vue'
 import WorkOdersIcons from '@/icons/BookingStatus/WorkOdersIcon.vue'
 import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
+import { useStatusColor } from '@/composables/statusColorStore'
 
 const isLoading = ref(false);
+const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
   switch (type) {
     case 'Direct Booking': return BookIcon;
@@ -729,11 +734,11 @@ function getRoomRowCellsApi(group: any, room: any) {
       // Calculer la période totale couverte par toutes les réservations qui se chevauchent
       let earliestStart = new Date(Math.min(...overlappingReservations.map((r: any) => new Date(r.check_in_date).getTime())))
       let latestEnd = new Date(Math.max(...overlappingReservations.map((r: any) => new Date(r.check_out_date).getTime())))
-      
+
       // Ajuster pour ne prendre que la partie visible
       const currentDate = date
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-      
+
       if (earliestStart < currentDate) earliestStart = currentDate
       if (latestEnd > lastVisible) latestEnd = lastVisible
 
@@ -748,20 +753,20 @@ function getRoomRowCellsApi(group: any, room: any) {
         const end = new Date(reservation.check_out_date)
         const is_check_in = reservation.check_in_date.startsWith(dStr)
         const is_check_out = end.toISOString().split('T')[0] === dStr
-        
+
         // Calculer la position relative dans le colspan unifié
         const reservationStart = start < currentDate ? currentDate : start
         const reservationEnd = end > latestEnd ? latestEnd : end
-        
+
         // Pour les réservations multi-jours, calculer la position basée sur les jours ET les heures
         let startPosition = 0
         let width = 100
-        
+
         // Calculer d'abord la position basée sur les jours complets
         const totalPeriodDays = Math.ceil((latestEnd.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000))
         const reservationStartDays = Math.floor((reservationStart.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000))
         const reservationDurationDays = Math.ceil((reservationEnd.getTime() - reservationStart.getTime()) / (24 * 60 * 60 * 1000))
-        
+
         if (totalPeriodDays > 0) {
           startPosition = (reservationStartDays / totalPeriodDays) * 100
           width = (reservationDurationDays / totalPeriodDays) * 100
@@ -770,7 +775,7 @@ function getRoomRowCellsApi(group: any, room: any) {
         // Ajustements fins basés sur les heures pour le premier et dernier jour
         if (is_check_in || is_check_out) {
           const timePosition = calculateTimeBasedPosition(reservation, currentDate, is_check_in, is_check_out)
-          
+
           // Si c'est le jour de check-in, ajuster le début
           if (is_check_in && !is_check_out) {
             // Pour le premier jour, commencer à l'heure de check-in
@@ -790,7 +795,7 @@ function getRoomRowCellsApi(group: any, room: any) {
             width = timePosition.width
           }
         }
-        
+
         return {
           ...reservation,
           startPosition: Math.max(0, Math.min(100, startPosition)),
@@ -807,7 +812,7 @@ function getRoomRowCellsApi(group: any, room: any) {
         date: currentDate,
         key: i,
       })
-      
+
       i += unifiedColspan
     } else {
       // Pas de réservation ni de block → cellule libre
@@ -895,29 +900,29 @@ function calculateTimeBasedPosition(reservation: any, currentDate: Date, is_chec
   if (is_check_in && is_check_out) {
     const checkInHours = parseTime(reservation.check_in_time || '14:00')
     let checkOutHours = parseTime(reservation.check_out_time || '11:00')
-    
+
     // Si check-out est avant check-in (probablement le lendemain), ajuster
     if (checkOutHours <= checkInHours) {
       checkOutHours += 24 // Ajouter 24h
     }
-    
+
     // Limiter à la journée courante (24h max)
     const effectiveCheckOut = Math.min(checkOutHours, 24)
-    
+
     startPosition = (checkInHours / 24) * 100
     width = ((effectiveCheckOut - checkInHours) / 24) * 100
   }
   // Si c'est seulement le jour de check-in
   else if (is_check_in) {
     const checkInHours = parseTime(reservation.check_in_time || '14:00')
-    
+
     startPosition = (checkInHours / 24) * 100
     width = ((24 - checkInHours) / 24) * 100 // Du check-in jusqu'à la fin de la journée
   }
   // Si c'est seulement le jour de check-out
   else if (is_check_out) {
     const checkOutHours = parseTime(reservation.check_out_time || '11:00')
-    
+
     startPosition = 0 // Commence au début de la journée
     width = (checkOutHours / 24) * 100 // Jusqu'à l'heure de check-out
   }
@@ -955,19 +960,25 @@ function getReservationStyle(cell: any) {
 
   return { width, left };
 }
-function getReservationColor(type: string) {
-  switch (type) {
-    case 'confirmed': return 'bg-green-500'
-    case 'request': return 'bg-orange-500'
-    case 'complimentary': return 'bg-blue-500'
-    case 'blocked': return 'bg-purple-500'
-    case 'checkout': return 'bg-gray-700'
-    case 'departure': return 'bg-red-500'
-    case 'inhouse': return 'bg-teal-500'
-    case 'checked_in': return 'bg-green-700'
-    case 'occupied': return 'bg-green-700'
-    default: return 'bg-gray-400'
-  }
+// function getReservationColor(type: string) {
+//   switch (type) {
+//     case 'confirmed': return 'bg-green-500'
+//     case 'request': return 'bg-orange-500'
+//     case 'complimentary': return 'bg-blue-500'
+//     case 'blocked': return 'bg-purple-500'
+//     case 'checkout': return 'bg-gray-700'
+//     case 'departure': return 'bg-red-500'
+//     case 'inhouse': return 'bg-teal-500'
+//     case 'checked_in': return 'bg-green-700'
+//     case 'occupied': return 'bg-green-700'
+//     default: return 'bg-gray-400'
+//   }
+// }
+function getReservationColor(status: string): { backgroundColor: string } {
+  const color = statusColorStore.getReservationColor(status);
+  return {
+    backgroundColor: color
+  };
 }
 
 function getRoomBlockColor(status: string) {
