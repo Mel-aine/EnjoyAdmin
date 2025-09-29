@@ -158,12 +158,9 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import RightSideModal from '../modal/RightSideModal.vue'
 import BasicButton from '../buttons/BasicButton.vue'
-import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
-import InputCurrency from '../forms/FormElements/InputCurrency.vue'
 import { useReservation, type CheckOutReservationPayload } from '../../composables/useReservation'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
-import { formatCurrency } from '../utilities/UtilitiesFunction'
 import { getReservationDetailsById } from '../../services/reservation'
 
 interface ReservationRoom {
@@ -326,9 +323,6 @@ const getBookingDetailsById = async () => {
 
     // Calculate initial bill for available rooms
     calculateFinalBill()
-
-    console.log('Reservation rooms loaded:', reservationRooms.value)
-    console.log('Available rooms:', availableRoomsList)
   } catch (error) {
     console.error('Error fetching reservation details:', error)
     toast.error(t('Failed to load reservation details'))
@@ -353,11 +347,6 @@ const calculateFinalBill = async () => {
 
     formData.finalBillAmount = totalBalance
     formData.outstandingBalance = Math.max(0, totalBalance) // Only positive balances are outstanding
-
-    console.log('Calculated final bill:', {
-      finalBillAmount: formData.finalBillAmount,
-      outstandingBalance: formData.outstandingBalance
-    })
 
   } catch (error) {
     console.error('Error calculating final bill:', error)
