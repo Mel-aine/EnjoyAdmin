@@ -420,6 +420,7 @@ import AssignRoomReservation from './AssignRoomReservation.vue'
 import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
+import { useServiceStore } from '../../composables/serviceStore'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -467,7 +468,7 @@ const pdfUrl = ref<any>(null);
 const documentTitle = ref<string>('')
 const showPdfExporter = ref(false);
 const reservationId = ref(props.reservationData?.reservation_id || 0)
-
+console.log('current service', JSON.parse(useServiceStore().currentService))
 
 const closeModal = () => {
     emit('close')

@@ -44,7 +44,7 @@
           </BasicButton>
           <BasicButton 
              @click="saveStatusColors" 
-             :disabled="!hasChanges || isLoading"
+             :disabled=" isLoading"
              :label="isLoading ? t('saving') : t('saveChanges')" 
              :icon="Save"
              class="disabled:bg-gray-400 disabled:cursor-not-allowed"
@@ -225,7 +225,6 @@ const applyColor = () => {
 }
 
 const resetToDefaults = () => {
-  if (confirm('Are you sure you want to reset all colors to their default values?')) {
     roomStatuses.value = [
       {
         key: 'confirmed_reservation',
@@ -270,7 +269,6 @@ const resetToDefaults = () => {
         color: '#DC2626'
       }
     ]
-  }
 }
 
 const saveStatusColors = async () => {
