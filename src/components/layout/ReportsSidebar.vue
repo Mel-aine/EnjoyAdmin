@@ -179,7 +179,7 @@
                     </router-link>
                   </div>
                 </transition>
-              </div>
+            </div>
 
               <!-- Audit Report -->
               <div v-if="filteredAuditReports.length > 0">
