@@ -754,7 +754,7 @@ function getRoomRowCellsApi(group: any, room: any) {
       ).length
 
       // Calculer la position précise de chaque réservation dans ce colspan
-      const reservationsWithPosition = overlappingReservations.map(reservation => {
+      const reservationsWithPosition = overlappingReservations.map((reservation:any) => {
         const start = new Date(reservation.check_in_date)
         const end = new Date(reservation.check_out_date)
         const is_check_in = reservation.check_in_date.startsWith(dStr)
@@ -1115,6 +1115,7 @@ const roomRateForDate = computed(() => {
 
 const legendSections = computed(() => {
   const colorGetter = statusColorStore.getReservationColor;
+
   return [
   {
     title: 'Booking Status',
@@ -1125,8 +1126,8 @@ const legendSections = computed(() => {
       { label: 'Confirmed Reservation', color: colorGetter('confirmed') },
       { label: 'Maintenance Block', color: colorGetter('blocked') },
       { label: 'Stayover', color: colorGetter('inhouse') },
-      { label: 'Dayuse Reservation', color: colorGetter('dayuse_reservation') },
-      { label: 'Dayuse', color: colorGetter('dayuse') }
+      { label: 'Dayuse Reservation', color: colorGetter('dayuse') },
+      // { label: 'Dayuse', color: colorGetter('dayuse') }
     ]
   },
   {

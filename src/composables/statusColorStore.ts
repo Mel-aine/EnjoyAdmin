@@ -41,6 +41,7 @@ export const useStatusColor = defineStore('statusColor', {
           'inhouse': 'arrival_stay_over',
           'checked_in': 'arrival_stay_over',
           'occupied': 'arrival_stay_over',
+          'dayuse': 'day_use',
         };
 
         const colorKey = keyMap[status] || status;
@@ -53,6 +54,9 @@ export const useStatusColor = defineStore('statusColor', {
     setStatusColors(statusColors: StatusColor[]) {
       this.statusColors = statusColors;
     },
+    clearStatusColors() {
+      this.statusColors = [];
+    }
   },
    persist:true,
 });

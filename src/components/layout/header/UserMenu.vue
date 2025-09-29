@@ -10,7 +10,7 @@
       <div class="relative flex-shrink-0">
        <!-- <img v-if="picture" :src="picture" alt="Photo utilisateur"
           class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg" />-->
-        <div 
+        <div
           class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-lg sm:text-xl font-bold border-2 border-gray-500">
           {{ userInitials }}
         </div>
@@ -61,12 +61,14 @@ import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useStatusColor } from '@/composables/statusColorStore';
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 const { t } = useI18n();
 const authStore = useAuthStore()
+const statusColor = useStatusColor()
 
 const menuItems = computed(() => {
   let menus = [
@@ -108,6 +110,7 @@ const signOut = async () => {
     serviceStore.clearServiceCategory();
     serviceStore.clearPermissions();
     serviceStore.clearUserService();
+    statusColor.clearStatusColors();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('roleId');
