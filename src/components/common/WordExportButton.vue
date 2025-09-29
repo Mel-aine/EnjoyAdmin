@@ -43,35 +43,20 @@
     <div class="mt-6 p-4 bg-gray-50 rounded-lg">
       <h3 class="text-lg font-bold mb-3">Légende</h3>
       
-      <!-- Légende des types de chambres -->
-      <div class="mb-4">
-        <h4 class="font-semibold mb-2">Types de chambres:</h4>
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div v-for="(legend, index) in legendData" :key="index">
-            <span class="font-semibold">{{ legend.label }}:</span>
-            <span class="ml-2">{{ legend.value }}</span>
-          </div>
-        </div>
-      </div>
-      
       <!-- Légende des statuts (basée sur l'API) -->
-      <div class="mt-4 pt-4 border-t border-gray-300">
-        <h4 class="font-semibold mb-2">Légende des statuts:</h4>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-          <div v-for="(description, code) in statusLegend" :key="code">
-            <span class="font-medium">{{ code }}:</span>
-            <span class="ml-2">{{ description }}</span>
+      <div class="mt-4">
+        <div class="grid grid-cols-1 gap-2 text-sm font-mono">
+          <div v-for="(legendPair, index) in formattedLegend" :key="index" class="flex justify-between">
+            <span class="font-semibold whitespace-nowrap">{{ legendPair }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Légende des états de propreté -->
+      <!-- Note RAS -->
       <div class="mt-4 pt-4 border-t border-gray-300">
-        <h4 class="font-semibold mb-2">Légende des états de propreté:</h4>
-        <div class="flex flex-wrap gap-4 text-sm">
-          <div><span class="font-medium">clean:</span> Chambre nettoyée</div>
-          <div><span class="font-medium">dirty:</span> Chambre à nettoyer</div>
-          <div><span class="font-medium">RAS:</span> Rien à signaler</div>
+        <div class="text-sm">
+          <span class="font-medium">• RAS:</span>
+          <span class="ml-2">Rien à signaler</span>
         </div>
       </div>
     </div>
@@ -111,10 +96,75 @@ const emit = defineEmits(['export:start', 'export:success', 'export:error', 'exp
 // State
 const loading = ref(false);
 
-// Computed - Légende des statuts basée sur l'API - CORRECTION ICI
+// Computed - Légende des statuts basée sur l'API
 const statusLegend = computed(() => {
-  return props.apiData.statistics?.legend || {};
+  return props.apiData.statistics?.legend || [];
 });
+
+// Computed - Légende formatée avec pointillés étendus pour format A4
+const formattedLegend = computed(() => {
+  const legend = statusLegend.value;
+  
+  // Extraire les totaux des légendes existantes
+  const totals = extractTotalsFromLegend(legend);
+  
+  // Format A4 - pointillés étendus pour occuper toute la largeur
+  const formatted = [
+    formatLegendLineA4('OP : OCCUPE PROPRE', totals.left[0] || '00', 'OS : OCCUPER SALE', totals.right[0] || '00'),
+    formatLegendLineA4('LP : LIBRE PROPRE', totals.left[1] || '00', 'LS : LIBRE SALE', totals.right[1] || '00'),
+    formatLegendLineA4('AR : Arrivée', totals.left[2] || '00', 'DP : Départ', totals.right[2] || '00'),
+    formatLegendLineA4('DT : Départ tardif', totals.left[3] || '00', 'DL : Délogement', totals.right[3] || '00'),
+    formatLegendLineA4('RS : Réservation', totals.left[4] || '00', 'HS : HORS SERVICE', totals.right[4] || '00'),
+    formatLegendLineA4('CN : CUMULE Nuitée', totals.left[5] || '00', 'RM : Refus ménage', totals.right[5] || '00')
+  ];
+  
+  return formatted;
+});
+
+// Fonction pour formater une ligne de légende avec pointillés étendus pour A4
+const formatLegendLineA4 = (leftText, leftTotal, rightText, rightTotal) => {
+  // Largeur cible pour format A4 (environ 80-90 caractères par ligne)
+  const totalLineLength = 85;
+  const partLength = 40; // Chaque partie occupe environ 40 caractères
+  
+  // Formater la partie gauche avec pointillés étendus
+  const leftBase = leftText;
+  const leftDotsNeeded = Math.max(10, partLength - leftBase.length - leftTotal.length);
+  const leftDots = '.'.repeat(leftDotsNeeded);
+  const leftFormatted = `${leftBase}${leftDots}${leftTotal.padStart(2, '0')}`;
+  
+  // Formater la partie droite avec pointillés étendus
+  const rightBase = rightText;
+  const rightDotsNeeded = Math.max(10, partLength - rightBase.length - rightTotal.length);
+  const rightDots = '.'.repeat(rightDotsNeeded);
+  const rightFormatted = `${rightBase}${rightDots}${rightTotal.padStart(2, '0')}`;
+  
+  return `${leftFormatted}      ${rightFormatted}`;
+};
+
+// Fonction pour extraire les totaux des légendes existantes
+const extractTotalsFromLegend = (legend) => {
+  const totals = { left: [], right: [] };
+  
+  legend.forEach((line, index) => {
+    // Extraire les nombres à la fin de chaque partie
+    const parts = line.split(/\s{2,}/);
+    
+    if (parts.length >= 2) {
+      // Extraire le dernier nombre de chaque partie
+      const leftMatch = parts[0].match(/(\d+)\s*$/);
+      const rightMatch = parts[1].match(/(\d+)\s*$/);
+      
+      totals.left[index] = leftMatch ? leftMatch[1] : '00';
+      totals.right[index] = rightMatch ? rightMatch[1] : '00';
+    } else {
+      totals.left[index] = '00';
+      totals.right[index] = '00';
+    }
+  });
+  
+  return totals;
+};
 
 // Computed - Types de chambres disponibles
 const roomTypes = computed(() => {
@@ -153,9 +203,11 @@ const hasSubHeaders = computed(() => {
 
 // Computed - Données du tableau formatées dynamiquement
 const tableData = computed(() => {
-  if (roomTypes.value.length === 0) return [];
+  if (roomTypes.value.length === 0) {
+    console.log('Aucun type de chambre trouvé');
+    return [];
+  }
 
-  // Trouver le nombre maximum de chambres parmi tous les types
   const maxRooms = Math.max(...roomTypes.value.map(type => type.rooms.length));
   const formattedData = [];
 
@@ -167,8 +219,8 @@ const tableData = computed(() => {
       
       row.push(
         room.roomNumber || '',
-        room.etatMatin || '', // Conserve l'état original en anglais
-        room.etatSoir || '',  // Conserve l'état original en anglais
+        room.etatMatin || '',
+        room.etatSoir || '',
         formatObservations(room.observations)
       );
     });
@@ -177,14 +229,6 @@ const tableData = computed(() => {
   }
 
   return formattedData;
-});
-
-// Computed - Légende basée sur les types de chambres
-const legendData = computed(() => {
-  return roomTypes.value.map(type => ({
-    label: type.shortCode,
-    value: type.roomTypeName
-  }));
 });
 
 // Méthodes utilitaires
@@ -234,8 +278,8 @@ const getAlignment = (align) => {
 
 // Calcul dynamique des largeurs de colonnes
 const calculateColumnWidths = () => {
-  const baseWidth = 1200; // Largeur de base pour chaque colonne
-  const observationWidth = 2500; // Largeur pour les observations
+  const baseWidth = 1200;
+  const observationWidth = 2500;
   
   const widths = [];
   roomTypes.value.forEach(() => {
@@ -256,7 +300,7 @@ const createStatusTable = () => {
         true, 
         'center', 
         'D3D3D3',
-        4 // Fusion sur 4 colonnes
+        4
       )
     )
   });
@@ -277,7 +321,7 @@ const createStatusTable = () => {
   const dataRows = tableData.value.map(row => {
     const cells = [];
     row.forEach((cell, index) => {
-      const isObservation = (index % 4 === 3); // Toutes les 4ème colonnes sont des observations
+      const isObservation = (index % 4 === 3);
       cells.push(
         createCell(
           cell, 
@@ -304,56 +348,28 @@ const createStatusTable = () => {
       insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '000000' }
     },
     rows: [
-      // En-tête principal (fusionné)
       mainHeaderRow,
-      // Sous-en-têtes
       subHeaderRow,
-      // Données des chambres
       ...dataRows
     ]
   });
 };
 
 const generateDocument = () => {
-  const legendParagraphs = [];
-  
-  legendData.value.forEach((legend, index) => {
-    legendParagraphs.push(
-      new Paragraph({
-        spacing: { before: index === 0 ? 800 : 200, after: 200 },
-        children: [
-          new TextRun({
-            text: `${legend.label}: ${legend.value}`,
-            bold: true,
-            size: 18,
-            font: 'Arial',
-            break: index > 0 ? 1 : 0
-          })
-        ]
-      })
-    );
+  const statusLegendParagraphs = formattedLegend.value.map((legendLine, index) => {
+    return new Paragraph({
+      alignment: AlignmentType.LEFT,
+      spacing: { before: index === 0 ? 600 : 100, after: 100 },
+      children: [
+        new TextRun({
+          text: legendLine,
+          bold: true,
+          size: 16,
+          font: 'Arial'
+        })
+      ]
+    });
   });
-
-  // Paragraphes pour la légende des statuts - CORRECTION ICI AUSSI
-  const statusLegendParagraphs = [];
-  Object.entries(statusLegend.value).forEach(([code, description], index) => {
-    statusLegendParagraphs.push(
-      new Paragraph({
-        spacing: { before: index === 0 ? 400 : 100, after: 100 },
-        children: [
-          new TextRun({
-            text: `${code}: ${description}`,
-            size: 16,
-            font: 'Arial',
-            break: index > 0 ? 1 : 0
-          })
-        ]
-      })
-    );
-  });
-
-  // Ajout d'un log pour déboguer
-  console.log('Légende des statuts pour Word:', statusLegend.value);
 
   return new Document({
     sections: [{
@@ -400,85 +416,14 @@ const generateDocument = () => {
         // Tableau principal (dynamique)
         createStatusTable(),
 
-        // Légende des types de chambres
-/*         new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: { before: 800, after: 400 },
-          children: [
-            new TextRun({
-              text: 'LÉGENDE DES TYPES DE CHAMBRES:',
-              bold: true,
-              size: 20,
-              font: 'Arial',
-              underline: true
-            })
-          ]
-        }),
-        ...legendParagraphs, */
-
-        // Légende des statuts (basée sur l'API)
+        // Saut de ligne avant les légendes
         new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: { before: 600, after: 400 },
-          children: [
-            new TextRun({
-              //text: 'LÉGENDE DES STATUTS:',
-              bold: true,
-              size: 20,
-              font: 'Arial',
-              underline: true
-            })
-          ]
-        }),
-        ...statusLegendParagraphs,
-
-        // Légende des états de propreté
-/*         new Paragraph({
-          alignment: AlignmentType.LEFT,
           spacing: { before: 600, after: 200 },
-          children: [
-            new TextRun({
-              text: 'LÉGENDE DES ÉTATS DE PROPRETÉ:',
-              bold: true,
-              size: 20,
-              font: 'Arial',
-              underline: true
-            })
-          ]
-        }), */
- /*        new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: { before: 200, after: 200 },
-          children: [
-            new TextRun({
-              text: '• clean: Chambre nettoyée et prête',
-              size: 18,
-              font: 'Arial'
-            })
-          ]
+          children: [new TextRun({ text: '', size: 16 })]
         }),
-        new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: { before: 200, after: 200 },
-          children: [
-            new TextRun({
-              text: '• dirty: Chambre à nettoyer',
-              size: 18,
-              font: 'Arial'
-            })
-          ]
-        }), */
-        new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: { before: 200, after: 200 },
-          children: [
-            new TextRun({
-              text: '• RAS: Rien à signaler',
-              size: 18,
-              font: 'Arial'
-            })
-          ]
-        })
+
+        // Légende des statuts (format A4 avec pointillés étendus)
+        ...statusLegendParagraphs,
       ]
     }]
   });
@@ -516,9 +461,6 @@ onMounted(() => {
   if (props.autoExport && tableData.value.length > 0) {
     handleExport();
   }
-  console.log('WordExportButton monté avec succès');
-  console.log('Données API reçues:', props.apiData);
-  console.log('Légende des statuts disponible:', props.apiData.statistics?.legend);
 });
 
 // Exposer la méthode pour un appel manuel
@@ -544,5 +486,14 @@ th, td {
 th {
   background-color: #f9fafb;
   font-weight: 600;
+}
+
+/* Style pour la légende en police monospace */
+.font-mono {
+  font-family: 'Courier New', monospace;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
 }
 </style>
