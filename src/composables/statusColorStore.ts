@@ -54,4 +54,5 @@ export const useStatusColor = defineStore('statusColor', {
       this.statusColors = statusColors;
     },
   },
+   persist:true,
 });
