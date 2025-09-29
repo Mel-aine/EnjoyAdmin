@@ -1,4 +1,3 @@
-
 <template>
   <ReportsLayout>
     <div class="p-6">
@@ -31,7 +30,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+        <div class="flex flex-col sm:flex-row gap-2 justify-end mt-5 pt-5 border-t border-gray-200">
           <!-- Bouton d'export avec menu déroulant -->
           <div class="relative">
             <button
@@ -43,7 +42,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">{{ $t('common.export') }}</span>
+              <span v-if="!exportLoading">Export</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -72,14 +71,14 @@
                 PDF
               </button>
               <button 
-                @click="exportExcel" 
+                @click="generateReport"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                :disabled="exportLoading"
-              >
-                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                :disabled="isLoading"              
+                >
+                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-2"></path>
                 </svg>
-                Excel
+                Word
               </button>
             </div>
           </div>
@@ -90,80 +89,117 @@
       <div v-if="errorMessage" class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
         {{ errorMessage }}
       </div>
+
+      <!-- Success Message -->
+      <div v-if="successMessage" class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        {{ successMessage }}
+      </div>
+
+      <!-- Report Status (hidden from UI but data available for export) -->
+      <div v-if="reportData" class="hidden">
+        <!-- Composant d'export Word avec les données transformées -->
+        <WordExportButton 
+          ref="wordExportRef"
+          :api-data="reportData.data"
+          :title="`STATUT DES CHAMBRES - ${reportData.data.hotelDetails.hotelName}`"
+          :filename="`etat-chambres-${selectedDate}`"
+          :auto-export="true"
+        />
+      </div>
+
     </div>
   </ReportsLayout>
 </template>
 
 <script setup lang="ts">
-
-import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted} from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
-// Using inline spinner instead of external component
-import {
-  getMonthlyOccupancyPDFUrl,
-  downloadMonthlyOccupancyPDF,
-  validateMonthlyOccupancyParams,
-  getAvailableMonths,
-  getAvailableYears,
-  type MonthlyOccupancyParams,
-  getRoomStatusPdfUrl
-} from '@/services/occupancyReportsApi'
+import WordExportButton from '@/components/common/WordExportButton.vue'
+import { 
+  fetchRoomStatusReport,
+  type RoomStatusReportResponse,
+  type RoomStatusWordExportParams 
+} from '@/services/roomstatusApi'
+import { getRoomStatusPdfUrl } from '@/services/occupancyReportsApi'
 
 // Reactive data
 const isLoading = ref(false)
 const exportLoading = ref(false)
 const exportMenuOpen = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
+const reportData = ref<RoomStatusReportResponse | null>(null)
 const pdfUrl = ref('')
+const wordExportRef = ref<InstanceType<typeof WordExportButton> | null>(null)
 
-// Filter selections
-const selectedDate = ref( new Date().toISOString().split('T')[0])
-// Computed properties
+// Filtres
+const selectedDate = ref(new Date().toISOString().split('T')[0])
 const currentParams = computed((): any => ({
   asOnDate: selectedDate.value,
   hotelId: useServiceStore().serviceId!
 }))
 
+
 const reportTitle = computed(() => {
   return `Room_Status_Report_${selectedDate.value}`
 })
-
-// Methods
-const generateReport = async () => {
-  try {
-    isLoading.value = true
-    errorMessage.value = ''
-
-    // Clear previous PDF URL
-    if (pdfUrl.value) {
-      URL.revokeObjectURL(pdfUrl.value)
-      pdfUrl.value = ''
-    }
-
-    // Generate new PDF URL
-    const newPdfUrl = await getRoomStatusPdfUrl(currentParams.value)
-    pdfUrl.value = newPdfUrl
-    openPDFInNewPage()
-
-    console.log('📊 Occupancy report generated successfully:', reportTitle.value)
-  } catch (error) {
-    console.error('❌ Error generating occupancy report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
-  } finally {
-    isLoading.value = false
-  }
-}
-
 // Dependencies
 const { t } = useI18n()
 const router = useRouter()
 const serviceStore = useServiceStore()
 
-// Methods for PDF actions
+// Computed properties
+/* const currentFilters = computed(() => ({
+  date: selectedDate.value,
+  hotelId: serviceStore.serviceId || 0
+})) */
+
+// Données transformées pour l'export
+/* const transformedTableData = computed(() => {
+  if (!reportData.value) return []
+  const transformed = transformReportDataForTable(reportData.value.data)
+  return transformed.tableData
+})
+
+const transformedLegendData = computed(() => {
+  if (!reportData.value) return []
+  const transformed = transformReportDataForTable(reportData.value.data)
+  return transformed.legendData
+}) */
+
+// Génération du rapport
+const generateReport = async () => {
+  try {
+    isLoading.value = true
+    exportLoading.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+    reportData.value = null
+
+    const params: RoomStatusWordExportParams = {
+      date: selectedDate.value,
+      hotelId: serviceStore.serviceId!
+    }
+
+    const response = await fetchRoomStatusReport(params)
+    reportData.value = response
+    successMessage.value = 'Rapport généré avec succès. Vous pouvez maintenant l\'exporter.'
+
+    console.log('✅ Rapport généré avec succès:', response)
+  } catch (error) {
+    console.error('❌ Erreur lors de la génération du rapport:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+  } finally {
+    isLoading.value = false
+    exportLoading.value = false
+  }
+}
+
+
 const openPDFInNewPage = () => {
   if (pdfUrl.value) {
     const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
@@ -177,20 +213,19 @@ const openPDFInNewPage = () => {
     window.open(routeData.href, '_blank')
   }
 }
-
-// Reset form
-const resetForm = () => {
-  selectedDate.value = new Date().toISOString().split('T')[0]
-  errorMessage.value = ''
-}
-
 // Export methods
 const exportCSV = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    console.log('Export CSV avec date:', selectedDate.value)
-    // Implémentez ici la logique d'export CSV
+    console.log('Export CSV avec les données:', reportData.value)
+    // Implémentez ici la logique d'export CSV avec reportData.value
+    successMessage.value = 'Export CSV en cours...'
+    
+    // Simuler un délai d'export
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    successMessage.value = 'Export CSV terminé avec succès'
   } catch (error) {
     console.error('Erreur lors de l\'export CSV:', error)
     errorMessage.value = error instanceof Error ? error.message : 'Failed to export CSV'
@@ -223,30 +258,49 @@ const exportPDF = async (): Promise<void> => {
   }
 }
 
-const exportExcel = async (): Promise<void> => {
+/* const exportWord = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    console.log('Export Excel avec date:', selectedDate.value)
-    // Implémentez ici la logique d'export Excel
+    
+    if (!reportData.value) {
+      throw new Error('Aucune donnée de rapport disponible')
+    }
+
+    // Attendre que le composant soit rendu
+    await nextTick()
+    
+    if (wordExportRef.value) {
+      successMessage.value = 'Export Word en cours...'
+      // Déclencher l'export via le composant WordExportButton
+      await wordExportRef.value.exportToWord()
+      successMessage.value = 'Export Word terminé avec succès'
+    } else {
+      throw new Error('Composant d\'export Word non disponible')
+    }
   } catch (error) {
-    console.error('Erreur lors de l\'export Excel:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to export Excel'
+    console.error('Erreur lors de l\'export Word:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to export Word'
   } finally {
     exportLoading.value = false
   }
-}
+} */
 
 const toggleExportMenu = () => {
   exportMenuOpen.value = !exportMenuOpen.value
 }
 
-// Gestion du clic en dehors du menu
-document.addEventListener('click', (event) => {
+// Fermer le menu d'export en cliquant à l'extérieur
+const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as HTMLElement
   if (!target.closest('.relative')) {
     exportMenuOpen.value = false
   }
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
 })
 
 // Cleanup
@@ -254,55 +308,34 @@ const cleanup = () => {
   if (pdfUrl.value) {
     URL.revokeObjectURL(pdfUrl.value)
   }
-  document.removeEventListener('click', (event) => {
-    const target = event.target as HTMLElement
-    if (!target.closest('.relative')) {
-      exportMenuOpen.value = false
-    }
-  })
+  document.removeEventListener('click', handleClickOutside)
 }
+
 onUnmounted(cleanup)
 </script>
 
 <style scoped>
-.occupancy-rate-report {
-  display: flex;
-  flex-direction: column;
-  background-color: #f9fafb;
+/* Styles pour les boutons d'export */
+.export-button {
+  transition: all 0.2s ease-in-out;
 }
 
-/* Custom scrollbar for better UX */
-.occupancy-rate-report :deep(.pdf-viewer-container) {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+.export-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar) {
-  width: 8px;
+.export-button:active {
+  transform: translateY(0);
 }
 
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-track) {
-  background: #f1f5f9;
+/* Animation pour le menu déroulant */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
 }
 
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-thumb) {
-  background-color: #cbd5e1;
-  border-radius: 4px;
-}
-
-.occupancy-rate-report :deep(.pdf-viewer-container::-webkit-scrollbar-thumb:hover) {
-  background-color: #94a3b8;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .occupancy-rate-report {
-    height: 100vh;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

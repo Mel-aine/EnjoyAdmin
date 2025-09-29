@@ -43,9 +43,17 @@ export interface PickupDropoffFilters {
 }
 export interface DailyRevenueParams {
   hotelId: number | string;
-  asOnDate: string; // Format: YYYY-MM-DD
+  date?: string; // Format: YYYY-MM-DD
   revenueBy?: string; // Types de revenus séparés par virgules
+  asOnDate?: string; // Format: YYYY-MM-DD
 }
+
+// Interface pour les paramètres d'export Word du rapport d'état des chambres
+export interface RoomStatusWordExportParams {
+  date: string  // Format: YYYY-MM-DD
+  hotelId: number 
+}
+
 
 export interface ReportFilters {
   hotelId?: number
@@ -853,7 +861,7 @@ export const downloadDailyRevenuePDF = async (params: DailyRevenueParams, filena
     // Créer un élément de téléchargement temporaire
     const link = document.createElement('a')
     link.href = url
-    link.download = filename || `daily-revenue-${params.asOnDate}.pdf`
+    link.download = filename || `daily-revenue-${params.date}.pdf`
     
     // Déclencher le téléchargement
     document.body.appendChild(link)
@@ -874,19 +882,132 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
     throw new Error('Hotel ID is required')
   }
   
-  if (!params.asOnDate) {
+  if (!params.date) {
     throw new Error('As On Date is required')
   }
   
   // Valider le format de la date (YYYY-MM-DD)
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!dateRegex.test(params.asOnDate)) {
+  if (!dateRegex.test(params.date)) {
     throw new Error('Date must be in YYYY-MM-DD format')
   }
   
   // Valider que la date est valide
-  const date = new Date(params.asOnDate)
+  const date = new Date(params.date)
   if (isNaN(date.getTime())) {
     throw new Error('Invalid date provided')
   }
 }
+
+/**
+ * Exporte le rapport d'état des chambres au format Word
+ * @param params - Paramètres du rapport (date et ID de l'hôtel)
+ * @returns Promise avec le Blob du document Word
+ */
+  export const exportRoomStatusToWord = async (params: RoomStatusWordExportParams): Promise<Blob> => {
+    const { date, hotelId } = params;
+    
+    // Validation des paramètres
+    if (!date) {
+      throw new Error('La date est requise pour l\'export du rapport');
+    }
+    
+    if (!hotelId) {
+      throw new Error('L\'ID de l\'hôtel est requis pour l\'export du rapport');
+    }
+
+    try {
+      const response = await axios.post<Blob>(
+        `${API_URL}/front-office/rooms-status`,
+        { date, hotelId },
+        {
+          ...getHeaders(),
+          responseType: 'blob',
+        }
+      );
+
+      if (!response.data) {
+        throw new Error('Aucune donnée reçue du serveur');
+      }
+
+      // Vérification du type de contenu
+      const contentType = response.headers['content-type'] || '';
+      const isWordDocument = contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      
+      if (!isWordDocument) {
+        // Tentative de lecture du message d'erreur
+        const errorText = await new Response(response.data).text();
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.message || 'Réponse inattendue du serveur');
+        } catch {
+          throw new Error('Le serveur a renvoyé une réponse inattendue');
+        }
+      }
+      console.log('✅ Export Word du rapport d\'état des chambres réussi', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'export Word du rapport d\'état des chambres:', error);
+      
+      // Gestion des erreurs Axios
+      if (axios.isAxiosError(error)) {
+        // Erreur 404
+        if (error.response?.status === 404) {
+          throw new Error('Le rapport demandé n\'a pas été trouvé');
+        }
+        
+        // Extraction du message d'erreur de la réponse
+        if (error.response?.data) {
+          try {
+            const errorData = typeof error.response.data === 'string' 
+              ? JSON.parse(error.response.data) 
+              : error.response.data;
+            
+            throw new Error(errorData.message || 'Échec de l\'export du rapport');
+          } catch {
+            throw new Error('Échec de l\'export du rapport');
+          }
+        }
+        
+        throw new Error(error.message || 'Échec de l\'export du rapport');
+      }
+      
+      // Propagation des erreurs existantes
+      if (error instanceof Error) {
+        throw error;
+      }
+      
+      throw new Error('Une erreur inattendue est survenue lors de l\'export du rapport');
+    }
+};
+
+/**
+ * Télécharge le rapport d'état des chambres au format Word
+ * @param params - Paramètres du rapport
+ * @param filename - Nom du fichier (optionnel, par défaut: 'etat-chambres-{date}.docx')
+ */
+  export const downloadRoomStatusWordDocument = async (
+    params: RoomStatusWordExportParams, 
+    filename?: string
+  ): Promise<void> => {
+    try {
+      const blob = await exportRoomStatusToWord(params);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.href = url;
+      link.download = filename || `etat-chambres-${params.date}.docx`;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Libération de la mémoire
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('❌ Erreur lors du téléchargement du document Word:', error);
+      throw error;
+    }
+};
