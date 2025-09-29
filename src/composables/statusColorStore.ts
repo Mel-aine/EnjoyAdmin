@@ -33,7 +33,7 @@ export const useStatusColor = defineStore('statusColor', {
 
         const keyMap: Record<string, string> = {
           'confirmed': 'confirmed_reservation',
-          'request': 'confirmed_reservation', // or create a separate key
+          'request': 'confirmed_reservation',
           'complimentary': 'confirmed_reservation',
           'blocked': 'maintenance_block',
           'checkout': 'checked_out',
