@@ -32,6 +32,19 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
+          <!-- Bouton d'export Word -->
+          <WordExportButton 
+            :filters="currentFilters"
+            :filename="'etat-chambres'"
+            :buttonText="'Exporter en Word'"
+            :showBadge="true"
+            :badgeText="'Nouveau'"
+            @export:start="handleExportStart"
+            @export:success="handleExportSuccess"
+            @export:error="handleExportError"
+            class="mr-2"
+          />
+          
           <!-- Bouton d'export avec menu déroulant -->
           <div class="relative">
             <button
@@ -67,19 +80,29 @@
                 :disabled="exportLoading"
               >
                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                 </svg>
                 PDF
               </button>
               <button 
-                @click="exportExcel" 
+                @click="exportExcel"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
-                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-2"></path>
                 </svg>
                 Excel
+              </button>
+              <button 
+                @click="exportWord"
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-2"></path>
+                </svg>
+                Word
               </button>
             </div>
           </div>
@@ -102,7 +125,9 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import WordExportButton from '@/components/common/WordExportButton.vue'
 // Using inline spinner instead of external component
+import { downloadRoomStatusWordDocument } from '@/services/reportsApi'
 import {
   getMonthlyOccupancyPDFUrl,
   downloadMonthlyOccupancyPDF,
@@ -119,6 +144,30 @@ const exportLoading = ref(false)
 const exportMenuOpen = ref(false)
 const errorMessage = ref('')
 const pdfUrl = ref('')
+
+// Filtres pour l'export Word
+const currentFilters = computed(() => ({
+  date: selectedDate.value,
+  hotelId: serviceStore.serviceId || 0
+}))
+
+// Gestion des événements d'export Word
+const handleExportStart = () => {
+  exportLoading.value = true
+}
+
+const handleExportSuccess = () => {
+  exportLoading.value = false
+  // Vous pouvez ajouter une notification de succès si nécessaire
+  // notification.success('Export Word réussi')
+}
+
+const handleExportError = (error: Error) => {
+  exportLoading.value = false
+  console.error('Erreur lors de l\'export Word:', error)
+  // Vous pouvez ajouter une notification d'erreur si nécessaire
+  // notification.error('Erreur lors de l\'export Word')
+}
 
 // Filter selections
 const selectedDate = ref( new Date().toISOString().split('T')[0])
@@ -232,6 +281,25 @@ const exportExcel = async (): Promise<void> => {
   } catch (error) {
     console.error('Erreur lors de l\'export Excel:', error)
     errorMessage.value = error instanceof Error ? error.message : 'Failed to export Excel'
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportWord = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    
+    await downloadRoomStatusWordDocument({
+      asOnDate: selectedDate.value,
+      hotelId: serviceStore.serviceId!,
+      reportType: 'room-status'
+    })
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'export Word:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to export Word'
   } finally {
     exportLoading.value = false
   }

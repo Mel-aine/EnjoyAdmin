@@ -888,3 +888,115 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
     throw new Error('Invalid date provided')
   }
 }
+
+// Interface pour les paramètres d'export Word du rapport d'état des chambres
+export interface RoomStatusWordExportParams {
+  asOnDate: string  // Format: YYYY-MM-DD
+  hotelId: number | string
+  reportType?: string
+}
+
+/**
+ * Exporte le rapport d'état des chambres au format Word
+ * @param params - Paramètres du rapport (date et ID de l'hôtel)
+ * @returns Promise avec le Blob du document Word
+ */
+export const exportRoomStatusToWord = async (params: RoomStatusWordExportParams): Promise<Blob> => {
+  try {
+    const { asOnDate, hotelId, reportType = 'room-status' } = params
+    
+    if (!asOnDate) {
+      throw new Error('La date est requise pour l\'export du rapport')
+    }
+    if (!hotelId) {
+      throw new Error('L\'ID de l\'hôtel est requis pour l\'export du rapport')
+    }
+
+    const response = await axios.get<Blob>(
+      `${API_URL}/front-office/rooms-status/export/word`,
+      {
+        params: {
+          asOnDate,
+          hotelId,
+          reportType
+        },
+        responseType: 'blob',
+        ...getHeaders()
+      }
+    )
+
+    if (!response.data) {
+      throw new Error('Aucune donnée reçue du serveur')
+    }
+
+    // Vérifier que c'est bien un document Word
+    const contentType = response.headers['content-type'] || ''
+    if (!contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+      // Si ce n'est pas un document Word, essayer de lire le message d'erreur
+      const errorText = await new Response(response.data).text()
+      try {
+        const errorData = JSON.parse(errorText)
+        throw new Error(errorData.message || 'Réponse inattendue du serveur')
+      } catch (e) {
+        throw new Error('Le serveur a renvoyé une réponse inattendue')
+      }
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'export Word du rapport d\'état des chambres:', error)
+    
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Error('Le rapport demandé n\'a pas été trouvé')
+      }
+      
+      // Essayer d'extraire le message d'erreur de la réponse
+      if (error.response?.data) {
+        try {
+          const errorData = typeof error.response.data === 'string' 
+            ? JSON.parse(error.response.data) 
+            : error.response.data
+          
+          throw new Error(errorData.message || 'Échec de l\'export du rapport')
+        } catch (e) {
+          // Si on ne peut pas parser la réponse, on utilise le message d'erreur par défaut
+          throw new Error('Échec de l\'export du rapport')
+        }
+      }
+      
+      throw new Error(error.message || 'Échec de l\'export du rapport')
+    }
+    
+    if (error instanceof Error) {
+      throw error
+    }
+    
+    throw new Error('Une erreur inattendue est survenue lors de l\'export du rapport')
+  }
+}
+
+/**
+ * Télécharge le rapport d'état des chambres au format Word
+ * @param params - Paramètres du rapport
+ * @param filename - Nom du fichier (optionnel, par défaut: 'etat-chambres-{date}.docx')
+ */
+export const downloadRoomStatusWordDocument = async (
+  params: RoomStatusWordExportParams, 
+  filename?: string
+): Promise<void> => {
+  try {
+    const blob = await exportRoomStatusToWord(params)
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename || `etat-chambres-${params.asOnDate}.docx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('❌ Erreur lors du téléchargement du document Word:', error)
+    throw error
+  }
+}
