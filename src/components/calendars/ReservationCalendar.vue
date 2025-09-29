@@ -160,9 +160,9 @@
                           <div v-for="(reservation, index) in cell.reservations" :key="reservation.id"
                             :class="[
                               'cursor-pointer absolute top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-xs text-white flex items-center gap-1',
-                              getReservationColor(reservation.reservation_status),
                             ]"
                             :style="{
+                              backgroundColor: getReservationColor(reservation.reservation_status),
                               left: reservation.startPosition + '%',
                               width: reservation.width + '%',
                               zIndex: 10 + index
@@ -186,15 +186,20 @@
                         <!-- Réservation -->
                         <td v-else-if="cell.type === 'reservation'" :colspan="cell.colspan"
                           class="relative px-0 py-0 h-12 border border-gray-300">
-                          <div class="
-                            cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%]
-
-                          "  @click="showReservationModal(cell.reservation)" :style="{
-                                    ...getReservationStyle(cell),
-                                    backgroundColor: getReservationColor(cell.reservation.reservation_status)
-                                  }"
+                          <!-- <div :class="[
+                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            getReservationColor(cell.reservation.reservation_status),
+                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
                             @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                            @mouseleave="hideReservationTooltip">
+                            @mouseleave="hideReservationTooltip"> -->
+                            <div class="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%]"
+                              :style="{
+                                ...getReservationStyle(cell),
+                                backgroundColor: getReservationColor(cell.reservation.reservation_status)
+                              }"
+                              @click="showReservationModal(cell.reservation)"
+                              @mouseenter="showReservationTooltip(cell.reservation, $event)"
+                              @mouseleave="hideReservationTooltip">
                             <span class="truncate flex items-center gap-1">
                               {{ cell.reservation.guest_name }}
                               <br>
@@ -960,26 +965,8 @@ function getReservationStyle(cell: any) {
 
   return { width, left };
 }
-// function getReservationColor(type: string) {
-//   switch (type) {
-//     case 'confirmed': return 'bg-green-500'
-//     case 'request': return 'bg-orange-500'
-//     case 'complimentary': return 'bg-blue-500'
-//     case 'blocked': return 'bg-purple-500'
-//     case 'checkout': return 'bg-gray-700'
-//     case 'departure': return 'bg-red-500'
-//     case 'inhouse': return 'bg-teal-500'
-//     case 'checked_in': return 'bg-green-700'
-//     case 'occupied': return 'bg-green-700'
-//     default: return 'bg-gray-400'
-//   }
-// }
-function getReservationColor(status: string): { backgroundColor: string } {
-  const color = statusColorStore.getReservationColor(status);
-  return {
-    backgroundColor: color
-  };
-}
+const getReservationColor = statusColorStore.getReservationColor;
+
 
 function getRoomBlockColor(status: string) {
   switch (status) {

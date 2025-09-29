@@ -261,7 +261,7 @@ const handleSubmit = async () => {
     });
     const { user, user_token } = res.data.data;
     const token = user_token.token;
-    console.log("res.data.data", res.data.data);
+
 
     // Stocker les services et permissions
     serviceStore.setService(res.data.data.userServices);
@@ -270,7 +270,7 @@ const handleSubmit = async () => {
     serviceStore.setBusinessSources(res.data.data.businessSources)
     serviceStore.setReservationType(res.data.data.reservationTypes)
     statusColor.setStatusColors(res.data.data.userServices[0]?.statusColors || []);
-
+console.log("res.data.data", res.data.data.userServices[0]?.statusColors);
     if (user.permisReports) {
       try {
         const reportsPermissions = JSON.parse(user.permisReports);

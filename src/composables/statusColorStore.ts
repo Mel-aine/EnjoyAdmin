@@ -25,6 +25,27 @@ export const useStatusColor = defineStore('statusColor', {
         map[sc.key] = sc.color;
         return map;
       }, {} as Record<string, string>);
+    },
+
+    getReservationColor(): (status: string) => string {
+      return (status: string): string => {
+        const statusColorMap = this.statusColorMap;
+
+        const keyMap: Record<string, string> = {
+          'confirmed': 'confirmed_reservation',
+          'request': 'confirmed_reservation', // or create a separate key
+          'complimentary': 'confirmed_reservation',
+          'blocked': 'maintenance_block',
+          'checkout': 'checked_out',
+          'departure': 'due_out',
+          'inhouse': 'arrival_stay_over',
+          'checked_in': 'arrival_stay_over',
+          'occupied': 'arrival_stay_over',
+        };
+
+        const colorKey = keyMap[status] || status;
+        return statusColorMap[colorKey] || '#6B7280';
+      }
     }
   },
 
@@ -32,23 +53,5 @@ export const useStatusColor = defineStore('statusColor', {
     setStatusColors(statusColors: StatusColor[]) {
       this.statusColors = statusColors;
     },
-
-    // Helper method to get color with fallback
-    getReservationColor(status: string): string {
-      const colorMap: Record<string, string> = {
-        // Map reservation statuses to status color keys
-        'confirmed': this.getColorByKey('confirmed_reservation'),
-        'request': this.getColorByKey('confirmed_reservation'), // or create a separate key
-        'complimentary': this.getColorByKey('confirmed_reservation'),
-        'blocked': this.getColorByKey('maintenance_block'),
-        'checkout': this.getColorByKey('checked_out'),
-        'departure': this.getColorByKey('due_out'),
-        'inhouse': this.getColorByKey('arrival_stay_over'),
-        'checked_in': this.getColorByKey('arrival_stay_over'),
-        'occupied': this.getColorByKey('arrival_stay_over'),
-      };
-
-      return colorMap[status] || this.getColorByKey(status) || '#6B7280';
-    }
   },
 });
