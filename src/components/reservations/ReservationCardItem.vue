@@ -22,6 +22,7 @@ const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReserva
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'));
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'));
 const { t, locale } = useI18n({ useScope: 'global' })
+import { getReservationById } from '@/services/reservation';
 
 // Initialize the reservation composable
 const {
@@ -93,7 +94,22 @@ const updateLocalReservation = (updates: any) => {
 
 
 
+const refreshAvailableActions = async (reservationId: number) => {
+  try {
+    const updatedReservation = await getReservationById(reservationId)
 
+    if (updatedReservation.availableActions) {
+      updateLocalReservation({
+        availableActions: updatedReservation.availableActions,
+        status: updatedReservation.status,
+        balanceSummary: updatedReservation.balanceSummary
+      })
+    }
+  } catch (error) {
+    console.error('Error refreshing available actions:', error)
+    toast.error(t('Error refreshing reservation data'))
+  }
+}
 
 const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
@@ -102,6 +118,7 @@ const handleCancelConfirmed = async (cancelData: any) => {
     status: 'cancelled',
     availableActions: []
   })
+   await refreshAvailableActions(localReservation.value.id)
 }
 
 // Print modal handlers
@@ -115,7 +132,7 @@ const handlePrintError = (error: any) => {
 }
 
 
-const handleVoidConfirmed = (voidData: any) => {
+const handleVoidConfirmed = async(voidData: any) => {
     console.log('Void confirmed with data:', voidData)
 
     showVoidModal.value = false
@@ -133,6 +150,7 @@ const handleVoidConfirmed = (voidData: any) => {
         reservationId: localReservation.value?.id,
         data: voidData
     })
+     await refreshAvailableActions(localReservation.value.id)
 }
 
 
@@ -250,7 +268,7 @@ const handleSavePayment = async (data: any) => {
     if (Object.keys(updates).length > 0) {
       console.log('Applying payment updates:', updates)
       updateLocalReservation(updates)
-      toast.success(t('Payment added successfully'))
+
     } else {
       console.warn('No payment updates could be calculated, falling back to parent refresh')
       // Fallback: émettre save pour que le parent gère le refresh
@@ -412,6 +430,8 @@ const performAutoCheckIn = async (availableRoom: any) => {
     reservationId: localReservation.value.id,
     data: checkInPayload
   })
+
+   await refreshAvailableActions(localReservation.value.id)
 }
 
 // Fonction pour le check-out avec mise à jour locale
@@ -451,6 +471,8 @@ const performAutoCheckOut = async (availableRoom: any) => {
     reservationId: localReservation.value.id,
     data: checkOutPayload
   })
+
+   await refreshAvailableActions(localReservation.value.id)
 }
 
 // Gestion du NoShow avec mise à jour locale
@@ -461,6 +483,7 @@ const handleNoShowConfirmedLocal = async (noShowData: any) => {
     status: 'no_show',
     availableActions: [] // Les actions disponibles changent après no-show
   })
+    await refreshAvailableActions(localReservation.value.id)
 }
 
 const handleOptionSelected = async (option: any) => {
@@ -514,9 +537,7 @@ const handleOptionSelected = async (option: any) => {
         console.log("roomNumber", roomNumber)
         await executeAction(
           'check_in',
-          () => performAutoCheckIn(availableRoomsForCheckin[0]),
-          t('Checking in room {roomNumber}...', { roomNumber }),
-          t('Room {roomNumber} checked in successfully', { roomNumber })
+          () => performAutoCheckIn(availableRoomsForCheckin[0])
         )
       } else {
         openCheckInReservationModal()
@@ -540,9 +561,7 @@ const handleOptionSelected = async (option: any) => {
 
         await executeAction(
           'check_out',
-          () => performAutoCheckOut(availableRoomsForCheckout[0]),
-          t('Checking out room {roomNumber}...', { roomNumber }),
-          t('Room {roomNumber} checked out successfully', { roomNumber })
+          () => performAutoCheckOut(availableRoomsForCheckout[0])
         )
       } else {
         // Plusieurs chambres : ouvrir le modal de groupe

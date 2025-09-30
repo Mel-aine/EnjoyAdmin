@@ -364,6 +364,21 @@ export const stopRoomMoveReservation = async (reservationId: number, datas: any)
   }
 }
 
+/**
+ * get reservation by id
+ */
+
+export const getReservationById = async (reservationId: number): Promise<any | undefined>  => {
+  try {
+    const response: AxiosResponse<ApiResponse>  = await apiClient.get(`/reservations/${reservationId}`,getHeaders())
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching reservation:', error)
+    throw error
+  }
+}
+
 
 /*** build guest regiqstration card */
 
