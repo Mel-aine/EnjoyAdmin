@@ -8,14 +8,14 @@
     </button>
   </div>
   <template v-if="isOpen">
-    <RoomSelectionModal :is-open="isOpen" ref="roomSelectionModal" :reservation-id="reservation.id" @close="handleClose" 
+    <RoomSelectionModal :is-open="isOpen" ref="roomSelectionModal" :reservation-id="reservation.id" @close="handleClose"
     @refresh="handleRefresh"
     />
   </template>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue' 
+import { computed, ref } from 'vue'
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue'
 import { useAuthStore } from '@/composables/user'
 
@@ -28,6 +28,7 @@ interface Props {
 interface Emits {
   (e: 'close'): void
   (e: 'assigned', data: any): void
+   (e: 'refresh'): void
 }
 const emit = defineEmits<Emits>()
 
@@ -50,6 +51,7 @@ const handleClose = () => {
 const handleRefresh =()=>{
   isOpen.value = false;
   emit('assigned',{})
+    emit('refresh')
 }
 
 </script>

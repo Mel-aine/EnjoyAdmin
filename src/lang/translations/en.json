@@ -399,6 +399,7 @@
       "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
     },
     "userUpdatedSuccess": "User successfully updated ✅",
+    "avheSuccess" : "Room unassignment completed successfully!",
     "updateError": "An error occurred while updating ❌",
     "userDeleted": "User successfully deleted ✅",
     "userDeleteError": "Error while deleting user ❌",
@@ -6198,6 +6199,8 @@
   "roundOff":"Round Off",
   "correction":"Correction",
   "Search folios...":"Search folios...",
-  "paymentType":"Payment Type"
+  "paymentType":"Payment Type",
+  "Already marked as no-show": "Already marked as no-show",
+  "All rooms have already been marked as no-show": "All rooms have already been marked as no-show"
 
 }

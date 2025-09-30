@@ -120,7 +120,7 @@ export function useReservation() {
       return response
     } catch (error) {
       console.error('Check-out error:', error)
-      toast.error(t('toast.checkOutError') || 'Failed to complete check-out. Please try again.')
+      // toast.error(t('toast.checkOutError') || 'Failed to complete check-out. Please try again.')
       throw error
     } finally {
       isCheckingOut.value = false

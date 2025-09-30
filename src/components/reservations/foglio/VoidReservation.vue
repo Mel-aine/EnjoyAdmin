@@ -44,7 +44,8 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import { getReasons } from '../../../services/configrationApi'
 import { cancelReservation, voidReservation } from '../../../services/reservation'
-
+import { getByCategory } from '../../../services/configrationApi'
+import { useServiceStore } from '@/composables/serviceStore'
 interface Props {
     isOpen: boolean
     reservationId?: string | number
@@ -100,9 +101,10 @@ const closeModal = () => {
 const laodReason = async () => {
     isloadingReason.value = true;
     try {
-        const res = await getReasons();
+        const hotel_id = useServiceStore().serviceId;
+        const res = await getByCategory(hotel_id!, 'Void Reservation');
         console.log('data', res)
-        reasonOptions.value = res.data.data.map((item: any) => {
+        reasonOptions.value = res.data.map((item: any) => {
             return {
                 label: item.reasonName,
                 value: item.reasonName

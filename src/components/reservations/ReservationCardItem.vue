@@ -115,7 +115,7 @@ const handleCancelConfirmed = async (cancelData: any) => {
   showCancelModal.value = false
   // Mettre à jour le statut localement
   updateLocalReservation({
-    status: 'cancelled',
+    status: 'confirmed',
     availableActions: []
   })
    await refreshAvailableActions(localReservation.value.id)
@@ -189,15 +189,7 @@ const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
 }
 
-const handleRoomAssigned = (data: any) => {
-  console.log('Room assigned:', data)
-  // Mettre à jour les chambres localement
-  if (data.rooms) {
-    updateLocalReservation({ reservationRooms: data.rooms })
-  }
-  // Émettre l'événement save pour compatibilité
-  emit('save', { action: 'roomAssigned', reservationId: localReservation.value.id, data })
-}
+
 
 const handleSavePayment = async (data: any) => {
   console.log('Add payment data received:', data)
@@ -307,15 +299,60 @@ const printDocumentData = computed(() => ({
   remainingAmount: localReservation.value.remainingAmount
 }))
 
+// const roomRateTypeSummary = computed(() => {
+//   if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
+//     return 'N/A';
+//   }
+//   const filterReservationRoom = localReservation.value.reservationRooms.filter((room: any) => room.isOwner)
+//   const reservationRoom = filterReservationRoom && filterReservationRoom.length > 0 ? filterReservationRoom[0] : localReservation.value.reservationRooms[0];
+//   return reservationRoom.room?.roomNumber ? `${reservationRoom.room?.roomNumber}` : null
+// });
 const roomRateTypeSummary = computed(() => {
   if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
     return 'N/A';
   }
-  const filterReservationRoom = localReservation.value.reservationRooms.filter((room: any) => room.isOwner)
-  const reservationRoom = filterReservationRoom && filterReservationRoom.length > 0 ? filterReservationRoom[0] : localReservation.value.reservationRooms[0];
-  return reservationRoom.room?.roomNumber ? `${reservationRoom.room?.roomNumber}` : null
+
+  const assignedRooms = localReservation.value.reservationRooms
+    .filter((room: any) => room.roomId && room.room?.roomNumber)
+
+  if (assignedRooms.length === 0) {
+    return null;
+  }
+
+  const roomNumbers = assignedRooms.map((room: any) => room.room.roomNumber);
+
+  // Si plusieurs chambres, ajouter le compte
+  if (roomNumbers.length > 1) {
+    return `${roomNumbers.join(', ')} (${roomNumbers.length} rooms)`;
+  }
+
+  return roomNumbers[0];
 });
 
+const handleRoomAssignmentRefresh = async () => {
+  try {
+    // Recharger les détails de la réservation
+    const updatedReservation = await getReservationById(localReservation.value.id)
+
+    // Mettre à jour localement
+    updateLocalReservation({
+      reservationRooms: updatedReservation.reservationRooms,
+      availableActions: updatedReservation.availableActions,
+      status: updatedReservation.status
+    })
+
+    // Émettre pour compatibilité
+    emit('save', {
+      action: 'roomAssigned',
+      reservationId: localReservation.value.id
+    })
+
+
+  } catch (error) {
+    console.error('Error refreshing after room assignment:', error)
+    toast.error(t('Error updating room assignment'))
+  }
+}
 // Icon mapping for different actions
 const actionIconMap = {
   'view': Eye,
@@ -371,8 +408,10 @@ const executeAction = async (actionId: string, actionFn: () => Promise<void>, lo
       })
     }
 
-    // Exécuter l'action
     await actionFn()
+
+    // Réinitialiser l'état de chargement AVANT d'afficher le toast
+    currentAction.value = null
 
     // Message de succès si fourni
     if (successMessage) {
@@ -385,8 +424,14 @@ const executeAction = async (actionId: string, actionFn: () => Promise<void>, lo
                         error.message ||
                         t(`Failed to ${actionId.replace('_', ' ')}`)
     toast.error(errorMessage)
-  } finally {
+    // S'assurer de réinitialiser aussi en cas d'erreur
     currentAction.value = null
+
+  } finally {
+    // Assurer que l'état de chargement est toujours réinitialisé
+    if (currentAction.value === actionId) {
+        currentAction.value = null
+    }
   }
 }
 
@@ -480,7 +525,7 @@ const handleNoShowConfirmedLocal = async (noShowData: any) => {
   await handleNoShowConfirmed(noShowData)
   // Mettre à jour le statut localement
   updateLocalReservation({
-    status: 'no_show',
+    status: 'confirmed',
     availableActions: [] // Les actions disponibles changent après no-show
   })
     await refreshAvailableActions(localReservation.value.id)
@@ -568,10 +613,31 @@ const handleOptionSelected = async (option: any) => {
         openCheckOutReservationModal()
       }
       break
-
     case 'unassign_room':
-      openUnAssignReservationModal()
+      const availableRoomsForUnassign = localReservation.value.reservationRooms?.filter((room: any) =>
+        room.roomId && room.room?.roomNumber
+      ) || []
+
+      console.log('Available rooms for unassign:', availableRoomsForUnassign)
+
+      if (availableRoomsForUnassign.length === 0) {
+        toast.info(t('No rooms available for unassignment'))
+        return
+      } else if (availableRoomsForUnassign.length === 1) {
+        // Unassign automatique pour une seule chambre
+        const roomNumber = availableRoomsForUnassign[0].room?.roomNumber || availableRoomsForUnassign[0].id
+        console.log("roomNumber unassign", roomNumber)
+
+        await executeAction(
+          'unassign_room',
+          () => performAutoUnassign(availableRoomsForUnassign[0])
+        )
+      } else {
+
+        openUnAssignReservationModal()
+      }
       break
+
 
     case 'no_show':
       showNoShowModal.value = true
@@ -641,18 +707,86 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en', options)
 }
 
+// const handleAmendConfirmed = (amendData: any) => {
+//   showAmendModal.value = false
+
+//   // Mettre à jour les données localement avec les nouvelles dates
+//   updateLocalReservation({
+//     arrivedDate: amendData.newArrivalDate,
+//     departDate: amendData.newDepartureDate,
+//     nights: amendData.nights,
+//     numberOfNights: amendData.nights
+//   })
+
+//   // Émettre l'événement pour compatibilité
+//   emit('save', { action: 'amend', reservationId: localReservation.value?.id, data: amendData })
+// }
 const handleAmendConfirmed = (amendData: any) => {
   showAmendModal.value = false
 
-  // Mettre à jour les données localement avec les nouvelles dates
-  updateLocalReservation({
-    arrivedDate: amendData.newArrivalDate,
-    departDate: amendData.newDepartureDate,
-    nights: amendData.nights,
-    numberOfNights: amendData.nights
-  })
+  // Vérifier si c'est un amendement pour une chambre spécifique ou pour toute la réservation
+  if (amendData.reservationRoomId) {
+    // Amendement pour une chambre spécifique
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+      if (room.id === amendData.reservationRoomId) {
+        return {
+          ...room,
+          checkInDate: amendData.newArrivalDate,
+          checkOutDate: amendData.newDepartureDate,
+          nights: amendData.nights
+        }
+      }
+      return room
+    })
 
-  // Émettre l'événement pour compatibilité
+    updateLocalReservation({
+      reservationRooms: updatedRooms
+    })
+
+    // Recalculer les dates globales si nécessaire
+    // (prendre la date d'arrivée la plus tôt et la date de départ la plus tard)
+    const earliestCheckIn = updatedRooms.reduce((min: string, room: any) =>
+      room.checkInDate < min ? room.checkInDate : min,
+      updatedRooms[0].checkInDate
+    )
+
+    const latestCheckOut = updatedRooms.reduce((max: string, room: any) =>
+      room.checkOutDate > max ? room.checkOutDate : max,
+      updatedRooms[0].checkOutDate
+    )
+
+    // Calculer le nombre de nuits total basé sur les nouvelles dates globales
+    const totalNights = Math.ceil(
+      (new Date(latestCheckOut).getTime() - new Date(earliestCheckIn).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    updateLocalReservation({
+      arrivedDate: earliestCheckIn,
+      departDate: latestCheckOut,
+      numberOfNights: totalNights
+    })
+  } else {
+    // Amendement pour toute la réservation
+    updateLocalReservation({
+      arrivedDate: amendData.newArrivalDate,
+      departDate: amendData.newDepartureDate,
+      nights: amendData.nights,
+      numberOfNights: amendData.nights
+    })
+
+    // Mettre à jour toutes les chambres
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => ({
+      ...room,
+      checkInDate: amendData.newArrivalDate,
+      checkOutDate: amendData.newDepartureDate,
+      nights: amendData.nights
+    }))
+
+    updateLocalReservation({
+      reservationRooms: updatedRooms
+    })
+  }
+
   emit('save', { action: 'amend', reservationId: localReservation.value?.id, data: amendData })
 }
 // Ajoutez cette méthode pour gérer les événements du modal check-in
@@ -738,6 +872,50 @@ const handleCheckOutSuccess = (data: any) => {
     data
   })
 }
+
+const handleUnassignSuccess = async (data: any) => {
+  console.log('Unassign success data:', data)
+
+  // Mettre à jour les chambres localement
+  const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+    if (data.reservationRooms.includes(room.id)) {
+      return {
+        ...room,
+        roomId: null,
+        room: null,
+        status: 'reserved'
+      }
+    }
+    return room
+  })
+
+  // Mettre à jour localement
+  updateLocalReservation({
+    reservationRooms: updatedRooms
+  })
+
+  // Rafraîchir les actions disponibles
+  await refreshAvailableActions(localReservation.value.id)
+
+  // Fermer le modal
+  closeUnAssignReservationModal()
+
+  // Émettre pour compatibilité
+  emit('save', {
+    action: 'unassign',
+    reservationId: localReservation.value.id,
+    data
+  })
+
+
+}
+
+// Liste des numéros de chambres assignées
+const assignedRoomNumbers = computed(() => {
+  return localReservation.value?.reservationRooms
+    ?.filter((room: any) => room.roomId && room.room?.roomNumber)
+    ?.map((room: any) => room.room.roomNumber) || []
+})
 </script>
 
 <template>
@@ -789,7 +967,7 @@ const handleCheckOutSuccess = (data: any) => {
           </span>
         </div>
         <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
-          <span>{{ localReservation.reservationRooms[0].nights }}</span>
+          <span>{{ localReservation.numberOfNights }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ $t('nights') }}
           </span>
@@ -821,9 +999,9 @@ const handleCheckOutSuccess = (data: any) => {
 
         </div>
 
-        <div class="flex justify-between items-center">
+        <!-- <div class="flex justify-between items-center">
           <div class="flex flex-col">
-            <span class=" font-semibold">{{ $t('Room') }}</span> <!--/Rate type-->
+            <span class=" font-semibold">{{ $t('Room') }}</span>
             <span v-if="localReservation.reservationRooms && localReservation.reservationRooms.length>0 && localReservation.reservationRooms.every((room:any) => room.roomId)">
               {{ roomRateTypeSummary }}
             </span>
@@ -831,6 +1009,37 @@ const handleCheckOutSuccess = (data: any) => {
               :reservation="localReservation"
               @refresh="$emit('save')"
               @assigned="handleRoomAssigned"
+            />
+          </div>
+          <div class="flex gap-1">
+            <ReservationStatus :status="localReservation.status" />
+          </div>
+        </div> -->
+        <div class="flex justify-between items-center">
+          <div class="flex flex-col">
+            <span class="font-semibold">{{ $t('Room') }}</span>
+            <span v-if="localReservation.reservationRooms && localReservation.reservationRooms.length > 0 && localReservation.reservationRooms.every((room:any) => room.roomId)" class="text-sm">
+              <span v-if="localReservation.reservationRooms.length > 1" class="inline-flex items-center gap-1">
+                <Users class="w-4 h-4" />
+                {{ roomRateTypeSummary }}
+              </span>
+              <span v-else>{{ roomRateTypeSummary }}</span>
+            </span>
+            <div v-else-if="assignedRoomNumbers.length > 0" class="flex items-center gap-2">
+              <span class="text-sm inline-flex items-center gap-1">
+                <Users v-if="localReservation.reservationRooms.length > 1" class="w-4 h-4" />
+                {{ assignedRoomNumbers.join(', ') }}
+              </span>
+              <AssignRoomReservation
+                :reservation="localReservation"
+                @refresh="handleRoomAssignmentRefresh"
+              />
+            </div>
+
+            <!-- Aucune chambre assignée : uniquement le bouton -->
+            <AssignRoomReservation v-else
+              :reservation="localReservation"
+              @refresh="handleRoomAssignmentRefresh"
             />
           </div>
           <div class="flex gap-1">
@@ -897,7 +1106,7 @@ const handleCheckOutSuccess = (data: any) => {
    <!--unassign template-->
   <template v-if="isUnAssignModalOpen">
             <UnAssignRoomReservation :reservation-id="localReservation.id" :is-open="isUnAssignModalOpen"
-                @close="closeUnAssignReservationModal" />
+                @close="closeUnAssignReservationModal"  @success="handleUnassignSuccess"/>
   </template>
 
   <!-- Print Modal -->
