@@ -904,9 +904,11 @@ const validateAllRooms = () => {
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
-        reservation_type: reservation.value.bookingType,
+        reservation_type_id: reservation.value.bookingType,
         booking_source: reservation.value.bookingSource,
         business_source: reservation.value.businessSource,
+        // market_code_id: reservation.value.bookingSource,
+        payment_type: billing.value.paymentType ,
 
         // Hold-specific fields (only included if isHold is true)
         ...(reservation.value.isHold && {
@@ -976,18 +978,18 @@ const validateAllRooms = () => {
 
       console.log('Final reservation payload:', reservationPayload)
 
-      const response = await createReservation(reservationPayload)
-      reservationId.value = response.reservationId
-      console.log('reservationId.value', reservationId.value)
+      // const response = await createReservation(reservationPayload)
+      // reservationId.value = response.reservationId
+      // console.log('reservationId.value', reservationId.value)
 
-      if (response.reservationId) {
-        isPaymentButtonShow.value = true
-        confirmReservation.value = true
-      }
+      // if (response.reservationId) {
+      //   isPaymentButtonShow.value = true
+      //   confirmReservation.value = true
+      // }
 
-      toast.success(t('reservationCreated'))
+      // toast.success(t('reservationCreated'))
 
-      return response
+      // return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 

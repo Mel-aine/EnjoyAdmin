@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
     <!-- Status Bar -->
-    <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
+    <!-- <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
       <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
       <span class="text-gray-600">{{ $t('Reserved') }} {{ statusCounts.reserved }}</span>
       <span class="text-gray-600">{{ $t('DueOut') }} {{ statusCounts.dueOut }}</span>
@@ -16,7 +16,7 @@
         <span class="text-gray-600">{{ $t('Message') }} {{ messageCount }}</span>
         <span class="text-gray-600">{{ $t('Preference') }} {{ preferenceCount }}</span>
       </div>
-    </div>
+    </div> -->
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
@@ -275,6 +275,7 @@ import { getCompanies } from '@/services/companyApi'
 import { updateReservationRoomById } from '@/services/configrationApi'
 import InputPaymentMethodSelect from '../foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
+import { updateBookingDetail } from '@/services/reservation'
 
 interface Props {
   booking?: any
@@ -283,15 +284,15 @@ interface Props {
 
 interface BillingData {
   billTo: string
-  paymentMode: string
+  paymentMode: number | null
   paymentType: string
   gstinNo: string
-  reservationType: string
+  reservationType: number | null
 }
 
 interface SourceData {
   marketCode: string
-  sourceOfBusiness: string
+  sourceOfBusiness: number | null
   travelAgent: string
   voucherNo: string
   commissionPlan: string
@@ -326,6 +327,33 @@ const companyOptions = ref<Array<{ label: string; value: string }>>([])
 const useDropdownBooking = ref(true)
 const bookingData = computed(() => props.booking || {})
 const guestData = computed(() => props.guest || {})
+const {
+  //Data
+  billing,
+
+  // Options
+  BookingSource,
+  BusinessSource,
+  BookingType,
+  creditTypes,
+  billToOptions,
+  MarketCode,
+  reservationId,
+
+  //customer methods
+  canCityLedgerPay
+} = useBooking()
+
+const sourceData = reactive<any>({
+  marketCode: '',
+  sourceOfBusiness: null,
+  travelAgent: '',
+  voucherNo: '',
+  commissionPlan: '',
+  planValue: '',
+  company: '',
+  salesPerson: ''
+})
 
 // CHANGEMENT PRINCIPAL : Utiliser ref au lieu de reactive pour roomOptions
 const roomOptions = ref<RoomOptions>({
@@ -365,37 +393,24 @@ const UpdateReservationRoom = async () => {
     if (!selectedRoomId.value) {
       throw new Error('No room selected')
     }
-
-    // Créer l'objet de mise à jour avec toutes les données
     const updateData = {
-      // Room options
-      sendMail: roomOptions.value.sendMail,
-      checkOutMail: roomOptions.value.checkOutMail,
-      thankYouEmail: roomOptions.value.thankYouEmail,
-      supressRate: roomOptions.value.suppressRate,
-      accessGuestPortal: roomOptions.value.accessGuestPortal,
-
-      // Billing data
       billTo: billingData.billTo,
-      paymentMode: billingData.paymentMode,
+      paymentMethodId: billingData.paymentMode,
       paymentType: billingData.paymentType,
-      gstinNo: billingData.gstinNo,
-      reservationType: billingData.reservationType,
-
-      // Source data
-      marketCode: sourceData.marketCode,
-      sourceOfBusiness: sourceData.sourceOfBusiness,
-      voucherNo: sourceData.voucherNo,
-      company: sourceData.company
+      reservationTypeId: billingData.reservationType,
+      marketCodeId: sourceData.marketCode,
+      businessSourceId: sourceData.sourceOfBusiness,
+      companyName: sourceData.company
     }
 
-    console.log('Updating reservation room with ID:', selectedRoomId.value)
+    console.log('Updating reservation with ID:', props.booking.id)
     console.log('Update data:', updateData)
 
-    const response = await updateReservationRoomById(selectedRoomId.value, updateData)
-    console.log('Reservation room updated:', response.data)
+    const response = await updateBookingDetail(props.booking.id, updateData)
 
-    // Mettre à jour l'objet selectedRoom avec les nouvelles valeurs
+    console.log('Response from API:', response)
+
+    // Mettre à jour selectedRoom avec les nouvelles valeurs
     if (selectedRoom.value) {
       Object.assign(selectedRoom.value, updateData)
     }
@@ -453,41 +468,17 @@ const messageCount = computed(() => bookingData.value.messages?.length || 0)
 const preferenceCount = computed(() => guestData.value.preferences?.length || 0)
 
 // Reactive data - Initialiser avec des valeurs vides
-const billingData = reactive<BillingData>({
+const billingData = reactive<any>({
   billTo: '',
-  paymentMode: '',
-  paymentType: 'cash',
+  paymentMode: null,
+  paymentType: '',
   gstinNo: '',
-  reservationType: ''
+  reservationType: null
 })
 
-const sourceData = reactive<SourceData>({
-  marketCode: '',
-  sourceOfBusiness: '',
-  travelAgent: '',
-  voucherNo: '',
-  commissionPlan: '',
-  planValue: '',
-  company: '',
-  salesPerson: ''
-})
 
-const {
-  //Data
-  billing,
 
-  // Options
-  BookingSource,
-  BusinessSource,
-  BookingType,
-  creditTypes,
-  billToOptions,
-  MarketCode,
-  reservationId,
 
-  //customer methods
-  canCityLedgerPay
-} = useBooking()
 
 // Methods
 const getGuestName = (room: any) => {
@@ -578,40 +569,58 @@ const saveChanges = async () => {
   }
 }
 // Initialize billing data from booking
-const initBillingData = () => {
-  if (bookingData.value) {
-    // Set billTo based on guest type
-    if (guestData.value.guestType === 'corporate') {
-      billingData.billTo = 'company'
-    } else if (guestData.value.guestType === 'travel_agent') {
-      billingData.billTo = 'agent'
-    } else {
-      billingData.billTo = 'individual'
-    }
+// const initBillingData = () => {
+//   if (bookingData.value) {
+//     // Set billTo based on guest type
+//     console.log('initBillingData',bookingData.value)
+//     if (guestData.value.guestType === 'corporate') {
+//       billingData.billTo = 'company'
+//     } else if (guestData.value.guestType === 'travel_agent') {
+//       billingData.billTo = 'agent'
+//     } else {
+//       billingData.billTo = 'individual'
+//     }
 
-    // Set payment type based on VIP status
-    billingData.paymentType = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
+//     // Set payment type based on VIP status
+//     billingData.paymentType = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
 
-    // Set GSTIN from company registration if available
-    if (guestData.value.company && guestData.value.registrationNo) {
-      billingData.gstinNo = guestData.value.registrationNo
-    }
+//     // Set GSTIN from company registration if available
+//     if (guestData.value.company && guestData.value.registrationNo) {
+//       billingData.gstinNo = guestData.value.registrationNo
+//     }
 
-    // Set reservation type from booking data
-    if (bookingData.value.reservationType) {
-      billingData.reservationType = bookingData.value.reservationType
-    }
-  }
-}
+
+
+
+
+
+
+//   }
+// }
 
 // Initialize source data from booking
 const initSourceData = () => {
   if (bookingData.value) {
     // Set market code and business source if available in booking data
-    if (bookingData.value.sourceOfBusiness) {
-      sourceData.sourceOfBusiness = bookingData.value.sourceOfBusiness
+    if (bookingData.value.businessSourceId) {
+      sourceData.sourceOfBusiness = bookingData.value.businessSourceId
     }
 
+     if (bookingData.value.paymentType) {
+       billing.value.paymentType = bookingData.value.paymentType
+    }
+
+      if (bookingData.value.paymentMethodId) {
+       billing.value.paymentMode = bookingData.value.paymentMethodId
+    }
+
+      if (bookingData.value.reservationTypeId) {
+       billingData.reservationType = bookingData.value.reservationTypeId
+    }
+
+     if (bookingData.value.reservationTypeId) {
+       billingData.reservationType = bookingData.value.reservationTypeId
+    }
     // Set voucher number from booking data
     if (bookingData.value.reservationNumber) {
       sourceData.voucherNo = bookingData.value.reservationNumber
@@ -645,7 +654,7 @@ onMounted(async () => {
   }
 
   // Initialiser les données après avoir sélectionné la chambre
-  initBillingData()
+  // initBillingData()
   initSourceData()
   getCompaniesList()
 
@@ -663,7 +672,7 @@ watch(() => props.booking, (newBooking) => {
       updateSourceDataFromRoom(selectedRoom.value)
     }
 
-    initBillingData()
+    // initBillingData()
     initSourceData()
   }
 }, { deep: true, immediate: true })
@@ -682,11 +691,11 @@ watch(selectedRoom, (newRoom, oldRoom) => {
 }, { deep: true, immediate: false })
 
 // Watch for changes in guest data
-watch(() => props.guest, (newGuest) => {
-  if (newGuest) {
-    initBillingData()
-  }
-}, { deep: true })
+// watch(() => props.guest, (newGuest) => {
+//   if (newGuest) {
+//     initBillingData()
+//   }
+// }, { deep: true })
 </script>
 
 <style scoped>

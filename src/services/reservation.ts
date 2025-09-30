@@ -396,3 +396,30 @@ export const printGuestReservationCard = async (data: {
     throw error
   }
 }
+
+
+export const updateBookingDetail = async (reservationId: any, data: any) => {
+  try {
+    console.log('API Call - URL:', `/reservation/${reservationId}/booking-detail`)
+    console.log('API Call - Data:', data)
+
+    const response = await apiClient.put(
+      `/reservation/${reservationId}/booking-detail`,
+      data,
+      getHeaders()
+    )
+
+    console.log('API Response:', response.data)
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url,
+      requestData: error.config?.data
+    })
+    throw error
+  }
+}

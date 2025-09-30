@@ -63,7 +63,7 @@
 
                     <!-- Room Selection -->
 
-                    <div v-if="formData.cancelType === 'individual' && reservationRooms.length > 0" class="mb-4">
+                    <div v-if="formData.cancelType === 'individual' && availableRooms.length > 0" class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             {{ $t('Select Rooms') }}
                         </label>
@@ -182,7 +182,7 @@ const formData = ref({
 const reasonOptions = ref([{ label: "select", value: '' }])
 
 const availableRooms = computed(() => {
-    return reservationRooms.value.filter((room: any) => room.status !== 'cancelled')
+    return reservationRooms.value.filter((room: any) => room.status !== 'cancelled' && room.roomId)
 })
 
 // Watch for modal open/close

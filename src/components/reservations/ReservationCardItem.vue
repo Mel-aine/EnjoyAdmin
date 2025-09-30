@@ -40,6 +40,7 @@ const {
   showNoShowModal,
   handleNoShowConfirmed
 } = useReservation();
+  const { performAvhe: avheReservation } = useReservation()
 
 const props = defineProps({
   reservation: {
@@ -520,6 +521,49 @@ const performAutoCheckOut = async (availableRoom: any) => {
    await refreshAvailableActions(localReservation.value.id)
 }
 
+const performAutoUnassign = async (availableRoom: any) => {
+  try {
+    const unassignDateTime = new Date().toISOString()
+    const unassignPayload = {
+      reservationRooms: [availableRoom.id],
+      actualCheckInTime: unassignDateTime,
+      notes: ''
+    }
+
+
+    await avheReservation(localReservation.value.id, unassignPayload)
+
+    // Mettre à jour les données locales après le unassign
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+      if (room.id === availableRoom.id) {
+        return {
+          ...room,
+          roomId: null,
+          room: null,
+          status: 'reserved'
+        }
+      }
+      return room
+    })
+
+    updateLocalReservation({
+      reservationRooms: updatedRooms
+    })
+
+    emit('save', {
+      action: 'unassign',
+      reservationId: localReservation.value.id,
+      data: unassignPayload
+    })
+
+    await refreshAvailableActions(localReservation.value.id)
+
+
+  } catch (error) {
+    console.error('Unassign error:', error)
+  }
+}
+
 // Gestion du NoShow avec mise à jour locale
 const handleNoShowConfirmedLocal = async (noShowData: any) => {
   await handleNoShowConfirmed(noShowData)
@@ -692,6 +736,7 @@ const getActionLoadingText = (action: string | null) => {
     'cancel_reservation': t('Cancelling...'),
     'void_reservation': t('Voiding...'),
     'add_payment': t('Processing payment...'),
+    'unassign_room': t('Unassigning room...'),
     // Ajoutez d'autres actions selon vos besoins
   }
 
