@@ -1011,3 +1011,78 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
       throw error;
     }
 };
+
+
+
+
+export const generateReceiptPdf = async (transactionId: string): Promise<Blob> => {
+  try {
+      
+    const url = `${API_URL}/receipt/${transactionId}`
+    
+    // Configuration axios pour recevoir une réponse blob
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Valider que nous avons reçu un blob PDF
+    if (response.data.type && response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching daily revenue PDF:', error)
+    throw error
+  }
+}
+
+// Fonction pour générer l'URL du PDF des revenus quotidiens
+export const generateReceiptPdfUrl = async (transactionId: string): Promise<string> => {
+  try {
+    const blob = await generateReceiptPdf(transactionId)
+    return URL.createObjectURL(blob)
+  } catch (error) {
+    console.error('Error generating daily revenue PDF URL:', error)
+    throw error
+  }
+}
+export const generateInvoicePdf = async (transactionId: string): Promise<Blob> => {
+  try {
+      
+    const url = `${API_URL}/invoice/${transactionId}`
+    
+    // Configuration axios pour recevoir une réponse blob
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Valider que nous avons reçu un blob PDF
+    if (response.data.type && response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching daily revenue PDF:', error)
+    throw error
+  }
+}
+
+// Fonction pour générer l'URL du PDF des factures
+export const generateInvoicePdfUrl = async (transactionId: string): Promise<string> => {
+  try {
+    const blob = await generateInvoicePdf(transactionId)
+    return URL.createObjectURL(blob)
+  } catch (error) {
+    console.error('Error generating invoice PDF URL:', error)
+    throw error
+  }
+}
+

@@ -203,10 +203,8 @@ import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Action, Column } from '../../../utils/models'
 import { getReservationFolios } from '../../../services/foglioApi'
-import Accordion from '../../common/Accordion.vue'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
-import { prepareFolioAmount } from '../../../utils/numericUtils'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
 import PdfExporterNode from '../../common/PdfExporterNode.vue'
 import { printFolioPdf } from '@/services/foglioApi'
@@ -217,6 +215,7 @@ import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
 import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
 import { useAuthStore } from '@/composables/user'
 import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
+import { generateInvoicePdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
 
 const authStore = useAuthStore()
 
@@ -389,7 +388,19 @@ const actionTransactions = computed<Action[]>(() => {
       label: t('void'),
       handler: (item) => onAction('void', item),
       icon: 'void'
-    },]
+    },
+    {
+      label: t('printReceipt'),
+      handler: (item) => onAction('printReceipt', item),
+      icon: 'print'
+    },
+    {
+      label: t('printInvoice'),
+      handler: (item) => onAction('printInvoice', item),
+      icon: 'print'
+    },
+
+  ]
 })
 
 
@@ -400,6 +411,12 @@ const onAction = (action: any, item: any) => {
       isVoidTrasaction.value = true;
       selectedTransaction.value = item;
       break
+    case 'printReceipt':
+      printReceipt(item)
+      break
+    case 'printInvoice':
+      printInvoice(item);
+      break
   }
 
 }
@@ -407,7 +424,34 @@ const onAction = (action: any, item: any) => {
 const formatDate = (dateStr: string) => {
   return dateStr
 }
-
+const printReceipt = async (item: any) => {
+  console.log('Print receipt:', item)
+  // Add print logic here
+  try {
+    printLoading.value = true
+    showPdfExporter.value = true
+    const pdfUrl = await generateReceiptPdfUrl(item.id);
+     pdfurl.value = pdfUrl;
+  } catch (error) {
+    console.error('Error printing receipt:', error)
+  } finally {
+    printLoading.value = false;
+  }
+}
+const printInvoice = async (item: any) => {
+  console.log('Print receipt:', item)
+  // Add print logic here
+  try {
+    printLoading.value = true
+    showPdfExporter.value = true
+    const pdfUrl = await generateInvoicePdfUrl(item.id);
+     pdfurl.value = pdfUrl;
+  } catch (error) {
+    console.error('Error printing receipt:', error)
+  } finally {
+    printLoading.value = false;
+  }
+}
 const formatAmount = (amount: number) => {
   return amount
 }
