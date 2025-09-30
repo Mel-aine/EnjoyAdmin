@@ -80,12 +80,12 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('paymentType') }}</label>
                 <div class="flex space-x-4">
                   <label class="flex items-center" :class="{ 'opacity-50 cursor-not-allowed': !editMode }">
-                    <input type="radio" v-model="billing.paymentType" value="cash" class="mr-2" :disabled="!editMode" />
+                    <input type="radio" v-model="billingData.paymentType" value="cash" class="mr-2" :disabled="!editMode" />
                     <span :class="{ 'text-gray-400': !editMode }">{{ $t('cash') }}</span>
                   </label>
                   <label v-if="canCityLedgerPay" class="flex items-center"
                     :class="{ 'opacity-50 cursor-not-allowed': !editMode }">
-                    <input type="radio" v-model="billing.paymentType" value="city_ledger" class="mr-2"
+                    <input type="radio" v-model="billingData.paymentType" value="city_ledger" class="mr-2"
                       :disabled="!editMode" />
                     <span :class="{ 'text-gray-400': !editMode }">{{ $t('city_ledger') }}</span>
                   </label>
@@ -96,8 +96,8 @@
             <!-- Payment Mode and GSTIN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <InputPaymentMethodSelect :label="$t('PaymentMode')" :paymentType="billing.paymentType"
-                  v-model="billing.paymentMode" :hide-label="false" :disabled="!editMode" />
+                <InputPaymentMethodSelect v-if="billingData.paymentType" :label="$t('PaymentMode')" :paymentType="billingData.paymentType"
+                  v-model="billingData.paymentMode" :hide-label="false" :disabled="!editMode" />
               </div>
 
               <div>
@@ -607,11 +607,11 @@ const initSourceData = () => {
     }
 
      if (bookingData.value.paymentType) {
-       billing.value.paymentType = bookingData.value.paymentType
+       billingData.paymentType = bookingData.value.paymentType
     }
 
       if (bookingData.value.paymentMethodId) {
-       billing.value.paymentMode = bookingData.value.paymentMethodId
+       billingData.paymentMode = bookingData.value.paymentMethodId
     }
 
       if (bookingData.value.reservationTypeId) {
