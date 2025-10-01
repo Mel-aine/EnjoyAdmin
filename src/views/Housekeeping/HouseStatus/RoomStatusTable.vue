@@ -133,7 +133,7 @@
                   :checked="isSectionSelectableRoomsSelected(section)"
                   @change="toggleSectionSelectableRooms(section)"
                   class="form-checkbox"
-                  :disabled="!sectionHasSelectableRooms(section)"
+                  :disabled="!sectionHasSelectableRooms(section) || !activeSelectionType"
                 />
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
@@ -651,9 +651,23 @@ const unselectAll = () => {
 }
 
 
-
 const toggleSectionSelectableRooms = (section: string) => {
-  if (!activeSelectionType.value) return
+  // Si aucun type de sélection actif, on détermine le type basé sur la première chambre sélectionnable
+  if (!activeSelectionType.value) {
+    const firstSelectableRoom = filteredRooms.value.find(
+      (room) => room.section === section && (isDirtyRoom(room) || isCleanRoom(room))
+    )
+
+    if (firstSelectableRoom) {
+      if (isDirtyRoom(firstSelectableRoom)) {
+        activeSelectionType.value = 'dirty'
+      } else if (isCleanRoom(firstSelectableRoom)) {
+        activeSelectionType.value = 'clean'
+      }
+    } else {
+      return // Pas de chambre sélectionnable dans cette section
+    }
+  }
 
   const sectionSelectableRooms = filteredRooms.value.filter(
     (room) =>
@@ -669,10 +683,17 @@ const toggleSectionSelectableRooms = (section: string) => {
       rooms.value[roomIndex].isChecked = !allSectionSelected
     }
   })
+
+  // Si toutes les chambres sont désélectionnées, réinitialiser le type actif
+  const anySelected = rooms.value.some(r => r.isChecked)
+  if (!anySelected) {
+    activeSelectionType.value = null
+  }
 }
 
 
 const isSectionSelectableRoomsSelected = (section: string): boolean => {
+  // Si pas de type actif, retourner false
   if (!activeSelectionType.value) return false
 
   const sectionSelectableRooms = filteredRooms.value.filter(
@@ -683,8 +704,6 @@ const isSectionSelectableRoomsSelected = (section: string): boolean => {
 
   return sectionSelectableRooms.length > 0 && sectionSelectableRooms.every((room) => room.isChecked)
 }
-
-
 
 
 const sectionHasSelectableRooms = (section: string): boolean => {

@@ -400,6 +400,7 @@
     },
     "userUpdatedSuccess": "User successfully updated ✅",
     "avheSuccess" : "Room unassignment completed successfully!",
+    "error_fetching_reservation_details" : "Error fetching reservation details",
     "updateError": "An error occurred while updating ❌",
     "userDeleted": "User successfully deleted ✅",
     "userDeleteError": "Error while deleting user ❌",

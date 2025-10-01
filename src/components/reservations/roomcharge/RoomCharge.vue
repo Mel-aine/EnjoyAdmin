@@ -29,17 +29,17 @@
           <!-- Total Charges -->
           <div class="flex justify-between text-sm text-gray-600">
             <span>{{ $t('Total') }}</span>
-            <span>{{ formatAmount(summaryData?.totalChargesWithTaxes || 0) }}</span>
+            <span>{{  formatCurrency(reservation.balanceSummary.totalChargesWithTaxes)  }}</span>
           </div>
           <!-- Total Tax -->
           <div class="flex justify-between text-sm text-gray-600">
             <span>{{ $t('paid') }}</span>
-            <span>{{ formatAmount(summaryData?.outstandingBalance || 0) }}</span>
+            <span>{{  formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <!-- Total Discounts -->
           <div class="flex justify-between text-xm text-red-600">
             <span>{{ $t('Balance') }}</span>
-            <span>{{ formatAmount(summaryData?.totalPayments || 0) }}</span>
+            <span>{{formatCurrency(reservation.balanceSummary.outstandingBalance)}}</span>
           </div>
 
           <!-- Room Info -->
@@ -58,7 +58,7 @@
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
         <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
 
-        <!-- More Actions Dropdown 
+        <!-- More Actions Dropdown
         <div class="relative">
           <ButtonDropdown
             v-model="selectedMoreAction"
@@ -69,7 +69,7 @@
           />
         </div>-->
 
-        <!-- Status Indicators 
+        <!-- Status Indicators
         <div class="ml-auto flex items-center gap-2">
           <span class="flex items-center gap-1 text-sm">
             <div class="w-3 h-3 bg-orange-400 rounded"></div>
@@ -225,6 +225,7 @@ import AmendStay from '../foglio/AmendStay.vue'
 import CancelReseravtion from '../foglio/CancelReseravtion.vue'
 const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
+import { formatCurrency } from '../../utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 

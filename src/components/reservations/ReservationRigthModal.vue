@@ -158,8 +158,8 @@
                                             @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>
                                         <div v-if="isPerformingAction"
-                                            class="flex items-center px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">
-                                            <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-600"
+                                            class="flex items-center px-2 py-1 bg-purple-100 text-purple-600 rounded text-xs">
+                                            <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-purple-600"
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                                     stroke-width="4"></circle>
@@ -306,7 +306,7 @@
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1"
                             class="py-6 pe-6">
                             <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
-                                @room-selected="handleRoomSelected" />
+                                @room-selected="handleRoomSelected"  @refresh="loadReservationData"/>
                         </div>
                     </div>
 
@@ -910,33 +910,58 @@ const actionColorMap = {
     'unassign_room': 'text-gray-600',
 };
 
-const dropdownOptions = computed(() => {
-    if (!reservation.value.availableActions) {
-        return [];
-    }
+// const dropdownOptions = computed(() => {
+//     if (!reservation.value.availableActions) {
+//         return [];
+//     }
 
-    // If reservation is voided, return empty array to disable all actions
-    if (reservation.value.status === 'voided') {
-        return [];
-    }
+//     // If reservation is voided, return empty array to disable all actions
+//     if (reservation.value.status === 'voided') {
+//         return [];
+//     }
 
-    return reservation.value.availableActions
-        .filter((action: any) => action.available)
-        .map((action: any) => ({
-            id: action.action,
-            label: action.label,
-            description: action.description,
-            route: action.route,
-            icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
-            color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
-        }));
-});
+//     return reservation.value.availableActions
+//         .filter((action: any) => action.available)
+//         .map((action: any) => ({
+//             id: action.action,
+//             label: action.label,
+//             description: action.description,
+//             route: action.route,
+//             icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+//             color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+//         }));
+// });
 
 const handleRoomSelected = (room: any) => {
     console.log('Room selected:', room)
     // You can add logic here to handle room selection
     // For example, navigate to room details or show room-specific actions
 }
+
+
+const dropdownOptions = computed(() => {
+  const res = localReservation.value || reservation.value;
+
+  if (!res?.availableActions) {
+    return [];
+  }
+
+  // Si reservation annulée ou voided → aucune option
+  if (res.status === 'cancelled' || res.status === 'voided') {
+    return [];
+  }
+
+  return res.availableActions
+    .filter((action: any) => action.available)
+    .map((action: any) => ({
+      id: action.action,
+      label: action.label,
+      description: action.description,
+      route: action.route,
+      icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+      color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+    }));
+});
 
 
 const currentAction = ref<string | null>(null)
@@ -1095,9 +1120,7 @@ const handleOptionSelected = async (option: any) => {
                 console.log("roomNumber", roomNumber)
                 await executeAction(
                     'check_in',
-                    () => performAutoCheckIn(availableRoomsForCheckin[0]),
-                    t('Checking in room {roomNumber}...', { roomNumber }),
-                    t('Room {roomNumber} checked in successfully', { roomNumber })
+                    () => performAutoCheckIn(availableRoomsForCheckin[0])
                 )
             } else {
                 openCheckInReservationModal()
@@ -1118,9 +1141,7 @@ const handleOptionSelected = async (option: any) => {
 
                 await executeAction(
                     'check_out',
-                    () => performAutoCheckOut(availableRoomsForCheckout[0]),
-                    t('Checking out room {roomNumber}...', { roomNumber }),
-                    t('Room {roomNumber} checked out successfully', { roomNumber })
+                    () => performAutoCheckOut(availableRoomsForCheckout[0])
                 )
             } else {
                 // Plusieurs chambres : ouvrir le modal de groupe
@@ -1242,6 +1263,19 @@ const handleCheckOutSuccess = (data: any) => {
         data
     })
 }
+const loadReservationData = async () => {
+    isLoading.value = true;
+    const id = props.reservationData.reservation_id;
+    const response = await getReservationDetailsById(Number(id));
+    console.log(response)
+    reservation.value = response
+    reservation.value.reservationRooms = response.reservationRooms.map((e: any) => {
+        return { ...e, guest: reservation.value.guest }
+    })
+
+    isLoading.value = false;
+    console.log('Reservation data fetched:', reservation.value)
+};
 
 // Fetch data on mount if modal is already open
 onMounted(() => {

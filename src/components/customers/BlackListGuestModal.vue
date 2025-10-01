@@ -131,11 +131,13 @@ import { useServiceStore } from '@/composables/serviceStore'
 import {
   getBlackListReasonsByHotel
 } from '@/services/configrationApi'
+import { useToast } from 'vue-toastification'
 
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
+const toast = useToast()
 
 
 // --- PROPS ---
@@ -169,14 +171,11 @@ const validateForm = (): boolean => {
   errors.value = { reason: '' };
   // La validation n'est requise que si on est en train de blacklister
   if (isBlacklisting.value) {
-    if (!blacklistReason.value.trim()) {
-      errors.value.reason = t('validation.reasonRequired');
+    if (!blacklistReason.value) {
+      toast.error(t('validation.reasonRequired'));
       return false;
     }
-    // if (blacklistReason.value.trim().length < 5) {
-    //   errors.value.reason = t('validation.reasonTooShort');
-    //   return false;
-    // }
+
   }
   return true;
 };
