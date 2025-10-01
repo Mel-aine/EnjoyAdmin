@@ -4098,7 +4098,15 @@
     "reasonTooShort": "Reason must be at least 5 characters long",
     "invalidRoomType": "Invalid Room Type",
     "invalidRateType": "Invalid Rate Type",
-    "required": "This field is required"
+    "required": "This field is required",
+    "datesRequired": "Both check-in and check-out dates are required",
+    "timesRequired": "Both check-in and check-out times are required",
+    "invalidDateTime": "Invalid date or time",
+    "checkoutBeforeCheckin": "The check-out date cannot be before the check-in date",
+    "sameDateTime": "The check-in and check-out times cannot be the same",
+    "checkoutTimeBeforeCheckinTime": "The check-out time must be after the check-in time for the same date",
+    "minimumStayDuration": "The minimum stay must be at least 1 hour",
+    "invalidEmail": "Invalid email address"
   },
   "Currency": "Currency",
   "Add Currency": "Add Currency",

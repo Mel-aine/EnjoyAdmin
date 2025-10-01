@@ -168,7 +168,7 @@
                         <AutoCompleteSelect v-model="room.roomNumber" :options="getRoomsForRoom(room.id)"
                           :defaultValue="$t('SelectRoom')" :lb="$t('Room')" :is-required="false"
                           :use-dropdown="useDropdownRoom" :disabled="!room.roomType"
-                          :isLoading="isLoadingAvailableRooms" @update:modelValue="onRoomNumberChange(room)"
+                          :isLoading="room.isLoadingRooms" @update:modelValue="onRoomNumberChange(room)"
                           @clear-error="emit('clear-error')"
                           :class="{ 'border-red-500': isRoomNumberInvalid(room) }" />
                       </div>
@@ -728,6 +728,7 @@ const {
   voucherEmailError,
   validateRoomNumberOnChange,
   validateVoucherEmail,
+  quickGroupBooking,
 
   // Computed
   numberOfNights,
@@ -885,7 +886,7 @@ const handleSubmit = async () => {
   }
 }
 
-const quickGroupBooking = ref(false)
+// const quickGroupBooking = ref(false)
 
 // Méthode pour gérer le changement de Quick Group Booking
 const onQuickGroupBookingChange = (event: Event) => {
