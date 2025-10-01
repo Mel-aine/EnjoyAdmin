@@ -400,12 +400,12 @@ const performCheckOut = async () => {
     const response = await checkOutReservation(props.reservationId, payload)
 
     // Show success message
-    const checkedOutCount = selectedAvailableRooms.length
-    toast.success(t('Successfully checked out {count} room(s)', { count: checkedOutCount }))
+    // const checkedOutCount = selectedAvailableRooms.length
+    // toast.success(t('Successfully checked out {count} room(s)', { count: checkedOutCount }))
 
     // Emit success event
-    emit('success', { 
-      ...payload, 
+    emit('success', {
+      ...payload,
       response,
       updatedRooms: selectedAvailableRooms,
       checkOutDateTime: checkOutDateTime,

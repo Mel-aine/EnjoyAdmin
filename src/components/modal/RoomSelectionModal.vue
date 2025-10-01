@@ -275,12 +275,21 @@ const confirmRoomSelection = async () => {
 }
 
 // Watch for prop changes
-watch(() => props.reservationId, async (newId) => {
-  if (newId) {
+// watch(() => props.reservationId, async (newId) => {
+//   if (newId) {
+//     await getBookingDetailsById()
+//   }
+// }, { immediate: true })
+
+watch(() => props.isOpen, async (newValue) => {
+  if (newValue && props.reservationId) {
+    // Réinitialiser les données
+    reservation.value = null
+    availableRoomsByReservation.value = {}
+    // Charger les données
     await getBookingDetailsById()
   }
-}, { immediate: true })
-
+})
 
 // Initialize when component mounts
 onMounted(() => {

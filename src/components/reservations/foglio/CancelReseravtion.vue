@@ -40,20 +40,20 @@
                         </label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input 
-                                    v-model="formData.cancelType" 
-                                    type="radio" 
-                                    value="group" 
+                                <input
+                                    v-model="formData.cancelType"
+                                    type="radio"
+                                    value="group"
                                     :disabled="reservationRooms.length === 1"
                                     class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                                 <span class="ml-2 text-sm" :class="reservationRooms.length === 1 ? 'text-gray-400' : 'text-gray-700'">{{ $t('Group') }}</span>
                             </label>
                             <label class="flex items-center">
-                                <input 
-                                    v-model="formData.cancelType" 
-                                    type="radio" 
-                                    value="individual" 
+                                <input
+                                    v-model="formData.cancelType"
+                                    type="radio"
+                                    value="individual"
                                     class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                                 />
                                 <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
@@ -62,28 +62,41 @@
                     </div>
 
                     <!-- Room Selection -->
-                    <div v-if="formData.cancelType === 'individual' && reservationRooms.length > 0" class="mb-4">
+
+                    <div v-if="formData.cancelType === 'individual' && availableRooms.length > 0" class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             {{ $t('Select Rooms') }}
                         </label>
                         <div class="space-y-2 max-h-40 overflow-y-auto">
-                            <label 
-                                v-for="room in reservationRooms" 
-                                :key="room.id" 
-                                class="flex items-center p-2 border rounded hover:bg-gray-50"
+                            <label
+                                v-for="room in reservationRooms"
+                                :key="room.id"
+                                class="flex items-center p-2 border rounded"
+                                :class="{
+                                    'hover:bg-gray-50 cursor-pointer': room.status !== 'cancelled',
+                                    'bg-gray-100 cursor-not-allowed opacity-60': room.status === 'cancelled'
+                                }"
                             >
-                                <input 
-                                    v-model="formData.selectedRooms" 
-                                    type="checkbox" 
-                                    :value="room.id" 
-                                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                                <input
+                                    v-model="formData.selectedRooms"
+                                    type="checkbox"
+                                    :value="room.id"
+                                    :disabled="room.status === 'cancelled'"
+                                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
                                 />
-                                <span class="ml-2 text-sm text-gray-700">
-                                    {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
-                                </span>
+                                <div class="ml-2 flex-1">
+                                    <span class="text-sm" :class="room.status === 'no_show' ? 'text-gray-500' : 'text-gray-700'">
+                                        {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
+                                    </span>
+                                    <span v-if="room.status === 'cancelled'" class="ml-2 text-xs text-red-600 font-medium">
+                                        ({{ $t('Already marked as cancelled') }})
+                                    </span>
+                                </div>
                             </label>
                         </div>
+
                     </div>
+
 
                     <!-- Cancellation Fee -->
                     <div class="mb-4">
@@ -111,15 +124,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted,computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import Select from '../../forms/FormElements/Select.vue'
-import { getReasons } from '../../../services/configrationApi'
+import { getByCategory } from '../../../services/configrationApi'
 import { cancelReservation, getReservationDetailsById } from '../../../services/reservation'
+import { useServiceStore } from '@/composables/serviceStore'
 
 interface Props {
     isOpen: boolean
@@ -167,6 +181,10 @@ const formData = ref({
 })
 const reasonOptions = ref([{ label: "select", value: '' }])
 
+const availableRooms = computed(() => {
+    return reservationRooms.value.filter((room: any) => room.status !== 'cancelled' && room.roomId)
+})
+
 // Watch for modal open/close
 watch(() => props.isOpen, (newValue) => {
     if (newValue && props.reservationId) {
@@ -185,7 +203,8 @@ watch(() => props.reservationId, (newVal) => {
 // Watch for cancelType changes
 watch(() => formData.value.cancelType, (newType) => {
     if (newType === 'group') {
-        formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
+
+        formData.value.selectedRooms = availableRooms.value.map((room: any) => room.id)
     } else {
         formData.value.selectedRooms = []
     }
@@ -193,21 +212,26 @@ watch(() => formData.value.cancelType, (newType) => {
 
 // Watch for reservationRooms changes to handle single room auto-selection
 watch(() => reservationRooms.value, (newRooms) => {
-    if (newRooms.length === 1) {
-        // Auto-select individual for single room and select the room
+    const available = newRooms.filter((room: any) => room.status !== 'cancelled')
+
+    if (available.length === 0) {
+        formData.value.selectedRooms = []
+        return
+    }
+
+    if (available.length === 1) {
         formData.value.cancelType = 'individual'
-        formData.value.selectedRooms = [newRooms[0].id]
-    } else if (newRooms.length > 1) {
-        // Auto-select all rooms for group cancellation
-        if (formData.value.cancelType === 'group') {
-            formData.value.selectedRooms = newRooms.map((room: any) => room.id)
-        }
+        formData.value.selectedRooms = [available[0].id]
+    } else if (newRooms.length > 1 && formData.value.cancelType === 'group') {
+        formData.value.selectedRooms = available.map((room: any) => room.id)
     }
 }, { deep: true })
 
+
+
 const getBookingDetailsById = async () => {
     if (!props.reservationId) return
-    
+
     isLoading.value = true
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
@@ -241,9 +265,10 @@ const closeModal = () => {
 const laodReason = async () => {
     isloadingReason.value = true;
     try {
-        const res = await getReasons();
+        const hotel_id = useServiceStore().serviceId;
+        const res = await getByCategory(hotel_id!, 'Cancel Reservation');
         console.log('data', res)
-        reasonOptions.value = res.data.data.map((item: any) => {
+        reasonOptions.value = res.data.map((item: any) => {
             return {
                 label: item.reasonName,
                 value: item.reasonName
@@ -287,7 +312,7 @@ const handleSubmit = async () => {
             reservationId: props.reservationId,
             reservationNumber: props.reservationNumber,
             cancelType: formData.value.cancelType,
-            selectedRooms: formData.value.cancelType === 'group' 
+            selectedRooms: formData.value.cancelType === 'group'
                 ? reservationRooms.value.map((room: any) => room.id)
                 : formData.value.selectedRooms
         }

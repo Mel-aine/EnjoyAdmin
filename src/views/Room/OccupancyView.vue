@@ -510,7 +510,7 @@
                     <option value="available">{{ $t('Available') }}</option>
                     <option value="occupied">{{ $t('Occupied') }}</option>
                     <option value="out_of_order">{{ $t('statut.outOfOrder') }}</option>
-                    <option value="cleaning">{{ $t('Cleaning') }}</option>
+                    <option value="dirty">{{ $t('Dirty') }}</option>
                     <option value="maintenance">{{ $t('Maintenance') }}</option>
                   </select>
 
@@ -1300,7 +1300,7 @@ const getRoomsByStatus = (rooms:any, targetStatus:any) => {
   return rooms.filter((room:any) => {
     switch (targetStatus) {
       case 'occupied':
-        return room.status === 'occupied' || room.housekeepingStatus === 'dirty'
+        return room.status === 'occupied'
       case 'cleaning':
         return (
           room.status === 'cleaning'
