@@ -62,6 +62,7 @@
                     </div>
 
                     <!-- Room Selection -->
+
                     <div v-if="formData.noShowType === 'individual' && reservationRooms.length > 0" class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             {{ $t('Select Rooms') }}
@@ -70,19 +71,33 @@
                             <label
                                 v-for="room in reservationRooms"
                                 :key="room.id"
-                                class="flex items-center p-2 border rounded hover:bg-gray-50"
+                                class="flex items-center p-2 border rounded"
+                                :class="{
+                                    'hover:bg-gray-50 cursor-pointer': room.status !== 'no_show',
+                                    'bg-gray-100 cursor-not-allowed opacity-60': room.status === 'no_show'
+                                }"
                             >
                                 <input
                                     v-model="formData.selectedRooms"
                                     type="checkbox"
                                     :value="room.id"
-                                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                                    :disabled="room.status === 'no_show'"
+                                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
                                 />
-                                <span class="ml-2 text-sm text-gray-700">
-                                    {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
-                                </span>
+                                <div class="ml-2 flex-1">
+                                    <span class="text-sm" :class="room.status === 'no_show' ? 'text-gray-500' : 'text-gray-700'">
+                                        {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
+                                    </span>
+                                    <span v-if="room.status === 'no_show'" class="ml-2 text-xs text-red-600 font-medium">
+                                        ({{ $t('Already marked as no-show') }})
+                                    </span>
+                                </div>
                             </label>
                         </div>
+                        <!-- Message d'avertissement si toutes les chambres sont no-show -->
+                        <p v-if="allRoomsNoShow" class="mt-2 text-sm text-red-600">
+                            {{ $t('All rooms have already been marked as no-show') }}
+                        </p>
                     </div>
 
                     <!-- No Show Fee -->
@@ -111,15 +126,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted,computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import Select from '../../forms/FormElements/Select.vue'
-import { getReasons } from '../../../services/configrationApi'
+import { getByCategory } from '../../../services/configrationApi'
 import {  markNoShow, getReservationDetailsById } from '../../../services/reservation'
+import { useServiceStore } from '@/composables/serviceStore'
 
 interface Props {
     isOpen: boolean
@@ -145,6 +161,7 @@ interface NoShowReservationData {
 
 const isloadingReason = ref(false)
 const isLoading = ref(false)
+const serviceStore = useServiceStore()
 const props = withDefaults(defineProps<Props>(), {
     isOpen: false
 })
@@ -185,7 +202,8 @@ watch(() => props.reservationId, (newVal) => {
 // Watch for noShowType changes
 watch(() => formData.value.noShowType, (newType) => {
     if (newType === 'group') {
-        formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.id)
+        // Ne sélectionner que les chambres non no-show
+        formData.value.selectedRooms = availableRooms.value.map((room: any) => room.id)
     } else {
         formData.value.selectedRooms = []
     }
@@ -193,15 +211,20 @@ watch(() => formData.value.noShowType, (newType) => {
 
 // Watch for reservationRooms changes to handle single room auto-selection
 watch(() => reservationRooms.value, (newRooms) => {
-    if (newRooms.length === 1) {
-        // Auto-select individual for single room and select the room
+    const available = newRooms.filter((room: any) => room.status !== 'no_show')
+
+    if (available.length === 0) {
+        // Toutes les chambres sont no-show
+        formData.value.selectedRooms = []
+        return
+    }
+
+    if (available.length === 1) {
         formData.value.noShowType = 'individual'
-        formData.value.selectedRooms = [newRooms[0].id]
-    } else if (newRooms.length > 1) {
-        // Auto-select all rooms for group no-show
-        if (formData.value.noShowType === 'group') {
-            formData.value.selectedRooms = newRooms.map((room: any) => room.id)
-        }
+        formData.value.selectedRooms = [available[0].id]
+    } else if (newRooms.length > 1 && formData.value.noShowType === 'group') {
+        // Pour le groupe, ne sélectionner que les chambres disponibles
+        formData.value.selectedRooms = available.map((room: any) => room.id)
     }
 }, { deep: true })
 
@@ -242,9 +265,10 @@ const closeModal = () => {
 const laodReason = async () => {
     isloadingReason.value = true;
     try {
-        const res = await getReasons();
-        console.log('data', res)
-        reasonOptions.value = res.data.data.map((item: any) => {
+        const hotel_id = serviceStore.serviceId;
+        const res = await getByCategory(hotel_id!, 'No Show Reservation');
+        console.log('data', res.data)
+        reasonOptions.value = res.data.map((item: any) => {
             return {
                 label: item.reasonName,
                 value: item.reasonName
@@ -259,9 +283,30 @@ const laodReason = async () => {
     }
 
 }
+
+// Computed pour vérifier si toutes les chambres sont no-show
+const allRoomsNoShow = computed(() => {
+    return reservationRooms.value.length > 0 &&
+           reservationRooms.value.every((room: any) => room.status === 'no_show')
+})
+
+// Computed pour obtenir les chambres disponibles (non no-show)
+const availableRooms = computed(() => {
+    return reservationRooms.value.filter((room: any) => room.status !== 'no_show')
+})
+
+
+
+
 const handleSubmit = async () => {
     try {
         loading.value = true
+
+        // Vérifier s'il y a des chambres disponibles
+        if (availableRooms.value.length === 0) {
+            toast.error(t('All rooms have already been marked as no-show'))
+            return
+        }
 
         // Validate form
         if (!formData.value.reason) {
@@ -280,7 +325,7 @@ const handleSubmit = async () => {
             return
         }
 
-        // Prepare data for emission
+         // Prepare data for emission
         const noShowData: NoShowReservationData = {
             noShowFees: formData.value.noShowFees,
             applyTax: formData.value.applyTax,

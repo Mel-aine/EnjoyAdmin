@@ -273,8 +273,11 @@ const performUnassign = async () => {
     const response = await avheReservation(props.reservationId, payload)
 
     // Emit success event
-    emit('success', { ...payload, response })
     emit('unassign-complete')
+     emit('success', {
+      reservationRooms: payload.reservationRooms,
+      response
+    })
 
     // Close modal
     closeModal()

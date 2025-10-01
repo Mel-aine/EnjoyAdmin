@@ -904,9 +904,11 @@ const validateAllRooms = () => {
 
         // Reservation details
         hotel_id: serviceStore.serviceId,
-        reservation_type: reservation.value.bookingType,
+        reservation_type_id: reservation.value.bookingType,
         booking_source: reservation.value.bookingSource,
         business_source: reservation.value.businessSource,
+        // market_code_id: reservation.value.bookingSource,
+        payment_type: billing.value.paymentType ,
 
         // Hold-specific fields (only included if isHold is true)
         ...(reservation.value.isHold && {

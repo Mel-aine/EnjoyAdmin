@@ -540,7 +540,7 @@ onMounted(() => {
         </div>
         <div class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
           <ReservationStatus :status="reservation.status" />
-          <button @click="checkInRerservation" :disabled="isCheckingIn" v-if="canCheckIn"
+          <!-- <button @click="checkInRerservation" :disabled="isCheckingIn" v-if="canCheckIn"
             class="bg-green-600 rounded-lg text-white px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
             <Spinner v-if="isCheckingIn" class="w-4 h-4" />
             <span>{{ isCheckingIn ? $t('processing') || 'Processing...' : $t('check in') }}</span>
@@ -549,7 +549,7 @@ onMounted(() => {
             class="bg-red-600 rounded-lg text-white px-4 py-2 align-middle text-sm items-center self-center flex gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors">
             <Spinner v-if="isCheckingOut" class="w-4 h-4" />
             <span>{{ isCheckingOut ? $t('processing') || 'Processing...' : $t('check out') }}</span>
-          </button>
+          </button> -->
         </div>
       </div>
       <!--main-->
