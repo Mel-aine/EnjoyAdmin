@@ -667,6 +667,7 @@ const toggleAllFilteredSelectableRooms = () => {
   })
 }
 
+
 const unselectAll = () => {
   rooms.value.forEach((room) => {
     room.isChecked = false
@@ -954,6 +955,7 @@ const onCancel = () => {
 
 onMounted(() => {
   fetchHousekeepingStatus()
+
 })
 </script>
 

@@ -9,7 +9,7 @@
             {{ $t('Rooms') }}
           </div>
           <!-- Single Room Display -->
-          <div>
+          <div v-if="singleRoom">
             <div :title="$t('roomNumber')">
               <div>
                 <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
@@ -19,6 +19,20 @@
                   </div>
                   <ChevronRight class="w-4 h-4" />
                 </div>
+              </div>
+            </div>
+          </div>
+          <!-- Group Rooms Display -->
+          <div v-if="groupRooms.length > 0">
+            <div v-for="room in groupRooms" :key="room.id"
+                :class="{'bg-gray-200': selectedRoomId === room.id}"
+                @click="selectRoom(room.id)">
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
+                <div class="flex flex-col">
+                  <span class="capitalize">{{ room.roomNumber }}-{{ room.guestName }}</span>
+                  <span class="text-xs text-gray-500">{{ room.roomType || '' }}</span>
+                </div>
+                <ChevronRight class="w-4 h-4" />
               </div>
             </div>
           </div>
