@@ -23,7 +23,7 @@ interface RoomConfiguration {
   isOpen: boolean
   taxes: any[],
   isLoadingRooms?: boolean
-  isLoadingRates?: boolean
+  isLoadingRate?: boolean
 }
 
 interface Reservation {
@@ -135,7 +135,7 @@ export function useBooking() {
   // Loading states
   const isLoading = ref(false)
   const isLoadingRoom = ref(false)
-  const isLoadingRate = ref(false)
+  // const isLoadingRate = ref(false)
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
   const quickGroupBooking = ref(false)
@@ -184,7 +184,7 @@ export function useBooking() {
       isOpen: false,
       taxes: [],
       isLoadingRooms: false,
-      isLoadingRates: false,
+      isLoadingRate: false,
 
     },
   ])
@@ -634,7 +634,8 @@ watch(
       rate: 0,
       isOpen: false,
       taxes: [],
-      isLoadingRooms: false
+      isLoadingRooms: false,
+      isLoadingRate: false,
     }
     roomConfigurations.value.push(newRoom)
     reservation.value.rooms = roomConfigurations.value.length
@@ -1156,7 +1157,7 @@ const validateAllRooms = () => {
     if (!room || !room.roomType || !newRateTypeId) return
 
     try {
-      isLoadingRate.value = true
+      room.isLoadingRate = true
 
       // Récupérer les informations complètes du rate
       const rateInfo = await fetchRateInfo(
@@ -1193,7 +1194,9 @@ const validateAllRooms = () => {
       console.error('Error fetching rate info:', error)
       toast.error(t('toast.errorFetchingBaseRate'))
     } finally {
-      isLoadingRate.value = false
+      if (room) {
+      room.isLoadingRate = false
+    }
     }
   }
 
@@ -1410,6 +1413,7 @@ const validateAllRooms = () => {
     if (!room || !room.roomType || !room.rateType) return
 
     try {
+      room.isLoadingRate = true
       const rateInfo = await fetchRateInfo(
         room.roomType,
         room.rateType,
@@ -1439,6 +1443,10 @@ const validateAllRooms = () => {
       updateBilling()
     } catch (error) {
       console.error('Error recalculating room rate:', error)
+    }finally {
+      if (room) {
+      room.isLoadingRate = false
+    }
     }
   }
 
@@ -1755,7 +1763,6 @@ watch(() => otherInfo.value.voucherEmail, () => {
     // States
     isLoading,
     isLoadingRoom,
-    isLoadingRate,
     isPaymentLoading,
     dateError,
     confirmReservation,

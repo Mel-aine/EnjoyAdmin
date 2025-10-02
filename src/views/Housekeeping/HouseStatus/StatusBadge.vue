@@ -10,10 +10,18 @@
           getBgColor()
         ]"
       >
+
+        <div class="relative bed-crossed"  v-if="status === $t('statut.outOfOrder') ">
+          <BedIcon :size="16" />
+        </div>
+        <!-- Icône lit normal -->
         <BedIcon
-          :size="14"
+          v-else
+          :size="16"
           :class="['mr-1', getTextColor()]"
         />
+
+
         <span :class="['text-xs font-medium flex-1', getTextColor()]">
           {{ room }}
           <template v-if="status !== room">
@@ -54,14 +62,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Bed as BedIcon, MessageSquareMore } from 'lucide-vue-next'
+import { Bed as BedIcon, MessageSquareMore,BedDouble } from 'lucide-vue-next'
 import RemarkModal from '@/components/Housekeeping/RemarkModal.vue'
 
 interface StatusBadgeProps {
   room: string
   status: string
   tag?: string
-  type: 'red' | 'green' | 'gray' | 'yellow'
+  type: 'red' | 'green' | 'gray' | 'orange'
   roomId?: string
   HousekeeperOptions: Array<{ value: string; label: string }>
   existingRemarkData?: any
@@ -90,8 +98,8 @@ const getBgColor = () => {
       return 'bg-red-100'
     case 'green':
       return 'bg-green-100'
-    case 'yellow':
-      return 'bg-yellow-100'
+    case 'orange':
+      return 'bg-orange-100'
     case 'gray':
       return 'bg-gray-400'
     default:
@@ -106,8 +114,8 @@ const getTextColor = () => {
       return 'text-red-600'
     case 'green':
       return 'text-green-600'
-    case 'yellow':
-      return 'text-yellow-600'
+    case 'orange':
+      return 'text-orange-600'
     case 'gray':
     default:
       return 'text-gray-600'
@@ -135,3 +143,19 @@ const onRemarkSaved = (remark: any) => {
   emit('remark-updated')
 }
 </script>
+<style scoped>
+.bed-crossed {
+  position: relative;
+}
+
+.bed-crossed::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 2px;
+  background-color: currentColor;
+  transform: rotate(-45deg);
+}
+</style>

@@ -202,14 +202,14 @@
                         </label>
                         <div v-if="!isCustomPrize"
                           class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
-                          :class="{ 'opacity-50': isLoadingRate }">
+                          :class="{ 'opacity-50': room.isLoadingRate }">
                           <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
                             @click="isCustomPrize = true">
                             <PencilLine :size="18" />
                           </span>
 
                           <!-- Indicateur de chargement du rate -->
-                          <div v-if="isLoadingRate" class="flex-grow flex items-center">
+                          <div v-if="room.isLoadingRate" class="flex-grow flex items-center">
                             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
                           </div>
 
@@ -720,7 +720,6 @@ const {
   isLoading,
   isLoadingRoom,
   dateError,
-  isLoadingRate,
   isPaymentButtonShow,
   confirmReservation,
   isCustomPrize,

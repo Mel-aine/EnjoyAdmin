@@ -680,7 +680,7 @@ const handleSavePayment = async (data: any) => {
         if (Object.keys(updates).length > 0) {
             console.log('Applying payment updates:', updates)
             updateLocalReservation(updates)
-            toast.success(t('Payment added successfully'))
+
         } else {
             console.warn('No payment updates could be calculated, falling back to parent refresh')
             // Fallback: émettre save pour que le parent gère le refresh
