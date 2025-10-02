@@ -215,14 +215,14 @@
               <td
                 :class="[
                   'py-2 px-3 border-b border-r border-gray-200 text-center',
-                  getStatusColumn(room) === 3 ? 'bg-red-50' : '',
+                  getStatusColumn(room) === 3 ? 'bg-gray-50' : '',
                 ]"
               >
                 <StatusBadge
                   v-if="getStatusColumn(room) === 3"
                   :room="room.name"
                   :room-id="room.id"
-                  :status="$t('occupied')"
+                  :status="$t(`roomStatus.${room.status}`)"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
                   :existingRemarkData="room.housekeepersRemarks"
@@ -248,7 +248,7 @@
                   v-if="getStatusColumn(room) === 4"
                   :room="room.name"
                   :room-id="room.id"
-                  :status="$t('dirty')"
+                  :status="$t(`roomStatus.${room.status}`)"
                   :HousekeeperOptions="housekeeperOptions"
                   :existingRemarkData="room.housekeepersRemarks"
                   :tag="room.tag"
@@ -266,7 +266,7 @@
                   v-if="getStatusColumn(room) === 5"
                   :room="room.name"
                   :room-id="room.id"
-                  :status="$t('available')"
+                  :status="$t(`roomStatus.${room.status}`)"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
                   :existingRemarkData="room.housekeepersRemarks"
@@ -292,7 +292,7 @@
                   v-if="getStatusColumn(room) === 6"
                   :room="room.name"
                   :room-id="room.id"
-                  :status="$t('statut.outOfOrder')"
+                  :status="$t(`roomStatus.${room.status}`)"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
                   :existingRemarkData="room.housekeepersRemarks"
@@ -321,13 +321,13 @@
               {{ totalOccupants }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.filter((r) => r.status === 'noStatus').length }}
+              {{ filteredRooms.filter((r) => r.housekeepingStatus === 'No Status').length }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.filter((r) => isDirtyRoom(r)).length }}
+              {{ filteredRooms.filter((r) => r.housekeepingStatus === 'dirty').length }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.filter((r) => isCleanRoom(r)).length }}
+              {{ filteredRooms.filter((r) => r.housekeepingStatus === 'clean').length }}
             </td>
             <td class="py-2 px-3 border-b border-gray-200 text-center">
               {{ filteredRooms.filter((r) => r.status === 'out_of_order').length }}
@@ -410,7 +410,7 @@ interface Room {
   isChecked: boolean
   section: string
   roomType: string
-  status: 'available' | 'noStatus' | 'out_of_order' | 'maintenance' | 'dirty'
+  status: 'available' | 'noStatus' | 'out_of_order' | 'maintenance' | 'dirty' | 'occupied'
   housekeepingStatus: string
   tag: string
   statusType: 'red' | 'green' | 'gray' | 'yellow'
@@ -476,15 +476,15 @@ const availableOperations = computed(() => {
 })
 // Logique métier pour déterminer l'état des chambres
 const isDirtyRoom = (room: Room): boolean => {
-  return room.status === 'dirty' && room.housekeepingStatus === 'dirty'
+  return (room.status === 'available' || room.status === 'occupied') && room.housekeepingStatus === 'dirty'
 }
 
 const isCleanRoom = (room: Room): boolean => {
-  return room.status === 'available' && room.housekeepingStatus === 'clean'
+  return (room.status === 'available' || room.status === 'occupied')  && room.housekeepingStatus === 'clean'
 }
 
 const isnoStatusRoom = (room: Room): boolean => {
-  return room.status === 'noStatus'
+  return (room.status === 'available' || room.status === 'occupied' ) && room.housekeepingStatus === null
 }
 
 const canSelectRoom = (room: Room): boolean => {
@@ -520,6 +520,7 @@ const canApplyOperation = computed(() => {
 
 const hasSelectableRoomsInFiltered = computed(() => {
   return filteredRooms.value.some((room) => room.status !== 'out_of_order')
+
 })
 
 const allFilteredSelectableRoomsSelected = computed(() => {
@@ -600,9 +601,9 @@ const getStatusType = (room: Room): 'white' | 'green' | 'gray' | 'orange' => {
 // Transform API data according to business logic
 const transformRoomData = (apiRoom: any): Room => {
   let status = apiRoom.status || 'available'
-  let housekeepingStatus = 'No Status'
+  let housekeepingStatus = apiRoom.housekeepingStatus || ''
 
-  // Check for active blocks
+  // Vérifie si la chambre a un bloc actif
   const hasActiveBlock =
     apiRoom.blocks && apiRoom.blocks.some((block: any) => block.status !== 'completed')
 
@@ -610,23 +611,27 @@ const transformRoomData = (apiRoom: any): Room => {
     status = 'out_of_order'
     housekeepingStatus = 'Out Of Order'
   }
-  // Logique métier: si occupé, housekeeping = No Status
-  else if (status !== 'available' && status !== 'dirty') {
-    housekeepingStatus = 'noStatus'
+  //  chambre occupée
+  else if (status === 'occupied') {
+    // On garde le statut ménage si défini, sinon "Dirty" par défaut
+    housekeepingStatus = housekeepingStatus || 'dirty'
   }
-  // Si disponible et que la chambre était occupée, elle devient dirty
-  else if (status === 'dirty') {
-    // Vous pourriez avoir une logique pour déterminer si la chambre est dirty
-    // Par exemple, si elle vient d'être libérée
-    housekeepingStatus = apiRoom.housekeepingStatus || 'dirty'
-  }
-  // Si disponible et propre
+  // chambre disponible
   else if (status === 'available') {
-    housekeepingStatus = apiRoom.housekeepingStatus || 'clean'
+    // Si ménage défini, on garde, sinon "Dirty" (car une dispo est souvent sale après check-out)
+    housekeepingStatus = housekeepingStatus || 'dirty'
   }
-  // Si hors service (original logic, now potentially overridden by blocks)
-  else if (status === 'out_of_order') {
+  // chambre marquée explicitement dirty
+  else if (status === 'dirty') {
+    housekeepingStatus = housekeepingStatus || 'dirty'
+  }
+  //  hors service / maintenance
+  else if (status === 'out_of_order' || status === 'maintenance') {
     housekeepingStatus = 'Out Of Order'
+  }
+  // Cas par défaut
+  else {
+    housekeepingStatus = housekeepingStatus || ''
   }
 
   return {
@@ -638,6 +643,7 @@ const transformRoomData = (apiRoom: any): Room => {
     assignedHousekeeper: apiRoom.assignedHousekeeper || '',
   }
 }
+
 
 // Methods
 
@@ -710,23 +716,47 @@ const sectionHasSelectableRooms = (section: string): boolean => {
 // Calculate section totals
 const getSectionTotals = (section: string) => {
   const sectionRooms = filteredRooms.value.filter((room) => room.section === section)
+
+
   return {
     total: sectionRooms.length,
     totalOccupants: sectionRooms.reduce((sum, room) => sum + (room.occupants || 0), 0),
-    noStatus: sectionRooms.filter((room) => room.status === 'noStatus').length,
-    dirty: sectionRooms.filter((room) => isDirtyRoom(room)).length,
-    clean: sectionRooms.filter((room) => isCleanRoom(room)).length,
+    noStatus: sectionRooms.filter(
+    (room) => !room.housekeepingStatus || room.housekeepingStatus === 'No Status').length,
+    dirty: sectionRooms.filter((room) => room.housekeepingStatus === 'dirty').length,
+    clean: sectionRooms.filter((room) => room.housekeepingStatus === 'clean').length,
     outOfOrder: sectionRooms.filter((room) => room.status === 'out_of_order').length,
   }
 }
 
 // Get status column for room
+// const getStatusColumn = (room: Room): number => {
+//   if (room.status === 'noStatus') return 3 // no status
+//   if (isDirtyRoom(room)) return 4 // Dirty
+//   if (isCleanRoom(room)) return 5 // Clean
+//   if (room.status === 'out_of_order') return 6 // Out of Order
+//   return -1
+// }
+// Get status column for room
 const getStatusColumn = (room: Room): number => {
-  if (room.status === 'noStatus') return 3 // no status
-  if (isDirtyRoom(room)) return 4 // Dirty
-  if (isCleanRoom(room)) return 5 // Clean
+  // Out of Order a la priorité
   if (room.status === 'out_of_order') return 6 // Out of Order
-  return -1
+
+  // Si housekeeping status est "No Status"
+  if (room.housekeepingStatus === 'No Status' || room.housekeepingStatus === 'noStatus' || room.housekeepingStatus === null ) return 3 // no status
+
+  // Combinaison: occupied + dirty OU available + dirty
+  if ((room.status === 'occupied' || room.status === 'available') && room.housekeepingStatus === 'dirty') {
+    return 4 // Dirty
+  }
+
+  // Combinaison: occupied + clean OU available + clean
+  if ((room.status === 'occupied' || room.status === 'available') && room.housekeepingStatus === 'clean') {
+    return 5 // Clean
+  }
+
+  // Par défaut
+  return 3 // no status
 }
 
 // Watch for changes and emit to parent
@@ -789,31 +819,31 @@ const applyBulkAction = async () => {
 
     if (response.data) {
       // Mettre à jour l'interface utilisateur localement
-      selectedRooms.forEach((room) => {
-        const roomIndex = rooms.value.findIndex((r) => r.id === room.id)
-        if (roomIndex !== -1) {
-          // Dans le switch de mise à jour locale :
-          switch (selectedOperation.value) {
-            case 'set_status':
-              rooms.value[roomIndex].housekeepingStatus = selectedStatus.value
-              rooms.value[roomIndex].status =
-                selectedStatus.value === 'clean' ? 'available' : 'dirty'
-              break
-            case 'assign_housekeeper':
-              rooms.value[roomIndex].assignedHousekeeper = selectedHousekeeper.value
-              break
-            case 'clear_status':
-              rooms.value[roomIndex].housekeepingStatus = 'No Status'
-              break
-            case 'clear_remark':
-              rooms.value[roomIndex].housekeepersRemarks = null
-              break
-            case 'unassign_housekeeper':
-              rooms.value[roomIndex].assignedHousekeeper = ''
-              break
-          }
-        }
-      })
+      // selectedRooms.forEach((room) => {
+      //   const roomIndex = rooms.value.findIndex((r) => r.id === room.id)
+      //   if (roomIndex !== -1) {
+      //     // Dans le switch de mise à jour locale :
+      //     switch (selectedOperation.value) {
+      //       case 'set_status':
+      //         rooms.value[roomIndex].housekeepingStatus = selectedStatus.value
+      //         rooms.value[roomIndex].status =
+      //           selectedStatus.value === 'clean' ? 'available' : 'dirty'
+      //         break
+      //       case 'assign_housekeeper':
+      //         rooms.value[roomIndex].assignedHousekeeper = selectedHousekeeper.value
+      //         break
+      //       case 'clear_status':
+      //         rooms.value[roomIndex].housekeepingStatus = 'No Status'
+      //         break
+      //       case 'clear_remark':
+      //         rooms.value[roomIndex].housekeepersRemarks = null
+      //         break
+      //       case 'unassign_housekeeper':
+      //         rooms.value[roomIndex].assignedHousekeeper = ''
+      //         break
+      //     }
+      //   }
+      // })
 
       console.log(
         `Bulk update successful: ${selectedOperation.value} applied to ${selectedRoomsCount.value} rooms`,
@@ -843,11 +873,12 @@ const fetchHousekeepingStatus = async () => {
     const response = await getHouseStatus(hotelId!)
 
     const apiData = response.data
-    console.log('Housekeeping status fetched:', apiData)
+    console.log('apiData:', apiData)
 
     if (apiData.rooms && Array.isArray(apiData.rooms)) {
       // Transform rooms according to business logic
-      rooms.value = apiData.rooms.map(transformRoomData)
+       rooms.value = apiData.rooms.map(transformRoomData)
+
     }
 
     console.log('Housekeeping status fetched:', rooms.value)

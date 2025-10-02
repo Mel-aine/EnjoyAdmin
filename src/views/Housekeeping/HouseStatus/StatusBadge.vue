@@ -95,7 +95,7 @@ const isLoadingRemark = ref(false)
 const getBgColor = () => {
   switch (props.type) {
     case 'red':
-      return 'bg-red-100'
+      return 'bg-gray-100'
     case 'green':
       return 'bg-green-100'
     case 'orange':
@@ -111,7 +111,7 @@ const getBgColor = () => {
 const getTextColor = () => {
   switch (props.type) {
     case 'red':
-      return 'text-red-600'
+      return 'text-gray-600'
     case 'green':
       return 'text-green-600'
     case 'orange':

@@ -625,6 +625,7 @@
   "resetToDefaults": "Reset to Defaults",
   "selectColorFor": "Select Color for {status}",
   "clickToChangeColorFor": "Click to change color for {status}",
+  "noStatus" : "No Status",
   "roomStatus": {
     "available": "Available",
     "occupied": "Occupied",
@@ -633,6 +634,7 @@
     "cleaning": "Cleaning",
     "maintenance": "Maintenance",
     "out-of-order": "Out of Order",
+    "out_of_order": "Out of Order",
     "out_of_service": "Out of Service",
     "blocked": "Blocked",
     "checkout": "Check Out",
