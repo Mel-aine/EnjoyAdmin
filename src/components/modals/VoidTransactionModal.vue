@@ -11,14 +11,16 @@
         <!-- Void Reason Form -->
             <!-- Reason Section -->
       <div>
-        <AutoCompleteSelect
+        <CloneAutoCompleteSelect
           v-model="voidForm.reason"
           :options="voidReasons"
           :defaultValue="$t('SelectReason')"
           :lb="$t('Reason')"
           :is-required="true"
           :use-dropdown="useDropdownReason"
+          :is-loading="isLoadingReasons"
           @update:useDropdown="useDropdownReason = $event"
+          @add-custom="handleAddCustomReason"
         />
       </div>
 
@@ -57,9 +59,9 @@ import { ref, reactive, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { voidFolioTransaction } from '@/services/foglioApi'
 import RightSideModal from '../modal/RightSideModal.vue'
-import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
-import { getByCategory } from '../../services/configrationApi'
+import { getByCategory, postReason } from '../../services/configrationApi'
 import { useServiceStore } from '../../composables/serviceStore'
+import CloneAutoCompleteSelect from '../forms/FormElements/CloneAutoCompleteSelect.vue'
 
 const { t } = useI18n()
 
@@ -89,6 +91,7 @@ const emit = defineEmits<{
 
 // Reactive data
 const isLoading = ref(false)
+const isLoadingReasons = ref(false)
 const voidForm = reactive({
   reason: '',
   notes: ''
@@ -129,6 +132,7 @@ const validateForm = () => {
 // Load initial data
 const loadInitialData = async () => {
   try {
+    isLoadingReasons.value = true
     const hotel_id = useServiceStore().serviceId
     // Load void reasons
     const reasonsResponse = await getByCategory(hotel_id!, 'Void Reservation')
@@ -140,9 +144,46 @@ const loadInitialData = async () => {
         label: reason.reasonName || reason.name
       }))
     }
-
   } catch (error) {
     console.error('Error loading initial data:', error)
+    // Afficher un message d'erreur à l'utilisateur si nécessaire
+  } finally {
+    isLoadingReasons.value = false
+  }
+}
+
+// Handle adding a custom reason
+const handleAddCustomReason = async (reason: string) => {
+  try {
+    isLoadingReasons.value = true
+    const hotel_id = useServiceStore().serviceId
+    
+    // Envoyer la nouvelle raison au serveur
+    const response = await postReason({
+      reasonName: reason,
+      category: 'Void Reservation',
+      isActive: true,
+      hotelId: hotel_id
+    })
+
+    // Ajouter la nouvelle raison à la liste
+    if (response.data) {
+      voidReasons.value.unshift({
+        value: response.data.reasonName || response.data.name,
+        label: response.data.reasonName || response.data.name
+      })
+      
+      // Sélectionner automatiquement la nouvelle raison
+      voidForm.reason = response.data.reasonName || response.data.name
+    }
+    
+    return true
+  } catch (error) {
+    console.error('Error adding custom reason:', error)
+    // Afficher un message d'erreur à l'utilisateur
+    return false
+  } finally {
+    isLoadingReasons.value = false
   }
 }
 const handleVoidTransaction = async () => {
