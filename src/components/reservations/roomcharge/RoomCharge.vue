@@ -225,6 +225,8 @@ import AmendStay from '../foglio/AmendStay.vue'
 import CancelReseravtion from '../foglio/CancelReseravtion.vue'
 const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
+const ExchangeRoomModal = defineAsyncComponent(() => import('../ExchangeRoomModal.vue'))
+const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 
 const { t } = useI18n()
@@ -283,8 +285,18 @@ const toast = useToast()
 const isCheckInReservationModalOpen = ref(false)
 const isUnAssignReservationModalOpen = ref(false)
 const showAmendModal = ref(false)
+const isExchangeRoomModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
 
 const emit = defineEmits<Emits>()
+
+const closeExchangeRoomModal = () => {
+  isExchangeRoomModalOpen.value = false
+}
+
+const closeRoomMoveModal = () => {
+  isRoomMoveModalOpen.value = false
+}
 
 // Computed Properties
 const isGroupReservation = computed(() => groupRooms.value.length > 1)

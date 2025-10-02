@@ -169,20 +169,21 @@
       <!-- Results Section -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
         <!-- Report Header with Hotel Name and Title -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
-          <div class="text-center">
+        <div class="px-6 py-4 border-b border-gray-200 dark:bg-blue-900/20">
+          <div class="text-center flex justify-between">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {{ reportData?.hotelDetails?.hotelName || 'Hotel Nihal' }}
+              {{ reportData?.hotelDetails?.hotelName }}
             </h2>
-            <div class="inline-block bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-2 rounded-lg border border-red-300 dark:border-red-700">
+            <div class="inline-block  text-red-800 dark:text-red-200 px-4 py-2 rounded-lg border">
               <span class="font-semibold">Daily Receipt - Summary</span>
             </div>
-            <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-              <span class="inline-block bg-red-200 dark:bg-red-800 px-3 py-1 rounded">
+            
+          </div>
+          <div class="mt-3 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
+              <span class="inline-block px-3 py-1 rounded">
                 Date From {{ reportData?.dateRange?.fromDate || filters.receiptFrom }} To {{ reportData?.dateRange?.toDate || filters.receiptTo }}
               </span>
             </div>
-          </div>
         </div>
 
         <!-- Report Content HTML -->
@@ -210,7 +211,7 @@
                     Void Amount
                   </th>
                   <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
-                    Total(Rs.)
+                    Total(XAF)
                   </th>
                 </tr>
               </thead>
@@ -447,8 +448,14 @@ const idHotel = serviceStore.serviceId
 
 // Filters for UI
 const filters = ref<Filters>({
-  receiptFrom: '',
-  receiptTo: '',
+  receiptFrom: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
+  receiptTo: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
   receivedBy: '',
   paymentMethod: '',
   currency: ''
@@ -456,8 +463,8 @@ const filters = ref<Filters>({
 
 // API Filters
 const apiFilters = ref<DailyReceipt>({
-  fromDate: '',
-  toDate: '',
+  fromDate: filters.value.receiptFrom,
+  toDate: filters.value.receiptTo ,
   hotelId: idHotel !== null ? idHotel : 0,
   receiptByUserId: 0,
   currencyId: 0,
@@ -556,7 +563,6 @@ const exportCSV = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    console.log('Export CSV with filters:', apiFilters.value)
     const result = await exportData('csv', 'dailyReceiptSummary', 'daily-receipt-summary', apiFilters.value)
     console.log('CSV export result:', result)
   } catch (error) {

@@ -125,12 +125,12 @@
                                             class="flex align-middle self-center content-center items-center gap-1">
                                             <MapPin class="w-4 h-4" /><span>{{
                                                 $t(`countries_lists.${reservation.guest?.country.toLowerCase()}`)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div v-if="reservation.guest?.phonePrimary
                                         " class="flex align-middle self-center content-center items-center gap-1">
                                             <PhoneCall class="w-3 h-3" /><span>{{ $t(reservation.guest?.phonePrimary)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -241,7 +241,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(rm, ind) in roomTypeSumarry" :key="ind">{{ rm
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                         </div>
 
@@ -256,7 +256,7 @@
                                             <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room: any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                             <AssignRoomReservation
                                                 v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room: any) => !room.room?.id)"
@@ -271,7 +271,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in ratePlan" :key="ind">{{ res
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                         </div>
                                         <div>
@@ -321,19 +321,19 @@
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalChargesWithTaxes ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalPayments ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.outstandingBalance ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </slot>
@@ -380,6 +380,10 @@
             <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
                 @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
         </template>
+        <RoomMoveModal :reservation-id="reservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal"
+            @success="handleRoomMoveSuccess" />
+        <ExchangeRoomModal v-if="isExchangeRoomModalOpen && reservation" :reservation-id="reservation.id"
+            :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
     </template>
 
 
@@ -416,11 +420,13 @@ const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReser
 const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReservation.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'))
+const ExchangeRoomModal = defineAsyncComponent(() => import('./ExchangeRoomModal.vue'))
 import AssignRoomReservation from './AssignRoomReservation.vue'
 import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../composables/serviceStore'
+import RoomMoveModal from '../modal/RoomMoveModal.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -463,6 +469,8 @@ const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
+const isExchangeRoomModalOpen = ref(false)
 const laodingPrint = ref(false);
 const pdfUrl = ref<any>(null);
 const documentTitle = ref<string>('')
@@ -588,7 +596,20 @@ const openUnAssignReservationModal = () => {
 const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
 }
-
+const closeRoomMoveModal = () => {
+    isRoomMoveModalOpen.value = false
+}
+const closeExchangeRoomModal = () => {
+    isExchangeRoomModalOpen.value = false
+}
+const handleRoomMoveSuccess = () => {
+    isRoomMoveModalOpen.value = false
+    getBookingDetailsById();
+}
+const handleExchangeSuccess = () => {
+    isExchangeRoomModalOpen.value = false
+    getBookingDetailsById();
+}
 // const handleRoomAssigned = (data: any) => {
 //     getBookingDetailsById();
 //     emit('save', { action: 'RoomAssigned', reservationId: localReservation.value?.id, data })
@@ -1149,8 +1170,10 @@ const handleOptionSelected = async (option: any) => {
             }
             break;
         case 'room_move':
+            isRoomMoveModalOpen.value = true;
             break;
         case 'exchange_room':
+            isExchangeRoomModalOpen.value = true;
             break;
         case 'stop_room_move':
             break;

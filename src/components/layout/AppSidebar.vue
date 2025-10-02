@@ -150,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { getMenuByCategoryName } from '@/menus';
 import {
@@ -159,19 +159,25 @@ import {
 } from "../../icons";
 import { useSidebar } from "@/composables/useSidebar";
 import { isLoading } from '@/composables/spinner';
-import { useServiceStore } from '@/composables/serviceStore';
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from '@/composables/user'
 
 const route = useRoute();
-const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar();
-const serviceStore = useServiceStore();
 const authStore = useAuthStore()
 const { t } = useI18n();
 const openSubSubmenu = ref<string | null>(null);
+const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded, isHovered, openSubmenu } = useSidebar()
 
+const handleToggle = () => {
+  if (window.innerWidth >= 1024) {
+    toggleSidebar()
+  } else {
+    toggleMobileSidebar()
+  }
+}
 const startLoading = () => {
   isLoading.value = true;
+  handleToggle()
 };
 
 // Stop loading on navigation end

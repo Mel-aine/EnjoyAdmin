@@ -6212,6 +6212,10 @@
   "Already marked as no-show": "Already marked as no-show",
   "All rooms have already been marked as no-show": "All rooms have already been marked as no-show",
   "Unassigning room...": "Unassigning room...",
+  "printVoucher":"Print Voucher",
+  "printPosReceipt":"Print POS Receipt",
+  "housekeeperName":"Housekeeper Name"
+  "Unassigning room...": "Unassigning room...",
   "select_status": "Select Status",
   "Confirm Status Change": "Confirm Status Change",
   "Are you sure you want to change the status of the selected rooms?": "Are you sure you want to change the status of the selected room(s)?",

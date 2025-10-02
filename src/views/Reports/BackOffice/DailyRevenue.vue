@@ -103,12 +103,10 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
   getDailyRevenuePDFUrl,
-  downloadDailyRevenuePDF,
   validateDailyRevenueParams,
   type DailyRevenueParams
 } from '@/services/reportsApi'
@@ -133,7 +131,10 @@ const errorMessage = ref<string>('')
 const pdfUrl = ref<string>('')
 
 const filters = ref<Filters>({
-  asOnDate: '',
+  asOnDate: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
   revenueBy: ''
 })
 
@@ -213,7 +214,10 @@ const openPDFInNewPage = (): void => {
 
 const resetForm = (): void => {
   filters.value = {
-    asOnDate: '',
+    asOnDate: (() => {
+      const today = new Date()
+      return today.toISOString().split('T')[0]
+    })(),
     revenueBy: ''
   }
   errorMessage.value = ''

@@ -52,6 +52,8 @@ const AmendStay = defineAsyncComponent(() => import('@/components/reservations/f
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
 const CheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/CheckOutReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/reservations/UnAssignRoomReservation.vue'))
+const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reservations/ExchangeRoomModal.vue'))
+const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { useToast } from 'vue-toastification'
 
 // États des modals
@@ -63,6 +65,8 @@ const showAmendModal = ref(false)
 const showVoidModal = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
+const isExchangeRoomModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
 
 const { t } = useI18n()
@@ -900,6 +904,15 @@ onMounted(() => {
     <UnAssignRoomReservation :reservation-id="localReservation.id" :is-open="isUnAssignModalOpen"
       @close="isUnAssignModalOpen = false" @success="handleUnassignSuccess" />
   </template>
+  <!-- Room Move Modal -->
+  <template v-if="isRoomMoveModalOpen">
+    <RoomMoveModal :reservation-id="reservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
+  </template>
+  <!-- Exchange Room Modal -->
+  <template v-if="isExchangeRoomModalOpen">
+    <ExchangeRoomModal :reservation-id="reservation.id" :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
+  </template>
+  <!-- Print Modal -->
   <template v-if="showPrintModal">
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
       :reservation-id="localReservation.id" @print-success="handlePrintSuccess" @print-error="handlePrintError"

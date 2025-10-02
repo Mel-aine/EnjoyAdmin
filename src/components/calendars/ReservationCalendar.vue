@@ -158,7 +158,7 @@
                         <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
                           class="relative px-0 py-0 h-12 border border-gray-300">
                           <div :class="[
-                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
                             getReservationColor(cell.reservation.reservation_status),
                           ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
                             @mouseenter="showReservationTooltip(cell.reservation, $event)"
@@ -179,15 +179,14 @@
 
                         <!-- Room Block -->
                         <td v-else-if="cell.type === 'room_block'" :colspan="cell.colspan"
-                          class="relative px-0 py-0 h-12 border border-gray-300">
+                          class="relative px-0 py-0 h-full border border-gray-300">
                           <div :class="[
-                            'absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
+                            'absolute left-0 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%] ',
                             getRoomBlockColor(cell.roomBlock.status),
                           ]" :style="getReservationStyle(cell)">
                             <span class="truncate">
-                              🚫 {{ cell.roomBlock.reason || 'Room Blocked' }}
+                              {{ cell.roomBlock.reason }}
                               <br>
-                              <small>{{ cell.roomBlock.status }}</small>
                             </span>
                           </div>
                         </td>
@@ -844,20 +843,15 @@ function getReservationStyle(cell: any) {
   const  backgroundColor = getReservationColor(cell.reservation.reservation_status);
   return { width, left,backgroundColor };
   }else{
-    return { width, left };
+    const  backgroundColor = getReservationColor('blocked');
+    return { width, left,backgroundColor };
   }
 }
 const getReservationColor = statusColorStore.getReservationColor;
 
 
 function getRoomBlockColor(status: string) {
-  switch (status) {
-    case 'active': return 'bg-red-500'
-    case 'pending': return 'bg-yellow-500'
-    case 'cancelled': return 'bg-gray-500'
-    case 'expired': return 'bg-gray-400'
-    default: return 'bg-red-600'
-  }
+ return getReservationColor('blocked');
 }
 
 

@@ -23,6 +23,8 @@ const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservati
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'));
 const { t, locale } = useI18n({ useScope: 'global' })
 import { getReservationById } from '@/services/reservation';
+const ExchangeRoomModal = defineAsyncComponent(() => import('./ExchangeRoomModal.vue'))
+const RoomMoveModal = defineAsyncComponent(() => import('../modal/RoomMoveModal.vue'))
 
 // Initialize the reservation composable
 const {
@@ -70,6 +72,8 @@ const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
+const isExchangeRoomModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
 const toast = useToast()
 
 
@@ -188,6 +192,24 @@ const openUnAssignReservationModal = () => {
 
 const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
+}
+
+const closeExchangeRoomModal = () => {
+  isExchangeRoomModalOpen.value = false
+}
+
+const closeRoomMoveModal = () => {
+  isRoomMoveModalOpen.value = false
+}
+
+const handleExchangeSuccess = async () => {
+  closeExchangeRoomModal()
+  await refreshAvailableActions(localReservation.value.id)
+}
+
+const handleRoomMoveSuccess = async () => {
+  closeRoomMoveModal()
+  await refreshAvailableActions(localReservation.value.id)
 }
 
 
@@ -691,6 +713,14 @@ const handleOptionSelected = async (option: any) => {
       showPrintModal.value = true
       break
 
+    case 'room_move':
+      isRoomMoveModalOpen.value = true
+      break
+
+    case 'exchange_room':
+      isExchangeRoomModalOpen.value = true
+      break
+
     default:
       console.log(`Action ${option.id} not handled`)
   }
@@ -1188,6 +1218,14 @@ const nightsSummary = computed(() => {
   <template v-if="showPrintModal">
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
       @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="localReservation.id" />
+  </template>
+  <!-- Room Move Modal -->
+  <template v-if="isRoomMoveModalOpen">
+    <RoomMoveModal :reservation-id="localReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
+  </template>
+  <!-- Exchange Room Modal -->
+  <template v-if="isExchangeRoomModalOpen">
+    <ExchangeRoomModal :reservation-id="localReservation.id" :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
   </template>
 </template>
 
