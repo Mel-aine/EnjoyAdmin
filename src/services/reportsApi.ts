@@ -275,7 +275,7 @@ export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Pr
 export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `${API_URL}/statistics/daily-receipt-detail`,
+      `${API_URL}/statistics/daily-receipt-summary`,
       filters,
       getHeaders() 
     )
@@ -882,18 +882,18 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
     throw new Error('Hotel ID is required')
   }
   
-  if (!params.date) {
+  if (!params.asOnDate) {
     throw new Error('As On Date is required')
   }
   
   // Valider le format de la date (YYYY-MM-DD)
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!dateRegex.test(params.date)) {
+  if (!dateRegex.test(params.asOnDate)) {
     throw new Error('Date must be in YYYY-MM-DD format')
   }
   
   // Valider que la date est valide
-  const date = new Date(params.date)
+  const date = new Date(params.asOnDate)
   if (isNaN(date.getTime())) {
     throw new Error('Invalid date provided')
   }

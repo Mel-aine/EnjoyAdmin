@@ -457,7 +457,7 @@ const formatAmount = (amount: number) => {
 }
 
 const getAmountColor = (amount: number) => {
-  return amount >= 0 ? 'text-blue-600' : 'text-red-600'
+  return amount >= 0 ? 'text-blue-600' : 'text-green-600'
 }
 
 // Modal handlers

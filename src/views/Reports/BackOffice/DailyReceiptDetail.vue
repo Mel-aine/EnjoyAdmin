@@ -169,97 +169,80 @@
       <!-- Results Section -->
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
         <!-- Report Header with Hotel Name and Title -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
-          <div class="text-center">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {{ reportData?.hotelDetails?.hotelName || 'Hotel Nihal' }}
+        <div class=" border-b border-gray-200 dark:border-gray-700 dark:bg-blue-900/20">
+          <div class=" px-6 pt-2 flex justify-between items-center ">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2 text-uppercase">
+              {{ reportData?.hotelInformation?.hotelName}}  
             </h2>
-            <div class="inline-block bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-4 py-2 rounded-lg border border-red-300 dark:border-red-700">
+            <div class="inline-block  text-red-800 dark:text-red-200 px-4 py-2 rounded-lg">
               <span class="font-semibold">Daily Receipt - Detail</span>
             </div>
-            <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-              <span class="inline-block bg-red-200 dark:bg-red-800 px-3 py-1 rounded">
-                Date From {{ reportData?.dateRange?.fromDate || filters.receiptFrom }} To {{ reportData?.dateRange?.toDate || filters.receiptTo }}
+          </div>
+            <div class="mt-1 text-sm text-gray-600 dark:text-gray-400 border-t border-b border-black">
+              <span class="px-6 py-2 rounded flex gap-2">
+                <strong>Date From:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }} <strong>To:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}
               </span>
             </div>
-          </div>
         </div>
 
         <!-- Report Content HTML -->
         <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
         
         <!-- Fallback: Receipt Details Table if no HTML -->
-        <div v-else class="px-6 py-4">
+        <div v-else >
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead class="bg-gray-50 dark:bg-gray-700">
+            <table class="min-w-full ">
+              <thead class="border-b border-t-0 border-black">
                 <tr>
                   <th v-for="header in receiptHeaders" :key="header.key" 
                       :class="['px-4 py-3 text-xs font-medium uppercase tracking-wider', 
                               header.align === 'right' ? 'text-right' : 'text-left',
                               header.align === 'center' ? 'text-center' : '',
-                              'text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 last:border-r-0']">
+                              'font-semibold']">
                     {{ header.label }}
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+              <tbody class="bg-white dark:bg-gray-800  dark:divide-gray-600" v-if="reportData">
                 <!-- Receipt Data from API -->
-                <tr v-for="(item, index) in receiptData" :key="index" 
+                <template v-for="(item, index) in reportData.paymentMethodTotals" :key="index" >
+                  <tr>
+                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600" colspan="6">
+                      <strong>{{ item.methodName }}</strong>
+                    </td>
+                  </tr>
+                  <tr  v-for="(it,index) in item.receipts" :key="index"
                     class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ formatDate(item.paymentDate) }}
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    {{ formatDate(it.date) }}
                   </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.receiptNumber }}
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    {{ it.receiptNumber }}
                   </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.reference || item.description }}
+                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    {{ it.summary || it.description }}
                   </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ formatCurrency(item.totalAmount) }}
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white dark:border-gray-600">
+                    {{ formatCurrency(it.amount) }}
                   </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ item.createdBy || item.creator?.fullName }}
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    {{ it.user}}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ formatDate(item.createdAt) }}
+                    {{ formatDate(it.enteredOn) }}
                   </td>
                 </tr>
-                
-                <!-- User Summary Rows -->
-                <template v-if="reportData?.userSummaries?.length">
-                  <tr class="bg-gray-100 dark:bg-gray-700 border-t-2 border-gray-400 dark:border-gray-500">
-                    <td class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="6">
-                      User Summary
-                    </td>
-                  </tr>
-                  <tr v-for="userSummary in reportData.userSummaries" :key="userSummary.userName" 
-                      class="bg-gray-50 dark:bg-gray-600">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="2">
-                      {{ userSummary.userName }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ userSummary.totalTransactions }} transactions
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ formatCurrency(userSummary.userTotal) }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="2">
-                    </td>
-                  </tr>
                 </template>
-                
                 <!-- Grand Total Row -->
                 <tr class="bg-gray-100 dark:bg-gray-700 font-bold border-t-2 border-gray-400 dark:border-gray-500">
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="3">
                     Grand Total 
                   </td>
                   <td class="px-4 py-3 text-sm text-right font-bold text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-600">
-                    {{ formatCurrency(reportData?.grandTotals?.netTotal || grandTotal) }}
+                    {{ formatCurrency(reportData?.grandTotalAmount) }}
                   </td>
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ reportData?.grandTotals?.totalTransactions || totalEntries }} transactions
+                    {{ totalEntries }} transactions
                   </td>
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                   </td>
@@ -341,8 +324,14 @@ const idHotel = serviceStore.serviceId
 
 // Filters for UI
 const filters = ref<Filters>({
-  receiptFrom: '',
-  receiptTo: '',
+  receiptFrom: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
+  receiptTo: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
   receivedBy: '',
   paymentMethod: '',
   currency: ''
@@ -350,8 +339,8 @@ const filters = ref<Filters>({
 
 // API Filters
 const apiFilters = ref<DailyReceipt>({
-  fromDate: '',
-  toDate: '',
+  fromDate: filters.value.receiptFrom,
+  toDate: filters.value.receiptTo,
   hotelId: idHotel !== null ? idHotel : 0,
   receiptByUserId: 0,
   currencyId: 0,
@@ -459,7 +448,7 @@ const generateReport = async (): Promise<void> => {
     
     if (response && response.success && response.data) {
       reportData.value = response.data
-      receiptData.value = response.data.receipts || []
+      receiptData.value = response.data.receiptList || []
       showResults.value = true
     }
   } catch (error) {
