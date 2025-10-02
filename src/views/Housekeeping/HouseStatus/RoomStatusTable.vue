@@ -28,7 +28,7 @@
                 <PersonStanding />
               </div>
             </th>
-            <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-white">
+            <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-gray-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-gray-300 mr-1"></div>
                 <span class="text-sm">{{ $t('noStatus') }}</span>
@@ -46,7 +46,7 @@
                 <span class="text-sm">{{ $t('Clean') }}</span>
               </div>
             </th>
-            <th class="py-2 px-3 border-b border-gray-200 text-center bg-gray-50">
+            <th class="py-2 px-3 border-b border-gray-200 text-center bg-gray-100">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-gray-700 mr-1"></div>
                 <span class="text-sm">{{ $t('statut.outOfOrder') }}</span>
@@ -55,7 +55,7 @@
           </tr>
 
           <!-- En-tête avec contrôles de sélection quand des chambres sont sélectionnées -->
-          <tr class="bg-gray-50 " v-if="selectedRoomsCount > 0">
+          <tr class="bg-gray-50" v-if="selectedRoomsCount > 0">
             <th colspan="7" class="py-3 px-4 border-b border-gray-200">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -77,13 +77,19 @@
                     <div v-if="selectedOperation === 'set_status'" class="w-48">
                       <Select
                         :placeholder="$t('select_status')"
-                        :options="[{ value: 'clean', label: t('Clean') }, { value: 'dirty', label: t('dirty') }]"
+                        :options="[
+                          { value: 'clean', label: t('Clean') },
+                          { value: 'dirty', label: t('dirty') },
+                        ]"
                         v-model="selectedStatus"
                       />
                     </div>
 
                     <!-- Select pour le housekeeper si "Assign Housekeeper" est sélectionné -->
-                    <div v-if="selectedOperation === 'assign_housekeeper'" class="w-48 text-gray-750">
+                    <div
+                      v-if="selectedOperation === 'assign_housekeeper'"
+                      class="w-48 text-gray-750"
+                    >
                       <Select
                         :placeholder="$t('select_housekeeper')"
                         :options="housekeeperOptions"
@@ -93,7 +99,7 @@
 
                     <button
                       class="bg-purple-500 hover:bg-purple-600 text-white rounded px-4 py-2 text-sm transition-colors"
-                      @click="applyBulkAction"
+                      @click="confirmBulkAction"
                       :disabled="!canApplyOperation || isBulkUpdating"
                       :class="{
                         'opacity-50 cursor-not-allowed': !canApplyOperation || isBulkUpdating,
@@ -126,14 +132,14 @@
                   :checked="isSectionSelectableRoomsSelected(section)"
                   @change="toggleSectionSelectableRooms(section)"
                   class="form-checkbox"
-                  :disabled="!sectionHasSelectableRooms(section) "
+                  :disabled="!sectionHasSelectableRooms(section)"
                 />
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
                 {{ section }}
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-                {{ getSectionTotals(section).total }}
+                {{ getSectionTotals(section).totalOccupants }}
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
                 {{ getSectionTotals(section).noStatus }}
@@ -171,32 +177,40 @@
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
                 <div class="flex items-center justify-between w-full">
-  <!-- Partie gauche : nom + bed icon + housekeeper -->
-  <div class="flex items-center">
-    <span>{{ room.name }}</span>
-    <BedIcon :size="16" class="ml-2" />
+                  <!-- Partie gauche : nom + bed icon + housekeeper -->
+                  <div class="flex items-center">
+                    <span>{{ room.name }}</span>
+                    <BedIcon :size="16" class="ml-2" />
 
-    <!-- Indicateur housekeeper assigné -->
-    <span
-      v-if="room.assignedHousekeeper"
-      class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
-    >
-      {{ room.assignedHousekeeper }}
-    </span>
-  </div>
+                    <!-- Indicateur housekeeper assigné -->
+                    <span
+                      v-if="room.assignedHousekeeper"
+                      class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                    >
+                      {{ room.assignedHousekeeper }}
+                    </span>
+                  </div>
 
-  <!-- Partie droite : work order + cleaning -->
-  <div class="flex items-center space-x-2">
-    <!-- Indicateur de work order -->
-    <ClipboardCheck :size="16" class="text-gray-900" title="Work Order existant"/>
-    <!-- Indicateur de nettoyage -->
-    <i class="fa-solid fa-broom"></i>
-  </div>
-</div>
-
+                  <!-- Partie droite : work order + cleaning -->
+                  <div class="flex items-center space-x-2">
+                    <!-- Indicateur de work order -->
+                    <!-- Partie droite : work order + cleaning -->
+                    <div class="flex items-center space-x-2">
+                      <!-- Indicateur de work order actif -->
+                      <ClipboardCheck
+                        v-if="hasActiveWorkOrder(room)"
+                        :size="16"
+                        class="text-gray-600"
+                        title="Work Order actif"
+                      />
+                    </div>
+                    <!-- Indicateur de nettoyage -->
+                    <i v-if="room.assignedHousekeeper" class="fa-solid fa-broom"></i>
+                  </div>
+                </div>
               </td>
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-                {{ room.beds }}
+                {{ room.occupants || 0 }}
               </td>
               <td
                 :class="[
@@ -211,14 +225,14 @@
                   :status="$t('occupied')"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
-                  :existingRemarkData = "room.housekeepersRemarks"
+                  :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,
                     roomNumber: room.name,
                     roomType: {
                       id: getRoomTypeId(room.roomType),
-                      roomTypeName: room.roomType
-                    }
+                      roomTypeName: room.roomType,
+                    },
                   }"
                   @remark-updated="fetchHousekeepingStatus"
                   type="red"
@@ -236,7 +250,7 @@
                   :room-id="room.id"
                   :status="$t('dirty')"
                   :HousekeeperOptions="housekeeperOptions"
-                  :existingRemarkData = "room.housekeepersRemarks"
+                  :existingRemarkData="room.housekeepersRemarks"
                   :tag="room.tag"
                   @remark-updated="fetchHousekeepingStatus"
                   type="orange"
@@ -255,19 +269,18 @@
                   :status="$t('available')"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
-                  :existingRemarkData = "room.housekeepersRemarks"
+                  :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,
                     roomNumber: room.name,
                     roomType: {
                       id: getRoomTypeId(room.roomType),
-                      roomTypeName: room.roomType
-                    }
+                      roomTypeName: room.roomType,
+                    },
                   }"
                   @remark-updated="fetchHousekeepingStatus"
                   type="green"
                 />
-
               </td>
               <td
                 :class="[
@@ -282,31 +295,30 @@
                   :status="$t('statut.outOfOrder')"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
-                  :existingRemarkData = "room.housekeepersRemarks"
+                  :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,
                     roomNumber: room.name,
                     roomType: {
                       id: getRoomTypeId(room.roomType),
-                      roomTypeName: room.roomType
-                    }
+                      roomTypeName: room.roomType,
+                    },
                   }"
                   @remark-updated="fetchHousekeepingStatus"
                   type="gray"
                 />
-
               </td>
             </tr>
           </template>
 
           <!-- Ligne de total -->
-          <tr class="bg-orange-50 sticky bottom-0 z-10">
+          <tr class="bg-orange-50 sticky bottom-0 z-10 border-l-4 border-l-orange-50">
             <td class="py-2 px-3 border-b border-r border-gray-200"></td>
             <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
               {{ $t('total') }} ({{ selectedCount }} {{ $t('selected') }})
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
-              {{ filteredRooms.length }}
+              {{ totalOccupants }}
             </td>
             <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
               {{ filteredRooms.filter((r) => r.status === 'noStatus').length }}
@@ -345,13 +357,39 @@
         </tbody>
       </table>
     </div>
+    <PopupModal
+    v-if="showConfirmDialog"
+      :title="operationConfig[selectedOperation]?.title || t('Confirm Action')"
+      :message="operationConfig[selectedOperation]?.message || t('Are you sure?')"
+      @close="showConfirmDialog = false"
+
+    >
+      <template #footer>
+         <div class="flex justify-end space-x-4">
+              <BasicButton
+                :label="$t('Cancel')"
+                variant="light"
+                @click="onCancel"
+                type="button"
+
+              />
+               <BasicButton
+                :label="$t('Confirm')"
+                variant="secondary"
+                 @click="onConfirm"
+                 type="button"
+              />
+            </div>
+
+      </template>
+  </PopupModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, toRefs } from 'vue'
 import { Bed as BedIcon } from 'lucide-vue-next'
-import { Accessibility  } from 'lucide-vue-next'
+import { Accessibility } from 'lucide-vue-next'
 import StatusBadge from './StatusBadge.vue'
 import { PersonStanding } from 'lucide-vue-next'
 import Select from '@/components/forms/FormElements/Select.vue'
@@ -360,15 +398,15 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
-import RemarkModal from '@/components/Housekeeping/RemarkModal.vue'
-import { ClipboardCheck } from 'lucide-vue-next';
-
+import BasicButton from '@/components/buttons/BasicButton.vue'
+import { ClipboardCheck } from 'lucide-vue-next'
+import PopupModal from '@/components/modal/PopupModal.vue'
 
 // Define room data type
 interface Room {
   id: string
   name: string
-  beds: number
+  occupants: number
   isChecked: boolean
   section: string
   roomType: string
@@ -378,6 +416,7 @@ interface Room {
   statusType: 'red' | 'green' | 'gray' | 'yellow'
   assignedHousekeeper?: string
   housekeepersRemarks?: any
+  workOrders?: Array<{ status: string }>
 }
 
 // Props pour recevoir la recherche du parent
@@ -413,7 +452,7 @@ const { t } = useI18n()
 
 // Initialize empty arrays for API data
 const rooms = ref<Room[]>([])
-const roomTypesOptions = ref<Array<{ value: number; label: string ;roomTypeId:number}>>([])
+const roomTypesOptions = ref<Array<{ value: number; label: string; roomTypeId: number }>>([])
 const housekeepingStatusOptions = ref<Array<{ value: string; label: string }>>([])
 const housekeeperOptions = ref<Array<{ value: string; label: string }>>([])
 
@@ -421,12 +460,11 @@ const housekeeperOptions = ref<Array<{ value: string; label: string }>>([])
 
 const roomTypesOptionsWithAll = computed(() => [
   { value: 'all', label: t('All') },
-  ...roomTypesOptions.value
+  ...roomTypesOptions.value,
 ])
 
 const availableOperations = computed(() => {
   const operations: any[] = [
-
     { value: 'set_status', label: t('Set Status') },
     { value: 'assign_housekeeper', label: t('Assign Housekeeper') },
     { value: 'clear_status', label: t('Clear Status') },
@@ -455,9 +493,8 @@ const canSelectRoom = (room: Room): boolean => {
   return true
 }
 
-
 const getRoomTypeId = (roomTypeName: string): number => {
-  const roomType = roomTypesOptions.value.find(rt => rt.label === roomTypeName)
+  const roomType = roomTypesOptions.value.find((rt) => rt.label === roomTypeName)
   return roomType ? roomType.roomTypeId : 0
 }
 // Computed property pour déterminer si on peut appliquer l'opération
@@ -479,7 +516,6 @@ const canApplyOperation = computed(() => {
   }
 })
 
-
 // Computed properties pour la sélection
 
 const hasSelectableRoomsInFiltered = computed(() => {
@@ -488,11 +524,10 @@ const hasSelectableRoomsInFiltered = computed(() => {
 
 const allFilteredSelectableRoomsSelected = computed(() => {
   const selectableRooms = filteredRooms.value.filter(
-    (room) => isDirtyRoom(room) || isCleanRoom(room)
+    (room) => isDirtyRoom(room) || isCleanRoom(room),
   )
   return selectableRooms.length > 0 && selectableRooms.every((room) => room.isChecked)
 })
-
 
 // Fonction appelée quand l'opération change
 const onOperationChange = () => {
@@ -506,9 +541,7 @@ const filteredRooms = computed(() => {
 
   // Filtrer par type de chambre, sauf si "all" est sélectionné
   if (selectedRoomTypeFilter.value && selectedRoomTypeFilter.value !== 'all') {
-    filtered = filtered.filter(
-      (room) => room.roomType === selectedRoomTypeFilter.value
-    )
+    filtered = filtered.filter((room) => room.roomType === selectedRoomTypeFilter.value)
   }
 
   // Filtrer par recherche
@@ -527,7 +560,6 @@ const filteredRooms = computed(() => {
   return filtered
 })
 
-
 const filteredGroupedRooms = computed(() => {
   const grouped: { [key: string]: Room[] } = {}
   filteredRooms.value.forEach((room) => {
@@ -541,6 +573,11 @@ const filteredGroupedRooms = computed(() => {
 
 const selectedCount = computed(() => {
   return rooms.value.filter((room) => room.isChecked).length
+})
+
+// Total occupants de toutes les chambres filtrées
+const totalOccupants = computed(() => {
+  return filteredRooms.value.reduce((sum, room) => sum + (room.occupants || 0), 0)
 })
 
 // Helper function to get room border color based on status
@@ -566,15 +603,16 @@ const transformRoomData = (apiRoom: any): Room => {
   let housekeepingStatus = 'No Status'
 
   // Check for active blocks
-  const hasActiveBlock = apiRoom.blocks && apiRoom.blocks.some((block: any) => block.status !== 'completed')
+  const hasActiveBlock =
+    apiRoom.blocks && apiRoom.blocks.some((block: any) => block.status !== 'completed')
 
   if (hasActiveBlock) {
     status = 'out_of_order'
     housekeepingStatus = 'Out Of Order'
   }
   // Logique métier: si occupé, housekeeping = No Status
-  else if (status === 'noStatus') {
-    housekeepingStatus = 'No Status'
+  else if (status !== 'available' && status !== 'dirty') {
+    housekeepingStatus = 'noStatus'
   }
   // Si disponible et que la chambre était occupée, elle devient dirty
   else if (status === 'dirty') {
@@ -603,7 +641,6 @@ const transformRoomData = (apiRoom: any): Room => {
 
 // Methods
 
-
 const handleCheckboxChange = (roomId: string, roomName: string) => {
   const roomIndex = rooms.value.findIndex((room) => room.id === roomId && room.name === roomName)
   if (roomIndex === -1) return
@@ -617,8 +654,8 @@ const handleCheckboxChange = (roomId: string, roomName: string) => {
 }
 
 const toggleAllFilteredSelectableRooms = () => {
-  const selectableRooms = filteredRooms.value.filter(r => r.status !== 'out_of_order')
-  const allSelected = selectableRooms.every(r => r.isChecked)
+  const selectableRooms = filteredRooms.value.filter((r) => r.status !== 'out_of_order')
+  const allSelected = selectableRooms.every((r) => r.isChecked)
 
   filteredRooms.value.forEach((room) => {
     if (room.status !== 'out_of_order') {
@@ -635,16 +672,13 @@ const unselectAll = () => {
     room.isChecked = false
   })
   selectedOperation.value = ''
-  selectedStatus.value = 'clean'
+  selectedStatus.value = ''
   selectedHousekeeper.value = ''
-
 }
-
-
 
 const toggleSectionSelectableRooms = (section: string) => {
   const sectionSelectableRooms = filteredRooms.value.filter(
-    (room) => room.section === section && room.status !== 'out_of_order'
+    (room) => room.section === section && room.status !== 'out_of_order',
   )
 
   const allSectionSelected = sectionSelectableRooms.every((room) => room.isChecked)
@@ -659,16 +693,15 @@ const toggleSectionSelectableRooms = (section: string) => {
 
 const isSectionSelectableRoomsSelected = (section: string): boolean => {
   const sectionSelectableRooms = filteredRooms.value.filter(
-    (room) => room.section === section && room.status !== 'out_of_order'
+    (room) => room.section === section && room.status !== 'out_of_order',
   )
 
   return sectionSelectableRooms.length > 0 && sectionSelectableRooms.every((room) => room.isChecked)
 }
 
-
 const sectionHasSelectableRooms = (section: string): boolean => {
   return filteredRooms.value.some(
-    (room) => room.section === section && room.status !== 'out_of_order'
+    (room) => room.section === section && room.status !== 'out_of_order',
   )
 }
 
@@ -678,6 +711,7 @@ const getSectionTotals = (section: string) => {
   const sectionRooms = filteredRooms.value.filter((room) => room.section === section)
   return {
     total: sectionRooms.length,
+    totalOccupants: sectionRooms.reduce((sum, room) => sum + (room.occupants || 0), 0),
     noStatus: sectionRooms.filter((room) => room.status === 'noStatus').length,
     dirty: sectionRooms.filter((room) => isDirtyRoom(room)).length,
     clean: sectionRooms.filter((room) => isCleanRoom(room)).length,
@@ -704,7 +738,13 @@ watch(
   { deep: true },
 )
 
-
+// Vérifier si la chambre a un work order actif
+const hasActiveWorkOrder = (room: Room): boolean => {
+  if (!room.workOrders || !Array.isArray(room.workOrders)) {
+    return false
+  }
+  return room.workOrders.some((wo: any) => wo.status !== 'completed')
+}
 
 // Handle bulk action apply
 const applyBulkAction = async () => {
@@ -724,26 +764,26 @@ const applyBulkAction = async () => {
     }
 
     // Ajouter les paramètres spécifiques selon l'opération
-   // Dans le switch, remplacer par :
-switch (selectedOperation.value) {
-  case 'set_status':
-    bulkUpdateData.housekeeping_status = selectedStatus.value
-    bulkUpdateData.room_status = selectedStatus.value === 'clean' ? 'available' : 'dirty'
-    break
-  case 'assign_housekeeper':
-    bulkUpdateData.housekeeper_id = selectedHousekeeper.value
-    break
-  case 'clear_status':
-    bulkUpdateData.housekeeping_status = null
-    break
-  case 'clear_remark':
-    bulkUpdateData.clear_remarks = true
-    break
-  case 'unassign_housekeeper':
-    bulkUpdateData.housekeeper_id = null
-    break
-}
+    switch (selectedOperation.value) {
+      case 'set_status':
+        bulkUpdateData.housekeeping_status = selectedStatus.value
+        bulkUpdateData.room_status = selectedStatus.value === 'clean' ? 'available' : 'dirty'
+        break
+      case 'assign_housekeeper':
+        bulkUpdateData.housekeeper_id = selectedHousekeeper.value
+        break
+      case 'clear_status':
+        bulkUpdateData.housekeeping_status = null
+        break
+      case 'clear_remark':
+        bulkUpdateData.clear_remarks = true
+        break
+      case 'unassign_housekeeper':
+        bulkUpdateData.housekeeper_id = null
+        break
+    }
 
+    console.log('Bulk update data:', bulkUpdateData)
     const response = await bulkUpdateRooms(bulkUpdateData)
 
     if (response.data) {
@@ -752,25 +792,25 @@ switch (selectedOperation.value) {
         const roomIndex = rooms.value.findIndex((r) => r.id === room.id)
         if (roomIndex !== -1) {
           // Dans le switch de mise à jour locale :
-switch (selectedOperation.value) {
-  case 'set_status':
-    rooms.value[roomIndex].housekeepingStatus = selectedStatus.value
-    rooms.value[roomIndex].status = selectedStatus.value === 'clean' ? 'available' : 'dirty'
-    break
-  case 'assign_housekeeper':
-    rooms.value[roomIndex].assignedHousekeeper = selectedHousekeeper.value
-    break
-  case 'clear_status':
-    rooms.value[roomIndex].housekeepingStatus = 'No Status'
-    break
-  case 'clear_remark':
-    rooms.value[roomIndex].housekeepersRemarks = null
-    break
-  case 'unassign_housekeeper':
-    rooms.value[roomIndex].assignedHousekeeper = ''
-    break
-}
-
+          switch (selectedOperation.value) {
+            case 'set_status':
+              rooms.value[roomIndex].housekeepingStatus = selectedStatus.value
+              rooms.value[roomIndex].status =
+                selectedStatus.value === 'clean' ? 'available' : 'dirty'
+              break
+            case 'assign_housekeeper':
+              rooms.value[roomIndex].assignedHousekeeper = selectedHousekeeper.value
+              break
+            case 'clear_status':
+              rooms.value[roomIndex].housekeepingStatus = 'No Status'
+              break
+            case 'clear_remark':
+              rooms.value[roomIndex].housekeepersRemarks = null
+              break
+            case 'unassign_housekeeper':
+              rooms.value[roomIndex].assignedHousekeeper = ''
+              break
+          }
         }
       })
 
@@ -784,9 +824,9 @@ switch (selectedOperation.value) {
     }
   } catch (error: any) {
     console.error('Bulk update error:', error)
-    const errorMessage =
-      error.response?.data?.message || error.message || 'Erreur lors de la mise à jour en lot'
-    toast.error(`${t('bulk_update_error')}: ${errorMessage}`)
+    // const errorMessage =
+    //   error.response?.data?.message || error.message || 'Erreur lors de la mise à jour en lot'
+    toast.error(`${t('bulk_update_error')}`)
   } finally {
     isBulkUpdating.value = false
   }
@@ -818,7 +858,7 @@ const fetchHousekeepingStatus = async () => {
         label: rt.label,
       }))
     }
-    console.log("roomTypesOptions",roomTypesOptions.value)
+    console.log('roomTypesOptions', roomTypesOptions.value)
 
     if (apiData.housekeepingStatusOptions && Array.isArray(apiData.housekeepingStatusOptions)) {
       housekeepingStatusOptions.value = apiData.housekeepingStatusOptions.map((hs: any) => ({
@@ -840,6 +880,77 @@ const fetchHousekeepingStatus = async () => {
     isLoading.value = false
   }
 }
+const showConfirmDialog = ref(false);
+const pendingAction = ref<() => void>(() => {});
+
+const confirmBulkAction = () => {
+  showConfirmDialog.value = true;
+  // On stocke l’action réelle pour l’exécuter après confirmation
+  pendingAction.value = async () => {
+    await applyBulkAction();
+  };
+};
+
+
+
+const operationConfig: Record<
+  string,
+  { title: string; message: string; action: () => Promise<void> }
+> = {
+  set_status: {
+    title: t('Confirm Status Change'),
+    message: t('Are you sure you want to change the status of the selected rooms?'),
+    action: async () => {
+      await applyBulkAction()
+    },
+  },
+  assign_housekeeper: {
+    title: t('Confirm Assignment'),
+    message: t('Are you sure you want to assign the selected housekeeper to these rooms?'),
+    action: async () => {
+      await applyBulkAction()
+    },
+  },
+  clear_status: {
+    title: t('Confirm Clear Status'),
+    message: t('Are you sure you want to clear the status of these rooms?'),
+    action: async () => {
+      await applyBulkAction()
+    },
+  },
+  clear_remark: {
+    title: t('Confirm Clear Remarks'),
+    message: t('Are you sure you want to remove all remarks from these rooms?'),
+    action: async () => {
+      await applyBulkAction()
+    },
+  },
+  unassign_housekeeper: {
+    title: t('Confirm Unassignment'),
+    message: t('Are you sure you want to unassign the housekeeper from these rooms?'),
+    action: async () => {
+      await applyBulkAction()
+    },
+  },
+}
+
+
+const onConfirm = async () => {
+  showConfirmDialog.value = false
+  const operation = selectedOperation.value
+  const config = operationConfig[operation]
+
+  if (config) {
+    await config.action()
+  }
+}
+
+
+const onCancel = () => {
+  showConfirmDialog.value = false
+}
+
+
 
 onMounted(() => {
   fetchHousekeepingStatus()

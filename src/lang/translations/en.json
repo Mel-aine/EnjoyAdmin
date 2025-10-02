@@ -5551,8 +5551,8 @@
   "ErrorLoadingData": "Error loading data",
   "Configuration": "Configuration",
   "house_status_view": "House Status View",
-  "bulk_update": "Bulk update successfully",
-  "bulk_update_error": "Error updating bulk data",
+  "bulk_update": "Update successfully",
+  "bulk_update_error": "Error updating",
   "Applying...": "Applying...",
   "set_to_clean": "Set to Clean",
   "select_housekeeper": "Select Housekeeper",
@@ -6211,6 +6211,19 @@
   "paymentType":"Payment Type",
   "Already marked as no-show": "Already marked as no-show",
   "All rooms have already been marked as no-show": "All rooms have already been marked as no-show",
-  "Unassigning room...": "Unassigning room..."
+  "Unassigning room...": "Unassigning room...",
+  "select_status": "Select Status",
+  "Confirm Status Change": "Confirm Status Change",
+  "Are you sure you want to change the status of the selected rooms?": "Are you sure you want to change the status of the selected room(s)?",
+  "Confirm Assignment": "Confirm Housekeeper Assignment",
+  "Are you sure you want to assign the selected housekeeper to these rooms?": "Are you sure you want to assign the selected housekeeper to these rooms?",
+  "Confirm Clear Status": "Confirm Clear Status",
+  "Are you sure you want to clear the status of these rooms?": "Are you sure you want to clear the status of the selected room(s)?",
+  "Confirm Clear Remarks": "Confirm Clear Remarks",
+  "Are you sure you want to remove all remarks from these rooms?": "Are you sure you want to remove all remarks from the selected room(s)?",
+  "Confirm Unassignment": "Confirm Housekeeper Removal",
+  "Are you sure you want to unassign the housekeeper from these rooms?": "Are you sure you want to unassign the housekeeper from the selected room(s)?"
+   
+  
 
 }
