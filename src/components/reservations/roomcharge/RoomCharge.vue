@@ -582,6 +582,7 @@ const loadRoomCharges = async () => {
           singleRoom.value = uniqueRooms[0]
           groupRooms.value = []
           selectedRoomId.value = null
+
         }
       }
     }
