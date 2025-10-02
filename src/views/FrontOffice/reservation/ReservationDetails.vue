@@ -55,6 +55,8 @@ const AmendStay = defineAsyncComponent(() => import('@/components/reservations/f
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
 const CheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/CheckOutReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/reservations/UnAssignRoomReservation.vue'))
+const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reservations/ExchangeRoomModal.vue'))
+const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 
 const isAddPaymentModalOpen = ref(false)
 const showCancelModal = ref(false)
@@ -67,6 +69,8 @@ const showAmendModal = ref(false)
 const showVoidModal = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
+const isExchangeRoomModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
 // Use the reservation composable
 const {
   isCheckingIn,
@@ -272,30 +276,10 @@ const handleAmendConfirmed = () => {
 }
 
 const handleRoomMove = async () => {
-  const payload = {
-    fromRoomId: reservation.value.reservationRooms[0]?.room?.id,
-    toRoomId: null, // This should be selected by user in a modal
-    moveDate: new Date().toISOString(),
-    reason: 'Guest requested room change',
-    notes: '',
-  }
-
-  // TODO: Implement room selection modal
-  console.log('Room move requires room selection modal')
-  // await moveRoom(reservation.value.id, payload, getBookingDetailsById);
+  isRoomMoveModalOpen.value = true
 }
 const handleExchangeRoom = async () => {
-  const payload = {
-    roomId1: reservation.value.reservationRooms[0]?.room?.id,
-    roomId2: null, // This should be selected by user
-    exchangeDate: new Date().toISOString(),
-    reason: 'Room exchange requested',
-    notes: '',
-  }
-
-  // TODO: Implement room selection modal
-  console.log('Room exchange requires room selection modal')
-  // await exchangeRoom(reservation.value.id, payload, getBookingDetailsById);
+  isExchangeRoomModalOpen.value = true
 }
 
 const handleStopRoomMove = async () => {
@@ -348,6 +332,24 @@ const openUnAssignReservationModal = () => {
 
 const closeUnAssignReservationModal = () => {
   isUnAssignModalOpen.value = false
+}
+
+const closeExchangeRoomModal = () => {
+  isExchangeRoomModalOpen.value = false
+}
+
+const closeRoomMoveModal = () => {
+  isRoomMoveModalOpen.value = false
+}
+
+const handleExchangeSuccess = async () => {
+  closeExchangeRoomModal()
+  await getBookingDetailsById()
+}
+
+const handleRoomMoveSuccess = async () => {
+  closeRoomMoveModal()
+  await getBookingDetailsById()
 }
 
 const handleVoidConfirmed = () => {
@@ -643,6 +645,14 @@ onMounted(() => {
   <template v-if="isUnAssignModalOpen">
     <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
       @close="closeUnAssignReservationModal" />
+  </template>
+  <!-- Room Move Modal -->
+  <template v-if="isRoomMoveModalOpen">
+    <RoomMoveModal :reservation-id="reservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
+  </template>
+  <!-- Exchange Room Modal -->
+  <template v-if="isExchangeRoomModalOpen">
+    <ExchangeRoomModal :reservation-id="reservation.id" :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
   </template>
   <!-- Print Modal -->
   <template v-if="showPrintModal">

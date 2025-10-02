@@ -9,7 +9,6 @@
         
 
         <!-- Void Reason Form -->
-            <!-- Reason Section -->
       <div>
         <AutoCompleteSelect
           v-model="voidForm.reason"

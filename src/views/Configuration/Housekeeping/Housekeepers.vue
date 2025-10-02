@@ -1,26 +1,26 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Housekeepers</h1>
-        <BasicButton 
-          variant="primary" 
-          @click="openAddModal"
-          icon="Plus"
-          label="Add Housekeeper"
-        />
-      </div>
       
       <ReusableTable
         title="Housekeepers"
         :columns="columns"
         :data="housekeepers"
         :actions="actions"
+        :searchable="false"
         search-placeholder="Search housekeepers..."
         empty-state-title="No housekeepers found"
         empty-state-description="Get started by adding your first housekeeper."
         @action="onAction"
       >
+      <template #header-actions>
+         <BasicButton 
+          variant="primary" 
+          @click="openAddModal"
+          :icon="Plus"
+          label="Add Housekeeper"
+        />
+      </template>
         <template #status="{ item }">
           <span 
             :class="[
@@ -37,31 +37,31 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
             {{ isEditing ? 'Edit Housekeeper' : 'Add Housekeeper' }}
           </h3>
           
-          <form @submit.prevent="saveHousekeeper">
+  <form @submit.prevent="saveHousekeeper">
             <div class="mb-4">
               <Input
                 v-model="formData.name"
-                label="Housekeeper Name"
+                :lb="$t('housekeeperName')"
                 type="text"
                 placeholder="Enter housekeeper name"
-                required
+                isRequired
               />
             </div>
             
             <div class="mb-4">
-              <Input
+              <InputPhone
                 v-model="formData.mobile"
                 label="Mobile Number"
-                type="tel"
+                title="Mobile Number"
                 placeholder="Enter mobile number"
-                required
+                isRequired
               />
             </div>
             
@@ -72,13 +72,13 @@
                 type="button"
                 :label="$t('cancel')"
               >
-                Cancel
               </BasicButton>
               <BasicButton 
                 variant="primary" 
                 type="submit"
                 :label="isEditing ? $t('update') : $t('save') "
                 :icon="isEditing ? Edit : Save"
+                :loading="isSaving"
               >
               </BasicButton>
             </div>
@@ -86,22 +86,40 @@
         </div>
       </div>
     </div>
+    <!-- Spinner overlay -->
+    <Spinner v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-50">
+      <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+    </Spinner>
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { Edit, Plus, Save } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
+import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
+import Spinner from '@/components/spinner/Spinner.vue'
+import { useServiceStore } from '@/composables/serviceStore'
+import { useToast } from 'vue-toastification'
+import { 
+  getHousekeepers, 
+  postHousekeeper, 
+  updateHousekeeperById, 
+  deleteHousekeeperById 
+} from '@/services/configrationApi'
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const isLoading = ref(false)
+const serviceStore = useServiceStore()
+const isSaving = ref(false)
+const toast = useToast()
 
 const formData = reactive({
   name: '',
@@ -130,28 +148,34 @@ const actions:Action[] = [
   }
 ]
 
-const housekeepers = ref([
-  { 
-    id: 1, 
-    name: 'Maid 1', 
-    mobile: '420', 
-    createdBy: 'admin', 
-    createdDate: '2013-05-13', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Available' 
-  },
-  { 
-    id: 2, 
-    name: 'Maid 2', 
-    mobile: '789456', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Available' 
+const housekeepers = ref<any[]>([])
+
+const fetchHousekeepers = async () => {
+  try {
+    isLoading.value = true
+    const hotelId = serviceStore.serviceId
+    const resp = await getHousekeepers({ hotel_id: hotelId as number })
+    const data = resp?.data?.data ?? resp?.data ?? []
+    housekeepers.value = Array.isArray(data)
+      ? data.map((h: any) => ({
+          id: h.id,
+          name: h.name,
+          mobile: h.phone ?? h.mobile ?? '',
+          createdBy: h.createdBy ?? h.createdByUserId ?? '',
+          modifiedBy: h.modifiedBy ?? h.updatedByUserId ?? '',
+          status: h.status ?? 'Active',
+        }))
+      : []
+  } catch (e) {
+    console.error('Failed to fetch housekeepers', e)
+  } finally {
+    isLoading.value = false
   }
-])
+}
+
+onMounted(() => {
+  fetchHousekeepers()
+})
 
 // Functions
 const openAddModal = () => {
@@ -178,42 +202,46 @@ const closeModal = () => {
   formData.mobile = ''
 }
 
-const saveHousekeeper = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing housekeeper
-    const index = housekeepers.value.findIndex(h => h.id === editingId.value)
-    if (index !== -1) {
-      housekeepers.value[index] = {
-        ...housekeepers.value[index],
+const saveHousekeeper = async () => {
+  try {
+    isSaving.value = true
+    const hotelId = serviceStore.serviceId as number
+    if (isEditing.value && editingId.value) {
+      await updateHousekeeperById(editingId.value, {
         name: formData.name,
-        mobile: formData.mobile,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
+        phone: formData.mobile,
+      })
+      toast.success('Housekeeper updated successfully')
+    } else {
+      await postHousekeeper({
+        hotel_id: hotelId,
+        name: formData.name,
+        phone: formData.mobile,
+      })
+      toast.success('Housekeeper created successfully')
     }
-  } else {
-    // Add new housekeeper
-    const newHousekeeper = {
-      id: Math.max(...housekeepers.value.map(h => h.id)) + 1,
-      name: formData.name,
-      mobile: formData.mobile,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Available'
-    }
-    housekeepers.value.push(newHousekeeper)
+    closeModal()
+    await fetchHousekeepers()
+  } catch (e) {
+    console.error('Failed to save housekeeper', e)
+    toast.error('Failed to save housekeeper')
+  } finally {
+    isSaving.value = false
   }
-  closeModal()
 }
 
-const deleteHousekeeper = (id: number) => {
-  if (confirm('Are you sure you want to delete this housekeeper?')) {
-    const index = housekeepers.value.findIndex(h => h.id === id)
-    if (index !== -1) {
-      housekeepers.value.splice(index, 1)
-    }
+const deleteHousekeeper = async (id: number) => {
+  try {
+    if (!confirm('Are you sure you want to delete this housekeeper?')) return
+    isLoading.value = true
+    await deleteHousekeeperById(id)
+    toast.success('Housekeeper deleted successfully')
+    await fetchHousekeepers()
+  } catch (e) {
+    console.error('Failed to delete housekeeper', e)
+    toast.error('Failed to delete housekeeper')
+  } finally {
+    isLoading.value = false
   }
 }
 
