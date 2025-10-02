@@ -1074,7 +1074,6 @@ export const generateInvoicePdf = async (transactionId: string): Promise<Blob> =
     throw error
   }
 }
-
 // Fonction pour générer l'URL du PDF des factures
 export const generateInvoicePdfUrl = async (transactionId: string): Promise<string> => {
   try {
@@ -1085,4 +1084,37 @@ export const generateInvoicePdfUrl = async (transactionId: string): Promise<stri
     throw error
   }
 }
+export const generatePosReceiptPdf = async (transactionId: string): Promise<Blob> => {
+  try {
+      
+    const url = `${API_URL}/pos-receipt/${transactionId}`
+    
+    // Configuration axios pour recevoir une réponse blob
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
 
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Valider que nous avons reçu un blob PDF
+    if (response.data.type && response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching generatePosReceiptPdf :', error)
+    throw error
+  }
+}
+// Fonction pour générer l'URL du PDF des factures
+export const generatePosReceiptPdfUrl = async (transactionId: string): Promise<string> => {
+  try {
+    const blob = await generatePosReceiptPdf(transactionId)
+    return URL.createObjectURL(blob)
+  } catch (error) {
+    console.error('Error generating pos receipt PDF URL:', error)
+    throw error
+  }
+}

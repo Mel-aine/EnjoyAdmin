@@ -6202,6 +6202,8 @@
   "paymentType":"Payment Type",
   "Already marked as no-show": "Already marked as no-show",
   "All rooms have already been marked as no-show": "All rooms have already been marked as no-show",
-  "Unassigning room...": "Unassigning room..."
+  "Unassigning room...": "Unassigning room...",
+  "printVoucher":"Print Voucher",
+  "printPosReceipt":"Print POS Receipt"
 
 }
