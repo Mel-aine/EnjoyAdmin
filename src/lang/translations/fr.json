@@ -2627,9 +2627,9 @@
     "nov": "Novembre",
     "dec": "Décembre"
   },
-  "Earning_2025": "Revenus {year}",
-  "occupancy_rate_2025": "Taux d'occupation {year}",
-  "Earning_previous": "Revenus {year}",
+  "Earning_2025": "Revenus {year} (XAF)",
+  "occupancy_rate_2025": "Taux d'occupation {year} (%)",
+  "Earning_previous": "Revenus {year} (XAF)",
   "occupancy_rate%": "Taux d'occupation (%)",
   "EarningXAF": "Revenus (XAF)",
   "1-2 nuits": "1-2 nuits",

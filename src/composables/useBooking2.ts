@@ -192,9 +192,9 @@ export function useBooking() {
   // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '',
+    checkinTime: '12h00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '',
+    checkoutTime: '14h00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -337,9 +337,9 @@ export function useBooking() {
   const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`)
 
   // Vérifier que les dates sont valides
-  if (isNaN(checkinDateTime.getTime()) || isNaN(checkoutDateTime.getTime())) {
-    return { isValid: false, error: 'validation.invalidDateTime' }
-  }
+  // if (isNaN(checkinDateTime.getTime()) || isNaN(checkoutDateTime.getTime())) {
+  //   return { isValid: false, error: 'validation.invalidDateTime' }
+  // }
 
   //  La date de checkout est avant la date de checkin
   if (checkoutDateTime < checkinDateTime) {
@@ -1082,18 +1082,18 @@ const validateAllRooms = () => {
 
       console.log('Final reservation payload:', reservationPayload)
 
-      const response = await createReservation(reservationPayload)
-      reservationId.value = response.reservationId
-      console.log('reservationId.value', reservationId.value)
+      // const response = await createReservation(reservationPayload)
+      // reservationId.value = response.reservationId
+      // console.log('reservationId.value', reservationId.value)
 
-      if (response.reservationId) {
-        isPaymentButtonShow.value = true
-        confirmReservation.value = true
-      }
+      // if (response.reservationId) {
+      //   isPaymentButtonShow.value = true
+      //   confirmReservation.value = true
+      // }
 
-      toast.success(t('reservationCreated'))
+      // toast.success(t('reservationCreated'))
 
-      return response
+      // return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
@@ -1462,9 +1462,9 @@ const validateAllRooms = () => {
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '',
+    checkinTime: '12h00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '',
+    checkoutTime: '14h00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',

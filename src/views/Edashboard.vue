@@ -254,6 +254,7 @@ const fetchRevenuData = async () => {
   try {
     const res = await getRevenuTotal({ serviceId, period })
     revenuTotal.value = res.data
+    console.log(' revenuTotal.value', revenuTotal.value)
   } catch (e) {
     console.error('Erreur getRevenuTotal', e)
   }
