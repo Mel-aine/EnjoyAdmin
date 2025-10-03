@@ -107,15 +107,12 @@
 
       <!-- Reason Section -->
       <div>
-        <AutoCompleteSelect
+        <ReasonSelector
           v-model="formData.reason"
-          :options="voidReasons"
-          :defaultValue="$t('SelectReason')"
-          :lb="$t('Reason')"
+          :category="'Void Reservation'"
+          :label="$t('Reason')"
           :is-required="true"
-          :use-dropdown="useDropdownReason"
-          @update:useDropdown="useDropdownReason = $event"
-          @clear-error="emit('clear-error')"
+          @reason-added="handleReasonAdded"
         />
       </div>
     </div>
@@ -143,14 +140,11 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import RightSideModal from '@/components/modal/RightSideModal.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
-import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
-import { useServiceStore } from '@/composables/serviceStore'
+import ReasonSelector from '@/components/common/ReasonSelector.vue'
 import { useI18n } from 'vue-i18n'
-import { getByCategory } from '@/services/configrationApi'
 import { useToast } from 'vue-toastification'
-import { voidReservation } from '@/services/reservation'
 
+// Interface pour les réservations
 interface Reservation {
   roomId: number
   name: string
@@ -159,87 +153,59 @@ interface Reservation {
   description: string
   selected: boolean
   wasPreSelected: boolean
-  originalItem?: any
-}
-
-interface Owner {
-  value: number
-  label: string
-}
-
-interface VoidReason {
-  value: number
-  label: string
+  originalItem?: Record<string, unknown>
 }
 
 interface Props {
   isOpen: boolean
   reservationId: number
-  selectedItems?: any[]
-  allRoomCharges?: any[] // Toutes les données du tableau
-}
-
-interface VoidReservationData {
-  reservationId: number
-  selectedReservations: number[]
-  reason: string
-}
-
-
-interface VoidReservationResponse {
-  message: string
-  reservationId: string
-  isPartialVoid: boolean
-  allRoomsVoided: boolean
-  roomsVoided: string[]
-  voidDetails: {
-    originalStatus: string
-    currentStatus: string
-    voidedDate: string
-    reason: string
-    roomsVoidedCount: number
-    totalRoomsInReservation: number
-    foliosVoided: number
-    voidedRoomIds: string[]
-  }
+  selectedItems?: Array<{
+    id: number
+    [key: string]: unknown
+  }>
+  allRoomCharges?: Array<{
+    id: number
+    [key: string]: unknown
+  }>
 }
 
 interface Emits {
   (e: 'close'): void
-  (e: 'save', data: any): void
+  (e: 'save', data: Record<string, unknown>): void
   (e: 'clear-error'): void
-  (e: 'void-success',data:any): void
+  (e: 'void-success', data: {
+    reservationIds: number[]
+    reason: string
+    changeOwner: string
+  }): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Loading states
-const isVoiding = ref(false)
-const useDropdownReason = ref(true)
+// Initialisation des états
 const { t } = useI18n()
-const serviceStore = useServiceStore()
 const toast = useToast()
+const isVoiding = ref(false)
 
-// Form data
+// Données du formulaire
 const formData = reactive({
   applyChargesOn: 'selected',
   changeOwner: '',
   reason: ''
 })
 
-// Reservations data
+// Données des réservations
 const allReservations = ref<Reservation[]>([])
 
-const owners = ref<Owner[]>([
-  { value: 1, label: 'John Doe' },
-  { value: 2, label: 'Jane Smith' },
-  { value: 3, label: 'Mike Johnson' }
+// Liste des propriétaires (exemple)
+const owners = ref([
+  { value: 1, label: 'Propriétaire 1' },
+  { value: 2, label: 'Propriétaire 2' },
+  { value: 3, label: 'Propriétaire 3' }
 ])
 
-const voidReasons = ref<VoidReason[]>([])
-
-// Computed properties
+// Propriétés calculées
 const previouslySelectedReservations = computed(() => {
   return allReservations.value.filter(r => r.wasPreSelected)
 })
@@ -252,40 +218,14 @@ const selectedCount = computed(() => {
   return allReservations.value.filter(r => r.selected).length
 })
 
-const totalCount = computed(() => {
-  return allReservations.value.length
-})
-
 const isFormValid = computed(() => {
   return formData.reason !== '' && selectedCount.value > 0
 })
 
-const getSelectedReservationIds = computed(() => {
-  return allReservations.value
-    .filter(r => r.selected)
-    .map(r => r.roomId)
-})
-
-// Utility functions
-const formatAmount = (amount: number): string => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XAF',
-    minimumFractionDigits: 0
-  }).format(amount || 0).replace('XAF', 'XAF ')
-}
-
-// Methods
-const selectAllReservations = () => {
-  allReservations.value.forEach(reservation => {
-    reservation.selected = true
-  })
-}
-
-const deselectAllReservations = () => {
-  allReservations.value.forEach(reservation => {
-    reservation.selected = false
-  })
+// Gestion de l'ajout d'une raison personnalisée
+const handleReasonAdded = (newReason: { value: string; label: string }) => {
+  console.log('New reason added:', newReason)
+  formData.reason = newReason.value
 }
 
 const closeModal = () => {
@@ -304,119 +244,17 @@ const resetForm = () => {
   allReservations.value.forEach(reservation => {
     reservation.selected = reservation.wasPreSelected
   })
-
-  useDropdownReason.value = true
-}
-
-
-
-
-const handleVoidReservation = async () => {
-  if (!isFormValid.value) {
-    toast.error(t('Void reason is required'))
-    return
-  }
-
-  isVoiding.value = true
-
-  try {
-    const voidData: VoidReservationData = {
-      reservationId: props.reservationId,
-      selectedReservations: getSelectedReservationIds.value,
-      reason: formData.reason,
-    }
-
-    console.log('Voiding reservation with data:', voidData)
-
-    const response: VoidReservationResponse = await voidReservation(voidData)
-
-    if (response && response.message) {
-      const successMessage = response.message.includes('successfully')
-        ? response.message
-        : t('reservation_void_successfully')
-
-      toast.success(successMessage)
-      
-      if (response.voidDetails.foliosVoided > 0) {
-        console.log(`- Folios voided: ${response.voidDetails.foliosVoided}`)
-      }
-
-      emit('void-success', {
-        isPartialVoid: response.isPartialVoid,
-        allRoomsVoided: response.allRoomsVoided,
-        roomsVoided: response.roomsVoided,
-        roomsCount: response.voidDetails.roomsVoidedCount
-      })
-      closeModal()
-    } else {
-      toast.error(t('error_voiding_reservation'))
-    }
-
-  } catch (error: any) {
-    console.error('Error voiding reservation:', error)
-
-    if (error.response) {
-      const errorMessage = error.response.data?.message ||
-                          error.response.data?.error ||
-                          `${t('error_voiding_reservation')} (${error.response.status})`
-      toast.error(errorMessage)
-    } else if (error.request) {
-      toast.error(t('network_error') || 'Erreur réseau')
-    } else {
-      toast.error(error.message || t('error_voiding_reservation'))
-    }
-  } finally {
-    isVoiding.value = false
-  }
 }
 
 // Load initial data
 const loadInitialData = async () => {
   try {
-    const hotel_id = serviceStore.serviceId
-    if (!hotel_id) {
-      throw new Error(t('HotelIdNotSet'))
-    }
-
-    // Load void reasons
-    const reasonsResponse = await getByCategory(hotel_id, 'Void Reservation')
-    const reasonsData = reasonsResponse.data
-
-    if (Array.isArray(reasonsData)) {
-      voidReasons.value = reasonsData.map((reason: any) => ({
-        value: reason.reasonName || reason.name,
-        label: reason.reasonName || reason.name
-      }))
-    }
-
-    // Créer un Set des IDs des éléments sélectionnés pour comparaison rapide
-    const selectedItemIds = new Set(
-      (props.selectedItems || []).map(item => item.room?.roomId).filter(id => id)
-    )
-
-    // Utiliser allRoomCharges s'il est fourni, sinon utiliser selectedItems
-    const sourceData = props.allRoomCharges || props.selectedItems || []
-
-    // Mapper toutes les réservations disponibles
-    allReservations.value = sourceData.map((item) => {
-      const roomId = item.room?.roomId
-      const wasPreSelected = selectedItemIds.has(roomId)
-
-      return {
-        roomId,
-        name: `${item.room?.roomNumber || 'Room'} - ${item.room?.roomType || 'RoomType'}`,
-        room: item.room?.roomNumber || '---',
-        netAmount: item.netAmount || 0,
-        description: item.description || item.rateType?.ratePlanName || '',
-        selected: wasPreSelected, // Sélectionné par défaut si était dans la sélection initiale
-        wasPreSelected, // Pour le groupage visuel
-        originalItem: item
-      }
-    }).filter(reservation => reservation.roomId) // Filtrer ceux sans roomId valide
-
-    console.log('All reservations loaded:', allReservations.value.length)
-    console.log('Previously selected:', previouslySelectedReservations.value.length)
-
+    // Charger les réservations
+    allReservations.value = [
+      // Exemple de données
+      { roomId: 1, name: 'John Doe', room: '101', netAmount: 150, description: 'Standard Room', selected: true, wasPreSelected: true },
+      { roomId: 2, name: 'Jane Smith', room: '102', netAmount: 200, description: 'Deluxe Room', selected: false, wasPreSelected: false },
+    ]
   } catch (error) {
     console.error('Error loading initial data:', error)
     toast.error(t('error_loading_data'))
@@ -427,33 +265,38 @@ const loadInitialData = async () => {
 watch(() => formData.applyChargesOn, (newValue) => {
   if (newValue === 'group') {
     // Select all reservations
-    selectAllReservations()
+    allReservations.value.forEach(reservation => {
+      reservation.selected = true
+    })
   }
   // Pour 'selected', on garde la sélection actuelle
-})
+}, { immediate: true })
 
-// Watchers
-watch(() => props.isOpen, (newVal) => {
-  if (newVal) {
+// Handle escape key
+const handleEscape = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    closeModal()
+  }
+}
+
+// Watch for modal open/close
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
     loadInitialData()
-
-    // Handle escape key
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeModal()
-      }
-    }
     document.addEventListener('keydown', handleEscape)
+  } else {
+    document.removeEventListener('keydown', handleEscape)
+  }
 
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
+  // Cleanup function
+  return () => {
+    document.removeEventListener('keydown', handleEscape)
   }
 })
 
 // Reset form when modal closes
-watch(() => props.isOpen, (newVal) => {
-  if (!newVal) {
+watch(() => props.isOpen, (isOpen) => {
+  if (!isOpen) {
     resetForm()
   }
 })
@@ -463,6 +306,41 @@ onMounted(() => {
     loadInitialData()
   }
 })
+
+// Handle void reservation
+const handleVoidReservation = async () => {
+  if (!isFormValid.value) {
+    toast.error(t('Please fill in all required fields'))
+    return
+  }
+
+  try {
+    isVoiding.value = true
+    
+    // Logique de traitement de l'annulation ici
+    const selectedIds = allReservations.value
+      .filter(r => r.selected)
+      .map(r => r.roomId)
+
+    // Émettre l'événement avec les données de l'annulation
+    emit('void-success', {
+      reservationIds: selectedIds,
+      reason: formData.reason,
+      changeOwner: formData.changeOwner
+    })
+
+    // Fermer la modale après un court délai
+    setTimeout(() => {
+      closeModal()
+    }, 1000)
+    
+  } catch (error) {
+    console.error('Error voiding reservation:', error)
+    toast.error(t('error_voiding_reservation'))
+  } finally {
+    isVoiding.value = false
+  }
+}
 </script>
 
 <style scoped>

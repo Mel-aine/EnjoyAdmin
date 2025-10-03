@@ -21,6 +21,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import { getByCategory, postReason } from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import CloneAutoCompleteSelect from '@/components/forms/FormElements/CloneAutoCompleteSelect.vue'
@@ -64,8 +65,9 @@ export default defineComponent({
   
   setup(props, { emit }) {
     const { t } = useI18n()
+    const toast = useToast()
     const serviceStore = useServiceStore()
-    const reasons = ref<Reason[]>([])
+    const reasons = ref<Array<Reason & { isActive?: boolean }>>([])
     const isLoading = ref(false)
     const useDropdown = ref(true)
     const error = ref('')
@@ -74,6 +76,8 @@ export default defineComponent({
     watch(() => props.category, async (newCategory) => {
       if (newCategory) {
         await loadReasons()
+      } else {
+        reasons.value = []
       }
     }, { immediate: true })
 
@@ -83,18 +87,37 @@ export default defineComponent({
           throw new Error('Service ID not available')
         }
         
+        if (!props.category) {
+          console.warn('No category provided for ReasonSelector')
+          reasons.value = []
+          return
+        }
+        
         isLoading.value = true
+        error.value = ''
+        
         const response = await getByCategory(serviceStore.serviceId, props.category)
         
         if (Array.isArray(response?.data)) {
-          reasons.value = response.data.map((reason: { reasonName?: string; name?: string }) => ({
-            value: reason.reasonName || reason.name || '',
-            label: reason.reasonName || reason.name || ''
-          })).filter((r: Reason) => r.value && r.label)
+          reasons.value = response.data
+            .map((reason: { reasonName?: string; name?: string; isActive?: boolean }) => ({
+              value: reason.reasonName || reason.name || '',
+              label: reason.reasonName || reason.name || '',
+              isActive: reason.isActive !== false // default to true if not specified
+            }))
+            .filter((r: Reason & { isActive?: boolean }) => r.value && r.label && r.isActive)
+            .sort((a, b) => a.label.localeCompare(b.label))
+          
+          // Log pour le débogage
+          console.log(`Loaded ${reasons.value.length} reasons for category '${props.category}'`)
+        } else {
+          console.warn('Unexpected response format when loading reasons:', response)
+          reasons.value = []
         }
       } catch (err) {
         console.error('Error loading reasons:', err)
         error.value = t('Failed to load reasons')
+        reasons.value = []
       } finally {
         isLoading.value = false
       }
@@ -114,8 +137,14 @@ export default defineComponent({
         return false
       }
       
+      if (!props.category) {
+        error.value = t('Category is required')
+        return false
+      }
+      
       try {
         isLoading.value = true
+        error.value = ''
         
         const response = await postReason({
           reasonName: reason,
@@ -130,12 +159,19 @@ export default defineComponent({
             label: response.data.reasonName || response.data.name || reason
           }
           
+          // Ajouter la nouvelle raison en tête de liste
           reasons.value = [newReason, ...reasons.value]
           updateModelValue(newReason.value)
           emit('reason-added', newReason)
+          
+          // Afficher un message de succès
+          toast.success(t('Reason added successfully'))
           return true
         }
+        
+        error.value = t('Unexpected response format when adding reason')
         return false
+        
       } catch (err) {
         console.error('Error adding custom reason:', err)
         error.value = t('Failed to add custom reason')

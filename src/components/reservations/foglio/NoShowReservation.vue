@@ -108,8 +108,13 @@
 
                     <!-- Reason Selection -->
                     <div class="mb-4">
-                        <Select :lb="$t('reason')" :is-loading="isloadingReason" v-model="formData.reason" :options="reasonOptions"
-                            :is-required="true" />
+                        <ReasonSelector
+                          v-model="formData.reason"
+                          :category="'No Show'"
+                          :label="$t('reason')"
+                          :is-required="true"
+                          @reason-added="handleReasonAdded"
+                        />
                     </div>
 
                     <!-- Action Buttons -->
@@ -132,10 +137,8 @@ import { useToast } from 'vue-toastification'
 import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
-import Select from '../../forms/FormElements/Select.vue'
-import { getByCategory } from '../../../services/configrationApi'
-import {  markNoShow, getReservationDetailsById } from '../../../services/reservation'
-import { useServiceStore } from '@/composables/serviceStore'
+import { markNoShow, getReservationDetailsById } from '../../../services/reservation'
+import ReasonSelector from '@/components/common/ReasonSelector.vue'
 
 interface Props {
     isOpen: boolean
@@ -159,9 +162,8 @@ interface NoShowReservationData {
     selectedRooms?: number[]
 }
 
-const isloadingReason = ref(false)
 const isLoading = ref(false)
-const serviceStore = useServiceStore()
+// Service store non utilisé pour le moment
 const props = withDefaults(defineProps<Props>(), {
     isOpen: false
 })
@@ -171,8 +173,31 @@ const { t } = useI18n()
 const toast = useToast()
 
 const loading = ref(false)
-const reservation = ref<any>()
-const reservationRooms = ref<any>([])
+interface Guest {
+  displayName: string
+}
+
+interface Room {
+  id: number
+  status: string
+  roomNumber: string
+  guest?: Guest
+  guestName?: string
+  [key: string]: unknown
+}
+
+interface Reservation {
+  id: number
+  guest: {
+    displayName: string
+  }
+  reservationRooms: Room[]
+  [key: string]: unknown
+}
+
+const reservation = ref<Reservation | null>(null)
+
+const reservationRooms = ref<Room[]>([])
 
 const formData = ref({
     noShowFees: 0,
@@ -182,7 +207,9 @@ const formData = ref({
     noShowType: 'individual',
     selectedRooms: [] as number[]
 })
-const reasonOptions = ref([{ label: "select", value: '' }])
+const handleReasonAdded = (newReason: { value: string; label: string }) => {
+  formData.value.reason = newReason.value
+}
 
 // Watch for modal open/close
 watch(() => props.isOpen, (newValue) => {
@@ -203,15 +230,17 @@ watch(() => props.reservationId, (newVal) => {
 watch(() => formData.value.noShowType, (newType) => {
     if (newType === 'group') {
         // Ne sélectionner que les chambres non no-show
-        formData.value.selectedRooms = availableRooms.value.map((room: any) => room.id)
+        formData.value.selectedRooms = reservationRooms.value
+            .filter((room: Room) => room.status !== 'no_show')
+            .map((room: Room) => room.id)
     } else {
         formData.value.selectedRooms = []
     }
-})
+}, { immediate: true })
 
 // Watch for reservationRooms changes to handle single room auto-selection
-watch(() => reservationRooms.value, (newRooms) => {
-    const available = newRooms.filter((room: any) => room.status !== 'no_show')
+watch(() => reservationRooms.value, (newRooms: Room[]) => {
+    const available = newRooms.filter((room: Room) => room.status !== 'no_show')
 
     if (available.length === 0) {
         // Toutes les chambres sont no-show
@@ -235,10 +264,26 @@ const getBookingDetailsById = async () => {
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
         console.log('Reservation response:', response)
-        reservation.value = response
-        reservationRooms.value = response.reservationRooms.map((e: any) => {
-            return { ...e, guest: reservation.value.guest }
-        })
+        
+        // Vérifier que la réponse est valide avant de l'assigner
+        if (response) {
+            reservation.value = {
+                id: response.id || 0,
+                guest: response.guest || { displayName: '' },
+                reservationRooms: response.reservationRooms || [],
+                ...response
+            }
+            
+            // Mettre à jour les chambres de réservation
+            reservationRooms.value = (response.reservationRooms || []).map((room: any) => ({
+                ...room,
+                guest: response.guest || { displayName: '' }
+            }))
+        } else {
+            // Réinitialiser si la réponse est invalide
+            reservation.value = null
+            reservationRooms.value = []
+        }
         console.log('Reservation data fetched:', reservation.value)
     } catch (error) {
         console.error('Error fetching reservation details:', error)
@@ -262,37 +307,16 @@ const resetForm = () => {
 const closeModal = () => {
     emit('close')
 }
-const laodReason = async () => {
-    isloadingReason.value = true;
-    try {
-        const hotel_id = serviceStore.serviceId;
-        const res = await getByCategory(hotel_id!, 'No Show Reservation');
-        console.log('data', res.data)
-        reasonOptions.value = res.data.map((item: any) => {
-            return {
-                label: item.reasonName,
-                value: item.reasonName
-            }
-        })
-        reasonOptions.value.unshift({ label: "select", value: '' })
-        console.log(reasonOptions.value)
-    } catch (e) {
-
-    } finally {
-        isloadingReason.value = false;
-    }
-
-}
 
 // Computed pour vérifier si toutes les chambres sont no-show
 const allRoomsNoShow = computed(() => {
     return reservationRooms.value.length > 0 &&
-           reservationRooms.value.every((room: any) => room.status === 'no_show')
+           reservationRooms.value.every((room: Room) => room.status === 'no_show')
 })
 
 // Computed pour obtenir les chambres disponibles (non no-show)
 const availableRooms = computed(() => {
-    return reservationRooms.value.filter((room: any) => room.status !== 'no_show')
+    return reservationRooms.value.filter((room: Room) => room.status !== 'no_show')
 })
 
 
@@ -357,8 +381,6 @@ const handleSubmit = async () => {
         loading.value = false
     }
 }
-laodReason()
-
 onMounted(() => {
     if (props.reservationId) {
         getBookingDetailsById()
