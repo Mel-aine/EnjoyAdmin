@@ -21,7 +21,9 @@ interface RoomConfiguration {
   childCount: number
   rate: number
   isOpen: boolean
-  taxes: any[]
+  taxes: any[],
+  isLoadingRooms?: boolean
+  isLoadingRate?: boolean
 }
 
 interface Reservation {
@@ -133,9 +135,10 @@ export function useBooking() {
   // Loading states
   const isLoading = ref(false)
   const isLoadingRoom = ref(false)
-  const isLoadingRate = ref(false)
+  // const isLoadingRate = ref(false)
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
+  const quickGroupBooking = ref(false)
 
   // Data refs
   const RoomTypes = ref<Option[]>([])
@@ -180,15 +183,18 @@ export function useBooking() {
       rate: 0,
       isOpen: false,
       taxes: [],
+      isLoadingRooms: false,
+      isLoadingRate: false,
+
     },
   ])
 
   // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '15:00',
+    checkinTime: '',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '16:00',
+    checkoutTime: '',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -309,6 +315,81 @@ export function useBooking() {
   }
   getMarketCode()
   // Watchers
+
+
+  const validateCheckInCheckOut = (): { isValid: boolean; error: string | null } => {
+  const checkinDate = reservation.value.checkinDate
+  const checkoutDate = reservation.value.checkoutDate
+  const checkinTime = reservation.value.checkinTime
+  const checkoutTime = reservation.value.checkoutTime
+
+  // Vérifier que toutes les valeurs sont présentes
+  if (!checkinDate || !checkoutDate) {
+    return { isValid: false, error: 'validation.datesRequired' }
+  }
+
+  if (!checkinTime || !checkoutTime) {
+    return { isValid: false, error: 'validation.timesRequired' }
+  }
+
+  // Créer des objets Date complets
+  const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`)
+  const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`)
+
+  // Vérifier que les dates sont valides
+  if (isNaN(checkinDateTime.getTime()) || isNaN(checkoutDateTime.getTime())) {
+    return { isValid: false, error: 'validation.invalidDateTime' }
+  }
+
+  //  La date de checkout est avant la date de checkin
+  if (checkoutDateTime < checkinDateTime) {
+    return { isValid: false, error: 'validation.checkoutBeforeCheckin' }
+  }
+
+  //  Même date et même heure
+  if (checkinDate === checkoutDate && checkinTime === checkoutTime) {
+    return { isValid: false, error: 'validation.sameDateTime' }
+  }
+
+  //  Même date mais checkout avant checkin
+  if (checkinDate === checkoutDate) {
+    const [checkinHour, checkinMinute] = checkinTime.split(':').map(Number)
+    const [checkoutHour, checkoutMinute] = checkoutTime.split(':').map(Number)
+
+    const checkinMinutes = checkinHour * 60 + checkinMinute
+    const checkoutMinutes = checkoutHour * 60 + checkoutMinute
+
+    if (checkoutMinutes <= checkinMinutes) {
+      return { isValid: false, error: 'validation.checkoutTimeBeforeCheckinTime' }
+    }
+  }
+
+  //  Durée minimale (optionnel - par exemple 1 heure minimum)
+  const durationInHours = (checkoutDateTime.getTime() - checkinDateTime.getTime()) / (1000 * 60 * 60)
+  if (durationInHours < 1) {
+    return { isValid: false, error: 'validation.minimumStayDuration' }
+  }
+
+  return { isValid: true, error: null }
+}
+
+  // Watcher pour valider les dates et heures en temps réel
+watch(
+  [
+    () => reservation.value.checkinDate,
+    () => reservation.value.checkoutDate,
+    () => reservation.value.checkinTime,
+    () => reservation.value.checkoutTime
+  ],
+  () => {
+    const validation = validateCheckInCheckOut()
+    if (!validation.isValid && validation.error) {
+      dateError.value = validation.error
+    } else {
+      dateError.value = null
+    }
+  }
+)
 
   watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], async () => {
     const arrivalDate = reservation.value.checkinDate
@@ -459,44 +540,60 @@ export function useBooking() {
     }
   }
 
-  const loadRoomsForRoomType = async (roomTypeId: string) => {
-    if (!roomTypeId) return
+  const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
+  if (!roomTypeId) return
 
-    const roomTypeIdNumber = Number(roomTypeId)
+  const roomTypeIdNumber = Number(roomTypeId)
 
-    try {
+  try {
+    // Si roomConfigId est fourni, marquer seulement cette chambre comme en chargement
+    if (roomConfigId) {
+      const room = roomConfigurations.value.find(r => r.id === roomConfigId)
+      if (room) {
+        room.isLoadingRooms = true
+      }
+    } else {
+
       isLoadingAvailableRooms.value = true
-      const response = await getAvailableRoomsByTypeId(
-        roomTypeIdNumber,
-        reservation.value.checkinDate,
-        reservation.value.checkoutDate,
+    }
+
+    const response = await getAvailableRoomsByTypeId(
+      roomTypeIdNumber,
+      reservation.value.checkinDate,
+      reservation.value.checkoutDate,
+    )
+
+    console.log('Available rooms response:', response)
+
+    if (response?.data?.data?.rooms) {
+      const availableRooms = response.data.data.rooms.filter(
+        (room: any) => room.status === 'available',
       )
 
-      console.log('Available rooms response:', response)
+      const roomOptions: Option[] = availableRooms.map((room: any) => ({
+        label: room.roomNumber,
+        value: room.id,
+      }))
 
-      if (response?.data?.data?.rooms) {
-        // Filtrer seulement les chambres disponibles
-        const availableRooms = response.data.data.rooms.filter(
-          (room: any) => room.status === 'available',
-        )
-
-        const roomOptions: Option[] = availableRooms.map((room: any) => ({
-          label: room.roomNumber,
-          value: room.id,
-        }))
-
-        roomTypeRooms.value.set(roomTypeId, roomOptions)
-      } else {
-        // Aucune chambre disponible
-        roomTypeRooms.value.set(roomTypeId, [])
-      }
-    } catch (error) {
-      console.error('Error loading available rooms for room type:', error)
+      roomTypeRooms.value.set(roomTypeId, roomOptions)
+    } else {
       roomTypeRooms.value.set(roomTypeId, [])
-    } finally {
+    }
+  } catch (error) {
+    console.error('Error loading available rooms for room type:', error)
+    roomTypeRooms.value.set(roomTypeId, [])
+  } finally {
+    // Arrêter le chargement pour cette chambre spécifique
+    if (roomConfigId) {
+      const room = roomConfigurations.value.find(r => r.id === roomConfigId)
+      if (room) {
+        room.isLoadingRooms = false
+      }
+    } else {
       isLoadingAvailableRooms.value = false
     }
   }
+}
 
   //fonction pour récupérer le base rate
   const fetchBaseRate = async (
@@ -537,6 +634,8 @@ export function useBooking() {
       rate: 0,
       isOpen: false,
       taxes: [],
+      isLoadingRooms: false,
+      isLoadingRate: false,
     }
     roomConfigurations.value.push(newRoom)
     reservation.value.rooms = roomConfigurations.value.length
@@ -796,6 +895,11 @@ const validateAllRooms = () => {
   const saveReservation = async () => {
     isLoading.value = true
     try {
+      // Valider les dates et heures de check-in/check-out
+      const validation = validateCheckInCheckOut()
+      if (!validation.isValid) {
+        throw new Error(t(validation.error || 'validation.invalidDateTime'))
+      }
       // Validation
       if (!formData.value.firstName || !formData.value.lastName  || !formData.value.phoneNumber || !formData.value.email ) {
         throw new Error(t('Guest information is incomplete'))
@@ -1053,7 +1157,7 @@ const validateAllRooms = () => {
     if (!room || !room.roomType || !newRateTypeId) return
 
     try {
-      isLoadingRate.value = true
+      room.isLoadingRate = true
 
       // Récupérer les informations complètes du rate
       const rateInfo = await fetchRateInfo(
@@ -1090,7 +1194,9 @@ const validateAllRooms = () => {
       console.error('Error fetching rate info:', error)
       toast.error(t('toast.errorFetchingBaseRate'))
     } finally {
-      isLoadingRate.value = false
+      if (room) {
+      room.isLoadingRate = false
+    }
     }
   }
 
@@ -1110,7 +1216,7 @@ const validateAllRooms = () => {
       // Charger les rate types et les chambres disponibles en parallèle
       await Promise.all([
         loadRateTypesForRoomType(newRoomTypeId),
-        loadRoomsForRoomType(newRoomTypeId),
+       loadRoomsForRoomType(newRoomTypeId, roomId),
       ])
 
       const selectedRoomTypeData = RoomTypesData.value.find((rt) => rt.id === Number(newRoomTypeId))
@@ -1307,6 +1413,7 @@ const validateAllRooms = () => {
     if (!room || !room.roomType || !room.rateType) return
 
     try {
+      room.isLoadingRate = true
       const rateInfo = await fetchRateInfo(
         room.roomType,
         room.rateType,
@@ -1336,6 +1443,10 @@ const validateAllRooms = () => {
       updateBilling()
     } catch (error) {
       console.error('Error recalculating room rate:', error)
+    }finally {
+      if (room) {
+      room.isLoadingRate = false
+    }
     }
   }
 
@@ -1351,9 +1462,9 @@ const validateAllRooms = () => {
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '15:00',
+    checkinTime: '',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '16:00',
+    checkoutTime: '',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -1376,6 +1487,7 @@ const validateAllRooms = () => {
       rate: 0,
       isOpen: false,
       taxes: [],
+       isLoadingRooms: false,
     },
   ]
 
@@ -1470,6 +1582,7 @@ const validateAllRooms = () => {
   RoomRateById.value = null
   isCustomPrize.value = false
   isCheckedIn.value = false
+  quickGroupBooking.value = false
 
   // Clear upload tracking
   pendingUploads.value.clear()
@@ -1641,6 +1754,7 @@ watch(() => otherInfo.value.voucherEmail, () => {
     paymentData,
     PaymentMethods,
     roomTypeBaseInfo,
+    validateCheckInCheckOut,
 
     // Room type data
     RoomTypes,
@@ -1649,7 +1763,6 @@ watch(() => otherInfo.value.voucherEmail, () => {
     // States
     isLoading,
     isLoadingRoom,
-    isLoadingRate,
     isPaymentLoading,
     dateError,
     confirmReservation,
@@ -1660,6 +1773,7 @@ watch(() => otherInfo.value.voucherEmail, () => {
     validateVoucherEmail,
      validateRoomNumbers,
   validateRoomNumberOnChange,
+  quickGroupBooking,
 
     // Computed
     numberOfNights,

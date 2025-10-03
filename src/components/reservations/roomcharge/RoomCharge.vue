@@ -9,7 +9,7 @@
             {{ $t('Rooms') }}
           </div>
           <!-- Single Room Display -->
-          <div>
+          <div v-if="singleRoom">
             <div :title="$t('roomNumber')">
               <div>
                 <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
@@ -22,6 +22,20 @@
               </div>
             </div>
           </div>
+          <!-- Group Rooms Display -->
+          <div v-if="groupRooms.length > 0">
+            <div v-for="room in groupRooms" :key="room.id"
+                :class="{'bg-gray-200': selectedRoomId === room.id}"
+                @click="selectRoom(room.id)">
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
+                <div class="flex flex-col">
+                  <span class="capitalize">{{ room.roomNumber }}-{{ room.guestName }}</span>
+                  <span class="text-xs text-gray-500">{{ room.roomType || '' }}</span>
+                </div>
+                <ChevronRight class="w-4 h-4" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Footer Summary -->
@@ -29,17 +43,17 @@
           <!-- Total Charges -->
           <div class="flex justify-between text-sm text-gray-600">
             <span>{{ $t('Total') }}</span>
-            <span>{{ formatAmount(summaryData?.totalChargesWithTaxes || 0) }}</span>
+            <span>{{  formatCurrency(reservation.balanceSummary.totalChargesWithTaxes)  }}</span>
           </div>
           <!-- Total Tax -->
           <div class="flex justify-between text-sm text-gray-600">
             <span>{{ $t('paid') }}</span>
-            <span>{{ formatAmount(summaryData?.outstandingBalance || 0) }}</span>
+            <span>{{  formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <!-- Total Discounts -->
           <div class="flex justify-between text-xm text-red-600">
             <span>{{ $t('Balance') }}</span>
-            <span>{{ formatAmount(summaryData?.totalPayments || 0) }}</span>
+            <span>{{formatCurrency(reservation.balanceSummary.outstandingBalance)}}</span>
           </div>
 
           <!-- Room Info -->
@@ -58,7 +72,7 @@
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
         <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
 
-        <!-- More Actions Dropdown 
+        <!-- More Actions Dropdown
         <div class="relative">
           <ButtonDropdown
             v-model="selectedMoreAction"
@@ -69,7 +83,7 @@
           />
         </div>-->
 
-        <!-- Status Indicators 
+        <!-- Status Indicators
         <div class="ml-auto flex items-center gap-2">
           <span class="flex items-center gap-1 text-sm">
             <div class="w-3 h-3 bg-orange-400 rounded"></div>
@@ -227,6 +241,7 @@ const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservat
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
 const ExchangeRoomModal = defineAsyncComponent(() => import('../ExchangeRoomModal.vue'))
 const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
+import { formatCurrency } from '../../utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 
@@ -581,6 +596,7 @@ const loadRoomCharges = async () => {
           singleRoom.value = uniqueRooms[0]
           groupRooms.value = []
           selectedRoomId.value = null
+
         }
       }
     }

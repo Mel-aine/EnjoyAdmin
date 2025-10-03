@@ -29,7 +29,7 @@ const close = () => {
         <div class="absolute w-full h-full inset-0 bg-black bg-opacity-75 transition-opacity" @click="close" aria-hidden="true"></div> -->
         <div class="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
             <div
-              class="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[10px]"
+              class="fixed inset-0 h-full w-full bg-gray-400/50 "
               aria-hidden="true"
               @click="close"
         ></div>
