@@ -6209,7 +6209,13 @@
  "currentGuest":"Client actuel",
  "Perform Amend on":"Effectuer une modification sur",
  "Individual Reservation":" Réservation individuelle",
- "void":"voir"
+ "void":"voir",
+ "Group Receipt - Demo Hotel":" Reçu de groupe – Hôtel Démo",
+ "Adjustment due to stay modification.":"Ajustement dû à une modification du séjour.",
+ "payment ":"Paiement ",
+ "Extra Charge":"Frais additionnel",
+ "Show Tariff on Print Folio":"Afficher le tarif sur le folio imprimé ",
+ "Credit Limit":"Limite de crédit"
  
  
  

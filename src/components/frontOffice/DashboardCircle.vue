@@ -40,7 +40,7 @@
       <div v-for="segment in legend" :key="segment.label" class="flex items-center">
         <div class="w-3 h-3 rounded-full mr-2" :style="{ backgroundColor: segment.color }"></div>
         <span class="text-xs text-gray-600 dark:text-gray-400">
-          {{ segment.label }} ({{ segment.count }})
+          {{$t (segment.label) }} ({{ segment.count }})
         </span>
       </div>
     </div>

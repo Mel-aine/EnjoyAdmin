@@ -146,7 +146,7 @@
                           ]">
                           <div class="flex items-center gap-2">
                             <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
-                            {{ action.label }}
+                            {{$t (action.label) }}
                           </div>
                         </button>
                       </div>

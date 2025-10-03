@@ -73,9 +73,9 @@
         <div class="flex items-start gap-3">
           <component :is="statusConfig.alert.icon" class="w-5 h-5 mt-0.5 flex-shrink-0" />
           <div>
-            <p class="font-semibold text-sm">{{ statusConfig.alert.message }}</p>
+            <p class="font-semibold text-sm">{{$t (statusConfig.alert.message) }}</p>
             <p v-if="statusConfig.alert.subtext" class="text-xs mt-1 opacity-80">
-              {{ statusConfig.alert.subtext }}
+              {{$t (statusConfig.alert.subtext) }}
             </p>
           </div>
         </div>
