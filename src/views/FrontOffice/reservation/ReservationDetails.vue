@@ -501,7 +501,18 @@ const handleRoomAssignmentRefresh = async () => {
 
   await getBookingDetailsById()
 }
-
+const closeRoomMoveModal = ()=>{
+  
+}
+const handleRoomMoveSuccess = ()=>{
+  
+}
+const closeExchangeRoomModal = ()=>{
+  
+}
+const handleExchangeSuccess = ()=>{
+  
+}
 // ====== GESTION DES OPTIONS ======
 const handleOptionSelected = async(option: any) => {
   console.log('Selected option:', option)
@@ -906,11 +917,11 @@ onMounted(() => {
   </template>
   <!-- Room Move Modal -->
   <template v-if="isRoomMoveModalOpen">
-    <RoomMoveModal :reservation-id="reservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
+    <RoomMoveModal :reservation-id="localReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
   </template>
   <!-- Exchange Room Modal -->
   <template v-if="isExchangeRoomModalOpen">
-    <ExchangeRoomModal :reservation-id="reservation.id" :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
+    <ExchangeRoomModal :reservation-id="localReservation.id" :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
   </template>
   <!-- Print Modal -->
   <template v-if="showPrintModal">
