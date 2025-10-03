@@ -3801,7 +3801,8 @@
       "departureResults": "Departure Results",
       "totalReservations": "Total Reservations",
       "totalPax": "Total Guests",
-      "taxInclusiveRates": "Tax Inclusive Rates"
+      "taxInclusiveRates": "Tax Inclusive Rates",
+      "dailyOperationReport": " Daily Oepration Report"
     },
     "frontOffice": {
       "title": "Front Office Reports",

@@ -55,6 +55,11 @@ export interface RoomStatusWordExportParams {
 }
 
 
+export interface dailyReportOration {
+  hotelId: number
+  asOnDate: string
+}
+
 export interface ReportFilters {
   hotelId?: number
   startDate?: string
@@ -1116,5 +1121,27 @@ export const generatePosReceiptPdfUrl = async (transactionId: string): Promise<s
   } catch (error) {
     console.error('Error generating pos receipt PDF URL:', error)
     throw error
+  }
+}
+//daily-operation-report
+export const generateOperationReport = async (params: dailyReportOration): Promise<string> => {
+  try {
+    const response = await apiClient.post(
+      `${API_URL}/statistics/daily-operations-report-pdf`,
+      params,
+      {
+        ...getHeaders(),
+        responseType: 'blob'
+      }
+    )
+    
+    // Créer un objet URL à partir du blob
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    return url
+    
+  } catch (error) {
+    handleApiError(error)
+    throw error // Important : propager l'erreur
   }
 }

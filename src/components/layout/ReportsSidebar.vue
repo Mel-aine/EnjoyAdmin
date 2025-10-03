@@ -342,6 +342,7 @@ const reportPermissions = {
   'release-reservation-list': 'release_reservation_list',
   'reservation-activity': 'reservation_activity',
   'void-reservation': 'void_reservations',
+  'daily-operations-report': 'daily_operations_report',
 
   // Front Office Reports
   'guest-checked-in': 'guest_checked_in',
@@ -421,6 +422,7 @@ const reservationReports = ref([
   //TO DO   { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
   //TO DO { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
   { name: 'void-reservation', path: '/reports/reservation/void-reservation', label: 'reports.reservation.voidReservation' },
+  { name: 'daily-operations-report', path: '/reports/reservation/daily-operation-report', label: 'reports.reservation.dailyOperationReport' },
 ])
 
 // Front Office Reports
