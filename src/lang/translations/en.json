@@ -6243,10 +6243,6 @@
   "All the records are up to date.":"All the records are up to date.",
   "Home Suite":"Home Suite",
   "Lifestyle Suite":"Lifestyle Suite",
-  "Failed to void receipt for payment transaction":"Failed to void receipt for payment transaction",
-  "Receipt created for payment transaction":"Receipt created for payment transaction",
-  "Checked out from hotel for reservation #RES-20251001-RIU6Y.":"Checked out from hotel for reservation #RES-20251001-RIU6Y.",
-  "Reservation #RES-20251001-RIU6Y rooms checked out. Rooms: 120, 121":"Reservation #RES-20251001-RIU6Y rooms checked out. Rooms: 120, 121",
   "Umbrella":"Umbrella",
   "Company not found or has been deleted.":"Company not found or has been deleted.",
   "Back to Company Database":"Back to Company Database",
@@ -6304,8 +6300,8 @@
   "Completed Work Orders":"Completed Work Orders",
   "Work Order List":"Work Orders List",
   "Work Order Reports":"Work Order Reports",
-  "reports backOffice workOffice Report Description":"reports backOffice workOffice Report Description",
-  "1 folio(s) were created for reservation #RES-20251003-CY7U8":"1 folio(s) were created for reservation #RES-20251003-CY7U8"
+  "reports backOffice workOffice Report Description":"reports backOffice workOffice Report Description"
+ 
   
  
   

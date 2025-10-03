@@ -3850,9 +3850,10 @@
       "cityLedgerDetail": "Grand livre de la ville - Détail",
       "cityLedgerSummary": "Grand livre de la ville - Résumé",
       "dailyExtraChargeDetail": "Frais supplémentaires quotidiens - Détail",
-      "dailyReceiptDetail": "Reçu quotidien - Détail",
-      "dailyReceiptSummary": "Reçu quotidien - Résumé",
+      "dailyReceiptDetail": "Détail du reçu quotidien ",
+      "dailyReceiptSummary": "Résumé quotidien des reçus",
       "dailyRefundReport": "Rapport de remboursement quotidien",
+      "workOrderList":"Liste des ordres de travail",
       "dailyRevenue": "Revenu quotidien",
       "expenseVoucher": "Bon de dépense",
       "folioList": "Liste de folios",
@@ -5758,7 +5759,7 @@
   "ref_no": "N° de réf.",
   "sr_no": "N° de série",
   "voided": "Annulé",
-  "no_show": "Non-présentation",
+  "no_show": "Non-présent",
   "in_house": "Présent",
   "GroupRooms": "Chambres de groupe",
   "GroupInfo": "Infos du groupe",
@@ -6136,13 +6137,10 @@
  "Assign":"Affecter",
  "All the records are up to date.":"Tous les enregistrements sont à jour.",
  "no_roomtype_found":"Aucun type de chambre trouvé ",
+
  "all_rooms_vacant":"« Toutes les chambres sont vacantes",
  "Home Suite":"Suite familiale",
  "Lifestyle Suite":"Suite Lifestyle ",
- "Failed to void receipt for payment transaction":"Échec de l’annulation du reçu de la transaction de paiement ",
- "Receipt created for payment transaction":"Reçu créé pour la transaction de paiement ",
- "Checked out from hotel for reservation #RES-20251001-RIU6Y.":"Départ effectué de l’hôtel pour la réservation n°RES-20251001-RIU6Y",
- "Reservation #RES-20251001-RIU6Y rooms checked out. Rooms: 120, 121":"Départ effectué pour la réservation n°RES-20251001-RIU6Y. Chambres : 120, 121",
  "Umbrella":"parapluie",
  "Company not found or has been deleted.":"Société introuvable ou supprimée.",
  "Back to Company Database":"Retour à la base de données des sociétés",
@@ -6202,11 +6200,9 @@
  "Work Orders by Priority":"Ordres de travail par priorité ",
  "Work Orders by Assignee":"Ordres de travail par personne assignée ",
  "Completed Work Orders":"Ordres de travail terminés",
- "Work Order List": "Liste des ordres de travail",
+ "work order list": "Liste des ordres de travail",
  "Work Order Reports":" Rapports des ordres de travail ",
- "reports backOffice workOffice Report Description":"Description du rapport back-office / service technique ",
- "1 folio(s) were created for reservation #RES-20251003-CY7U8":" 1 folio a été créé pour la réservation n°RES-20251003-CY7U8"
- 
+ "reports backOffice workOffice Report Description":"Description du rapport back-office / service technique "
  
  
   
