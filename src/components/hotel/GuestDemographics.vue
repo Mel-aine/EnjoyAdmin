@@ -66,6 +66,7 @@
 import { ref, onMounted,nextTick,watch } from 'vue'
 import * as echarts from 'echarts'
 import Spinner from '../spinner/Spinner.vue';
+import { useI18n } from 'vue-i18n';
 
 import { defineProps } from 'vue'
 
@@ -77,6 +78,7 @@ const props = defineProps<{
   }>
 }>()
 const isLoading = ref(true)
+const {t} = useI18n()
 
 
 
@@ -144,7 +146,7 @@ const initChart = async () => {
             show: false,
           },
           data: props.originData.map((entry, index) => ({
-            name: entry.nationality,
+            name:  t(`countries_lists.${entry.nationality.toLowerCase()}`)  ,
             value: entry.count,
             itemStyle: {
               color: [

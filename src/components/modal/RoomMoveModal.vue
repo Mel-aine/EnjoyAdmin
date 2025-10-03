@@ -227,8 +227,9 @@ const confirmRoomSelection = async () => {
     isLoading.value = true
     try {
       const data ={
-        newRoomId: roomSelections[0].roomId,
+        newRoomId: roomSelections.map((r:any)=>r.roomId),
       }
+      console.log("@@@@data",data)
       await postRoomMoveReservation(props.reservationId, data)
       toast.success(t('Room exchange completed successfully'))
       emit('refresh')
