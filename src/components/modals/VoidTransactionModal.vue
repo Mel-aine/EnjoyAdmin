@@ -116,13 +116,7 @@ const validateForm = () => {
   if (!voidForm.reason.trim()) {
     errors.reason = t('voidReasonRequired')
     return false
-  }
-  
-  if (voidForm.reason.trim().length < 10) {
-    errors.reason = t('voidReasonTooShort')
-    return false
-  }
-  
+  }  
   return true
 }
 // Load initial data
@@ -145,6 +139,8 @@ const loadInitialData = async () => {
   }
 }
 const handleVoidTransaction = async () => {
+    alert('viod')
+    console.log('voidform', voidForm)
   if (!validateForm()) {
     return
   }
