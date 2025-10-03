@@ -50,15 +50,14 @@
                     <div class="col-span-2">
                       <InputCurrency lb="Total Amount to Pay" v-model="formData.amount" placeholder="0.00"
                         step="0.01" />
-                      <small class="text-gray-500 text-xs mt-1">Auto-calculated from assigned amounts</small>
+                      <small class="text-gray-500 text-xs mt-1">{{$t('Auto-calculated from assigned amounts')}}</small>
                     </div>
                     <div class="col-span-3">
                       <Input :lb="$t('comment')" v-model="formData.comment" />
                     </div>
                   </div>
                   <!-- Map Payment Section -->
-                  <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('cashiering.mapPayment',
-                    'Map Payment') }}</h4>
+                  <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('Map Payment') }}</h4>
 
                   <div class="mt-2 grid grid-cols-12 align-middle items-center gap-3">
 

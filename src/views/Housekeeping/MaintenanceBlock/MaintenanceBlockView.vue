@@ -45,7 +45,7 @@
 
           <template #column-room_type="{ item }">
             <div class="text-sm text-gray-600">
-              {{ item.roomType.roomTypeName }}
+              {{$t (item.roomType.roomTypeName) }}
             </div>
           </template>
 

@@ -53,7 +53,6 @@
               <option value="">{{ $t('select') }}</option>
               <option value="pending">{{ $t('pending') }}</option>
               <option value="in_progress">{{ $t('in Progress') }}</option>
-              <option value="on_hold">{{ $t('on Hold') }}</option>
               <option value="completed">{{ $t('completed') }}</option>
               <option value="cancelled">{{ $t('cancelled') }}</option>
             </select>
@@ -121,7 +120,7 @@
             >
               <option value="">{{ $t('common.select') }}</option>
               <option v-for="room in roomOptions" :key="room.id" :value="room.id">
-                {{ room.label }} - {{ room.type }}
+                {{$t (room.label) }} - {{ $t (room.type) }}
               </option>
             </select>
           </div>
@@ -138,7 +137,7 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option value="maintenance">{{ $t('wmaintenance') }}</option>
+              <option value="maintenance">{{ $t('maintenance') }}</option>
               <option value="cleaning">{{ $t('cleaning') }}</option>
               <option value="repair">{{ $t('repair') }}</option>
               <option value="inspection">{{ $t('inspection') }}</option>
@@ -178,7 +177,7 @@
                 class="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               >
               <label :for="report.id" class="ml-2 text-sm text-gray-900 dark:text-white cursor-pointer">
-                <span class="font-medium">{{ report.name }}</span>
+                <span class="font-medium">{{$t(report.name) }}</span>
             
               </label>
             </div>

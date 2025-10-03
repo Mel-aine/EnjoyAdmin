@@ -44,7 +44,7 @@ watch(checked, (newValue) => {
                         </span>
                     </div>
                 </div>
-                {{ label }}
+                {{$t(label)}}
             </label>
         </div>
     </div>

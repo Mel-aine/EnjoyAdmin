@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-      {{ label }}
+      {{ label  }}
     </label>
     <div class="flex gap-2">
       <label
@@ -16,7 +16,7 @@
           class="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500 dark:focus:ring-purple-400"
         />
         <span class="text-sm text-gray-700 dark:text-gray-300">
-          {{ option.label }}
+          {{$t(option.label )}}
         </span>
       </label>
     </div>

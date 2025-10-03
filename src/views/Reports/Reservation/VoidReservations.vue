@@ -3,21 +3,22 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Void Reservations
+          {{$t('Void Reservations')}}
         </h1>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{$t('Filters')}}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Cancellation Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Void From
+               {{$t('Void From')}}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -28,7 +29,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Void To
+              {{$t('Void To')}}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
@@ -52,7 +53,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">Export</span>
+              <span v-if="!exportLoading">{{$t('Export')}}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -103,7 +104,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Report
+            {{$t('Report')}}
           </button>
           
           <!-- Reset Button -->
@@ -114,7 +115,7 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{$t('Reset')}}
           </button>
         </div>
       </div>

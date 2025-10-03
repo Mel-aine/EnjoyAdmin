@@ -5,7 +5,7 @@
       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
       v-if="title"
     >
-      {{ title }}
+      {{$t( title )}}
       <span class="text-red-500" v-if="isRequired">*</span>
     </label>
 
@@ -26,7 +26,7 @@
     </div>
 
     <div v-if="errorMsg.length > 0" class="text-red-500 text-sm font-light italic">
-      {{ errorMsg }}
+      {{$t (errorMsg) }}
     </div>
   </div>
 </template>

@@ -26,7 +26,7 @@ const emit = defineEmits(['click'])
             <div v-if="loading" class="w-4 h-4  flex-shrink-0  border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin">
             </div>
             <component v-else-if="icon" :is="icon" class="w-4 h-4"></component>
-            <span class="text-center w-full">{{ label }}</span>
+            <span class="text-center w-full">{{$t(label)}}</span>
         </button>
         <slot></slot>
     </div>

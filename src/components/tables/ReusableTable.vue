@@ -40,7 +40,7 @@
             </th>
             <th v-for="column in columns" :key="column.key"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300  capitalize tracking-wider">
-              {{ getColumnLabel(column) }}
+              {{$t(getColumnLabel(column) )}}
             </th>
             <th v-if="hasActions"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
@@ -78,7 +78,7 @@
               </td>
               <td v-for="column in columns" :key="column.key" class="px-6 py-4 break-words max-w-xs">
                 <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white break-words">
-                  {{ getColumnValue(item, column) }}
+                  {{$t(getColumnValue(item, column))}}
                 </div>
 
                 <div v-else-if="column.type === 'email'" class="text-sm">
@@ -109,12 +109,12 @@
 
                 <div v-else-if="column.type === 'custom'" class="text-sm">
                   <slot :name="`column-${column.key}`" :item="item" :value="getNestedValue(item, column.key)">
-                    {{ getColumnValue(item, column) }}
+                    {{$t(getColumnValue(item, column)) }}
                   </slot>
                 </div>
 
                 <div v-else class="text-sm text-gray-900 dark:text-white break-words">
-                  {{ getColumnValue(item, column) || '-' }}
+                  {{ $t(getColumnValue(item, column)) || '-' }}
                 </div>
               </td>
 
@@ -166,8 +166,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ emptyStateTitle }}</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessage }}</p>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{$t(emptyStateTitle )}}</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{$t(emptyStateMessage )}}</p>
     </div>
   </div>
 </template>

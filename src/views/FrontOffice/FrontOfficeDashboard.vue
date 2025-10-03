@@ -230,7 +230,7 @@
               {{ $t('unsettledFolios.noFoliosFound') }}
             </p>
             <p class="text-xs text-gray-600 dark:text-gray-400">
-              {{ $t('unsettledFolios.allPaid') }}
+              {{ $t('All the records are up to date.') }}
             </p>
           </div>
         </div>
@@ -244,7 +244,7 @@
                 <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg mr-3">
                   <Star class="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
-                {{ $t('roomTypesOccupancy') }}
+                {{ $t('frontOffice.dashboard.roomTypesOccupancy') }}
                 <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
                   ({{ Object.keys(dashboardData?.suites || {}).length }})
                 </span>
@@ -266,7 +266,7 @@
                     :key="suite.roomTypeId"
                     class="flex justify-between border-b py-1"
                   >
-                    <span class="font-medium">{{ suite.roomTypeName }}</span>
+                    <span class="font-medium">{{$t(suite.roomTypeName) }}</span>
                     <span class="text-gray-600 dark:text-gray-400 font-normal">
                       Occupées: {{ suite.occupied }} / {{ suite.totalRooms }} (Libres:
                       {{ suite.free }},
@@ -388,7 +388,7 @@
                     </div>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-900 dark:text-white">{{ activity.description }}</p>
+                    <p class="text-sm text-gray-900 dark:text-white">{{$t(activity.description )}}</p>
                     <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.timestamp }}</p>
                   </div>
                 </div>
@@ -533,7 +533,7 @@ const notificationItems = computed(() => {
       key: 'workOrder',
       icon: FileText,
       count: notifications.workOrder || 0,
-      label: 'frontOffice.dashboard.workOrders',
+      label: 'frontOffice.dashboard.workOrder',
     },
     {
       key: 'bookingInquiry',
@@ -575,7 +575,7 @@ const notificationItems = computed(() => {
       key: 'review',
       icon: Star,
       count: notifications.review || 0,
-      label: 'frontOffice.dashboard.reviews',
+      label: 'frontOffice.dashboard.review',
     },
   ]
 })

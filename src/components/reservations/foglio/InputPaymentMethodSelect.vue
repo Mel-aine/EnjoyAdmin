@@ -3,7 +3,7 @@
     <label v-if="!hideLabel" for="payment_method_select" 
       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
       :class="showDropdown ? 'text-brand-500' : 'text-gray-500'">
-      {{ label || 'Payment Method' }}
+      {{$t(label || 'Payment Method' )}}
     </label>
 
     <div class="relative font-sans cursor-pointer" @click="handleFocus">

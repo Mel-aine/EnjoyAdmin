@@ -46,7 +46,7 @@
                 </div>
                  <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
                         <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full ">
-                            <span>{{ formatCurrency(totals.cityLedgerTotal) }}</span>
+                            <span>{{formatCurrency(totals.cityLedgerTotal)}}</span>
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('City Ledger Total') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
@@ -62,8 +62,8 @@
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Assigned Payments') }}</span>
                         </div>
                          <div class="flex flex-col  gap-2 items-center justify-start align-top ">
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Opening Balance') }}</span>
                             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ formatCurrency(totals.openingBalance) }}</span>
+                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Opening Balance') }}</span>
                         </div>
 
                     </div>
