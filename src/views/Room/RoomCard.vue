@@ -7,13 +7,13 @@
         <!-- Info principale -->
         <div class="flex-1">
           <h3 class="text-xl font-bold text-gray-900 mb-1 tracking-tight">
-            {{ room.productName || room.name }}
+            {{ $t (room.productName || room.name) }}
             <span v-if="room.roomNumber" class="ml-2 text-lg font-medium text-gray-600">
-              #{{ room.roomNumber }}
+              #{{ $t (room.roomNumber) }}
             </span>
           </h3>
           <p class="text-sm text-gray-600 font-medium">
-            {{ room.roomType.roomTypeName }}
+            {{$t (room.roomType.roomTypeName) }}
           </p>
         </div>
 
@@ -27,7 +27,7 @@
           ]"
         >
           <component :is="statusConfig.icon" class="w-4 h-4 flex-shrink-0" />
-          <span class="truncate">{{ statusConfig.text }}</span>
+          <span class="truncate">{{$t (statusConfig.text) }}</span>
         </div>
       </div>
     </div>
@@ -43,7 +43,7 @@
             <User class="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <p class="font-semibold text-gray-900">{{ room.guestName }}</p>
+            <p class="font-semibold text-gray-900">{{ $t (room.guestName)}}</p>
             <p class="text-xs text-gray-600">{{ $t('currentGuest') }}</p>
           </div>
         </div>
@@ -96,11 +96,11 @@
 
         <div class="space-y-1 text-sm text-amber-800">
           <div class="flex justify-between">
-            <span class="text-amber-600">Début:</span>
+            <span class="text-amber-600">{{$t('Début')}}:</span>
             <span class="font-medium">{{ formatDateTime(room.maintenanceInfo.startDate) }}</span>
           </div>
           <div v-if="room.maintenanceInfo.endDate" class="flex justify-between">
-            <span class="text-amber-600">Fin prévue:</span>
+            <span class="text-amber-600">{{$t('Fin prévue:')}}</span>
             <span class="font-medium">{{ formatDateTime(room.maintenanceInfo.endDate) }}</span>
           </div>
         </div>

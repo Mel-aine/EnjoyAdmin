@@ -521,7 +521,7 @@
                   >
                     <option value="">{{ $t('All_room_types') }}</option>
                     <option v-for="type in roomTypeData" :key="type.value" :value="type.value">
-                      {{ type.label }}
+                      {{$t (type.label) }}
                     </option>
                   </select>
                 </div>

@@ -20,7 +20,7 @@
                 <button v-for="option in options" :key="option.id" @click="handleOptionClick(option)"
                     class="w-full flex items-center gap-3 px-4 py-1 text-left hover:bg-gray-50 transition-colors duration-150">
                     <component v-if="option.icon" :is="option.icon" class="w-4 h-5"  />
-                    <span class="text-gray-700 font-medium text-sm">{{ option.label }}</span>
+                    <span class="text-gray-700 font-medium text-sm">{{ $t (option.label)}}</span>
                 </button>
             </div>
         </div>

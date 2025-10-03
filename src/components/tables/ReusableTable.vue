@@ -92,7 +92,7 @@
                   <span v-if="getNestedValue(item, column.key)"
                     :class="getBadgeClass(getNestedValue(item, column.key), column.badgeColors)"
                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                    {{ getColumnValue(item, column) }}
+                    {{ $t (getColumnValue(item, column)) }}
                   </span>
                   <span v-else class="text-gray-400 dark:text-gray-500">-</span>
                 </div>
@@ -100,7 +100,7 @@
                 <div v-else-if="column.type === 'image' && column.imageKey" class="flex items-center gap-2">
                   <img v-if="getNestedValue(item, column.imageKey)" :src="getNestedValue(item, column.imageKey)"
                     :alt="getNestedValue(item, column.key)" class="w-4 h-3 object-cover rounded-sm" />
-                  <span class="text-sm text-gray-900 dark:text-white">{{ getColumnValue(item, column) }}</span>
+                  <span class="text-sm text-gray-900 dark:text-white">{{ $t (getColumnValue(item, column))}}</span>
                 </div>
 
                 <div v-else-if="column.type === 'date'" class="text-sm text-gray-900 dark:text-white break-words">

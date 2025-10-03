@@ -82,7 +82,7 @@
   "No.": "N°",
   "AccommodationType": "Type d'hébergement",
   "BedType": "Type de lit",
-  "View": "Vue",
+  "View": "Voir",
   "Balcony": "Balcon",
   "Terrace": "Terrasse",
   "AirConditioning": "Climatisation",
@@ -6202,7 +6202,15 @@
  "Completed Work Orders":"Ordres de travail terminés",
  "work order list": "Liste des ordres de travail",
  "Work Order Reports":" Rapports des ordres de travail ",
- "reports backOffice workOffice Report Description":"Description du rapport back-office / service technique "
+ "reports backOffice workOffice Report Description":"Description du rapport back-office / service technique ",
+ "Amend Stay":"Modifier le séjour ",
+ "Room Move":"Changement de chambre",
+ "Exchange Room":"Échanger de chambre",
+ "currentGuest":"Client actuel",
+ "Perform Amend on":"Effectuer une modification sur",
+ "Individual Reservation":" Réservation individuelle",
+ "void":"voir"
+ 
  
  
   
