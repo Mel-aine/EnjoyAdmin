@@ -345,6 +345,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/reports/reservation/daily-operation-report',
+      name: 'DailyOperationReport',
+      component: () => import('../views/Reports/Reservation/DailyOperationReport.vue'),
+      meta: {
+        title: 'Daily Operation Report',
+        requiresAuth: true,
+      },
+    },
     // Front Office Reports
     {
       path: '/reports/front-office/guest-checked-in',
