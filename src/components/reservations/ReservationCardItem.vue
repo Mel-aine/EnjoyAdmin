@@ -991,6 +991,36 @@ const assignedRoomNumbers = computed(() => {
     ?.filter((room: any) => room.roomId && room.room?.roomNumber)
     ?.map((room: any) => room.room.roomNumber) || []
 })
+
+const nightsSummary = computed(() => {
+  if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
+    return 0;
+  }
+
+  const rooms = localReservation.value.reservationRooms;
+
+  // Si une seule chambre, retourner directement ses nuits
+  if (rooms.length === 1) {
+    return rooms[0].nights;
+  }
+
+  // Si plusieurs chambres avec les mêmes nuits, retourner ce nombre
+  const firstNights = rooms[0].nights;
+  const allSameNights = rooms.every((room: any) => room.nights === firstNights);
+
+  if (allSameNights) {
+    return firstNights;
+  }
+
+  // Si différentes nuits, retourner une fourchette
+  const nightsArray = rooms.map((room: any) => room.nights);
+  const minNights = Math.min(...nightsArray);
+  const maxNights = Math.max(...nightsArray);
+
+  return `${minNights}-${maxNights}`;
+});
+
+
 </script>
 
 <template>
@@ -1015,8 +1045,8 @@ const assignedRoomNumbers = computed(() => {
           </div>
           <div class="flex gap-1">
             <!-- Indicateur de chargement générique -->
-            <div v-if="isPerformingAction" class="flex items-center px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">
-              <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <div v-if="isPerformingAction" class="flex items-center px-2 py-1 bg-purple-100 text-purple-600 rounded text-xs">
+              <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -1042,7 +1072,7 @@ const assignedRoomNumbers = computed(() => {
           </span>
         </div>
         <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
-          <span>{{ localReservation.numberOfNights }}</span>
+          <span>{{ nightsSummary}}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ $t('nights') }}
           </span>

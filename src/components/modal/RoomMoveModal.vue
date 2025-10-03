@@ -82,7 +82,7 @@
                 </div>
                 <div class="text-md text-gray-500 flex flex-col justify-between h-full">
                   <span class="text-blue-600 font-medium">{{ res?.guest?.displayName || reservation.guest?.displayName
-                    }}</span>
+                  }}</span>
                   <div class="">
                     <div class="text-xs text-gray-500 mb-1 mt-8 ">Room Type</div>
                     <div class="text-sm font-medium">{{ res.roomType?.roomTypeName }}</div>
@@ -100,10 +100,12 @@
                 :options="[{ label: res.roomType?.roomTypeName || '', value: res.roomType?.id || '' }]"
                 :model-value="res.roomType?.id" :disabled="true" :placeholder="$t('Select Room Type')" />
             </div>
-
+            <div class="mb-4 mt-4">
+              <Input :lb="$t('From room')" :model-value="res.room.roomNumber" :disabled="true" />
+            </div>
             <!-- Room Number Input -->
             <div class="mb-6">
-              <Select :lb="$t('Room')" :options="[
+              <Select :lb="$t('To room')" :options="[
                 { label: $t('-- none --'), value: '' },
                 ...(availableRoomsByReservation[ind] || []).map(rs => ({
                   label: rs.roomNumber,
@@ -120,7 +122,7 @@
       <div class="flex justify-between gap-3">
         <BasicButton :label="$t('Cancel')" variant="secondary" @click="$emit('close')" />
         <div class="flex gap-3">
-          <BasicButton :label="$t('Assign Room')" variant="primary" :disabled="!isAssignButtonEnabled"
+          <BasicButton :label="$t('Move Room')" variant="primary" :disabled="!isAssignButtonEnabled"
             :loading="isLoading" @click="confirmRoomSelection" />
         </div>
       </div>
@@ -135,9 +137,10 @@ import { useToast } from 'vue-toastification'
 import RightSideModal from './RightSideModal.vue'
 import Select from '../forms/FormElements/Select.vue'
 import BasicButton from '../buttons/BasicButton.vue'
-import { getReservationDetailsById, assignRoomReservation } from '../../services/reservation'
+import { getReservationDetailsById, assignRoomReservation, postRoomMoveReservation } from '../../services/reservation'
 import { getAvailableRoomsByTypeId } from '../../services/configrationApi'
 import { formatDateDisplay } from '@/utils/dateUtils'
+import Input from '../forms/FormElements/Input.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -190,9 +193,9 @@ const fetchAvailableRooms = async (index: number) => {
       return
     }
 
-    const response: any = await getAvailableRoomsByTypeId(roomTypeId, res.checkInDate,
+    const response: any = await getAvailableRoomsByTypeId(roomTypeId, new Date().toISOString().split('T')[0],
       res.checkOutDate)
-      console.log(response)
+    console.log(response)
     availableRoomsByReservation.value[index] = response.data.data.rooms || []
   } catch (error) {
     console.error('Error fetching available rooms:', error)
@@ -223,12 +226,15 @@ const confirmRoomSelection = async () => {
   if (roomSelections.length > 0) {
     isLoading.value = true
     try {
-      await assignRoomReservation(props.reservationId, { reservationRooms: roomSelections })
-      toast.success(t('Room assignment completed successfully'))
+      const data ={
+        newRoomId: roomSelections[0].roomId,
+      }
+      await postRoomMoveReservation(props.reservationId, data)
+      toast.success(t('Room exchange completed successfully'))
       emit('refresh')
     } catch (error) {
-      console.error('Error assigning rooms:', error)
-      toast.error(t('Failed to assign rooms. Please try again.'))
+      console.error('Error exchanging rooms:', error)
+      toast.error(t('Failed to exchange rooms. Please try again.'))
     } finally {
       isLoading.value = false
     }

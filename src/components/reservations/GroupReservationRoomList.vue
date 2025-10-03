@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-3">
-    
+
     <div class="space-y-2">
-      <div 
-        v-for="(room, index) in rooms" 
+      <div
+        v-for="(room, index) in rooms"
         :key="room.id || index"
         class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer"
         @click="$emit('room-selected', room)"
@@ -16,9 +16,9 @@
                 {{ room.guest?.displayName }}
               </h4>
               <!-- Crown icon for principal room (first room) -->
-              <CrownIcon 
-                v-if="index === 0" 
-                class="w-4 h-4 text-yellow-500 fill-current" 
+              <CrownIcon
+                v-if="index === 0"
+                class="w-4 h-4 text-yellow-500 fill-current"
                 :title="$t('Primary')"
               />
             </div>
@@ -51,6 +51,7 @@
               <!-- Assign Room Button -->
               <AssignRoomReservation
                 :reservation="reservation"
+                 @refresh="handleRoomAssigned"
               />
             </div>
           </div>
@@ -145,6 +146,7 @@ interface Props {
 interface Emits {
   (e: 'room-selected', room: Room): void
   (e: 'room-assigned', data: { roomId: number; roomNumber: string; reservationRoom: Room }): void
+  (e: 'refresh'): void
 }
 
 const props = defineProps<Props>()
@@ -192,7 +194,7 @@ const getAvailableRoomsForRoomType = async (roomTypeId: string) => {
 
 const openRoomAssignment = async (room: Room) => {
   selectedReservationRoom.value = room
-  
+
   try {
     // Get available rooms for the room type
     availableRooms.value = await getAvailableRoomsForRoomType(room.roomType?.roomTypeName || '')
@@ -207,6 +209,10 @@ const closeRoomSelection = () => {
   showRoomSelectionModal.value = false
   selectedReservationRoom.value = null
   availableRooms.value = []
+}
+
+const handleRoomAssigned = () => {
+  emit('refresh')
 }
 
 </script>
