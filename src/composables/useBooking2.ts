@@ -1082,18 +1082,18 @@ const validateAllRooms = () => {
 
       console.log('Final reservation payload:', reservationPayload)
 
-      // const response = await createReservation(reservationPayload)
-      // reservationId.value = response.reservationId
-      // console.log('reservationId.value', reservationId.value)
+      const response = await createReservation(reservationPayload)
+      reservationId.value = response.reservationId
+      console.log('reservationId.value', reservationId.value)
 
-      // if (response.reservationId) {
-      //   isPaymentButtonShow.value = true
-      //   confirmReservation.value = true
-      // }
+      if (response.reservationId) {
+        isPaymentButtonShow.value = true
+        confirmReservation.value = true
+      }
 
-      // toast.success(t('reservationCreated'))
+      toast.success(t('reservationCreated'))
 
-      // return response
+      return response
     } catch (error: any) {
       console.error('Error saving reservation:', error)
 
