@@ -229,6 +229,7 @@
                   :room-data="{
                     id: room.id,
                     roomNumber: room.name,
+                    assignedHousekeeper : room.assignedHousekeeperId,
                     roomType: {
                       id: getRoomTypeId(room.roomType),
                       roomTypeName: room.roomType,
@@ -251,6 +252,15 @@
                   :status="$t(`roomStatus.${room.status}`)"
                   :HousekeeperOptions="housekeeperOptions"
                   :existingRemarkData="room.housekeepersRemarks"
+                  :room-data="{
+                    id: room.id,
+                    roomNumber: room.name,
+                    assignedHousekeeper : room.assignedHousekeeperId,
+                    roomType: {
+                      id: getRoomTypeId(room.roomType),
+                      roomTypeName: room.roomType,
+                    },
+                  }"
                   :tag="room.tag"
                   @remark-updated="fetchHousekeepingStatus"
                   type="orange"
@@ -273,6 +283,7 @@
                   :room-data="{
                     id: room.id,
                     roomNumber: room.name,
+                    assignedHousekeeper : room.assignedHousekeeperId,
                     roomType: {
                       id: getRoomTypeId(room.roomType),
                       roomTypeName: room.roomType,
@@ -299,6 +310,7 @@
                   :room-data="{
                     id: room.id,
                     roomNumber: room.name,
+                    assignedHousekeeper : room.assignedHousekeeperId,
                     roomType: {
                       id: getRoomTypeId(room.roomType),
                       roomTypeName: room.roomType,
@@ -415,6 +427,7 @@ interface Room {
   tag: string
   statusType: 'red' | 'green' | 'gray' | 'yellow'
   assignedHousekeeper?: string
+  assignedHousekeeperId?:any
   housekeepersRemarks?: any
   workOrders?: Array<{ status: string }>
 }
@@ -850,8 +863,7 @@ const applyBulkAction = async () => {
       )
       toast.success(t('bulk_update'))
       unselectAll()
-      // Recharger les données pour être sûr
-      setTimeout(() => fetchHousekeepingStatus(), 1000)
+      fetchHousekeepingStatus()
     }
   } catch (error: any) {
     console.error('Bulk update error:', error)

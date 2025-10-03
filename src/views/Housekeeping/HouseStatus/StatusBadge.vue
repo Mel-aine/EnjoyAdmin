@@ -76,6 +76,7 @@ interface StatusBadgeProps {
   roomData?: {
     id: string
     roomNumber: string
+    assignedHousekeeper?:any
     roomType?: {
       id: any
       roomTypeName: string

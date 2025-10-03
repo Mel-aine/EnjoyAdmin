@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      
+
       <ReusableTable
         title="Housekeepers"
         :columns="columns"
@@ -14,19 +14,19 @@
         @action="onAction"
       >
       <template #header-actions>
-         <BasicButton 
-          variant="primary" 
+         <BasicButton
+          variant="primary"
           @click="openAddModal"
           :icon="Plus"
           label="Add Housekeeper"
         />
       </template>
         <template #status="{ item }">
-          <span 
+          <span
             :class="[
               'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.status === 'Active' 
-                ? 'bg-green-100 text-green-800' 
+              item.status === 'Active'
+                ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
             ]"
           >
@@ -43,7 +43,7 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">
             {{ isEditing ? 'Edit Housekeeper' : 'Add Housekeeper' }}
           </h3>
-          
+
   <form @submit.prevent="saveHousekeeper">
             <div class="mb-4">
               <Input
@@ -54,7 +54,7 @@
                 isRequired
               />
             </div>
-            
+
             <div class="mb-4">
               <InputPhone
                 v-model="formData.mobile"
@@ -64,17 +64,17 @@
                 isRequired
               />
             </div>
-            
+
            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                variant="secondary" 
+              <BasicButton
+                variant="secondary"
                 @click="closeModal"
                 type="button"
                 :label="$t('cancel')"
               >
               </BasicButton>
-              <BasicButton 
-                variant="primary" 
+              <BasicButton
+                variant="primary"
                 type="submit"
                 :label="isEditing ? $t('update') : $t('save') "
                 :icon="isEditing ? Edit : Save"
@@ -105,11 +105,11 @@ import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useToast } from 'vue-toastification'
-import { 
-  getHousekeepers, 
-  postHousekeeper, 
-  updateHousekeeperById, 
-  deleteHousekeeperById 
+import {
+  getHousekeepers,
+  postHousekeeper,
+  updateHousekeeperById,
+  deleteHousekeeperById
 } from '@/services/configrationApi'
 
 // Reactive data
@@ -155,7 +155,7 @@ const fetchHousekeepers = async () => {
     isLoading.value = true
     const hotelId = serviceStore.serviceId
     const resp = await getHousekeepers({ hotel_id: hotelId as number })
-    const data = resp?.data?.data ?? resp?.data ?? []
+    const data = resp?.data?.data?.data ?? resp?.data ?? []
     housekeepers.value = Array.isArray(data)
       ? data.map((h: any) => ({
           id: h.id,
