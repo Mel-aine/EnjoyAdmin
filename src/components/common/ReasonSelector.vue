@@ -1,17 +1,17 @@
 <template>
   <div class="space-y-2">
-    <label v-if="$props.label" class="block text-sm font-medium text-gray-700">
-      {{ $props.label }}
+    <label v-if="label" class="block text-sm font-medium text-gray-700">
+      {{ label }}
     </label>
     <CloneAutoCompleteSelect
-      :model-value="$props.modelValue"
+      :model-value="modelValue"
       @update:model-value="updateModelValue"
       :options="reasons"
-      :default-value="$props.defaultValue || $t('SelectReason')"
-      :is-required="$props.isRequired"
+      :default-value="defaultValue || $t('SelectReason')"
+      :is-required="isRequired"
       :use-dropdown="useDropdown"
       :is-loading="isLoading"
-      @update:useDropdown="onUseDropdownUpdate"
+      @update:use-dropdown="onUseDropdownUpdate"
       @add-custom="handleAddCustomReason"
     />
     <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
@@ -29,6 +29,15 @@ import CloneAutoCompleteSelect from '@/components/forms/FormElements/CloneAutoCo
 interface Reason {
   value: string
   label: string
+  isActive?: boolean
+}
+
+interface ReasonSelectorProps {
+  modelValue: string
+  category: string
+  label?: string
+  defaultValue?: string
+  isRequired?: boolean
 }
 
 export default defineComponent({
@@ -63,27 +72,29 @@ export default defineComponent({
   
   emits: ['update:modelValue', 'reason-added'],
   
-  setup(props, { emit }) {
+  setup(props: ReasonSelectorProps, { emit }) {
     const { t } = useI18n()
     const toast = useToast()
     const serviceStore = useServiceStore()
-    const reasons = ref<Array<Reason & { isActive?: boolean }>>([])
+    const reasons = ref<Reason[]>([])
     const isLoading = ref(false)
     const useDropdown = ref(true)
     const error = ref('')
-
-    // Load reasons when category changes
-    watch(() => props.category, async (newCategory) => {
-      if (newCategory) {
-        await loadReasons()
-      } else {
-        reasons.value = []
-      }
-    }, { immediate: true })
+    
+    // Déclaration des méthodes avant leur utilisation
+    const updateModelValue = (value: string) => {
+      emit('update:modelValue', value)
+    }
+    
+    const onUseDropdownUpdate = (value: boolean) => {
+      useDropdown.value = value
+    }
 
     const loadReasons = async () => {
+      console.log('loadReasons called with category:', props.category)
       try {
         if (!serviceStore.serviceId) {
+          console.error('Service ID not available in serviceStore:', serviceStore)
           throw new Error('Service ID not available')
         }
         
@@ -96,7 +107,14 @@ export default defineComponent({
         isLoading.value = true
         error.value = ''
         
+        console.log('Calling getByCategory with:', {
+          hotelId: serviceStore.serviceId,
+          category: props.category
+        })
+        
         const response = await getByCategory(serviceStore.serviceId, props.category)
+        
+        console.log('API Response:', response)
         
         if (Array.isArray(response?.data)) {
           reasons.value = response.data
@@ -105,17 +123,34 @@ export default defineComponent({
               label: reason.reasonName || reason.name || '',
               isActive: reason.isActive !== false // default to true if not specified
             }))
-            .filter((r: Reason & { isActive?: boolean }) => r.value && r.label && r.isActive)
+            .filter((r: Reason) => r.value && r.label && r.isActive)
             .sort((a, b) => a.label.localeCompare(b.label))
           
-          // Log pour le débogage
-          console.log(`Loaded ${reasons.value.length} reasons for category '${props.category}'`)
+          console.log(`Loaded ${reasons.value.length} reasons for category '${props.category}':`, reasons.value)
         } else {
           console.warn('Unexpected response format when loading reasons:', response)
+          console.log('Response data:', response?.data)
           reasons.value = []
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error loading reasons:', err)
+        const errorObj = err as {
+          message: string
+          response?: {
+            data?: {
+              message?: string
+              [key: string]: unknown
+            }
+            status?: number
+          }
+        }
+        console.log('Error details:', {
+          message: errorObj?.message || 'Unknown error',
+          response: errorObj?.response?.data,
+          status: errorObj?.response?.status,
+          category: props.category,
+          hotelId: serviceStore.serviceId
+        })
         error.value = t('Failed to load reasons')
         reasons.value = []
       } finally {
@@ -123,15 +158,7 @@ export default defineComponent({
       }
     }
 
-    const updateModelValue = (value: string) => {
-      emit('update:modelValue', value)
-    }
-
-    const onUseDropdownUpdate = (value: boolean) => {
-      useDropdown.value = value
-    }
-
-    const handleAddCustomReason = async (reason: string) => {
+    const handleAddCustomReason = async (reason: string): Promise<boolean> => {
       if (!serviceStore.serviceId) {
         error.value = t('Service ID not available')
         return false
@@ -142,54 +169,125 @@ export default defineComponent({
         return false
       }
       
+      // Vérifier si la raison existe déjà dans la catégorie actuelle
+      const reasonExists = reasons.value.some(
+        r => r.value.toLowerCase() === reason.toLowerCase() || 
+             r.label.toLowerCase() === reason.toLowerCase()
+      )
+      
+      if (reasonExists) {
+        error.value = t('This reason already exists in this category')
+        toast.warning(t('This reason already exists in this category'))
+        return false
+      }
+      
       try {
         isLoading.value = true
         error.value = ''
         
-        const response = await postReason({
+        const reasonData = {
           reasonName: reason,
           category: props.category,
           isActive: true,
           hotelId: serviceStore.serviceId
-        })
-
+        }
+        
+        console.log('Sending reason data:', reasonData)
+        
+        const response = await postReason(reasonData)
+        
+        console.log('API Response:', response)
+        
         if (response?.data) {
-          const newReason = {
-            value: response.data.reasonName || response.data.name || reason,
-            label: response.data.reasonName || response.data.name || reason
+          console.log('Response data:', response.data)
+          
+          // Vérifier que la raison a bien été enregistrée avec la bonne catégorie
+          if (response.data.category !== props.category) {
+            console.warn('Warning: The reason was not saved with the expected category', {
+              expected: props.category,
+              received: response.data.category
+            })
           }
           
-          // Ajouter la nouvelle raison en tête de liste
-          reasons.value = [newReason, ...reasons.value]
-          updateModelValue(newReason.value)
-          emit('reason-added', newReason)
+          // Recharger la liste des raisons pour cette catégorie
+          await loadReasons()
+          
+          // Mettre à jour la valeur sélectionnée avec la nouvelle raison
+          const newReasonValue = response.data.reasonName || response.data.name || reason
+          updateModelValue(newReasonValue)
+          
+          // Émettre l'événement pour informer le composant parent
+          emit('reason-added', {
+            value: newReasonValue,
+            label: response.data.reasonName || response.data.name || reason,
+            category: response.data.category || props.category
+          })
           
           // Afficher un message de succès
-          toast.success(t('Reason added successfully'))
+          toast.success(t('Reason added successfully to category: {category}', {
+            category: response.data.category || props.category
+          }))
           return true
         }
         
         error.value = t('Unexpected response format when adding reason')
         return false
         
-      } catch (err) {
+      } catch (err: unknown) {
+        const errorObj = err as {
+          message: string
+          response?: {
+            data?: {
+              message?: string
+              [key: string]: unknown
+            }
+            status?: number
+          }
+        }
         console.error('Error adding custom reason:', err)
-        error.value = t('Failed to add custom reason')
+        console.error('Error details:', {
+          message: errorObj?.message || 'Unknown error',
+          response: errorObj?.response?.data,
+          status: errorObj?.response?.status,
+          category: props.category,
+          hotelId: serviceStore.serviceId
+        })
+        error.value = t('Failed to add custom reason: ') + errorObj?.message || 'Unknown error'
         return false
       } finally {
         isLoading.value = false
       }
     }
 
+    // Load reasons when category changes
+    watch(() => props.category, async (newCategory) => {
+      console.log('Category changed:', newCategory)
+      if (newCategory) {
+        console.log('Loading reasons for category:', newCategory)
+        await loadReasons()
+      } else {
+        console.log('No category provided, clearing reasons')
+        reasons.value = []
+      }
+    }, { immediate: true })
+
+    // Retourner toutes les propriétés nécessaires au template
     return {
+      // Méthodes
       t,
-      reasons,
-      isLoading,
-      useDropdown,
-      error,
       updateModelValue,
       handleAddCustomReason,
-      onUseDropdownUpdate
+      onUseDropdownUpdate,
+      
+      // Références réactives
+      reasons: reasons as unknown as Reason[],
+      isLoading: isLoading as unknown as boolean,
+      useDropdown: useDropdown as unknown as boolean,
+      error: error as unknown as string,
+      
+      // Propriétés du composant nécessaires au template
+      label: props.label,
+      defaultValue: props.defaultValue
     }
   }
 })

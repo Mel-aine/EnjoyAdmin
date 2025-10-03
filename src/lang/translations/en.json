@@ -2933,6 +2933,9 @@
     "TYPE_NOT_FOUND": "Room type not found.",
     "ROOMS_ASSOCIATED": "Cannot delete this type: associated rooms exist.",
     "UNKNOWN": "An unknown error has occurred.",
+    "VOID_REASON_TOO_SHORT": "The reason must be at least 10 characters long.",
+    "VOID_REASON_REQUIRED": "A reason is required for voiding a transaction.",
+    "VOID_REASON_ALREADY_EXISTS": "This reason already exists in this category.",
     "deleteGuestConflict": "Cannot delete this guest as they have active reservations.",
     "guestAlreadyBlacklisted": "This guest is already blacklisted"
   },

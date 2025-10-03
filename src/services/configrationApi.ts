@@ -641,6 +641,16 @@ export const getIdentityTypesByHotelId = (hotelId: number): Promise<AxiosRespons
 export const getReasons = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reasons`, getHeaders())
 }
+
+/**
+ * Get reasons by category and hotel ID
+ * @param {number|string} hotelId - The ID of the hotel
+ * @param {string} category - The category of reasons to fetch
+ * @returns {Promise<AxiosResponse<any>>} A promise that resolves to the API response
+ */
+export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, getHeaders())
+}
 /**
  * Post a new reason
  * @param data
@@ -1296,13 +1306,6 @@ export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/taxes/${id}`, getHeaders())
 }
 
-/**
- * get Reasons by category
- * @param category - The category to filter reasons by
- */
-export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, getHeaders())
-}
 
 // this section is for email Account
 
