@@ -12,6 +12,7 @@ import 'vue-toastification/dist/index.css'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { SpeedInsights } from '@vercel/speed-insights/vue'; // Import the Vue-specific component
 
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -37,6 +38,7 @@ const options: PluginOptions = {
 const app = createApp(App)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
+app.component('SpeedInsights', SpeedInsights);
 app.use(pinia)
 app.use(router)
 app.use(i18n)
