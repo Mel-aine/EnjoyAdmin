@@ -169,7 +169,7 @@ interface Reservation {
 
 const reservation = ref<Reservation | null>(null)
 
-const reservationRooms = ref<Room[]>([])
+const reservationRooms = ref<Room[] | any[]>([])
 
 const formData = ref({
     noShowFees: 0,
