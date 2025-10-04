@@ -229,11 +229,9 @@ import { useI18n } from 'vue-i18n'
 import { RefreshCcw, SettingsIcon, ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
-import Accordion from '../../common/Accordion.vue'
 import type { Column } from '../../../utils/models'
 import { getRoomCharges } from '../../../services/reservation'
 import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
-import VoidReservation from './room-charge-actions/VoidReservationModal.vue'
 import { useToast } from 'vue-toastification';
 import AmendStay from '../foglio/AmendStay.vue'
 import CancelReseravtion from '../foglio/CancelReseravtion.vue'
@@ -242,6 +240,7 @@ const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRo
 const ExchangeRoomModal = defineAsyncComponent(() => import('../ExchangeRoomModal.vue'))
 const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
+import VoidReservation from '../foglio/VoidReservation.vue'
 
 const { t } = useI18n()
 

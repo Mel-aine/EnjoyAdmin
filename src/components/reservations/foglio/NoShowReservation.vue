@@ -1,19 +1,11 @@
 <template>
     <!-- No Show Reservation Modal -->
-    <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div
-            class="relative top-10 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
-            <div class="mt-3">
-                <!-- Modal Header -->
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">
-                        {{ $t('noshow_reservation') }}
-                    </h3>
-                    <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-                        <X class="w-5 h-5" />
-                    </button>
-                </div>
-
+    <RightSideModal :is-open="isOpen" :title="$t('noshow_reservation')" @close="closeModal">
+        <template #header>
+            <h3 class="text-lg font-semibold text-gray-900">{{ $t('noshow_reservation') }}</h3>
+        </template>
+        <div class="mt-3">
+              
                 <!-- Loading Skeleton -->
                 <div v-if="isLoading" class="space-y-4">
                     <div class="animate-pulse">
@@ -40,22 +32,16 @@
                         </label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input
-                                    v-model="formData.noShowType"
-                                    type="radio"
-                                    value="group"
+                                <input v-model="formData.noShowType" type="radio" value="group"
                                     :disabled="reservationRooms.length === 1"
-                                    class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                />
-                                <span class="ml-2 text-sm" :class="reservationRooms.length === 1 ? 'text-gray-400' : 'text-gray-700'">{{ $t('Group') }}</span>
+                                    class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" />
+                                <span class="ml-2 text-sm"
+                                    :class="reservationRooms.length === 1 ? 'text-gray-400' : 'text-gray-700'">{{
+                                        $t('Group') }}</span>
                             </label>
                             <label class="flex items-center">
-                                <input
-                                    v-model="formData.noShowType"
-                                    type="radio"
-                                    value="individual"
-                                    class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
-                                />
+                                <input v-model="formData.noShowType" type="radio" value="individual"
+                                    class="w-4 h-4 text-primary border-gray-300 focus:ring-primary" />
                                 <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
                             </label>
                         </div>
@@ -68,27 +54,22 @@
                             {{ $t('Select Rooms') }}
                         </label>
                         <div class="space-y-2 max-h-40 overflow-y-auto">
-                            <label
-                                v-for="room in reservationRooms"
-                                :key="room.id"
-                                class="flex items-center p-2 border rounded"
-                                :class="{
+                            <label v-for="room in reservationRooms" :key="room.id"
+                                class="flex items-center p-2 border rounded" :class="{
                                     'hover:bg-gray-50 cursor-pointer': room.status !== 'no_show',
                                     'bg-gray-100 cursor-not-allowed opacity-60': room.status === 'no_show'
-                                }"
-                            >
-                                <input
-                                    v-model="formData.selectedRooms"
-                                    type="checkbox"
-                                    :value="room.id"
+                                }">
+                                <input v-model="formData.selectedRooms" type="checkbox" :value="room.id"
                                     :disabled="room.status === 'no_show'"
-                                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
-                                />
+                                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" />
                                 <div class="ml-2 flex-1">
-                                    <span class="text-sm" :class="room.status === 'no_show' ? 'text-gray-500' : 'text-gray-700'">
-                                        {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
+                                    <span class="text-sm"
+                                        :class="room.status === 'no_show' ? 'text-gray-500' : 'text-gray-700'">
+                                        {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName
+                                        }}
                                     </span>
-                                    <span v-if="room.status === 'no_show'" class="ml-2 text-xs text-red-600 font-medium">
+                                    <span v-if="room.status === 'no_show'"
+                                        class="ml-2 text-xs text-red-600 font-medium">
                                         ({{ $t('Already marked as no-show') }})
                                     </span>
                                 </div>
@@ -105,33 +86,23 @@
                         <InputCurrency v-model="formData.noShowFees" :lb="$t('noshow_fee')"
                             :placeholder="$t('enter_noshowFee_fee')" />
                     </div>
-
-                    <!-- Reason Selection -->
-                    <div class="mb-4">
-                        <ReasonSelector
-                          v-model="formData.reason"
-                          :category="'No Show'"
-                          :label="$t('reason')"
-                          :is-required="true"
-                          @reason-added="handleReasonAdded"
-                        />
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-3">
-                        <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
-                            :disabled="loading" />
-                        <BasicButton type="submit" variant="danger" :label="$t('save')"
-                            :loading="loading" />
-                    </div>
+                     <ReasonSelector v-model="formData.reason" :category="'No Show'" :label="$t('reason')"
+                    :is-required="true" @reason-added="handleReasonAdded" />
                 </form>
             </div>
-        </div>
-    </div>
+        <template #footer>
+            <div class="flex justify-end space-x-3 bg-gray-50">
+               
+                <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                    :disabled="loading" />
+                <BasicButton type="submit" variant="danger" :label="$t('save')" :loading="loading" />
+            </div>
+        </template>
+    </RightSideModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted,computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { X } from 'lucide-vue-next'
@@ -139,6 +110,7 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { markNoShow, getReservationDetailsById } from '../../../services/reservation'
 import ReasonSelector from '@/components/common/ReasonSelector.vue'
+import RightSideModal from '../../modal/RightSideModal.vue'
 
 interface Props {
     isOpen: boolean
@@ -174,25 +146,25 @@ const toast = useToast()
 
 const loading = ref(false)
 interface Guest {
-  displayName: string
+    displayName: string
 }
 
 interface Room {
-  id: number
-  status: string
-  roomNumber: string
-  guest?: Guest
-  guestName?: string
-  [key: string]: unknown
+    id: number
+    status: string
+    roomNumber: string
+    guest?: Guest
+    guestName?: string
+    [key: string]: unknown
 }
 
 interface Reservation {
-  id: number
-  guest: {
-    displayName: string
-  }
-  reservationRooms: Room[]
-  [key: string]: unknown
+    id: number
+    guest: {
+        displayName: string
+    }
+    reservationRooms: Room[]
+    [key: string]: unknown
 }
 
 const reservation = ref<Reservation | null>(null)
@@ -208,7 +180,7 @@ const formData = ref({
     selectedRooms: [] as number[]
 })
 const handleReasonAdded = (newReason: { value: string; label: string }) => {
-  formData.value.reason = newReason.value
+    formData.value.reason = newReason.value
 }
 
 // Watch for modal open/close
@@ -264,7 +236,7 @@ const getBookingDetailsById = async () => {
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
         console.log('Reservation response:', response)
-        
+
         // Vérifier que la réponse est valide avant de l'assigner
         if (response) {
             reservation.value = {
@@ -273,7 +245,7 @@ const getBookingDetailsById = async () => {
                 reservationRooms: response.reservationRooms || [],
                 ...response
             }
-            
+
             // Mettre à jour les chambres de réservation
             reservationRooms.value = (response.reservationRooms || []).map((room: any) => ({
                 ...room,
@@ -311,7 +283,7 @@ const closeModal = () => {
 // Computed pour vérifier si toutes les chambres sont no-show
 const allRoomsNoShow = computed(() => {
     return reservationRooms.value.length > 0 &&
-           reservationRooms.value.every((room: Room) => room.status === 'no_show')
+        reservationRooms.value.every((room: Room) => room.status === 'no_show')
 })
 
 // Computed pour obtenir les chambres disponibles (non no-show)
@@ -349,7 +321,7 @@ const handleSubmit = async () => {
             return
         }
 
-         // Prepare data for emission
+        // Prepare data for emission
         const noShowData: NoShowReservationData = {
             noShowFees: formData.value.noShowFees,
             applyTax: formData.value.applyTax,
@@ -365,7 +337,7 @@ const handleSubmit = async () => {
         console.log('noShowData', noShowData)
 
         const resp = await markNoShow(noShowData);
-        console.log("resp no show",resp)
+        console.log("resp no show", resp)
         // Emit the cancel confirmation event
         emit('noshow-confirmed', noShowData)
 

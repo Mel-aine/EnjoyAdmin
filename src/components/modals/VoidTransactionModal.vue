@@ -1,50 +1,30 @@
 <template>
-  <RightSideModal 
-    :is-open="isOpen" 
-    :title="$t('voidTransaction')"
-    @close="closeModal"
-  >
+  <RightSideModal :is-open="isOpen" :title="$t('voidTransaction')" @close="closeModal">
     <template #default>
-      <div class="p- space-y-6">
-        
-
+      <div class="p-3 space-y-6">
         <!-- Void Reason Form -->
-      <div>
-        <CloneAutoCompleteSelect
-          v-model="voidForm.reason"
-          :options="voidReasons"
-          :defaultValue="$t('SelectReason')"
-          :lb="$t('Reason')"
-          :is-required="true"
-          :use-dropdown="useDropdownReason"
-          :is-loading="isLoadingReasons"
-          @update:useDropdown="useDropdownReason = $event"
-          @add-custom="handleAddCustomReason"
-        />
-      </div>
-
+        <div>
+          <ReasonSelector v-model="voidForm.reason" :category="'Void Reservation'" :label="$t('Reason')"
+            :is-required="true" @reason-added="handleReasonAdded" />
+        </div>
       </div>
     </template>
 
     <template #footer>
-      <div class="flex justify-end space-x-3 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
-        <button
-          type="button"
-          @click="closeModal"
+      <div class="flex justify-end space-x-3 ">
+        <button type="button" @click="closeModal"
           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          :disabled="isLoading"
-        >
+          :disabled="isLoading">
           {{ $t('cancel') }}
         </button>
-        <button
-          type="button"
-          @click="handleVoidTransaction"
-          :disabled="isLoading || !voidForm.reason.trim()"
-          class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-        >
-          <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <button type="button" @click="handleVoidTransaction" :disabled="isLoading || !voidForm.reason.trim()"
+          class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+          <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
           </svg>
           {{ $t('voidTransaction') }}
         </button>
@@ -58,9 +38,9 @@ import { ref, reactive, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { voidFolioTransaction } from '@/services/foglioApi'
 import RightSideModal from '../modal/RightSideModal.vue'
-import { getByCategory, postReason } from '../../services/configrationApi'
+import { getByCategory } from '../../services/configrationApi'
 import { useServiceStore } from '../../composables/serviceStore'
-import CloneAutoCompleteSelect from '../forms/FormElements/CloneAutoCompleteSelect.vue'
+import ReasonSelector from '../common/ReasonSelector.vue'
 
 const { t } = useI18n()
 
@@ -105,7 +85,6 @@ const closeModal = () => {
   resetForm()
   emit('close')
 }
-const useDropdownReason = ref(true);
 const resetForm = () => {
   voidForm.reason = ''
   voidForm.notes = ''
@@ -115,11 +94,11 @@ const resetForm = () => {
 
 const validateForm = () => {
   errors.reason = ''
-  
+
   if (!voidForm.reason.trim()) {
     errors.reason = t('voidReasonRequired')
     return false
-  }  
+  }
   return true
 }
 // Load initial data
@@ -145,43 +124,8 @@ const loadInitialData = async () => {
   }
 }
 
-// Handle adding a custom reason
-const handleAddCustomReason = async (reason: string) => {
-  try {
-    isLoadingReasons.value = true
-    const hotel_id = useServiceStore().serviceId
-    
-    // Envoyer la nouvelle raison au serveur
-    const response = await postReason({
-      reasonName: reason,
-      category: 'Void Reservation',
-      isActive: true,
-      hotelId: hotel_id
-    })
-
-    // Ajouter la nouvelle raison à la liste
-    if (response.data) {
-      voidReasons.value.unshift({
-        value: response.data.reasonName || response.data.name,
-        label: response.data.reasonName || response.data.name
-      })
-      
-      // Sélectionner automatiquement la nouvelle raison
-      voidForm.reason = response.data.reasonName || response.data.name
-    }
-    
-    return true
-  } catch (error) {
-    console.error('Error adding custom reason:', error)
-    // Afficher un message d'erreur à l'utilisateur
-    return false
-  } finally {
-    isLoadingReasons.value = false
-  }
-}
 const handleVoidTransaction = async () => {
-    alert('viod')
-    console.log('voidform', voidForm)
+  console.log('voidform', voidForm)
   if (!validateForm()) {
     return
   }
@@ -200,12 +144,12 @@ const handleVoidTransaction = async () => {
     }
 
     const response = await voidFolioTransaction(props.transactionDetails.id, voidData)
-    
+
     emit('success', {
       message: t('transactionVoidedSuccessfully'),
       data: response.data
     })
-    
+
     closeModal()
   } catch (error: any) {
     console.error('Error voiding transaction:', error)
@@ -225,8 +169,10 @@ watch(() => props.isOpen, (newValue) => {
     resetForm()
   }
 })
-
-onMounted(()=>{
+const handleReasonAdded = (newReason: { value: string; label: string }) => {
+  voidForm.reason = newReason.value
+}
+onMounted(() => {
   loadInitialData()
 })
 </script>

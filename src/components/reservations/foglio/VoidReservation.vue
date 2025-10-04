@@ -1,51 +1,32 @@
 <template>
   <!-- Void Reservation Modal -->
-  <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-10 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
-      <div class="mt-3">
-        <!-- Modal Header -->
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-medium text-gray-900">
-            {{ $t('void_reservation') }}
-          </h3>
-          <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-            <X class="w-5 h-5" />
-          </button>
+
+  <RightSideModal :is-open="isOpen" :title="$t('void_reservation')" @close="closeModal">
+    <template #header>
+      <h3 class="text-lg font-semibold text-gray-900">{{ $t('void_reservation') }}</h3>
+    </template>
+    <div class="mt-3">
+      <!-- Modal Form -->
+      <form @submit.prevent="handleSubmit">
+        <!-- Reason Selection -->
+        <div class="mb-4">
+          <ReasonSelector v-model="formData.reason" :category="'Void Reservation'" :label="$t('reason')"
+            :is-required="true" @reason-added="handleReasonAdded" />
         </div>
 
-        <!-- Modal Form -->
-        <form @submit.prevent="handleSubmit">
-          <!-- Reason Selection -->
-          <div class="mb-4">
-            <ReasonSelector 
-              v-model="formData.reason"
-              :category="'Void Reservation'"
-              :label="$t('reason')"
-              :is-required="true"
-              @reason-added="handleReasonAdded"
-            />
-          </div>
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-3">
 
-<!-- Action Buttons -->
-          <div class="flex justify-end space-x-3">
-            <BasicButton 
-              type="button" 
-              variant="outline" 
-              @click="closeModal" 
-              :label="$t('cancel')"
-              :disabled="loading" 
-            />
-            <BasicButton 
-              type="submit" 
-              variant="danger" 
-              :label="$t('void_reservation')"
-              :loading="loading" 
-            />
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
-  </div>
+    <template #footer>
+      <div class="flex justify-end space-x-3 bg-gray-50">
+        <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')" :disabled="loading" />
+        <BasicButton type="submit" variant="danger" @click="handleSubmit" :label="$t('void_reservation')" :loading="loading" />
+      </div>
+    </template>
+  </RightSideModal>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +37,7 @@ import { X } from 'lucide-vue-next'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReasonSelector from '@/components/common/ReasonSelector.vue'
 import { voidReservation } from '../../../services/reservation'
+import RightSideModal from '../../modal/RightSideModal.vue'
 
 interface Props {
   isOpen: boolean
@@ -157,27 +139,27 @@ const handleSubmit = async () => {
 /* Custom styles for the modal */
 .modal-enter-active,
 .modal-leave-active {
-    transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-enter-from,
 .modal-leave-to {
-    opacity: 0;
+  opacity: 0;
 }
 
 /* Focus styles for better accessibility */
 input:focus,
 select:focus,
 textarea:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Error state styles */
 .error {
-    border-color: #ef4444;
+  border-color: #ef4444;
 }
 
 .error:focus {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 </style>
