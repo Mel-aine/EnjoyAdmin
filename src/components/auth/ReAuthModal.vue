@@ -24,7 +24,7 @@ const serviceStore = useServiceStore()
 const close = () => {
   password.value = ''
   error.value = null
-  emits('close')
+//  emits('close')
 }
 
 const togglePasswordVisibility = () => {

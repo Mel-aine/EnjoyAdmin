@@ -124,7 +124,7 @@ export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/room_types/sort-order`, data, getHeaders())
+  return axios.post(`${API_URL}/room_types/sort/sort-order`, data, getHeaders())
 }
 
 /**
