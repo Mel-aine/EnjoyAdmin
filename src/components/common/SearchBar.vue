@@ -39,7 +39,7 @@
         <div v-for="(result, index) in searchResults" :key="result.id" :class="[
           'px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0',
           { 'bg-gray-50 dark:bg-gray-700': index === selectedIndex }
-        ]" @click="selectResult(result)">
+        ]" @mousedown.prevent="selectResult(result)">
           <div class="flex justify-between items-center">
             <!-- Left side: Guest info and details -->
             <div class="flex-3 flex">

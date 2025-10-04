@@ -55,6 +55,17 @@
   "SigninwithApple": "Sign in with Apple",
   "Password": "Password",
   "Enteryourpassword": "Enter your password",
+  "reauth": {
+    "title": "Inactive session",
+    "message": "For your security, please re-enter your password.",
+    "reauthenticate": "Re-authenticate",
+    "processing": "Processing...",
+    "success": "Re-authentication successful",
+    "error": {
+      "missingEmail": "Email not found for the current session",
+      "generic": "Re-authentication failed"
+    }
+  },
   "Keepmeloggedin": "Keep me logged in",
   "Forgotpassword": "Forgot password",
   "Donthaveanaccount": "Don't have an account",
@@ -400,6 +411,7 @@
     },
     "userUpdatedSuccess": "User successfully updated ✅",
     "avheSuccess" : "Room unassignment completed successfully!",
+    "error_fetching_reservation_details" : "Error fetching reservation details",
     "updateError": "An error occurred while updating ❌",
     "userDeleted": "User successfully deleted ✅",
     "userDeleteError": "Error while deleting user ❌",
@@ -624,6 +636,7 @@
   "resetToDefaults": "Reset to Defaults",
   "selectColorFor": "Select Color for {status}",
   "clickToChangeColorFor": "Click to change color for {status}",
+  "noStatus" : "No Status",
   "roomStatus": {
     "available": "Available",
     "occupied": "Occupied",
@@ -632,6 +645,7 @@
     "cleaning": "Cleaning",
     "maintenance": "Maintenance",
     "out-of-order": "Out of Order",
+    "out_of_order": "Out of Order",
     "out_of_service": "Out of Service",
     "blocked": "Blocked",
     "checkout": "Check Out",
@@ -678,6 +692,7 @@
   "Remove": "Remove",
   "add": "Add",
   "no...": "No additional email addresses",
+  "housekeepingStatusColorsUpdatedSuccess" : "Housekeeping Status Colors Updated Success",
   "Addanotheremailaddress": "Add another email address",
   "NotificationPreferences": "Notification Preferences",
   "important...": "Important updates about your account and system",
@@ -2649,9 +2664,9 @@
     "nov": "November",
     "dec": "December"
   },
-  "Earning_2025": "Earning {year}",
-  "occupancy_rate_2025": "Occupancy rate {year}",
-  "Earning_previous": "Earning {year}",
+  "Earning_2025": "Earning {year} (XAF)",
+  "occupancy_rate_2025": "Occupancy rate {year} (%)",
+  "Earning_previous": "Earning {year} (XAF)",
   "occupancy_rate%": "Occupancy rate (%)",
   "EarningXAF": "Earning (XAF)",
   "1-2 nuits": "1-2 nights",
@@ -3800,7 +3815,8 @@
       "departureResults": "Departure Results",
       "totalReservations": "Total Reservations",
       "totalPax": "Total Guests",
-      "taxInclusiveRates": "Tax Inclusive Rates"
+      "taxInclusiveRates": "Tax Inclusive Rates",
+      "dailyOperationReport": " Daily Oepration Report"
     },
     "frontOffice": {
       "title": "Front Office Reports",
@@ -4100,7 +4116,15 @@
     "reasonTooShort": "Reason must be at least 5 characters long",
     "invalidRoomType": "Invalid Room Type",
     "invalidRateType": "Invalid Rate Type",
-    "required": "This field is required"
+    "required": "This field is required",
+    "datesRequired": "Both check-in and check-out dates are required",
+    "timesRequired": "Both check-in and check-out times are required",
+    "invalidDateTime": "Invalid date or time",
+    "checkoutBeforeCheckin": "The check-out date cannot be before the check-in date",
+    "sameDateTime": "The check-in and check-out times cannot be the same",
+    "checkoutTimeBeforeCheckinTime": "The check-out time must be after the check-in time for the same date",
+    "minimumStayDuration": "The minimum stay must be at least 1 hour",
+    "invalidEmail": "Invalid email address"
   },
   "Currency": "Currency",
   "Add Currency": "Add Currency",
@@ -5545,8 +5569,8 @@
   "ErrorLoadingData": "Error loading data",
   "Configuration": "Configuration",
   "house_status_view": "House Status View",
-  "bulk_update": "Bulk update successfully",
-  "bulk_update_error": "Error updating bulk data",
+  "bulk_update": "Update successfully",
+  "bulk_update_error": "Error updating",
   "Applying...": "Applying...",
   "set_to_clean": "Set to Clean",
   "select_housekeeper": "Select Housekeeper",
@@ -6207,6 +6231,20 @@
   "All rooms have already been marked as no-show": "All rooms have already been marked as no-show",
   "Unassigning room...": "Unassigning room...",
   "printVoucher":"Print Voucher",
-  "printPosReceipt":"Print POS Receipt"
+  "printPosReceipt":"Print POS Receipt",
+  "housekeeperName":"Housekeeper Name",
+  "select_status": "Select Status",
+  "Confirm Status Change": "Confirm Status Change",
+  "Are you sure you want to change the status of the selected rooms?": "Are you sure you want to change the status of the selected room(s)?",
+  "Confirm Assignment": "Confirm Housekeeper Assignment",
+  "Are you sure you want to assign the selected housekeeper to these rooms?": "Are you sure you want to assign the selected housekeeper to these rooms?",
+  "Confirm Clear Status": "Confirm Clear Status",
+  "Are you sure you want to clear the status of these rooms?": "Are you sure you want to clear the status of the selected room(s)?",
+  "Confirm Clear Remarks": "Confirm Clear Remarks",
+  "Are you sure you want to remove all remarks from these rooms?": "Are you sure you want to remove all remarks from the selected room(s)?",
+  "Confirm Unassignment": "Confirm Housekeeper Removal",
+  "Are you sure you want to unassign the housekeeper from these rooms?": "Are you sure you want to unassign the housekeeper from the selected room(s)?"
+   
+  
 
 }

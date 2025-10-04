@@ -9,7 +9,6 @@
         
 
         <!-- Void Reason Form -->
-            <!-- Reason Section -->
       <div>
         <CloneAutoCompleteSelect
           v-model="voidForm.reason"
@@ -120,13 +119,7 @@ const validateForm = () => {
   if (!voidForm.reason.trim()) {
     errors.reason = t('voidReasonRequired')
     return false
-  }
-  
-  if (voidForm.reason.trim().length < 10) {
-    errors.reason = t('voidReasonTooShort')
-    return false
-  }
-  
+  }  
   return true
 }
 // Load initial data
@@ -187,6 +180,8 @@ const handleAddCustomReason = async (reason: string) => {
   }
 }
 const handleVoidTransaction = async () => {
+    alert('viod')
+    console.log('voidform', voidForm)
   if (!validateForm()) {
     return
   }

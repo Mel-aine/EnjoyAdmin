@@ -8,8 +8,8 @@
           :occupancyTrend="generalStats.totalReservationsThisMonth"
           :revPAR="generalStats.totalRevenueThisMonth"
           :revPARTrend="generalStats.revenueGrowthRate"
-          :avgStayDuration="averageLengthOfStay.averageLengthOfStay"
-          :avgStayTrend="generalStats.avgStayTrend"
+          :avgStayDuration="averageLengthOfStay.currentALOS"
+          :avgStayTrend="averageLengthOfStay.previousALOS"
           :availableRooms="generalStats.availableRooms"
           :totalRooms="generalStats.totalRooms"
           :roomsBookedToday="generalStats.reservedToday"
@@ -121,7 +121,7 @@ const fetchGeneralStat = async () => {
      reservations.value = reservation
      Demographic.value = demographic.data
      Reservations.value = ReservationType.data
-    console.log("Reservations.value", Reservations.value)
+    console.log("generalStats.value ", generalStats.value)
   } catch (error) {
     console.error('error fetching fetchGeneralStat', error)
   }
@@ -203,7 +203,7 @@ const fetchRevenuAndOccupancyData = async () => {
     const revenueCurrent = revenueRes.data.currentYear
     const revenuePrevious = revenueRes.data.previousYear
      EarningsData.value = {}
-    console.log("EarningsData.value",revenueCurrent)
+    console.log("occupancyData",occupancyData)
 
     revenueCurrent.forEach(({ month, totalRevenue }: any) => {
       const shortMonth = month as keyof typeof monthMap
@@ -254,6 +254,7 @@ const fetchRevenuData = async () => {
   try {
     const res = await getRevenuTotal({ serviceId, period })
     revenuTotal.value = res.data
+    console.log(' revenuTotal.value', revenuTotal.value)
   } catch (e) {
     console.error('Erreur getRevenuTotal', e)
   }

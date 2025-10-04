@@ -20,6 +20,49 @@ const getHeaders = () => {
 }
 
 
+////// this is the Housekeepers sections
+/**
+ * Get all housekeepers (supports query params like hotel_id, search)
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getHousekeepers = (params: { hotel_id?: number | string; search?: string; page?: number; limit?: number } = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/housekeepers`, { ...getHeaders(), params })
+}
+/**
+ * Post a new housekeeper
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postHousekeeper = (data: { hotel_id: number | string; name: string; phone: string }): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/housekeepers`, data, getHeaders())
+}
+/**
+ * Get a housekeeper by ID
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getHousekeeperById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/housekeepers/${id}`, getHeaders())
+}
+/**
+ * Update a housekeeper
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateHousekeeperById = (id: number | string, data: Partial<{ hotel_id: number | string; name: string; phone: string }>): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/housekeepers/${id}`, data, getHeaders())
+}
+/**
+ * Delete a housekeeper
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteHousekeeperById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/housekeepers/${id}`, getHeaders())
+}
+
+
 ///// this is the amenities sections
 /**
  * Get all amenities

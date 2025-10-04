@@ -5,7 +5,8 @@ import {
   checkInReservation,
   checkOutReservation,
   getReservationDetailsById,
-  unAssignRoomReservation
+  unAssignRoomReservation,
+  assignRoomReservation
 } from '@/services/reservation'
 
 export interface CheckInReservationPayload {
@@ -182,9 +183,30 @@ export function useReservation() {
     isMovingRoom.value = true
 
     try {
-      // TODO: Implement room move API call
-      // const response = await moveReservationRoom(payload)
-      console.log('Moving room:', payload)
+      // Fetch reservation details to locate the reservationRoom to update
+      const reservation: any = await getReservationDetailsById(payload.reservationId)
+      const reservationRooms = reservation?.reservationRooms || []
+
+      // Find the reservation room corresponding to the source room
+      const targetRoom = reservationRooms.find((r: any) => r.roomId === payload.fromRoomId)
+      if (!targetRoom) {
+        throw new Error('Source room not found in reservation')
+      }
+
+      // Build assign-room payload to move to the new room
+      const data = {
+        reservationRooms: [
+          {
+            reservationRoomId: targetRoom.id,
+            roomId: payload.toRoomId,
+            roomNumber: targetRoom.roomNumber,
+            roomTypeId: targetRoom.roomTypeId,
+            reservationId: payload.reservationId
+          }
+        ]
+      }
+
+      await assignRoomReservation(payload.reservationId, data)
 
       toast.success(t('toast.roomMoveSuccess') || 'Room moved successfully!')
 

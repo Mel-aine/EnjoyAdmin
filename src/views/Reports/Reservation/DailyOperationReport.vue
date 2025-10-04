@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Manager Report
+            Daily Operation Report 
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          Daily financial summary and revenue breakdown
+            Daily overview of operational activities and performance
         </p>
       </div>
 
@@ -105,7 +105,8 @@ import { useCurrencyStore } from '@/composables/currencyStore'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { getManagerReportPdfUrl } from '@/services/occupancyReportsApi'
+//import { getManagerReportPdfUrl } from '@/services/occupancyReportsApi'
+import { generateOperationReport } from '@/services/reportsApi'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -145,18 +146,16 @@ const currencyOptions = computed<FilterOptions[]>(() => {
 })
 
 
-// Computed properties for PDF generation
+
 const currentParams = computed(() => ({
   hotelId: serviceStore.serviceId!,
   asOnDate: filters.value.reportDate,
-  currency: filters.value.currency
 }))
-
 
 const reportTitle = computed(() => {
   return `Manager_Report_${filters.value.reportDate}`
 })
-// Methods
+
 const generateReport = async (): Promise<void> => {
   try {
     isLoading.value = true
@@ -169,7 +168,7 @@ const generateReport = async (): Promise<void> => {
     }
 
     // Generate new PDF URL
-    const newPdfUrl = await getManagerReportPdfUrl(currentParams.value)
+    const newPdfUrl = await generateOperationReport(currentParams.value)
     pdfUrl.value = newPdfUrl
     openPDFInNewPage()
 
@@ -181,7 +180,6 @@ const generateReport = async (): Promise<void> => {
     isLoading.value = false
   }
 }
-
 // Methods for PDF actions
 const openPDFInNewPage = () => {
   if (pdfUrl.value) {

@@ -870,6 +870,7 @@ const refresh = async () => {
   const serviceId = serviceStore.serviceId!
   const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
   serviceResponse.value = response.data
+  console.log('this is the response', serviceResponse.value)
 }
 function prevDay() {
   const d = new Date(selectedDate.value)
