@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
     <label v-if="label" class="block text-sm font-medium text-gray-700">
-      {{ label }}
+      {{ label }}<span v-if="isRequired" class="text-red-500">*</span>
     </label>
     <CloneAutoCompleteSelect
       :model-value="modelValue"
