@@ -45,7 +45,7 @@
             <ul
               ref="optionsList"
               class="custom-scrollbar overflow-y-auto text-lg sm:text-base"
-              style="max-height: 44px;"
+              style="max-height: 200px;"
               role="listbox"
               :aria-expanded="isDropdownOpen"
               aria-hidden="false"
