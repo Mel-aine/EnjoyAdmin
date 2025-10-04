@@ -55,6 +55,17 @@
   "SigninwithApple": "Sign in with Apple",
   "Password": "Password",
   "Enteryourpassword": "Enter your password",
+  "reauth": {
+    "title": "Inactive session",
+    "message": "For your security, please re-enter your password.",
+    "reauthenticate": "Re-authenticate",
+    "processing": "Processing...",
+    "success": "Re-authentication successful",
+    "error": {
+      "missingEmail": "Email not found for the current session",
+      "generic": "Re-authentication failed"
+    }
+  },
   "Keepmeloggedin": "Keep me logged in",
   "Forgotpassword": "Forgot password",
   "Donthaveanaccount": "Don't have an account",

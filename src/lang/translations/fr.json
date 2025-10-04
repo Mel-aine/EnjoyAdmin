@@ -699,6 +699,17 @@
   "ConfirmNewPassword": "Confirmer le nouveau mot de passe",
   "PasswordStrength": "Force du mot de passe",
   "UpdatePassword": "Mettre à jour le mot de passe",
+  "reauth": {
+    "title": "Session inactive",
+    "message": "Pour votre sécurité, veuillez ressaisir votre mot de passe.",
+    "reauthenticate": "Se reconnecter",
+    "processing": "Traitement...",
+    "success": "Réauthentification réussie",
+    "error": {
+      "missingEmail": "Email introuvable pour la session en cours",
+      "generic": "Échec de la réauthentification"
+    }
+  },
   "long": "Au moins 8 caractères",
   "uppercaseLetter": "Inclure au moins une lettre majuscule",
   "lowercase": "Inclure au moins une lettre minuscule",
