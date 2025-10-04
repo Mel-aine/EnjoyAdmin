@@ -1,4 +1,5 @@
 <template>
+  <SpeedInsights />
   <ThemeProvider>
     <SidebarProvider>
       <RouterView />
@@ -6,7 +7,6 @@
         @success="handleSuccess" />
     </SidebarProvider>
   </ThemeProvider>
-  <SpeedInsights />
 </template>
 
 <script setup lang="ts">
