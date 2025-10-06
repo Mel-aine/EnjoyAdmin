@@ -6244,5 +6244,6 @@
   "Are you sure you want to unassign the housekeeper from these rooms?": "Are you sure you want to unassign the housekeeper from the selected room(s)?",
   "auditTrail": "Audit Trail",
   "settingSpeace":"Setting up your space",
-  "settingSpeaceMessage":"Please wait while we prepare your environment…"
+  "settingSpeaceMessage":"Please wait while we prepare your environment…",
+  "enterAmount":"Enter amount"
 }

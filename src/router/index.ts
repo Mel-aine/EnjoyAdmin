@@ -1436,15 +1436,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/demo/apply-discount',
-      name: 'ApplyDiscountDemo',
-      component: () => import('../components/demo/ApplyDiscountDemo.vue'),
-      meta: {
-        title: 'Apply Discount Demo',
-        requiresAuth: true,
-      },
-    },
+   
      {
       path: '/stay_view',
       name: 'ReservationCalendar',

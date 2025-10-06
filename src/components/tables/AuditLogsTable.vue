@@ -97,7 +97,7 @@
                 {{ formatDate(log.timestamp || log.createdAt) }}
               </div>
               <div class="text-xs text-gray-500">
-                {{ formatTime(log.timestamp || log.createdAt) }}
+                {{ formatTime(log.timestamp || log.createdAt!) }}
               </div>
             </td>
 
