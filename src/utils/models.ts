@@ -528,5 +528,7 @@ export interface AuditLog {
   sessionId?: string | null
   entityId?: string | number | null
   entityType?: string | null
-  meta?: Record<string, any> | null
+  meta?: Record<string, any> | null,
+  username?: string,
+  createdAt?: string
 }
