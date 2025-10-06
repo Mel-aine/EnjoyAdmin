@@ -386,7 +386,7 @@ const errors = reactive({
 })
 
 // Options pour les selects
-const priorityOptions = [{ value: 'clean', label: t('Clean') }]
+const priorityOptions = [{ value: 'clean', label: t('Clean') },{ value: 'dirty', label: t('Dirty') }]
 
 // Computed pour les données pré-sélectionnées de la chambre
 const preSelectedRoomData = computed(() => {
