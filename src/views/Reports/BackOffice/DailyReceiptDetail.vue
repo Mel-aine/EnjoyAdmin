@@ -172,7 +172,7 @@
         <!-- Fallback: Receipt Details Table if no HTML -->
         <div v-else>
           <div class="overflow-x-auto">
-            <table class="min-w-full ">
+            <table class="min-w-full">
               <thead class="border-b border-t-0 border-black">
                 <tr>
                   <th v-for="header in receiptHeaders" :key="header.key" :class="['px-4 py-3 text-xs font-medium uppercase tracking-wider',
@@ -183,55 +183,93 @@
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white dark:bg-gray-800  dark:divide-gray-600" v-if="reportData">
+              <tbody class="bg-white dark:bg-gray-800 dark:divide-gray-600" v-if="reportData">
                 <!-- Receipt Data from API -->
                 <template v-for="(item, index) in reportData.paymentMethodTotals" :key="index">
+                  <!-- En-tête de la méthode de paiement -->
                   <tr>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600"
                       colspan="6">
                       <strong>{{ item.methodName }}</strong>
                     </td>
                   </tr>
-                  <tr v-for="(it, index) in item.receipts" :key="index"
+                  
+                  <!-- Lignes des reçus -->
+                  <tr v-for="(it, idx) in item.receipts" :key="idx"
                     class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600">
                       {{ formatDate(it.date) }}
                     </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600">
                       {{ it.receiptNumber }}
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600">
                       {{ it.summary || it.description }}
                     </td>
-                    <td
-                      class="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white dark:border-gray-600">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white dark:border-gray-600">
                       {{ formatCurrency(it.amount) }}
                     </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white  dark:border-gray-600">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600">
                       {{ it.user }}
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {{ formatDate(it.enteredOn) }}
                     </td>
                   </tr>
+                  
+                  <!-- Ligne de séparation pointillée avant le total par méthode - UNIQUEMENT sur Amount -->
+                  <tr>
+                    <td colspan="3" class="px-4 py-1"></td>
+                    <td class="border-b border-dashed border-gray-400 dark:border-gray-500 px-4 py-1"></td>
+                    <td colspan="2" class="px-4 py-1"></td>
+                  </tr>
+                  
+                  <!-- Ligne de Total par méthode de paiement - Positionnée entre Reference et Amount -->
+                  <tr>
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600" colspan="2">
+                      <!-- Vide pour Date et Receipt -->
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600">
+                      <strong>Total {{ item.methodName }}</strong>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white dark:border-gray-600">
+                      <strong>{{ formatCurrency(calculateMethodTotal(item.receipts)) }}</strong>
+                    </td>
+          
+                  </tr>
+                  
+                  <!-- Ligne de séparation pointillée après le total par méthode - UNIQUEMENT sur Amount -->
+                  <tr>
+                    <td colspan="3" class="px-4 py-1"></td>
+                    <td class="border-b border-dashed border-gray-400 dark:border-gray-500 px-4 py-1"></td>
+                    <td colspan="2" class="px-4 py-1"></td>
+                  </tr>
+                  
+                  <!-- Ligne vide pour l'espacement -->
+                  <tr>
+                    <td colspan="6" class="py-2"></td>
+                  </tr>
                 </template>
-                <!-- Grand Total Row -->
-                <tr class="bg-gray-100 dark:bg-gray-700 font-bold border-t-2 border-gray-400 dark:border-gray-500">
-                  <td
-                    class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600"
-                    colspan="3">
-                    Grand Total
+                
+                <!-- Grand Total Row - Repositionné entre Reference et Amount -->
+                <tr class="bg-gray-100 dark:bg-gray-700 font-bold">
+                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600" colspan="2">
+                    <!-- Vide pour Date et Receipt -->
                   </td>
-                  <td
-                    class="px-4 py-3 text-sm text-right font-bold text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-600">
-                    {{ formatCurrency(reportData?.grandTotalAmount) }}
+                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600">
+                    <strong>Grand Total</strong>
                   </td>
-                  <td
-                    class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ totalEntries }} transactions
+                  <td class="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white dark:border-gray-600">
+                    <strong>{{ formatCurrency(reportData?.grandTotalAmount) }}</strong>
                   </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                  </td>
+         
+                </tr>
+                
+                <!-- Ligne de séparation pointillée après le Grand Total - UNIQUEMENT sur Amount -->
+                <tr>
+                  <td colspan="3" class="px-4 py-1"></td>
+                  <td class="border-b border-dashed border-gray-400 dark:border-gray-500 px-4 py-1"></td>
+                  <td colspan="2" class="px-4 py-1"></td>
                 </tr>
               </tbody>
             </table>
@@ -248,11 +286,10 @@ import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { generateDailyReceiptDetail, exportData, type DailyReceipt } from '@/services/reportsApi'
+import { generateDailyReceiptDetail, exportData, generateDailyReceiptPdf, type DailyReceipt } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getEmployeesForService } from '@/services/userApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
-//import { getCurrencies } from '@/services/currencyApi'
 import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
@@ -300,7 +337,7 @@ interface ReportData {
   generatedAt?: string;
   paymentMethodTotals: any,
   grandTotalAmount: any
-  hotelInformation:any
+  hotelInformation: any
 }
 
 const showResults = ref<boolean>(false)
@@ -309,6 +346,7 @@ const loading = ref<boolean>(false)
 const exportMenuOpen = ref<boolean>(false)
 const exportLoading = ref<boolean>(false)
 const pdfUrl = ref('')
+const errorMessage = ref('')
 const idHotel = serviceStore.serviceId
 
 // Filters for UI
@@ -360,12 +398,21 @@ const grandTotal = computed(() => {
 })
 
 const totalEntries = computed(() => {
-  return receiptData.value.length
+  if (!reportData.value?.paymentMethodTotals) return 0
+  return reportData.value.paymentMethodTotals.reduce((total: number, method: any) => {
+    return total + (method.receipts?.length || 0)
+  }, 0)
 })
 
 const reportTitle = computed(() => {
   return reportData.value?.title || 'Daily Receipt Report'
 })
+
+// Fonction pour calculer le total par méthode de paiement
+const calculateMethodTotal = (receipts: any[]): number => {
+  if (!receipts || !Array.isArray(receipts)) return 0
+  return receipts.reduce((sum, receipt) => sum + (parseFloat(receipt.amount) || 0), 0)
+}
 
 // Fetch options from API
 const fetchUsers = async () => {
@@ -391,18 +438,6 @@ const fetchPaymentMethods = async () => {
     console.error('Error fetching payment methods:', error)
   }
 }
-
-/* const fetchCurrencies = async () => {
-  try {
-    const resp = await getCurrencies()
-    currencyOptions.value = resp.data.data.map((c: any) => ({
-      label: c.currencyName,
-      value: c.id
-    }))
-  } catch (error) {
-    console.error('Error fetching currencies:', error)
-  }
-} */
 
 // Watch filters and update API filters
 watch(filters, (newFilters) => {
@@ -472,13 +507,15 @@ const exportPDF = async (): Promise<void> => {
       pdfUrl.value = ''
     }
 
-    console.log('Export PDF with filters:', apiFilters.value)
-    const result = await exportData('pdf', 'dailyReceiptDetail', 'daily-receipt', apiFilters.value)
-    pdfUrl.value = result?.fileUrl || ''
+    // Generate new PDF URL
+    const newPdfUrl = await generateDailyReceiptPdf(apiFilters.value)
+    pdfUrl.value = newPdfUrl
     openPDFInNewPage()
-    console.log('PDF export result:', result)
+
+    console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
   } catch (error) {
-    console.error('PDF export error:', error)
+    console.error('❌ Error generating daily receipt report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate PDF'
   } finally {
     exportLoading.value = false
   }
@@ -565,7 +602,6 @@ onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   fetchUsers()
   fetchPaymentMethods()
-  //fetchCurrencies()
 })
 
 onUnmounted(() => {
@@ -734,5 +770,36 @@ button:active:not(:disabled) {
 .notification-info {
   background-color: #3b82f6;
   color: white;
+}
+
+/* Styles pour les bordures en pointillés */
+.border-dashed {
+  border-style: dashed;
+}
+
+/* Styles spécifiques pour l'alignement des totaux */
+.total-row {
+  border-top: 2px dashed #6b7280;
+}
+
+.grand-total-row {
+  border-top: 2px solid #374151;
+  background-color: #f3f4f6;
+}
+
+.dark .grand-total-row {
+  background-color: #374151;
+}
+
+/* Styles spécifiques pour les bordures du tableau */
+:deep(.report-html-container table) {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:deep(.report-html-container th),
+:deep(.report-html-container td) {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
 }
 </style>

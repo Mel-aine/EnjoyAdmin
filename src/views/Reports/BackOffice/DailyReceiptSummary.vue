@@ -166,213 +166,151 @@
         </div>
       </div>
 
-      <!-- Results Section -->
-      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
-        <!-- Report Header with Hotel Name and Title -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:bg-blue-900/20">
-          <div class="text-center flex justify-between">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {{ reportData?.hotelDetails?.hotelName }}
-            </h2>
-            <div class="inline-block  text-red-800 dark:text-red-200 px-4 py-2 rounded-lg border">
-              <span class="font-semibold">Daily Receipt - Summary</span>
-            </div>
-            
+      <!-- Results Section avec le nouveau style -->
+      <div v-if="showResults" class="report-container bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
+        
+        <!-- Report Header avec le style du template -->
+        <div class="report-header px-6 py-3 border-b border-gray-300 dark:border-gray-600">
+          <div class="hotel-name text-lg font-bold text-darkblue dark:text-blue-300">
+            {{ reportData?.hotelDetails?.hotelName || 'Suita Hotel' }}
           </div>
-          <div class="mt-3 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
-              <span class="inline-block px-3 py-1 rounded">
-                Date From {{ reportData?.dateRange?.fromDate || filters.receiptFrom }} To {{ reportData?.dateRange?.toDate || filters.receiptTo }}
-              </span>
-            </div>
+          <div class="report-title text-md font-bold text-dark-red dark:text-red-400">
+            Daily Receipt Summary
+          </div>
         </div>
 
-        <!-- Report Content HTML -->
+        <!-- Date Range avec le style du template -->
+        <div class="date-range px-6 py-2 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-300 dark:border-gray-600">
+          <strong>Date From:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }} 
+          <strong>To:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}
+        </div>
+
+        <!-- Si le rapport contient du HTML, l'afficher -->
         <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
 
-        <!-- Fallback: Receipt Summary Table if no HTML -->
+        <!-- Sinon, afficher les données avec le nouveau style -->
         <div v-else class="px-6 py-4">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
-                    Pay Method
-                  </th>
-                  <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
-                    Tran. Count
-                  </th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
-                    Amount
-                  </th>
-                  <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
-                    Void Count
-                  </th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
-                    Void Amount
-                  </th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
-                    Total(XAF)
-                  </th>
-                </tr>
+          <!-- User Sections -->
+          <div v-for="(userSummary, index) in reportData?.userSummaries" :key="index" class="user-section mb-6">
+            <table class="w-full border-collapse text-xs border-t border-gray-300 dark:border-gray-600">
+              <thead class="border-b border-t-0 border-black">
+              <tr>
+                <th class="w-1/4 text-left p-2 bg-gray-50 dark:bg-gray-700">Pay Method</th>
+                <th class="w-1/6 text-center p-2 bg-gray-50 dark:bg-gray-700">Tran. Count</th>
+                <th class="w-1/5 text-right p-2 bg-gray-50 dark:bg-gray-700">Amount</th>
+                <th class="w-1/6 text-center p-2 bg-gray-50 dark:bg-gray-700">Void Count</th>
+                <th class="w-1/5 text-right p-2 bg-gray-50 dark:bg-gray-700">Void Amount</th>
+                <th class="w-1/5 text-right p-2 bg-gray-50 dark:bg-gray-700">Total ({{ currency }})</th>
+              </tr>
               </thead>
-              <tbody class="bg-white dark:bg-gray-800">
-                <!-- User sections from API data -->
-                <template v-for="(userSummary, index) in reportData?.userSummaries" :key="index">
-                  <!-- User Header -->
-                  <tr class="bg-gray-100 dark:bg-gray-700" :class="{ 'border-t-2 border-gray-300 dark:border-gray-500': index > 0 }">
-                    <td class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600" colspan="6">
-                      User: {{ userSummary.userName }}
-                    </td>
-                  </tr>
-                  
-                  <!-- Payment Methods for this user -->
-                  <tr v-for="(paymentMethod, pmIndex) in userSummary.paymentMethods" :key="`${index}-${pmIndex}`"
-                      class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ paymentMethod.methodName }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ paymentMethod.totalTransactions }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ formatCurrency(paymentMethod.amount) }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ paymentMethod.totalVoid }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ formatCurrency(paymentMethod.voidAmount) }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
-                      {{ formatCurrency(paymentMethod.total) }}
-                    </td>
-                  </tr>
-                  
-                  <!-- User Total -->
-                  <tr class="bg-gray-100 dark:bg-gray-700 border-t border-dotted border-gray-400">
-                    <td class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      User Total
-                    </td>
-                    <td class="px-4 py-3 text-sm text-center font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ userSummary.totalTransactions }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      -
-                    </td>
-                    <td class="px-4 py-3 text-sm text-center font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      {{ userSummary.totalVoid }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                      -
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white">
-                      {{ formatCurrency(userSummary.userTotal) }}
-                    </td>
-                  </tr>
-                </template>
-
-                <!-- Grand Total -->
-                <tr class="bg-gray-200 dark:bg-gray-600 font-bold border-t-2 border-gray-400 dark:border-gray-500">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    Grand Total
-                  </td>
-                  <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ reportData?.grandTotals?.totalTransactions || 0 }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    -
-                  </td>
-                  <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    {{ reportData?.grandTotals?.totalVoid || 0 }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600">
-                    -
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right text-blue-600 dark:text-blue-400 font-bold">
-                    {{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}
-                  </td>
+              <tbody>
+                <!-- User Name Row -->
+                <tr class="user-name-row">
+                  <td colspan="6" class="p-2 font-bold border-none">User: {{ userSummary.userName }}</td>
+                </tr>
+                
+                <!-- Payment Methods -->
+                <tr v-for="(paymentMethod, pmIndex) in userSummary.paymentMethods" :key="pmIndex" class="payment-method-row">
+                  <td class="p-2 border-none">{{ paymentMethod.methodName }}</td>
+                  <td class="p-2 text-center border-none">{{ paymentMethod.totalTransactions }}</td>
+                  <td class="p-2 text-right border-none font-mono">{{ formatCurrency(paymentMethod.amount) }}</td>
+                  <td class="p-2 text-center border-none">{{ paymentMethod.totalVoid }}</td>
+                  <td class="p-2 text-right border-none font-mono">{{ formatCurrency(paymentMethod.voidAmount) }}</td>
+                  <td class="p-2 text-right border-none font-mono">{{ formatCurrency(paymentMethod.total) }}</td>
+                </tr>
+                
+                <!-- User Total -->
+                <tr class="user-total-row bg-gray-50 dark:bg-gray-700 font-bold">
+                  <td class="p-2 border-none text-sm">User Total</td>
+                  <td class="p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">{{ userSummary.totalTransactions }}</td>
+                  <td class="p-2 text-right border-none font-mono text-sm"></td>
+                  <td class="p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">{{ userSummary.totalVoid }}</td>
+                  <td class="p-2 text-right border-none font-mono text-sm"></td>
+                  <td class="p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono text-sm">{{ formatCurrency(userSummary.userTotal) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-        </div>
 
-        <!-- Summary Section -->
-        <div v-if="reportData?.summary" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Summary</h3>
-          
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead class="bg-gray-100 dark:bg-gray-600">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border border-red-300 dark:border-red-700">
-                    User
-                  </th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border border-red-300 dark:border-red-700">
-                    Amount ( Rs )
-                  </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border border-red-300 dark:border-red-700">
-                    Pay Method
-                  </th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 border border-red-300 dark:border-red-700">
-                    Amount ( Rs )
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800">
-                <!-- User Summary -->
-                <template v-for="(userSum, index) in reportData.summary.userSummary" :key="`user-${index}`">
-                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      {{ userSum.userName }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      {{ formatCurrency(userSum.netTotal) }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      <!-- Payment method data would go here if needed -->
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      <!-- Payment method amount would go here if needed -->
-                    </td>
-                  </tr>
-                </template>
+          <!-- Grand Total -->
+          <table class="w-full mt-4">
+            <tbody>
+              <tr class="grand-total-row bg-gray-100 dark:bg-gray-600 font-bold">
+                <td class="w-1/4 p-2 border-none text-sm">Grand Total</td>
+                <td class="w-1/6 p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">
+                  {{ reportData?.grandTotals?.totalTransactions || 0 }}
+                </td>
+                <td class="w-1/5 p-2 text-right border-none font-mono text-sm">
+                  {{ formatCurrency(reportData?.grandTotals?.totalAmount || 0) }}
+                </td>
+                <td class="w-1/6 p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">
+                  {{ reportData?.grandTotals?.totalVoid || 0 }}
+                </td>
+                <td class="w-1/5 p-2 text-right border-none font-mono text-sm">
+                  {{ formatCurrency(reportData?.grandTotals?.voidAmount || 0) }}
+                </td>
+                <td class="w-1/5 p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono text-sm">
+                  {{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-                <!-- Payment Method Summary -->
-                <template v-for="(methodSum, index) in reportData.summary.paymentMethodSummary" :key="`method-${index}`">
-                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      <!-- Empty for payment method rows -->
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      <!-- Empty for payment method rows -->
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      {{ methodSum.methodName }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                      {{ formatCurrency(methodSum.total) }}
-                    </td>
-                  </tr>
-                </template>
-                
-                <!-- Grand Total Row -->
-                <tr class="bg-gray-100 dark:bg-gray-700 font-bold border-t-2 border-gray-400 dark:border-gray-500">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                    Grand Total
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right text-blue-600 dark:text-blue-400 border border-gray-300 dark:border-gray-600">
-                    {{ formatCurrency(reportData.summary.grandTotalUserSummary.netTotal) }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
-                    Grand Total
-                  </td>
-                  <td class="px-4 py-3 text-sm text-right text-blue-600 dark:text-blue-400 border border-gray-300 dark:border-gray-600">
-                    {{ formatCurrency(reportData.summary.grandTotalPaymentMethodSummary.netTotal) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Summary Section avec le nouveau style -->
+          <div class="summary-section mt-6 pt-4">
+            <div class="summary-title-container flex justify-center">
+              <div class="summary-title font-bold text-sm mb-3">Summary</div>
+            </div>
+            
+            <div class="summary-tables flex gap-8 justify-center">
+              <!-- User Summary -->
+              <div class="summary-table-container">
+                <table class="summary-table border-collapse text-xs min-w-[200px]">
+                  <thead>
+                    <tr>
+                      <th colspan="2" class="text-center p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">User</th>
+                      <th class="text-right p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">Amount ({{ currency }})</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(userSum, index) in reportData?.summary?.userSummary" :key="index">
+                      <td colspan="2" class="p-2 border-none">{{ userSum.userName }}</td>
+                      <td class="p-2 text-right border-none font-mono">{{ formatCurrency(userSum.netTotal) }}</td>
+                    </tr>
+                    <tr class="summary-grand-total bg-gray-100 dark:bg-gray-600 font-bold">
+                      <td colspan="2" class="p-2 border-none">Grand Total</td>
+                      <td class="p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono">
+                        {{ formatCurrency(reportData?.summary?.grandTotalUserSummary?.netTotal || 0) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Payment Method Summary -->
+              <div class="summary-table-container">
+                <table class="summary-table border-collapse text-xs min-w-[200px]">
+                  <thead>
+                    <tr>
+                      <th class="text-left p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">Pay Method</th>
+                      <th class="text-right p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">Amount ({{ currency }})</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(methodSum, index) in reportData?.summary?.paymentMethodSummary" :key="index">
+                      <td class="p-2 border-none">{{ methodSum.methodName }}</td>
+                      <td class="p-2 text-right border-none font-mono">{{ formatCurrency(methodSum.total) }}</td>
+                    </tr>
+                    <tr class="summary-grand-total bg-gray-100 dark:bg-gray-600 font-bold">
+                      <td class="p-2 border-none">Grand Total</td>
+                      <td class="p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono">
+                        {{ formatCurrency(reportData?.summary?.grandTotalPaymentMethodSummary?.netTotal || 0) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -386,11 +324,10 @@ import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { generateDailyReceiptSummary, exportData, type DailyReceipt } from '@/services/reportsApi'
+import { generateDailyReceiptSummary, exportData, generateDailyReceiptSummaryPdf, type DailyReceipt } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getEmployeesForService } from '@/services/userApi'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
-//import { getCurrencies } from '@/services/currencyApi'
 import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
@@ -444,6 +381,8 @@ const loading = ref<boolean>(false)
 const exportMenuOpen = ref<boolean>(false)
 const exportLoading = ref<boolean>(false)
 const pdfUrl = ref('')
+const errorMessage = ref('')
+
 const idHotel = serviceStore.serviceId
 
 // Filters for UI
@@ -464,7 +403,7 @@ const filters = ref<Filters>({
 // API Filters
 const apiFilters = ref<DailyReceipt>({
   fromDate: filters.value.receiptFrom,
-  toDate: filters.value.receiptTo ,
+  toDate: filters.value.receiptTo,
   hotelId: idHotel !== null ? idHotel : 0,
   receiptByUserId: 0,
   currencyId: 0,
@@ -478,6 +417,10 @@ const currencyOptions = ref<FilterOptions[]>([])
 
 const reportTitle = computed(() => {
   return reportData.value?.title || 'Daily Receipt Summary Report'
+})
+
+const currency = computed(() => {
+  return 'XAF' // Vous pouvez le rendre dynamique si nécessaire
 })
 
 // Fetch options from API
@@ -504,18 +447,6 @@ const fetchPaymentMethods = async () => {
     console.error('Error fetching payment methods:', error)
   }
 }
-
-/* const fetchCurrencies = async () => {
-  try {
-    const resp = await getCurrencies()
-    currencyOptions.value = resp.data.data.map((c: any) => ({
-      label: c.currencyName,
-      value: c.id
-    }))
-  } catch (error) {
-    console.error('Error fetching currencies:', error)
-  }
-} */
 
 // Watch filters and update API filters
 watch(filters, (newFilters) => {
@@ -554,6 +485,7 @@ const generateReport = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('Error generating report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
   } finally {
     loading.value = false
   }
@@ -567,6 +499,7 @@ const exportCSV = async (): Promise<void> => {
     console.log('CSV export result:', result)
   } catch (error) {
     console.error('CSV export error:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to export CSV'
   } finally {
     exportLoading.value = false
   }
@@ -576,20 +509,22 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    
+
     // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
 
-    console.log('Export PDF with filters:', apiFilters.value)
-    const result = await exportData('pdf', 'dailyReceiptSummary', 'daily-receipt-summary', apiFilters.value)
-    pdfUrl.value = result?.fileUrl || ''
+    // Generate new PDF URL
+    const newPdfUrl = await generateDailyReceiptSummaryPdf(apiFilters.value)
+    pdfUrl.value = newPdfUrl
     openPDFInNewPage()
-    console.log('PDF export result:', result)
+
+    console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
   } catch (error) {
-    console.error('PDF export error:', error) 
+    console.error('❌ Error generating daily receipt report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate PDF'
   } finally {
     exportLoading.value = false
   }
@@ -604,6 +539,7 @@ const exportExcel = async (): Promise<void> => {
     console.log('Excel export result:', result)
   } catch (error) {
     console.error('Excel export error:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to export Excel'
   } finally {
     exportLoading.value = false
   }
@@ -633,6 +569,7 @@ const resetForm = (): void => {
   }
   showResults.value = false
   reportData.value = null
+  errorMessage.value = ''
 }
 
 const toggleExportMenu = () => {
@@ -658,7 +595,6 @@ onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   fetchUsers()
   fetchPaymentMethods()
-  //fetchCurrencies()
 })
 
 onUnmounted(() => {
@@ -667,6 +603,205 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Styles spécifiques pour appliquer le design du template */
+
+.report-container {
+  padding: 15px;
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.dark .report-container {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+  padding: 12px 24px;
+  border-bottom: 1px solid #333;
+}
+
+.dark .report-header {
+  border-bottom-color: #6b7280;
+}
+
+.hotel-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: darkblue;
+}
+
+.dark .hotel-name {
+  color: #93c5fd;
+}
+
+.report-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 10px;
+  color: #a52a2a; /* Rouge bordeau plus clair */
+}
+
+.dark .report-title {
+  color: #f87171; /* Rouge plus clair pour le mode sombre */
+}
+
+.date-range {
+  font-size: 12px;
+  margin-top: 0;
+  border-top: 1px solid #333;
+  padding: 8px 24px;
+}
+
+.dark .date-range {
+  border-color: #6b7280;
+}
+
+.date-range strong {
+  font-weight: bold;
+}
+
+.user-section {
+  margin-bottom: 20px;
+}
+
+.user-name-row td {
+  padding: 6px 8px;
+  font-weight: bold;
+  border: none;
+}
+
+.payment-method-row td {
+  border: none;
+}
+
+.user-total-row {
+  font-weight: bold;
+  background-color: #f9f9f9;
+}
+
+.dark .user-total-row {
+  background-color: #374151;
+}
+
+.user-total-row td {
+  border: none;
+  font-size: 11px; /* Police réduite pour Grand Total */
+}
+
+.grand-total-row {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.dark .grand-total-row {
+  background-color: #4b5563;
+}
+
+.grand-total-row td {
+  font-size: 11px; /* Police réduite pour Grand Total */
+}
+
+.summary-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-title {
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 10px;
+  text-align: left;
+  padding-left: 0;
+  width: fit-content;
+}
+
+.summary-tables {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin: 0 auto;
+  width: fit-content;
+}
+
+.summary-table-container {
+  flex: 0 0 auto;
+}
+
+.summary-table {
+  border-collapse: collapse;
+  font-size: 11px;
+  border: none;
+  min-width: 200px;
+}
+
+.summary-table th {
+  background-color: #f5f5f5;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.dark .summary-table th {
+  background-color: #374151;
+  border-color: #6b7280;
+}
+
+.summary-table td {
+  border: none;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+
+.summary-grand-total {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.dark .summary-grand-total {
+  background-color: #4b5563;
+}
+
+/* Styles pour les colonnes de montant avec police monospace */
+.amount-column {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Couleur rouge bordeau plus clair */
+.text-dark-red {
+  color: #a52a2a;
+}
+
+/* Adaptation responsive */
+@media (max-width: 768px) {
+  .summary-tables {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .report-title {
+    margin-left: 0;
+  }
+}
+
 /* Button hover effects */
 .transition-all {
   transition: all 0.2s ease-in-out;
