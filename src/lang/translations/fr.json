@@ -5144,7 +5144,7 @@
       "sold": "Vendu",
       "dayUse": "Utilisation de jour",
       "complimentary": "Gratuit",
-      "folioUnpaidList" : "Liste des factures impayés",
+      "folioUnpaidList" : "Liste des factures impayées",
       "inspected": "Inspecté",
       "roomTypesOccupancy":"Types de chambres et capacité d’accueil",
       "blocked": "Bloqué",
@@ -6216,7 +6216,23 @@
  "Extra Charge":"Frais additionnel",
  "Show Tariff on Print Folio":"Afficher le tarif sur le folio imprimé ",
  "Credit Limit":"Limite de crédit",
- "Confirmed Booking":"Réservation confirmée"
+ "Confirmed Booking":"Réservation confirmée",
+ "Room Posting":"Enregistrement sur la chambre",
+ "ROOM_MOVE":"Changement de chambre",
+ "Arrival":"Arrivée ",
+ "Balance(XAF)":"Solde(XAF)",
+ "due out":"Départ prévu",
+ "stayOver":"Client en séjour",
+ "Verify status of all rooms including occupied, check-out due, or blocked rooms":" Vérifier l’état de toutes les chambres, y compris les chambres occupées, en départ prévu ou bloquées",
+ "Unconfirmed Booking Inquiry":"Demande de réservation non confirmée",
+ "Online Failed Booking":"Échec de réservation en ligne",
+ "Hold Confirmed Booking":"Mettre la réservation confirmée en attente",
+ "Hold Unconfirmed Booking":"Mettre en attente une réservation non confirmée",
+ "Directly":"Directement",
+ "Website":"Site web"
+ 
+ 
+ 
  
  
  

@@ -6313,7 +6313,23 @@
   "Extra Charge":"Extra Charge",
   "Show Tariff on Print Folio":"Show Tariff on Print Folio",
   "Credit Limit":"Credit Limit",
-  "Confirmed Booking":"Confirmed Booking"
+  "Confirmed Booking":"Confirmed Booking",
+  "Room Posting":"Room Posting",
+  "ROOM_MOVE":"ROOM_MOVE",
+  "Arrival":"Arrival",
+  "Balance(XAF)":"Balance(XAF)",
+  "due out":"due out",
+  "stayOver":"stayOver",
+  "Verify status of all rooms including occupied, check-out due, or blocked rooms":"Verify status of all rooms including occupied, check-out due, or blocked rooms",
+  "Unconfirmed Booking Inquiry":"Unconfirmed Booking Inquiry",
+  "Online Failed Booking":"Online Failed Booking",
+  "Hold Confirmed Booking":"Hold Confirmed Booking",
+  "Hold Unconfirmed Booking":"Hold Unconfirmed Booking",
+  "Directly":"Directly",
+  "Website":"Website"
+  
+  
+
 
  
   

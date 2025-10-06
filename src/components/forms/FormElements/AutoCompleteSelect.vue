@@ -55,7 +55,7 @@
           role="option"
           :aria-selected="selectedOption?.value === option.value"
         >
-          <span>{{ option.label }}</span>
+          <span>{{$t (option.label )}}</span>
           <svg
             v-if="selectedOption?.value === option.value"
             class="w-4 h-4 text-purple-600"

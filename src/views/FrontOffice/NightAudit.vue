@@ -94,7 +94,7 @@
             :loading="loading" :actions="roomStatusActions">
             <template #column-status="{ item }">
               <div class="flex space-x-2">
-                <span class="capitalize p-1 text-red-100 bg-red-400 border ">{{ item.status }}</span>
+                <span class="capitalize p-1 text-red-100 bg-red-400 border ">{{$t (item.status) }}</span>
               </div>
             </template>
           </ReusableTable>
