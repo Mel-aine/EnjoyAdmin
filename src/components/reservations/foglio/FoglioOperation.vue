@@ -179,7 +179,7 @@
         </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountRoomCharge :is-open="isApplyDiscountModal" :reservation-id="reservationId"
+          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId"
             :reservation-number="reservation?.reservationNumber" @close="closeApplyDiscountModal"
             @discount-applied="handleDiscountApplied" />
         </template>
@@ -216,6 +216,7 @@ import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
 import { useAuthStore } from '@/composables/user'
 import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
 import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
+import ApplyDiscountModal from './ApplyDiscountModal.vue'
 
 const authStore = useAuthStore()
 
