@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', {
     roleId: null as number | null,
     UserId: null as number | null,
     reportsPermissions:[] as { id: string; name: string; description: string }[],
+    reauthRequired: false as boolean,
   }),
 
   getters: {
@@ -21,6 +22,11 @@ export const useAuthStore = defineStore('auth', {
       this.user = JSON.parse(localStorage.getItem('user') || 'null');
       this.roleId = JSON.parse(localStorage.getItem('roleId') || 'null');
       this.UserId = JSON.parse(localStorage.getItem('UserId') || 'null');
+      try {
+        this.reauthRequired = localStorage.getItem('reauth_required') === 'true'
+      } catch {
+        this.reauthRequired = false
+      }
     },
 
     login(user: any, token: string) {
@@ -33,6 +39,17 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('roleId', JSON.stringify(user.roleId));
       localStorage.setItem('UserId', JSON.stringify(user.UserId));
+    },
+
+    setReauthRequired(flag: boolean) {
+      this.reauthRequired = flag
+      try {
+        if (flag) {
+          localStorage.setItem('reauth_required', 'true')
+        } else {
+          localStorage.removeItem('reauth_required')
+        }
+      } catch {}
     },
 
     logout() {
@@ -60,7 +77,8 @@ export const useAuthStore = defineStore('auth', {
       const allPossibleKeys = [
         'token', 'user', 'roleId', 'UserId',
         'vueuse-token', 'vueuse-user', 'vueuse-roleId', 'vueuse-UserId',
-        'auth_token', 'auth_user', 'auth_roleId', 'auth_UserId'
+        'auth_token', 'auth_user', 'auth_roleId', 'auth_UserId',
+        'reauth_required'
       ];
 
       allPossibleKeys.forEach(key => {
@@ -72,6 +90,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null;
       this.roleId = null;
       this.UserId = null;
+      this.reauthRequired = false;
 
       console.log('Force logout - après:', this.$state);
     },

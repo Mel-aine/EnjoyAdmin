@@ -55,6 +55,17 @@
   "SigninwithApple": "Sign in with Apple",
   "Password": "Password",
   "Enteryourpassword": "Enter your password",
+  "reauth": {
+    "title": "Inactive session",
+    "message": "For your security, please re-enter your password.",
+    "reauthenticate": "Re-authenticate",
+    "processing": "Processing...",
+    "success": "Re-authentication successful",
+    "error": {
+      "missingEmail": "Email not found for the current session",
+      "generic": "Re-authentication failed"
+    }
+  },
   "Keepmeloggedin": "Keep me logged in",
   "Forgotpassword": "Forgot password",
   "Donthaveanaccount": "Don't have an account",
@@ -2937,6 +2948,9 @@
     "TYPE_NOT_FOUND": "Room type not found.",
     "ROOMS_ASSOCIATED": "Cannot delete this type: associated rooms exist.",
     "UNKNOWN": "An unknown error has occurred.",
+    "VOID_REASON_TOO_SHORT": "The reason must be at least 10 characters long.",
+    "VOID_REASON_REQUIRED": "A reason is required for voiding a transaction.",
+    "VOID_REASON_ALREADY_EXISTS": "This reason already exists in this category.",
     "deleteGuestConflict": "Cannot delete this guest as they have active reservations.",
     "guestAlreadyBlacklisted": "This guest is already blacklisted"
   },

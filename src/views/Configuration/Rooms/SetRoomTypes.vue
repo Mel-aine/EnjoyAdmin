@@ -228,6 +228,7 @@ const saveOrder = async () => {
       id: item.id,
       sortOrder: item.sortOrder
     }))
+    console.log(sortedRoomTypeChange)
     // Simulate API call
     await updateRoomTypeSortOrder(sortedRoomTypeChange)
     

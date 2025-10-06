@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-    
+
 
       <!-- Rooms Table using ReusableTable -->
       <ReusableTable :title="$t('Rooms')" :columns="columns" :data="rooms" :actions="actions" :loading="loading"
@@ -207,9 +207,12 @@
                   <div class="grid grid-cols-2 gap-2">
                     <div v-for="taxe in availableTaxes" :key="taxe.id" class="flex items-center space-x-2">
                       <input v-model="formData.taxRateIds" :value="taxe.taxRateId" type="checkbox"
-                        :id="`taxes-${taxe.taxRateId}`" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        :id="`taxes-${taxe.taxRateId}`"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                       <label :for="`taxes-${taxe.taxRateId}`" class="text-sm text-gray-700">
-                        {{ taxe.taxName }} ({{ taxe.postingType=="flat_percentage"?(taxe.percentage+'%'):formatCurrency(taxe.amount) }}) 
+                        {{ taxe.taxName }} ({{
+                          taxe.postingType == "flat_percentage" ? (taxe.percentage + '%') : formatCurrency(taxe.amount)
+                        }})
                       </label>
                     </div>
                   </div>
@@ -217,11 +220,10 @@
               </div>
             </div>
 
-             <div class="flex justify-end space-x-3 mt-6">
+            <div class="flex justify-end space-x-3 mt-6">
               <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                 :disabled="saving" />
-              <BasicButton type="submit" variant="primary" :icon="Save"
-                :label="isEditing ? $t('update') : $t('save')"
+              <BasicButton type="submit" variant="primary" :icon="Save" :label="isEditing ? $t('update') : $t('save')"
                 :loading="saving" />
             </div>
           </form>
@@ -344,13 +346,13 @@ const actions = ref([
     label: 'Edit',
     icon: 'edit',
     variant: 'primary',
-    action: 'edit'
+    handler: (item) => onAction('edit', item)
   },
   {
     label: 'Delete',
     icon: 'trash',
     variant: 'danger',
-    action: 'delete'
+    handler: (item) => onAction('delete', item)
   }
 ])
 
@@ -376,16 +378,16 @@ const editRoom = (room) => {
   const roomTypeObj = availableRoomTypes.value.find(rt => rt.name === room.roomType)
   formData.value = {
     shortCode: room.shortCode,
-    roomName: room.roomName,
+    roomNumber: room.roomNumber,
     roomTypeId: room.roomTypeId,
-    bedType: room.bedType,
+    bedType: room.bedTypeId,
     phoneExtension: room.phoneExtension,
     keyCardAlias: room.keyCardAlias,
     sortKey: room.sortKey,
     smokingAllowed: room.smokingAllowed,
-    roomImages: [...room.roomImages],
-    connectedRooms: [...room.connectedRooms],
-    taxRateIds: [...room.connectedRooms]
+    roomImages: room.roomImages ? [...room.roomImages] : [],
+    connectedRooms: room.connectedRooms ? [...room.connectedRooms] : room.connectedRooms,
+    taxRateIds: room.taxRates ? [...room.taxRates.map((e)=>e.taxRateId)] : []
   }
   showEditModal.value = true
 }
@@ -535,7 +537,7 @@ const closeModal = () => {
     smokingAllowed: false,
     roomImages: [null, null, null, null],
     connectedRooms: [],
-    taxRateIds:[]
+    taxRateIds: []
   }
 }
 

@@ -27,76 +27,20 @@
 
             <!-- Modal Form -->
             <form v-else @submit.prevent="handleSubmit">
+                <!-- Date -->
+                <div class="mb-4">
+                    <InputDatePicker v-model="formData.date" :title="$t('Date')" />
+
+                </div>
                 <!-- Discount Selection -->
                 <div class="mb-4">
                     <InputDiscountSelect v-model="formData.discountId" :lb="$t('discount')" :is-required="true"
                         @select="handleDiscountSelect" />
                 </div>
-
-                <!-- Discount Rule Selection -->
+                <!-- Folio -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        {{ $t('discountRule') }}
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'all_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                            <input v-model="formData.discountRule" type="radio" value="all_nights"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('allNights') }}</span>
-                        </label>
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'first_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                            <input v-model="formData.discountRule" type="radio" value="first_night"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('firstNight') }}</span>
-                        </label>
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'last_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                            <input v-model="formData.discountRule" type="radio" value="last_night"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('lastNight') }}</span>
-                        </label>
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'select_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                            <input v-model="formData.discountRule" type="radio" value="select_nights"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('selectNights') }}</span>
-                        </label>
-                    </div>
-                </div>
-                
-
-                <!-- Transaction Selection (only for group reservations and selected_transaction) -->
-                <div v-if="formData.discountRule === 'select_nights'" class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        {{ $t('selectTransactions') }}
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3">
-                        <div v-if="loadingTransactions" class="text-center py-4">
-                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto">
-                            </div>
-                            <span class="text-sm text-gray-500 mt-2">{{ $t('loadingTransactions') }}</span>
-                        </div>
-                        <label v-else v-for="transaction in availableTransactions" :key="transaction.id"
-                            class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.selectedTransactions.includes(transaction.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
-                            <input v-model="formData.selectedTransactions" type="checkbox" :value="transaction.id"
-                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                            <div class="ml-3 flex-1">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ transaction.particular || transaction.description }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {{ formatDate(transaction.postingDate) }} -
-                                    {{ formatCurrency(transaction.amount) }} -
-                                    {{ transaction.guest?.displayName || 'N/A' }}
-                                </div>
-                            </div>
-                        </label>
-                    </div>
+                    <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId"
+                        :is-required="true" @select="handleFolioSelect" />
                 </div>
 
                 <!-- Discount Amount (if open discount) -->
@@ -136,13 +80,17 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { getReservationDetailsById } from '../../../services/reservation'
-import { getReservationFolios } from '../../../services/foglioApi'
+import { createFolioTransaction, getReservationFolios } from '../../../services/foglioApi'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import RightSideModal from '../../modal/RightSideModal.vue'
+import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
+import InputFolioSelect from './InputFolioSelect.vue'
+import { useServiceStore } from '../../../composables/serviceStore'
+import { prepareFolioAmount, safeParseInt } from '../../../utils/numericUtils'
 
 interface Props {
     isOpen: boolean
-    reservationId?: string | number
+    reservationId: number
     reservationNumber?: string
 }
 
@@ -202,19 +150,18 @@ const isLoading = ref(false)
 const loadingTransactions = ref(false)
 const reservation = ref<any>()
 const selectedDiscount = ref<DiscountOption | null>(null)
+const selectedFolio = ref<any | null>(null)
 const availableNights = ref<NightInfo[]>([])
 const availableTransactions = ref<TransactionInfo[]>([])
-
+const serviceStore = useServiceStore()
 const formData = ref({
     discountId: 0 as number,
-    discountRule: 'all_nights',
-    selectedNights: [] as string[],
-    applyFor: 'all_rooms',
-    selectedTransactions: [] as number[],
     discountAmount: 0,
+    date: new Date().toISOString().split('T')[0],
+    folio: '',
     notes: ''
 })
-
+const isSaving = ref(false);
 // Computed properties
 const isGroupReservation = computed(() => {
     return reservation.value?.reservationRooms?.length > 1
@@ -235,21 +182,7 @@ watch(() => props.reservationId, (newVal) => {
     }
 })
 
-// Watch for discount rule changes
-watch(() => formData.value.discountRule, (newRule) => {
-    if (newRule !== 'select_nights') {
-        formData.value.selectedNights = []
-    }
-})
 
-// Watch for apply for changes
-watch(() => formData.value.applyFor, (newApplyFor) => {
-    if (newApplyFor === 'selected_transaction' && isGroupReservation.value) {
-        loadTransactions()
-    } else {
-        formData.value.selectedTransactions = []
-    }
-})
 
 const getReservationDetails = async () => {
     if (!props.reservationId) return
@@ -291,49 +224,13 @@ const generateAvailableNights = () => {
     availableNights.value = nights
 }
 
-const loadTransactions = async () => {
-    if (!props.reservationId) return
-
-    loadingTransactions.value = true
-    try {
-        const response = await getReservationFolios(Number(props.reservationId))
-        console.log('Folio response:', response)
-
-        // Extract all transactions from all folios
-        const transactions: TransactionInfo[] = []
-        if (response.data && Array.isArray(response.data)) {
-            response.data.forEach((folio: any) => {
-                if (folio.transactions && Array.isArray(folio.transactions)) {
-                    folio.transactions.forEach((transaction: any) => {
-                        // Only include room charge transactions
-                        if (transaction.category === 'room' || transaction.particular?.toLowerCase().includes('room')) {
-                            transactions.push({
-                                id: transaction.id,
-                                particular: transaction.particular || transaction.description || 'Room Charge',
-                                description: transaction.description || transaction.particular || 'Room Charge',
-                                amount: transaction.grossAmount || transaction.amount || 0,
-                                postingDate: transaction.postingDate || transaction.day,
-                                guest: folio.guest
-                            })
-                        }
-                    })
-                }
-            })
-        }
-
-        availableTransactions.value = transactions
-        console.log('Available transactions:', availableTransactions.value)
-    } catch (error) {
-        console.error('Error loading transactions:', error)
-        toast.error(t('errorLoadingTransactions'))
-    } finally {
-        loadingTransactions.value = false
-    }
-}
-
 const handleDiscountSelect = (discount: DiscountOption) => {
     selectedDiscount.value = discount
     console.log('Selected discount:', discount)
+    // Ensure form data holds the selected discount ID
+    formData.value.discountId = discount.id
+    // Recompute discount amount when discount changes
+    recomputeDiscountAmount()
 }
 
 const formatDate = (dateStr: string) => {
@@ -343,16 +240,12 @@ const formatDate = (dateStr: string) => {
 const resetForm = () => {
     formData.value = {
         discountId: 0,
-        discountRule: 'all_nights',
-        selectedNights: [],
-        applyFor: 'all_rooms',
-        selectedTransactions: [],
         discountAmount: 0,
-        notes: ''
+        notes: '',
+        date: new Date().toISOString().split('T')[0],
+        folio: ''
     }
-    selectedDiscount.value = null
-    availableNights.value = []
-    availableTransactions.value = []
+    selectedFolio.value = null
 }
 
 const closeModal = () => {
@@ -369,46 +262,42 @@ const handleSubmit = async () => {
             return
         }
 
-        if (!formData.value.discountRule) {
-            toast.error(t('pleaseSelectDiscountRule'))
-            return
-        }
 
-        if (formData.value.discountRule === 'select_nights' && formData.value.selectedNights.length === 0) {
-            toast.error(t('pleaseSelectAtLeastOneNight'))
-            return
-        }
-
-        if (formData.value.applyFor === 'selected_transaction' && formData.value.selectedTransactions.length === 0) {
-            toast.error(t('pleaseSelectAtLeastOneTransaction'))
-            return
-        }
 
         if (selectedDiscount.value?.open_discount && (!formData.value.discountAmount || formData.value.discountAmount <= 0)) {
             toast.error(t('pleaseEnterValidDiscountAmount'))
             return
         }
 
-        // Prepare data for emission
-        const discountData: ApplyDiscountData = {
-            discountId: formData.value.discountId!,
-            discountRule: formData.value.discountRule,
-            selectedNights: formData.value.discountRule === 'select_nights' ? formData.value.selectedNights : undefined,
-            applyFor: formData.value.applyFor,
-            selectedTransactions: formData.value.applyFor === 'selected_transaction' ? formData.value.selectedTransactions : undefined,
-            discountAmount: selectedDiscount.value?.open_discount ? formData.value.discountAmount : undefined,
-            notes: formData.value.notes || undefined,
-            reservationId: props.reservationId,
-            reservationNumber: props.reservationNumber
+        isSaving.value = true
+
+        // Prepare transaction data for API with safe numeric conversion
+        const transactionData = {
+            folioId: safeParseInt(formData.value.folio),
+            transactionType: 'discount',
+            transactionCategory: 'payment',
+            category: 'payment',
+            description: `Discount - ${selectedDiscount.value?.name}`,
+            amount: prepareFolioAmount(formData.value.discountAmount),
+           /// reference: formData.recVouNumber,
+            notes: formData.value.notes,
+            discountId: formData.value.discountId,
+            //paymentMethodId: safeParseInt(formData.method),
+          //  currency: formData.currency,
+            transactionDate: formData.value.date,
+            status: "posted",
+            hotelId: serviceStore.serviceId,
+            reservationId: props.reservationId
         }
 
-        console.log('Discount data:', discountData)
+        console.log('Transaction data being sent:', transactionData)
 
-        // TODO: Implement API call to apply discount
-        // const response = await applyDiscountToRoomCharge(discountData)
+        // Call the API to create folio transaction
+        const response = await createFolioTransaction(transactionData)
+
 
         // Emit the discount applied event
-        emit('discount-applied', discountData)
+        emit('discount-applied', response)
 
         // Show success message
         toast.success(t('discountAppliedSuccessfully'))
@@ -422,12 +311,52 @@ const handleSubmit = async () => {
         loading.value = false
     }
 }
-
+const handleFolioSelect = (folio: any) => {
+    console.log('folio', folio)
+    // Capture selected folio and set its ID
+    selectedFolio.value = folio
+    formData.value.folio = folio?.id || ''
+    // Recompute discount based on folio balance and selected discount
+    recomputeDiscountAmount()
+}
 onMounted(() => {
     if (props.reservationId) {
         getReservationDetails()
     }
 })
+
+// Helpers
+const roundToTwo = (num: number) => {
+    return Number.isFinite(num) ? Math.round(num * 100) / 100 : 0
+}
+
+// Compute discount amount based on selected folio balance and discount type
+const recomputeDiscountAmount = () => {
+    const discount = selectedDiscount.value
+    const balance = selectedFolio.value?.balance
+
+    if (!discount) {
+        formData.value.discountAmount = 0
+        return
+    }
+
+    let amount = 0
+    if (discount.type === 'percentage') {
+        // Percentage of folio balance
+        const base = parseFloat(`${balance}`)
+        amount = roundToTwo(base * (Number(discount.value) / 100))
+    } else if (discount.type === 'flat') {
+        // Flat amount
+        amount = roundToTwo(Number(discount.value))
+    }
+
+    // Optional: prevent discount exceeding current balance
+    if (typeof balance === 'number') {
+        amount = Math.min(amount, roundToTwo(balance))
+    }
+
+    formData.value.discountAmount = amount
+}
 </script>
 
 <style scoped>
