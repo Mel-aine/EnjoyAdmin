@@ -162,11 +162,11 @@ export const getStayDuration = async (serviceId: number | null): Promise<any> =>
 export const getRecentReservation = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/reservation_service_serviceId/${serviceId}`, getHeaders()
+      `/configuration/rooms/recentBooking/${serviceId}`, getHeaders()
     )
     return response.data || []
   } catch (error) {
-    console.error('Erreur récupération des getStayDuration:', error)
+    console.error('Erreur récupération des getRecentReservation:', error)
     return []
   }
 }
@@ -213,7 +213,7 @@ export const getFrontOfficeDashboard = async (serviceId: number | null, params?:
   try {
     // Construction de l'URL avec les paramètres de requête
     const queryParams = new URLSearchParams()
-    
+
     if (params) {
       Object.keys(params).forEach(key => {
         if (params[key] !== undefined && params[key] !== null) {
@@ -221,15 +221,15 @@ export const getFrontOfficeDashboard = async (serviceId: number | null, params?:
         }
       })
     }
-    
+
     const queryString = queryParams.toString()
     const url = `/dashboard/front-office/${serviceId}${queryString ? `?${queryString}` : ''}`
-    
+
     const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
       url,
       getHeaders()
     )
-    
+
     return response.data || { success: false, data: null }
   } catch (error:any) {
     console.error('Erreur récupération de getFrontOfficeDashboard:', error)

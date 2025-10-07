@@ -39,7 +39,7 @@
                 {{$t(`${booking.status}`) }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ booking.amount }} FCFA</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(booking.amount) }}</td>
           </tr>
         </tbody>
       </table>
@@ -82,6 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import {formatCurrency} from '../utilities/UtilitiesFunction'
 
 const props = defineProps<{
   recentBookings: any[]

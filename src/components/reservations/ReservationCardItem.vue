@@ -1221,7 +1221,7 @@ const nightsSummary = computed(() => {
   </template>
   <!-- Room Move Modal -->
   <template v-if="isRoomMoveModalOpen">
-    <RoomMoveModal :reservation-id="localReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
+    <RoomMoveModal :reservation-id="localReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess"  />
   </template>
   <!-- Exchange Room Modal -->
   <template v-if="isExchangeRoomModalOpen">

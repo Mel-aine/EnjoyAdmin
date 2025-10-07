@@ -3709,7 +3709,8 @@
     "vn": "Viêt Nam",
     "ye": "Yémen",
     "zm": "Zambie",
-    "zw": "Zimbabwe"
+    "zw": "Zimbabwe",
+    "inconnue": "Inconnu"
   },
   "payLater": "Payer plus tard",
   "search_country": "Rechercher un pays...",
