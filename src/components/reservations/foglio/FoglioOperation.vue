@@ -135,13 +135,13 @@
 
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
-          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" @close="closeAddChargeModal"
+          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" :folio-id="selectedFolio?.id" @close="closeAddChargeModal"
             @refresh="refreshFolio" />
         </template>
 
         <!-- Add Payment Modal -->
         <template v-if="isAddPaymentModalOpen">
-          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen"
+          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" :folio-id="selectedFolio?.id"
             @close="closeAddPaymentModal" @save="handleSavePayment" />
         </template>
         <!-- Create Folio Modal -->
@@ -179,7 +179,7 @@
         </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId"
+          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId" :folio-id="selectedFolio?.id"
             :reservation-number="reservation?.reservationNumber" @close="closeApplyDiscountModal"
             @discount-applied="handleDiscountApplied" />
         </template>

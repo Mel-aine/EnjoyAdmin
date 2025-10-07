@@ -6245,5 +6245,6 @@
   "auditTrail": "Audit Trail",
   "settingSpeace":"Setting up your space",
   "settingSpeaceMessage":"Please wait while we prepare your environment…",
-  "enterAmount":"Enter amount"
+  "enterAmount":"Enter amount",
+  "selectChargeSubType":"Select charge sub-type"
 }

@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
@@ -86,6 +86,7 @@ import { useToast } from 'vue-toastification'
 interface Props {
   isOpen: boolean
   reservationId: number
+  folioId?: number | string
 }
 
 interface Emits {
@@ -101,7 +102,7 @@ const isLoading = ref(false)
 const toast = useToast()
 const formData = reactive({
   date: new Date().toISOString().split('T')[0],
-  folio: '',
+  folio: 0 as any,
   recVouNumber: '',
   charge: '',
   addAsInclusion: false,
@@ -201,7 +202,7 @@ watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     // Reset form data
     formData.date = new Date().toISOString().split('T')[0]
-    formData.folio = ''
+    formData.folio = props.folioId
     formData.recVouNumber = ''
     formData.charge = ''
     formData.addAsInclusion = false
@@ -223,6 +224,17 @@ watch(() => props.isOpen, (newVal) => {
       document.removeEventListener('keydown', handleEscape)
     }
   }
+})
+
+// Keep formData.folio in sync if folioId prop changes while modal is open
+watch(() => props.folioId, (newVal) => {
+  if (newVal && props.isOpen) {
+    formData.folio = Number(newVal)
+  }
+})
+
+onMounted(()=>{
+  formData.folio = props.folioId
 })
 </script>
 
