@@ -84,6 +84,7 @@ interface Props {
   isOpen: boolean
   reservationId: number
   reservationData?: any
+  folioId?: number | string
 }
 
 interface Emits {
@@ -109,7 +110,7 @@ const typeOptions = computed(() => {
 // Form data
 const formData = reactive({
   date: new Date().toISOString().split('T')[0],
-  folio: '',
+  folio: 0 as any,
   recVouNumber: '',
   type: 'cash',
   method: null as number | null,
@@ -122,7 +123,7 @@ const formData = reactive({
 const initializeFormData = () => {
   Object.assign(formData, {
     date: new Date().toISOString().split('T')[0],
-    folio: '',
+    folio: props.folioId,
     recVouNumber: '',
     type: 'cash',
     method: null,
@@ -154,6 +155,13 @@ watch(() => props.reservationData, (newData) => {
     initializeFormData()
   }
 }, { deep: true })
+
+// Keep formData.folio in sync if folioId prop changes while modal is open
+watch(() => props.folioId, (newVal) => {
+  if (newVal && props.isOpen) {
+    formData.folio = Number(newVal)
+  }
+})
 
 const folioSelected = (item: any) => {
   formData.amount = item.balance;
@@ -198,7 +206,7 @@ const savePayment = async () => {
 
     // Call the API to create folio transaction
     const response = await createFolioTransaction(transactionData)
-    
+
     console.log('Payment API response:', response)
 
     // Show success message
@@ -223,7 +231,7 @@ const savePayment = async () => {
     }
 
     console.log('Emitting payment data:', paymentData)
-    
+
     emit('save', paymentData)
     closeModal()
   } catch (error) {
@@ -252,6 +260,11 @@ watch(() => props.isOpen, (newVal) => {
       document.removeEventListener('keydown', handleEscape)
     }
   }
+})
+
+onMounted(() => {
+  if (props.folioId)
+    formData.folio = props.folioId
 })
 </script>
 
