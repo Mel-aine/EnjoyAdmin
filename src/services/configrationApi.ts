@@ -531,6 +531,28 @@ export const updateRoomRateById = (id: number, data: any): Promise<AxiosResponse
 export const deleteRoomRateById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/room_rates/${id}`, getHeaders())
 }
+
+
+export const getInHouseReservations = (params: {
+  hotelId: number
+  roomTypeId?: number
+  roomId?: number
+}): Promise<AxiosResponse<any>> => {
+
+  const queryParams: Record<string, string | number> = {
+    hotelId: params.hotelId
+  }
+
+  if (params.roomTypeId != null) queryParams.roomTypeId = params.roomTypeId
+  if (params.roomId != null) queryParams.roomId = params.roomId
+
+
+  return axios.get(`${API_URL}/reservation/filter_reservations`, {
+    params: queryParams,
+     ...getHeaders()
+  })
+}
+
 ///this section is for room rate end
 
 // this section is for currency
@@ -1779,6 +1801,8 @@ export const vipStatusApi = {
       throw error
     }
   },
+
+
 
   // Delete VIP status
   async deleteVipStatus(id: number, hotelId: number) {
