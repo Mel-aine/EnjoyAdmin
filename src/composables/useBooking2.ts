@@ -192,9 +192,9 @@ export function useBooking() {
   // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '12h00',
+    checkinTime: '12:00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '14h00',
+    checkoutTime: '14:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -1462,9 +1462,9 @@ const validateAllRooms = () => {
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '12h00',
+    checkinTime: '12:00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '14h00',
+    checkoutTime: '14:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',

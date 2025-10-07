@@ -84,7 +84,7 @@ const flatpickrConfig = computed(() => {
   const config: any = {
     dateFormat: 'Y-m-d',
     altInput: true,
-    altFormat: 'd/m/y',
+    altFormat: 'd/m/Y',
     wrap: true,
     disableMobile: true,
   }

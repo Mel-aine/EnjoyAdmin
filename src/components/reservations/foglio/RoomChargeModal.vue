@@ -26,7 +26,7 @@
                                     <InputDatePicker :title="$t('date')" v-model="formData.date" />
                                 </div>
                                 <div>
-                                    <Select :lb="$t('chargeSubType')" v-model="formData.chargeSubtype"
+                                    <Select :lb="$t('chargeSubType')" :placeholder="$t('selectChargeSubType')" v-model="formData.chargeSubtype"
                                         :options="chargeSubTypeOptions" />
                                 </div>
 
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { XIcon } from 'lucide-vue-next'
@@ -200,4 +200,8 @@ const saveRoomCharge = async () => {
         isLoading.value = false
     }
 }
+onMounted(()=>{
+    if(props.folioId)
+    formData.folioId = Number(props.folioId)
+})
 </script>

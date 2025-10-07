@@ -82,7 +82,7 @@
                 </div>
                 <div class="text-md text-gray-500 flex flex-col justify-between h-full">
                   <span class="text-blue-600 font-medium">{{ res?.guest?.displayName || reservation.guest?.displayName
-                  }}</span>
+                    }}</span>
                   <div class="">
                     <div class="text-xs text-gray-500 mb-1 mt-8 ">Room Type</div>
                     <div class="text-sm font-medium">{{ res.roomType?.roomTypeName }}</div>
@@ -147,7 +147,7 @@ const props = defineProps<{
   reservationId: number
 }>()
 
-const emit = defineEmits(['close', 'refresh'])
+const emit = defineEmits(['close', 'success'])
 
 const { t } = useI18n()
 const toast = useToast()
@@ -207,16 +207,17 @@ const confirmRoomSelection = async () => {
   // Emit room selection for each reservation room that has a selected room
   const roomSelections: any[] = []
 
+
   if (reservation.value?.reservationRooms) {
     for (let i = 0; i < reservation.value.reservationRooms.length; i++) {
       const res = reservation.value.reservationRooms[i]
       if (res.roomId && res.roomId !== '' && res.roomId !== 0) {
         roomSelections.push({
           reservationRoomId: res.id,
-          roomNumber: res.roomNumber,
-          roomId: res.roomId,
-          roomTypeId: res.roomTypeId,
-          reservationId: props.reservationId
+          // roomNumber: res.roomNumber,
+          newRoomId: res.roomId,
+          // roomTypeId: res.roomTypeId,
+          // reservationId: props.reservationId
         })
       }
     }
@@ -226,12 +227,14 @@ const confirmRoomSelection = async () => {
   if (roomSelections.length > 0) {
     isLoading.value = true
     try {
-      const data ={
-        newRoomId: roomSelections[0].roomId,
+      const data = {
+        reservationId: props.reservationId,
+        moves: roomSelections,
       }
+      console.log("@@@@data", data)
       await postRoomMoveReservation(props.reservationId, data)
       toast.success(t('Room exchange completed successfully'))
-      emit('refresh')
+      emit('success')
     } catch (error) {
       console.error('Error exchanging rooms:', error)
       toast.error(t('Failed to exchange rooms. Please try again.'))

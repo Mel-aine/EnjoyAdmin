@@ -27,6 +27,9 @@
 
             <!-- Modal Form -->
             <form v-else @submit.prevent="handleSubmit">
+                <div class="mb-4">
+                    <InputDatePicker v-model="formData.date" :title="$t('Date')" />
+                </div>
                 <!-- Discount Selection -->
                 <div class="mb-4">
                     <InputDiscountSelect v-model="formData.discountId" :lb="$t('discount')" :is-required="true"
@@ -66,7 +69,7 @@
                         </label>
                     </div>
                 </div>
-                
+
 
                 <!-- Transaction Selection (only for group reservations and selected_transaction) -->
                 <div v-if="formData.discountRule === 'select_nights'" class="mb-4">
@@ -80,19 +83,19 @@
                             </div>
                             <span class="text-sm text-gray-500 mt-2">{{ $t('loadingTransactions') }}</span>
                         </div>
-                        <label v-else v-for="transaction in availableTransactions" :key="transaction.id"
+                        <label v-else v-for="transaction in availableTransactions" :key="transaction.transactionId"
                             class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.selectedTransactions.includes(transaction.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
-                            <input v-model="formData.selectedTransactions" type="checkbox" :value="transaction.id"
+                            :class="formData.selectedTransactions.includes(transaction.transactionId) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                            <input v-model="formData.selectedTransactions" type="checkbox"
+                                :value="transaction.transactionId"
                                 class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                             <div class="ml-3 flex-1">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ transaction.particular || transaction.description }}
+                                    {{ transaction.description }}
                                 </div>
                                 <div class="text-xs text-gray-500">
-                                    {{ formatDate(transaction.postingDate) }} -
-                                    {{ formatCurrency(transaction.amount) }} -
-                                    {{ transaction.guest?.displayName || 'N/A' }}
+                                    {{ formatDate(transaction.transactionDate) }} -
+                                    {{ formatCurrency(transaction.netAmount) }} -
                                 </div>
                             </div>
                         </label>
@@ -135,15 +138,17 @@ import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
-import { getReservationDetailsById } from '../../../services/reservation'
+import { getReservationDetailsById, applyDiscountReservationDetails } from '../../../services/reservation'
 import { getReservationFolios } from '../../../services/foglioApi'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import RightSideModal from '../../modal/RightSideModal.vue'
+import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 
 interface Props {
     isOpen: boolean
     reservationId?: string | number
     reservationNumber?: string
+    roomCharges: any
 }
 
 interface Emits {
@@ -203,9 +208,10 @@ const loadingTransactions = ref(false)
 const reservation = ref<any>()
 const selectedDiscount = ref<DiscountOption | null>(null)
 const availableNights = ref<NightInfo[]>([])
-const availableTransactions = ref<TransactionInfo[]>([])
+const availableTransactions = ref<any[]>([])
 
 const formData = ref({
+    date: new Date().toISOString().split('T')[0],
     discountId: 0 as number,
     discountRule: 'all_nights',
     selectedNights: [] as string[],
@@ -219,6 +225,64 @@ const formData = ref({
 const isGroupReservation = computed(() => {
     return reservation.value?.reservationRooms?.length > 1
 })
+
+// Base amount: total room charges, optionally restricted to selected transactions
+const baseRoomChargeAmount = computed(() => {
+    const list = Array.isArray(availableTransactions.value) ? availableTransactions.value : []
+    // If applying to selected transactions, filter to those
+    const ids = formData.value.applyFor === 'selected_transaction' ? formData.value.selectedTransactions : []
+    const filtered = ids && ids.length > 0
+        ? list.filter((t: any) => ids.includes(t.transactionId))
+        : list
+
+    // Use netAmount if present, else amount
+    const sum = filtered.reduce((acc: number, t: any) => {
+        const val = Number.isFinite(t?.netAmount) ? Number(t.netAmount) : Number(t?.amount ?? 0)
+        return acc + (Number.isFinite(val) ? val : 0)
+    }, 0)
+    return sum
+})
+
+// Recalculate discount amount when selection or base changes
+const recalcDiscountAmount = () => {
+    const discount = selectedDiscount.value
+    const base = baseRoomChargeAmount.value
+    let computedAmount = 0
+
+    if (!discount) {
+        formData.value.discountAmount = 0
+        return
+    }
+
+    if (discount.type === 'percentage') {
+        const pct = Number(discount.value)
+        if (Number.isFinite(pct) && pct > 0) {
+            computedAmount = (base * pct) / 100
+        }
+    } else if (discount.type === 'flat') {
+        const flat = Number(discount.value)
+        if (Number.isFinite(flat) && flat > 0) {
+            computedAmount = flat
+        }
+    } else if (discount.open_discount) {
+        // Keep user-entered open discount untouched; do not auto-calc
+        computedAmount = formData.value.discountAmount || 0
+    }
+
+    formData.value.discountAmount = Math.round(computedAmount * 100) / 100
+}
+
+watch(selectedDiscount, () => {
+    recalcDiscountAmount()
+})
+
+watch(baseRoomChargeAmount, () => {
+    recalcDiscountAmount()
+})
+
+watch(() => formData.value.selectedTransactions, () => {
+    recalcDiscountAmount()
+}, { deep: true })
 
 // Watch for modal open/close
 watch(() => props.isOpen, (newValue) => {
@@ -292,36 +356,11 @@ const generateAvailableNights = () => {
 }
 
 const loadTransactions = async () => {
-    if (!props.reservationId) return
+    if (!props.roomCharges) return
 
     loadingTransactions.value = true
     try {
-        const response = await getReservationFolios(Number(props.reservationId))
-        console.log('Folio response:', response)
-
-        // Extract all transactions from all folios
-        const transactions: TransactionInfo[] = []
-        if (response.data && Array.isArray(response.data)) {
-            response.data.forEach((folio: any) => {
-                if (folio.transactions && Array.isArray(folio.transactions)) {
-                    folio.transactions.forEach((transaction: any) => {
-                        // Only include room charge transactions
-                        if (transaction.category === 'room' || transaction.particular?.toLowerCase().includes('room')) {
-                            transactions.push({
-                                id: transaction.id,
-                                particular: transaction.particular || transaction.description || 'Room Charge',
-                                description: transaction.description || transaction.particular || 'Room Charge',
-                                amount: transaction.grossAmount || transaction.amount || 0,
-                                postingDate: transaction.postingDate || transaction.day,
-                                guest: folio.guest
-                            })
-                        }
-                    })
-                }
-            })
-        }
-
-        availableTransactions.value = transactions
+        availableTransactions.value = props.roomCharges
         console.log('Available transactions:', availableTransactions.value)
     } catch (error) {
         console.error('Error loading transactions:', error)
@@ -330,10 +369,13 @@ const loadTransactions = async () => {
         loadingTransactions.value = false
     }
 }
+loadTransactions();
 
 const handleDiscountSelect = (discount: DiscountOption) => {
     selectedDiscount.value = discount
     console.log('Selected discount:', discount)
+    // Immediately recompute after selection
+    recalcDiscountAmount()
 }
 
 const formatDate = (dateStr: string) => {
@@ -348,7 +390,8 @@ const resetForm = () => {
         applyFor: 'all_rooms',
         selectedTransactions: [],
         discountAmount: 0,
-        notes: ''
+        notes: '',
+        date: new Date().toISOString().split('T')[0],
     }
     selectedDiscount.value = null
     availableNights.value = []
@@ -389,31 +432,32 @@ const handleSubmit = async () => {
             return
         }
 
-        // Prepare data for emission
-        const discountData: ApplyDiscountData = {
-            discountId: formData.value.discountId!,
-            discountRule: formData.value.discountRule,
-            selectedNights: formData.value.discountRule === 'select_nights' ? formData.value.selectedNights : undefined,
-            applyFor: formData.value.applyFor,
-            selectedTransactions: formData.value.applyFor === 'selected_transaction' ? formData.value.selectedTransactions : undefined,
-            discountAmount: selectedDiscount.value?.open_discount ? formData.value.discountAmount : undefined,
-            notes: formData.value.notes || undefined,
-            reservationId: props.reservationId,
-            reservationNumber: props.reservationNumber
+        // Map rule to API schema enum names
+        const mapRule = (rule: string): 'allNights' | 'firstNight' | 'lastNight' | 'selectNights' => {
+            switch (rule) {
+                case 'all_nights': return 'allNights'
+                case 'first_night': return 'firstNight'
+                case 'last_night': return 'lastNight'
+                case 'select_nights': return 'selectNights'
+                default: return 'allNights'
+            }
         }
 
-        console.log('Discount data:', discountData)
+        // Build payload to match applyDiscountReservationDetails schema
+        const payload = {
+            discountId: Number(formData.value.discountId),
+            discountRule: mapRule(formData.value.discountRule),
+            selectedTransactions: formData.value.discountRule === 'select_nights' ? formData.value.selectedTransactions.map(Number).filter(n => Number.isFinite(n) && n > 0) : undefined,
+            date: formData.value.date || undefined,
+            notes: formData.value.notes?.trim() || undefined
+        }
 
-        // TODO: Implement API call to apply discount
-        // const response = await applyDiscountToRoomCharge(discountData)
+        console.log('Calling applyDiscountReservationDetails with payload:', payload)
+        const response = await applyDiscountReservationDetails(Number(props.reservationId), payload)
 
-        // Emit the discount applied event
-        emit('discount-applied', discountData)
-
-        // Show success message
-        toast.success(t('discountAppliedSuccessfully'))
-
-        // Close modal
+        // Emit and notify
+        emit('discount-applied', response?.data ?? payload)
+        toast.success(response?.message || t('discountAppliedSuccessfully'))
         closeModal()
     } catch (error) {
         console.error('Error applying discount:', error)

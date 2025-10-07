@@ -987,3 +987,18 @@ export const addAdjustmentHandler = async (data: any): Promise<any> => {
     throw error
   }
 }
+
+/**
+ * apply discount
+ * @param data 
+ * @returns   discount
+ */
+export const applyDiscountHandler = async (data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/apply/discount`, data, getHeaders())
+    return response.data
+  } catch (error) {
+    console.error('Error applying discount:', error)
+    throw error
+  }
+}
