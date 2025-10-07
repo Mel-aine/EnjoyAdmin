@@ -6,7 +6,7 @@
         <div class="bg-white flex-grow overflow-y-auto ">
           <!-- Room/Group Header -->
           <div class="px-2 pb-2">
-            {{ $t('Rooms') }}
+            {{ $t('updateDetails') }}
           </div>
           <!-- Single Room Display -->
           <div v-if="singleRoom">
@@ -24,9 +24,8 @@
           </div>
           <!-- Group Rooms Display -->
           <div v-if="groupRooms.length > 0">
-            <div v-for="room in groupRooms" :key="room.id"
-                :class="{'bg-gray-200': selectedRoomId === room.id}"
-                @click="selectRoom(room.id)">
+            <div v-for="room in groupRooms" :key="room.id" :class="{ 'bg-gray-200': selectedRoomId === room.id }"
+              @click="selectRoom(room.id)">
               <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
                 <div class="flex flex-col">
                   <span class="capitalize">{{ room.roomNumber }}-{{ room.guestName }}</span>
@@ -43,17 +42,17 @@
           <!-- Total Charges -->
           <div class="flex justify-between text-sm text-gray-600">
             <span>{{ $t('Total') }}</span>
-            <span>{{  formatCurrency(reservation.balanceSummary.totalChargesWithTaxes)  }}</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.totalChargesWithTaxes) }}</span>
           </div>
           <!-- Total Tax -->
           <div class="flex justify-between text-sm text-gray-600">
             <span>{{ $t('paid') }}</span>
-            <span>{{  formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <!-- Total Discounts -->
           <div class="flex justify-between text-xm text-red-600">
             <span>{{ $t('Balance') }}</span>
-            <span>{{formatCurrency(reservation.balanceSummary.outstandingBalance)}}</span>
+            <span>{{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}</span>
           </div>
 
           <!-- Room Info -->
@@ -112,10 +111,7 @@
           <!-- Custom Stay Column -->
           <template #column-transactionDate="{ item }">
             <div class="text-sm text-gray-900">
-              <div class="font-medium">{{ formatDateRange(item.stay?.checkInDate, item.stay?.checkOutDate) }}</div>
-              <div class="text-xs text-gray-500">
-                {{ item.stay?.nights }} {{ item.stay?.nights === 1 ? t('night') : t('nights') }}
-              </div>
+              <div class="font-medium">{{ formatTransactionDate(item.transactionDate) }}</div>
             </div>
           </template>
 
@@ -144,7 +140,6 @@
           <template #column-charge="{ item }">
             <div class="text-sm">
               <div class="font-medium text-black">{{ formatAmount(item.charge || 0) }}</div>
-              <div class="text-xs text-gray-500">{{ item.description || '' }}</div>
             </div>
           </template>
 
@@ -220,6 +215,11 @@
         :reservation-id="reservationId" :room-charges="roomChargeData" @close="closeApplyDiscountModal"
         @discount-applied="handleDiscountApplied" />
     </template>
+    <template v-if="isUpdateReservationDetailsOpen">
+      <UpdateReservationDetails :room-charges="roomChargeData" :is-open="isUpdateReservationDetailsOpen"
+        :reservation-id="reservationId" @close="closeUpdateReservationDetailsModal"
+        @save="handleUpdateDetailsApplied" />
+    </template>
   </div>
 </template>
 
@@ -237,10 +237,9 @@ import AmendStay from '../foglio/AmendStay.vue'
 import CancelReseravtion from '../foglio/CancelReseravtion.vue'
 const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
-const ExchangeRoomModal = defineAsyncComponent(() => import('../ExchangeRoomModal.vue'))
-const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import VoidReservation from '../foglio/VoidReservation.vue'
+import UpdateReservationDetails from '@/views/FrontOffice/reservation/UpdateReservationDetails.vue'
 
 const { t } = useI18n()
 
@@ -300,6 +299,7 @@ const isUnAssignReservationModalOpen = ref(false)
 const showAmendModal = ref(false)
 const isExchangeRoomModalOpen = ref(false)
 const isRoomMoveModalOpen = ref(false)
+const isUpdateReservationDetailsOpen = ref(false)
 
 const emit = defineEmits<Emits>()
 
@@ -473,6 +473,21 @@ const formatDateRange = (checkIn: string, checkOut: string): string => {
   return `${formatDate(checkIn)} - ${formatDate(checkOut)}`
 }
 
+// Format transaction date as DD/MM/YYYY Weekday (e.g., 11/10/2022 Tue)
+const formatTransactionDate = (dateStr: string): string => {
+  if (!dateStr) return '---'
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return String(dateStr)
+
+  const datePart = d.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'short' })
+  return `${datePart} ${weekday}`
+}
+
 
 
 // Event Handlers
@@ -540,7 +555,8 @@ const handleMoreAction = (action: any) => {
 
 const updateDetails = () => {
   console.log('Update details clicked')
-  // Implement update details functionality
+  // Open Update Reservation Details modal
+  isUpdateReservationDetailsOpen.value = true
 }
 
 
@@ -691,22 +707,15 @@ const openVoidReservationModal = () => {
 const closeVoidReservationModal = () => {
   isVoidReservationModalOpen.value = false
 }
+const closeUpdateReservationDetailsModal = () => {
+  isUpdateReservationDetailsOpen.value = false
+}
 
-const canCheckOut = computed(() => {
-  const status = reservationStatus.value?.toLowerCase()
-  const currentDate = new Date()
-  const departureDate = new Date(props.reservation?.departDate || props.reservation?.checkOutDate)
-
-  return ['checked-in', 'checked_in'].includes(status) && currentDate >= departureDate
-})
-
-const canMarkNoShow = computed(() => {
-  const status = reservationStatus.value?.toLowerCase()
-  const currentDate = new Date()
-  const arrivalDate = new Date(checkInDate.value)
-
-  return ['confirmed', 'guaranteed', 'pending'].includes(status) && currentDate > arrivalDate
-})
+const handleUpdateDetailsApplied = async (_response: any) => {
+  // Refresh data after details update (discount applied)
+  await getTransactionFolio()
+  closeUpdateReservationDetailsModal()
+}
 
 const canVoidGroup = computed(() => {
   const status = reservationStatus.value?.toLowerCase()
