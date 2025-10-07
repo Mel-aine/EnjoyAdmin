@@ -151,11 +151,12 @@ watch(
   (newVal) => {
     if (newVal && newVal.length > 0) {
       // Find the folio in current options or fetch it
+      console.log('props.value', props.modelValue)
       if (props.modelValue) {
         const found = folioOptions.value.find(folio => folio.id === Number(props.modelValue))
         if (found) {
           selectedFolio.value = found
-          searchQuery.value = `${t('Folio')} #${found.folioNumber} - ${found.guestName}`
+          searchQuery.value = `${t('Folio')} #${found.id} - ${found.guestName}`
         }
       }
     } else if (!newVal) {

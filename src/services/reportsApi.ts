@@ -1145,3 +1145,45 @@ export const generateOperationReport = async (params: dailyReportOration): Promi
     throw error // Important : propager l'erreur
   }
 }
+export const generateDailyReceiptSummaryPdf = async (params: DailyReceipt): Promise<string> => {
+  try {
+    const response = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-summary-pdf`,
+      params,
+      {
+        ...getHeaders(),
+        responseType: 'blob'
+      }
+    )
+    
+    // Créer un objet URL à partir du blob
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    return url
+    
+  } catch (error) {
+    handleApiError(error)
+    throw error // Important : propager l'erreur
+  }
+}
+export const generateDailyReceiptPdf = async (params: DailyReceipt): Promise<string> => {
+  try {
+    const response = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-detail-pdf`,
+      params,
+      {
+        ...getHeaders(),
+        responseType: 'blob'
+      }
+    )
+    
+    // Créer un objet URL à partir du blob
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    return url
+    
+  } catch (error) {
+    handleApiError(error)
+    throw error // Important : propager l'erreur
+  }
+}

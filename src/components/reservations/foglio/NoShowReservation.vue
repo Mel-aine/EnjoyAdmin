@@ -95,7 +95,7 @@
                
                 <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                     :disabled="loading" />
-                <BasicButton type="submit" variant="danger" :label="$t('save')" :loading="loading" />
+                <BasicButton type="submit" variant="danger" @click="handleSubmit" :label="$t('save')" :loading="loading" />
             </div>
         </template>
     </RightSideModal>

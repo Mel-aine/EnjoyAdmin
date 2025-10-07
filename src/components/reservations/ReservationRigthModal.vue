@@ -125,12 +125,12 @@
                                             class="flex align-middle self-center content-center items-center gap-1">
                                             <MapPin class="w-4 h-4" /><span>{{
                                                 $t(`countries_lists.${reservation.guest?.country.toLowerCase()}`)
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div v-if="reservation.guest?.phonePrimary
                                         " class="flex align-middle self-center content-center items-center gap-1">
                                             <PhoneCall class="w-3 h-3" /><span>{{ $t(reservation.guest?.phonePrimary)
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -241,7 +241,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(rm, ind) in roomTypeSumarry" :key="ind">{{ rm
-                                                    }}</span>
+                                                }}</span>
                                             </p>
                                         </div>
 
@@ -256,7 +256,7 @@
                                             <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room: any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
-                                                    }}</span>
+                                                }}</span>
                                             </p>
                                             <AssignRoomReservation
                                                 v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room: any) => !room.room?.id)"
@@ -271,7 +271,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in ratePlan" :key="ind">{{ res
-                                                    }}</span>
+                                                }}</span>
                                             </p>
                                         </div>
                                         <div>
@@ -306,7 +306,7 @@
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1"
                             class="py-6 pe-6">
                             <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
-                                @room-selected="handleRoomSelected"  @refresh="loadReservationData"/>
+                                @room-selected="handleRoomSelected" @refresh="loadReservationData" />
                         </div>
                     </div>
 
@@ -321,19 +321,19 @@
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalChargesWithTaxes ?? 0)
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalPayments ?? 0)
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.outstandingBalance ?? 0)
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                             </slot>
@@ -599,17 +599,19 @@ const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
 }
 const closeRoomMoveModal = () => {
-    isRoomMoveModalOpen.value = false
+    isRoomMoveModalOpen.value = false;
 }
 const closeExchangeRoomModal = () => {
     isExchangeRoomModalOpen.value = false
 }
 const handleRoomMoveSuccess = () => {
     isRoomMoveModalOpen.value = false
+     emit('save', { action: 'roomMove', reservationId: reservation.value?.id })
     getBookingDetailsById();
 }
 const handleExchangeSuccess = () => {
     isExchangeRoomModalOpen.value = false
+    emit('save', { action: 'exchangeRoom', reservationId: reservation.value?.id })
     getBookingDetailsById();
 }
 // const handleRoomAssigned = (data: any) => {
@@ -963,27 +965,27 @@ const handleRoomSelected = (room: any) => {
 
 
 const dropdownOptions = computed(() => {
-  const res = localReservation.value || reservation.value;
+    const res = localReservation.value || reservation.value;
 
-  if (!res?.availableActions) {
-    return [];
-  }
+    if (!res?.availableActions) {
+        return [];
+    }
 
-  // Si reservation annulée ou voided → aucune option
-  if (res.status === 'cancelled' || res.status === 'voided') {
-    return [];
-  }
+    // Si reservation annulée ou voided → aucune option
+    if (res.status === 'cancelled' || res.status === 'voided') {
+        return [];
+    }
 
-  return res.availableActions
-    .filter((action: any) => action.available)
-    .map((action: any) => ({
-      id: action.action,
-      label: action.label,
-      description: action.description,
-      route: action.route,
-      icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
-      color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
-    }));
+    return res.availableActions
+        .filter((action: any) => action.available)
+        .map((action: any) => ({
+            id: action.action,
+            label: action.label,
+            description: action.description,
+            route: action.route,
+            icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+            color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+        }));
 });
 
 

@@ -203,8 +203,26 @@ const closeRoomMoveModal = () => {
 }
 
 const handleExchangeSuccess = async () => {
+
+  try {
+    // Recharger les détails de la réservation
+    const updatedReservation = await getReservationById(localReservation.value.id)
+
+    updateLocalReservation({
+        availableActions: updatedReservation.availableActions,
+        status: updatedReservation.status,
+        balanceSummary: updatedReservation.balanceSummary,
+        reservationRooms: updatedReservation.reservationRooms
+      })
   closeExchangeRoomModal()
   await refreshAvailableActions(localReservation.value.id)
+
+
+  } catch (error) {
+    console.error('Error refreshing after room exchange:', error)
+
+  }
+
 }
 
 const handleRoomMoveSuccess = async () => {
@@ -322,14 +340,7 @@ const printDocumentData = computed(() => ({
   remainingAmount: localReservation.value.remainingAmount
 }))
 
-// const roomRateTypeSummary = computed(() => {
-//   if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
-//     return 'N/A';
-//   }
-//   const filterReservationRoom = localReservation.value.reservationRooms.filter((room: any) => room.isOwner)
-//   const reservationRoom = filterReservationRoom && filterReservationRoom.length > 0 ? filterReservationRoom[0] : localReservation.value.reservationRooms[0];
-//   return reservationRoom.room?.roomNumber ? `${reservationRoom.room?.roomNumber}` : null
-// });
+
 const roomRateTypeSummary = computed(() => {
   if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
     return 'N/A';
@@ -782,20 +793,7 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en', options)
 }
 
-// const handleAmendConfirmed = (amendData: any) => {
-//   showAmendModal.value = false
 
-//   // Mettre à jour les données localement avec les nouvelles dates
-//   updateLocalReservation({
-//     arrivedDate: amendData.newArrivalDate,
-//     departDate: amendData.newDepartureDate,
-//     nights: amendData.nights,
-//     numberOfNights: amendData.nights
-//   })
-
-//   // Émettre l'événement pour compatibilité
-//   emit('save', { action: 'amend', reservationId: localReservation.value?.id, data: amendData })
-// }
 const handleAmendConfirmed = (amendData: any) => {
   showAmendModal.value = false
 
@@ -1068,7 +1066,7 @@ const nightsSummary = computed(() => {
         <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100">
           <span>{{ formatDate(localReservation.date) }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
-            {{ formatTimeFromTimeString(localReservation.checkInTime) }}
+            {{ formatTimeFromTimeString(localReservation?.checkInTime) }}
           </span>
         </div>
         <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
@@ -1080,7 +1078,7 @@ const nightsSummary = computed(() => {
         <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100">
           <span>{{ formatDate(localReservation.departDate) }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
-            {{ formatTimeFromTimeString(localReservation.checkOutTime) }}
+            {{ formatTimeFromTimeString(localReservation?.checkOutTime) }}
           </span>
         </div>
 
@@ -1221,7 +1219,7 @@ const nightsSummary = computed(() => {
   </template>
   <!-- Room Move Modal -->
   <template v-if="isRoomMoveModalOpen">
-    <RoomMoveModal :reservation-id="localReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess" />
+    <RoomMoveModal :reservation-id="localReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal" @success="handleRoomMoveSuccess"  />
   </template>
   <!-- Exchange Room Modal -->
   <template v-if="isExchangeRoomModalOpen">

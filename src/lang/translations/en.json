@@ -3738,7 +3738,8 @@
     "vn": "Vietnam",
     "ye": "Yemen",
     "zm": "Zambia",
-    "zw": "Zimbabwe"
+    "zw": "Zimbabwe",
+    "inconnue": "Unknown"
   },
   "payLater": "Pay later",
   "search_country": "Search for a country...",
@@ -6245,5 +6246,14 @@
   "auditTrail": "Audit Trail",
   "settingSpeace":"Setting up your space",
   "settingSpeaceMessage":"Please wait while we prepare your environment…",
+  "ExchangeRoom" : "Exchange Room",
+  "Select destination room" : "Select destination room",
+  "Available In-House Reservations" : "Available In-House Reservations",
+  "There are no in-house reservations matching the selected criteria" : "There are no in-house reservations matching the selected criteria",
+  "No available rooms found" : "No available rooms found",
+  "Select destination..." : "Select destination...",
+  "Exchange this room" : "Exchange this room",
+  "Current Room" : "Current Room",
+  "Current Rooms" : "Current Rooms",
   "enterAmount":"Enter amount"
 }

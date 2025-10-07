@@ -121,7 +121,7 @@ const fetchGeneralStat = async () => {
      reservations.value = reservation
      Demographic.value = demographic.data
      Reservations.value = ReservationType.data
-    console.log("generalStats.value ", generalStats.value)
+    console.log(" reservations.value ",  reservations.value )
   } catch (error) {
     console.error('error fetching fetchGeneralStat', error)
   }

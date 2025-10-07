@@ -436,6 +436,18 @@ export const postRoomMoveReservation = async (reservationId: number, datas: any)
     handleApiError(error)
   }
 }
+
+export const postExchangeRoomReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/exchange-room`, datas, getHeaders()
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 /***
  * update reservation details
  */
@@ -465,3 +477,6 @@ export const applyDiscountReservationDetails = async (reservationId: number, dat
     handleApiError(error)
   }
 }
+
+
+

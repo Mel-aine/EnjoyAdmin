@@ -370,7 +370,8 @@
       </table>
     </div>
     <PopupModal
-    v-if="showConfirmDialog"
+
+      :is-open="showConfirmDialog"
       :title="operationConfig[selectedOperation]?.title || t('Confirm Action')"
       :message="operationConfig[selectedOperation]?.message || t('Are you sure?')"
       @close="showConfirmDialog = false"
