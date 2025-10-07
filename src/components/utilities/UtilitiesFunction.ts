@@ -60,7 +60,7 @@ export const formatDateT = (dt:any) => {
     currency: 'XAF',
     minimumFractionDigits: 0
   }).format(value) // Optional: replace 'XOF' with 'FCFA'
-}   
+}
 
 /**
  * Generates a unique transaction ID with a prefix.
@@ -86,10 +86,18 @@ export const  formatTime = (datetimeStr : any) => {
   return date.toISOString().substring(11, 16)
 }
 
-export const formatTimeFromTimeString = (timeString: string) => {
-  const [hours, minutes] = timeString.split(':')
-  return `${hours}:${minutes}`
+
+export function formatTimeFromTimeString(timeString?: string | null): string {
+  if (!timeString) return '--:--'
+
+  try {
+    const [hours, minutes] = timeString.split(':')
+    return `${hours}:${minutes}`
+  } catch {
+    return '--:--'
+  }
 }
+
 
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString)

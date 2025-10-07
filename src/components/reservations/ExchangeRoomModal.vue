@@ -1,18 +1,56 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="'Exchange Room'" @close="$emit('close')">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">Exchange Room</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ $t('ExchangeRoom') }}</h3>
     </template>
     <!-- Content -->
     <div class="space-y-6">
       <div v-if="loading">
-        <!-- Skeleton loader (inchangé) -->
+        <!-- Skeleton loader -->
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
             <div class="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
             <div class="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
           </div>
         </div>
+        <div class="border border-gray-200 bg-gray-50 rounded-lg p-4 mb-3 animate-pulse">
+          <div class="flex items-center justify-between">
+            <div class="flex gap-3 justify-start items-start w-full">
+
+              <!-- Bloc gauche -->
+              <div class="flex flex-col bg-white p-2 rounded-lg shadow-sm w-32">
+                <div class="flex flex-col items-center gap-1">
+                  <div class="h-3 w-16 bg-gray-300 rounded"></div>
+                  <div class="h-3 w-12 bg-gray-200 rounded"></div>
+                </div>
+                <div class="h-1 bg-gray-300 w-full my-2 rounded"></div>
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex flex-col items-center w-full">
+                    <div class="h-3 w-10 bg-gray-300 rounded mb-1"></div>
+                    <div class="h-3 w-8 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bloc droit -->
+              <div class="flex flex-col justify-between flex-1 h-full">
+                <div class="h-4 w-32 bg-gray-300 rounded mb-4"></div>
+                <div class="flex gap-10">
+                  <div>
+                    <div class="h-3 w-16 bg-gray-200 rounded mb-2 mt-4"></div>
+                    <div class="h-4 w-20 bg-gray-300 rounded"></div>
+                  </div>
+                  <div>
+                    <div class="h-3 w-16 bg-gray-200 rounded mb-2 mt-4"></div>
+                    <div class="h-4 w-20 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div v-else-if="reservation">
@@ -22,6 +60,7 @@
             <Select
               :lb="$t('Room Type')"
               :options="roomTypesOptions"
+              :placeholder="$t('--Select--')"
               v-model="selectedRoomTypeId"
               @update:modelValue="onRoomTypeChange"
             />
@@ -31,6 +70,7 @@
               :lb="$t('Room')"
               :options="filteredRoomsOptions"
               v-model="selectedRoomId"
+              :placeholder="$t('SelectRoom')"
               :disabled="!selectedRoomTypeId"
               @update:modelValue="onRoomChange"
             />
@@ -45,37 +85,54 @@
         <!-- Content shown when not filtering -->
         <template v-else>
           <!-- Current Reservation Rooms (Source) -->
-          <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0" class="mb-6">
+          <div
+            v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0"
+            class="mb-6"
+          >
             <h4 class="text-sm font-medium text-gray-700 mb-3">{{ $t('Current Rooms') }}</h4>
             <div v-for="(resRoom, idx) in filteredReservationRooms" :key="idx">
               <div class="border border-gray-200 bg-gray-50 rounded-lg p-4 mb-3">
                 <div class="flex items-center justify-between">
                   <div class="flex gap-3 justify-start align-top items-start">
                     <div class="flex flex-col bg-white p-2 rounded">
-                      <div class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center">
+                      <div
+                        class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center"
+                      >
                         <span>{{ formatDateDisplay(new Date(resRoom.checkInDate)).day }}</span>
                         <span>{{ formatDateDisplay(new Date(resRoom.checkInDate)).month }}</span>
                       </div>
                       <div class="h-1 bg-gray-300 w-full my-1"></div>
                       <div class="flex items-center justify-between">
                         <div class="text-xs flex flex-col align-middle items-center">
-                          <span class="text-gray-600">{{ formatDateDisplay(new Date(resRoom.checkOutDate)).day }}</span>
-                          <span class="text-gray-500 ml-1">{{ formatDateDisplay(new Date(resRoom.checkOutDate)).month }}</span>
+                          <span class="text-gray-600">{{
+                            formatDateDisplay(new Date(resRoom.checkOutDate)).day
+                          }}</span>
+                          <span class="text-gray-500 ml-1">{{
+                            formatDateDisplay(new Date(resRoom.checkOutDate)).month
+                          }}</span>
                         </div>
                       </div>
                     </div>
                     <div class="text-md text-gray-500 flex flex-col justify-between h-full">
                       <div>
-                        <span class="text-gray-700 font-medium">{{ resRoom.guest?.displayName || reservation.guest?.displayName || 'Guest' }}</span>
+                        <span class="text-gray-700 font-medium">{{
+                          resRoom.guest?.displayName || reservation.guest?.displayName
+                        }}</span>
                       </div>
                       <div class="flex gap-7">
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('Room Type') }}</div>
-                           <div class="text-sm font-medium">{{ resRoom.roomType?.roomTypeName || resRoom.roomTypeName || 'N/A' }}</div>
+                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('roomType') }}</div>
+                          <div class="text-sm font-medium">
+                            {{ resRoom.roomType?.roomTypeName || resRoom.roomTypeName || 'N/A' }}
+                          </div>
                         </div>
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('Current Room') }}</div>
-                         <div class="text-sm font-medium">{{ resRoom.room?.roomNumber || resRoom.roomNumber || 'N/A' }}</div>
+                          <div class="text-xs text-gray-500 mb-1 mt-8">
+                            {{ $t('Current Room') }}
+                          </div>
+                          <div class="text-sm font-medium">
+                            {{ resRoom.room?.roomNumber || resRoom.roomNumber || 'N/A' }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -83,7 +140,10 @@
                 </div>
 
                 <!-- Exchange Indicator (only show after filtering) -->
-                <div v-if="hasFilterApplied && roomExchangeMap[resRoom.id]" class="mt-3 pt-3 border-t border-gray-200">
+                <div
+                  v-if="hasFilterApplied && roomExchangeMap[resRoom.id]"
+                  class="mt-3 pt-3 border-t border-gray-200"
+                >
                   <div class="flex items-center gap-2 text-sm">
                     <span class="text-gray-600">{{ $t('Exchange with') }}:</span>
                     <span class="font-medium text-purple-600">
@@ -99,17 +159,24 @@
                 </div>
 
                 <!-- Select Exchange Button (only show after filtering) -->
-                <div v-else-if="hasFilterApplied && !roomExchangeMap[resRoom.id]" class="mt-3 pt-3 border-t border-gray-200">
+                <div
+                  v-else-if="hasFilterApplied && !roomExchangeMap[resRoom.id]"
+                  class="mt-3 pt-3 border-t border-gray-200"
+                >
                   <button
                     @click="startExchangeSelection(resRoom.id)"
                     :class="[
                       'w-full py-2 px-4 rounded text-sm font-medium',
                       activeExchangeSourceId === resRoom.id
                         ? 'bg-purple-600 text-white'
-                        : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                        : 'bg-purple-100 text-purple-600 hover:bg-purple-200',
                     ]"
                   >
-                    {{ activeExchangeSourceId === resRoom.id ? $t('Select destination...') : $t('Exchange this room') }}
+                    {{
+                      activeExchangeSourceId === resRoom.id
+                        ? $t('Select destination...')
+                        : $t('Exchange this room')
+                    }}
                   </button>
                 </div>
               </div>
@@ -118,54 +185,84 @@
 
           <!-- Info message when no filter applied -->
 
-              <!-- <p v-if="!hasFilterApplied" class="font-medium">{{ $t('Select a room type to see available rooms for exchange') }}</p> -->
-
+          <!-- <p v-if="!hasFilterApplied" class="font-medium">{{ $t('Select a room type to see available rooms for exchange') }}</p> -->
 
           <!-- No results message (only after filtering) -->
-          <div v-if="hasFilterApplied && inHouseReservations.length === 0" class="text-center py-8 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="text-yellow-600">
-              <svg class="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          <div
+            v-if="hasFilterApplied && inHouseReservations.length === 0"
+            class="text-center py-8 bg-gray-50 border border-gray-200 rounded-lg"
+          >
+            <div class="text-gray-600">
+              <svg
+                class="w-12 h-12 mx-auto mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                ></path>
               </svg>
               <p class="font-medium mb-1">{{ $t('No available rooms found') }}</p>
-              <p class="text-sm">{{ $t('There are no in-house reservations matching the selected criteria') }}</p>
+              <p class="text-sm">
+                {{ $t('There are no in-house reservations matching the selected criteria') }}
+              </p>
             </div>
           </div>
 
           <!-- In-House Reservations List (Destination) -->
-          <div v-if="hasFilterApplied && inHouseReservations.length > 0" class="mb-4 custom-scrollbar overflow-y-auto h-[350px]">
+          <div
+            v-if="hasFilterApplied && inHouseReservations.length > 0"
+            class="mb-4 custom-scrollbar overflow-y-auto h-[350px]"
+          >
             <h4 class="text-sm font-medium text-gray-700 mb-3">
-              {{ activeExchangeSourceId ? $t('Select destination room') : $t('Available In-House Reservations') }}
+              {{
+                activeExchangeSourceId
+                  ? $t('Select destination room')
+                  : $t('Available In-House Reservations')
+              }}
             </h4>
             <div v-for="(inHouse, idx) in inHouseReservations" :key="idx">
               <div
-                class="border rounded-lg p-4 mb-3 cursor-pointer transition-all "
+                class="border rounded-lg p-4 mb-3 cursor-pointer transition-all"
                 :class="getInHouseCardClass(inHouse)"
                 @click="selectInHouseReservation(inHouse)"
               >
                 <div class="flex items-center justify-between">
                   <div class="flex gap-3 justify-start align-top items-start">
                     <div class="flex flex-col bg-white p-2 rounded">
-                      <div class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center">
+                      <div
+                        class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center"
+                      >
                         <span>{{ formatDateDisplay(new Date(inHouse.checkInDate)).day }}</span>
                         <span>{{ formatDateDisplay(new Date(inHouse.checkInDate)).month }}</span>
                       </div>
                       <div class="h-1 bg-gray-300 w-full my-1"></div>
                       <div class="flex items-center justify-between">
                         <div class="text-xs flex flex-col align-middle items-center">
-                          <span class="text-gray-600">{{ formatDateDisplay(new Date(inHouse.checkOutDate)).day }}</span>
-                          <span class="text-gray-500 ml-1">{{ formatDateDisplay(new Date(inHouse.checkOutDate)).month }}</span>
+                          <span class="text-gray-600">{{
+                            formatDateDisplay(new Date(inHouse.checkOutDate)).day
+                          }}</span>
+                          <span class="text-gray-500 ml-1">{{
+                            formatDateDisplay(new Date(inHouse.checkOutDate)).month
+                          }}</span>
                         </div>
                       </div>
                     </div>
                     <div class="text-md text-gray-500 flex flex-col justify-between h-full">
                       <div>
                         <span class="text-purple-600 font-medium">{{ inHouse.guestName }}</span>
-                        <span class="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">{{ $t('Checked In') }}</span>
+                        <span
+                          class="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded"
+                          >{{ $t('Checked In') }}</span
+                        >
                       </div>
                       <div class="flex gap-7">
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('Room Type') }}</div>
+                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('roomType') }}</div>
                           <div class="text-sm font-medium">{{ inHouse.roomTypeName }}</div>
                         </div>
                         <div>
@@ -191,7 +288,7 @@
         <BasicButton :label="$t('Cancel')" variant="secondary" @click="$emit('close')" />
         <div class="flex gap-3">
           <BasicButton
-            :label="$t('Exchange Rooms')"
+            :label="$t('ExchangeRoom')"
             variant="primary"
             :disabled="!isExchangeButtonEnabled"
             :loading="isLoading"
@@ -210,7 +307,11 @@ import { useToast } from 'vue-toastification'
 import Select from '../forms/FormElements/Select.vue'
 import BasicButton from '../buttons/BasicButton.vue'
 import { getReservationDetailsById, postExchangeRoomReservation } from '../../services/reservation'
-import { getAvailableRoomsByTypeId, getInHouseReservations } from '../../services/configrationApi'
+import {
+  getAvailableRoomsByTypeId,
+  getInHouseReservations,
+  getRoomsByTypeId,
+} from '../../services/configrationApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { formatDateDisplay } from '@/utils/dateUtils'
 import RightSideModal from '../modal/RightSideModal.vue'
@@ -222,7 +323,7 @@ const props = defineProps<{
   reservationId: number
 }>()
 
-const emit = defineEmits(['close', 'refresh'])
+const emit = defineEmits(['close', 'refresh', 'success'])
 
 const { t } = useI18n()
 const toast = useToast()
@@ -251,10 +352,10 @@ const filteredRoomsOptions = computed(() => {
   if (!selectedRoomTypeId.value) return []
 
   const filtered = allAvailableRooms.value
-    .filter(room => room.roomTypeId === selectedRoomTypeId.value)
-    .map(room => ({
+    .filter((room) => room.roomTypeId === selectedRoomTypeId.value)
+    .map((room) => ({
       label: room.roomNumber || room.name,
-      value: room.id
+      value: room.id,
     }))
 
   return filtered
@@ -282,7 +383,7 @@ const selectInHouseReservation = (inHouse: any) => {
 
   // Vérifier si cette chambre n'est pas déjà utilisée
   const alreadyUsed = Object.values(roomExchangeMap.value).some(
-    (r: any) => r.roomId === inHouse.roomId
+    (r: any) => r.roomId === inHouse.roomId,
   )
 
   if (alreadyUsed) {
@@ -305,9 +406,7 @@ const getRoomExchangeLabel = (reservationRoomId: number) => {
 }
 
 const isRoomSelected = (inHouse: any) => {
-  return Object.values(roomExchangeMap.value).some(
-    (r: any) => r.roomId === inHouse.roomId
-  )
+  return Object.values(roomExchangeMap.value).some((r: any) => r.roomId === inHouse.roomId)
 }
 
 const getInHouseCardClass = (inHouse: any) => {
@@ -361,7 +460,7 @@ const fetchInHouseReservations = async (roomTypeId: number | null, roomId: numbe
 
   try {
     const params: any = {
-      hotelId: Number(hotelId)
+      hotelId: Number(hotelId),
     }
 
     if (roomTypeId) {
@@ -378,7 +477,7 @@ const fetchInHouseReservations = async (roomTypeId: number | null, roomId: numbe
       // Filtrer les chambres déjà dans la réservation actuelle
       const currentRoomIds = reservation.value?.reservationRooms?.map((r: any) => r.roomId) || []
       inHouseReservations.value = (response.data.data || []).filter(
-        (r: any) => !currentRoomIds.includes(r.roomId)
+        (r: any) => !currentRoomIds.includes(r.roomId),
       )
     } else {
       inHouseReservations.value = []
@@ -392,17 +491,14 @@ const fetchInHouseReservations = async (roomTypeId: number | null, roomId: numbe
 
 const fetchRoomsByType = async (roomTypeId: number) => {
   try {
-    const response: any = await getAvailableRoomsByTypeId(
-      roomTypeId,
-      new Date().toISOString().split('T')[0],
-      reservation.value?.reservationRooms[0]?.checkOutDate || new Date().toISOString().split('T')[0]
-    )
+    const response: any = await getRoomsByTypeId(roomTypeId)
 
     const rooms = response.data.data.rooms || []
     allAvailableRooms.value = rooms.map((room: any) => ({
       ...room,
-      roomTypeId: roomTypeId
+      roomTypeId: roomTypeId,
     }))
+    console.log('allAvailableRooms.value', response)
   } catch (error) {
     console.error('Error fetching rooms by type:', error)
     allAvailableRooms.value = []
@@ -414,7 +510,7 @@ const getBookingDetailsById = async () => {
   loading.value = true
   try {
     const response: any = await getReservationDetailsById(props.reservationId)
-    console.log("response",response)
+    console.log('response', response)
     reservation.value = response
   } catch (error) {
     console.error('Error fetching reservation details:', error)
@@ -429,7 +525,7 @@ const fetchRoomTypes = async () => {
     const rep = await getRoomTypes(hotelId!)
     roomTypesOptions.value = rep.data.data.data.map((r: any) => ({
       label: r.roomTypeName,
-      value: r.id
+      value: r.id,
     }))
   } catch (error) {
     console.error(error)
@@ -437,18 +533,19 @@ const fetchRoomTypes = async () => {
 }
 
 const confirmRoomExchange = async () => {
-  const exchanges = Object.entries(roomExchangeMap.value).map(([resRoomId, inHouse]: [string, any]) => {
-
-    return {
-      reservationRoomId: Number(resRoomId),
-      roomNumber: inHouse.roomNumber,
-      roomId: inHouse.roomId,
-      roomTypeId: inHouse.roomTypeId,
-      reservationId: props.reservationId,
-      exchangeType: 'reservation_swap',
-      targetReservationId: inHouse.reservationId
-    }
-  })
+  const exchanges = Object.entries(roomExchangeMap.value).map(
+    ([resRoomId, inHouse]: [string, any]) => {
+      return {
+        reservationRoomId: Number(resRoomId),
+        roomNumber: inHouse.roomNumber,
+        roomId: inHouse.roomId,
+        roomTypeId: inHouse.roomTypeId,
+        reservationId: props.reservationId,
+        exchangeType: 'reservation_swap',
+        targetReservationId: inHouse.reservationId,
+      }
+    },
+  )
 
   if (exchanges.length === 0) {
     toast.warning(t('Please select at least one room exchange'))
@@ -457,10 +554,10 @@ const confirmRoomExchange = async () => {
 
   isLoading.value = true
   try {
-    console.log("exchanges",exchanges)
+    console.log('exchanges', exchanges)
     await postExchangeRoomReservation(props.reservationId, { reservationRooms: exchanges })
-     toast.success(t('room(s) exchanged successfully'))
-    emit('refresh')
+    toast.success(t('room(s) exchanged successfully'))
+    emit('success')
     emit('close')
   } catch (error) {
     console.error('Error exchanging rooms:', error)
@@ -470,19 +567,22 @@ const confirmRoomExchange = async () => {
   }
 }
 
-watch(() => props.isOpen, async (newValue) => {
-  if (newValue && props.reservationId) {
-    reservation.value = null
-    allAvailableRooms.value = []
-    selectedRoomTypeId.value = null
-    selectedRoomId.value = null
-    roomExchangeMap.value = {}
-    activeExchangeSourceId.value = null
-    inHouseReservations.value = []
-    await getBookingDetailsById()
-    await fetchRoomTypes()
-  }
-})
+watch(
+  () => props.isOpen,
+  async (newValue) => {
+    if (newValue && props.reservationId) {
+      reservation.value = null
+      allAvailableRooms.value = []
+      selectedRoomTypeId.value = null
+      selectedRoomId.value = null
+      roomExchangeMap.value = {}
+      activeExchangeSourceId.value = null
+      inHouseReservations.value = []
+      await getBookingDetailsById()
+      await fetchRoomTypes()
+    }
+  },
+)
 
 onMounted(() => {
   if (props.reservationId) {
@@ -493,21 +593,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+/* Scrollbar invisible mais toujours scrollable */
+.custom-scrollbar {
+  scrollbar-width: none; /* Firefox */
 }
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 </style>

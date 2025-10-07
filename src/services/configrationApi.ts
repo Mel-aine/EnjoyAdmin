@@ -250,6 +250,17 @@ export const getAvailableRoomsByTypeId = (
     }
   )
 }
+/***
+ * get  room by typeId
+ */
+export const getRoomsByTypeId = (
+  roomTypeId: number,
+): Promise<AxiosResponse<any>> => {
+
+  return axios.get(
+    `${API_URL}/rooms/roomByType/${roomTypeId}`,getHeaders()
+  )
+}
 
 /**
  * update status
