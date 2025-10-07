@@ -64,8 +64,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div
-          class="flex flex-col sm:flex-row gap-2 justify-end mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col sm:flex-row gap-2 justify-end mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
           <!-- Export Button with Dropdown -->
           <div class="relative">
             <button @click="toggleExportMenu" :disabled="exportLoading"
@@ -146,134 +145,140 @@
       </div>
 
       <!-- Results Section -->
-      <div v-if="showResults"
-        class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
-        <!-- Report Header with Hotel Name and Title -->
-        <div class=" border-b border-gray-200 dark:border-gray-700 dark:bg-blue-900/20">
-          <div class=" px-6 pt-2 flex justify-between items-center ">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2 text-uppercase">
-              {{ reportData?.hotelInformation?.hotelName }}
-            </h2>
-            <div class="inline-block  text-red-800 dark:text-red-200 px-4 py-2 rounded-lg">
-              <span class="font-semibold">Daily Receipt - Detail</span>
-            </div>
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700 px-4 py-3">
+        
+        <!-- Report Header -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-800 dark:border-gray-400 pb-1 mb-1">
+          <div class="text-base font-bold text-blue-800 dark:text-blue-300 uppercase">
+            {{ reportData?.hotelInformation?.hotelName }}
           </div>
-          <div class="mt-1 text-sm text-gray-600 dark:text-gray-400 border-t border-b border-black">
-            <span class="px-6 py-2 rounded flex gap-2">
-              <strong>Date From:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}
-              <strong>To:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}
-            </span>
+          <div class="text-base text-red-800 dark:text-red-400 font-bold">
+            Daily Receipt - Detail
           </div>
         </div>
 
+        <!-- Date Range -->
+        <div class="text-sm mb-2 space-x-3 text-gray-900 dark:text-gray-100 border-b border-gray-800 dark:border-gray-400 py-1">
+          <span><strong class="font-semibold">Date From:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
+          <span><strong class="font-semibold">To:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
+        </div>
+
         <!-- Report Content HTML -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <div v-if="reportData?.html" v-html="reportData.html" class="w-full"></div>
 
         <!-- Fallback: Receipt Details Table if no HTML -->
-        <div v-else>
-          <div class="overflow-x-auto">
-            <table class="min-w-full">
-              <thead class="border-b border-t-0 border-black">
-                <tr>
-                  <th v-for="header in receiptHeaders" :key="header.key" :class="['px-4 py-3 text-xs font-medium uppercase tracking-wider',
-                    header.align === 'right' ? 'text-right' : 'text-left',
-                    header.align === 'center' ? 'text-center' : '',
-                    'font-semibold']">
-                    {{ header.label }}
-                  </th>
+        <div v-else class="overflow-x-auto">
+          <table class="w-full border-collapse text-sm">
+            <thead>
+              <tr class="bg-white dark:bg-gray-800">
+                <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Date
+                </th>
+                <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Receipt
+                </th>
+                <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Reference
+                </th>
+                <th class="px-3 py-2 text-right border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Amount
+                </th>
+                <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  User
+                </th>
+                <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Entered On
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800" v-if="reportData">
+              <!-- Receipt Data from API -->
+              <template v-for="(item, index) in reportData.paymentMethodTotals" :key="index">
+                <!-- En-tête de la méthode de paiement -->
+                <tr class="bg-white dark:bg-gray-800">
+                  <td class="px-3 py-2 whitespace-nowrap font-bold text-gray-900 dark:text-gray-100" colspan="6">
+                    {{ item.methodName }}
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800 dark:divide-gray-600" v-if="reportData">
-                <!-- Receipt Data from API -->
-                <template v-for="(item, index) in reportData.paymentMethodTotals" :key="index">
-                  <!-- En-tête de la méthode de paiement -->
-                  <tr>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600"
-                      colspan="6">
-                      <strong>{{ item.methodName }}</strong>
-                    </td>
-                  </tr>
-                  
-                  <!-- Lignes des reçus -->
-                  <tr v-for="(it, idx) in item.receipts" :key="idx"
-                    class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600">
-                      {{ formatDate(it.date) }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600">
-                      {{ it.receiptNumber }}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600">
-                      {{ it.summary || it.description }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white dark:border-gray-600">
-                      {{ formatCurrency(it.amount) }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:border-gray-600">
-                      {{ it.user }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {{ formatDate(it.enteredOn) }}
-                    </td>
-                  </tr>
-                  
-                  <!-- Ligne de séparation pointillée avant le total par méthode - UNIQUEMENT sur Amount -->
-                  <tr>
-                    <td colspan="3" class="px-4 py-1"></td>
-                    <td class="border-b border-dashed border-gray-400 dark:border-gray-500 px-4 py-1"></td>
-                    <td colspan="2" class="px-4 py-1"></td>
-                  </tr>
-                  
-                  <!-- Ligne de Total par méthode de paiement - Positionnée entre Reference et Amount -->
-                  <tr>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600" colspan="2">
-                      <!-- Vide pour Date et Receipt -->
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600">
-                      <strong>Total {{ item.methodName }}</strong>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white dark:border-gray-600">
-                      <strong>{{ formatCurrency(calculateMethodTotal(item.receipts)) }}</strong>
-                    </td>
-          
-                  </tr>
-                  
-                  <!-- Ligne de séparation pointillée après le total par méthode - UNIQUEMENT sur Amount -->
-                  <tr>
-                    <td colspan="3" class="px-4 py-1"></td>
-                    <td class="border-b border-dashed border-gray-400 dark:border-gray-500 px-4 py-1"></td>
-                    <td colspan="2" class="px-4 py-1"></td>
-                  </tr>
-                  
-                  <!-- Ligne vide pour l'espacement -->
-                  <tr>
-                    <td colspan="6" class="py-2"></td>
-                  </tr>
-                </template>
                 
-                <!-- Grand Total Row - Repositionné entre Reference et Amount -->
-                <tr class="font-bold">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white" colspan="2">
+                <!-- Lignes des reçus -->
+                <tr v-for="(it, idx) in item.receipts" :key="idx" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <td class="px-3 py-1 whitespace-nowrap text-gray-900 dark:text-gray-100">
+                    {{ formatDate(it.date) }}
+                  </td>
+                  <td class="px-3 py-1 whitespace-nowrap text-gray-900 dark:text-gray-100">
+                    {{ it.receiptNumber }}
+                  </td>
+                  <td class="px-3 py-1 text-gray-900 dark:text-gray-100">
+                    {{ it.summary || it.description }}
+                  </td>
+                  <td class="px-3 py-1 whitespace-nowrap text-right font-mono text-gray-900 dark:text-gray-100">
+                    {{ formatCurrency(it.amount) }}
+                  </td>
+                  <td class="px-3 py-1 whitespace-nowrap text-gray-900 dark:text-gray-100">
+                    {{ it.user }}
+                  </td>
+                  <td class="px-3 py-1 whitespace-nowrap text-gray-900 dark:text-gray-100">
+                    {{ formatDate(it.enteredOn) }}
+                  </td>
+                </tr>
+                
+                <!-- Ligne de séparation pointillée avant le total par méthode - UNIQUEMENT sur Amount -->
+                <tr class="bg-white dark:bg-gray-800">
+                  <td colspan="3" class="px-3 py-0"></td>
+                  <td class="border-b border-dotted border-gray-400 dark:border-gray-500 px-3 py-0"></td>
+                  <td colspan="2" class="px-3 py-0"></td>
+                </tr>
+                
+                <!-- Ligne de Total par méthode de paiement -->
+                <tr class="bg-white dark:bg-gray-800 font-bold">
+                  <td class="px-3 py-1 text-gray-900 dark:text-gray-100" colspan="2">
                     <!-- Vide pour Date et Receipt -->
                   </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    <strong>Grand Total</strong>
+                  <td class="px-3 py-1 text-gray-900 dark:text-gray-100">
+                    Total {{ item.methodName }}
                   </td>
-                  <td class="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white">
-                    <strong>{{ formatCurrency(reportData?.grandTotalAmount) }}</strong>
+                  <td class="px-3 py-1 text-right font-mono text-gray-900 dark:text-gray-100">
+                    {{ formatCurrency(calculateMethodTotal(item.receipts)) }}
                   </td>
-         
+                  <td colspan="2" class="px-3 py-1"></td>
                 </tr>
                 
-                <!-- Ligne de séparation pointillée après le Grand Total - UNIQUEMENT sur Amount -->
-                <tr>
-                  <td colspan="3" class="px-4 py-1"></td>
-                  <td class="border-b border-dashed border-gray-400 dark:border-gray-500 px-4 py-1"></td>
-                  <td colspan="2" class="px-4 py-1"></td>
+                <!-- Ligne de séparation pointillée après le total par méthode - UNIQUEMENT sur Amount -->
+                <tr class="bg-white dark:bg-gray-800">
+                  <td colspan="3" class="px-3 py-0"></td>
+                  <td class="border-b border-dotted border-gray-400 dark:border-gray-500 px-3 py-0"></td>
+                  <td colspan="2" class="px-3 py-0"></td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
+                
+                <!-- Ligne vide pour l'espacement -->
+                <tr class="bg-white dark:bg-gray-800">
+                  <td colspan="6" class="py-2"></td>
+                </tr>
+              </template>
+              
+              <!-- Grand Total Row -->
+              <tr class="bg-white dark:bg-gray-800 font-bold">
+                <td class="px-3 py-2 text-gray-900 dark:text-gray-100" colspan="2">
+                  <!-- Vide pour Date et Receipt -->
+                </td>
+                <td class="px-3 py-2 text-gray-900 dark:text-gray-100">
+                  Grand Total
+                </td>
+                <td class="px-3 py-2 text-right font-mono text-gray-900 dark:text-gray-100">
+                  {{ formatCurrency(reportData?.grandTotalAmount) }}
+                </td>
+                <td colspan="2" class="px-3 py-2"></td>
+              </tr>
+              
+              <!-- Ligne de séparation pointillée après le Grand Total - UNIQUEMENT sur Amount -->
+              <tr class="bg-white dark:bg-gray-800">
+                <td colspan="3" class="px-3 py-0"></td>
+                <td class="border-b border-dotted border-gray-400 dark:border-gray-500 px-3 py-0"></td>
+                <td colspan="2" class="px-3 py-0"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -609,7 +614,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<!-- <style scoped>
 /* Button hover effects */
 .transition-all {
   transition: all 0.2s ease-in-out;
@@ -802,4 +807,4 @@ button:active:not(:disabled) {
   border: 1px solid #e5e7eb;
   padding: 8px 12px;
 }
-</style>
+</sty -->le>

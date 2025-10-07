@@ -167,132 +167,132 @@
       </div>
 
       <!-- Results Section -->
-      <div v-if="showResults" class="report-container bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700 px-4 py-3">
         
-        <!-- Report Header - Style du serveur -->
-        <div class="report-header">
-          <div class="hotel-name">
+        <!-- Report Header -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-800 dark:border-gray-400 pb-1 mb-1">
+          <div class="text-base font-bold text-blue-800 dark:text-blue-300">
             {{ reportData?.hotelDetails?.hotelName || 'Suita Hotel' }}
           </div>
-          <div class="report-title">
+          <div class="text-base text-red-800 dark:text-red-400 font-bold">
             Daily Receipt - Summary
           </div>
         </div>
 
-        <!-- Date Range - Style du serveur -->
-        <div class="date-range">
-          <span><strong>From Date:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
-          <span><strong>To Date:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
-          <span><strong>Currency:</strong> {{ currency }}</span>
+        <!-- Date Range -->
+        <div class="text-sm mb-2 space-x-3 text-gray-900 dark:text-gray-100">
+          <span><strong class="font-semibold">From Date:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
+          <span><strong class="font-semibold">To Date:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
+          <span><strong class="font-semibold">Currency:</strong> {{ currency }}</span>
         </div>
 
-        <div class="header-separator"></div>
+        <div class="border-t border-gray-800 dark:border-gray-400 mb-2"></div>
 
         <!-- Si le rapport contient du HTML, l'afficher -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <div v-if="reportData?.html" v-html="reportData.html" class="w-full"></div>
 
-        <!-- Sinon, afficher les données avec le nouveau style -->
-        <div v-else class="report-content">
+        <!-- Sinon, afficher les données avec Tailwind -->
+        <div v-else class="w-full">
           <!-- User Sections -->
-          <div v-for="(userSummary, index) in reportData?.userSummaries" :key="index" class="user-section">
-            <table class="data-table">
+          <div v-for="(userSummary, index) in reportData?.userSummaries" :key="index" class="mb-4">
+            <table class="w-full border-collapse text-sm">
               <thead>
-                <tr>
-                  <th class="w-1/4 text-left">Pay Method</th>
-                  <th class="w-1/6 text-center">Tran. Count</th>
-                  <th class="w-1/5 text-right">Amount</th>
-                  <th class="w-1/6 text-center">Void Count</th>
-                  <th class="w-1/5 text-right">Void Amount</th>
-                  <th class="w-1/5 text-right">Total ({{ currency }})</th>
+                <tr class="bg-white dark:bg-gray-800">
+                  <th class="w-1/4 text-left border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">Pay Method</th>
+                  <th class="w-1/6 text-center border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">Tran. Count</th>
+                  <th class="w-1/5 text-right border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">Amount</th>
+                  <th class="w-1/6 text-center border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">Void Count</th>
+                  <th class="w-1/5 text-right border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">Void Amount</th>
+                  <th class="w-1/5 text-right border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">Total ({{ currency }})</th>
                 </tr>
               </thead>
               <tbody>
                 <!-- User Name Row -->
-                <tr class="user-name-row">
-                  <td colspan="6">User: {{ userSummary.userName }}</td>
+                <tr class="bg-white dark:bg-gray-800">
+                  <td colspan="6" class="px-2 py-1.5 font-bold text-gray-900 dark:text-gray-100">User: {{ userSummary.userName }}</td>
                 </tr>
                 
                 <!-- Payment Methods -->
-                <tr v-for="(paymentMethod, pmIndex) in userSummary.paymentMethods" :key="pmIndex" class="payment-method-row">
-                  <td>{{ paymentMethod.methodName }}</td>
-                  <td class="text-center">{{ paymentMethod.totalTransactions }}</td>
-                  <td class="text-right amount-column">{{ formatCurrency(paymentMethod.amount) }}</td>
-                  <td class="text-center">{{ paymentMethod.totalVoid }}</td>
-                  <td class="text-right amount-column">{{ formatCurrency(paymentMethod.voidAmount) }}</td>
-                  <td class="text-right amount-column">{{ formatCurrency(paymentMethod.total) }}</td>
+                <tr v-for="(paymentMethod, pmIndex) in userSummary.paymentMethods" :key="pmIndex" class="bg-white dark:bg-gray-800">
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ paymentMethod.methodName }}</td>
+                  <td class="text-center px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ paymentMethod.totalTransactions }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono text-gray-900 dark:text-gray-100">{{ formatCurrency(paymentMethod.amount) }}</td>
+                  <td class="text-center px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ paymentMethod.totalVoid }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono text-gray-900 dark:text-gray-100">{{ formatCurrency(paymentMethod.voidAmount) }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono text-gray-900 dark:text-gray-100">{{ formatCurrency(paymentMethod.total) }}</td>
                 </tr>
                 
                 <!-- User Total -->
-                <tr class="user-total-row">
-                  <td><strong>User Total</strong></td>
-                  <td class="text-center"><strong>{{ userSummary.totalTransactions }}</strong></td>
-                  <td class="text-right amount-column"><strong></strong></td>
-                  <td class="text-center"><strong>{{ userSummary.totalVoid }}</strong></td>
-                  <td class="text-right amount-column"><strong></strong></td>
-                  <td class="text-right amount-column"><strong>{{ formatCurrency(userSummary.userTotal) }}</strong></td>
+                <tr class="bg-white dark:bg-gray-800 font-bold">
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100">User Total</td>
+                  <td class="text-center px-2 py-0.5 border-t border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ userSummary.totalTransactions }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono text-gray-900 dark:text-gray-100"></td>
+                  <td class="text-center px-2 py-0.5 border-t border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ userSummary.totalVoid }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono text-gray-900 dark:text-gray-100"></td>
+                  <td class="text-right px-2 py-0.5 font-mono border-t border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ formatCurrency(userSummary.userTotal) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <!-- Grand Total -->
-          <table class="data-table grand-total-table">
+          <table class="w-full border-collapse text-sm mt-1">
             <tbody>
-              <tr class="grand-total-row">
-                <td class="w-1/4"><strong>Grand Total</strong></td>
-                <td class="w-1/6 text-center"><strong>{{ reportData?.grandTotals?.totalTransactions || 0 }}</strong></td>
-                <td class="w-1/5 text-right amount-column"><strong>{{ formatCurrency(reportData?.grandTotals?.totalAmount || 0) }}</strong></td>
-                <td class="w-1/6 text-center"><strong>{{ reportData?.grandTotals?.totalVoid || 0 }}</strong></td>
-                <td class="w-1/5 text-right amount-column"><strong>{{ formatCurrency(reportData?.grandTotals?.voidAmount || 0) }}</strong></td>
-                <td class="w-1/5 text-right amount-column"><strong>{{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}</strong></td>
+              <tr class="bg-white dark:bg-gray-800 font-bold">
+                <td class="w-1/4 px-2 py-1 text-gray-900 dark:text-gray-100">Grand Total</td>
+                <td class="w-1/6 text-center px-2 py-1  border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ reportData?.grandTotals?.totalTransactions || 0 }}</td>
+                <td class="w-1/5 text-right px-2 py-1 font-mono text-gray-900 dark:text-gray-100"></td>
+                <td class="w-1/6 text-center px-2 py-1  border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ reportData?.grandTotals?.totalVoid || 0 }}</td>
+                <td class="w-1/5 text-right px-2 py-1 font-mono text-gray-900 dark:text-gray-100"></td>
+                <td class="w-1/5 text-right px-2 py-1 font-mono border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}</td>
               </tr>
             </tbody>
           </table>
 
           <!-- Summary Section -->
-          <div class="summary-section">
-            <div class="summary-title">Summary</div>
+          <div class="mt-4 pt-3 w-full flex flex-col items-center">
+            <div class="font-bold text-lg mb-4 text-center w-full text-gray-900 dark:text-gray-100">Summary</div>
             
-            <div class="summary-tables">
+            <div class="flex flex-col md:flex-row gap-12 justify-center mx-auto w-auto">
               <!-- User Summary -->
-              <div class="summary-table-container">
-                <table class="summary-table">
+              <div class="flex-shrink-0">
+                <table class="border-collapse text-base border-0 min-w-72">
                   <thead>
-                    <tr>
-                      <th colspan="2" class="text-center">User</th>
-                      <th class="text-right">Amount ({{ currency }})</th>
+                    <tr class="bg-white dark:bg-gray-800">
+                      <th colspan="2" class="text-center border-t border-b border-gray-800 dark:border-gray-300 px-4 py-2 font-bold whitespace-nowrap text-gray-900 dark:text-gray-100">User</th>
+                      <th class="text-right border-t border-b border-gray-800 dark:border-gray-300 px-4 py-2 font-bold whitespace-nowrap text-gray-900 dark:text-gray-100">Amount ({{ currency }})</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(userSum, index) in reportData?.summary?.userSummary" :key="index">
-                      <td colspan="2">{{ userSum.userName }}</td>
-                      <td class="text-right amount-column">{{ formatCurrency(userSum.netTotal) }}</td>
+                    <tr v-for="(userSum, index) in reportData?.summary?.userSummary" :key="index" class="bg-white dark:bg-gray-800">
+                      <td colspan="2" class="px-4 py-1.5 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ userSum.userName }}</td>
+                      <td class="text-right px-4 py-1.5 font-mono whitespace-nowrap text-gray-900 dark:text-gray-100">{{ formatCurrency(userSum.netTotal) }}</td>
                     </tr>
-                    <tr class="summary-grand-total">
-                      <td colspan="2"><strong>Grand Total</strong></td>
-                      <td class="text-right amount-column"><strong>{{ formatCurrency(reportData?.summary?.grandTotalUserSummary?.netTotal || 0) }}</strong></td>
+                    <tr class="bg-white dark:bg-gray-800 font-bold">
+                      <td colspan="2" class="px-4 py-1.5 whitespace-nowrap text-gray-900 dark:text-gray-100">Grand Total</td>
+                      <td class="text-right px-4 py-1.5 font-mono border-t border-b border-dotted border-gray-800 dark:border-gray-300 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ formatCurrency(reportData?.summary?.grandTotalUserSummary?.netTotal || 0) }}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <!-- Payment Method Summary -->
-              <div class="summary-table-container">
-                <table class="summary-table">
+              <div class="flex-shrink-0">
+                <table class="border-collapse text-base border-0 min-w-72">
                   <thead>
-                    <tr>
-                      <th class="text-left">Pay Method</th>
-                      <th class="text-right">Amount ({{ currency }})</th>
+                    <tr class="bg-white dark:bg-gray-800">
+                      <th class="text-left border-t border-b border-gray-800 dark:border-gray-300 px-4 py-2 font-bold whitespace-nowrap text-gray-900 dark:text-gray-100">Pay Method</th>
+                      <th class="text-right border-t border-b border-gray-800 dark:border-gray-300 px-4 py-2 font-bold whitespace-nowrap text-gray-900 dark:text-gray-100">Amount ({{ currency }})</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(methodSum, index) in reportData?.summary?.paymentMethodSummary" :key="index">
-                      <td>{{ methodSum.methodName }}</td>
-                      <td class="text-right amount-column">{{ formatCurrency(methodSum.total) }}</td>
+                    <tr v-for="(methodSum, index) in reportData?.summary?.paymentMethodSummary" :key="index" class="bg-white dark:bg-gray-800">
+                      <td class="px-4 py-1.5 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ methodSum.methodName }}</td>
+                      <td class="text-right px-4 py-1.5 font-mono whitespace-nowrap text-gray-900 dark:text-gray-100">{{ formatCurrency(methodSum.total) }}</td>
                     </tr>
-                    <tr class="summary-grand-total">
-                      <td><strong>Grand Total</strong></td>
-                      <td class="text-right amount-column"><strong>{{ formatCurrency(reportData?.summary?.grandTotalPaymentMethodSummary?.netTotal || 0) }}</strong></td>
+                    <tr class="bg-white dark:bg-gray-800 font-bold">
+                      <td class="px-4 py-1.5 whitespace-nowrap text-gray-900 dark:text-gray-100">Grand Total</td>
+                      <td class="text-right px-4 py-1.5 font-mono border-t border-b border-dotted border-gray-800 dark:border-gray-300 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ formatCurrency(reportData?.summary?.grandTotalPaymentMethodSummary?.netTotal || 0) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -304,7 +304,6 @@
     </div>
   </ReportsLayout>
 </template>
-
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -585,481 +584,3 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 </script>
-
-<style scoped>
-/* ===== REPORT CONTAINER ===== */
-.report-container {
-  padding: 0px 15px 15px 15px;
-  background-color: white;
-  font-size: 11px;
-}
-
-.dark .report-container {
-  background-color: #1f2937;
-}
-
-/* ===== REPORT HEADER - Style du serveur ===== */
-.report-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  padding-bottom: 2px;
-  margin-bottom: 3px;
-}
-
-.dark .report-header {
-  border-bottom-color: #6b7280;
-}
-
-.hotel-name {
-  font-weight: bold;
-  color: #00008B;
-  font-size: 13px;
-}
-
-.dark .hotel-name {
-  color: #93c5fd;
-}
-
-.report-title {
-  font-size: 13px;
-  color: #8B0000;
-  font-weight: bold;
-}
-
-.dark .report-title {
-  color: #f87171;
-}
-
-/* ===== DATE RANGE - Style du serveur ===== */
-.date-range {
-  font-size: 10px;
-  margin-bottom: 8px;
-}
-
-.dark .date-range {
-  color: #e5e7eb;
-}
-
-.date-range span {
-  margin-right: 10px;
-}
-
-.date-range strong {
-  font-weight: bold;
-}
-
-.header-separator {
-  border-top: 1px solid #333;
-  margin: 0 0 8px 0;
-}
-
-.dark .header-separator {
-  border-color: #6b7280;
-}
-
-/* ===== REPORT CONTENT ===== */
-.report-content {
-  padding: 0;
-}
-
-/* ===== USER SECTIONS ===== */
-.user-section {
-  margin-bottom: 15px;
-}
-
-/* ===== DATA TABLES ===== */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  margin-bottom: 5px;
-}
-
-.data-table th {
-  background-color: white;
-  border-top: none;
-  border-bottom: 1px solid #333;
-  padding: 4px 8px;
-  text-align: left;
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.dark .data-table th {
-  background-color: #1f2937;
-  border-color: #e5e7eb;
-  color: #e5e7eb;
-}
-
-.data-table td {
-  padding: 3px 8px;
-  font-size: 12px;
-  border: none;
-}
-
-.dark .data-table td {
-  color: #e5e7eb;
-}
-
-.data-table th.text-right,
-.data-table td.text-right {
-  text-align: right;
-}
-
-.data-table th.text-center,
-.data-table td.text-center {
-  text-align: center;
-}
-
-/* ===== USER NAME ROW ===== */
-.user-name-row td {
-  padding: 5px 8px;
-  font-weight: bold;
-  border: none;
-}
-
-/* ===== PAYMENT METHOD ROWS ===== */
-.payment-method-row td {
-  border: none;
-}
-
-/* ===== USER TOTAL ROW ===== */
-.user-total-row {
-  font-weight: bold;
-  background-color: white;
-}
-
-.dark .user-total-row {
-  background-color: #1f2937;
-}
-
-.user-total-row td {
-  border: none;
-  padding: 3px 8px;
-}
-
-/* Bordures pointillées sur Tran. Count, Void Count et Total uniquement */
-.user-total-row td:nth-child(2),
-.user-total-row td:nth-child(4),
-.user-total-row td:nth-child(6) {
-  border-top: 1px dotted #333;
-  border-bottom: 1px dotted #333;
-}
-
-.dark .user-total-row td:nth-child(2),
-.dark .user-total-row td:nth-child(4),
-.dark .user-total-row td:nth-child(6) {
-  border-color: #e5e7eb;
-}
-
-/* ===== GRAND TOTAL ===== */
-.grand-total-table {
-  margin-top: 5px;
-}
-
-.grand-total-row {
-  font-weight: bold;
-  background-color: white;
-}
-
-.dark .grand-total-row {
-  background-color: #1f2937;
-}
-
-.grand-total-row td {
-  padding: 5px 8px;
-  border: none;
-}
-
-/* Bordures pointillées sur Tran. Count, Void Count et Total uniquement */
-.grand-total-row td:nth-child(2),
-.grand-total-row td:nth-child(4),
-.grand-total-row td:nth-child(6) {
-  border-top: 1px dotted #333;
-  border-bottom: 1px dotted #333;
-}
-
-.dark .grand-total-row td:nth-child(2),
-.dark .grand-total-row td:nth-child(4),
-.dark .grand-total-row td:nth-child(6) {
-  border-color: #e5e7eb;
-}
-
-/* ===== SUMMARY SECTION ===== */
-.summary-section {
-  margin-top: 15px;
-  padding-top: 10px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.summary-title {
-  font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 10px;
-  text-align: center;
-  width: 100%;
-}
-
-.summary-tables {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  margin: 0 auto;
-  width: fit-content;
-}
-
-.summary-table-container {
-  flex: 0 0 auto;
-}
-
-.summary-table {
-  border-collapse: collapse;
-  font-size: 12px;
-  border: none;
-  min-width: 200px;
-}
-
-.summary-table th {
-  background-color: white;
-  border-top: 1px solid #333;
-  border-bottom: 1px solid #333;
-  padding: 5px 12px;
-  text-align: left;
-  font-weight: bold;
-  white-space: nowrap;
-  font-size: 12px;
-}
-
-.dark .summary-table th {
-  background-color: #1f2937;
-  border-color: #e5e7eb;
-  color: #e5e7eb;
-}
-
-.summary-table td {
-  border: none;
-  padding: 4px 12px;
-  white-space: nowrap;
-  font-size: 12px;
-}
-
-.dark .summary-table td {
-  color: #e5e7eb;
-}
-
-.summary-grand-total {
-  font-weight: bold;
-  background-color: white;
-}
-
-.dark .summary-grand-total {
-  background-color: #1f2937;
-}
-
-.summary-grand-total td:last-child {
-  border-top: 1px dotted #333;
-  border-bottom: 1px dotted #333;
-}
-
-.dark .summary-grand-total td:last-child {
-  border-color: #e5e7eb;
-}
-
-/* ===== AMOUNT COLUMN ===== */
-.amount-column {
-  text-align: right;
-  font-family: 'Courier New', monospace;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
-  .summary-tables {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .report-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .report-title {
-    margin-left: 0;
-  }
-}
-
-/* ===== BUTTON STYLES ===== */
-.transition-all {
-  transition: all 0.2s ease-in-out;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* ===== EXPORT MENU ===== */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* ===== REPORT HTML CONTAINER ===== */
-:deep(.report-html-container) {
-  width: 100%;
-  padding: 0;
-}
-
-:deep(.report-html-container table) {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.report-html-container th),
-:deep(.report-html-container td) {
-  padding: 8px 12px;
-  border: 1px solid #e5e7eb;
-}
-
-.dark :deep(.report-html-container th),
-.dark :deep(.report-html-container td) {
-  border-color: #4b5563;
-  color: #e5e7eb;
-}
-
-:deep(.report-html-container .report-container) {
-  margin: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-.dark :deep(.report-html-container .report-container) {
-  background-color: transparent;
-}
-
-:deep(.report-html-container .results-table) {
-  font-size: 12px;
-}
-
-.dark :deep(.report-html-container) {
-  color: #e5e7eb;
-}
-
-/* ===== LOADING ANIMATION ===== */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
-}
-
-.pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* ===== EXPORT DROPDOWN ===== */
-.export-dropdown {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.dark .export-dropdown {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-}
-
-/* ===== NO DATA MESSAGE ===== */
-.no-data {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-style: italic;
-}
-
-.dark .no-data {
-  color: #9ca3af;
-}
-
-/* ===== SCROLLBAR STYLING ===== */
-.report-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.report-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.dark .report-container::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-.report-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.report-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-.dark .report-container::-webkit-scrollbar-thumb {
-  background: #6b7280;
-}
-
-.dark .report-container::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-  .report-container {
-    padding: 0;
-    box-shadow: none;
-    border: none;
-  }
-  
-  .dark .report-container {
-    background-color: white;
-    color: black;
-  }
-  
-  .hotel-name {
-    color: #00008B !important;
-  }
-  
-  .report-title {
-    color: #8B0000 !important;
-  }
-  
-  .data-table th {
-    background-color: white !important;
-    color: black !important;
-  }
-  
-  .user-total-row,
-  .grand-total-row,
-  .summary-grand-total {
-    background-color: white !important;
-    color: black !important;
-  }
-  
-  .summary-table th {
-    background-color: white !important;
-    color: black !important;
-  }
-}
-</style>
