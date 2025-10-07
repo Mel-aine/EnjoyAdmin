@@ -207,12 +207,20 @@
             </div>
 
 
-            <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
-                :disabled="isSaving" />
-              <BasicButton type="submit" variant="primary" :icon="Save"
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
+                :disabled="isSaving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? $t('configuration.extra_charge.update_extra_charge') : $t('configuration.extra_charge.save_extra_charge')"
-                :loading="isSaving" />
+                :loading="isSaving"
+              />
             </div>
           </form>
         </div>

@@ -34,16 +34,17 @@
 
         <!-- Custom column for sort order input -->
         <template #column-sortOrder="{ item }">
-          <input 
+          <Input
             v-model.number="item.sortOrder"
-            type="number" 
-            min="1"
-            class="w-16 border border-gray-300 rounded-md px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400 transition-colors"
+            input-type="number"
+            :min="1"
+            class="w-16 text-center"
+            :custom-class="'px-2 py-1 text-center'"
             @input="updateSortOrder(item)"
             @blur="saveOrderChange(item)"
             @keyup.enter="$event.target.blur()"
-            title="Click to edit sort order"
-          >
+            :title="t('clickToEditSortOrder')"
+          />
         </template>
 
         <template #column-roomType="{ item }">
@@ -83,42 +84,41 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('roomType') }}
               </label>
-              <input 
-                :value="editingRoomType?.roomType"
-                type="text" 
+              <Input
+                :model-value="editingRoomType?.roomType"
+                input-type="text"
                 disabled
-                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-600"
-              >
+                class="bg-gray-100 text-gray-600"
+              />
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('sortOrder') }} *
               </label>
-              <input 
+              <Input
                 v-model.number="formData.sortOrder"
-                type="number" 
-                min="1"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                input-type="number"
+                :min="1"
+                :is-required="true"
                 :placeholder="t('enterSortOrder')"
-              >
+              />
             </div>
             
-            <div class="flex justify-end space-x-3 pt-4">
-              <button 
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
                 type="button" 
-                @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-              >
-                {{ t('cancel') }}
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {{ t('updateOrder') }}
-              </button>
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
+                :disabled="saving"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="saving ? t('saving') + '...' : t('updateOrder')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -133,6 +133,7 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Save, Edit } from 'lucide-vue-next'
+import Input from '@/components/forms/FormElements/Input.vue'
 import { getRoomTypes, updateRoomTypeSortOrder } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'

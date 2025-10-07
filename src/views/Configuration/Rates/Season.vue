@@ -60,85 +60,112 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Short Code -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('shortCode') }} *
-                </label>
-                <Input v-model="formData.shortCode" :placeholder="t('shortCodePlaceholder')" required />
+                <Input 
+                  v-model="formData.shortCode" 
+                  :placeholder="t('shortCodePlaceholder')" 
+                  :lb="t('shortCode')"
+                  :is-required="true"
+                />
               </div>
 
               <!-- Season Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('seasonName') }} *
-                </label>
-                <Input v-model="formData.seasonName" :placeholder="t('seasonNamePlaceholder')" required />
+                <Input 
+                  v-model="formData.seasonName" 
+                  :placeholder="t('seasonNamePlaceholder')" 
+                  :lb="t('seasonName')"
+                  :is-required="true"
+                />
               </div>
             </div>
             <!-- From Day/Date and From Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('fromDay') }} *
-                </label>
-                <Select v-model="formData.fromDay" :options="dayOptions" :placeholder="t('selectDay')" required />
+                <Select 
+                  v-model="formData.fromDay" 
+                  :options="dayOptions" 
+                  :placeholder="t('selectDay')" 
+                  :lb="t('fromDay')"
+                  :is-required="true"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('fromMonth') }} *
-                </label>
-                <Select v-model="formData.fromMonth" :options="monthOptions" :placeholder="t('selectMonth')" required />
+                <Select 
+                  v-model="formData.fromMonth" 
+                  :options="monthOptions" 
+                  :placeholder="t('selectMonth')" 
+                  :lb="t('fromMonth')"
+                  :is-required="true"
+                />
               </div>
             </div>
 
             <!-- To Day/Date and To Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('toDay') }} *
-                </label>
-                <Select v-model="formData.toDay" :options="dayOptions" placeholder="Select day" required />
+                <Select 
+                  v-model="formData.toDay" 
+                  :options="dayOptions" 
+                  :placeholder="t('selectDay')" 
+                  :lb="t('toDay')"
+                  :is-required="true"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('toMonth') }} *
-                </label>
-                <Select v-model="formData.toMonth" :options="monthOptions" placeholder="Select month" required />
+                <Select 
+                  v-model="formData.toMonth" 
+                  :options="monthOptions" 
+                  :placeholder="t('selectMonth')" 
+                  :lb="t('toMonth')"
+                  :is-required="true"
+                />
               </div>
             </div>
 
             <!-- Start Date and Expire Date -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('startDate') }} *
-                </label>
-                <InputDatePicker v-model="formData.startDate" :placeholder="t('startDatePlaceholder')" required />
+                <InputDatePicker 
+                  v-model="formData.startDate" 
+                  :placeholder="t('startDatePlaceholder')" 
+                  :title="t('startDate')"
+                  :is-required="true"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('expireDate') }} *
-                </label>
-                <InputDatePicker v-model="formData.expireDate" :placeholder="t('expireDatePlaceholder')" required />
+                <InputDatePicker 
+                  v-model="formData.expireDate" 
+                  :placeholder="t('expireDatePlaceholder')" 
+                  :title="t('expireDate')"
+                  :is-required="true"
+                />
               </div>
             </div>
 
             <!-- Status -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('status') }}
-              </label>
-              <Select v-model="formData.status" :options="statusOptions" :placeholder="t('selectStatus')" />
+              <Select 
+                v-model="formData.status" 
+                :options="statusOptions" 
+                :placeholder="t('selectStatus')" 
+                :lb="t('status')"
+              />
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4">
-              <button type="button" @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
-                {{ t('cancel') }}
-              </button>
-              <button type="submit" :disabled="isLoading"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ isLoading ? t('saving') : (showAddModal ? t('addSeason') : t('updateSeason')) }}
-              </button>
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
+                :disabled="isLoading"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isLoading ? t('saving') + '...' : showAddModal ? t('addSeason') : t('updateSeason')"
+                :loading="isLoading"
+              />
             </div>
           </form>
         </div>

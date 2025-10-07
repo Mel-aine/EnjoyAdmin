@@ -54,23 +54,20 @@
                 <Select :lb="$t('manager')" v-model="newDepartment.manager" :options="Users" />
               </div>
 
-              <div class="flex justify-end space-x-3">
-                <button
-                  @click="closeAddDepartmentModal"
-                  class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                >
-                  {{ $t('Cancel') }}
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
-                >
-                  <span v-if="!isLoading"> {{ isEditing ? $t('update') : $t('Save') }}</span>
-                  <span v-else class="flex items-center gap-2">
-                    <Spinner class="w-4 h-4" />
-                    {{ $t('Processing') }}...
-                  </span>
-                </button>
+              <div class="flex justify-end space-x-3 mt-6">
+                <BasicButton 
+                  type="button" 
+                  variant="outline" 
+                  @click="closeAddDepartmentModal" 
+                  :label="$t('cancel')"
+                  :disabled="isLoading"
+                />
+                <BasicButton 
+                  type="submit" 
+                  variant="primary" 
+                  :label="isLoading ? $t('processing') + '...' : isEditing ? $t('update') : $t('save')"
+                  :loading="isLoading"
+                />
               </div>
             </form>
           </div>

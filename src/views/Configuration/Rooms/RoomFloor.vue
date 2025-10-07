@@ -77,14 +77,25 @@
             <!-- Basic Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Input v-model="formData.shortCode" :lb="t('shortCode')" inputType="text" :isRequired="true"
-                  :placeholder="t('enterShortCode')" maxlength="10" />
+                <Input
+                  :lb="t('shortCode')"
+                  v-model="formData.shortCode"
+                  :placeholder="t('enterShortCode')"
+                  :max="10"
+                  :is-required="true"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('shortCodeDescription') }}</p>
               </div>
 
               <div>
-                <Input v-model="formData.roomNumber" :lb="t('RoomName')" inputType="text" :isRequired="true"
-                  :placeholder="t('enterRoomName')" />
+                <Input
+                  :lb="t('RoomName')"
+                  v-model="formData.roomNumber"
+                  :placeholder="t('enterRoomName')"
+                  :is-required="true"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('roomNameDescription') }}</p>
               </div>
             </div>
@@ -92,16 +103,26 @@
             <!-- Room Type and Bed Type -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Select v-model="formData.roomTypeId" :lb="t('roomType')" :isRequired="true"
+                <Select
+                  :lb="t('roomType')"
+                  v-model="formData.roomTypeId"
+                  :options="availableRoomTypes.map(rt => ({ value: rt.id, label: rt.roomTypeName || rt.name }))"
                   :placeholder="t('selectRoomType')"
-                  :options="availableRoomTypes.map(rt => ({ value: rt.id, label: rt.roomTypeName || rt.name }))" />
+                  :is-required="true"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('roomTypeDescription') }}</p>
               </div>
 
               <div>
-                <Select v-model="formData.bedType" :lb="t('bedType')" :isRequired="true"
+                <Select
+                  :lb="t('bedType')"
+                  v-model="formData.bedType"
+                  :options="availableBedTypes.map(bt => ({ value: bt.id, label: bt.bedTypeName || bt.name }))"
                   :placeholder="t('selectBedType')"
-                  :options="availableBedTypes.map(bt => ({ value: bt.id, label: bt.bedTypeName || bt.name }))" />
+                  :is-required="true"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('bedTypeDescription') }}</p>
               </div>
             </div>
@@ -109,14 +130,22 @@
             <!-- Phone Extension and Key Card -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Input v-model="formData.phoneExtension" :lb="t('phoneExtension')" inputType="text" :isRequired="false"
-                  :placeholder="t('enterPhoneExtension')" />
+                <Input
+                  :lb="t('phoneExtension')"
+                  v-model="formData.phoneExtension"
+                  :placeholder="t('enterPhoneExtension')"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('phoneExtensionDescription') }}</p>
               </div>
 
               <div>
-                <Input v-model="formData.keyCardAlias" :lb="t('keyCardAlias')" inputType="text" :isRequired="false"
-                  :placeholder="t('enterKeyCardAlias')" />
+                <Input
+                  :lb="t('keyCardAlias')"
+                  v-model="formData.keyCardAlias"
+                  :placeholder="t('enterKeyCardAlias')"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('keyCardAliasDescription') }}</p>
               </div>
             </div>
@@ -124,8 +153,14 @@
             <!-- Sort Key and Non-Smoking -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Input v-model="formData.sortKey" :lb="t('sortKey')" inputType="number" :isRequired="false"
-                  :placeholder="t('enterSortKey')" min="0" />
+                <Input
+                  :lb="t('sortKey')"
+                  v-model="formData.sortKey"
+                  type="number"
+                  :placeholder="t('enterSortKey')"
+                  :min="0"
+                  customClass="w-full"
+                />
                 <p class="text-xs text-gray-500 mt-1">{{ t('sortKeyDescription') }}</p>
               </div>
 
@@ -221,10 +256,21 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
-                :disabled="saving" />
-              <BasicButton type="submit" variant="primary" :icon="Save" :label="isEditing ? $t('update') : $t('save')"
-                :loading="saving" />
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                :label="$t('cancel')" 
+                @click="closeModal" 
+                :disabled="saving" 
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :icon="isEditing ? 'Add Room Type' : 'Plus'"
+                :label="saving ? t('saving') + '...' : isEditing ? $t('update') : $t('Add Room Type')" 
+                :loading="saving"
+                :disabled="saving"
+              />
             </div>
           </form>
         </div>
@@ -233,7 +279,7 @@
   </ConfigurationLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'

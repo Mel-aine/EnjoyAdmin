@@ -83,17 +83,18 @@
             </div>
           </div>
           
-          <div class="flex justify-end space-x-3 mt-6">
+          <div class="flex justify-end space-x-3 pt-4">
             <BasicButton
-              variant="secondary"
+              type="button"
+              variant="outline"
               @click="closeModal"
-              :label="t('common.cancel')"
+              :label="t('cancel')"
               :disabled="saving"
             />
             <BasicButton
-              variant="primary"
               type="submit"
-              :label="saving ? t('common.saving') : (isEditing ? t('common.update') : t('common.save'))"
+              variant="primary"
+              :label="isEditing ? t('configuration.payout_reasons.update_payout_reason') : t('configuration.payout_reasons.save_payout_reason')"
               :loading="saving"
             />
           </div>

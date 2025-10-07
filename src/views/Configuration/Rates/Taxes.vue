@@ -187,11 +187,20 @@
               </div>
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton @click="closeModal" :label="t('cancel')" variant="secondary" :disabled="loading" />
-              <BasicButton type="submit"
-                :label="showAddModal ? t('configuration.taxes.save_tax') : t('configuration.taxes.update_tax')"
-                variant="primary" :loading="loading" />
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
+                :disabled="loading"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="loading ? t('saving') + '...' : showAddModal ? t('configuration.taxes.save_tax') : t('configuration.taxes.update_tax')"
+                :loading="loading"
+              />
             </div>
           </form>
         </div>

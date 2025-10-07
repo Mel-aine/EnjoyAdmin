@@ -26,7 +26,11 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto p-4 space-y-2 scroll-smooth">
+    <nav 
+  ref="navElement" 
+  class="flex-1 overflow-y-auto p-4 space-y-2 scroll-smooth"
+  @scroll="() => navElement && sidebarStore.saveScrollPosition(navElement.scrollTop || 0)"
+>
       <!-- Rooms Section -->
       <div class="space-y-1">
         <button @click="toggleSection('rooms')" :class="[
@@ -180,8 +184,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
 import {
@@ -195,15 +199,67 @@ import {
   Cog,
   ChevronDown,
   UserCircle,
-  Building2
 } from 'lucide-vue-next'
-import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebar()
 const searchQuery = ref('')
-const { t } = useI18n()
+// i18n est importé pour une utilisation future
 const route = useRoute()
 const navElement = ref(null)
+
+// Sauvegarder la position du scroll avant la navigation
+const handleBeforeRouteChange = () => {
+  if (navElement.value) {
+    sidebarStore.saveScrollPosition(navElement.value.scrollTop)
+  }
+}
+
+// Restaurer la position du scroll après la navigation
+const restoreScrollPosition = () => {
+  if (navElement.value) {
+    const savedPosition = sidebarStore.getScrollPosition()
+    navElement.value.scrollTop = savedPosition
+  }
+}
+
+// Gérer les clics sur les liens de navigation
+const handleGlobalClick = (event) => {
+  const target = event.target || event.srcElement
+  const link = target.closest('a')
+  
+  if (link && link.getAttribute('href') && link.getAttribute('href').startsWith('/configuration/')) {
+    handleBeforeRouteChange()
+  }
+}
+
+// Configuration du cycle de vie du composant
+onMounted(() => {
+  // Restaurer les sections développées depuis localStorage
+  const savedSections = localStorage.getItem('sidebar-expanded-sections')
+  if (savedSections) {
+    expandedSections.value = JSON.parse(savedSections)
+  }
+  
+  // Restaurer la position du scroll au chargement initial
+  restoreScrollPosition()
+  
+  // Ajouter un écouteur de clic global pour gérer la navigation
+  document.addEventListener('click', handleGlobalClick)
+})
+
+// Nettoyer les écouteurs d'événements
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleGlobalClick)
+})
+
+// Écouter les changements de route
+watch(() => route.path, () => {
+  // Sauvegarder la position actuelle avant le changement de route
+  handleBeforeRouteChange()
+  
+  // Restaurer la position après un court délai pour s'assurer que le DOM est mis à jour
+  setTimeout(restoreScrollPosition, 0)
+})
 
 const expandedSections = ref({
   rooms: true,
@@ -216,6 +272,13 @@ const expandedSections = ref({
 
 const toggleSection = (section) => {
   expandedSections.value[section] = !expandedSections.value[section]
+  // Sauvegarder l'état des sections dans localStorage
+  localStorage.setItem('sidebar-expanded-sections', JSON.stringify(expandedSections.value))
+  
+  // Restaurer la position après un court délai pour permettre l'animation
+  if (expandedSections.value[section]) {
+    setTimeout(restoreScrollPosition, 300) // Correspond à la durée de l'animation
+  }
 }
 
 // Configuration menu items
