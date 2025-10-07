@@ -615,6 +615,7 @@ const handleOptionSelected = async(option: any) => {
 const getBookingDetailsById = async () => {
   isLoading.value = true
   const response = await getReservationDetailsById(Number(props.id))
+  console.log('reservation',response)
   if (response.status === 200) {
     localReservation.value = response.data
   }
