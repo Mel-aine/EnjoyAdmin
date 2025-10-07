@@ -73,7 +73,7 @@
                 </div>
                 <div class="ml-3">
                   <div class="text-sm font-medium text-gray-900">
-                    {{ log.userName || log.userId }}
+                    {{ log.userName || log.username || log.userId }}
                   </div>
 
                 </div>
@@ -94,10 +94,10 @@
             <!-- Timestamp Column -->
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-sm text-gray-900">
-                {{ formatDate(log.timestamp) }}
+                {{ formatDate(log.timestamp || log.createdAt) }}
               </div>
               <div class="text-xs text-gray-500">
-                {{ formatTime(log.timestamp) }}
+                {{ formatTime(log.timestamp || log.createdAt!) }}
               </div>
             </td>
 
@@ -145,7 +145,7 @@
     >
       <Transition name="slide-down">
         <div
-          v-if="expandedChanges.includes(String(log.id)) && log.changes && Object.keys(log.changes).length > 0"
+          v-if="expandedChanges?.includes(String(log.id)) && log.changes && Object.keys(log.changes).length > 0"
           class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-200"
         >
           <div class="px-6 py-4">

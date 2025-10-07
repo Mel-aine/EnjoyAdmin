@@ -1,235 +1,133 @@
 <template>
     <!-- Apply Discount Room Charge Modal -->
-    <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-visible h-full w-full z-50">
-        <div
-            class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-visible">
-            <div class="mt-3">
-                <!-- Modal Header -->
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">
-                        {{ $t('applyDiscount') }}
-                    </h3>
-                    <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-                        <X class="w-5 h-5" />
-                    </button>
+    <!-- No Show Reservation Modal -->
+    <RightSideModal :is-open="isOpen" :title="$t('applyDiscount')" @close="closeModal">
+        <template #header>
+            <h3 class="text-lg font-semibold text-gray-900">{{ $t('applyDiscount') }}</h3>
+        </template>
+        <div>
+            <!-- Loading Skeleton -->
+            <div v-if="isLoading" class="space-y-4">
+                <div class="animate-pulse">
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="flex space-x-4 mb-4">
+                        <div class="h-4 bg-gray-200 rounded w-16"></div>
+                        <div class="h-4 bg-gray-200 rounded w-32"></div>
+                    </div>
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
                 </div>
-
-                <!-- Loading Skeleton -->
-                <div v-if="isLoading" class="space-y-4">
-                    <div class="animate-pulse">
-                        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                        <div class="flex space-x-4 mb-4">
-                            <div class="h-4 bg-gray-200 rounded w-16"></div>
-                            <div class="h-4 bg-gray-200 rounded w-32"></div>
-                        </div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                        <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                        <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                        <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                        <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    </div>
-                </div>
-
-                <!-- Modal Form -->
-                <form v-else @submit.prevent="handleSubmit">
-                    <!-- Discount Selection -->
-                    <div class="mb-4">
-                        <InputDiscountSelect 
-                            v-model="formData.discountId" 
-                            :lb="$t('discount')" 
-                            :is-required="true"
-                            @select="handleDiscountSelect"
-                        />
-                    </div>
-
-                    <!-- Discount Rule Selection -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ $t('discountRule') }}
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                                :class="formData.discountRule === 'all_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                                <input 
-                                    v-model="formData.discountRule" 
-                                    type="radio" 
-                                    value="all_nights" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">{{ $t('allNights') }}</span>
-                            </label>
-                            <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                                :class="formData.discountRule === 'first_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                                <input 
-                                    v-model="formData.discountRule" 
-                                    type="radio" 
-                                    value="first_night" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">{{ $t('firstNight') }}</span>
-                            </label>
-                            <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                                :class="formData.discountRule === 'last_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                                <input 
-                                    v-model="formData.discountRule" 
-                                    type="radio" 
-                                    value="last_night" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">{{ $t('lastNight') }}</span>
-                            </label>
-                            <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                                :class="formData.discountRule === 'select_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
-                                <input 
-                                    v-model="formData.discountRule" 
-                                    type="radio" 
-                                    value="select_nights" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">{{ $t('selectNights') }}</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Night Selection (only for select_nights rule) -->
-                    <div v-if="formData.discountRule === 'select_nights'" class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ $t('selectNightsToApplyDiscount') }}
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <div class="space-y-2 max-h-40 overflow-y-auto border rounded p-3">
-                            <label 
-                                v-for="(night, index) in availableNights" 
-                                :key="index" 
-                                class="flex items-center p-2 border rounded hover:bg-gray-50 cursor-pointer"
-                                :class="formData.selectedNights.includes(night.date) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'"
-                            >
-                                <input 
-                                    v-model="formData.selectedNights" 
-                                    type="checkbox" 
-                                    :value="night.date" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">
-                                    {{ formatDate(night.date) }} 
-                                    <span class="text-gray-500">({{ night.isAudited ? $t('audited') : $t('notAudited') }})</span>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Apply For Selection -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ $t('applyFor') }}
-                        </label>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
-                                <input 
-                                    v-model="formData.applyFor" 
-                                    type="radio" 
-                                    value="all_rooms" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">{{ $t('allRooms') }}</span>
-                            </label>
-                            <label class="flex items-center" v-if="isGroupReservation">
-                                <input 
-                                    v-model="formData.applyFor" 
-                                    type="radio" 
-                                    value="selected_transaction" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                />
-                                <span class="ml-2 text-sm text-gray-700">{{ $t('applyToSelectedTransaction') }}</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Transaction Selection (only for group reservations and selected_transaction) -->
-                    <div v-if="isGroupReservation && formData.applyFor === 'selected_transaction'" class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ $t('selectTransactions') }}
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3">
-                            <div v-if="loadingTransactions" class="text-center py-4">
-                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                                <span class="text-sm text-gray-500 mt-2">{{ $t('loadingTransactions') }}</span>
-                            </div>
-                            <label 
-                                v-else
-                                v-for="transaction in availableTransactions" 
-                                :key="transaction.id" 
-                                class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                                :class="formData.selectedTransactions.includes(transaction.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'"
-                            >
-                                <input 
-                                    v-model="formData.selectedTransactions" 
-                                    type="checkbox" 
-                                    :value="transaction.id" 
-                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                />
-                                <div class="ml-3 flex-1">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ transaction.particular || transaction.description }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        {{ formatDate(transaction.postingDate) }} - 
-                                        {{ formatCurrency(transaction.amount) }} - 
-                                        {{ transaction.guest?.displayName || 'N/A' }}
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Discount Amount (if open discount) -->
-                    <div v-if="selectedDiscount?.open_discount" class="mb-4">
-                        <InputCurrency 
-                            v-model="formData.discountAmount" 
-                            :lb="$t('discountAmount')" 
-                            :placeholder="$t('enterDiscountAmount')"
-                            :is-required="true"
-                        />
-                    </div>
-
-                    <!-- Notes -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ $t('notes') }}
-                        </label>
-                        <textarea 
-                            v-model="formData.notes" 
-                            rows="3"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                            :placeholder="$t('enterAdditionalNotes')"
-                        ></textarea>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-3">
-                        <BasicButton 
-                            type="button" 
-                            variant="outline" 
-                            @click="closeModal" 
-                            :label="$t('cancel')"
-                            :disabled="loading" 
-                        />
-                        <BasicButton 
-                            type="submit" 
-                            variant="primary" 
-                            :label="$t('applyDiscount')"
-                            :loading="loading" 
-                        />
-                    </div>
-                </form>
             </div>
+
+            <!-- Modal Form -->
+            <form v-else @submit.prevent="handleSubmit">
+                <div class="mb-4">
+                    <InputDatePicker v-model="formData.date" :title="$t('Date')" />
+                </div>
+                <!-- Discount Selection -->
+                <div class="mb-4">
+                    <InputDiscountSelect v-model="formData.discountId" :lb="$t('discount')" :is-required="true"
+                        @select="handleDiscountSelect" />
+                </div>
+
+                <!-- Discount Rule Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ $t('discountRule') }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
+                            :class="formData.discountRule === 'all_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input v-model="formData.discountRule" type="radio" value="all_nights"
+                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700">{{ $t('allNights') }}</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
+                            :class="formData.discountRule === 'first_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input v-model="formData.discountRule" type="radio" value="first_night"
+                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700">{{ $t('firstNight') }}</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
+                            :class="formData.discountRule === 'last_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input v-model="formData.discountRule" type="radio" value="last_night"
+                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700">{{ $t('lastNight') }}</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
+                            :class="formData.discountRule === 'select_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input v-model="formData.discountRule" type="radio" value="select_nights"
+                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700">{{ $t('selectNights') }}</span>
+                        </label>
+                    </div>
+                </div>
+
+
+                <!-- Transaction Selection (only for group reservations and selected_transaction) -->
+                <div v-if="formData.discountRule === 'select_nights'" class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ $t('selectTransactions') }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3">
+                        <div v-if="loadingTransactions" class="text-center py-4">
+                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto">
+                            </div>
+                            <span class="text-sm text-gray-500 mt-2">{{ $t('loadingTransactions') }}</span>
+                        </div>
+                        <label v-else v-for="transaction in availableTransactions" :key="transaction.transactionId"
+                            class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
+                            :class="formData.selectedTransactions.includes(transaction.transactionId) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                            <input v-model="formData.selectedTransactions" type="checkbox"
+                                :value="transaction.transactionId"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                            <div class="ml-3 flex-1">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ transaction.description }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ formatDate(transaction.transactionDate) }} -
+                                    {{ formatCurrency(transaction.netAmount) }} -
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Discount Amount (if open discount) -->
+                <div class="mb-4">
+                    <InputCurrency v-model="formData.discountAmount" :lb="$t('discountAmount')" disabled
+                        :placeholder="$t('enterDiscountAmount')" :is-required="true" />
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ $t('notes') }}
+                    </label>
+                    <textarea v-model="formData.notes" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        :placeholder="$t('enterAdditionalNotes')"></textarea>
+                </div>
+            </form>
         </div>
-    </div>
+        <template #footer>
+            <div class="flex justify-end space-x-3 bg-gray-50">
+                <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                    :disabled="loading" />
+                <BasicButton type="submit" variant="primary" @click="handleSubmit" :label="$t('applyDiscount')"
+                    :loading="loading" />
+            </div>
+        </template>
+    </RightSideModal>
 </template>
 
 <script setup lang="ts">
@@ -240,14 +138,17 @@ import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
-import { getReservationDetailsById } from '../../../services/reservation'
+import { getReservationDetailsById, applyDiscountReservationDetails } from '../../../services/reservation'
 import { getReservationFolios } from '../../../services/foglioApi'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
+import RightSideModal from '../../modal/RightSideModal.vue'
+import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 
 interface Props {
     isOpen: boolean
     reservationId?: string | number
     reservationNumber?: string
+    roomCharges: any
 }
 
 interface Emits {
@@ -307,10 +208,11 @@ const loadingTransactions = ref(false)
 const reservation = ref<any>()
 const selectedDiscount = ref<DiscountOption | null>(null)
 const availableNights = ref<NightInfo[]>([])
-const availableTransactions = ref<TransactionInfo[]>([])
+const availableTransactions = ref<any[]>([])
 
 const formData = ref({
-    discountId: 0 as number ,
+    date: new Date().toISOString().split('T')[0],
+    discountId: 0 as number,
     discountRule: 'all_nights',
     selectedNights: [] as string[],
     applyFor: 'all_rooms',
@@ -323,6 +225,64 @@ const formData = ref({
 const isGroupReservation = computed(() => {
     return reservation.value?.reservationRooms?.length > 1
 })
+
+// Base amount: total room charges, optionally restricted to selected transactions
+const baseRoomChargeAmount = computed(() => {
+    const list = Array.isArray(availableTransactions.value) ? availableTransactions.value : []
+    // If applying to selected transactions, filter to those
+    const ids = formData.value.applyFor === 'selected_transaction' ? formData.value.selectedTransactions : []
+    const filtered = ids && ids.length > 0
+        ? list.filter((t: any) => ids.includes(t.transactionId))
+        : list
+
+    // Use netAmount if present, else amount
+    const sum = filtered.reduce((acc: number, t: any) => {
+        const val = Number.isFinite(t?.netAmount) ? Number(t.netAmount) : Number(t?.amount ?? 0)
+        return acc + (Number.isFinite(val) ? val : 0)
+    }, 0)
+    return sum
+})
+
+// Recalculate discount amount when selection or base changes
+const recalcDiscountAmount = () => {
+    const discount = selectedDiscount.value
+    const base = baseRoomChargeAmount.value
+    let computedAmount = 0
+
+    if (!discount) {
+        formData.value.discountAmount = 0
+        return
+    }
+
+    if (discount.type === 'percentage') {
+        const pct = Number(discount.value)
+        if (Number.isFinite(pct) && pct > 0) {
+            computedAmount = (base * pct) / 100
+        }
+    } else if (discount.type === 'flat') {
+        const flat = Number(discount.value)
+        if (Number.isFinite(flat) && flat > 0) {
+            computedAmount = flat
+        }
+    } else if (discount.open_discount) {
+        // Keep user-entered open discount untouched; do not auto-calc
+        computedAmount = formData.value.discountAmount || 0
+    }
+
+    formData.value.discountAmount = Math.round(computedAmount * 100) / 100
+}
+
+watch(selectedDiscount, () => {
+    recalcDiscountAmount()
+})
+
+watch(baseRoomChargeAmount, () => {
+    recalcDiscountAmount()
+})
+
+watch(() => formData.value.selectedTransactions, () => {
+    recalcDiscountAmount()
+}, { deep: true })
 
 // Watch for modal open/close
 watch(() => props.isOpen, (newValue) => {
@@ -357,16 +317,16 @@ watch(() => formData.value.applyFor, (newApplyFor) => {
 
 const getReservationDetails = async () => {
     if (!props.reservationId) return
-    
+
     isLoading.value = true
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
         console.log('Reservation response:', response)
         reservation.value = response
-        
+
         // Generate available nights based on reservation dates
         generateAvailableNights()
-        
+
         console.log('Reservation data fetched:', reservation.value)
     } catch (error) {
         console.error('Error fetching reservation details:', error)
@@ -378,11 +338,11 @@ const getReservationDetails = async () => {
 
 const generateAvailableNights = () => {
     if (!reservation.value?.arrivalDate || !reservation.value?.departureDate) return
-    
+
     const startDate = new Date(reservation.value.arrivalDate)
     const endDate = new Date(reservation.value.departureDate)
     const nights: NightInfo[] = []
-    
+
     const currentDate = new Date(startDate)
     while (currentDate < endDate) {
         nights.push({
@@ -391,41 +351,16 @@ const generateAvailableNights = () => {
         })
         currentDate.setDate(currentDate.getDate() + 1)
     }
-    
+
     availableNights.value = nights
 }
 
 const loadTransactions = async () => {
-    if (!props.reservationId) return
-    
+    if (!props.roomCharges) return
+
     loadingTransactions.value = true
     try {
-        const response = await getReservationFolios(Number(props.reservationId))
-        console.log('Folio response:', response)
-        
-        // Extract all transactions from all folios
-        const transactions: TransactionInfo[] = []
-        if (response.data && Array.isArray(response.data)) {
-            response.data.forEach((folio: any) => {
-                if (folio.transactions && Array.isArray(folio.transactions)) {
-                    folio.transactions.forEach((transaction: any) => {
-                        // Only include room charge transactions
-                        if (transaction.category === 'room' || transaction.particular?.toLowerCase().includes('room')) {
-                            transactions.push({
-                                id: transaction.id,
-                                particular: transaction.particular || transaction.description || 'Room Charge',
-                                description: transaction.description || transaction.particular || 'Room Charge',
-                                amount: transaction.grossAmount || transaction.amount || 0,
-                                postingDate: transaction.postingDate || transaction.day,
-                                guest: folio.guest
-                            })
-                        }
-                    })
-                }
-            })
-        }
-        
-        availableTransactions.value = transactions
+        availableTransactions.value = props.roomCharges
         console.log('Available transactions:', availableTransactions.value)
     } catch (error) {
         console.error('Error loading transactions:', error)
@@ -434,10 +369,13 @@ const loadTransactions = async () => {
         loadingTransactions.value = false
     }
 }
+loadTransactions();
 
 const handleDiscountSelect = (discount: DiscountOption) => {
     selectedDiscount.value = discount
     console.log('Selected discount:', discount)
+    // Immediately recompute after selection
+    recalcDiscountAmount()
 }
 
 const formatDate = (dateStr: string) => {
@@ -452,7 +390,8 @@ const resetForm = () => {
         applyFor: 'all_rooms',
         selectedTransactions: [],
         discountAmount: 0,
-        notes: ''
+        notes: '',
+        date: new Date().toISOString().split('T')[0],
     }
     selectedDiscount.value = null
     availableNights.value = []
@@ -493,31 +432,32 @@ const handleSubmit = async () => {
             return
         }
 
-        // Prepare data for emission
-        const discountData: ApplyDiscountData = {
-            discountId: formData.value.discountId!,
-            discountRule: formData.value.discountRule,
-            selectedNights: formData.value.discountRule === 'select_nights' ? formData.value.selectedNights : undefined,
-            applyFor: formData.value.applyFor,
-            selectedTransactions: formData.value.applyFor === 'selected_transaction' ? formData.value.selectedTransactions : undefined,
-            discountAmount: selectedDiscount.value?.open_discount ? formData.value.discountAmount : undefined,
-            notes: formData.value.notes || undefined,
-            reservationId: props.reservationId,
-            reservationNumber: props.reservationNumber
+        // Map rule to API schema enum names
+        const mapRule = (rule: string): 'allNights' | 'firstNight' | 'lastNight' | 'selectNights' => {
+            switch (rule) {
+                case 'all_nights': return 'allNights'
+                case 'first_night': return 'firstNight'
+                case 'last_night': return 'lastNight'
+                case 'select_nights': return 'selectNights'
+                default: return 'allNights'
+            }
         }
 
-        console.log('Discount data:', discountData)
+        // Build payload to match applyDiscountReservationDetails schema
+        const payload = {
+            discountId: Number(formData.value.discountId),
+            discountRule: mapRule(formData.value.discountRule),
+            selectedTransactions: formData.value.discountRule === 'select_nights' ? formData.value.selectedTransactions.map(Number).filter(n => Number.isFinite(n) && n > 0) : undefined,
+            date: formData.value.date || undefined,
+            notes: formData.value.notes?.trim() || undefined
+        }
 
-        // TODO: Implement API call to apply discount
-        // const response = await applyDiscountToRoomCharge(discountData)
+        console.log('Calling applyDiscountReservationDetails with payload:', payload)
+        const response = await applyDiscountReservationDetails(Number(props.reservationId), payload)
 
-        // Emit the discount applied event
-        emit('discount-applied', discountData)
-
-        // Show success message
-        toast.success(t('discountAppliedSuccessfully'))
-
-        // Close modal
+        // Emit and notify
+        emit('discount-applied', response?.data ?? payload)
+        toast.success(response?.message || t('discountAppliedSuccessfully'))
         closeModal()
     } catch (error) {
         console.error('Error applying discount:', error)
