@@ -166,122 +166,111 @@
         </div>
       </div>
 
-      <!-- Results Section avec le nouveau style -->
+      <!-- Results Section -->
       <div v-if="showResults" class="report-container bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
         
-        <!-- Report Header avec le style du template -->
-        <div class="report-header px-6 py-3 border-b border-gray-300 dark:border-gray-600">
-          <div class="hotel-name text-lg font-bold text-darkblue dark:text-blue-300">
+        <!-- Report Header - Style du serveur -->
+        <div class="report-header">
+          <div class="hotel-name">
             {{ reportData?.hotelDetails?.hotelName || 'Suita Hotel' }}
           </div>
-          <div class="report-title text-md font-bold text-dark-red dark:text-red-400">
-            Daily Receipt Summary
+          <div class="report-title">
+            Daily Receipt - Summary
           </div>
         </div>
 
-        <!-- Date Range avec le style du template -->
-        <div class="date-range px-6 py-2 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-300 dark:border-gray-600">
-          <strong>Date From:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }} 
-          <strong>To:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}
+        <!-- Date Range - Style du serveur -->
+        <div class="date-range">
+          <span><strong>From Date:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
+          <span><strong>To Date:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
+          <span><strong>Currency:</strong> {{ currency }}</span>
         </div>
+
+        <div class="header-separator"></div>
 
         <!-- Si le rapport contient du HTML, l'afficher -->
         <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
 
         <!-- Sinon, afficher les données avec le nouveau style -->
-        <div v-else class="px-6 py-4">
+        <div v-else class="report-content">
           <!-- User Sections -->
-          <div v-for="(userSummary, index) in reportData?.userSummaries" :key="index" class="user-section mb-6">
-            <table class="w-full border-collapse text-xs border-t border-gray-300 dark:border-gray-600">
-              <thead class="border-b border-t-0 border-black">
-              <tr>
-                <th class="w-1/4 text-left p-2 bg-gray-50 dark:bg-gray-700">Pay Method</th>
-                <th class="w-1/6 text-center p-2 bg-gray-50 dark:bg-gray-700">Tran. Count</th>
-                <th class="w-1/5 text-right p-2 bg-gray-50 dark:bg-gray-700">Amount</th>
-                <th class="w-1/6 text-center p-2 bg-gray-50 dark:bg-gray-700">Void Count</th>
-                <th class="w-1/5 text-right p-2 bg-gray-50 dark:bg-gray-700">Void Amount</th>
-                <th class="w-1/5 text-right p-2 bg-gray-50 dark:bg-gray-700">Total ({{ currency }})</th>
-              </tr>
+          <div v-for="(userSummary, index) in reportData?.userSummaries" :key="index" class="user-section">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="w-1/4 text-left">Pay Method</th>
+                  <th class="w-1/6 text-center">Tran. Count</th>
+                  <th class="w-1/5 text-right">Amount</th>
+                  <th class="w-1/6 text-center">Void Count</th>
+                  <th class="w-1/5 text-right">Void Amount</th>
+                  <th class="w-1/5 text-right">Total ({{ currency }})</th>
+                </tr>
               </thead>
               <tbody>
                 <!-- User Name Row -->
                 <tr class="user-name-row">
-                  <td colspan="6" class="p-2 font-bold border-none">User: {{ userSummary.userName }}</td>
+                  <td colspan="6">User: {{ userSummary.userName }}</td>
                 </tr>
                 
                 <!-- Payment Methods -->
                 <tr v-for="(paymentMethod, pmIndex) in userSummary.paymentMethods" :key="pmIndex" class="payment-method-row">
-                  <td class="p-2 border-none">{{ paymentMethod.methodName }}</td>
-                  <td class="p-2 text-center border-none">{{ paymentMethod.totalTransactions }}</td>
-                  <td class="p-2 text-right border-none font-mono">{{ formatCurrency(paymentMethod.amount) }}</td>
-                  <td class="p-2 text-center border-none">{{ paymentMethod.totalVoid }}</td>
-                  <td class="p-2 text-right border-none font-mono">{{ formatCurrency(paymentMethod.voidAmount) }}</td>
-                  <td class="p-2 text-right border-none font-mono">{{ formatCurrency(paymentMethod.total) }}</td>
+                  <td>{{ paymentMethod.methodName }}</td>
+                  <td class="text-center">{{ paymentMethod.totalTransactions }}</td>
+                  <td class="text-right amount-column">{{ formatCurrency(paymentMethod.amount) }}</td>
+                  <td class="text-center">{{ paymentMethod.totalVoid }}</td>
+                  <td class="text-right amount-column">{{ formatCurrency(paymentMethod.voidAmount) }}</td>
+                  <td class="text-right amount-column">{{ formatCurrency(paymentMethod.total) }}</td>
                 </tr>
                 
                 <!-- User Total -->
-                <tr class="user-total-row bg-gray-50 dark:bg-gray-700 font-bold">
-                  <td class="p-2 border-none text-sm">User Total</td>
-                  <td class="p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">{{ userSummary.totalTransactions }}</td>
-                  <td class="p-2 text-right border-none font-mono text-sm"></td>
-                  <td class="p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">{{ userSummary.totalVoid }}</td>
-                  <td class="p-2 text-right border-none font-mono text-sm"></td>
-                  <td class="p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono text-sm">{{ formatCurrency(userSummary.userTotal) }}</td>
+                <tr class="user-total-row">
+                  <td><strong>User Total</strong></td>
+                  <td class="text-center"><strong>{{ userSummary.totalTransactions }}</strong></td>
+                  <td class="text-right amount-column"><strong></strong></td>
+                  <td class="text-center"><strong>{{ userSummary.totalVoid }}</strong></td>
+                  <td class="text-right amount-column"><strong></strong></td>
+                  <td class="text-right amount-column"><strong>{{ formatCurrency(userSummary.userTotal) }}</strong></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <!-- Grand Total -->
-          <table class="w-full mt-4">
+          <table class="data-table grand-total-table">
             <tbody>
-              <tr class="grand-total-row bg-gray-100 dark:bg-gray-600 font-bold">
-                <td class="w-1/4 p-2 border-none text-sm">Grand Total</td>
-                <td class="w-1/6 p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">
-                  {{ reportData?.grandTotals?.totalTransactions || 0 }}
-                </td>
-                <td class="w-1/5 p-2 text-right border-none font-mono text-sm">
-                  {{ formatCurrency(reportData?.grandTotals?.totalAmount || 0) }}
-                </td>
-                <td class="w-1/6 p-2 text-center border-t border-b border-dotted border-gray-400 dark:border-gray-500 text-sm">
-                  {{ reportData?.grandTotals?.totalVoid || 0 }}
-                </td>
-                <td class="w-1/5 p-2 text-right border-none font-mono text-sm">
-                  {{ formatCurrency(reportData?.grandTotals?.voidAmount || 0) }}
-                </td>
-                <td class="w-1/5 p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono text-sm">
-                  {{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}
-                </td>
+              <tr class="grand-total-row">
+                <td class="w-1/4"><strong>Grand Total</strong></td>
+                <td class="w-1/6 text-center"><strong>{{ reportData?.grandTotals?.totalTransactions || 0 }}</strong></td>
+                <td class="w-1/5 text-right amount-column"><strong>{{ formatCurrency(reportData?.grandTotals?.totalAmount || 0) }}</strong></td>
+                <td class="w-1/6 text-center"><strong>{{ reportData?.grandTotals?.totalVoid || 0 }}</strong></td>
+                <td class="w-1/5 text-right amount-column"><strong>{{ formatCurrency(reportData?.grandTotals?.voidAmount || 0) }}</strong></td>
+                <td class="w-1/5 text-right amount-column"><strong>{{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}</strong></td>
               </tr>
             </tbody>
           </table>
 
-          <!-- Summary Section avec le nouveau style -->
-          <div class="summary-section mt-6 pt-4">
-            <div class="summary-title-container flex justify-center">
-              <div class="summary-title font-bold text-sm mb-3">Summary</div>
-            </div>
+          <!-- Summary Section -->
+          <div class="summary-section">
+            <div class="summary-title">Summary</div>
             
-            <div class="summary-tables flex gap-8 justify-center">
+            <div class="summary-tables">
               <!-- User Summary -->
               <div class="summary-table-container">
-                <table class="summary-table border-collapse text-xs min-w-[200px]">
+                <table class="summary-table">
                   <thead>
                     <tr>
-                      <th colspan="2" class="text-center p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">User</th>
-                      <th class="text-right p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">Amount ({{ currency }})</th>
+                      <th colspan="2" class="text-center">User</th>
+                      <th class="text-right">Amount ({{ currency }})</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(userSum, index) in reportData?.summary?.userSummary" :key="index">
-                      <td colspan="2" class="p-2 border-none">{{ userSum.userName }}</td>
-                      <td class="p-2 text-right border-none font-mono">{{ formatCurrency(userSum.netTotal) }}</td>
+                      <td colspan="2">{{ userSum.userName }}</td>
+                      <td class="text-right amount-column">{{ formatCurrency(userSum.netTotal) }}</td>
                     </tr>
-                    <tr class="summary-grand-total bg-gray-100 dark:bg-gray-600 font-bold">
-                      <td colspan="2" class="p-2 border-none">Grand Total</td>
-                      <td class="p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono">
-                        {{ formatCurrency(reportData?.summary?.grandTotalUserSummary?.netTotal || 0) }}
-                      </td>
+                    <tr class="summary-grand-total">
+                      <td colspan="2"><strong>Grand Total</strong></td>
+                      <td class="text-right amount-column"><strong>{{ formatCurrency(reportData?.summary?.grandTotalUserSummary?.netTotal || 0) }}</strong></td>
                     </tr>
                   </tbody>
                 </table>
@@ -289,23 +278,21 @@
 
               <!-- Payment Method Summary -->
               <div class="summary-table-container">
-                <table class="summary-table border-collapse text-xs min-w-[200px]">
+                <table class="summary-table">
                   <thead>
                     <tr>
-                      <th class="text-left p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">Pay Method</th>
-                      <th class="text-right p-3 bg-gray-50 dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600">Amount ({{ currency }})</th>
+                      <th class="text-left">Pay Method</th>
+                      <th class="text-right">Amount ({{ currency }})</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(methodSum, index) in reportData?.summary?.paymentMethodSummary" :key="index">
-                      <td class="p-2 border-none">{{ methodSum.methodName }}</td>
-                      <td class="p-2 text-right border-none font-mono">{{ formatCurrency(methodSum.total) }}</td>
+                      <td>{{ methodSum.methodName }}</td>
+                      <td class="text-right amount-column">{{ formatCurrency(methodSum.total) }}</td>
                     </tr>
-                    <tr class="summary-grand-total bg-gray-100 dark:bg-gray-600 font-bold">
-                      <td class="p-2 border-none">Grand Total</td>
-                      <td class="p-2 text-right border-t border-b border-dotted border-gray-400 dark:border-gray-500 font-mono">
-                        {{ formatCurrency(reportData?.summary?.grandTotalPaymentMethodSummary?.netTotal || 0) }}
-                      </td>
+                    <tr class="summary-grand-total">
+                      <td><strong>Grand Total</strong></td>
+                      <td class="text-right amount-column"><strong>{{ formatCurrency(reportData?.summary?.grandTotalPaymentMethodSummary?.netTotal || 0) }}</strong></td>
                     </tr>
                   </tbody>
                 </table>
@@ -420,7 +407,7 @@ const reportTitle = computed(() => {
 })
 
 const currency = computed(() => {
-  return 'XAF' // Vous pouvez le rendre dynamique si nécessaire
+  return 'XAF'
 })
 
 // Fetch options from API
@@ -510,13 +497,11 @@ const exportPDF = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
 
-    // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
 
-    // Generate new PDF URL
     const newPdfUrl = await generateDailyReceiptSummaryPdf(apiFilters.value)
     pdfUrl.value = newPdfUrl
     openPDFInNewPage()
@@ -583,7 +568,6 @@ const formatCurrency = (amount: number): string => {
   }).format(amount || 0)
 }
 
-// Close export menu when clicking outside
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as HTMLElement
   if (!target.closest('.relative')) {
@@ -603,26 +587,25 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Styles spécifiques pour appliquer le design du template */
-
+/* ===== REPORT CONTAINER ===== */
 .report-container {
-  padding: 15px;
+  padding: 0px 15px 15px 15px;
   background-color: white;
-  border: 1px solid #ddd;
+  font-size: 11px;
 }
 
 .dark .report-container {
   background-color: #1f2937;
-  border-color: #374151;
 }
 
+/* ===== REPORT HEADER - Style du serveur ===== */
 .report-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0;
-  padding: 12px 24px;
   border-bottom: 1px solid #333;
+  padding-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .dark .report-header {
@@ -630,9 +613,9 @@ onUnmounted(() => {
 }
 
 .hotel-name {
-  font-size: 18px;
   font-weight: bold;
-  color: darkblue;
+  color: #00008B;
+  font-size: 13px;
 }
 
 .dark .hotel-name {
@@ -640,75 +623,174 @@ onUnmounted(() => {
 }
 
 .report-title {
-  font-size: 16px;
+  font-size: 13px;
+  color: #8B0000;
   font-weight: bold;
-  margin-left: 10px;
-  color: #a52a2a; /* Rouge bordeau plus clair */
 }
 
 .dark .report-title {
-  color: #f87171; /* Rouge plus clair pour le mode sombre */
+  color: #f87171;
 }
 
+/* ===== DATE RANGE - Style du serveur ===== */
 .date-range {
-  font-size: 12px;
-  margin-top: 0;
-  border-top: 1px solid #333;
-  padding: 8px 24px;
+  font-size: 10px;
+  margin-bottom: 8px;
 }
 
 .dark .date-range {
-  border-color: #6b7280;
+  color: #e5e7eb;
+}
+
+.date-range span {
+  margin-right: 10px;
 }
 
 .date-range strong {
   font-weight: bold;
 }
 
-.user-section {
-  margin-bottom: 20px;
+.header-separator {
+  border-top: 1px solid #333;
+  margin: 0 0 8px 0;
 }
 
+.dark .header-separator {
+  border-color: #6b7280;
+}
+
+/* ===== REPORT CONTENT ===== */
+.report-content {
+  padding: 0;
+}
+
+/* ===== USER SECTIONS ===== */
+.user-section {
+  margin-bottom: 15px;
+}
+
+/* ===== DATA TABLES ===== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.data-table th {
+  background-color: white;
+  border-top: none;
+  border-bottom: 1px solid #333;
+  padding: 4px 8px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.dark .data-table th {
+  background-color: #1f2937;
+  border-color: #e5e7eb;
+  color: #e5e7eb;
+}
+
+.data-table td {
+  padding: 3px 8px;
+  font-size: 12px;
+  border: none;
+}
+
+.dark .data-table td {
+  color: #e5e7eb;
+}
+
+.data-table th.text-right,
+.data-table td.text-right {
+  text-align: right;
+}
+
+.data-table th.text-center,
+.data-table td.text-center {
+  text-align: center;
+}
+
+/* ===== USER NAME ROW ===== */
 .user-name-row td {
-  padding: 6px 8px;
+  padding: 5px 8px;
   font-weight: bold;
   border: none;
 }
 
+/* ===== PAYMENT METHOD ROWS ===== */
 .payment-method-row td {
   border: none;
 }
 
+/* ===== USER TOTAL ROW ===== */
 .user-total-row {
   font-weight: bold;
-  background-color: #f9f9f9;
+  background-color: white;
 }
 
 .dark .user-total-row {
-  background-color: #374151;
+  background-color: #1f2937;
 }
 
 .user-total-row td {
   border: none;
-  font-size: 11px; /* Police réduite pour Grand Total */
+  padding: 3px 8px;
+}
+
+/* Bordures pointillées sur Tran. Count, Void Count et Total uniquement */
+.user-total-row td:nth-child(2),
+.user-total-row td:nth-child(4),
+.user-total-row td:nth-child(6) {
+  border-top: 1px dotted #333;
+  border-bottom: 1px dotted #333;
+}
+
+.dark .user-total-row td:nth-child(2),
+.dark .user-total-row td:nth-child(4),
+.dark .user-total-row td:nth-child(6) {
+  border-color: #e5e7eb;
+}
+
+/* ===== GRAND TOTAL ===== */
+.grand-total-table {
+  margin-top: 5px;
 }
 
 .grand-total-row {
   font-weight: bold;
-  background-color: #f0f0f0;
+  background-color: white;
 }
 
 .dark .grand-total-row {
-  background-color: #4b5563;
+  background-color: #1f2937;
 }
 
 .grand-total-row td {
-  font-size: 11px; /* Police réduite pour Grand Total */
+  padding: 5px 8px;
+  border: none;
 }
 
+/* Bordures pointillées sur Tran. Count, Void Count et Total uniquement */
+.grand-total-row td:nth-child(2),
+.grand-total-row td:nth-child(4),
+.grand-total-row td:nth-child(6) {
+  border-top: 1px dotted #333;
+  border-bottom: 1px dotted #333;
+}
+
+.dark .grand-total-row td:nth-child(2),
+.dark .grand-total-row td:nth-child(4),
+.dark .grand-total-row td:nth-child(6) {
+  border-color: #e5e7eb;
+}
+
+/* ===== SUMMARY SECTION ===== */
 .summary-section {
-  margin-top: 20px;
-  padding-top: 15px;
+  margin-top: 15px;
+  padding-top: 10px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -717,11 +799,10 @@ onUnmounted(() => {
 
 .summary-title {
   font-weight: bold;
-  font-size: 12px;
+  font-size: 13px;
   margin-bottom: 10px;
-  text-align: left;
-  padding-left: 0;
-  width: fit-content;
+  text-align: center;
+  width: 100%;
 }
 
 .summary-tables {
@@ -738,53 +819,64 @@ onUnmounted(() => {
 
 .summary-table {
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 12px;
   border: none;
   min-width: 200px;
 }
 
 .summary-table th {
-  background-color: #f5f5f5;
+  background-color: white;
   border-top: 1px solid #333;
   border-bottom: 1px solid #333;
-  padding: 6px 12px;
+  padding: 5px 12px;
   text-align: left;
   font-weight: bold;
   white-space: nowrap;
+  font-size: 12px;
 }
 
 .dark .summary-table th {
-  background-color: #374151;
-  border-color: #6b7280;
+  background-color: #1f2937;
+  border-color: #e5e7eb;
+  color: #e5e7eb;
 }
 
 .summary-table td {
   border: none;
-  padding: 5px 12px;
+  padding: 4px 12px;
   white-space: nowrap;
+  font-size: 12px;
+}
+
+.dark .summary-table td {
+  color: #e5e7eb;
 }
 
 .summary-grand-total {
   font-weight: bold;
-  background-color: #f0f0f0;
+  background-color: white;
 }
 
 .dark .summary-grand-total {
-  background-color: #4b5563;
+  background-color: #1f2937;
 }
 
-/* Styles pour les colonnes de montant avec police monospace */
+.summary-grand-total td:last-child {
+  border-top: 1px dotted #333;
+  border-bottom: 1px dotted #333;
+}
+
+.dark .summary-grand-total td:last-child {
+  border-color: #e5e7eb;
+}
+
+/* ===== AMOUNT COLUMN ===== */
 .amount-column {
   text-align: right;
   font-family: 'Courier New', monospace;
 }
 
-/* Couleur rouge bordeau plus clair */
-.text-dark-red {
-  color: #a52a2a;
-}
-
-/* Adaptation responsive */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .summary-tables {
     flex-direction: column;
@@ -802,7 +894,7 @@ onUnmounted(() => {
   }
 }
 
-/* Button hover effects */
+/* ===== BUTTON STYLES ===== */
 .transition-all {
   transition: all 0.2s ease-in-out;
 }
@@ -815,7 +907,7 @@ button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-/* Export menu animations */
+/* ===== EXPORT MENU ===== */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.2s, transform 0.2s;
 }
@@ -825,37 +917,10 @@ button:active:not(:disabled) {
   transform: translateY(-10px);
 }
 
-/* Table styling */
-.border-dotted {
-  border-style: dotted;
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  
-  .md\:grid-cols-2 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  
-  .lg\:grid-cols-3 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  
-  .flex-col > div {
-    width: 100%;
-  }
-  
-  .flex-col > div + div {
-    margin-top: 1rem;
-  }
-}
-
-/* Styles for report HTML content */
+/* ===== REPORT HTML CONTAINER ===== */
 :deep(.report-html-container) {
   width: 100%;
+  padding: 0;
 }
 
 :deep(.report-html-container table) {
@@ -869,44 +934,31 @@ button:active:not(:disabled) {
   border: 1px solid #e5e7eb;
 }
 
-:deep(.report-html-container .report-container) {
-  margin: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-:deep(.report-html-container .results-table) {
-  font-size: 12px;
-}
-
-/* Dark mode adaptations */
-.dark :deep(.report-html-container) {
-  color: #e5e7eb;
-}
-
-.dark :deep(.report-html-container .report-container) {
-  background-color: transparent;
-}
-
 .dark :deep(.report-html-container th),
 .dark :deep(.report-html-container td) {
   border-color: #4b5563;
   color: #e5e7eb;
 }
 
-/* Button group styling */
-.button-group {
-  display: flex;
-  gap: 0.5rem;
+:deep(.report-html-container .report-container) {
+  margin: 0;
+  box-shadow: none;
+  border-radius: 0;
 }
 
-@media (max-width: 640px) {
-  .button-group {
-    flex-direction: column;
-  }
+.dark :deep(.report-html-container .report-container) {
+  background-color: transparent;
 }
 
-/* Loading animation improvements */
+:deep(.report-html-container .results-table) {
+  font-size: 12px;
+}
+
+.dark :deep(.report-html-container) {
+  color: #e5e7eb;
+}
+
+/* ===== LOADING ANIMATION ===== */
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -920,12 +972,94 @@ button:active:not(:disabled) {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Export dropdown shadow */
+/* ===== EXPORT DROPDOWN ===== */
 .export-dropdown {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .dark .export-dropdown {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== NO DATA MESSAGE ===== */
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.dark .no-data {
+  color: #9ca3af;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.report-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.report-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark .report-container::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.report-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.report-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark .report-container::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.dark .report-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .report-container {
+    padding: 0;
+    box-shadow: none;
+    border: none;
+  }
+  
+  .dark .report-container {
+    background-color: white;
+    color: black;
+  }
+  
+  .hotel-name {
+    color: #00008B !important;
+  }
+  
+  .report-title {
+    color: #8B0000 !important;
+  }
+  
+  .data-table th {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .user-total-row,
+  .grand-total-row,
+  .summary-grand-total {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .summary-table th {
+    background-color: white !important;
+    color: black !important;
+  }
 }
 </style>

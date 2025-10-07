@@ -252,14 +252,14 @@
                 </template>
                 
                 <!-- Grand Total Row - Repositionné entre Reference et Amount -->
-                <tr class="bg-gray-100 dark:bg-gray-700 font-bold">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600" colspan="2">
+                <tr class="font-bold">
+                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white" colspan="2">
                     <!-- Vide pour Date et Receipt -->
                   </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white dark:border-gray-600">
+                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                     <strong>Grand Total</strong>
                   </td>
-                  <td class="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white dark:border-gray-600">
+                  <td class="px-4 py-3 text-sm text-right font-bold text-gray-900 dark:text-white">
                     <strong>{{ formatCurrency(reportData?.grandTotalAmount) }}</strong>
                   </td>
          
