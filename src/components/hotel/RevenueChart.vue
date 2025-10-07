@@ -38,7 +38,7 @@
       <!-- Revenu total -->
       <div class="bg-blue-50 rounded-lg p-4">
         <div class="text-blue-600 text-sm font-medium mb-1">{{ $t('total_earning') }}</div>
-        <div class="text-2xl font-bold">{{ revenuTotal?.currentRevenue || 0 }} XAF</div>
+        <div class="text-2xl font-bold">{{ revenuTotal?.[0]?.totalRevenue || 0 }} XAF</div>
         <div class="flex items-center mt-2">
           <span
             :class="[
@@ -193,7 +193,7 @@ const emit = defineEmits<{
   changeViews: [view: 'yearly' | 'semester' | 'quarterly' | 'monthly']
 }>()
 
-const variation = computed(() => props.revenuTotal?.growthRate ?? 0)
+const variation = computed(() => props.revenuTotal?.[0]?.progression ?? 0)
 const variationOccupancy = computed(() => props.totalOccupancyRate?.variationPercentage ?? 0)
 const variationADR = computed(() => props.Adr?.variationPercentage ?? 0)
 
@@ -207,10 +207,10 @@ const props = defineProps<{
     currentADR: number
     variationPercentage: number
   } | null
-  revenuTotal?: {
-    currentRevenue: number
-    growthRate: number
-  } | null
+  revenuTotal?: [{
+    totalRevenue: number
+    progression: number
+  }]| []
   currentView?: 'yearly' | 'semester' | 'quarterly' | 'monthly'
 }>()
 
@@ -301,7 +301,7 @@ const initChart = async () => {
             } else {
               result += `<div style="margin: 4px 0;">
                 <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px;"></span>
-                ${param.seriesName}: ${value !== null && value !== undefined ? value.toLocaleString() : 'N/A'} XAF
+                ${param.seriesName}: ${value !== null && value !== undefined ? value.toLocaleString() : 'N/A'}
               </div>`
             }
           })

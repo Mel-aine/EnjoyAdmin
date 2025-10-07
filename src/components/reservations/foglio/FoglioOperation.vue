@@ -179,7 +179,7 @@
         </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountRoomCharge :is-open="isApplyDiscountModal" :reservation-id="reservationId"
+          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId"
             :reservation-number="reservation?.reservationNumber" @close="closeApplyDiscountModal"
             @discount-applied="handleDiscountApplied" />
         </template>
@@ -215,7 +215,8 @@ import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
 import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
 import { useAuthStore } from '@/composables/user'
 import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
-import { generateInvoicePdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
+import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
+import ApplyDiscountModal from './ApplyDiscountModal.vue'
 
 const authStore = useAuthStore()
 
@@ -385,21 +386,32 @@ const columns = computed<Column[]>(() => [
 const actionTransactions = computed<Action[]>(() => {
   return [
     {
+      label: t('edit'),
+      handler: (item) => onAction('edit', item),
+      icon: 'edit'
+    },
+    {
       label: t('void'),
       handler: (item) => onAction('void', item),
       icon: 'void'
     },
+        {
+      label: t('printVoucher'),
+      handler: (item) => onAction('printVoucher', item),
+      condition: (item) => item.transactionType === 'room_posting' || item.category === 'extract_charge',
+      icon: 'print'
+    },
     {
       label: t('printReceipt'),
       handler: (item) => onAction('printReceipt', item),
+      condition: (item) => item.transactionType === 'payment',
+      icon: 'print'
+    },{
+      label: t('printPosReceipt'),
+      handler: (item) => onAction('printPosReceipt', item),
+      condition: (item) => item.transactionType === 'room_posting',
       icon: 'print'
     },
-    {
-      label: t('printInvoice'),
-      handler: (item) => onAction('printInvoice', item),
-      icon: 'print'
-    },
-
   ]
 })
 
@@ -414,9 +426,12 @@ const onAction = (action: any, item: any) => {
     case 'printReceipt':
       printReceipt(item)
       break
-    case 'printInvoice':
+    case 'printVoucher':
       printInvoice(item);
       break
+    case 'printPosReceipt':
+      printPosReceipt(item);
+      break 
   }
 
 }
@@ -434,6 +449,20 @@ const printReceipt = async (item: any) => {
      pdfurl.value = pdfUrl;
   } catch (error) {
     console.error('Error printing receipt:', error)
+  } finally {
+    printLoading.value = false;
+  }
+}
+const printPosReceipt = async (item: any) => {
+  console.log('Print pos receipt:', item)
+  // Add print logic here
+  try {
+    printLoading.value = true
+    showPdfExporter.value = true
+    const pdfUrl = await generatePosReceiptPdfUrl(item.id);
+     pdfurl.value = pdfUrl;
+  } catch (error) {
+    console.error('Error printing pos receipt:', error)
   } finally {
     printLoading.value = false;
   }
@@ -457,7 +486,7 @@ const formatAmount = (amount: number) => {
 }
 
 const getAmountColor = (amount: number) => {
-  return amount >= 0 ? 'text-blue-600' : 'text-red-600'
+  return amount >= 0 ? 'text-blue-600' : 'text-green-600'
 }
 
 // Modal handlers

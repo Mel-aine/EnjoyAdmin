@@ -845,7 +845,7 @@ const onProfilePhotoSuccess = async (result: any) => {
     } else {
       guestData.profilePhoto = result.url || result.info?.secure_url || result
     }
-    toast.success(t('Profile photo uploaded successfully'))
+
   } catch (error) {
     console.error('Error handling profile photo:', error)
     toast.error(t('Profile photo upload failed'))
@@ -861,7 +861,7 @@ const onIdPhotoSuccess = async (result: any) => {
     } else {
       guestData.idPhoto = result.url || result.info?.secure_url || result
     }
-    toast.success(t('ID photo uploaded successfully'))
+
   } catch (error) {
     console.error('Error handling ID photo:', error)
     toast.error(t('ID photo upload failed'))

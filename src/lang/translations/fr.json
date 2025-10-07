@@ -699,6 +699,17 @@
   "ConfirmNewPassword": "Confirmer le nouveau mot de passe",
   "PasswordStrength": "Force du mot de passe",
   "UpdatePassword": "Mettre à jour le mot de passe",
+  "reauth": {
+    "title": "Session inactive",
+    "message": "Pour votre sécurité, veuillez ressaisir votre mot de passe.",
+    "reauthenticate": "Se reconnecter",
+    "processing": "Traitement...",
+    "success": "Réauthentification réussie",
+    "error": {
+      "missingEmail": "Email introuvable pour la session en cours",
+      "generic": "Échec de la réauthentification"
+    }
+  },
   "long": "Au moins 8 caractères",
   "uppercaseLetter": "Inclure au moins une lettre majuscule",
   "lowercase": "Inclure au moins une lettre minuscule",
@@ -2629,9 +2640,9 @@
     "nov": "Novembre",
     "dec": "Décembre"
   },
-  "Earning_2025": "Revenus {year}",
-  "occupancy_rate_2025": "Taux d'occupation {year}",
-  "Earning_previous": "Revenus {year}",
+  "Earning_2025": "Revenus {year} (XAF)",
+  "occupancy_rate_2025": "Taux d'occupation {year} (%)",
+  "Earning_previous": "Revenus {year} (XAF)",
   "occupancy_rate%": "Taux d'occupation (%)",
   "EarningXAF": "Revenus (XAF)",
   "1-2 nuits": "1-2 nuits",
@@ -6229,20 +6240,22 @@
  "Hold Confirmed Booking":"Mettre la réservation confirmée en attente",
  "Hold Unconfirmed Booking":"Mettre en attente une réservation non confirmée",
  "Directly":"Directement",
- "Website":"Site web"
- 
- 
- 
- 
- 
- 
+ "Website":"Site web",
+  "Error updating block status": "Erreur lors de la mise à jour du statut du bloc.",
+  "Confirm Status Change": "Confirmer le changement de statut",
+  "Are you sure you want to change the status of the selected rooms?": "Êtes-vous sûr de vouloir changer le statut de la ou des chambres sélectionnées ?",
+  "Confirm Assignment": "Confirmer l'affectation de la femme de ménage",
+  "Are you sure you want to assign the selected housekeeper to these rooms?": "Êtes-vous sûr de vouloir affecter la femme de ménage sélectionnée à ces chambres ?",
+  "Confirm Clear Status": "Confirmer la réinitialisation du statut",
+  "Are you sure you want to clear the status of these rooms?": "Êtes-vous sûr de vouloir réinitialiser le statut de la ou des chambres sélectionnées ?",
+  "Confirm Clear Remarks": "Confirmer la suppression des remarques",
+  "Are you sure you want to remove all remarks from these rooms?": "Êtes-vous sûr de vouloir supprimer toutes les remarques des chambres sélectionnées ?",
+  "Confirm Unassignment": "Confirmer la suppression de l'affectation",
+  "Are you sure you want to unassign the housekeeper from these rooms?": "Êtes-vous sûr de vouloir retirer la femme de ménage des chambres sélectionnées ?"
+   
   
- 
 
-  
- 
-  
-  
+
 
 
 

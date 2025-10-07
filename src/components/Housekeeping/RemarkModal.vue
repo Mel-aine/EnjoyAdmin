@@ -324,6 +324,7 @@ interface RemarkModalProps {
   roomData?: {
     id: string
     roomNumber: string
+    assignedHousekeeper?:any
     roomType?: {
       id: string
       roomTypeName: string
@@ -404,6 +405,8 @@ const preSelectedRoomData = computed(() => {
     roomNumber: props.roomData?.roomNumber || props.roomName,
     roomTypeId: props.roomData?.roomType?.id,
     roomTypeName: props.roomData?.roomType?.roomTypeName,
+    // assignedHousekeeper: props.roomData?.assignedHousekeeper
+
   }
 
   console.log('Résultat preSelectedRoomData:', result)
@@ -437,6 +440,10 @@ const loadExistingRemark = () => {
 
   isLoadingRemark.value = true
   try {
+    if (props.roomData?.assignedHousekeeper) {
+      form.housekeeper = props.roomData.assignedHousekeeper
+
+    }
     const existingData = props.existingRemarkData
     if (existingData) {
 

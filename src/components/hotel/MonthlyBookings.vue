@@ -186,7 +186,7 @@ const totalEarnings = computed(() => {
     return props.earningsData[selectedMonth.value]
   }
   // Calcul approximatif basé sur les réservations
-  return Math.round(totalReservations.value * 120.5) + 'K'
+  // return Math.round(totalReservations.value * 120.5) + 'K'
 })
 
 const initChart = () => {

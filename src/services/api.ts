@@ -380,6 +380,9 @@ export function auth(credentials: { email: string; password: string; keepLoggedI
   })
 }
 
+export function initSpace(credentials: { userId: number }) {
+  return axios.post(`${API_URL}/initSpace`, credentials, getHeaders())
+}
 export function logout() {
   return axios.post(
     `${API_URL}/authLogout`,

@@ -125,12 +125,12 @@
                                             class="flex align-middle self-center content-center items-center gap-1">
                                             <MapPin class="w-4 h-4" /><span>{{
                                                 $t(`countries_lists.${reservation.guest?.country.toLowerCase()}`)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div v-if="reservation.guest?.phonePrimary
                                         " class="flex align-middle self-center content-center items-center gap-1">
                                             <PhoneCall class="w-3 h-3" /><span>{{ $t(reservation.guest?.phonePrimary)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -158,8 +158,8 @@
                                             @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>
                                         <div v-if="isPerformingAction"
-                                            class="flex items-center px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">
-                                            <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-600"
+                                            class="flex items-center px-2 py-1 bg-purple-100 text-purple-600 rounded text-xs">
+                                            <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-purple-600"
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                                     stroke-width="4"></circle>
@@ -241,7 +241,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(rm, ind) in roomTypeSumarry" :key="ind">{{ rm
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                         </div>
 
@@ -256,7 +256,7 @@
                                             <p v-if="reservation.reservationRooms && reservation.reservationRooms.every((room: any) => room.room?.id)"
                                                 class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in roomRateTypeSummary" :key="ind">{{ res
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                             <AssignRoomReservation
                                                 v-if="reservation.reservationRooms.length === 0 || reservation.reservationRooms.some((room: any) => !room.room?.id)"
@@ -271,7 +271,7 @@
                                             </label>
                                             <p class="text-sm text-gray-900 dark:text-white flex flex-col">
                                                 <span v-for="(res, ind) in ratePlan" :key="ind">{{ res
-                                                }}</span>
+                                                    }}</span>
                                             </p>
                                         </div>
                                         <div>
@@ -306,7 +306,7 @@
                         <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1"
                             class="py-6 pe-6">
                             <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
-                                @room-selected="handleRoomSelected" />
+                                @room-selected="handleRoomSelected"  @refresh="loadReservationData"/>
                         </div>
                     </div>
 
@@ -321,19 +321,19 @@
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalChargesWithTaxes ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalPayments ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="flex justify-between text-primary">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.outstandingBalance ?? 0)
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </slot>
@@ -380,6 +380,10 @@
             <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
                 @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
         </template>
+        <RoomMoveModal :reservation-id="reservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal"
+            @success="handleRoomMoveSuccess" />
+        <ExchangeRoomModal v-if="isExchangeRoomModalOpen && reservation" :reservation-id="reservation.id"
+            :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
     </template>
 
 
@@ -416,11 +420,13 @@ const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReser
 const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReservation.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'))
+const ExchangeRoomModal = defineAsyncComponent(() => import('./ExchangeRoomModal.vue'))
 import AssignRoomReservation from './AssignRoomReservation.vue'
 import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../composables/serviceStore'
+import RoomMoveModal from '../modal/RoomMoveModal.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -463,6 +469,8 @@ const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
+const isExchangeRoomModalOpen = ref(false)
 const laodingPrint = ref(false);
 const pdfUrl = ref<any>(null);
 const documentTitle = ref<string>('')
@@ -585,10 +593,25 @@ const openUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = true
 }
 
+
+
 const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
 }
-
+const closeRoomMoveModal = () => {
+    isRoomMoveModalOpen.value = false
+}
+const closeExchangeRoomModal = () => {
+    isExchangeRoomModalOpen.value = false
+}
+const handleRoomMoveSuccess = () => {
+    isRoomMoveModalOpen.value = false
+    getBookingDetailsById();
+}
+const handleExchangeSuccess = () => {
+    isExchangeRoomModalOpen.value = false
+    getBookingDetailsById();
+}
 // const handleRoomAssigned = (data: any) => {
 //     getBookingDetailsById();
 //     emit('save', { action: 'RoomAssigned', reservationId: localReservation.value?.id, data })
@@ -680,7 +703,7 @@ const handleSavePayment = async (data: any) => {
         if (Object.keys(updates).length > 0) {
             console.log('Applying payment updates:', updates)
             updateLocalReservation(updates)
-            toast.success(t('Payment added successfully'))
+
         } else {
             console.warn('No payment updates could be calculated, falling back to parent refresh')
             // Fallback: émettre save pour que le parent gère le refresh
@@ -910,33 +933,58 @@ const actionColorMap = {
     'unassign_room': 'text-gray-600',
 };
 
-const dropdownOptions = computed(() => {
-    if (!reservation.value.availableActions) {
-        return [];
-    }
+// const dropdownOptions = computed(() => {
+//     if (!reservation.value.availableActions) {
+//         return [];
+//     }
 
-    // If reservation is voided, return empty array to disable all actions
-    if (reservation.value.status === 'voided') {
-        return [];
-    }
+//     // If reservation is voided, return empty array to disable all actions
+//     if (reservation.value.status === 'voided') {
+//         return [];
+//     }
 
-    return reservation.value.availableActions
-        .filter((action: any) => action.available)
-        .map((action: any) => ({
-            id: action.action,
-            label: action.label,
-            description: action.description,
-            route: action.route,
-            icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
-            color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
-        }));
-});
+//     return reservation.value.availableActions
+//         .filter((action: any) => action.available)
+//         .map((action: any) => ({
+//             id: action.action,
+//             label: action.label,
+//             description: action.description,
+//             route: action.route,
+//             icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+//             color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+//         }));
+// });
 
 const handleRoomSelected = (room: any) => {
     console.log('Room selected:', room)
     // You can add logic here to handle room selection
     // For example, navigate to room details or show room-specific actions
 }
+
+
+const dropdownOptions = computed(() => {
+  const res = localReservation.value || reservation.value;
+
+  if (!res?.availableActions) {
+    return [];
+  }
+
+  // Si reservation annulée ou voided → aucune option
+  if (res.status === 'cancelled' || res.status === 'voided') {
+    return [];
+  }
+
+  return res.availableActions
+    .filter((action: any) => action.available)
+    .map((action: any) => ({
+      id: action.action,
+      label: action.label,
+      description: action.description,
+      route: action.route,
+      icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+      color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+    }));
+});
 
 
 const currentAction = ref<string | null>(null)
@@ -1095,9 +1143,7 @@ const handleOptionSelected = async (option: any) => {
                 console.log("roomNumber", roomNumber)
                 await executeAction(
                     'check_in',
-                    () => performAutoCheckIn(availableRoomsForCheckin[0]),
-                    t('Checking in room {roomNumber}...', { roomNumber }),
-                    t('Room {roomNumber} checked in successfully', { roomNumber })
+                    () => performAutoCheckIn(availableRoomsForCheckin[0])
                 )
             } else {
                 openCheckInReservationModal()
@@ -1118,9 +1164,7 @@ const handleOptionSelected = async (option: any) => {
 
                 await executeAction(
                     'check_out',
-                    () => performAutoCheckOut(availableRoomsForCheckout[0]),
-                    t('Checking out room {roomNumber}...', { roomNumber }),
-                    t('Room {roomNumber} checked out successfully', { roomNumber })
+                    () => performAutoCheckOut(availableRoomsForCheckout[0])
                 )
             } else {
                 // Plusieurs chambres : ouvrir le modal de groupe
@@ -1128,8 +1172,10 @@ const handleOptionSelected = async (option: any) => {
             }
             break;
         case 'room_move':
+            isRoomMoveModalOpen.value = true;
             break;
         case 'exchange_room':
+            isExchangeRoomModalOpen.value = true;
             break;
         case 'stop_room_move':
             break;
@@ -1242,6 +1288,19 @@ const handleCheckOutSuccess = (data: any) => {
         data
     })
 }
+const loadReservationData = async () => {
+    isLoading.value = true;
+    const id = props.reservationData.reservation_id;
+    const response = await getReservationDetailsById(Number(id));
+    console.log(response)
+    reservation.value = response
+    reservation.value.reservationRooms = response.reservationRooms.map((e: any) => {
+        return { ...e, guest: reservation.value.guest }
+    })
+
+    isLoading.value = false;
+    console.log('Reservation data fetched:', reservation.value)
+};
 
 // Fetch data on mount if modal is already open
 onMounted(() => {

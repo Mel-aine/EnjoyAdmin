@@ -20,6 +20,49 @@ const getHeaders = () => {
 }
 
 
+////// this is the Housekeepers sections
+/**
+ * Get all housekeepers (supports query params like hotel_id, search)
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getHousekeepers = (params: { hotel_id?: number | string; search?: string; page?: number; limit?: number } = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/housekeepers`, { ...getHeaders(), params })
+}
+/**
+ * Post a new housekeeper
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postHousekeeper = (data: { hotel_id: number | string; name: string; phone: string }): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/housekeepers`, data, getHeaders())
+}
+/**
+ * Get a housekeeper by ID
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getHousekeeperById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/housekeepers/${id}`, getHeaders())
+}
+/**
+ * Update a housekeeper
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateHousekeeperById = (id: number | string, data: Partial<{ hotel_id: number | string; name: string; phone: string }>): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/housekeepers/${id}`, data, getHeaders())
+}
+/**
+ * Delete a housekeeper
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteHousekeeperById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL}/housekeepers/${id}`, getHeaders())
+}
+
+
 ///// this is the amenities sections
 /**
  * Get all amenities
@@ -81,7 +124,7 @@ export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/room_types/sort-order`, data, getHeaders())
+  return axios.post(`${API_URL}/room_types/sort/sort-order`, data, getHeaders())
 }
 
 /**
@@ -640,6 +683,16 @@ export const getIdentityTypesByHotelId = (hotelId: number): Promise<AxiosRespons
  */
 export const getReasons = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/reasons`, getHeaders())
+}
+
+/**
+ * Get reasons by category and hotel ID
+ * @param {number|string} hotelId - The ID of the hotel
+ * @param {string} category - The category of reasons to fetch
+ * @returns {Promise<AxiosResponse<any>>} A promise that resolves to the API response
+ */
+export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, getHeaders())
 }
 /**
  * Post a new reason
@@ -1296,13 +1349,6 @@ export const deleteTaxById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/taxes/${id}`, getHeaders())
 }
 
-/**
- * get Reasons by category
- * @param category - The category to filter reasons by
- */
-export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/reasons/${hotelId}/${category}`, getHeaders())
-}
 
 // this section is for email Account
 

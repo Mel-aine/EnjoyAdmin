@@ -43,8 +43,8 @@
             <User class="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <p class="font-semibold text-gray-900">{{ $t (room.guestName)}}</p>
-            <p class="text-xs text-gray-600">{{ $t('currentGuest') }}</p>
+            <p class="font-semibold text-gray-900">{{ room.guestName }}</p>
+            <!-- <p class="text-xs text-gray-600">{{ $t('currentGuest') }}</p> -->
           </div>
         </div>
 
@@ -81,62 +81,39 @@
         </div>
       </div>
 
-      <!-- Maintenance -->
-      <div v-if="room.maintenanceInfo && (room.status === 'maintenance' || room.status === 'out_of_order')"
-           class="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-            <Wrench class="w-5 h-5 text-amber-600" />
-          </div>
-          <div>
-            <h4 class="font-semibold text-amber-900">Maintenance en cours</h4>
-            <p class="text-xs text-amber-700">{{ $t(`reasons.${room.maintenanceInfo.reason}`) }}</p>
-          </div>
-        </div>
+      <!-- block -->
+      <div v-if="activeBlocks.length">
+        <div
+          v-for="block in activeBlocks"
+          :key="block.id"
+          class="p-2 bg-amber-50 border border-amber-200 rounded mb-1 flex items-center gap-2"
+        >
+          <Wrench class="w-3 h-3 text-amber-600" />
 
-        <div class="space-y-1 text-sm text-amber-800">
-          <div class="flex justify-between">
-            <span class="text-amber-600">{{$t('Début')}}:</span>
-            <span class="font-medium">{{ formatDateTime(room.maintenanceInfo.startDate) }}</span>
-          </div>
-          <div v-if="room.maintenanceInfo.endDate" class="flex justify-between">
-            <span class="text-amber-600">{{$t('Fin prévue:')}}</span>
-            <span class="font-medium">{{ formatDateTime(room.maintenanceInfo.endDate) }}</span>
-          </div>
-        </div>
-      </div>
+          <div class="flex flex-col">
 
-      <!-- Commodités et équipements dans une grille moderne -->
-      <div v-if="displayedOptions.length || room.equipment?.length" class="space-y-3">
+            <p v-if="block.reason" class="text-xs font-normal">{{ $t(`statuses.${block.reason}`) }}</p>
+            <div class="flex items-center gap-4 text-amber-800 text-xs">
 
-        <!-- Options de chambre -->
-        <div v-if="displayedOptions.length">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Configuration
-          </h4>
-          <div class="grid grid-cols-2 gap-2">
-            <div v-for="option in displayedOptions" :key="option.key"
-                 class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <component :is="option.Icon" class="w-4 h-4 text-gray-600" />
-              <span class="text-sm text-gray-700 font-medium">{{ $t(`options.values.${option.value}`) }}</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Équipements -->
-        <div v-if="room.equipment?.length">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Équipements
-          </h4>
-          <div class="flex flex-wrap gap-2">
-            <div v-for="item in room.equipment" :key="item"
-                 class="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg text-sm text-gray-700 hover:from-gray-100 hover:to-gray-200 transition-all cursor-default">
-              <component v-if="equipmentIcons[item]" :is="equipmentIcons[item]" class="w-4 h-4 text-gray-500" />
-              <span class="font-medium">{{ item }}</span>
+              <p>{{ $t('StartDate') }}: {{ block.blockFromDate }}</p>
+              <p v-if="block.blockToDate">{{ $t('EndDate') }}: {{ block.blockToDate }}</p>
+
             </div>
           </div>
         </div>
       </div>
+
+
+
+
+        <!--afficher le house keeper assigner-->
+        <div v-if="room.assignedHousekeeper" class=" mt-2 flex items-center gap-2 p-2 bg-blue-50 rounded-lg hover:bg-purple-100 transition-colors">
+
+          <i class="fa-solid fa-broom"></i>
+          <span class="text-sm text-purple-700 font-medium">{{ room.assignedHousekeeper?.name }} - {{room.assignedHousekeeper?.phone  }}</span>
+        </div>
+
 
       <!-- Disponibilité -->
       <div v-if="availabilityInfo"
@@ -396,6 +373,9 @@ const statusConfig = computed(() => {
   return getStatusConfigurations.value[props.room.status] || getStatusConfigurations.value.available;
 });
 
+const activeBlocks = computed(() => {
+  return props.room?.blocks?.filter((b) => b.status !== 'completed') || []
+})
 
 const displayedOptions = computed(() => {
   return Object.entries(optionLabels)

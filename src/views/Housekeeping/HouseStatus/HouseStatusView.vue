@@ -26,7 +26,7 @@
               <ListIcon :size="16" />
               <span class="text-sm">Views</span>
             </button> -->
-            <button class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:bg-orange-500 hover:text-white">
+            <button @click="openAuditTrail" class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:bg-orange-500 hover:text-white">
               <FileTextIcon :size="16" />
               <span class="text-sm">{{ $t('audit_trial') }}</span>
             </button>
@@ -51,6 +51,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { useI18n } from 'vue-i18n'
+import router from '@/router'
 
 // Reactive data
 const selectedRoomsCount = ref<number>(0)
@@ -66,5 +67,8 @@ const handleSelectionChange = (count: number) => {
   selectedRoomsCount.value = count
 }
 
+const openAuditTrail = () => {
+  router.push({ name: 'AuditTrailEntity', params: { entityType: 'Room', entityId: 'all' } })
+}
 
 </script>

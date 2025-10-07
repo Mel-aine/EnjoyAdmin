@@ -10,6 +10,15 @@ const router = createRouter({
   },
   routes: [
     {
+      path: '/setup',
+      name: 'SetupSpace',
+      component: () => import('../views/Pages/SetupSpace.vue'),
+      meta: {
+        title: 'Setting up your space',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/reports/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
@@ -342,6 +351,15 @@ const router = createRouter({
       component: () => import('../views/Reports/Reservation/ReservationForecast.vue'),
       meta: {
         title: 'Reservation Forecast',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports/reservation/daily-operation-report',
+      name: 'DailyOperationReport',
+      component: () => import('../views/Reports/Reservation/DailyOperationReport.vue'),
+      meta: {
+        title: 'Daily Operation Report',
         requiresAuth: true,
       },
     },
@@ -1418,15 +1436,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/demo/apply-discount',
-      name: 'ApplyDiscountDemo',
-      component: () => import('../components/demo/ApplyDiscountDemo.vue'),
-      meta: {
-        title: 'Apply Discount Demo',
-        requiresAuth: true,
-      },
-    },
+   
      {
       path: '/stay_view',
       name: 'ReservationCalendar',
@@ -1456,21 +1466,20 @@ const router = createRouter({
       },
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: () => import('../views/Others/UserProfile.vue'),
-      meta: {
-        title: 'Profile',
-        requiresAuth: true,
-      },
-    },
-
-    {
       path: '/form-elements',
       name: 'Form Elements',
       component: () => import('../views/Forms/FormElements.vue'),
       meta: {
         title: 'Form Elements',
+        requiresAuth: true,
+      },
+    },
+        {
+      path: '/profile',
+      name: 'Profile',
+      component: () => import('../views/Others/UserProfile.vue'),
+      meta: {
+        title: 'Profile',
         requiresAuth: true,
       },
     },

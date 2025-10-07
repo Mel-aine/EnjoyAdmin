@@ -125,6 +125,7 @@ interface Filters {
 
 const showResults = ref<boolean>(false)
 const isLoading = ref(false)
+const isLoad = ref(false)
 const errorMessage = ref('')
 const pdfUrl = ref('')
 
@@ -150,6 +151,7 @@ const currentParams = computed(() => ({
   asOnDate: filters.value.reportDate,
   currency: filters.value.currency
 }))
+
 
 const reportTitle = computed(() => {
   return `Manager_Report_${filters.value.reportDate}`

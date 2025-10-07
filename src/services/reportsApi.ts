@@ -55,6 +55,11 @@ export interface RoomStatusWordExportParams {
 }
 
 
+export interface dailyReportOration {
+  hotelId: number
+  asOnDate: string
+}
+
 export interface ReportFilters {
   hotelId?: number
   startDate?: string
@@ -275,7 +280,7 @@ export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Pr
 export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      `${API_URL}/statistics/daily-receipt-detail`,
+      `${API_URL}/statistics/daily-receipt-summary`,
       filters,
       getHeaders() 
     )
@@ -882,18 +887,18 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
     throw new Error('Hotel ID is required')
   }
   
-  if (!params.date) {
+  if (!params.asOnDate) {
     throw new Error('As On Date is required')
   }
   
   // Valider le format de la date (YYYY-MM-DD)
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!dateRegex.test(params.date)) {
+  if (!dateRegex.test(params.asOnDate)) {
     throw new Error('Date must be in YYYY-MM-DD format')
   }
   
   // Valider que la date est valide
-  const date = new Date(params.date)
+  const date = new Date(params.asOnDate)
   if (isNaN(date.getTime())) {
     throw new Error('Invalid date provided')
   }
@@ -1074,7 +1079,6 @@ export const generateInvoicePdf = async (transactionId: string): Promise<Blob> =
     throw error
   }
 }
-
 // Fonction pour générer l'URL du PDF des factures
 export const generateInvoicePdfUrl = async (transactionId: string): Promise<string> => {
   try {
@@ -1085,4 +1089,59 @@ export const generateInvoicePdfUrl = async (transactionId: string): Promise<stri
     throw error
   }
 }
+export const generatePosReceiptPdf = async (transactionId: string): Promise<Blob> => {
+  try {
+      
+    const url = `${API_URL}/pos-receipt/${transactionId}`
+    
+    // Configuration axios pour recevoir une réponse blob
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
 
+    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    
+    // Valider que nous avons reçu un blob PDF
+    if (response.data.type && response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching generatePosReceiptPdf :', error)
+    throw error
+  }
+}
+// Fonction pour générer l'URL du PDF des factures
+export const generatePosReceiptPdfUrl = async (transactionId: string): Promise<string> => {
+  try {
+    const blob = await generatePosReceiptPdf(transactionId)
+    return URL.createObjectURL(blob)
+  } catch (error) {
+    console.error('Error generating pos receipt PDF URL:', error)
+    throw error
+  }
+}
+//daily-operation-report
+export const generateOperationReport = async (params: dailyReportOration): Promise<string> => {
+  try {
+    const response = await apiClient.post(
+      `${API_URL}/statistics/daily-operations-report-pdf`,
+      params,
+      {
+        ...getHeaders(),
+        responseType: 'blob'
+      }
+    )
+    
+    // Créer un objet URL à partir du blob
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    return url
+    
+  } catch (error) {
+    handleApiError(error)
+    throw error // Important : propager l'erreur
+  }
+}
