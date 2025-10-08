@@ -229,7 +229,7 @@ export const deleteRoomById = (id: number): Promise<AxiosResponse<any>> => {
  * get Room Detail
  */
 export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/rooms/${hotelId}/details`, getHeaders())
+  return axios.get(`${API_URL()}/rooms/views/details`, getHeaders())
 }
 
 /***
