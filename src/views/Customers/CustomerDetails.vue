@@ -30,7 +30,7 @@
                       color: customer.vipStatuses.color
                     }"
                   >
-                    <component :is="getIcon(customer.vipStatuses.icon)" class="w-3 h-3 mr-1" />
+                    <!-- <component :is="getIcon(customer.vipStatuses.icon)" class="w-3 h-3 mr-1" /> -->
                     {{ customer.vipStatuses.name }}
                   </span>
 
