@@ -137,32 +137,35 @@
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-            <!-- Extra Charges -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {{ t('Extra Charges') }}
-              </label>
-              <SelectComponent 
-                v-model="filters.extraCharges"
-                :options="extraChargesOptions"
-                placeholder="Select All"
-                :multiple="true"
-                class="w-full"
-              />
-            </div>
-
             <!-- Payment Method -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('Payment Method') }}
               </label>
-              <SelectComponent 
-                v-model="filters.paymentMethod"
-                :options="paymentMethodOptions"
-                placeholder="Select All"
-                :multiple="true"
-                class="w-full"
-              />
+              <div class="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                <div class="p-4 pb-1 border-b border-gray-300 dark:border-gray-600">
+                  <label class="inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      :checked="filters.paymentMethod.length === paymentMethodOptions.length"
+                      @change="toggleAllPaymentMethods"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ t('Select All') }}</span>
+                  </label>
+                </div>
+                <div class="max-h-40 overflow-y-auto p-2">
+                  <label v-for="option in paymentMethodOptions" :key="option.value" class="flex items-center py-1 hover:bg-gray-50 dark:hover:bg-gray-600 px-2 rounded">
+                    <input 
+                      type="checkbox" 
+                      :value="option.value"
+                      v-model="filters.paymentMethod"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ option.label }}</span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <!-- Taxes -->
@@ -170,34 +173,31 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('Taxes') }}
               </label>
-              <SelectComponent 
-                v-model="filters.taxes"
-                :options="taxesOptions"
-                placeholder="Select All"
-                :multiple="true"
-                class="w-full"
-              />
+              <div class="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                <div class="p-4 pb-1 border-b border-gray-300 dark:border-gray-600">
+                  <label class="inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      :checked="filters.taxes.length === taxesOptions.length"
+                      @change="toggleAllTaxes"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ t('Select All') }}</span>
+                  </label>
+                </div>
+                <div class="max-h-40 overflow-y-auto p-2">
+                  <label v-for="option in taxesOptions" :key="option.value" class="flex items-center py-1 hover:bg-gray-50 dark:hover:bg-gray-600 px-2 rounded">
+                    <input 
+                      type="checkbox" 
+                      :value="option.value"
+                      v-model="filters.taxes"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ option.label }}</span>
+                  </label>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <!-- Additional Checkboxes -->
-          <div class="flex gap-6 mb-4">
-            <label class="inline-flex items-center">
-              <input 
-                type="checkbox" 
-                v-model="filters.showMobileNoField"
-                class="form-checkbox h-4 w-4 text-blue-600 rounded"
-              >
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Mobile No. field') }}</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input 
-                type="checkbox" 
-                v-model="filters.showEmailField"
-                class="form-checkbox h-4 w-4 text-blue-600 rounded"
-              >
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Email field') }}</span>
-            </label>
           </div>
 
           <!-- Note -->
@@ -214,7 +214,7 @@
           <button 
             @click="exportData" 
             :disabled="isLoading || !filters.fromDate || !filters.toDate"
-            class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+            class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
             <span v-if="!isLoading">{{ t('Export') }}</span>
             <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -227,7 +227,7 @@
           <button
             @click="generateReport"
             :disabled="isLoading || !filters.fromDate || !filters.toDate"
-            class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+            class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
             {{ t('Report') }}
           </button>
@@ -266,6 +266,98 @@
           </div>
         </div>
       </div>
+
+      <!-- Report Display Section -->
+      <div v-if="showReport && reportData" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <!-- Report Header -->
+        <div class="flex justify-between items-center p-6 border-b-2 border-gray-900 dark:border-gray-700">
+          <h1 class="text-lg font-bold text-blue-900 dark:text-blue-400">
+            {{ reportData.hotelDetails?.hotelName || 'Hotel Name' }}
+          </h1>
+          <h2 class="text-lg font-bold text-red-700 dark:text-red-400">
+            Detail Revenue Report
+          </h2>
+        </div>
+
+        <!-- Filters Info Section -->
+        <div class="px-6 py-4 text-xs border-b-2 border-gray-900 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div class="mb-2">
+            <span class="font-semibold">Query From:</span> {{ reportData.dateRange?.fromDate }} 
+            <span class="font-semibold ml-4">To:</span> {{ reportData.dateRange?.toDate }} 
+            <span class="font-semibold ml-4">Date Type:</span> {{ formatDateType(reportData.filters?.dateType) }} 
+            <span class="font-semibold ml-4">Show Guest Unassigned Rooms:</span> {{ reportData.filters?.showUnassignRooms ? 'Yes' : 'No' }} 
+            <span class="font-semibold ml-4">Discard Unconfirmed Bookings:</span> {{ reportData.filters?.discardUnconfirmedBookings ? 'Yes' : 'No' }} 
+            <span class="font-semibold ml-4">Include Unposted Inclusion:</span> {{ reportData.filters?.showUnpostedInclusion ? 'Yes' : 'No' }}
+          </div>
+          <div class="font-semibold mb-1">
+            *Total Revenue: Revenue Only From Property (After deduction of commission)
+          </div>
+          <div class="font-bold">
+            *Room Rate = Offered Rate
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="border-t-2 border-b-2 border-gray-900 dark:border-gray-700">
+                <th class="px-2 py-3 text-center font-bold">Sr. No</th>
+                <th class="px-2 py-3 text-center font-bold">Guest Name</th>
+                <th class="px-2 py-3 text-center font-bold">Source</th>
+                <th class="px-2 py-3 text-center font-bold">Arrival</th>
+                <th class="px-2 py-3 text-center font-bold">Dept</th>
+                <th class="px-2 py-3 text-center font-bold">Nights</th>
+                <th class="px-2 py-3 text-center font-bold">Room</th>
+                <th class="px-2 py-3 text-center font-bold">Vouc No</th>
+                <th class="px-2 py-3 text-center font-bold">Rate Type</th>
+                <th class="px-2 py-3 text-center font-bold">Folio No</th>
+                <th class="px-2 py-3 text-center font-bold">Room Rate<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Charges<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Taxes<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Commission<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Revenue<br>(XAF)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!reportData.reportData?.reservations || reportData.reportData.reservations.length === 0">
+                <td colspan="15" class="px-2 py-6 text-center text-gray-500 italic">
+                  No reservations found for the selected period
+                </td>
+              </tr>
+              <template v-else>
+                <tr v-for="reservation in reportData.reportData.reservations" :key="reservation.serialNo" class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900">
+                  <td class="px-2 py-2 text-center">{{ reservation.serialNo }}</td>
+                  <td class="px-2 py-2 text-left">{{ reservation.guestName }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.businessSource }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.arrivalDate }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.departureDate }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.nights }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.room }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.voucherNo }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.rateType }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.folioNo }}</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.roomRate) }}</td>
+                  <td class="px-2 py-2 text-right">-</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.totalTaxes) }}</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.commission) }}</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.totalRevenue - reservation.commission) }}</td>
+                </tr>
+                
+                <!-- Grand Total Row -->
+                <tr class="border-t-2 border-b-2 border-gray-900 dark:border-gray-700 bg-white dark:bg-gray-800 font-bold">
+                  <td class="px-2 py-3 text-left">Grand Total</td>
+                  <td colspan="9" class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalRoomRate) }}</td>
+                  <td class="px-2 py-3 text-right">-</td>
+                  <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalTaxes) }}</td>
+                  <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalCommission) }}</td>
+                  <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalRevenue - reportData.grandTotals?.totalCommission) }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </ReportsLayout>
 </template>
@@ -279,11 +371,12 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
+import { getExtraCharges, getTaxes, getRooms } from '@/services/configrationApi'
 import { useBooking } from '@/composables/useBooking2'
 import {
-  getDailyRevenuePDFUrl,
-  validateDailyRevenueParams,
-  type DailyRevenueParams
+  generateDailyRevenuPdf,
+  generateDailyRevenueReport,
+  type DailyRevenueReportFilters
 } from '@/services/reportsApi'
 
 const { t } = useI18n()
@@ -296,7 +389,7 @@ interface FilterOptions {
 }
 
 interface Filters {
-  dateType: string;
+  dateType: 'booking' | 'stay' | 'departure';
   fromDate: string;
   toDate: string;
   businessSource: string;
@@ -311,6 +404,7 @@ interface Filters {
   showEmailField: boolean;
   reportTemplate: string;
 }
+
 const {
   BookingSource,
   BusinessSource,
@@ -320,10 +414,17 @@ const {
   MarketCode,
   reservationId,
 } = useBooking()
+
 // Reactive data
 const isLoading = ref<boolean>(false)
 const errorMessage = ref<string>('')
 const pdfUrl = ref<string>('')
+const showReport = ref<boolean>(false)
+const reportData = ref<any>(null)
+const roomOptions = ref<FilterOptions[]>([])
+const extraChargesOptions = ref<FilterOptions[]>([])
+const paymentMethodOptions = ref<FilterOptions[]>([])
+const taxesOptions = ref<FilterOptions[]>([])
 
 const filters = ref<Filters>({
   dateType: 'booking',
@@ -348,60 +449,134 @@ const filters = ref<Filters>({
   reportTemplate: 'default'
 })
 
-// Options
+// Fetch data functions
 const fetchPaymentMethods = async () => {
   try {
     const resp = await getPaymentMethods(serviceStore.serviceId!)
     paymentMethodOptions.value = resp.data.data.map((pm: any) => ({
       label: pm.methodName,
-      value: pm.id
+      value: String(pm.id)
     }))
   } catch (error) {
     console.error('Error fetching payment methods:', error)
   }
 }
 
-const roomOptions = ref<FilterOptions[]>([
-  { value: 'all', label: 'All Rooms' },
-  { value: '101', label: 'Room 101' },
-  { value: '102', label: 'Room 102' },
-  { value: '103', label: 'Room 103' }
-])
+const fetchExtraCharges = async () => {
+  try {
+    const resp = await getExtraCharges()
+    console.log('Extra Charges Response:', resp)
+    extraChargesOptions.value = resp.data.data.data.map((ec: any) => ({
+      label: ec.name,
+      value: String(ec.id)
+    }))
+  } catch (error) {
+    console.error('Error fetching extra charges:', error)
+  }
+}
 
-const extraChargesOptions = ref<FilterOptions[]>([
-  { value: 'banquet_sale', label: 'Banquet Sale' },
-  { value: 'buffet', label: 'Buffet' },
-  { value: 'channel', label: 'Channel' },
-  { value: 'dabohar', label: 'Dabohar' },
-  { value: 'deposit', label: 'Deposit' },
-  { value: 'extra_bed', label: 'Extra Bed' }
-])
+const fetchTaxes = async () => {
+  try {
+    const resp = await getTaxes()
+    console.log('Taxes Response:', resp)
+    taxesOptions.value = resp.data.data.data.map((tax: any) => ({
+      label: tax.taxName,
+      value: String(tax.taxRateId)
+    }))
+  } catch (error) {
+    console.error('Error fetching taxes:', error)
+  }
+}
 
-const paymentMethodOptions = ref<FilterOptions[]>([])
-
-const taxesOptions = ref<FilterOptions[]>([
-  { value: 'cgst', label: 'CGST' },
-  { value: 'cgst_2_5', label: 'CGST@2.5' },
-  { value: 'custom_tax', label: 'Custom Tax' },
-  { value: 'gst', label: 'GST' },
-  { value: 'igst', label: 'IGST' },
-  { value: 'luxury_tax', label: 'Luxury Tax' }
-])
+const fetchRoom = async () => {
+  try {
+    const resp = await getRooms()
+    console.log('Room Response:', resp)
+    roomOptions.value = resp.data.data.data.map((room: any) => ({
+      label: `${room.roomNumber} - ${room.roomType.roomTypeName}`,
+      value: String(room.id)
+    }))
+  } catch (error) {
+    console.error('Error fetching room:', error)
+  }
+}
 
 // Computed properties
-const currentParams = computed((): DailyRevenueParams => {
+const currentParams = computed(():DailyRevenueReportFilters => {
   return {
     hotelId: serviceStore.serviceId!,
-    asOnDate: filters.value.fromDate,
-    revenueBy: undefined
+    fromDate: filters.value.fromDate,
+    toDate: filters.value.toDate,
+    dateType: filters.value.dateType,
+    roomId: filters.value.room ? Number(filters.value.room) : undefined,
+    businessSourceId: filters.value.businessSource ? Number(filters.value.businessSource) : undefined,
+    paymentMethodIds: filters.value.paymentMethod.length > 0 
+      ? filters.value.paymentMethod.map(id => Number(id)) 
+      : undefined,
+    taxIds: filters.value.taxes.length > 0 
+      ? filters.value.taxes.map(id => Number(id)) 
+      : undefined,
+    extraChargeIds: filters.value.extraCharges.length > 0 
+      ? filters.value.extraCharges.map(id => Number(id)) 
+      : undefined,
+    showUnassignRooms: filters.value.showOnlyUnassignRooms,
+    showUnpostedInclusion: filters.value.showUnpostedInclusion,
+    discardUnconfirmedBookings: filters.value.discardUnconfirmedBookings,
+    showMobileNoField: filters.value.showMobileNoField,
+    showEmailField: filters.value.showEmailField
   }
 })
 
 const reportTitle = computed(() => {
-  return `Daily Revenue Report - ${filters.value.fromDate} to ${filters.value.toDate}`
+  const dateTypeLabel = {
+    booking: 'Booking Date',
+    stay: 'Stay Date',
+    departure: 'Departure Date'
+  }[filters.value.dateType]
+  
+  return `Daily Revenue Report (${dateTypeLabel}) - ${filters.value.fromDate} to ${filters.value.toDate}`
 })
 
 // Methods
+const toggleAllExtraCharges = (event: Event): void => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    filters.value.extraCharges = extraChargesOptions.value.map(option => option.value)
+  } else {
+    filters.value.extraCharges = []
+  }
+}
+
+const toggleAllPaymentMethods = (event: Event): void => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    filters.value.paymentMethod = paymentMethodOptions.value.map(option => option.value)
+  } else {
+    filters.value.paymentMethod = []
+  }
+}
+
+const toggleAllTaxes = (event: Event): void => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    filters.value.taxes = taxesOptions.value.map(option => option.value)
+  } else {
+    filters.value.taxes = []
+  }
+}
+
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value || 0)
+}
+
+const formatDateType = (dateType: string): string => {
+  if (!dateType) return 'Stay'
+  return dateType.charAt(0).toUpperCase() + dateType.slice(1)
+}
+
 const exportData = async (): Promise<void> => {
   try {
     isLoading.value = true
@@ -411,17 +586,20 @@ const exportData = async (): Promise<void> => {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
-
-    validateDailyRevenueParams(currentParams.value)
-    const newPdfUrl = await getDailyRevenuePDFUrl(currentParams.value)
+    
+    console.log('📤 Exporting with params:', currentParams.value)
+    
+    // Génération du PDF
+    const newPdfUrl = await generateDailyRevenuPdf(currentParams.value)
     pdfUrl.value = newPdfUrl
 
+    // Téléchargement automatique
     const link = document.createElement('a')
     link.href = pdfUrl.value
-    link.download = `daily_revenue_report_${filters.value.fromDate}.pdf`
+    link.download = `daily_revenue_report_${filters.value.dateType}_${filters.value.fromDate}_to_${filters.value.toDate}.pdf`
     link.click()
 
-    console.log('📊 Daily revenue report exported successfully:', reportTitle.value)
+    console.log('✅ Daily revenue report exported successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error exporting daily revenue report:', error)
     errorMessage.value = error instanceof Error ? error.message : 'Failed to export report'
@@ -434,44 +612,22 @@ const generateReport = async (): Promise<void> => {
   try {
     isLoading.value = true
     errorMessage.value = ''
+    showReport.value = false
 
-    if (pdfUrl.value) {
-      URL.revokeObjectURL(pdfUrl.value)
-      pdfUrl.value = ''
-    }
+    console.log('📊 Generating report with params:', currentParams.value)
+    
+    // Fetch report data from API
+    const response = await generateDailyRevenueReport(currentParams.value)
+    reportData.value = response.data
+    showReport.value = true
 
-    validateDailyRevenueParams(currentParams.value)
-    const newPdfUrl = await getDailyRevenuePDFUrl(currentParams.value)
-    pdfUrl.value = newPdfUrl
-
-    openPDFInNewPage()
-
-    console.log('📊 Daily revenue report generated successfully:', reportTitle.value)
+    console.log('✅ Daily revenue report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating daily revenue report:', error)
     errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
   } finally {
     isLoading.value = false
   }
-}
-
-const openPDFInNewPage = (): void => {
-  if (pdfUrl.value) {
-    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
-    const routeData = router.resolve({
-      name: 'PDFViewer',
-      query: {
-        url: encodedUrl,
-        title: reportTitle.value
-      }
-    })
-    window.open(routeData.href, '_blank')
-  }
-}
-
-const openTemplateSettings = (): void => {
-  console.log('Opening template settings...')
-  // Implement template settings modal or navigation
 }
 
 const resetForm = (): void => {
@@ -493,11 +649,15 @@ const resetForm = (): void => {
     reportTemplate: 'default'
   }
   errorMessage.value = ''
+  showReport.value = false
+  reportData.value = null
   
   if (pdfUrl.value) {
     URL.revokeObjectURL(pdfUrl.value)
     pdfUrl.value = ''
   }
+  
+  console.log('🔄 Form reset to default values')
 }
 
 const cleanup = (): void => {
@@ -505,9 +665,15 @@ const cleanup = (): void => {
     URL.revokeObjectURL(pdfUrl.value)
   }
 }
+
 onMounted(() => {
+  console.log('🚀 Component mounted, fetching initial data...')
   fetchPaymentMethods()
+  fetchExtraCharges()
+  fetchTaxes()
+  fetchRoom()
 })
+
 onUnmounted(cleanup)
 </script>
 

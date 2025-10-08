@@ -93,7 +93,7 @@ export interface DailyRevenueReportFilters {
   dateType: 'booking' | 'stay' | 'departure'
   roomId?: number
   businessSourceId?: number
-  paymentMethodId?: number
+  paymentMethodIds?: number[] // CORRIGÉ: pluriel avec array
   taxIds?: number[]
   extraChargeIds?: number[]
   showUnassignRooms?: boolean
@@ -823,6 +823,18 @@ export const checkReportsHealth = async (): Promise<ApiResponse | undefined> => 
   try {
     const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
       `${API_URL}/health`,
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+export const generateDailyRevenueReport = async (filters: DailyRevenueReportFilters): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-revenue`,
+      { filters },
+      getHeaders()
     )
     return response.data
   } catch (error) {
