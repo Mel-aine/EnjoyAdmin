@@ -162,7 +162,7 @@ export const getStayDuration = async (serviceId: number | null): Promise<any> =>
 export const getRecentReservation = async (serviceId: number | null): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/configuration/rooms/recentBooking/${serviceId}`, getHeaders()
+      `/configuration/hotels/${serviceId}/rooms/recent/Booking`, getHeaders()
     )
     return response.data || []
   } catch (error) {

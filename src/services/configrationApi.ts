@@ -288,7 +288,7 @@ export const updateRoomStatus = (
  *
  */
 export const getHouseStatus = (hotelId: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/rooms/houseview/${hotelId}`, getHeaders())
+  return axios.get(`${API_URL()}/rooms/house/view`, getHeaders())
 }
 
 /**u
@@ -728,7 +728,7 @@ export const getReasons = (): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>} A promise that resolves to the API response
  */
 export const getByCategory = (hotelId: number | string, category: string): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/reasons/${hotelId}/${category}`, getHeaders())
+  return axios.get(`${API_URL()}/reasons/category/${category}`, getHeaders())
 }
 /**
  * Post a new reason

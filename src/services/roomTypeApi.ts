@@ -2,9 +2,13 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
+import { useServiceStore } from '../composables/serviceStore'
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration/room_types`
-
+const URL = `${import.meta.env.VITE_API_URL as string}`
+const API_URL = () => {
+  const hotelId = useServiceStore().serviceId
+  return `${URL}/configuration/hotels/${hotelId}/room_types`
+}
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
@@ -21,5 +25,5 @@ const getHeaders = () => {
  */
 
 export const getRoomTypes = (id:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}/hotel`, getHeaders())
+  return axios.get(`${API_URL()}`, getHeaders())
 }
