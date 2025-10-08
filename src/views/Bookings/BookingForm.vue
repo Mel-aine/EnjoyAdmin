@@ -359,12 +359,12 @@
 
           <!-- Form actions -->
           <div class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <BasicButton type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
+            <BasicButton v-if="!showCheckinButton" type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
             </BasicButton>
 
             <div class="flex space-x-3">
              <BasicButton v-if="showCheckinButton" type="button" @click="handleCheckIn"
-                :loading="isLoading" :disabled="isLoading"
+                :loading="isLoading" :disabled="isLoading" variant="info"
                 :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
@@ -383,6 +383,10 @@
           <span v-if="confirmReservation"
             class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
             {{ $t('ConfirmBooking') }}
+          </span>
+          <span v-else-if="pendingReservation"
+            class="bg-yellow-600 text-white text-sm py-2 px-4 rounded hover:bg-yellow-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+            {{ $t('Unconfirmed Booking Inquiry') }}
           </span>
         </div>
 
@@ -722,6 +726,7 @@ const {
   dateError,
   isPaymentButtonShow,
   confirmReservation,
+  pendingReservation,
   isCustomPrize,
   isCheckedIn,
   voucherEmailError,

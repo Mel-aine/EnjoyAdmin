@@ -150,6 +150,7 @@ export function useBooking() {
   const RoomRateById = ref<number | null>(null)
   const isPaymentButtonShow = ref(false)
   const confirmReservation = ref(false)
+  const pendingReservation = ref(false)
   const PaymentMethods = ref<any[]>([])
   const pendingUploads = ref<Set<string>>(new Set())
   const uploadErrors = ref<string[]>([])
@@ -674,6 +675,7 @@ watch(
       }
 
       RoomTypesData.value = response.data.data.data
+      console.log('RoomTypesData.value',RoomTypesData.value)
 
       const roomTypeOptions: Option[] = response.data.data.data.map((room: RoomTypeData) => ({
         label: room.roomTypeName,
@@ -695,8 +697,9 @@ watch(
       if (!roomTypeId) {
         throw new Error('roomTypeId ID not found')
       }
+      const hotelId = serviceStore.serviceId
 
-      const response = await getRateTypesByRoomTypes(roomTypeId)
+      const response = await getRateTypesByRoomTypes(hotelId,roomTypeId)
 
       if (!response.data) {
         throw new Error('Invalid rate types data structure')
@@ -1089,6 +1092,10 @@ const validateAllRooms = () => {
       if (response.reservationId) {
         isPaymentButtonShow.value = true
         confirmReservation.value = true
+      }
+
+      if(response.status === 'pending'){
+        pendingReservation.value = true
       }
 
       toast.success(t('reservationCreated'))
@@ -1577,6 +1584,7 @@ const validateAllRooms = () => {
   // Reset other state variables
   dateError.value = null
   confirmReservation.value = false
+  pendingReservation.value = false
   isPaymentButtonShow.value = false
   reservationId.value = null
   RoomRateById.value = null
@@ -1766,6 +1774,7 @@ watch(() => otherInfo.value.voucherEmail, () => {
     isPaymentLoading,
     dateError,
     confirmReservation,
+    pendingReservation,
     isCustomPrize,
     isCheckedIn,
     isLoadingAvailableRooms,

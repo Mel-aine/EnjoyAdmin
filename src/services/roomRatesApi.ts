@@ -34,7 +34,7 @@ interface BaseRateResponse {
 
 export const getBaseRateByRoomAndRateType = async (params: BaseRateParams) => {
   try {
-    const response = await apiClient.get<any>('/configuration/room_rates/base-rate', {
+    const response = await apiClient.get<any>(`/configuration/hotels/${params.hotel_id}/room_rates/base-rate`, {
       ...getHeaders(),
       params: {
         hotel_id: params.hotel_id,
