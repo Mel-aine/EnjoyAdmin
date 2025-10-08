@@ -17,7 +17,7 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            :icon="Plus"
+            :icon="PlusIcon"
             :label="t('configuration.reservation_type.add_reservation_type')"
             @click="openAddModal"
           />
@@ -57,23 +57,20 @@
               :placeholder="t('configuration.reservation_type.name_placeholder')"
             />
             
-             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                variant="secondary" 
-                @click="closeModal"
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton
                 type="button"
-                :label="t('configuration.reservation_type.cancel')"
-              >
-              </BasicButton>
-              <BasicButton 
-                variant="primary" 
-                type="submit"
-                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
-                :icon="isEditing ? Edit : Save"
-                :loading="saving"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="saving"
-              >
-              </BasicButton>
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
+                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -94,25 +91,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { Action, Column } from '../../../utils/models'
-import { Edit, Save } from 'lucide-vue-next'
+// Icons removed as they're no longer used in the template
 import {
   getReservationTypes,
   postReservationType,
   updateReservationTypeById,
   deleteReservationTypeById
 } from '@/services/configrationApi'
-import Plus from '../../../icons/Plus.vue'
+import PlusIcon from '../../../icons/Plus.vue'
 
 // Initialize composables
 const { t } = useI18n()

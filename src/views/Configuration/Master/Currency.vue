@@ -148,16 +148,16 @@
             </div>
             <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
-                variant="secondary" 
-                @click="closeModal"
-                type="button"
-                :label="$t('cancel')"
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="$t('cancel')" 
+                :disabled="saving"
               />
               <BasicButton 
+                type="submit" 
                 variant="primary" 
-                type="submit"
-                :label="isEditing ? $t('update') : $t('save')"
-                :icon="isEditing ? Edit : Save"
+                :label="isEditing ? $t('configuration.payment_method.update_payment_method') : $t('configuration.payment_method.save_payment_method')"
                 :loading="saving"
               />
             </div>
@@ -169,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
@@ -178,7 +178,6 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
-import { Edit, Save } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
 import { 
   getCurrencies, 

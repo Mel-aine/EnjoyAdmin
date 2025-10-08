@@ -101,19 +101,18 @@
             />
 
            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton
-                variant="secondary"
-                @click="closeModal"
-                type="button"
-                :label="t('configuration.blacklist_reason.cancel')"
-              />
-              <BasicButton
-                variant="primary"
-                type="submit"
-                :icon="Save"
-                :label="isEditing ? t('configuration.blacklist_reason.update_blacklist_reason') : t('configuration.blacklist_reason.save_blacklist_reason')"
-                :loading="saving"
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
                 :disabled="saving"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isEditing ? t('configuration.payment_method.update_payment_method') : t('configuration.payment_method.save_payment_method')"
+                :loading="saving"
               />
             </div>
           </form>
@@ -124,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
@@ -140,7 +139,6 @@ import {
   updateBlackListReasonById,
   deleteBlackListReasonById
 } from '@/services/configrationApi'
-import { Save } from 'lucide-vue-next'
 import type { Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
 

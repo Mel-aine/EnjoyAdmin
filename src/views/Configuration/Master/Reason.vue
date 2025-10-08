@@ -6,8 +6,13 @@
         :empty-state-title="$t('configuration.reason.empty_state_title')"
         :empty-state-message="$t('configuration.reason.empty_state_message')" :loading="loading" @action="onAction">
         <template #header-actions>
-          <BasicButton variant="primary" :icon="Plus" :label="$t('configuration.reason.add_reason')"
-            @click="openAddModal" :disabled="loading" />
+          <BasicButton 
+            variant="primary" 
+            :icon="PlusIcon" 
+            :label="$t('configuration.reason.add_reason')"
+            @click="openAddModal" 
+            :disabled="loading" 
+          />
         </template>
 
         <template #column-status="{ item }">
@@ -55,11 +60,19 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton variant="secondary" @click="closeModal" type="button" :label="$t('cancel')"
-                :disabled="saving" />
-              <BasicButton variant="primary" type="submit"
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
+                :disabled="saving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? $t('configuration.reason.update_reason') : $t('configuration.reason.save_reason')"
-                :loading="saving" />
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -79,7 +92,7 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
-import Plus from '../../../icons/Plus.vue'
+import PlusIcon from '../../../icons/Plus.vue'
 import {
   getReasons,
   postReason,

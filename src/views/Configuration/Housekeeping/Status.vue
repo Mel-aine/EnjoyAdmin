@@ -95,22 +95,25 @@
               Preview
             </label>
             <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
-               <div class="w-6 h-6 rounded-full" :style="{ backgroundColor: tempColor }"></div>
                <span class="text-sm text-gray-900">{{ selectedStatus?.name }}</span>
                <span class="text-xs text-gray-500 font-mono">{{ tempColor }}</span>
              </div>
            </div>
 
-           <div class="flex justify-end space-x-3">
-             <button type="button" @click="closeColorPicker"
-               class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
-               Cancel
-             </button>
-             <button type="button" @click="applyColor"
-               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-               Apply Color
-             </button>
-           </div>
+           <div class="flex justify-end space-x-3 mt-6">
+            <BasicButton 
+              type="button" 
+              variant="outline" 
+              @click="closeColorPicker" 
+              :label="t('cancel')"
+            />
+            <BasicButton 
+              type="button" 
+              variant="primary" 
+              @click="applyColor"
+              :label="t('applyColor')"
+            />
+          </div>
          </div>
        </div>
      </div>

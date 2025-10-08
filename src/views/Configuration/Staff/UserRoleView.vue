@@ -44,20 +44,20 @@
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <button @click="closeModal()" type="button"
-                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-                :disabled="isLoading">
-                {{ $t('Cancel') }}
-              </button>
-              <button type="submit" :disabled="isLoading"
-                class="relative flex w-full justify-center items-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 sm:w-auto">
-                <span v-if="!isLoading"> {{ isEditing? $t('role.update') : $t('Save') }}</span>
-                <span v-else class="flex items-center gap-2">
-                  <Spinner class="w-4 h-4" />
-                  {{ $t('Processing') }}...
-                </span>
-              </button>
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="$t('cancel')"
+                :disabled="isLoading"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isLoading ? $t('processing') + '...' : isEditing ? $t('role.update') : $t('save')"
+                :loading="isLoading"
+              />
             </div>
           </form>
         </div>
