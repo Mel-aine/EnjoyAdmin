@@ -359,18 +359,37 @@
 
           <!-- Form actions -->
           <div class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <BasicButton v-if="!showCheckinButton" type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
+            <BasicButton v-if="!showCheckinButton && !pendingReservation" type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
             </BasicButton>
 
             <div class="flex space-x-3">
-             <BasicButton v-if="showCheckinButton" type="button" @click="handleCheckIn"
+             <BasicButton v-if="showCheckinButton && !pendingReservation" type="button" @click="handleCheckIn"
                 :loading="isLoading" :disabled="isLoading" variant="info"
-                :label="showCheckinButton ? $t('UploadingImages') : $t('Reserve')">
+                 :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
                 :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
               </BasicButton>
+              <button
+                v-if="pendingReservation && reservationId"
+                type="button"
+                @click="handleConfirmReservation"
+                :disabled="isConfirmingReservation"
+                class="bg-green-500 text-white text-sm py-2 px-4 rounded hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg
+                  v-if="isConfirmingReservation"
+                  class="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isConfirmingReservation ? $t('processing') : $t('Confirm Booking') }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -611,7 +630,7 @@ import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { useReservation } from '@/composables/useReservation'
-import { getReservationDetailsById } from '../../services/reservation'
+import { getReservationDetailsById,confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
 
@@ -626,6 +645,8 @@ const reservationDetails = ref<{ payment_method?: number; payment_type?: string 
 const {performCheckIn}= useReservation()
 
 const isAddPaymentModalOpen = ref(false)
+const isConfirmingReservation = ref(false)
+
 const performChecking = () => { }
 const toast = useToast()
 const closeAddPaymentModal = () => {
@@ -644,6 +665,9 @@ const handleSavePayment = (payment: any) => {
     params: { id: reservationId.value },
   })
 }
+
+
+
 
 
 const openAddPaymentModal = async () => {
@@ -853,6 +877,44 @@ const handleCheckIn = async () => {
   }
 }
 
+// Ajoutez
+const handleConfirmReservation = async () => {
+  if (!reservationId.value) {
+    toast.error(t('No reservation to confirm'))
+    return
+  }
+
+  try {
+    isConfirmingReservation.value = true
+
+    const data = {
+      status: 'confirmed'
+    }
+
+    const res = await confirmBooking(reservationId.value, data)
+    console.log("Confirmation response:", res)
+
+    if (res.status === 200 || res.data) {
+      // Mettre à jour l'état de la réservation
+      pendingReservation.value = false
+      confirmReservation.value = true
+
+      toast.success(t('Reservation confirmed successfully'))
+
+       await router.push({
+          name: 'ReservationDetails',
+          params: { id: reservationId.value },
+        })
+      }
+
+  } catch (error: any) {
+    console.error('Error confirming reservation:', error)
+    const errorMessage = error.response?.data?.message || error.message || t('Failed to confirm reservation')
+    toast.error(errorMessage)
+  } finally {
+    isConfirmingReservation.value = false
+  }
+}
 const initializeForm = () => {
   // Call the original initialize from useBooking if it sets default values
   initialize()
