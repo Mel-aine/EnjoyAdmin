@@ -699,7 +699,7 @@ watch(
       }
       const hotelId = serviceStore.serviceId
 
-      const response = await getRateTypesByRoomTypes(hotelId,roomTypeId)
+      const response = await getRateTypesByRoomTypes(roomTypeId)
 
       if (!response.data) {
         throw new Error('Invalid rate types data structure')
