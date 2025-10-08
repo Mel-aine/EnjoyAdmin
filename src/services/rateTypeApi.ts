@@ -13,7 +13,7 @@ const API_URL = () => {
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
-    headers: {  
+    headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
     withCredentials: true,
