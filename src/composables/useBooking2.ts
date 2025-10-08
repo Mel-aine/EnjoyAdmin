@@ -698,7 +698,6 @@ watch(
         throw new Error('roomTypeId ID not found')
       }
 
-
       const response = await getRateTypesByRoomTypes(roomTypeId)
 
       if (!response.data) {
