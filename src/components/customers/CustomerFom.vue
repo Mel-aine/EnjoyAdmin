@@ -84,7 +84,8 @@
           <Select
             :lb="$t('StatutVIP')"
             :placeholder="$t('selected_item')"
-            v-model="form.vipStatus"
+            v-model="form.vipStatusId"
+            :is-Loading="loading"
             :options="vipStatusOptions"
           />
         </div>
@@ -264,6 +265,7 @@ import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 import {getPreferencesByHotelId} from '@/services/configrationApi'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import { ChevronDownIcon } from 'lucide-vue-next'
+import { vipStatusApi } from '@/services/configrationApi'
 
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
@@ -282,7 +284,7 @@ interface CustomerForm {
   email: string
   gender: string
   guestType: string
-  vipStatus: string
+  vipStatusId: number
   addressLine: string
   country: string
   stateProvince: string
@@ -347,6 +349,8 @@ const isUploading = ref(false)
 const globalError = ref('')
 const pendingImages = ref<string[]>([])
 const Preferences = ref<SelectOption[]>([])
+const loading = ref(false)
+const vipStatusOptions = ref<any[]>([])
 
 // CustomerFom.vue
 
@@ -360,7 +364,7 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   email: '',
   gender: '',
   guestType: '',
-  vipStatus: '',
+  vipStatusId: 0,
   addressLine: '',
   country: 'CM',
   stateProvince: '',
@@ -403,14 +407,7 @@ const genderOptions = computed(() => [
   { label: t('Other'), value: 'other' },
 ])
 
-const vipStatusOptions = computed(() => [
-  { label: t('vipStatus.bronze'), value: 'bronze' },
-  { label: t('vipStatus.silver'), value: 'silver' },
-  { label: t('vipStatus.gold'), value: 'gold' },
-  { label: t('vipStatus.platinum'), value: 'platinum' },
-  { label: t('vipStatus.diamond'), value: 'diamond' },
-  { label: t('vipStatus.none'), value: 'none' },
-])
+
 
 const guestTypeOptions: SelectOption[] = [
   { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
@@ -533,7 +530,7 @@ const handleSubmit = async () => {
     }
 
     console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
-    emit('submit', finalFormData)
+    // emit('submit', finalFormData)
   } catch (error: any) {
     console.error('Erreur lors de la soumission:', error)
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'
@@ -572,7 +569,24 @@ const populateForm = (data: Partial<CustomerForm>) => {
   form.preferences = finalPreferences
 }
 
-
+const fetchVipStatuses = async () => {
+  try {
+    loading.value = true
+    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!);
+    console.log("respinse",response)
+    vipStatusOptions.value = response.data?.data.map((s:any)=>{
+      return{
+        label:s.name,
+        id:s.id
+      }
+    }) || []
+    console.log("vipStatusOptions",vipStatusOptions.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
 const resetForm = () => {
   Object.assign(form, getEmptyCustomerForm())
   pendingImages.value = []
@@ -668,6 +682,7 @@ watch(
 onMounted(() => {
   fetchIdentityTypes()
   loadPreferences()
+  fetchVipStatuses()
 })
 
 defineExpose({

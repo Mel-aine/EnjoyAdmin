@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import CustomerForm from '@/components/customers/CustomerFom.vue' 
+import CustomerForm from '@/components/customers/CustomerFom.vue'
 
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const { t } = useI18n()
@@ -59,7 +59,7 @@ interface CustomerForm {
   email: string
   gender: string
   guestType: string
-  vipStatus: string
+  vipStatusId: any
 
   // Adresse
   address: string
@@ -124,12 +124,12 @@ const handleSubmit = async (formData: CustomerForm) => {
   try {
     // Simulation d'une requête API
     await new Promise((resolve) => setTimeout(resolve, 2000))
-    
+
     emit('submit', {
       data: formData,
       isEdit: props.isEditMode
     })
-    
+
     // Réinitialiser les données si c'est une création
     if (!props.isEditMode) {
       customerFormData.value = {}

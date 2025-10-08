@@ -528,7 +528,7 @@
               <div v-show="showTaxDetails[room.id]" class="transition-all duration-200">
                 <div v-for="tax in room.taxes" :key="tax.id"
                   class="flex justify-between font-medium text-gray-800 text-sm mb-1">
-                  <span class="font-medium text-gray-500">{{ tax.taxName }}({{
+                  <span class="font-medium text-gray-500">{{ tax.name }}({{
                     tax.postingType == 'flat_amount'
                       ? formatCurrency(parseFloat(tax.amount))
                       : `${tax.percentage}%`

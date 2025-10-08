@@ -235,9 +235,10 @@
                   <div>
                     <Select
                       :lb="$t('StatutVIP')"
-                      v-model="guestData.vipStatus"
+                      v-model="guestData.vipStatusId"
                       :options="vipStatusOptions"
                       :placeholder="$t('Select')"
+                      :is-Loading="loading"
                       :disabled="!isEditing"
                     />
                   </div>
@@ -563,6 +564,7 @@ import { printGuestReservationCard } from '../../services/reservation'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
+import { vipStatusApi } from '@/services/configrationApi'
 
 interface GuestData {
   title: string
@@ -574,7 +576,7 @@ interface GuestData {
   email: string
   gender: string
   guestType: string
-  vipStatus: string
+  vipStatusId: any
   address: string
   country: string
   stateProvince: string
@@ -627,6 +629,8 @@ const showPickupModal = ref(false)
 // State pour les sections dépliantes
 const showIdentitySection = ref(false)
 const showOtherInfoSection = ref(false)
+const loading = ref(false)
+const vipStatusOptions = ref<any[]>([])
 const idTypeOptions = ref<SelectOption[]>([])
 const showPdfExporter = ref(false);
 
@@ -780,14 +784,7 @@ const guestTypeOptions: SelectOption[] = [
   { value: 'corporate', label: t('GuestTypes.corporate') },
   { value: 'individual', label: t('GuestTypes.individual') },
 ]
-const vipStatusOptions = computed(() => [
-  { label: t('vipStatus.bronze'), value: 'bronze' },
-  { label: t('vipStatus.silver'), value: 'silver' },
-  { label: t('vipStatus.gold'), value: 'gold' },
-  { label: t('vipStatus.platinum'), value: 'platinum' },
-  { label: t('vipStatus.diamond'), value: 'diamond' },
-  { label: t('vipStatus.none'), value: 'none' },
-])
+
 
 
 // --- Méthodes ---
@@ -826,6 +823,24 @@ const toggleOtherInfoSection = () => {
   showOtherInfoSection.value = !showOtherInfoSection.value
 }
 
+const fetchVipStatuses = async () => {
+  try {
+    loading.value = true
+    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!);
+    console.log("respinse",response)
+    vipStatusOptions.value = response.data?.data.map((s:any)=>{
+      return{
+        label:s.name,
+        id:s.id
+      }
+    }) || []
+  } catch (error) {
+    toast.error(t('vip_status.loadError'))
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
 const editGuest = () => {
   if (isEditing.value && isCreatingNewGuest.value) {
 
@@ -891,7 +906,7 @@ const prepareGuestPayload = (): GuestPayload => {
     email: guestData.email,
     gender: guestData.gender,
     guestType: guestData.guestType,
-    vipStatus: guestData.vipStatus,
+    vipStatusId: guestData.vipStatusId,
     addressLine: guestData.address,
     country: guestData.country,
     stateProvince: guestData.stateProvince,
@@ -1168,6 +1183,7 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
 onMounted(() => {
   loadPreferences()
   fetchIdentityTypes()
+  fetchVipStatuses()
 
 })
 </script>

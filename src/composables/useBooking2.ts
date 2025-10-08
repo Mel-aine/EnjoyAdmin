@@ -697,9 +697,9 @@ watch(
       if (!roomTypeId) {
         throw new Error('roomTypeId ID not found')
       }
-      const hotelId = serviceStore.serviceId
 
-      const response = await getRateTypesByRoomTypes(hotelId,roomTypeId)
+
+      const response = await getRateTypesByRoomTypes(roomTypeId)
 
       if (!response.data) {
         throw new Error('Invalid rate types data structure')
@@ -1624,9 +1624,11 @@ const validateAllRooms = () => {
         reservation.value.checkinDate,
         reservation.value.checkoutDate,
       )
+      console.log("@@response",response)
 
-      if (response?.data?.rooms) {
-        const selectedRoom = response.data.rooms.find((r: any) => r.id == roomC.roomNumber)
+      if (response?.data?.data?.rooms) {
+        const selectedRoom = response.data.data.rooms.find((r: any) => r.id == roomC.roomNumber)
+         console.log('selectedRoom:', selectedRoom)
 
         if (selectedRoom) {
           // Si la chambre a des taxRates dans la réponse, les utiliser
@@ -1635,6 +1637,7 @@ const validateAllRooms = () => {
 
           if (selectedRoom.taxRates) {
             roomTaxes = selectedRoom.taxRates
+
           } else {
             // Fallback vers les données existantes
             const rooms =
