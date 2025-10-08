@@ -365,7 +365,7 @@
             <div class="flex space-x-3">
              <BasicButton v-if="showCheckinButton" type="button" @click="handleCheckIn"
                 :loading="isLoading" :disabled="isLoading" variant="info"
-                :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
+                :label="checkinButtonLabel">
               </BasicButton>
               <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
@@ -380,13 +380,13 @@
       <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
-          <span v-if="confirmReservation"
+          <span v-if="pendingReservation"
+            class="bg-yellow-500 text-white text-sm py-2 px-4 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+            {{ $t('Unconfirmed Booking Inquiry') }}
+          </span>
+          <span v-else-if="confirmReservation"
             class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
             {{ $t('ConfirmBooking') }}
-          </span>
-          <span v-else-if="pendingReservation"
-            class="bg-yellow-600 text-white text-sm py-2 px-4 rounded hover:bg-yellow-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-            {{ $t('Unconfirmed Booking Inquiry') }}
           </span>
         </div>
 
@@ -779,6 +779,16 @@ const hasPendingUploads = computed(() => {
 })
 const isGroupReservation = computed(() => {
   return roomConfigurations.value.length > 1
+})
+
+const checkinButtonLabel = computed(() => {
+  if (pendingReservation.value) {
+    return t('Confirm Reservation')
+  }
+  if (isGroupReservation.value) {
+    return t('Check-In')
+  }
+  return t('Quick Check-In')
 })
 
 
