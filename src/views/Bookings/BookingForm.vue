@@ -365,7 +365,7 @@
             <div class="flex space-x-3">
              <BasicButton v-if="showCheckinButton" type="button" @click="handleCheckIn"
                 :loading="isLoading" :disabled="isLoading" variant="info"
-                :label="checkinButtonLabel">
+                :label="showCheckinButton ? $t('UploadingImages') : $t('Reserve')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
