@@ -11,7 +11,7 @@
 
       <!-- Taxes Table using ReusableTable -->
       <ReusableTable :title="t('configuration.taxes.taxes_list')" :columns="columns" :data="taxes" :actions="actions"
-        :search-placeholder="t('configuration.taxes.search_placeholder')" :selectable="true"
+        :search-placeholder="t('configuration.taxes.search_placeholder')" :selectable="false"
         :empty-state-title="t('configuration.taxes.empty_state_title')"
         :empty-state-message="t('configuration.taxes.empty_state_message')" :loading="loading" @action="onAction"
         @selection-change="onSelectionChange">
@@ -19,9 +19,6 @@
           <BasicButton @click="openAddModal" :label="t('configuration.taxes.add_tax')" :icon="Plus" variant="primary">
           </BasicButton>
 
-          <BasicButton v-if="selectedTaxes.length > 0" @click="confirmDeleteSelected"
-            :label="t('configuration.taxes.delete_selected')" :icon="Trash2" variant="danger">
-          </BasicButton>
         </template>
 
         <!-- Custom column for tax details -->
@@ -46,16 +43,16 @@
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
           <template  #column-status="{ item }">
@@ -159,9 +156,9 @@
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-h-48 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2 text-sm">
                     <div class="flex items-center space-x-2" v-for="(tax, ind) in taxes">
-                      <input type="checkbox" id="vat" v-model="formData.taxApplyAfter"
+                      <input type="checkbox" id="vat"  v-model="formData.taxApplyAfter" :value="tax.taxRateId"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                      <label for="vat" class="text-gray-700">VAT</label>
+                      <label for="vat" class="text-gray-700">{{ tax.taxName }}</label>
                     </div>
                   </div>
                 </div>
@@ -229,6 +226,9 @@ import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getTaxes, postTax, updateTaxById, deleteTaxById } from '@/services/configrationApi'
 import type { Action, Column } from '../../../utils/models'
+import { formatDateDisplay } from '../../../utils/dateUtils'
+import { formatDate } from 'date-fns'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -239,7 +239,7 @@ const showAddModal = ref(false)
 const showEditModal = ref(false)
 const editingTax = ref(null)
 const showDeleteModal = ref(false);
-const selectedTaxes = ref([])
+const selectedTaxes = ref<any>([])
 const loading = ref(false)
 const showConfirmModal = ref(false)
 const confirmAction = ref(null)
@@ -313,7 +313,7 @@ const columns = computed<Column[]>(() => [
 ])
 
 // Sample data
-const taxes = ref([
+const taxes = ref<any[]>([
 ])
 
 // Options for dropdowns
@@ -343,6 +343,7 @@ const loadTaxes = async () => {
     loading.value = true
     const response = await getTaxes()
     taxes.value = response.data.data.data || []
+    console.log('taxes',taxes.value)
   } catch (error) {
     console.error('Error loading taxes:', error)
     toast.error(t('something_went_wrong'))
@@ -372,13 +373,9 @@ const editTax = (tax: any) => {
 const confirmDeleteTax = (tax: any) => {
   confirmTitle.value = t('configuration.taxes.confirm_delete_title')
   confirmMessage.value = t('configuration.taxes.confirm_delete_message', { name: tax.taxName })
-  showConfirmModal.value = true
-}
+  showDeleteModal.value = true
+    selectedTaxes.value = [tax]
 
-const confirmDeleteSelected = () => {
-  confirmTitle.value = t('configuration.taxes.confirm_delete_selected_title')
-  confirmMessage.value = t('configuration.taxes.confirm_delete_selected_message', { count: selectedTaxes.value.length })
-  showConfirmModal.value = true
 }
 
 const deleteTax = async (tax: any) => {
@@ -487,13 +484,13 @@ const resetForm = () => {
   editingTaxId.value = null
 }
 
-const handleConfirm = () => {
-  if (confirmAction.value) {
-  }
+const  handleConfirm = async () => {
+      handleConfirmClose()
+    await deleteSelected()
 }
 
 const handleConfirmClose = () => {
-  showConfirmModal.value = false
+  showDeleteModal.value = false
   confirmAction.value = null
 }
 
