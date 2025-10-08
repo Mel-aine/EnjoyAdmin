@@ -1,19 +1,27 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-
-
       <!-- Rooms Table using ReusableTable -->
-      <ReusableTable :title="$t('Rooms')" :columns="columns" :data="rooms" :actions="actions" :loading="loading"
-        search-placeholder="Search rooms..." :selectable="false" empty-state-title="No rooms found"
-        empty-state-message="Click 'Add Room' to create your first room." @action="onAction"
+      <ReusableTable 
+        :title="$t('Rooms')" 
+        :columns="columns" 
+        :data="rooms" 
+        :actions="actions" 
+        :loading="loading"
+        search-placeholder="Search rooms..." 
+        :selectable="false" 
+        empty-state-title="No rooms found"
+        empty-state-message="Click 'Add Room' to create your first room." 
+        @action="onAction"
         @selection-change="onSelectionChange">
         <template #header-actions>
-          <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus">
-          </BasicButton>
-
-          <BasicButton v-if="selectedRooms.length > 0" @click="deleteSelected" label="Delete Selected" :icon="Trash2">
-          </BasicButton>
+          <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus" />
+          <BasicButton 
+            v-if="selectedRooms.length > 0" 
+            @click="deleteSelected" 
+            label="Delete Selected" 
+            :icon="Trash2" 
+          />
         </template>
 
         <template #column-roomInfo="{ item }">
@@ -31,42 +39,46 @@
         </template>
 
         <template #column-smokingAllowed="{ item }">
-          <span :class="{
-            'bg-green-100 text-green-800': item.smokingAllowed,
-            'bg-gray-100 text-gray-800': !item.smokingAllowed
-          }" class="px-2 py-1 text-xs font-medium rounded-full">
+          <span 
+            :class="{
+              'bg-green-100 text-green-800': item.smokingAllowed,
+              'bg-gray-100 text-gray-800': !item.smokingAllowed
+            }" 
+            class="px-2 py-1 text-xs font-medium rounded-full">
             {{ !item.smokingAllowed ? 'Non-Smoking' : 'Smoking Allowed' }}
           </span>
         </template>
 
         <template #column-status="{ item }">
-          <span :class="{
-            'bg-green-100 text-green-800': item.status === 'available',
-            'bg-red-100 text-red-800': item.status === 'maintenance',
-            'bg-yellow-100 text-yellow-800': item.status === 'occupied'
-          }" class="px-2 py-1 text-xs font-medium rounded-full">
+          <span 
+            :class="{
+              'bg-green-100 text-green-800': item.status === 'available',
+              'bg-red-100 text-red-800': item.status === 'maintenance',
+              'bg-yellow-100 text-yellow-800': item.status === 'occupied'
+            }" 
+            class="px-2 py-1 text-xs font-medium rounded-full">
             {{ $t(item.status) }}
           </span>
         </template>
-        <!-- Custom column for created info -->
+
         <template #column-createdInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.creator?.firstName }}</div>
             <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
-        <!-- Custom column for modified info -->
+
         <template #column-modifiedInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.modifier?.firstName }}</div>
             <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>
-
       </ReusableTable>
 
       <!-- Add/Edit Room Modal -->
-      <div v-if="showAddModal || showEditModal"
+      <div 
+        v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
@@ -105,8 +117,9 @@
               <div>
                 <Select
                   :lb="t('roomType')"
-                  v-model="formData.roomTypeId"
-                  :options="availableRoomTypes.map(rt => ({ value: rt.id, label: rt.roomTypeName || rt.name }))"
+                  :modelValue="formData.roomTypeId !== null ? String(formData.roomTypeId) : undefined"
+                  @update:modelValue="handleRoomTypeChange"
+                  :options="roomTypeOptions"
                   :placeholder="t('selectRoomType')"
                   :is-required="true"
                   customClass="w-full"
@@ -117,8 +130,9 @@
               <div>
                 <Select
                   :lb="t('bedType')"
-                  v-model="formData.bedType"
-                  :options="availableBedTypes.map(bt => ({ value: bt.id, label: bt.bedTypeName || bt.name }))"
+                  :modelValue="formData.bedTypeId !== null ? String(formData.bedTypeId) : undefined"
+                  @update:modelValue="handleBedTypeChange"
+                  :options="bedTypeOptions"
                   :placeholder="t('selectBedType')"
                   :is-required="true"
                   customClass="w-full"
@@ -155,7 +169,7 @@
               <div>
                 <Input
                   :lb="t('sortKey')"
-                  v-model="formData.sortKey"
+                  v-model.number="formData.sortKey"
                   type="number"
                   :placeholder="t('enterSortKey')"
                   :min="0"
@@ -169,9 +183,10 @@
                   class="flex items-start text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
                   <div class="relative mr-3 mt-0.5">
                     <input type="checkbox" v-model="formData.smokingAllowed" class="sr-only" />
-                    <div :class="formData.smokingAllowed
-                      ? 'border-brand-500 bg-brand-500'
-                      : 'bg-transparent border-gray-300 dark:border-gray-700'
+                    <div 
+                      :class="formData.smokingAllowed
+                        ? 'border-brand-500 bg-brand-500'
+                        : 'bg-transparent border-gray-300 dark:border-gray-700'
                       "
                       class="flex h-5 w-5 items-center justify-center rounded-md border-[1.25px] hover:border-brand-500 dark:hover:border-brand-500">
                       <span :class="formData.smokingAllowed ? '' : 'opacity-0'">
@@ -196,13 +211,19 @@
                 {{ t('roomImage') }}
               </label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div v-for="(image, index) in formData.roomImages" :key="index"
+                <div 
+                  v-for="(image, index) in formData.roomImages" 
+                  :key="index"
                   class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                   <div class="text-gray-400 mb-2">
                     <Camera class="w-8 h-8 mx-auto" />
                   </div>
                   <p class="text-xs text-gray-500 mb-2">{{ t('image') }} {{ index + 1 }}</p>
-                  <input type="file" accept="image/*" @change="handleImageUpload($event, index)" class="hidden"
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    @change="handleImageUpload($event, index)" 
+                    class="hidden"
                     :id="`image-${index}`">
                   <label :for="`image-${index}`" class="text-xs text-blue-600 hover:text-blue-800 cursor-pointer">
                     {{ t('chooseFile') }}
@@ -223,8 +244,12 @@
                 <div class="border border-gray-300 rounded-md p-4 max-h-40 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2">
                     <div v-for="room in availableConnectRooms" :key="room.id" class="flex items-center space-x-2">
-                      <input v-model="formData.connectedRooms" :value="room.id" type="checkbox"
-                        :id="`connect-${room.id}`" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                      <input 
+                        v-model="formData.connectedRooms" 
+                        :value="room.id" 
+                        type="checkbox"
+                        :id="`connect-${room.id}`" 
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                       <label :for="`connect-${room.id}`" class="text-sm text-gray-700">
                         {{ room.roomNumber }} ({{ room.roomType.roomTypeName }})
                       </label>
@@ -233,6 +258,7 @@
                 </div>
                 <p class="text-xs text-gray-500 mt-2">{{ t('connectRoomsDescription') }}</p>
               </div>
+
               <!-- Taxes -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -241,13 +267,14 @@
                 <div class="border border-gray-300 rounded-md p-4 max-h-40 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2">
                     <div v-for="taxe in availableTaxes" :key="taxe.id" class="flex items-center space-x-2">
-                      <input v-model="formData.taxRateIds" :value="taxe.taxRateId" type="checkbox"
+                      <input 
+                        v-model="formData.taxRateIds" 
+                        :value="taxe.taxRateId" 
+                        type="checkbox"
                         :id="`taxes-${taxe.taxRateId}`"
                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                       <label :for="`taxes-${taxe.taxRateId}`" class="text-sm text-gray-700">
-                        {{ taxe.taxName }} ({{
-                          taxe.postingType == "flat_percentage" ? (taxe.percentage + '%') : formatCurrency(taxe.amount)
-                        }})
+                        {{ taxe.taxName }} ({{ formatTaxAmount(taxe) }})
                       </label>
                     </div>
                   </div>
@@ -266,8 +293,8 @@
               <BasicButton 
                 type="submit" 
                 variant="primary" 
-                :icon="isEditing ? 'Add Room Type' : 'Plus'"
-                :label="saving ? t('saving') + '...' : isEditing ? $t('update') : $t('Add Room Type')" 
+                :icon="showEditModal ? Edit : Plus"
+                :label="saving ? t('saving') + '...' : showEditModal ? $t('update') : $t('addRoom')" 
                 :loading="saving"
                 :disabled="saving"
               />
@@ -280,7 +307,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -291,26 +318,94 @@ import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { format } from 'echarts'
 import { formatCurrency } from '../../../components/utilities/UtilitiesFunction'
+
+// Types
+interface Room {
+  id: number
+  shortCode: string
+  roomNumber: string
+  roomTypeId: number
+  bedTypeId: number
+  phoneExtension: string
+  keyCardAlias: string
+  sortKey: number
+  smokingAllowed: boolean
+  roomImages: (File | null)[]
+  connectedRooms: number[]
+  taxRates?: Array<{ taxRateId: number }>
+  roomType: {
+    roomTypeName: string
+  }
+  bedType: {
+    bedTypeName: string
+  }
+  roomTypeColor?: string
+  status: string
+  creator?: { firstName: string }
+  modifier?: { firstName: string }
+  createdAt: string
+  updatedAt: string
+}
+
+interface RoomFormData {
+  shortCode: string
+  roomNumber: string
+  roomTypeId: number | null
+  bedTypeId: number | null
+  phoneExtension: string
+  keyCardAlias: string
+  sortKey: number
+  smokingAllowed: boolean
+  roomImages: (File | null)[]
+  connectedRooms: number[]
+  taxRateIds: number[]
+}
+
+interface RoomType {
+  id: number
+  roomTypeName?: string
+  name?: string
+}
+
+interface BedType {
+  id: number
+  bedTypeName?: string
+  name?: string
+}
+
+interface Tax {
+  id: number
+  taxRateId: number
+  taxName: string
+  postingType: string
+  percentage?: number
+  amount?: number
+}
+
+interface Option {
+  value: string | number
+  label: string
+}
 
 const { t } = useI18n()
 const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
-const selectedRooms = ref([])
-const editingRoom = ref(null)
+const selectedRooms = ref<Room[]>([])
+const editingRoom = ref<Room | null>(null)
 const loading = ref(false)
 const saving = ref(false)
-const serviceStore = useServiceStore()
-// Form data
-const formData = ref({
+
+// Form data with proper typing
+const formData = ref<RoomFormData>({
   shortCode: '',
   roomNumber: '',
-  roomTypeId: '',
-  bedType: '',
+  roomTypeId: null,
+  bedTypeId: null,
   phoneExtension: '',
   keyCardAlias: '',
   sortKey: 0,
@@ -321,32 +416,59 @@ const formData = ref({
 })
 
 // Available options
-const availableRoomTypes = ref([
-])
-const availableTaxes = ref([
-])
+const availableRoomTypes = ref<RoomType[]>([])
+const availableTaxes = ref<Tax[]>([])
+const availableBedTypes = ref<BedType[]>([])
+const availableConnectRooms = ref<Room[]>([])
+const rooms = ref<Room[]>([])
 
-const availableBedTypes = ref([
-])
+// Computed options with proper typing - ensuring no undefined labels
+const roomTypeOptions = computed<Option[]>(() => {
+  return availableRoomTypes.value.map(rt => ({
+    value: rt.id,
+    label: (rt.roomTypeName || rt.name || `Room Type ${rt.id}`)
+  }))
+})
 
-const availableConnectRooms = ref([
-])
+const bedTypeOptions = computed<Option[]>(() => {
+  return availableBedTypes.value.map(bt => ({
+    value: bt.id,
+    label: (bt.bedTypeName || bt.name || `Bed Type ${bt.id}`)
+  }))
+})
 
-// Table configuration
+// Handler functions for Select components
+const handleRoomTypeChange = (value: string | number | undefined) => {
+  if (value === undefined || value === '') {
+    formData.value.roomTypeId = null
+  } else {
+    formData.value.roomTypeId = typeof value === 'string' ? Number(value) : value
+  }
+}
+
+const handleBedTypeChange = (value: string | number | undefined) => {
+  if (value === undefined || value === '') {
+    formData.value.bedTypeId = null
+  } else {
+    formData.value.bedTypeId = typeof value === 'string' ? Number(value) : value
+  }
+}
+
+// Table configuration with proper Column typing - using const assertion
 const columns = ref([
   {
     key: 'roomInfo',
     label: 'Room Name',
     sortable: true,
     searchable: true,
-    type: 'custom'
+    type: 'custom' as const
   },
   {
     key: 'roomType',
     label: 'Room Type',
     sortable: true,
     searchable: true,
-    type: 'custom'
+    type: 'custom' as const
   },
   {
     key: 'bedType.bedTypeName',
@@ -363,27 +485,27 @@ const columns = ref([
     key: 'smokingAllowed',
     label: 'Smoking',
     sortable: true,
-    type: 'custom'
+    type: 'custom' as const
   },
   {
     key: 'status',
     label: 'Status',
     sortable: true,
     component: 'badge',
-    type: 'custom',
+    type: 'custom' as const,
     translatable: true
   },
   {
     key: 'createdInfo',
     label: 'Created By',
     sortable: false,
-    type: 'custom'
+    type: 'custom' as const
   },
   {
     key: 'modifiedInfo',
     label: 'Modified By',
     sortable: false,
-    type: 'custom'
+    type: 'custom' as const
   }
 ])
 
@@ -392,26 +514,38 @@ const actions = ref([
     label: 'Edit',
     icon: 'edit',
     variant: 'primary',
-    handler: (item) => onAction('edit', item)
+    handler: (item: Room) => onAction('edit', item)
   },
   {
     label: 'Delete',
     icon: 'trash',
     variant: 'danger',
-    handler: (item) => onAction('delete', item)
+    handler: (item: Room) => onAction('delete', item)
   }
 ])
 
-// Sample data
-const rooms = ref([
-])
+// Helper function for formatting tax amount - with proper undefined checks
+const formatTaxAmount = (taxe: Tax): string => {
+  if (taxe.postingType === "flat_percentage") {
+    if (taxe.percentage !== undefined) {
+      return `${taxe.percentage}%`
+    }
+    return 'N/A'
+  }
+  
+  if (taxe.amount !== undefined) {
+    return formatCurrency(taxe.amount)
+  }
+  
+  return 'N/A'
+}
 
 // Methods
-const onSelectionChange = (selected) => {
+const onSelectionChange = (selected: Room[]) => {
   selectedRooms.value = selected
 }
 
-const onAction = (action, item) => {
+const onAction = (action: string, item: Room) => {
   if (action === 'edit') {
     editRoom(item)
   } else if (action === 'delete') {
@@ -419,27 +553,37 @@ const onAction = (action, item) => {
   }
 }
 
-const editRoom = (room) => {
+const editRoom = (room: Room) => {
   editingRoom.value = room
-  const roomTypeObj = availableRoomTypes.value.find(rt => rt.name === room.roomType)
+  
+  // Properly fill roomImages array
+  const roomImages: (File | null)[] = [null, null, null, null]
+  if (room.roomImages && Array.isArray(room.roomImages)) {
+    room.roomImages.forEach((img, index) => {
+      if (index < 4) {
+        roomImages[index] = img
+      }
+    })
+  }
+
   formData.value = {
     shortCode: room.shortCode,
     roomNumber: room.roomNumber,
     roomTypeId: room.roomTypeId,
-    bedType: room.bedTypeId,
+    bedTypeId: room.bedTypeId,
     phoneExtension: room.phoneExtension,
     keyCardAlias: room.keyCardAlias,
     sortKey: room.sortKey,
     smokingAllowed: room.smokingAllowed,
-    roomImages: room.roomImages ? [...room.roomImages] : [],
-    connectedRooms: room.connectedRooms ? [...room.connectedRooms] : room.connectedRooms,
-    taxRateIds: room.taxRates ? [...room.taxRates.map((e)=>e.taxRateId)] : []
+    roomImages: roomImages,
+    connectedRooms: room.connectedRooms || [],
+    taxRateIds: room.taxRates ? room.taxRates.map(e => e.taxRateId) : []
   }
   showEditModal.value = true
 }
 
-const deleteRoom = (room) => {
-  if (confirm(`Are you sure you want to delete room "${room.roomName}"?`)) {
+const deleteRoom = (room: Room) => {
+  if (confirm(`Are you sure you want to delete room "${room.roomNumber}"?`)) {
     rooms.value = rooms.value.filter(r => r.id !== room.id)
   }
 }
@@ -452,8 +596,9 @@ const deleteSelected = () => {
   }
 }
 
-const handleImageUpload = (event, index) => {
-  const file = event.target.files[0]
+const handleImageUpload = (event: Event, index: number) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
   if (file) {
     formData.value.roomImages[index] = file
   }
@@ -461,7 +606,10 @@ const handleImageUpload = (event, index) => {
 
 const saveRoom = async () => {
   // Validation
-  if (!formData.value.shortCode || !formData.value.roomNumber || !formData.value.roomTypeId || !formData.value.bedType) {
+  if (!formData.value.shortCode || 
+      !formData.value.roomNumber || 
+      !formData.value.roomTypeId || 
+      !formData.value.bedTypeId) {
     toast.error(t('pleaseCompleteAllRequiredFields'))
     return
   }
@@ -473,7 +621,7 @@ const saveRoom = async () => {
       shortCode: formData.value.shortCode,
       roomNumber: formData.value.roomNumber,
       roomTypeId: formData.value.roomTypeId,
-      bedTypeId: formData.value.bedType,
+      bedTypeId: formData.value.bedTypeId,
       phoneExtension: formData.value.phoneExtension,
       keyCardAlias: formData.value.keyCardAlias,
       sortKey: formData.value.sortKey,
@@ -482,7 +630,6 @@ const saveRoom = async () => {
       connectedRooms: formData.value.connectedRooms,
       hotelId: serviceStore.serviceId,
       taxRateIds: formData.value.taxRateIds,
-      //floor:1
     }
 
     if (showEditModal.value && editingRoom.value) {
@@ -505,78 +652,75 @@ const saveRoom = async () => {
     saving.value = false
   }
 }
+
 const loadData = async () => {
-  loading.value = true;
+  loading.value = true
   try {
-    const resp = await getRooms();
+    const resp = await getRooms()
     console.log('Rooms data:', resp)
-    rooms.value = resp.data.data?.data || resp.data.data || resp.data || [];
+    rooms.value = resp.data.data?.data || resp.data.data || resp.data || []
   } catch (error) {
-    console.error('Error loading rooms:', error);
-    toast.error(t('errorLoadingRooms'));
-    // Use mock data as fallback if API fails
-    rooms.value = [];
+    console.error('Error loading rooms:', error)
+    toast.error(t('errorLoadingRooms'))
+    rooms.value = []
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 const loadRoomTypes = async () => {
   try {
-    const resp = await getRoomTypes();
+    const resp = await getRoomTypes()
     console.log('Room types data:', resp)
-    availableRoomTypes.value = resp.data.data?.data || resp.data.data || resp.data || [];
+    availableRoomTypes.value = resp.data.data?.data || resp.data.data || resp.data || []
   } catch (error) {
-    console.error('Error loading room types:', error);
-    toast.error(t('errorLoadingRoomTypes'));
-    // Keep mock data as fallback if API fails
+    console.error('Error loading room types:', error)
+    toast.error(t('errorLoadingRoomTypes'))
   }
 }
 
 const loadBedTypes = async () => {
   try {
-    const resp = await getBedTypes();
+    const resp = await getBedTypes()
     console.log('Bed types data:', resp)
-    availableBedTypes.value = resp.data.data?.data || resp.data.data || resp.data || [];
+    availableBedTypes.value = resp.data.data?.data || resp.data.data || resp.data || []
   } catch (error) {
-    console.error('Error loading bed types:', error);
-    toast.error(t('errorLoadingBedTypes'));
-    // Keep mock data as fallback if API fails
+    console.error('Error loading bed types:', error)
+    toast.error(t('errorLoadingBedTypes'))
   }
 }
 
 const loadConnectingRooms = async () => {
   try {
-    const resp = await getRooms();
+    const resp = await getRooms()
     console.log('Available connecting rooms data:', resp)
-    availableConnectRooms.value = resp.data.data?.data || resp.data.data || resp.data || [];
+    availableConnectRooms.value = resp.data.data?.data || resp.data.data || resp.data || []
   } catch (error) {
-    console.error('Error loading connecting rooms:', error);
-    toast.error(t('errorLoadingConnectingRooms'));
-    // Keep mock data as fallback if API fails
+    console.error('Error loading connecting rooms:', error)
+    toast.error(t('errorLoadingConnectingRooms'))
   }
 }
 
 const loadTaxes = async () => {
   try {
-    const resp = await getTaxes();
-    console.log('Available connecting rooms data:', resp)
-    availableTaxes.value = resp.data.data?.data || resp.data.data || resp.data || [];
+    const resp = await getTaxes()
+    console.log('Available taxes data:', resp)
+    availableTaxes.value = resp.data.data?.data || resp.data.data || resp.data || []
   } catch (error) {
-    console.error('Error loading connecting rooms:', error);
-    toast.error(t('errorLoadingConnectingRooms'));
-    // Keep mock data as fallback if API fails
+    console.error('Error loading taxes:', error)
+    toast.error(t('errorLoadingTaxes'))
   }
 }
+
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
   editingRoom.value = null
   formData.value = {
     shortCode: '',
-    roomName: '',
-    roomTypeId: '',
-    bedType: '',
+    roomNumber: '',
+    roomTypeId: null,
+    bedTypeId: null,
     phoneExtension: '',
     keyCardAlias: '',
     sortKey: 0,
@@ -587,9 +731,10 @@ const closeModal = () => {
   }
 }
 
-loadData();
-loadRoomTypes();
-loadBedTypes();
-loadConnectingRooms();
-loadTaxes();
+// Initialize data
+loadData()
+loadRoomTypes()
+loadBedTypes()
+loadConnectingRooms()
+loadTaxes()
 </script>
