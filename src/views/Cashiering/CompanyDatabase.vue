@@ -127,9 +127,10 @@ const handleFilter = async (filterData: any) => {
     }
 
     // Call API with filters
-    const result = await getFilteredCompanies(apiFilter)
+    const result:any = await getFilteredCompanies(apiFilter)
+    console.log('result', result.data)
     if (result) {
-      filteredCompanies.value = result
+      filteredCompanies.value = result.data
     } else {
       filteredCompanies.value = []
       toast.error(t('companyDatabase.filter_error'))
@@ -279,11 +280,11 @@ const fetchCompanies = async () => {
   try {
     loading.value = true
     const result: any = await getCompanies()
-    console.log('reservation', result)
+    console.log('reservation', result.data)
     if (result) {
-      companies.value = result
+      companies.value = result.data
 
-      filteredCompanies.value = result
+      filteredCompanies.value = result.data
 
     } else {
       companies.value = []
