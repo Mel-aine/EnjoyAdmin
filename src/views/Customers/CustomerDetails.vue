@@ -15,13 +15,25 @@
             <div class="flex flex-col">
               <span class="font-bold text-lg">{{ customer.title }} {{ customer.firstName }} {{ customer.lastName }}</span>
               <div class="flex items-center gap-2 mt-1">
-                <span
+                <!-- <span
                   v-if="customer.vipStatus"
                   class="inline-flex items-center px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold uppercase"
                 >
                   <Star class="w-3 h-3 mr-1" />
                   {{ customer.vipStatus }}
-                </span>
+                </span> -->
+                  <span
+                    v-if="customer?.vipStatuses"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase"
+                    :style="{
+                      backgroundColor: customer.vipStatuses.color + '20',
+                      color: customer.vipStatuses.color
+                    }"
+                  >
+                    <component :is="getIcon(customer.vipStatuses.icon)" class="w-3 h-3 mr-1" />
+                    {{ customer.vipStatuses.name }}
+                  </span>
+
                 <span
                   class="inline-flex items-center px-2 py-0.5 bg-gray-200 text-gray-800 rounded-full text-xs font-medium"
                 >
@@ -463,6 +475,7 @@ import Spinner from '@/components/spinner/Spinner.vue'
 import {  ArrowLeft } from 'lucide-vue-next'
 import { useServiceStore } from '@/composables/serviceStore'
 import { CarTaxiFront } from 'lucide-vue-next';
+import * as LucideIcons from 'lucide-vue-next'
 
 
 
@@ -678,8 +691,11 @@ const blacklistHistory = computed(() => {
 // Event handlers
 
 
-
-
+const getIcon = (iconName?: string) => {
+  if (!iconName) return LucideIcons.Star
+  const icon = LucideIcons[iconName as keyof typeof LucideIcons]
+  return icon ?? LucideIcons.Star
+}
 
 const handleCheckIn = async (stay: any) => {
   if (!stay || !stay.reservationId) {

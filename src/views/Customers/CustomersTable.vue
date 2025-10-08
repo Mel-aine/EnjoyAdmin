@@ -33,14 +33,19 @@
                 <span v-if="item.country">{{ $t(`countries_lists.${item.country.toLowerCase()}`) }} </span>
               </div>
             </template>
-            <template #column-vipStatus="{ item }">
+
+            <template #column-vipStatusId="{ item }">
               <span
-                :class="getVipStatusClass(item.vipStatus)"
+                v-if="item.vipStatuses"
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                :style="{ backgroundColor: item.vipStatuses.color, color: 'white' }"
               >
-                {{ $t(`vipStatus.${item.vipStatus}`) }}
+                <i :class="`lucide-${item.vipStatuses.icon.toLowerCase()}`" class="mr-1"></i>
+                {{ item.vipStatuses.name }}
               </span>
+              <span v-else class="text-gray-400 text-xs">No status</span>
             </template>
+
           </ReusableTable>
            <TablePagination
               v-if="paginationMeta"
@@ -170,7 +175,7 @@ const columns = computed(() => [
     translatable: true,
   },
   {
-    key: 'vipStatus',
+    key: 'vipStatusId',
     label: t('StatutVIP'),
     type: 'custom' as const,
     sortable: true,

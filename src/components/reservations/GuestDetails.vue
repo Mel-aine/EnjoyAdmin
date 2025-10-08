@@ -672,7 +672,7 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     email: customer?.email || '',
     gender: customer?.gender || 'male',
     guestType: customer?.guestType || '',
-    vipStatus: customer?.vipStatus || '',
+    vipStatusId: customer?.vipStatusId || '',
     address: customer?.addressLine || customer?.address || '',
     country: customer?.country || '',
     stateProvince: customer?.stateProvince || '',
@@ -729,7 +729,7 @@ const initializeGuestData = (guest: any = null): GuestData => {
     email: '',
     gender: 'male',
     guestType: '',
-    vipStatus: '',
+    vipStatusId: 0,
     address: '',
     country: '',
     stateProvince: '',
@@ -831,7 +831,7 @@ const fetchVipStatuses = async () => {
     vipStatusOptions.value = response.data?.data.map((s:any)=>{
       return{
         label:s.name,
-        id:s.id
+        value:s.id
       }
     }) || []
   } catch (error) {

@@ -530,7 +530,7 @@ const handleSubmit = async () => {
     }
 
     console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
-    // emit('submit', finalFormData)
+    emit('submit', finalFormData)
   } catch (error: any) {
     console.error('Erreur lors de la soumission:', error)
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'
@@ -577,7 +577,7 @@ const fetchVipStatuses = async () => {
     vipStatusOptions.value = response.data?.data.map((s:any)=>{
       return{
         label:s.name,
-        id:s.id
+        value:s.id
       }
     }) || []
     console.log("vipStatusOptions",vipStatusOptions.value)
