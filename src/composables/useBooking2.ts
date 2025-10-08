@@ -682,7 +682,7 @@ watch(
       RoomTypes.value = roomTypeOptions
     } catch (error) {
       console.error('Error fetching room types:', error)
-      toast.error(t('toast.fetchError'))
+      // toast.error(t('toast.fetchError'))
       RoomTypes.value = []
       RoomTypesData.value = []
     } finally {

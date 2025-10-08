@@ -830,6 +830,9 @@ onMounted(() => {
         </div>
         <div class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
           <ReservationStatus :status="localReservation.status" />
+          <Button>
+            {{ $t() }}
+          </Button>
         </div>
       </div>
 
