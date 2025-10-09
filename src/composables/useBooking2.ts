@@ -22,6 +22,7 @@ interface RoomConfiguration {
   rate: number
   isOpen: boolean
   taxes: any[],
+  extraCharges: any[],
   isLoadingRooms?: boolean
   isLoadingRate?: boolean
 }
@@ -135,6 +136,7 @@ export function useBooking() {
   // Loading states
   const isLoading = ref(false)
   const isLoadingRoom = ref(false)
+  const isExtraChargesIncluded = ref(false)
   // const isLoadingRate = ref(false)
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
@@ -148,6 +150,7 @@ export function useBooking() {
   const selectBooking = ref<any | null>(null)
   const reservationId = ref<number | null>(null)
   const RoomRateById = ref<number | null>(null)
+  const mealPlanId = ref<number | null>(null)
   const isPaymentButtonShow = ref(false)
   const confirmReservation = ref(false)
   const pendingReservation = ref(false)
@@ -184,6 +187,7 @@ export function useBooking() {
       rate: 0,
       isOpen: false,
       taxes: [],
+      extraCharges: [],
       isLoadingRooms: false,
       isLoadingRate: false,
 
@@ -527,8 +531,8 @@ watch(
       const response = await fetchRateTypes(roomTypeIdNumber)
       console.log('fetchRateTypes response:', response)
 
-      if (response?.data?.roomType?.rateTypes) {
-        const rateTypeOptions: Option[] = response.data.roomType.rateTypes.map((rateType: any) => ({
+      if (response?.data?.rateTypes) {
+        const rateTypeOptions: Option[] = response.data.rateTypes.map((rateType: any) => ({
           label: rateType.rateTypeName,
           value: rateType.id,
         }))
@@ -635,6 +639,7 @@ watch(
       rate: 0,
       isOpen: false,
       taxes: [],
+      extraCharges:[],
       isLoadingRooms: false,
       isLoadingRate: false,
     }
@@ -1044,6 +1049,7 @@ const validateAllRooms = () => {
             adult_count: safeParseInt(room.adultCount, 1),
             child_count: safeParseInt(room.childCount, 0),
             room_rate_id: RoomRateById.value,
+            meal_plan_id : mealPlanId.value,
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
@@ -1158,53 +1164,55 @@ const validateAllRooms = () => {
   }
 
   //  Fonction onRateTypeChange
-  const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
-    const room = roomConfigurations.value.find((r) => r.id === roomId)
-    if (!room || !room.roomType || !newRateTypeId) return
 
-    try {
-      room.isLoadingRate = true
 
-      // Récupérer les informations complètes du rate
-      const rateInfo = await fetchRateInfo(
+const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
+  const room = roomConfigurations.value.find((r) => r.id === roomId)
+  if (!room || !room.roomType || !newRateTypeId) return
+
+  try {
+    room.isLoadingRate = true
+
+    // Récupérer les informations complètes du rate
+    const rateInfo = await fetchRateInfo(
+      room.roomType,
+      newRateTypeId,
+      reservation.value.checkinDate,
+    )
+
+    if (rateInfo) {
+
+      const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
+        baseAdult: 1,
+        baseChild: 0,
+        extraAdultRate: 0,
+        extraChildRate: 0,
+      }
+
+      baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+      baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+      roomTypeBaseInfo.value.set(room.roomType, baseInfo)
+      room.extraCharges = rateInfo.extraCharges || []
+
+      // Calculer le tarif avec conversion explicite
+      room.rate = calculateRoomRate(
         room.roomType,
-        newRateTypeId,
-        reservation.value.checkinDate,
+        Number(room.adultCount),
+        Number(room.childCount),
+        Number(rateInfo.baseRate) || 0,
       )
 
-      if (rateInfo) {
-        // Mettre à jour les informations de base avec conversion explicite en nombres
-        const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
-          baseAdult: 1,
-          baseChild: 0,
-          extraAdultRate: 0,
-          extraChildRate: 0,
-        }
-
-        // Conversion explicite en nombres
-        baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
-        baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
-        roomTypeBaseInfo.value.set(room.roomType, baseInfo)
-
-        // Calculer le tarif avec conversion explicite
-        room.rate = calculateRoomRate(
-          room.roomType,
-          Number(room.adultCount),
-          Number(room.childCount),
-          Number(rateInfo.baseRate) || 0,
-        )
-
-        updateBilling()
-      }
-    } catch (error) {
-      console.error('Error fetching rate info:', error)
-      toast.error(t('toast.errorFetchingBaseRate'))
-    } finally {
-      if (room) {
+      updateBilling()
+    }
+  } catch (error) {
+    console.error('Error fetching rate info:', error)
+    toast.error(t('toast.errorFetchingBaseRate'))
+  } finally {
+    if (room) {
       room.isLoadingRate = false
     }
-    }
   }
+}
 
   //  Fonction onRoomTypeChange
   const onRoomTypeChange = async (roomId: string, newRoomTypeId: string) => {
@@ -1298,41 +1306,71 @@ const validateAllRooms = () => {
   }
 
   //  Fonction fetchRateInfo
+
+
   const fetchRateInfo = async (
-    roomTypeId: string,
-    rateTypeId: string,
-    date?: string,
-  ): Promise<any | null> => {
-    try {
-      const hotelId = serviceStore.serviceId
-      if (!hotelId) {
-        throw new Error('Hotel ID not found')
-      }
-
-      const response = await getBaseRateByRoomAndRateType({
-        hotel_id: hotelId,
-        room_type_id: Number(roomTypeId),
-        rate_type_id: Number(rateTypeId),
-        date: date || reservation.value.checkinDate,
-      })
-
-      console.log('fetchRateInfo response:', response)
-      RoomRateById.value = response.id
-
-      // Validation et conversion explicite des données reçues
-      return {
-        baseRate: Number(response?.baseRate) || 0,
-        extraAdultRate: Number(response?.extraAdultRate) || 0,
-        extraChildRate: Number(response?.extraChildRate) || 0,
-        singleOccupancyRate: Number(response?.singleOccupancyRate) || 0,
-        doubleOccupancyRate: Number(response?.doubleOccupancyRate) || 0,
-        tripleOccupancyRate: Number(response?.tripleOccupancyRate) || 0,
-      }
-    } catch (error) {
-      console.error('Error fetching rate info:', error)
-      return null
+  roomTypeId: string,
+  rateTypeId: string,
+  date?: string,
+): Promise<any | null> => {
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId) {
+      throw new Error('Hotel ID not found')
     }
+
+    const response = await getBaseRateByRoomAndRateType({
+      hotel_id: hotelId,
+      room_type_id: Number(roomTypeId),
+      rate_type_id: Number(rateTypeId),
+      date: date || reservation.value.checkinDate,
+    })
+
+    console.log('fetchRateInfo response COMPLETE:', response)
+    console.log('mealPlanRateInclude:', response?.mealPlanRateInclude)
+    console.log('extraCharges:', response?.mealPlan?.extraCharges)
+
+    RoomRateById.value = response.id
+    mealPlanId.value = response.mealPlanId
+
+    // Calculer le tarif de base avec meal plan si nécessaire
+    let calculatedBaseRate = Number(response?.baseRate) || 0
+    console.log('Base rate initial:', calculatedBaseRate)
+
+    // Si mealPlanRateInclude est false, ajouter les extra charges au baseRate
+    if (response?.mealPlanRateInclude === false && response?.mealPlan?.extraCharges) {
+      isExtraChargesIncluded.value = false
+      console.log('mealPlanRateInclude est FALSE, calcul des extra charges...')
+      const extraChargesTotal = response.mealPlan.extraCharges.reduce((sum: number, charge: any) => {
+        const chargeAmount = Number(charge.rate) || 0
+        console.log(`Adding charge ${charge.name}: ${chargeAmount}`)
+        return sum + chargeAmount
+      }, 0)
+      console.log('Total extra charges:', extraChargesTotal)
+      calculatedBaseRate += extraChargesTotal
+      console.log('Base rate après ajout extra charges:', calculatedBaseRate)
+    } else {
+      isExtraChargesIncluded.value = true
+      console.log('mealPlanRateInclude est TRUE ou pas de charges, pas de modification')
+    }
+
+    // Validation et conversion explicite des données reçues
+    return {
+      baseRate: calculatedBaseRate,
+      extraAdultRate: Number(response?.extraAdultRate) || 0,
+      extraChildRate: Number(response?.extraChildRate) || 0,
+      singleOccupancyRate: Number(response?.singleOccupancyRate) || 0,
+      doubleOccupancyRate: Number(response?.doubleOccupancyRate) || 0,
+      tripleOccupancyRate: Number(response?.tripleOccupancyRate) || 0,
+      mealPlan: response?.mealPlan || null,
+      mealPlanRateInclude: response?.mealPlanRateInclude ?? true,
+      extraCharges: response?.mealPlan?.extraCharges || []
+    }
+  } catch (error) {
+    console.error('Error fetching rate info:', error)
+    return null
   }
+}
 
   // Fonction getRoomExtraInfo
   const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
@@ -1493,6 +1531,7 @@ const validateAllRooms = () => {
       rate: 0,
       isOpen: false,
       taxes: [],
+      extraCharges:[],
        isLoadingRooms: false,
     },
   ]
@@ -1783,8 +1822,8 @@ watch(() => otherInfo.value.voucherEmail, () => {
     voucherEmailError,
     validateVoucherEmail,
      validateRoomNumbers,
-  validateRoomNumberOnChange,
-  quickGroupBooking,
+    validateRoomNumberOnChange,
+    quickGroupBooking,
 
     // Computed
     numberOfNights,
@@ -1832,6 +1871,7 @@ watch(() => otherInfo.value.voucherEmail, () => {
     trackUpload,
     completeUpload,
     waitForPendingUploads,
-    holdReleaseData
+    holdReleaseData,
+    isExtraChargesIncluded
   }
 }

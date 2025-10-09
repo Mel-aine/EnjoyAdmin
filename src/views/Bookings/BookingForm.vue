@@ -537,6 +537,51 @@
                 </div>
               </div>
             </div>
+            <!--etra charges-->
+            <div v-if="room.extraCharges && room.extraCharges.length > 0" class="flex flex-col mt-3">
+              <div class="flex items-center justify-between mb-2 cursor-pointer" @click="toggleExtraChargesDetails(room.id)">
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-700">{{ $t('detailsOfExtraCharges') }}</span>
+                  <svg
+                    class="w-4 h-4 ml-2 transform transition-transform duration-200"
+                    :class="{ 'rotate-180': showChargesDetails[room.id] }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+                <span class="px-2 py-1   text-xs rounded-full" :class="[isExtraChargesIncluded? 'text-green-700 bg-green-100' : 'text-blue-700 bg-blue-100']">
+                  {{ isExtraChargesIncluded ? $t('Included') : $t('ExtraServices') }}
+                </span>
+              </div>
+
+              <div v-show="showChargesDetails[room.id]" class="transition-all duration-200">
+                <div
+                  v-for="charge in room.extraCharges"
+                  :key="charge.id"
+                  class="flex justify-between items-center font-medium text-gray-800 text-sm mb-2 p-1 bg-gray-50 rounded"
+                >
+                  <div class="flex flex-col">
+                    <span class="font-medium text-gray-700">{{ charge.name }}</span>
+
+                  </div>
+                  <span class="text-gray-700 font-semibold">{{ formatCurrency(parseFloat(charge.rate)) }}</span>
+                </div>
+
+                <!-- Total des extra charges si plus d'un élément -->
+                <div
+                  v-if="room.extraCharges.length > 1"
+                  class="flex justify-between items-center font-bold text-gray-900 text-sm mt-2 pt-2 border-t border-gray-300"
+                >
+                  <span>{{ $t('TotalExtraCharges') }}</span>
+                  <span>
+                    {{ formatCurrency(room.extraCharges.reduce((sum, charge) => sum + parseFloat(charge.rate), 0)) }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Totaux -->
@@ -654,11 +699,15 @@ const closeAddPaymentModal = () => {
 }
 
 const showTaxDetails = ref<Record<string, boolean>>({})
+const showChargesDetails = ref<Record<string, boolean>>({})
 
 const toggleTaxDetails = (roomId: string) => {
   showTaxDetails.value[roomId] = !showTaxDetails.value[roomId]
 }
 
+const toggleExtraChargesDetails = (roomId: string) => {
+  showChargesDetails.value[roomId] = !showChargesDetails.value[roomId]
+}
 const handleSavePayment = (payment: any) => {
   router.push({
     name: 'ReservationDetails',
@@ -794,7 +843,8 @@ const {
   onRoomNumberChange,
   pendingUploads,
   holdReleaseData,
-  canCityLedgerPay
+  canCityLedgerPay,
+  isExtraChargesIncluded
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours

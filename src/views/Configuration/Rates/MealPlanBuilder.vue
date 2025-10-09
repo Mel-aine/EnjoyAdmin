@@ -16,14 +16,14 @@
         @selection-change="onSelectionChange"
       >
         <template #header-actions>
-          <BasicButton 
+          <BasicButton
             @click="openAddModal"
             :label="'Add Meal Plan'"
             :icon="Plus"
-          > 
+          >
           </BasicButton>
 
-          <BasicButton 
+          <BasicButton
             v-if="selectedMealPlans.length > 0"
             @click="deleteSelected"
             :label="'Delete Selected'"
@@ -39,7 +39,7 @@
           <h3 class="text-lg font-semibold mb-4">
             {{ showAddModal ? 'Add Meal Plan' : 'Edit Meal Plan' }}
           </h3>
-          
+
           <form @submit.prevent="saveMealPlan" class="space-y-4">
             <!-- General Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -65,8 +65,11 @@
 
               <!-- Add Component Tool -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div>
+                <!-- <div>
                   <Select v-model="newComponent.extraChargeId" :lb="'Extra Charge'" :options="extraChargeOptions" :placeholder="'Select extra charge'" />
+                </div> -->
+                <div>
+                  <InputExtractChargeSelect  v-model="newComponent.extraChargeId" :lb="$t('Extra Charge')" />
                 </div>
                 <div>
                   <Input v-model.number="newComponent.quantityPerDay" :lb="'Quantity / Night'" input-type="number" :min="1" :placeholder="'1'" />
@@ -117,7 +120,7 @@
       </div>
     </div>
   </ConfigurationLayout>
-  
+
 </template>
 
 <script setup lang="ts">
@@ -131,6 +134,7 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import { Save, Plus, Trash2, Edit } from 'lucide-vue-next'
 import { getExtraCharges, getMealPlans, postMealPlan, updateMealPlanById, deleteMealPlanById } from '@/services/configrationApi'
 import type { Column } from '../../../utils/models'
+import InputExtractChargeSelect from '@/components/reservations/foglio/InputExtractChargeSelect.vue'
 
 const toast = useToast()
 
@@ -146,8 +150,8 @@ const columns :Column[] = [
 ]
 
 const actions = [
-  { name: 'edit', label: 'Edit', variant: 'primary', icon: Edit },
-  { name: 'delete', label: 'Delete', variant: 'danger', icon: Trash2 },
+  { name: 'edit', label: 'Edit', variant: 'primary', icon: Edit, handler: (item:any) => onAction('edit', item) },
+  { name: 'delete', label: 'Delete', variant: 'danger', icon: Trash2 , handler: (item:any) => onAction('delete', item) },
 ]
 
 // Modal state
@@ -304,8 +308,16 @@ const saveMealPlan = async () => {
     isSaving.value = false
   }
 }
+const onAction = (action: string, item: any) => {
+  if (action === 'edit') {
+    editMealPlan(item)
+  } else if (action === 'delete') {
+    deleteMealPlan(item)
+  }
+}
 
 const editMealPlan = (item: any) => {
+
   showEditModal.value = true
   showAddModal.value = false
   editingMealPlan.value = item
@@ -317,10 +329,11 @@ const editMealPlan = (item: any) => {
   const apiComponents = item.components || []
   components.value = apiComponents.map((c: any) => ({
     extraChargeId: Number(c.extraChargeId || c.extra_charge_id),
-    extraChargeName: c.extraChargeName || c.extra_charge_name || String(c.extraChargeId || c.extra_charge_id),
+    extraChargeName: c.extraCharge.name || c.extra_charge_name || String(c.extraChargeId || c.extra_charge_id),
     quantityPerDay: Number(c.quantityPerDay || c.quantity_per_day || 1),
     targetGuestType: c.targetGuestType || c.target_guest_type || 'adult',
   }))
+
 }
 
 const deleteMealPlan = async (item: any) => {
@@ -340,13 +353,7 @@ const deleteMealPlan = async (item: any) => {
   }
 }
 
-const onAction = (action: string, item: any) => {
-  if (action === 'edit') {
-    editMealPlan(item)
-  } else if (action === 'delete') {
-    deleteMealPlan(item)
-  }
-}
+
 
 const onSelectionChange = (selected: any[]) => {
   selectedMealPlans.value = selected
