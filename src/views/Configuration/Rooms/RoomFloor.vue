@@ -709,7 +709,7 @@ const saveRoom = async () => {
 
     if (showEditModal.value && editingRoom.value) {
       // Update existing room
-      await updateRoomById(editingRoom.value.id, roomData)
+      await updateRoomById(Number(editingRoom.value.id), roomData)
       toast.success(t('roomUpdatedSuccessfully'))
     } else {
       // Add new room
