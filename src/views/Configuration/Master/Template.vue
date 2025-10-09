@@ -16,8 +16,8 @@
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            :icon="Plus"
-            label="Add Template"
+            :icon="PlusIcon"
+            :label="$t('Add Template')"
             @click="openAddModal"
           />
         </template>
@@ -112,20 +112,19 @@
             </div>
             
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                variant="secondary" 
+              <BasicButton
+                type="button"
+                variant="outline"
                 @click="closeModal"
                 :label="$t('cancel')"
-                :icon="ShieldCloseIcon"
-              >
-              </BasicButton>
-              <BasicButton 
-                variant="primary" 
-                type="submit"
-                :label="saving ? $t('Saving...') : (isEditing ? $t('Update') : $t('Save'))"
                 :disabled="saving"
-              >
-              </BasicButton>
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
+                :label="isEditing ? $t('configuration.template.update') : $t('Add Template')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -142,8 +141,8 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
-import Plus from '../../../icons/Plus.vue'
-import { ShieldCloseIcon } from 'lucide-vue-next'
+import PlusIcon from '../../../icons/Plus.vue'
+// Icons
 import { getTemplateCategories, emailAccountsApi, emailTemplatesApi } from '@/services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'

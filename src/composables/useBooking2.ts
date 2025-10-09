@@ -150,6 +150,7 @@ export function useBooking() {
   const RoomRateById = ref<number | null>(null)
   const isPaymentButtonShow = ref(false)
   const confirmReservation = ref(false)
+  const pendingReservation = ref(false)
   const PaymentMethods = ref<any[]>([])
   const pendingUploads = ref<Set<string>>(new Set())
   const uploadErrors = ref<string[]>([])
@@ -192,9 +193,9 @@ export function useBooking() {
   // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '12h00',
+    checkinTime: '12:00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '14h00',
+    checkoutTime: '14:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -674,6 +675,7 @@ watch(
       }
 
       RoomTypesData.value = response.data.data.data
+      console.log('RoomTypesData.value',RoomTypesData.value)
 
       const roomTypeOptions: Option[] = response.data.data.data.map((room: RoomTypeData) => ({
         label: room.roomTypeName,
@@ -682,7 +684,7 @@ watch(
       RoomTypes.value = roomTypeOptions
     } catch (error) {
       console.error('Error fetching room types:', error)
-      toast.error(t('toast.fetchError'))
+      // toast.error(t('toast.fetchError'))
       RoomTypes.value = []
       RoomTypesData.value = []
     } finally {
@@ -1091,6 +1093,10 @@ const validateAllRooms = () => {
         confirmReservation.value = true
       }
 
+      if(response.status === 'pending'){
+        pendingReservation.value = true
+      }
+
       toast.success(t('reservationCreated'))
 
       return response
@@ -1462,9 +1468,9 @@ const validateAllRooms = () => {
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '12h00',
+    checkinTime: '12:00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '14h00',
+    checkoutTime: '14:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -1577,6 +1583,7 @@ const validateAllRooms = () => {
   // Reset other state variables
   dateError.value = null
   confirmReservation.value = false
+  pendingReservation.value = false
   isPaymentButtonShow.value = false
   reservationId.value = null
   RoomRateById.value = null
@@ -1616,9 +1623,11 @@ const validateAllRooms = () => {
         reservation.value.checkinDate,
         reservation.value.checkoutDate,
       )
+      console.log("@@response",response)
 
-      if (response?.data?.rooms) {
-        const selectedRoom = response.data.rooms.find((r: any) => r.id == roomC.roomNumber)
+      if (response?.data?.data?.rooms) {
+        const selectedRoom = response.data.data.rooms.find((r: any) => r.id == roomC.roomNumber)
+         console.log('selectedRoom:', selectedRoom)
 
         if (selectedRoom) {
           // Si la chambre a des taxRates dans la réponse, les utiliser
@@ -1627,6 +1636,7 @@ const validateAllRooms = () => {
 
           if (selectedRoom.taxRates) {
             roomTaxes = selectedRoom.taxRates
+
           } else {
             // Fallback vers les données existantes
             const rooms =
@@ -1766,6 +1776,7 @@ watch(() => otherInfo.value.voucherEmail, () => {
     isPaymentLoading,
     dateError,
     confirmReservation,
+    pendingReservation,
     isCustomPrize,
     isCheckedIn,
     isLoadingAvailableRooms,

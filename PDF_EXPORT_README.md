@@ -8,7 +8,7 @@ La fonctionnalité d'exportation PDF permet de :
 - **Prévisualiser** le document de manière interactive dans un modal
 - **Gérer plusieurs modèles** de documents (standard et détaillé)
 - **Générer un fichier PDF** à partir du modèle choisi et des données dynamiques
-- **Télécharger ou imprimer** le PDF
+- **Télécharger ou imprimer** le PDF,,
 - **Éviter les coupures de page** disgracieuses
 
 ## Technologies utilisées

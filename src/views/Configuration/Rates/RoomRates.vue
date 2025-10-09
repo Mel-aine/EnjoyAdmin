@@ -75,25 +75,21 @@
             <!-- Room Type and Rate Type -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('roomType') }} *
-                </label>
                 <Select 
                   v-model="formData.roomType"
                   :options="roomTypeOptions"
                   :placeholder="t('selectRoomType')"
-                  required
+                  :lb="t('roomType')"
+                  :is-required="true"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('rateType') }} *
-                </label>
                 <Select 
                   v-model="formData.rateType"
                   :options="rateTypeOptions"
                   :placeholder="t('selectRateType')"
-                  required
+                  :lb="t('rateType')"
+                  :is-required="true"
                 />
               </div>
             </div>
@@ -101,64 +97,80 @@
             <!-- Season and Source Name -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('season') }} *
-                </label>
                 <Select 
                   v-model="formData.season"
                   :options="seasonOptions"
                   :placeholder="t('selectSeason')"
-                  required
+                  :lb="t('season')"
+                  :is-required="true"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('sourceName') }}
-                </label>
                 <Select 
                   v-model="formData.sourceName"
                   :options="sourceOptions"
                   :placeholder="t('selectSource')"
+                  :lb="t('sourceName')"
                 />
               </div>
             </div>
 
+            <!-- Meal Plan selection -->
+            <div>
+              <Select 
+                v-model="formData.mealPlanId"
+                :options="mealPlanOptions"
+                :placeholder="t('select') + ' ' + 'Meal Plan'"
+                :lb="'Meal Plan'"
+              />
+            </div>
+
             <!-- Base Rate -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('baseRate') }} *
-              </label>
               <Input 
                 v-model="formData.baseRate"
                 type="number"
                 step="0.01"
                 :placeholder="t('enterBaseRate')"
-                required
+                :lb="t('baseRate')"
+                :is-required="true"
               />
+            </div>
+
+            <!-- Tax and Meal Plan Rate Include Flags -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-center gap-2">
+                <CheckboxInput 
+                  v-model="formData.tax_include" 
+                  :lb="'Tax Include'" 
+                />
+              </div>
+              <div class="flex items-center gap-2">
+                <CheckboxInput 
+                  v-model="formData.meal_plan_rate_include" 
+                  :lb="'Meal Plan Rate Include'" 
+                />
+              </div>
             </div>
 
             <!-- Extra Adult and Child Rates -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('rateForExtraAdult') }}
-                </label>
                 <Input 
                   v-model="formData.extraAdultRate"
                   type="number"
                   step="0.01"
                   :placeholder="t('enterRateForExtraAdult')"
+                  :lb="t('rateForExtraAdult')"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('rateForExtraChild') }}
-                </label>
                 <Input 
                   v-model="formData.extraChildRate"
                   type="number"
                   step="0.01"
                   :placeholder="t('enterRateForExtraChild')"
+                  :lb="t('rateForExtraChild')"
                 />
               </div>
             </div>
@@ -167,35 +179,41 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('effectiveFrom') }} *
+                  {{ t('effectiveFrom') }} <span class="text-red-500">*</span>
+                  <span v-if="!formData.effectiveFrom && formSubmitted" class="text-red-500">
+                    {{ t('fieldRequired') }}
+                  </span>
                 </label>
                 <InputDatePicker 
                   v-model="formData.effectiveFrom"
                   :placeholder="t('selectEffectiveFromDate')"
-                  required
+                  :class="{'border-red-500': !formData.effectiveFrom && formSubmitted}"
+                  @update:modelValue="formData.effectiveFrom = $event"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('effectiveTo') }} *
+                  {{ t('effectiveTo') }} <span class="text-red-500">*</span>
+                  <span v-if="!formData.effectiveTo && formSubmitted" class="text-red-500">
+                    {{ t('fieldRequired') }}
+                  </span>
                 </label>
                 <InputDatePicker 
                   v-model="formData.effectiveTo"
                   :placeholder="t('selectEffectiveToDate')"
-                  required
+                  :class="{'border-red-500': !formData.effectiveTo && formSubmitted}"
+                  @update:modelValue="formData.effectiveTo = $event"
                 />
               </div>
             </div>
 
             <!-- Status -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('status') }}
-              </label>
               <Select 
                 v-model="formData.status"
                 :options="statusOptions"
                 :placeholder="t('selectStatus')"
+                :lb="t('status')"
               />
             </div>
 
@@ -223,12 +241,14 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import CheckboxInput from '@/components/forms/FormElements/InputCheckBox.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
 import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById, getRoomRates } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { format } from 'date-fns'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
-
+// Load meal plans
+import { getMealPlans } from '../../../services/configrationApi'
 const { t } = useI18n()
 const toast = useToast()
 
@@ -256,13 +276,18 @@ const formData = ref({
   rateType: '',
   season: '',
   sourceName: '',
+  mealPlanId: '',
   baseRate: '',
   extraAdultRate: '',
   extraChildRate: '',
   effectiveFrom: '',
   effectiveTo: '',
-  status: 'active'
+  status: 'active',
+  tax_include: false,
+  meal_plan_rate_include: false
 })
+
+const formSubmitted = ref(false)
 
 // Table columns
 const columns = ref([
@@ -335,6 +360,9 @@ const seasonOptions = ref([
 ])
 
 const sourceOptions = ref([
+])
+
+const mealPlanOptions = ref([
 ])
 
 const statusOptions = ref([
@@ -433,6 +461,14 @@ const fetchRoomRates = async () => {
   }
 }
 const saveRoomRate = async () => {
+  formSubmitted.value = true
+  
+  // Vérification des champs requis
+  if (!formData.value.effectiveFrom || !formData.value.effectiveTo) {
+    isSaving.value = false
+    return
+  }
+  
   try {
     isSaving.value = true
     
@@ -443,12 +479,15 @@ const saveRoomRate = async () => {
         rateTypeId: formData.value.rateType,
         seasonId: formData.value.season,
         sourceId: formData.value.sourceName,
+        mealPlanId: formData.value.mealPlanId || null,
         baseRate: parseFloat(formData.value.baseRate),
         extraAdultRate: parseFloat(formData.value.extraAdultRate) || 0,
         extraChildRate: parseFloat(formData.value.extraChildRate) || 0,
         effectiveFrom: formData.value.effectiveFrom??null,
         effectiveTo: formData.value.effectiveTo??null,
         status: formData.value.status || 'active',
+        tax_include: !!formData.value.tax_include,
+        meal_plan_rate_include: !!formData.value.meal_plan_rate_include,
         hotelId:serviceStore.serviceId
       }
       
@@ -463,12 +502,15 @@ const saveRoomRate = async () => {
         rateTypeId: formData.value.rateType,
         seasonId: formData.value.season,
         sourceId: formData.value.sourceName,
+        mealPlanId: formData.value.mealPlanId || null,
         baseRate: parseFloat(formData.value.baseRate),
         extraAdultRate: parseFloat(formData.value.extraAdultRate) || 0,
         extraChildRate: parseFloat(formData.value.extraChildRate) || 0,
         effectiveFrom: formData.value.effectiveFrom,
         effectiveTo: formData.value.effectiveTo,
-        status: formData.value.status || 'active'
+        status: formData.value.status || 'active',
+        tax_include: !!formData.value.tax_include,
+        meal_plan_rate_include: !!formData.value.meal_plan_rate_include
       }
       
       const response = await updateRoomRateById(editingRoomRate.value.id, roomRateData)
@@ -491,18 +533,20 @@ const saveRoomRate = async () => {
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
-  editingRoomRate.value = null
+  formSubmitted.value = false
   formData.value = {
     roomType: '',
     rateType: '',
     season: '',
     sourceName: '',
-    baseRate: '',
+    mealPlanId: '',
     extraAdultRate: '',
     extraChildRate: '',
     effectiveFrom: '',
     effectiveTo: '',
-    status: 'active'
+    status: 'active',
+    tax_include: false,
+    meal_plan_rate_include: false
   }
 }
 
@@ -601,5 +645,22 @@ onMounted(() => {
   loadRateTypes();
   loadSeasons();
   loadSources();
+  loadMealPlans();
 });
+
+
+const loadMealPlans = async () => {
+  try {
+    const resp = await getMealPlans();
+    mealPlanOptions.value = [{ value: '', label: t('none') }].concat((resp.data.data?.data || resp.data.data || resp.data || []).map((e) => {
+      return {
+        value: e.id,
+        label: e.name
+      }
+    }));
+  } catch (error) {
+    console.error('Error loading meal plans:', error);
+    // silently fail, keep empty
+  }
+}
 </script>

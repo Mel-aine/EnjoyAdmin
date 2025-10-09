@@ -20,42 +20,33 @@
               
               <!-- Folio -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ t('notices.fields.folio') }}
-                </label>
-                <textarea
+                <InputTextArea
                   v-model="notices.folio"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  :label="t('notices.fields.folio')"
                   :placeholder="t('notices.placeholders.folio')"
-                ></textarea>
+                  :rows="6"
+                />
               </div>
             
               
               <!-- Registration Card -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ t('notices.fields.registrationCard') }}
-                </label>
-                <textarea
+                <InputTextArea
                   v-model="notices.registrationCard"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  :label="t('notices.fields.registrationCard')"
                   :placeholder="t('notices.placeholders.registrationCard')"
-                ></textarea>
+                  :rows="6"
+                />
               </div>
               
               <!-- T&C (Terms and Condition) -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ t('notices.fields.termsAndConditions') }}
-                </label>
-                <textarea
+                <InputTextArea
                   v-model="notices.termsAndConditions"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  :label="t('notices.fields.termsAndConditions')"
                   :placeholder="t('notices.placeholders.termsAndConditions')"
-                ></textarea>
+                  :rows="6"
+                />
               </div>
             </div>
             
@@ -63,41 +54,32 @@
             <div class="space-y-6">
               <!-- Cancellation -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ t('notices.fields.cancellation') }}
-                </label>
-                <textarea
+                <InputTextArea
                   v-model="notices.cancellation"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  :label="t('notices.fields.cancellation')"
                   :placeholder="t('notices.placeholders.cancellation')"
-                ></textarea>
+                  :rows="6"
+                />
               </div>
               
               <!-- Group Reservation -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ t('notices.fields.groupProformatInvoice') }}
-                </label>
-                <textarea
+                <InputTextArea
                   v-model="notices.groupProformatInvoice"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  :label="t('notices.fields.groupProformatInvoice')"
                   :placeholder="t('notices.placeholders.groupProformatInvoice')"
-                ></textarea>
+                  :rows="6"
+                />
               </div>
               
               <!-- Receipt -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ t('notices.fields.receipt') }}
-                </label>
-                <textarea
+                <InputTextArea
                   v-model="notices.receipt"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  :label="t('notices.fields.receipt')"
                   :placeholder="t('notices.placeholders.receipt')"
-                ></textarea>
+                  :rows="6"
+                />
               </div>
               
               
@@ -116,6 +98,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
+import InputTextArea from '../../../components/forms/FormElements/InputTextArea.vue'
 import { Save } from 'lucide-vue-next'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { updateHotelNotices } from '../../../services/hotelApi'

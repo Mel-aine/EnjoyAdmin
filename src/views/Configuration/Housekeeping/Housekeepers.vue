@@ -65,22 +65,20 @@
               />
             </div>
 
-           <div class="flex justify-end space-x-3 pt-4">
+           <div class="flex justify-end space-x-3 mt-6">
               <BasicButton
-                variant="secondary"
-                @click="closeModal"
                 type="button"
+                variant="outline"
+                @click="closeModal"
                 :label="$t('cancel')"
-              >
-              </BasicButton>
+                :disabled="isSaving"
+              />
               <BasicButton
-                variant="primary"
                 type="submit"
-                :label="isEditing ? $t('update') : $t('save') "
-                :icon="isEditing ? Edit : Save"
+                variant="primary"
+                :label="isSaving ? $t('saving') + '...' : isEditing ? $t('update') : $t('save')"
                 :loading="isSaving"
-              >
-              </BasicButton>
+              />
             </div>
           </form>
         </div>

@@ -29,11 +29,14 @@ interface SidebarContextType {
   isHovered: Ref<boolean>
   activeItem: Ref<string | null>
   openSubmenu: Ref<string | null>
+  scrollPosition: Ref<number>
   toggleSidebar: () => void
   toggleMobileSidebar: () => void
   setIsHovered: (isHovered: boolean) => void
   setActiveItem: (item: string | null) => void
   toggleSubmenu: (item: string) => void
+  saveScrollPosition: (position: number) => void
+  getScrollPosition: () => number
 }
 
 const SidebarSymbol = Symbol()
@@ -47,6 +50,7 @@ export function useSidebarProvider() {
   const isHovered = ref(false)
   const activeItem = ref<string | null>(null)
   const openSubmenu = ref<string | null>(null)
+  const scrollPosition = ref(0)
 
   const handleResize = () => {
     const mobile = window.innerWidth < 768
@@ -91,12 +95,23 @@ export function useSidebarProvider() {
     openSubmenu.value = openSubmenu.value === item ? null : item
   }
 
+  const saveScrollPosition = (position: number) => {
+    scrollPosition.value = position
+  }
+
+  const getScrollPosition = (): number => {
+    return scrollPosition.value
+  }
+
   const context: SidebarContextType = {
     isExpanded: computed(() => isExpanded.value),
     isMobileOpen,
     isHovered,
     activeItem,
     openSubmenu,
+    scrollPosition,
+    saveScrollPosition,
+    getScrollPosition,
     toggleSidebar,
     toggleMobileSidebar,
     setIsHovered,

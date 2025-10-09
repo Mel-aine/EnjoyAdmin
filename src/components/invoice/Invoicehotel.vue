@@ -1,8 +1,8 @@
 <template>
-    <div class=" w-screen mx-auto bg-white font-serif text-sm">
-        <!-- Header without border -->
-    </div>
-    <div class="mx-auto bg-white font-serif text-sm border-1 border-black">
+  <div class=" w-screen mx-auto bg-white font-serif text-sm">
+    <!-- Header without border -->
+  </div>
+  <div class="mx-auto bg-white font-serif text-sm border-1 border-black">
     <!-- All content in bordered container -->
     <div class="border border-black">
       <!-- Hotel Info -->
@@ -17,7 +17,7 @@
               <p class="break-words">URL: www.suita-hotel.com</p>
             </div>
             <div class="text-center py-2 md:py-4">
-                <h2 class="text-xs md:text-sm font-bold">Tax Invoice</h2>
+              <h2 class="text-xs md:text-sm font-bold">Tax Invoice</h2>
             </div>
           </div>
           <div class="text-right text-xs order-1 md:order-none mb-2 md:mb-0">
@@ -30,7 +30,8 @@
       <!-- Invoice Details -->
       <div class="p-1 md:p-2 border-b-2 border-black">
         <table class="w-full text-xxs md:text-xs">
-          <tr class="flex flex-col md:table-row">
+          <tbody>
+            <tr class="flex flex-col md:table-row">
             <td class="w-full md:w-1/3">
               <div class="mb-1">
                 <span class="font-semibold">Folio No./Rcv No.</span>
@@ -58,13 +59,15 @@
               </div>
             </td>
           </tr>
+          </tbody>
         </table>
       </div>
 
       <!-- Guest Details Table -->
       <div class="border-b-2 border-black overflow-x-auto">
         <table class="w-full border-collapse text-xxs md:text-xs">
-          <tr class="border-b-2 border-black">
+          <tbody>
+            <tr class="border-b-2 border-black">
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Nationality</th>
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">No of Pax</th>
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Adult Child</th>
@@ -78,33 +81,36 @@
             <td class="border-r-2 border-black p-1 md:p-2">1164</td>
             <td class="p-1 md:p-2">House Suite Sharing - 102 D</td>
           </tr>
+          </tbody>
         </table>
       </div>
 
       <!-- Stay Details Table -->
       <div class="w-full text-xxs md:text-xs overflow-x-auto">
         <table class="w-full border-collapse">
-            <!-- Ligne 1 -->
-            <tr class="border-b-2 border-black">
+         <tbody>
+           <!-- Ligne 1 -->
+          <tr class="border-b-2 border-black">
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Date of Arrival</th>
             <td class="border-r-2 border-black p-1 md:p-2">30-07-2025</td>
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Date of Departure</th>
             <td class="p-1 md:p-2">08-08-2025</td>
-            </tr>
-            <!-- Ligne 2 -->
-            <tr class="border-b-2 border-black">
+          </tr>
+          <!-- Ligne 2 -->
+          <tr class="border-b-2 border-black">
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Time Of Arrival</th>
             <td class="border-r-2 border-black p-1 md:p-2">12:46:14</td>
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Time of Departure</th>
             <td class="p-1 md:p-2">05:51:31</td>
-            </tr>
-            <!-- Ligne 3 -->
-            <tr class="border-b-2 border-black">
+          </tr>
+          <!-- Ligne 3 -->
+          <tr class="border-b-2 border-black">
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Tariff</th>
             <td class="border-r-2 border-black p-1 md:p-2">26 608</td>
             <th class="border-r-2 border-black p-1 md:p-2 text-left font-semibold">Rate Type</th>
             <td class="p-1 md:p-2">B&amp;B</td>
-            </tr>
+          </tr>
+         </tbody>
         </table>
       </div>
 
@@ -122,11 +128,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr 
-              v-for="(charge, index) in invoiceData.charges" 
-              :key="index"
-              :class="{'': index !== invoiceData.charges.length - 1}"
-            >
+            <tr v-for="(charge, index) in invoiceData.charges" :key="index"
+              :class="{ '': index !== invoiceData.charges.length - 1 }">
               <td class="p-1 md:p-2">{{ charge.date }}</td>
               <td class="p-1 md:p-2">{{ charge.refNo }}</td>
               <td class="p-1 md:p-2 font-semibold">{{ charge.particulars }}</td>
@@ -160,83 +163,85 @@
       <!-- Amount in words section -->
       <div class="p-0 overflow-x-auto">
         <table class="w-full text-xxs md:text-xs border-black border-collapse">
-            <tr>
+         <tbody>
+           <tr>
             <td class="border-r-2 border-b-2 border-black font-semibold w-1/3 align-top p-1 md:p-2">
-                This Folio is in XAF
+              This Folio is in XAF
             </td>
             <td class="border-r-2 border-b-2 border-black w-1/3 align-top p-1 md:p-2">
-                Four hundred and five thousand
+              Four hundred and five thousand
             </td>
             <td class="border-b-2 border-black w-1/3 align-top p-1 md:p-2 font-semibold">Total Paid</td>
             <td class="border-b-2 border-black w-1/6 align-top p-1 md:p-2 text-right">405,000</td>
-            </tr>
-            <tr>
+          </tr>
+          <tr>
             <td class="border-black p-1 md:p-2"></td>
             <td class="border-r-2 border-black p-1 md:p-2"></td>
             <td class="border-b-2 border-black font-semibold p-1 md:p-2">Balance</td>
             <td class="border-b-2 border-black p-1 md:p-2 text-right">0</td>
-            </tr>
+          </tr>
+         </tbody>
         </table>
       </div>
 
       <!-- Bill To Section -->
       <div class="p-1 md:p-2">
-          <div class="text-xxs md:text-xs mb-1 md:mb-2">
+        <div class="text-xxs md:text-xs mb-1 md:mb-2">
           <span class="font-semibold">Bill To</span>
           <span class="ml-2 md:ml-12">Mr. NDIAYE MASS / CFCR (OPEN)</span>
-          </div>
-          <div class="text-xxs md:text-xs">
+        </div>
+        <div class="text-xxs md:text-xs">
           <span class="font-semibold">Address</span>
           <span class="ml-2 md:ml-10">Cameroon</span>
-          </div>
-          <div class="text-right mt-2 md:mt-4">
+        </div>
+        <div class="text-right mt-2 md:mt-4">
           <span class="text-xxs md:text-xs">( Guest Signature )</span>
-          </div>
+        </div>
       </div>
 
       <!-- Remark Section -->
       <div class="p-1 md:p-2">
-          <span class="font-semibold text-xxs md:text-xs">Remark</span>
+        <span class="font-semibold text-xxs md:text-xs">Remark</span>
       </div>
 
       <!-- Footer -->
       <div class="text-center p-2 md:p-4">
-          <p class="text-xxs md:text-xs">Thank you for your stay with us. Please visit us again.</p>
+        <p class="text-xxs md:text-xs">Thank you for your stay with us. Please visit us again.</p>
       </div>
 
-        <div class="text-left text-xxs md:text-xs space-y-0.5 p-2 md:p-4">
-          <p>Folio NOTICE</p>
-          <p>Folio NOTICE</p>
+      <div class="text-left text-xxs md:text-xs space-y-0.5 p-2 md:p-4">
+        <p>Folio NOTICE</p>
+        <p>Folio NOTICE</p>
+      </div>
+
+      <!-- Informations de vérification en bas -->
+
+      <div class="px-2 md:px-4 py-1 text-xxs md:text-xs grid grid-cols-1 md:grid-cols-4 gap-1 md:gap-4">
+        <div>
+          <span class="font-medium">Reserved By:</span> EMMANUEL
         </div>
-        
-        <!-- Informations de vérification en bas -->
-        
-        <div class="px-2 md:px-4 py-1 text-xxs md:text-xs grid grid-cols-1 md:grid-cols-4 gap-1 md:gap-4">
-            <div>
-                <span class="font-medium">Reserved By:</span> EMMANUEL
-            </div>
-            <div>
-                <span class="font-medium">Checked In By:</span> EMMANUEL
-            </div>
-            <div>
-                <span class="font-medium">Checked Out By:</span> Resto
-            </div>
+        <div>
+          <span class="font-medium">Checked In By:</span> EMMANUEL
         </div>
+        <div>
+          <span class="font-medium">Checked Out By:</span> Resto
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-  // Interface pour définir la structure des données de la facture
-  interface ChargeItem {
+// Interface pour définir la structure des données de la facture
+interface ChargeItem {
   date: string;
   refNo: string;
   particulars: string;
   charges: number;
   payment: number;
   balance: number;
-  }
+}
 
-  interface InvoiceData {
+interface InvoiceData {
   folioNo: string;
   invoiceNo: string;
   date: string;
@@ -260,10 +265,10 @@
   balance: number;
   billTo: string;
   address: string;
-  }
+}
 
-  // Données par défaut (peuvent être passées en props)
-  const invoiceData: InvoiceData = {
+// Données par défaut (peuvent être passées en props)
+const invoiceData: InvoiceData = {
   folioNo: "1545 / 2505",
   invoiceNo: "2506",
   date: "08-08-2025 17:03:45",
@@ -298,5 +303,5 @@
   balance: 0,
   billTo: "Mr. NDIAYE MASS / CFCR (OPEN)",
   address: "Cameroon"
-  };
+};
 </script>

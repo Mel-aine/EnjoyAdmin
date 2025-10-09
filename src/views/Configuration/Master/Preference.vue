@@ -75,13 +75,19 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton variant="secondary" @click="closeModal" type="button"
-                :label="t('configuration.reservation_type.cancel')">
-              </BasicButton>
-              <BasicButton variant="primary" type="submit"
-                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
-                :icon="isEditing ? Edit : Save" :loading="saving" :disabled="saving">
-              </BasicButton>
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
+                :disabled="saving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
+                :label="isEditing ? t('configuration.preference.update_preference') : t('configuration.preference.save_preference')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -115,7 +121,7 @@ import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceByI
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import Plus from '../../../icons/Plus.vue'
-import { Edit, Save } from 'lucide-vue-next'
+// Edit and Save icons removed as they're no longer used in the template
 
 const { t } = useI18n()
 const toast = useToast()

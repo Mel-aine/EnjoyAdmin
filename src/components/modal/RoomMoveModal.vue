@@ -82,7 +82,7 @@
                 </div>
                 <div class="text-md text-gray-500 flex flex-col justify-between h-full">
                   <span class="text-blue-600 font-medium">{{ res?.guest?.displayName || reservation.guest?.displayName
-                  }}</span>
+                    }}</span>
                   <div class="">
                     <div class="text-xs text-gray-500 mb-1 mt-8 ">Room Type</div>
                     <div class="text-sm font-medium">{{ res.roomType?.roomTypeName }}</div>
@@ -227,10 +227,11 @@ const confirmRoomSelection = async () => {
   if (roomSelections.length > 0) {
     isLoading.value = true
     try {
-      const data ={
-        moves : roomSelections,
+      const data = {
+        reservationId: props.reservationId,
+        moves: roomSelections,
       }
-      console.log("@@@@data",data)
+      console.log("@@@@data", data)
       await postRoomMoveReservation(props.reservationId, data)
       toast.success(t('Room exchange completed successfully'))
       emit('success')
