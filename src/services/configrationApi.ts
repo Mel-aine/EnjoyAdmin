@@ -1900,3 +1900,60 @@ export const getConfiguration = (hotelId:number) :Promise<AxiosResponse<any>> =>
   return axios.get(`${API_URL()}/permissions?hotelId=${hotelId}`, getHeaders())
 }
 
+////// this is the Meal Plans sections
+/**
+ * Types for meal plan payload
+ */
+export interface MealPlanComponentPayload {
+  extraChargeId: number
+  quantityPerDay: number
+  targetGuestType: string // e.g., 'adult' | 'child'
+}
+
+export interface MealPlanPayload {
+  name: string
+  shortCode: string
+  description?: string
+  status: string // e.g., 'Active' | 'Inactive'
+  isAllInclusive: boolean
+  components: MealPlanComponentPayload[]
+}
+
+/**
+ * Get all meal plans for current hotel (from service store)
+ */
+export const getMealPlans = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/meal_plans`, getHeaders())
+}
+
+/**
+ * Get a single meal plan by ID
+ */
+export const getMealPlanById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/meal_plans/${id}`, getHeaders())
+}
+
+/**
+ * Create a new meal plan
+ */
+export const postMealPlan = (data: MealPlanPayload): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL()}/meal_plans`, data, getHeaders())
+}
+
+/**
+ * Update an existing meal plan by ID
+ */
+export const updateMealPlanById = (
+  id: number | string,
+  data: Partial<MealPlanPayload>,
+): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL()}/meal_plans/${id}`, data, getHeaders())
+}
+
+/**
+ * Delete a meal plan by ID
+ */
+export const deleteMealPlanById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL()}/meal_plans/${id}`, getHeaders())
+}
+

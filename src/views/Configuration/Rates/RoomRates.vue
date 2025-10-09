@@ -115,6 +115,16 @@
               </div>
             </div>
 
+            <!-- Meal Plan selection -->
+            <div>
+              <Select 
+                v-model="formData.mealPlanId"
+                :options="mealPlanOptions"
+                :placeholder="t('select') + ' ' + 'Meal Plan'"
+                :lb="'Meal Plan'"
+              />
+            </div>
+
             <!-- Base Rate -->
             <div>
               <Input 
@@ -125,6 +135,22 @@
                 :lb="t('baseRate')"
                 :is-required="true"
               />
+            </div>
+
+            <!-- Tax and Meal Plan Rate Include Flags -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-center gap-2">
+                <CheckboxInput 
+                  v-model="formData.tax_include" 
+                  :lb="'Tax Include'" 
+                />
+              </div>
+              <div class="flex items-center gap-2">
+                <CheckboxInput 
+                  v-model="formData.meal_plan_rate_include" 
+                  :lb="'Meal Plan Rate Include'" 
+                />
+              </div>
             </div>
 
             <!-- Extra Adult and Child Rates -->
@@ -215,12 +241,14 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import CheckboxInput from '@/components/forms/FormElements/InputCheckBox.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
 import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById, getRoomRates } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { format } from 'date-fns'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
-
+// Load meal plans
+import { getMealPlans } from '../../../services/configrationApi'
 const { t } = useI18n()
 const toast = useToast()
 
@@ -248,12 +276,15 @@ const formData = ref({
   rateType: '',
   season: '',
   sourceName: '',
+  mealPlanId: '',
   baseRate: '',
   extraAdultRate: '',
   extraChildRate: '',
   effectiveFrom: '',
   effectiveTo: '',
-  status: 'active'
+  status: 'active',
+  tax_include: false,
+  meal_plan_rate_include: false
 })
 
 const formSubmitted = ref(false)
@@ -329,6 +360,9 @@ const seasonOptions = ref([
 ])
 
 const sourceOptions = ref([
+])
+
+const mealPlanOptions = ref([
 ])
 
 const statusOptions = ref([
@@ -445,12 +479,15 @@ const saveRoomRate = async () => {
         rateTypeId: formData.value.rateType,
         seasonId: formData.value.season,
         sourceId: formData.value.sourceName,
+        mealPlanId: formData.value.mealPlanId || null,
         baseRate: parseFloat(formData.value.baseRate),
         extraAdultRate: parseFloat(formData.value.extraAdultRate) || 0,
         extraChildRate: parseFloat(formData.value.extraChildRate) || 0,
         effectiveFrom: formData.value.effectiveFrom??null,
         effectiveTo: formData.value.effectiveTo??null,
         status: formData.value.status || 'active',
+        tax_include: !!formData.value.tax_include,
+        meal_plan_rate_include: !!formData.value.meal_plan_rate_include,
         hotelId:serviceStore.serviceId
       }
       
@@ -465,12 +502,15 @@ const saveRoomRate = async () => {
         rateTypeId: formData.value.rateType,
         seasonId: formData.value.season,
         sourceId: formData.value.sourceName,
+        mealPlanId: formData.value.mealPlanId || null,
         baseRate: parseFloat(formData.value.baseRate),
         extraAdultRate: parseFloat(formData.value.extraAdultRate) || 0,
         extraChildRate: parseFloat(formData.value.extraChildRate) || 0,
         effectiveFrom: formData.value.effectiveFrom,
         effectiveTo: formData.value.effectiveTo,
-        status: formData.value.status || 'active'
+        status: formData.value.status || 'active',
+        tax_include: !!formData.value.tax_include,
+        meal_plan_rate_include: !!formData.value.meal_plan_rate_include
       }
       
       const response = await updateRoomRateById(editingRoomRate.value.id, roomRateData)
@@ -493,18 +533,20 @@ const saveRoomRate = async () => {
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
-  editingId.value = null
   formSubmitted.value = false
   formData.value = {
     roomType: '',
     rateType: '',
     season: '',
     sourceName: '',
+    mealPlanId: '',
     extraAdultRate: '',
     extraChildRate: '',
     effectiveFrom: '',
     effectiveTo: '',
-    status: 'active'
+    status: 'active',
+    tax_include: false,
+    meal_plan_rate_include: false
   }
 }
 
@@ -603,5 +645,22 @@ onMounted(() => {
   loadRateTypes();
   loadSeasons();
   loadSources();
+  loadMealPlans();
 });
+
+
+const loadMealPlans = async () => {
+  try {
+    const resp = await getMealPlans();
+    mealPlanOptions.value = [{ value: '', label: t('none') }].concat((resp.data.data?.data || resp.data.data || resp.data || []).map((e) => {
+      return {
+        value: e.id,
+        label: e.name
+      }
+    }));
+  } catch (error) {
+    console.error('Error loading meal plans:', error);
+    // silently fail, keep empty
+  }
+}
 </script>

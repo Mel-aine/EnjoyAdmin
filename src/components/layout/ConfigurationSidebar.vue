@@ -390,7 +390,8 @@ const ratesItems: MenuItem[] = [
   { path: '/configuration/rates/season', label: 'Season' },
   { path: '/configuration/rates/room-rates', label: 'Room Rates' },
   { path: '/configuration/rates/taxes', label: 'Taxes' },
-  { path: '/configuration/rates/set-offers', label: 'Set Offers' }
+  { path: '/configuration/rates/set-offers', label: 'Set Offers' },
+  { path: '/configuration/rates/meal-plan-builder', label: 'Meal Plan' }
 ]
 
 const housekeepingItems: MenuItem[] = [

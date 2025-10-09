@@ -943,6 +943,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/configuration/rates/meal-plan-builder',
+      name: 'MealPlanBuilder',
+      component: () => import('../views/Configuration/Rates/MealPlanBuilder.vue'),
+      meta: {
+        title: 'Meal Plan Builder',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/configuration/rates/taxes',
       name: 'Taxes',
       component: () => import('../views/Configuration/Rates/Taxes.vue'),
