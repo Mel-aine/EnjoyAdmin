@@ -86,6 +86,24 @@ export interface ReportFilters {
   selectedColumns?: string[] // ← AJOUTEZ AUSSI CELUI-CI SI NÉCESSAIRE
 }
 
+export interface DailyRevenueReportFilters {
+  fromDate: string
+  toDate: string
+  hotelId: number
+  dateType: 'booking' | 'stay' | 'departure'
+  roomId?: number
+  businessSourceId?: number
+  paymentMethodIds?: number[] // CORRIGÉ: pluriel avec array
+  taxIds?: number[]
+  extraChargeIds?: number[]
+  showUnassignRooms?: boolean
+  showUnpostedInclusion?: boolean
+  discardUnconfirmedBookings?: boolean
+  showMobileNoField?: boolean
+  showEmailField?: boolean
+  reportTemplate?: string
+}
+
 const handleApiError = (error: any): never => {
   console.error('Erreur API:', error)
   throw {
@@ -811,6 +829,19 @@ export const checkReportsHealth = async (): Promise<ApiResponse | undefined> => 
     handleApiError(error)
   }
 }
+export const generateDailyRevenueReport = async (filters: DailyRevenueReportFilters): Promise<ApiResponse | undefined> => {
+  try {
+    console.log('filters@@@', filters)
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-revenue`,
+      filters,
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 
 // daily-revenue-report
 export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Blob> => {
@@ -1170,6 +1201,27 @@ export const generateDailyReceiptPdf = async (params: DailyReceipt): Promise<str
   try {
     const response = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-detail-pdf`,
+      params,
+      {
+        ...getHeaders(),
+        responseType: 'blob'
+      }
+    )
+    
+    // Créer un objet URL à partir du blob
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    return url
+    
+  } catch (error) {
+    handleApiError(error)
+    throw error // Important : propager l'erreur
+  }
+}
+export const generateDailyRevenuPdf = async (params: DailyRevenueReportFilters): Promise<string> => {
+  try {
+    const response = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-revenue-pdf`,
       params,
       {
         ...getHeaders(),
