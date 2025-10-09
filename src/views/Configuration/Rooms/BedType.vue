@@ -10,17 +10,32 @@
       </div>
 
       <!-- Bed Types Table using ReusableTable -->
-      <ReusableTable :title="t('bedTypes')" :columns="columns" :data="bedTypes" :actions="actions"
-        :search-placeholder="t('searchBedTypes')" :selectable="true" :empty-state-title="t('noBedTypesFound')"
-        :empty-state-message="t('clickAddBedType')" @action="onAction"
-        @selection-change="onSelectionChange" :loading="loading">
+      <ReusableTable 
+        :title="t('bedTypes')" 
+        :columns="columns" 
+        :data="bedTypes" 
+        :actions="actions"
+        :search-placeholder="t('searchBedTypes')" 
+        :selectable="true" 
+        :empty-state-title="t('noBedTypesFound')"
+        :empty-state-message="t('clickAddBedType')" 
+        @action="onAction"
+        @selection-change="onSelectionChange" 
+        :loading="loading">
         <template #header-actions>
-          <BasicButton @click="showAddModal = true" :label="t('addBedType')" :icon="Plus">
+          <BasicButton 
+            @click="showAddModal = true" 
+            :label="t('addBedType')" 
+            :icon="Plus">
           </BasicButton>
 
-          <BasicButton v-if="selectedBedTypes.length > 0" @click="deleteSelected" :label="t('deleteSelected')"
-            :icon="Trash2">
-          </BasicButton>
+          <button 
+            v-if="selectedBedTypes.length > 0" 
+            @click="deleteSelected"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
+            <Trash2 class="w-4 h-4" />
+            <span>{{ t('deleteSelected') }} ({{ selectedBedTypes.length }})</span>
+          </button>
         </template>
 
         <template #column-status="{ item }">
@@ -109,12 +124,27 @@
                 variant="primary" 
                 :label="isLoading ? t('saving') + '...' : showEditModal ? t('update') : t('save')"
                 :loading="isLoading"
+                :disabled="isLoading"
               />
             </div>
           </form>
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showDeleteModal" 
+      v-model="showDeleteModal" 
+      :title="t('confirmDeleteBedTypeTitle')" 
+      :message="getDeleteMessage()"
+      :confirm-text="t('delete')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmDeleteBedType"
+      @close="() => { showDeleteModal = false; bedTypeToDelete = null; }"
+      :loading="isDeletingLoading"
+      action="INFO"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -123,24 +153,30 @@ import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import { Plus, Trash2, Edit, Trash } from 'lucide-vue-next'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { Action, Column } from '../../../utils/models'
-import { getBedTypes, postBedType, updateBedTypeById } from '../../../services/configrationApi'
+import { getBedTypes, postBedType, updateBedTypeById, deleteBedTypeById as deleteBedTypeAPI } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
-const toast = useToast();
+const toast = useToast()
+
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const selectedBedTypes = ref<any[]>([])
 const editingBedType = ref<any>(null)
 const isLoading = ref(false)
+const loading = ref(false)
+const bedTypeToDelete = ref<any>(null)
+const showDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
 
 // Form data
 const formData = ref({
@@ -180,20 +216,22 @@ const columns: Column[] = [
 
 const actions: Action[] = [
   {
-    label: 'Edit',
-    handler: (item: any) => editBedType(item),
-    variant: 'primary'
+    label: t('edit'),
+    icon: Edit,
+    variant: 'primary',
+    handler: (item: any) => onAction('edit', item)
   },
   {
-    label: 'Delete',
-    handler: (item: any) => deleteBedType(item.id),
-    variant: 'danger'
+    label: t('delete'),
+    icon: Trash2,
+    variant: 'danger',
+    handler: (item: any) => onAction('delete', item)
   }
 ]
 
 // Sample data
 const bedTypes = ref<any[]>([])
-const loading = ref(false);
+
 // Methods
 const onSelectionChange = (selected: any) => {
   selectedBedTypes.value = selected
@@ -203,9 +241,7 @@ const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editBedType(item)
   } else if (action === 'delete') {
-    deleteBedType(item)
-  } else if (action === 'deleteSelected') {
-    deleteSelected()
+    handleDeleteBedType(item)
   }
 }
 
@@ -219,19 +255,55 @@ const editBedType = (bedType: any) => {
   showEditModal.value = true
 }
 
-const deleteBedType = (bedType: any) => {
-  if (confirm(t('confirmDeleteBedType', { name: bedType.bedTypeName }))) {
-    bedTypes.value = bedTypes.value.filter(bt => bt.id !== bedType.id)
-    toast.success(t('bedTypeDeletedSuccess'))
+const handleDeleteBedType = (bedType: any) => {
+  bedTypeToDelete.value = bedType
+  showDeleteModal.value = true
+}
+
+const confirmDeleteBedType = async () => {
+  if (!bedTypeToDelete.value) return
+
+  isDeletingLoading.value = true
+  try {
+    const response = await deleteBedTypeAPI(bedTypeToDelete.value.id)
+    if (response.status === 200 || response.status === 204) {
+      // Mettre à jour la liste localement
+      const index = bedTypes.value.findIndex(bt => bt.id === bedTypeToDelete.value.id)
+      if (index !== -1) {
+        bedTypes.value.splice(index, 1)
+      }
+      toast.success(t('bedTypeDeletedSuccess'))
+    } else {
+      throw new Error('Failed to delete bed type')
+    }
+  } catch (error) {
+    console.error('Error deleting bed type:', error)
+    toast.error(t('errorDeletingBedType'))
+  } finally {
+    isDeletingLoading.value = false
+    showDeleteModal.value = false
+    bedTypeToDelete.value = null
   }
 }
 
-const deleteSelected = () => {
-  if (confirm(t('confirmDeleteSelectedBedTypes', { count: selectedBedTypes.value.length }))) {
-    const selectedIds = selectedBedTypes.value.map(bt => bt.id)
-    bedTypes.value = bedTypes.value.filter(bt => !selectedIds.includes(bt.id))
-    selectedBedTypes.value = []
-    toast.success(t('bedTypesDeletedSuccess'))
+const getDeleteMessage = () => {
+  if (!bedTypeToDelete.value) return ''
+  return t('confirmDeleteBedType', { name: bedTypeToDelete.value.bedTypeName })
+}
+
+const deleteSelected = async () => {
+  const count = selectedBedTypes.value.length
+  if (confirm(t('confirmDeleteSelectedBedTypes', { count }))) {
+    try {
+      const deletePromises = selectedBedTypes.value.map(bedType => deleteBedTypeAPI(bedType.id))
+      await Promise.all(deletePromises)
+      loadData()
+      selectedBedTypes.value = []
+      toast.success(t('bedTypesDeletedSuccess', { count }))
+    } catch (error) {
+      console.error('Error deleting bed types:', error)
+      toast.error(t('errorDeletingSelectedBedTypes'))
+    }
   }
 }
 
@@ -240,24 +312,30 @@ const saveBedType = async () => {
   try {
     if (showEditModal.value && editingBedType.value) {
       // Update existing bed type
-      const index = bedTypes.value.findIndex(bt => bt.id === editingBedType.value.id)
-      if (index !== -1) {
-        const bedtype = {
-          ...bedTypes.value[index],
-          shortCode: formData.value.shortCode,
-          bedTypeName: formData.value.bedTypeName,
-          status: formData.value.status
+      const updatedBedType = {
+        shortCode: formData.value.shortCode,
+        bedTypeName: formData.value.bedTypeName,
+        status: formData.value.status,
+        hotelId: serviceStore.serviceId
+      }
+      
+      const resp = await updateBedTypeById(editingBedType.value.id, updatedBedType)
+      
+      if (resp.status === 200 || resp.status === 201) {
+        // Mettre à jour localement l'élément modifié
+        const index = bedTypes.value.findIndex(bt => bt.id === editingBedType.value.id)
+        if (index !== -1) {
+          bedTypes.value[index] = {
+            ...bedTypes.value[index],
+            ...updatedBedType,
+            shortCode: updatedBedType.shortCode,
+            bedTypeName: updatedBedType.bedTypeName,
+            status: updatedBedType.status
+          }
         }
-        const resp = await updateBedTypeById(editingBedType.value.id, bedtype);
-        if (resp.status === 200 || resp.status === 201) {
-          toast.success(t('bedTypeUpdatedSuccess'))
-          loadData();
-          closeModal()
-        } else {
-          toast.error(t('somethingWentWrong'))
-          console.error('Error updating bed type:', resp);
-          return;
-        }
+        toast.success(t('bedTypeUpdatedSuccess'))
+      } else {
+        throw new Error('Failed to update bed type')
       }
     } else {
       // Add new bed type
@@ -265,36 +343,41 @@ const saveBedType = async () => {
         shortCode: formData.value.shortCode,
         bedTypeName: formData.value.bedTypeName,
         status: formData.value.status,
-        hotelId: serviceStore.serviceId,
+        hotelId: serviceStore.serviceId
       }
-      const resp = await postBedType(newBedType);
+      
+      const resp = await postBedType(newBedType)
+      
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('bedTypeCreatedSuccess'))
-        loadData();
-        closeModal()
+        loadData()
       } else {
-        toast.error(t('somethingWentWrong'))
-        console.error('Error adding bed type:', resp);
-        return;
+        throw new Error('Failed to create bed type')
       }
     }
+    closeModal()
+  } catch (error) {
+    console.error('Error saving bed type:', error)
+    toast.error(t('errorSavingBedType'))
   } finally {
     isLoading.value = false
   }
 }
+
 const loadData = async () => {
-  loading.value = true;
+  loading.value = true
   try {
-    const resp = await getBedTypes();
+    const resp = await getBedTypes()
     console.log('this is the data', resp)
-    bedTypes.value = resp.data.data.data;
+    bedTypes.value = resp.data.data.data
   } catch (error) {
-    console.error('Error loading bed types:', error);
-    toast.error(t('errorLoadingBedTypes'));
-  }finally{
-     loading.value = false;
+    console.error('Error loading bed types:', error)
+    toast.error(t('errorLoadingBedTypes'))
+  } finally {
+    loading.value = false
   }
 }
+
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
@@ -305,5 +388,6 @@ const closeModal = () => {
     status: 'Active'
   }
 }
+
 loadData()
 </script>

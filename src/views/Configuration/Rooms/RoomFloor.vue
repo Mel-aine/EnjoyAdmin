@@ -303,18 +303,34 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showDeleteModal" 
+      v-model="showDeleteModal" 
+      :title="t('confirmDeleteTitle')" 
+      :message="getDeleteMessage()"
+      :loading="confirmLoading" 
+      :confirm-text="t('delete')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmDelete"
+      @close="closeDeleteModal"
+      action="INFO"
+    />
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
+// Importation du composant ModalConfirmation
+import ModalConfirmation from '../../../components/modal/ModalConfirmation.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { Plus, Trash2, Edit, Trash, Camera } from 'lucide-vue-next'
-import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes } from '../../../services/configrationApi'
+import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes, deleteRoomById } from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
@@ -322,7 +338,7 @@ import { formatCurrency } from '../../../components/utilities/UtilitiesFunction'
 
 // Types
 interface Room {
-  id: number
+  id: string | number  // Accepte à la fois string et number
   shortCode: string
   roomNumber: string
   roomTypeId: number
@@ -511,14 +527,14 @@ const columns = ref([
 
 const actions = ref([
   {
-    label: 'Edit',
-    icon: 'edit',
+    label: t('edit'),
+    icon: Edit,
     variant: 'primary',
     handler: (item: Room) => onAction('edit', item)
   },
   {
-    label: 'Delete',
-    icon: 'trash',
+    label: t('delete'),
+    icon: Trash2,
     variant: 'danger',
     handler: (item: Room) => onAction('delete', item)
   }
@@ -582,18 +598,77 @@ const editRoom = (room: Room) => {
   showEditModal.value = true
 }
 
+// State for delete confirmation
+const showDeleteModal = ref(false)
+const roomToDelete = ref<Room | null>(null)
+const confirmLoading = ref(false)
+
 const deleteRoom = (room: Room) => {
-  if (confirm(`Are you sure you want to delete room "${room.roomNumber}"?`)) {
-    rooms.value = rooms.value.filter(r => r.id !== room.id)
-  }
+  roomToDelete.value = room
+  showDeleteModal.value = true
 }
 
 const deleteSelected = () => {
-  if (confirm(`Are you sure you want to delete ${selectedRooms.value.length} selected room(s)?`)) {
-    const selectedIds = selectedRooms.value.map(r => r.id)
-    rooms.value = rooms.value.filter(r => !selectedIds.includes(r.id))
-    selectedRooms.value = []
+  if (selectedRooms.value.length === 0) return
+  
+  // For multiple selection, we'll use the first item to show in the modal
+  roomToDelete.value = { ...selectedRooms.value[0], id: 'multiple' } as Room
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!roomToDelete.value) return
+  
+  try {
+    confirmLoading.value = true
+    
+    if (roomToDelete.value.id === 'multiple') {
+      // Delete multiple rooms
+      const selectedIds = selectedRooms.value.map(r => r.id)
+      // Appel API pour supprimer plusieurs chambres
+      const deletePromises = selectedRooms.value.map(room => 
+        deleteRoomByIdLocal(room.id as number)
+      )
+      await Promise.all(deletePromises)
+      
+      // Mise à jour locale
+      rooms.value = rooms.value.filter(r => !selectedIds.includes(r.id))
+      selectedRooms.value = []
+      toast.success(t('selectedRoomsDeleted', { count: selectedIds.length }))
+    } else {
+      // Suppression d'une seule chambre
+      if (roomToDelete.value.id) {
+        await deleteRoomByIdLocal(roomToDelete.value.id as number)
+        // Mise à jour locale
+        rooms.value = rooms.value.filter(r => r.id !== roomToDelete.value?.id)
+        toast.success(t('roomDeletedSuccessfully'))
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting room(s):', error)
+    toast.error(t('errorDeletingRoom'))
+  } finally {
+    confirmLoading.value = false
+    closeDeleteModal()
   }
+}
+
+// Fonction utilitaire pour supprimer une chambre par ID
+const deleteRoomByIdLocal = async (id: number) => {
+  try {
+    const response = await deleteRoomById(id)
+    if (response.status !== 200 && response.status !== 204) {
+      throw new Error('Failed to delete room')
+    }
+  } catch (error) {
+    console.error('Error deleting room:', error)
+    throw error // Propager l'erreur pour la gestion dans confirmDelete
+  }
+}
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  roomToDelete.value = null
 }
 
 const handleImageUpload = (event: Event, index: number) => {
@@ -729,6 +804,17 @@ const closeModal = () => {
     connectedRooms: [],
     taxRateIds: []
   }
+}
+
+// Helper function to get delete confirmation message
+const getDeleteMessage = () => {
+  if (!roomToDelete.value) return ''
+  
+  if (roomToDelete.value.id === 'multiple') {
+    return t('confirmDeleteMultipleRooms', { count: selectedRooms.value.length })
+  }
+  
+  return t('confirmDeleteRoom', { roomNumber: roomToDelete.value.roomNumber || '' })
 }
 
 // Initialize data

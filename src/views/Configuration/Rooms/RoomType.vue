@@ -10,14 +10,20 @@
       </div>
 
       <!-- Room Types Table using ReusableTable -->
-      <ReusableTable :title="t('roomTypeList')" :columns="columns" :data="roomTypes" :actions="actions"
-        :search-placeholder="t('searchRoomTypes')" :empty-state-title="t('noRoomTypesFound')"
-        :empty-state-message="t('getStartedByAddingRoomType')" @action="onAction"
-        :loading="loading">
+      <ReusableTable 
+        :title="t('roomTypeList')" 
+        :columns="columns" 
+        :data="roomTypes" 
+        :actions="actions"
+        :search-placeholder="t('searchRoomTypes')" 
+        :empty-state-title="t('noRoomTypesFound')"
+        :empty-state-message="t('getStartedByAddingRoomType')" 
+        @action="onAction"
+        :loading="loading"
+      >
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRoomType')" :icon="Plus">
           </BasicButton>
-
         </template>
 
         <!-- Custom column for capacity info -->
@@ -51,14 +57,24 @@
       </ReusableTable>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteConfirmation" action="DANGER" :title="t('confirmDeleteTitle')"
+      <ModalConfirmation 
+        v-if="showDeleteConfirmation" 
+        v-model="showDeleteConfirmation"
+        :title="t('confirmDeleteTitle')"
         :message="t('confirmDeleteRoomType', { name: roomTypeToDelete?.roomTypeName || roomTypeToDelete?.shortCode })"
-        :isLoading="isDeletingLoading" @close="showDeleteConfirmation = false; roomTypeToDelete = null"
-        @confirm="confirmDeleteRoomType" />
+        :loading="isDeletingLoading"
+        :confirm-text="t('delete')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmDeleteRoomType"
+        @close="() => { showDeleteConfirmation = false; roomTypeToDelete = null }"
+        action="INFO"
+      />
 
       <!-- Add/Edit Modal -->
-      <div v-if="showAddModal || showEditModal"
-        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+      <div 
+        v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50"
+      >
         <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
             {{ showAddModal ? t('addRoomType') : t('editRoomType') }}
@@ -70,60 +86,89 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('shortCodeRequired') }}
                 </label>
-                <input v-model="formData.shortCode" type="text" required
+                <input 
+                  v-model="formData.shortCode" 
+                  type="text" 
+                  required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  :placeholder="t('shortCodePlaceholder')">
+                  :placeholder="t('shortCodePlaceholder')"
+                >
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('roomTypeNameRequired') }}
+                  {{ t('roomTypeNameRequired') }}<span class="text-red-500">*</span>
                 </label>
-                <input v-model="formData.roomTypeName" type="text" required
+                <input 
+                  v-model="formData.roomTypeName" 
+                  type="text" 
+                  required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  :placeholder="t('roomTypeNamePlaceholder')">
+                  :placeholder="t('roomTypeNamePlaceholder')"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('baseAdultRequired') }}
+                  {{ t('baseAdultRequired') }}<span class="text-red-500">*</span>
                 </label>
-                <input v-model.number="formData.baseAdult" type="number" min="1" required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input 
+                  v-model.number="formData.baseAdult" 
+                  type="number" 
+                  min="1" 
+                  required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('baseChild') }}
                 </label>
-                <input v-model.number="formData.baseChild" type="number" min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input 
+                  v-model.number="formData.baseChild" 
+                  type="number" 
+                  min="0"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('maxAdultRequired') }}
+                  {{ t('maxAdultRequired') }}<span class="text-red-500">*</span>
                 </label>
-                <input v-model.number="formData.maxAdult" type="number" min="1" required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input 
+                  v-model.number="formData.maxAdult" 
+                  type="number" 
+                  min="1" 
+                  required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('maxChild') }}
                 </label>
-                <input v-model.number="formData.maxChild" type="number" min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input 
+                  v-model.number="formData.maxChild" 
+                  type="number" 
+                  min="0"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="flex items-center space-x-2">
-                  <input v-model="formData.publishToWebsite" type="checkbox"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <input 
+                    v-model="formData.publishToWebsite" 
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  >
                   <span class="text-sm font-medium text-gray-700">{{ t('publishToWebsite') }}</span>
                 </label>
               </div>
@@ -132,9 +177,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('defaultWebInventory') }}
                 </label>
-                <input v-model.number="formData.defaultWebInventory" type="number" min="0"
+                <input 
+                  v-model.number="formData.defaultWebInventory" 
+                  type="number" 
+                  min="0"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  :placeholder="t('numberOfRooms')">
+                  :placeholder="t('numberOfRooms')"
+                >
               </div>
             </div>
 
@@ -142,8 +191,11 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('color') }}
               </label>
-              <input v-model="formData.color" type="color"
-                class="w-20 h-10 border border-gray-300 rounded-md cursor-pointer">
+              <input 
+                v-model="formData.color" 
+                type="color"
+                class="w-20 h-10 border border-gray-300 rounded-md cursor-pointer"
+              >
             </div>
 
             <div>
@@ -152,9 +204,17 @@
               </label>
               <div class="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <label v-for="amenity in availableAmenities" :key="amenity.id" class="flex items-center space-x-2">
-                    <input v-model="formData.roomAmenities" :value="amenity.id" type="checkbox"
-                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <label 
+                    v-for="amenity in availableAmenities" 
+                    :key="amenity.id" 
+                    class="flex items-center space-x-2"
+                  >
+                    <input 
+                      v-model="formData.roomAmenities" 
+                      :value="amenity.id" 
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    >
                     <span class="text-sm text-gray-700">{{ amenity.amenityName }}</span>
                   </label>
                 </div>
@@ -174,6 +234,7 @@
                 variant="primary" 
                 :label="isLoading ? t('saving') + '...' : showAddModal ? t('save') : t('update')"
                 :loading="isLoading"
+                :disabled="isLoading"
               />
             </div>
           </form>
@@ -184,11 +245,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
+import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import { getAmenities, getRoomTypes, postRoomType, updateRoomTypeById, deleteRoomType as deleteRoomTypeApi } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
@@ -196,6 +257,8 @@ import { useI18n } from 'vue-i18n'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 
 const { t } = useI18n()
+const serviceStore = useServiceStore()
+const toast = useToast()
 
 // Reactive data
 const showAddModal = ref(false)
@@ -220,12 +283,9 @@ const formData = ref({
   color: '#3B82F6',
   defaultWebInventory: 0
 })
-const serviceStore = useServiceStore()
-const toast = useToast();
 
-// Available amenities (from Room Amenities)
-const availableAmenities = ref([
-])
+// Available amenities
+const availableAmenities = ref([])
 
 // Table configuration
 const columns = ref([
@@ -245,28 +305,25 @@ const columns = ref([
     key: 'capacityInfo',
     label: t('baseCapacity'),
     sortable: false,
-
-    type: "custom"
+    type: 'custom'
   },
   {
     key: 'maxCapacityInfo',
     label: t('maxCapacity'),
     sortable: false,
-    type: "custom"
+    type: 'custom'
   },
   {
     key: 'createdInfo',
     label: t('createdBy'),
     sortable: false,
-    type: "custom"
-
-
+    type: 'custom'
   },
   {
     key: 'modifiedInfo',
     label: t('modifiedBy'),
     sortable: false,
-    type: "custom"
+    type: 'custom'
   },
   {
     key: 'status',
@@ -279,24 +336,21 @@ const columns = ref([
 const actions = ref([
   {
     label: t('edit'),
-    icon: 'edit',
+    icon: Edit,
     variant: 'primary',
     handler: (item) => onAction('edit', item)
   },
   {
     label: t('delete'),
-    icon: 'delete',
+    icon: Trash2,
     variant: 'danger',
     handler: (item) => onAction('delete', item)
   }
 ])
 
-// Sample data
 const roomTypes = ref([])
 
 // Methods
-
-
 const onAction = (action, item) => {
   if (action === 'edit') {
     editRoomType(item)
@@ -307,18 +361,35 @@ const onAction = (action, item) => {
 
 const editRoomType = (roomType) => {
   editingRoomType.value = roomType
-  formData.value = {
-    shortCode: roomType.shortCode,
-    roomTypeName: roomType.roomTypeName,
-    baseAdult: roomType.baseAdult,
-    baseChild: roomType.baseChild,
-    maxAdult: roomType.maxAdult,
-    maxChild: roomType.maxChild,
-    publishToWebsite: roomType.publishToWebsite,
-    roomAmenities: roomType.roomAmenities && roomType.roomAmenities.length > 0 ? [...roomType.roomAmenities] : [],
-    color: roomType.color,
-    defaultWebInventory: roomType.defaultWebInventory
+  console.log('data', roomType)
+  
+  // Extraire les IDs des amenities
+  let amenityIds = []
+  if (roomType.roomAmenities && Array.isArray(roomType.roomAmenities)) {
+    amenityIds = roomType.roomAmenities.map(amenity => {
+      // Si c'est un objet avec un id
+      if (typeof amenity === 'object' && amenity.id) {
+        return amenity.id
+      }
+      // Si c'est déjà un ID
+      return amenity
+    })
   }
+  
+  formData.value = {
+    shortCode: roomType.shortCode || '',
+    roomTypeName: roomType.roomTypeName || '',
+    baseAdult: roomType.baseAdult || 2,
+    baseChild: roomType.baseChild || 0,
+    maxAdult: roomType.maxAdult || 2,
+    maxChild: roomType.maxChild || 0,
+    publishToWebsite: roomType.publishToWebsite !== undefined ? roomType.publishToWebsite : true,
+    roomAmenities: amenityIds,
+    color: roomType.color || '#3B82F6',
+    defaultWebInventory: roomType.defaultWebInventory || 0
+  }
+  
+  console.log('Form data après mapping:', formData.value)
   showEditModal.value = true
 }
 
@@ -334,10 +405,13 @@ const confirmDeleteRoomType = async () => {
   try {
     const response = await deleteRoomTypeApi(roomTypeToDelete.value.id)
     if (response.status === 200 || response.status === 204) {
-      roomTypes.value = roomTypes.value.filter(rt => rt.id !== roomTypeToDelete.value.id)
+      const index = roomTypes.value.findIndex(rt => rt.id === roomTypeToDelete.value.id)
+      if (index !== -1) {
+        roomTypes.value.splice(index, 1)
+      }
       toast.success(t('roomTypeDeletedSuccessfully'))
     } else {
-      toast.error(t('errorDeletingRoomType'))
+      throw new Error('Failed to delete room type')
     }
   } catch (error) {
     console.error('Error deleting room type:', error)
@@ -349,69 +423,91 @@ const confirmDeleteRoomType = async () => {
   }
 }
 
-
-
 const saveRoomType = async () => {
   try {
     isLoading.value = true
+    
+    // Validation des données
+    if (!formData.value.shortCode?.trim()) {
+      toast.error(t('shortCodeRequired'))
+      return
+    }
+    
+    if (!formData.value.roomTypeName?.trim()) {
+      toast.error(t('roomTypeNameRequired'))
+      return
+    }
+    
+    // Préparer les données
+    const roomTypeData = {
+      shortCode: formData.value.shortCode.trim(),
+      roomTypeName: formData.value.roomTypeName.trim(),
+      baseAdult: parseInt(formData.value.baseAdult) || 1,
+      baseChild: parseInt(formData.value.baseChild) || 0,
+      maxAdult: parseInt(formData.value.maxAdult) || 1,
+      maxChild: parseInt(formData.value.maxChild) || 0,
+      publishToWebsite: Boolean(formData.value.publishToWebsite),
+      roomAmenities: Array.isArray(formData.value.roomAmenities) 
+        ? formData.value.roomAmenities.filter(id => id !== null && id !== undefined)
+        : [],
+      color: (formData.value.color || '#3B82F6').trim(),
+      defaultWebInventory: parseInt(formData.value.defaultWebInventory) || 0,
+      hotelId: serviceStore.serviceId
+    }
+
+    console.log('Données à envoyer:', JSON.stringify(roomTypeData, null, 2))
+
     if (showAddModal.value) {
-      // Add new room type
-      const newRoomType = {
-        hotelId: serviceStore.serviceId,
-        shortCode: formData.value.shortCode,
-        roomTypeName: formData.value.roomTypeName,
-        baseAdult: formData.value.baseAdult,
-        baseChild: formData.value.baseChild,
-        maxAdult: formData.value.maxAdult,
-        maxChild: formData.value.maxChild,
-        publishToWebsite: formData.value.publishToWebsite,
-        roomAmenities: [...formData.value.roomAmenities],
-        color: formData.value.color,
-        defaultWebInventory: formData.value.defaultWebInventory,
-        //status: 'Available'
-      }
-      const resp = await postRoomType(newRoomType);
+      // Ajout d'un nouveau type de chambre
+      console.log('Tentative d\'ajout d\'un nouveau type de chambre')
+      const resp = await postRoomType(roomTypeData)
+      console.log('Réponse de l\'API (ajout):', resp)
+      
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('roomTypeAddedSuccess'))
-        loadData();
+        await loadData()
         closeModal()
       } else {
-        toast.error(t('somethingWentWrong'))
-        console.error('Error adding room type:', resp);
-        return;
+        throw new Error(resp.data?.message || t('somethingWentWrong'))
       }
-
-    } else {
-      // Update existing room type
-      const index = roomTypes.value.findIndex(roomType => roomType.id === editingRoomType.value.id)
-      if (index !== -1) {
-        const updatedRoomType = {
-          shortCode: formData.value.shortCode,
-          roomTypeName: formData.value.roomTypeName,
-          baseAdult: formData.value.baseAdult,
-          baseChild: formData.value.baseChild,
-          maxAdult: formData.value.maxAdult,
-          maxChild: formData.value.maxChild,
-          publishToWebsite: formData.value.publishToWebsite,
-          roomAmenities: [...formData.value.roomAmenities],
-          color: formData.value.color,
+    } else if (editingRoomType.value) {
+      // Mise à jour d'un type de chambre existant
+      console.log('Tentative de mise à jour du type de chambre ID:', editingRoomType.value.id)
+      
+      const resp = await updateRoomTypeById(editingRoomType.value.id, roomTypeData)
+      console.log('Réponse de l\'API (mise à jour):', resp)
+      
+      if (resp.status === 200 || resp.status === 201) {
+        // Mettre à jour localement l'élément modifié
+        const index = roomTypes.value.findIndex(rt => rt.id === editingRoomType.value.id)
+        if (index !== -1) {
+          roomTypes.value[index] = {
+            ...roomTypes.value[index],
+            ...roomTypeData,
+            id: editingRoomType.value.id
+          }
         }
-        const resp = await updateRoomTypeById(editingRoomType.value.id, updatedRoomType);
-        if (resp.status === 200 || resp.status === 201) {
-          toast.success(t('roomTypeUpdatedSuccess'))
-          loadData();
-          closeModal();
-        } else {
-          toast.error(t('somethingWentWrong'))
-          console.error('Error updating room type:', resp);
-          return;
-        }
+        toast.success(t('roomTypeUpdatedSuccess'))
+        closeModal()
+      } else {
+        throw new Error(resp.data?.message || t('somethingWentWrong'))
       }
     }
-    closeModal()
   } catch (error) {
     console.error('Error saving room type:', error)
-    toast.error(t('somethingWentWrong'))
+    
+    if (error.response) {
+      console.error('Error response data:', error.response.data)
+      console.error('Error status:', error.response.status)
+      console.error('Error headers:', error.response.headers)
+      
+      if (error.response.data.errors) {
+        console.error('Validation errors:', error.response.data.errors)
+      }
+    }
+    
+    const errorMessage = error.response?.data?.message || error.message || t('somethingWentWrong')
+    toast.error(errorMessage)
   } finally {
     isLoading.value = false
   }
@@ -436,24 +532,40 @@ const closeModal = () => {
 }
 
 const loadData = async () => {
-  loading.value = true;
+  loading.value = true
   try {
-    const resp = await getRoomTypes();
-    console.log('this is the data', resp)
-    roomTypes.value = resp.data.data.data;
+    const resp = await getRoomTypes()
+    console.log('API Response (Room Types):', resp.data.data.data)
+    
+    if (resp.data.data.data && resp.data.data.data.length > 0) {
+      console.log('First room type structure:', resp.data.data.data[0])
+      console.log('First room type amenities:', resp.data.data.data[0].roomAmenities)
+    }
+    
+    roomTypes.value = resp.data.data.data.map((item) => {
+      return {
+        ...item,
+      }
+    })
   } catch (error) {
-    console.error('Error loading room types:', error);
-    toast.error(t('errorLoadingRoomTypes'));
+    console.error('Error loading room types:', error)
+    toast.error(t('errorLoadingRoomTypes'))
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 const loadAmenities = async () => {
-  const resp = await getAmenities();
-  availableAmenities.value = resp.data.data.data;
+  try {
+    const resp = await getAmenities()
+    console.log('Amenities loaded:', resp.data.data.data)
+    availableAmenities.value = resp.data.data.data
+  } catch (error) {
+    console.error('Error loading amenities:', error)
+    toast.error(t('errorLoadingAmenities'))
+  }
 }
 
-loadData();
-loadAmenities();
+loadData()
+loadAmenities()
 </script>

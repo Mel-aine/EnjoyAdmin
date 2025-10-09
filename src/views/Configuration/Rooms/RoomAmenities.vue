@@ -100,14 +100,28 @@
               <BasicButton 
                 type="submit" 
                 variant="primary" 
-                :label="isLoading ? t('saving') + '...' : showAddModal ? t('Add Amenities') : t('update')"
+                :label="isLoading ? t('saving') + '...' : showAddModal ? t('addAmenity') : t('update')"
                 :loading="isLoading"
+                :disabled="isLoading"
               />
             </div>
           </form>
         </div>
       </div>
     </div>
+    <!-- Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showDeleteModal" 
+      v-model="showDeleteModal" 
+      :title="t('confirmDeleteAmenityTitle')" 
+      :message="getDeleteMessage()"
+      :confirm-text="t('delete')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmDeleteAmenity"
+      @close="() => { showDeleteModal = false; amenityToDelete = null; }"
+      :loading="isDeletingLoading"
+      action="INFO"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -118,6 +132,7 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
 import Input from '@/components/forms/FormElements/Input.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { getAmenities, postAmenity, updateAmenity, deleteAmenity as deleteAmenityAPI } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
@@ -192,34 +207,57 @@ const editAmenity = (amenity) => {
   showEditModal.value = true
 }
 
-const handleDeleteAmenity = async (id) => {
-  if (confirm(t('confirmDeleteAmenity'))) {
-    try {
-      const response = await deleteAmenityAPI(id);
-      if (response.status === 200 || response.status === 204) {
-        loadData();
-        toast.success(t('amenityDeletedSuccess'));
-      } else {
-        toast.error(t('failedToDeleteAmenity'));
+const amenityToDelete = ref(null)
+const showDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+
+const handleDeleteAmenity = (amenity) => {
+  amenityToDelete.value = amenity
+  showDeleteModal.value = true
+}
+
+const confirmDeleteAmenity = async () => {
+  if (!amenityToDelete.value) return
+
+  isDeletingLoading.value = true
+  try {
+    const response = await deleteAmenityAPI(amenityToDelete.value.id)
+    if (response.status === 200 || response.status === 204) {
+      // Mettre à jour la liste localement
+      const index = amenities.value.findIndex(a => a.id === amenityToDelete.value.id)
+      if (index !== -1) {
+        amenities.value.splice(index, 1)
       }
-    } catch (error) {
-      console.error('Error deleting amenity:', error);
-      toast.error(t('errorDeletingAmenity'));
+      toast.success(t('amenityDeletedSuccess'))
+    } else {
+      throw new Error('Failed to delete amenity')
     }
+  } catch (error) {
+    console.error('Error deleting amenity:', error)
+    toast.error(t('errorDeletingAmenity'))
+  } finally {
+    isDeletingLoading.value = false
+    showDeleteModal.value = false
+    amenityToDelete.value = null
   }
+}
+
+const getDeleteMessage = () => {
+  if (!amenityToDelete.value) return ''
+  return t('confirmDeleteAmenity', { name: amenityToDelete.value.amenityName })
 }
 const actions = ref([
   {
     label: t('edit'),
-    icon: 'edit',
+    icon: Edit,
     variant: 'primary',
-    handler: (item)=>editAmenity(item)
+    handler: (item) => onAction('edit', item)
   },
   {
     label: t('delete'),
-    icon: 'delete',
+    icon: Trash2,
     variant: 'danger',
-    handler: (item)=>handleDeleteAmenity(item.id)
+    handler: (item) => onAction('delete', item)
   }
 ])
 
@@ -235,7 +273,7 @@ const onAction = (action, item) => {
   if (action === 'edit') {
     editAmenity(item)
   } else if (action === 'delete') {
-    handleDeleteAmenity(item.id)
+    handleDeleteAmenity(item)
   }
 }
 
@@ -279,24 +317,32 @@ const saveAmenity = async () => {
         toast.error(t('somethingWentWrong'))
       }
       amenities.value.push(newAmenity)
-    } else {
+    } else if (editingAmenity.value) {
       // Update existing amenity
-      const index = amenities.value.findIndex(amenity => amenity.id === editingAmenity.value.id)
-      if (index !== -1) {
-        const amenity = {
-          name: formData.value.name,
-          type: formData.value.type,
-          sortKey: formData.value.sortKey,
-          status: formData.value.status
+      const updatedAmenity = {
+        amenityName: formData.value.name,
+        amenityType: formData.value.type,
+        sortKey: formData.value.sortKey,
+        status: formData.value.status,
+        hotelId: serviceStore.serviceId
+      };
+      
+      const resp = await updateAmenity(editingAmenity.value.id, updatedAmenity);
+      
+      if (resp.status === 200 || resp.status === 201) {
+        // Mettre à jour localement l'élément modifié
+        const index = amenities.value.findIndex(a => a.id === editingAmenity.value.id);
+        if (index !== -1) {
+          amenities.value[index] = {
+            ...amenities.value[index],
+            ...updatedAmenity,
+            amenityName: updatedAmenity.amenityName,
+            amenityType: updatedAmenity.amenityType
+          };
         }
-        const resp = await updateAmenity(editingAmenity.value.id, amenity);
-        console.log(resp);
-        if (resp.status === 200 || resp.status === 201) {
-          loadData();
-          toast.success(t('amenityUpdatedSuccess'))
-        } else {
-          toast.error(t('somethingWentWrong'))
-        }
+        toast.success(t('amenityUpdatedSuccess'));
+      } else {
+        throw new Error('Failed to update amenity');
       }
     }
     closeModal()

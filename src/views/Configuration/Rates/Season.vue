@@ -10,23 +10,40 @@
       </div>
 
       <!-- Seasons Table using ReusableTable -->
-      <ReusableTable :title="t('seasonsList')" :columns="columns" :data="seasons" :actions="actions"
-        :search-placeholder="t('searchSeasons')" :selectable="true" :empty-state-title="t('noSeasonsFound')"
-        :empty-state-message="t('addSeasonMessage')" @action="onAction" @selection-change="onSelectionChange" :loading="loading">
+      <ReusableTable 
+        :title="t('seasonsList')" 
+        :columns="columns" 
+        :data="seasons" 
+        :actions="actions"
+        :search-placeholder="t('searchSeasons')" 
+        :selectable="true" 
+        :empty-state-title="t('noSeasonsFound')"
+        :empty-state-message="t('addSeasonMessage')" 
+        @action="onAction" 
+        @selection-change="onSelectionChange" 
+        :loading="loading"
+      >
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addSeason')" :icon="Plus">
           </BasicButton>
 
-          <BasicButton v-if="selectedSeasons.length > 0" @click="deleteSelected" :label="t('deleteSelected')"
-            :icon="Trash2">
-          </BasicButton>
+          <button 
+            v-if="selectedSeasons.length > 0" 
+            @click="deleteSelected"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+          >
+            <Trash2 class="w-4 h-4" />
+            <span>{{ t('deleteSelected') }} ({{ selectedSeasons.length }})</span>
+          </button>
         </template>
 
         <!-- Custom column for period info -->
         <template #column-periodInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.fromDay }}-{{ monthOptions.find(month => month.value === item.fromMonth)?.label }} to {{ item.toDay }}-{{
-              monthOptions.find(month => month.value === item.toMonth)?.label }}</div>
+            <div class="text-sm text-gray-900">
+              {{ item.fromDay }}-{{ monthOptions.find(month => month.value === item.fromMonth)?.label }} to 
+              {{ item.toDay }}-{{ monthOptions.find(month => month.value === item.toMonth)?.label }}
+            </div>
             <div class="text-xs text-gray-500">{{ item.startDate }} - {{ item.expireDate }}</div>
           </div>
         </template>
@@ -49,8 +66,10 @@
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showAddModal || showEditModal"
-        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+      <div 
+        v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50"
+      >
         <div class="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
             {{ showAddModal ? t('addSeason') : t('editSeason') }}
@@ -78,6 +97,7 @@
                 />
               </div>
             </div>
+
             <!-- From Day/Date and From Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -165,39 +185,46 @@
                 variant="primary" 
                 :label="isLoading ? t('saving') + '...' : showAddModal ? t('addSeason') : t('updateSeason')"
                 :loading="isLoading"
+                :disabled="isLoading"
               />
             </div>
           </form>
         </div>
       </div>
-
-      <!-- Delete Season Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteConfirmation"
-        @close="showDeleteConfirmation = false; seasonToDelete = null"
-        @confirm="confirmDeleteSeason"
-        :isLoading="isDeletingLoading"
-        :action="'DANGER'"
-        :title="t('confirmDeleteTitle')"
-        :message="t('confirmDeleteSeason', { seasonName: seasonToDelete?.seasonName || '' })"
-      />
-
-      <!-- Delete Selected Seasons Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteSelectedConfirmation"
-        @close="showDeleteSelectedConfirmation = false"
-        @confirm="confirmDeleteSelected"
-        :isLoading="isDeletingLoading"
-        :action="'DANGER'"
-        :title="t('confirmDeleteTitle')"
-        :message="t('confirmDeleteSelectedSeasons', { count: selectedSeasons.length })"
-      />
     </div>
+
+    <!-- Delete Single Season Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showDeleteModal" 
+      v-model="showDeleteModal" 
+      :title="t('confirmDeleteTitle')" 
+      :message="getDeleteMessage()"
+      :confirm-text="t('delete')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmDeleteSeason"
+      @close="closeDeleteModal"
+      :loading="isDeletingLoading"
+      action="INFO"
+    />
+
+    <!-- Delete Multiple Seasons Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showDeleteMultipleModal" 
+      v-model="showDeleteMultipleModal" 
+      :title="t('confirmDeleteTitle')" 
+      :message="getDeleteMultipleMessage()"
+      :confirm-text="t('deleteSelected')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmDeleteMultipleSeasons"
+      @close="closeDeleteMultipleModal"
+      :loading="isDeletingMultipleLoading"
+      action="INFO"
+    />
   </ConfigurationLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -205,11 +232,15 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
-import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
-import { getSeasons, postSeason, updateSeasonById } from '@/services/configrationApi'
+import { Plus, Edit, Trash2 } from 'lucide-vue-next'
+import { getSeasons, postSeason, updateSeasonById, deleteSeasonById } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
+
+const { t } = useI18n()
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showAddModal = ref(false)
@@ -217,16 +248,15 @@ const showEditModal = ref(false)
 const editingSeason = ref(null)
 const selectedSeasons = ref([])
 const isLoading = ref(false)
-const loading  =ref(false)
+const loading = ref(false)
 
-// Confirmation modal states
-const showDeleteConfirmation = ref(false)
-const showDeleteSelectedConfirmation = ref(false)
+// Delete modals states
+const showDeleteModal = ref(false)
+const showDeleteMultipleModal = ref(false)
 const seasonToDelete = ref(null)
 const isDeletingLoading = ref(false)
-const { t } = useI18n()
-const toast = useToast()
-const serviceStore = useServiceStore()
+const isDeletingMultipleLoading = ref(false)
+
 // Form data
 const formData = ref({
   shortCode: '',
@@ -241,48 +271,46 @@ const formData = ref({
 })
 
 // Table columns
-const columns = computed(() => [
+const columns = ref([
   {
     key: 'shortCode',
     label: t('shortCode'),
-    sortable: true
+    sortable: true,
+    searchable: true
   },
   {
     key: 'seasonName',
     label: t('seasonName'),
-    sortable: true,
-    
+    sortable: true
   },
   {
     key: 'periodInfo',
     label: t('periodInfo'),
     sortable: false,
-    type:'custom'
+    type: 'custom'
   },
   {
     key: 'status',
     label: t('status'),
     sortable: true,
-    type:'badge',
-    translatable:true
+    component: 'badge',
+    translatable: true
   },
   {
     key: 'createdInfo',
     label: t('createdBy'),
     sortable: false,
-    type:'custom'
+    type: 'custom'
   },
   {
     key: 'modifiedInfo',
     label: t('modifiedBy'),
     sortable: false,
-    type:'custom'
+    type: 'custom'
   }
 ])
 
-// Sample data
-const seasons = ref([
-])
+const seasons = ref([])
 
 // Options for dropdowns
 const dayOptions = ref(
@@ -312,125 +340,200 @@ const statusOptions = ref([
   { value: 'inactive', label: t('inactive') }
 ])
 
-// Methods
 const editSeason = (season) => {
   editingSeason.value = season
-  formData.value = { ...season }
+  console.log('data', season)
+  formData.value = {
+    shortCode: season.shortCode,
+    seasonName: season.seasonName,
+    fromDay: season.fromDay,
+    fromMonth: season.fromMonth,
+    toDay: season.toDay,
+    toMonth: season.toMonth,
+    startDate: season.startDate,
+    expireDate: season.expireDate,
+    status: season.status || 'active'
+  }
   showEditModal.value = true
 }
 
-const deleteSeason = (season) => {
+// Single season deletion
+const handleDeleteSeason = (season) => {
   seasonToDelete.value = season
-  showDeleteConfirmation.value = true
+  showDeleteModal.value = true
 }
 
 const confirmDeleteSeason = async () => {
   if (!seasonToDelete.value) return
-  
+
   isDeletingLoading.value = true
   try {
-    const index = seasons.value.findIndex(s => s.id === seasonToDelete.value.id)
-    if (index > -1) {
-      seasons.value.splice(index, 1)
+    const response = await deleteSeasonById(seasonToDelete.value.id)
+    if (response.status === 200 || response.status === 204) {
+      // Mettre à jour la liste localement
+      const index = seasons.value.findIndex(s => s.id === seasonToDelete.value.id)
+      if (index !== -1) {
+        seasons.value.splice(index, 1)
+      }
       toast.success(t('seasonDeletedSuccessfully'))
+    } else {
+      throw new Error('Failed to delete season')
     }
   } catch (error) {
     console.error('Error deleting season:', error)
     toast.error(t('errorDeletingSeason'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteConfirmation.value = false
-    seasonToDelete.value = null
+    closeDeleteModal()
   }
 }
 
-// Actions configuration
-const actions = computed(() => [
-  {
-    label: t('edit'),
-    handler: editSeason,
-    icon: Edit
-  },
-  {
-    label: t('delete'),
-    handler: deleteSeason,
-    icon: Trash,
-    class: 'text-red-600 hover:text-red-800'
-  }
-])
-
-const onAction = (action, item) => {
-  if (action === 'edit') {
-    editSeason(item)
-  } else if (action === 'delete') {
-    deleteSeason(item)
-  }
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  seasonToDelete.value = null
 }
 
-const onSelectionChange = (selected) => {
-  selectedSeasons.value = selected
-}
-
+// Multiple seasons deletion
 const deleteSelected = () => {
   if (selectedSeasons.value.length === 0) return
-  showDeleteSelectedConfirmation.value = true
+  showDeleteMultipleModal.value = true
 }
 
-const confirmDeleteSelected = async () => {
+const confirmDeleteMultipleSeasons = async () => {
   if (selectedSeasons.value.length === 0) return
-  
-  isDeletingLoading.value = true
+
+  isDeletingMultipleLoading.value = true
   try {
-    const deletedCount = selectedSeasons.value.length
+    const deletePromises = selectedSeasons.value.map(season => deleteSeasonById(season.id))
+    await Promise.all(deletePromises)
+    
+    // Mettre à jour la liste localement
     selectedSeasons.value.forEach(season => {
       const index = seasons.value.findIndex(s => s.id === season.id)
-      if (index > -1) {
+      if (index !== -1) {
         seasons.value.splice(index, 1)
       }
     })
+    
+    const count = selectedSeasons.value.length
     selectedSeasons.value = []
-    toast.success(t('seasonsDeletedSuccessfully', { count: deletedCount }))
+    toast.success(t('seasonsDeletedSuccess', { count }))
   } catch (error) {
     console.error('Error deleting seasons:', error)
     toast.error(t('errorDeletingSelectedSeasons'))
   } finally {
-    isDeletingLoading.value = false
-    showDeleteSelectedConfirmation.value = false
+    isDeletingMultipleLoading.value = false
+    closeDeleteMultipleModal()
   }
 }
 
-const saveSeason = async () => {
-  // Validation
-  if (!formData.value.shortCode || !formData.value.seasonName || !formData.value.fromDay || !formData.value.fromMonth || !formData.value.toDay || !formData.value.toMonth) {
-    alert(t('pleaseCompleteAllRequiredFields'))
-    return
+const closeDeleteMultipleModal = () => {
+  showDeleteMultipleModal.value = false
+}
+
+// Messages for modals
+const getDeleteMessage = () => {
+  if (!seasonToDelete.value) return ''
+  return t('confirmDeleteSeason', { name: seasonToDelete.value.seasonName || seasonToDelete.value.shortCode })
+}
+
+const getDeleteMultipleMessage = () => {
+  const count = selectedSeasons.value.length
+  return t('confirmDeleteSelectedSeasons', { count })
+}
+
+const actions = ref([
+  {
+    label: t('edit'),
+    icon: Edit,
+    variant: 'primary',
+    handler: (item) => onAction('edit', item)
+  },
+  {
+    label: t('delete'),
+    icon: Trash2,
+    variant: 'danger',
+    handler: (item) => onAction('delete', item)
   }
+])
 
-  isLoading.value = true
+// Methods
+const onAction = (action, item) => {
+  if (action === 'edit') {
+    editSeason(item)
+  } else if (action === 'delete') {
+    handleDeleteSeason(item)
+  }
+}
 
+const onSelectionChange = (selection) => {
+  selectedSeasons.value = selection
+}
+
+const saveSeason = async () => {
   try {
+    isLoading.value = true
+    
     if (showAddModal.value) {
       // Add new season
       const newSeason = {
-        ...formData.value, hotelId: serviceStore.serviceId,
+        shortCode: formData.value.shortCode,
+        seasonName: formData.value.seasonName,
+        fromDay: formData.value.fromDay,
+        fromMonth: formData.value.fromMonth,
+        toDay: formData.value.toDay,
+        toMonth: formData.value.toMonth,
+        startDate: formData.value.startDate,
+        expireDate: formData.value.expireDate,
+        status: formData.value.status,
+        hotelId: serviceStore.serviceId
       }
-      await postSeason(newSeason)
-      toast.success(t('seasonAddedSuccessfully'))
-      await loadData()
-    } else {
+      const resp = await postSeason(newSeason)
+      console.log(resp)
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(t('seasonAddedSuccessfully'))
+        loadData()
+      } else {
+        toast.error(t('somethingWentWrong'))
+      }
+      seasons.value.push(newSeason)
+    } else if (editingSeason.value) {
       // Update existing season
-      await updateSeasonById(editingSeason.value.id, formData.value)
-      toast.success(t('seasonUpdatedSuccessfully'))
-      await loadData()
+      const updatedSeason = {
+        shortCode: formData.value.shortCode,
+        seasonName: formData.value.seasonName,
+        fromDay: formData.value.fromDay,
+        fromMonth: formData.value.fromMonth,
+        toDay: formData.value.toDay,
+        toMonth: formData.value.toMonth,
+        startDate: formData.value.startDate,
+        expireDate: formData.value.expireDate,
+        status: formData.value.status,
+        hotelId: serviceStore.serviceId
+      }
+      
+      const resp = await updateSeasonById(editingSeason.value.id, updatedSeason)
+      
+      if (resp.status === 200 || resp.status === 201) {
+        // Mettre à jour localement l'élément modifié
+        const index = seasons.value.findIndex(s => s.id === editingSeason.value.id)
+        if (index !== -1) {
+          seasons.value[index] = {
+            ...seasons.value[index],
+            ...updatedSeason,
+            shortCode: updatedSeason.shortCode,
+            seasonName: updatedSeason.seasonName
+          }
+        }
+        toast.success(t('seasonUpdatedSuccessfully'))
+      } else {
+        throw new Error('Failed to update season')
+      }
     }
     closeModal()
   } catch (error) {
     console.error('Error saving season:', error)
-    if (showAddModal.value) {
-      toast.error(t('errorAddingSeason'))
-    } else {
-      toast.error(t('errorUpdatingSeason'))
-    }
+    toast.error(t('errorSavingSeason'))
   } finally {
     isLoading.value = false
   }
@@ -458,17 +561,23 @@ const loadData = async () => {
   loading.value = true
   try {
     const response = await getSeasons()
-    console.log('response data',response)
-    seasons.value = response.data.data.data || []
+    console.log('response data', response)
+    if (response.status === 200) {
+      seasons.value = response.data.data.data.map((item) => {
+        return {
+          ...item,
+        }
+      })
+    } else {
+      toast.error(t('failedToLoadSeasons'))
+    }
   } catch (error) {
     console.error('Error loading seasons:', error)
     toast.error(t('errorLoadingSeasons'))
-    // Keep existing mock data as fallback
   } finally {
     loading.value = false
   }
 }
 
-// Initialize data on component mount
-  loadData()
+loadData()
 </script>
