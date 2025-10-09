@@ -27,14 +27,13 @@
           <BasicButton @click="showAddModal = true" :label="t('addSeason')" :icon="Plus">
           </BasicButton>
 
-          <button 
+          <BasicButton 
             v-if="selectedSeasons.length > 0" 
-            @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
-          >
-            <Trash2 class="w-4 h-4" />
-            <span>{{ t('deleteSelected') }} ({{ selectedSeasons.length }})</span>
-          </button>
+            @click="showBulkDeleteModal = true"
+            variant="danger"
+            :label="t('deleteSelected')" 
+            :icon="Trash2"
+          />
         </template>
 
         <!-- Custom column for period info -->
@@ -193,38 +192,38 @@
       </div>
     </div>
 
-    <!-- Delete Single Season Confirmation Modal -->
+    <!-- Delete Single Confirmation Modal -->
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('confirmDeleteTitle')" 
-      :message="getDeleteMessage()"
+      :title="t('Delete Season')" 
+      :message="getSingleDeleteMessage()"
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteSeason"
-      @close="closeDeleteModal"
+      @confirm="confirmDeleteSingleSeason"
+      @close="closeSingleDeleteModal"
       :loading="isDeletingLoading"
-      action="INFO"
+      action="DANGER"
     />
 
-    <!-- Delete Multiple Seasons Confirmation Modal -->
+    <!-- Bulk Delete Confirmation Modal -->
     <ModalConfirmation 
-      v-if="showDeleteMultipleModal" 
-      v-model="showDeleteMultipleModal" 
-      :title="t('confirmDeleteTitle')" 
-      :message="getDeleteMultipleMessage()"
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Season')" 
+      :message="getBulkDeleteMessage()"
       :confirm-text="t('deleteSelected')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteMultipleSeasons"
-      @close="closeDeleteMultipleModal"
-      :loading="isDeletingMultipleLoading"
-      action="INFO"
+      @confirm="confirmBulkDeleteSeasons"
+      @close="closeBulkDeleteModal"
+      :loading="isBulkDeletingLoading"
+      action="DANGER"
     />
   </ConfigurationLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -250,12 +249,12 @@ const selectedSeasons = ref([])
 const isLoading = ref(false)
 const loading = ref(false)
 
-// Delete modals states
+// Delete modals states - MODIFIÉ
 const showDeleteModal = ref(false)
-const showDeleteMultipleModal = ref(false)
+const showBulkDeleteModal = ref(false) // NOUVEAU - nom cohérent
 const seasonToDelete = ref(null)
 const isDeletingLoading = ref(false)
-const isDeletingMultipleLoading = ref(false)
+const isBulkDeletingLoading = ref(false) // NOUVEAU - nom cohérent
 
 // Form data
 const formData = ref({
@@ -312,6 +311,9 @@ const columns = ref([
 
 const seasons = ref([])
 
+// Computed properties
+const selectedCount = computed(() => selectedSeasons.value.length)
+
 // Options for dropdowns
 const dayOptions = ref(
   Array.from({ length: 31 }, (_, i) => ({
@@ -357,13 +359,13 @@ const editSeason = (season) => {
   showEditModal.value = true
 }
 
-// Single season deletion
+// Single season deletion - MODIFIÉ
 const handleDeleteSeason = (season) => {
   seasonToDelete.value = season
   showDeleteModal.value = true
 }
 
-const confirmDeleteSeason = async () => {
+const confirmDeleteSingleSeason = async () => {
   if (!seasonToDelete.value) return
 
   isDeletingLoading.value = true
@@ -384,36 +386,29 @@ const confirmDeleteSeason = async () => {
     toast.error(t('errorDeletingSeason'))
   } finally {
     isDeletingLoading.value = false
-    closeDeleteModal()
+    closeSingleDeleteModal()
   }
 }
 
-const closeDeleteModal = () => {
+const closeSingleDeleteModal = () => {
   showDeleteModal.value = false
   seasonToDelete.value = null
 }
 
-// Multiple seasons deletion
-const deleteSelected = () => {
-  if (selectedSeasons.value.length === 0) return
-  showDeleteMultipleModal.value = true
-}
-
-const confirmDeleteMultipleSeasons = async () => {
+// Multiple seasons deletion - MODIFIÉ
+const confirmBulkDeleteSeasons = async () => {
   if (selectedSeasons.value.length === 0) return
 
-  isDeletingMultipleLoading.value = true
+  isBulkDeletingLoading.value = true
   try {
-    const deletePromises = selectedSeasons.value.map(season => deleteSeasonById(season.id))
+    const deletePromises = selectedSeasons.value.map(season => 
+      deleteSeasonById(season.id)
+    )
     await Promise.all(deletePromises)
     
     // Mettre à jour la liste localement
-    selectedSeasons.value.forEach(season => {
-      const index = seasons.value.findIndex(s => s.id === season.id)
-      if (index !== -1) {
-        seasons.value.splice(index, 1)
-      }
-    })
+    const selectedIds = selectedSeasons.value.map(s => s.id)
+    seasons.value = seasons.value.filter(s => !selectedIds.includes(s.id))
     
     const count = selectedSeasons.value.length
     selectedSeasons.value = []
@@ -422,24 +417,32 @@ const confirmDeleteMultipleSeasons = async () => {
     console.error('Error deleting seasons:', error)
     toast.error(t('errorDeletingSelectedSeasons'))
   } finally {
-    isDeletingMultipleLoading.value = false
-    closeDeleteMultipleModal()
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
   }
 }
 
-const closeDeleteMultipleModal = () => {
-  showDeleteMultipleModal.value = false
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
 }
 
-// Messages for modals
-const getDeleteMessage = () => {
+// Messages for modals - MODIFIÉ
+const getSingleDeleteMessage = () => {
   if (!seasonToDelete.value) return ''
-  return t('confirmDeleteSeason', { name: seasonToDelete.value.seasonName || seasonToDelete.value.shortCode })
+  const seasonName = seasonToDelete.value.seasonName || seasonToDelete.value.shortCode
+  return `Are you sure you want to delete season "${seasonName}"?`
 }
 
-const getDeleteMultipleMessage = () => {
+const getBulkDeleteMessage = () => {
   const count = selectedSeasons.value.length
-  return t('confirmDeleteSelectedSeasons', { count })
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const seasonName = selectedSeasons.value[0].seasonName || selectedSeasons.value[0].shortCode
+    return `Are you sure you want to delete the selected season "${seasonName}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected seasons?`
+  }
 }
 
 const actions = ref([

@@ -27,14 +27,13 @@
           <BasicButton @click="showAddModal = true" :label="t('addRateType')" :icon="Plus">
           </BasicButton>
 
-          <button 
+          <BasicButton 
             v-if="selectedRateTypes.length > 0" 
-            @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
-          >
-            <Trash2 class="w-4 h-4" />
-            <span>{{ t('deleteSelected') }} ({{ selectedRateTypes.length }})</span>
-          </button>
+            @click="showBulkDeleteModal = true"
+            :label="t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
+          />
         </template>
 
         <!-- Custom column for nights info -->
@@ -135,24 +134,38 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Single Confirmation Modal -->
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('confirmDeleteTitle')" 
-      :message="getDeleteMessage()"
+      :title="t('Delete Rate Type')" 
+      :message="getSingleDeleteMessage()"
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteRateType"
-      @close="() => { showDeleteModal = false; rateTypeToDelete = null; }"
+      @confirm="confirmDeleteSingleRateType"
+      @close="closeSingleDeleteModal"
       :loading="isDeletingLoading"
-      action="INFO"
+      action="DANGER"
+    />
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Rate Types')" 
+      :message="getBulkDeleteMessage()"
+      :confirm-text="t('deleteSelected')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmBulkDeleteRateTypes"
+      @close="closeBulkDeleteModal"
+      :loading="isBulkDeletingLoading"
+      action="DANGER"
     />
   </ConfigurationLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -176,6 +189,13 @@ const editingRateType = ref(null)
 const selectedRateTypes = ref([])
 const isLoading = ref(false)
 const loading = ref(false)
+
+// Delete modals state
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const rateTypeToDelete = ref(null)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 // Form data
 const formData = ref({
@@ -243,6 +263,9 @@ const statusOptions = ref([
 
 const rateTypes = ref([])
 
+// Computed properties
+const selectedCount = computed(() => selectedRateTypes.value.length)
+
 const editRateType = (rateType) => {
   editingRateType.value = rateType
   console.log('data', rateType)
@@ -255,16 +278,13 @@ const editRateType = (rateType) => {
   showEditModal.value = true
 }
 
-const rateTypeToDelete = ref(null)
-const showDeleteModal = ref(false)
-const isDeletingLoading = ref(false)
-
+// Single delete methods
 const handleDeleteRateType = (rateType) => {
   rateTypeToDelete.value = rateType
   showDeleteModal.value = true
 }
 
-const confirmDeleteRateType = async () => {
+const confirmDeleteSingleRateType = async () => {
   if (!rateTypeToDelete.value) return
 
   isDeletingLoading.value = true
@@ -285,14 +305,62 @@ const confirmDeleteRateType = async () => {
     toast.error(t('errorDeletingRateType'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteModal.value = false
-    rateTypeToDelete.value = null
+    closeSingleDeleteModal()
   }
 }
 
-const getDeleteMessage = () => {
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  rateTypeToDelete.value = null
+}
+
+// Bulk delete methods
+const confirmBulkDeleteRateTypes = async () => {
+  if (selectedRateTypes.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedRateTypes.value.map(rateType => 
+      deleteRateTypeById(rateType.id)
+    )
+    await Promise.all(deletePromises)
+    
+    // Mettre à jour la liste localement
+    const selectedIds = selectedRateTypes.value.map(rt => rt.id)
+    rateTypes.value = rateTypes.value.filter(rt => !selectedIds.includes(rt.id))
+    
+    selectedRateTypes.value = []
+    toast.success(t('rateTypesDeletedSuccess', { count: selectedIds.length }))
+  } catch (error) {
+    console.error('Error deleting rate types:', error)
+    toast.error(t('errorDeletingSelectedRateTypes'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// Message methods - CORRIGÉES pour utiliser "Rate Types"
+const getSingleDeleteMessage = () => {
   if (!rateTypeToDelete.value) return ''
-  return t('confirmDeleteRateType', { name: rateTypeToDelete.value.rateTypeName || rateTypeToDelete.value.shortCode })
+  const rateTypeName = rateTypeToDelete.value.rateTypeName || rateTypeToDelete.value.shortCode
+  return `Are you sure you want to delete "${rateTypeName}"?`
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedRateTypes.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const rateTypeName = selectedRateTypes.value[0].rateTypeName || selectedRateTypes.value[0].shortCode
+    return `Are you sure you want to delete the selected rate type "${rateTypeName}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected rate types?`
+  }
 }
 
 const actions = ref([
@@ -321,22 +389,6 @@ const onAction = (action, item) => {
 
 const onSelectionChange = (selection) => {
   selectedRateTypes.value = selection
-}
-
-const deleteSelected = async () => {
-  const count = selectedRateTypes.value.length
-  if (confirm(t('confirmDeleteSelected', { count }))) {
-    try {
-      const deletePromises = selectedRateTypes.value.map(rateType => deleteRateTypeById(rateType.id))
-      await Promise.all(deletePromises)
-      loadData()
-      selectedRateTypes.value = []
-      toast.success(t('rateTypesDeletedSuccess', { count }))
-    } catch (error) {
-      console.error('Error deleting rate types:', error)
-      toast.error(t('errorDeletingSelectedRateTypes'))
-    }
-  }
 }
 
 const saveRateType = async () => {

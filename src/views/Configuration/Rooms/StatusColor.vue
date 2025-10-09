@@ -69,10 +69,17 @@
               Color Code
             </label>
             <div class="flex items-center space-x-3">
-              <input v-model="tempColor" type="color" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
-              <input v-model="tempColor" type="text"
-                class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="#000000">
+              <input 
+                v-model="tempColor" 
+                type="color" 
+                class="w-12 h-10 border border-gray-300 rounded cursor-pointer focus:outline-hidden focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10"
+              >
+              <input 
+                v-model="tempColor" 
+                type="text"
+                class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
+                placeholder="#000000"
+              >
             </div>
           </div>
 
@@ -83,9 +90,14 @@
             </label>
             <div class="grid grid-cols-8 gap-2">
               <div v-for="color in predefinedColors" :key="color"
-                class="w-8 h-8 rounded cursor-pointer border-2 transition-transform hover:scale-110"
-                :class="tempColor === color ? 'border-gray-800' : 'border-gray-300'" :style="{ backgroundColor: color }"
-                @click="tempColor = color"></div>
+                class="w-8 h-8 rounded cursor-pointer border-2 transition-transform hover:scale-110 focus:outline-hidden focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10"
+                :class="tempColor === color ? 'border-gray-800' : 'border-gray-300'" 
+                :style="{ backgroundColor: color }"
+                @click="tempColor = color"
+                tabindex="0"
+                @keydown.enter="tempColor = color"
+                @keydown.space="tempColor = color"
+              ></div>
             </div>
           </div>
 
@@ -94,7 +106,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Preview
             </label>
-            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/10">
               <div class="w-6 h-6 rounded-full" :style="{ backgroundColor: tempColor }"></div>
               <span class="text-sm text-gray-900">{{ selectedStatus?.name }}</span>
               <span class="text-xs text-gray-500 font-mono">{{ tempColor }}</span>

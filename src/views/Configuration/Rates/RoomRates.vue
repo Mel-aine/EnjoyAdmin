@@ -23,14 +23,13 @@
           > 
           </BasicButton>
           
-          <button 
+          <BasicButton 
             v-if="selectedRoomRates.length > 0"
-            @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
-          >
-            <Trash2 class="w-4 h-4" />
-            <span>{{ t('deleteSelected') }} ({{ selectedRoomRates.length }})</span>
-          </button>
+            @click="showBulkDeleteModal = true"
+            variant="danger"
+            :label="t('deleteSelected')"
+            :icon="Trash2"
+          />
         </template>
 
         <!-- Custom column for rate info -->
@@ -203,31 +202,31 @@
       </div>
     </div>
 
-    <!-- Delete Single Room Rate Confirmation Modal -->
+    <!-- Delete Single Confirmation Modal -->
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('confirmDeleteTitle')" 
-      :message="getDeleteMessage()"
+      :title="t('Delete Room Rate')" 
+      :message="getSingleDeleteMessage()"
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteRoomRate"
-      @close="closeDeleteModal"
+      @confirm="confirmDeleteSingleRoomRate"
+      @close="closeSingleDeleteModal"
       :loading="isDeletingLoading"
       action="DANGER"
     />
 
-    <!-- Delete Multiple Room Rates Confirmation Modal -->
+    <!-- Bulk Delete Confirmation Modal -->
     <ModalConfirmation 
-      v-if="showDeleteMultipleModal" 
-      v-model="showDeleteMultipleModal" 
-      :title="t('confirmDeleteTitle')" 
-      :message="getDeleteMultipleMessage()"
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Room Rates')" 
+      :message="getBulkDeleteMessage()"
       :confirm-text="t('deleteSelected')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteMultipleRoomRates"
-      @close="closeDeleteMultipleModal"
-      :loading="isDeletingMultipleLoading"
+      @confirm="confirmBulkDeleteRoomRates"
+      @close="closeBulkDeleteModal"
+      :loading="isBulkDeletingLoading"
       action="DANGER"
     />
   </ConfigurationLayout>
@@ -263,12 +262,12 @@ const selectedRoomRates = ref([])
 const isLoading = ref(false)
 const isSaving = ref(false)
 
-// Delete modals states
+// Delete modals states - MODIFIÉ
 const showDeleteModal = ref(false)
-const showDeleteMultipleModal = ref(false)
+const showBulkDeleteModal = ref(false) // NOUVEAU - nom cohérent
 const roomRateToDelete = ref(null)
 const isDeletingLoading = ref(false)
-const isDeletingMultipleLoading = ref(false)
+const isBulkDeletingLoading = ref(false) // NOUVEAU - nom cohérent
 
 // Form data
 const formData = ref({
@@ -286,6 +285,7 @@ const formData = ref({
 
 // Computed
 const isEditing = computed(() => showEditModal.value && editingRoomRate.value)
+const selectedCount = computed(() => selectedRoomRates.value.length)
 
 // Table columns
 const columns = ref([
@@ -375,13 +375,13 @@ const editRoomRate = (roomRate) => {
   showEditModal.value = true
 }
 
-// Single room rate deletion
+// Single room rate deletion - MODIFIÉ
 const handleDeleteRoomRate = (roomRate) => {
   roomRateToDelete.value = roomRate
   showDeleteModal.value = true
 }
 
-const confirmDeleteRoomRate = async () => {
+const confirmDeleteSingleRoomRate = async () => {
   if (!roomRateToDelete.value) return
 
   isDeletingLoading.value = true
@@ -402,25 +402,20 @@ const confirmDeleteRoomRate = async () => {
     toast.error(t('errorDeletingRoomRate'))
   } finally {
     isDeletingLoading.value = false
-    closeDeleteModal()
+    closeSingleDeleteModal()
   }
 }
 
-const closeDeleteModal = () => {
+const closeSingleDeleteModal = () => {
   showDeleteModal.value = false
   roomRateToDelete.value = null
 }
 
-// Multiple room rates deletion
-const deleteSelected = () => {
-  if (selectedRoomRates.value.length === 0) return
-  showDeleteMultipleModal.value = true
-}
-
-const confirmDeleteMultipleRoomRates = async () => {
+// Multiple room rates deletion - MODIFIÉ
+const confirmBulkDeleteRoomRates = async () => {
   if (selectedRoomRates.value.length === 0) return
 
-  isDeletingMultipleLoading.value = true
+  isBulkDeletingLoading.value = true
   try {
     const deletePromises = selectedRoomRates.value.map(roomRate => 
       deleteRoomRateById(roomRate.id)
@@ -436,12 +431,8 @@ const confirmDeleteMultipleRoomRates = async () => {
     }
     
     // Update local list for successful deletions
-    selectedRoomRates.value.forEach(roomRate => {
-      const index = roomRates.value.findIndex(r => r.id === roomRate.id)
-      if (index > -1) {
-        roomRates.value.splice(index, 1)
-      }
-    })
+    const selectedIds = selectedRoomRates.value.map(r => r.id)
+    roomRates.value = roomRates.value.filter(r => !selectedIds.includes(r.id))
     
     const count = selectedRoomRates.value.length
     selectedRoomRates.value = []
@@ -450,39 +441,49 @@ const confirmDeleteMultipleRoomRates = async () => {
     console.error('Error deleting selected room rates:', error)
     toast.error(t('errorDeletingSelectedRoomRates'))
   } finally {
-    isDeletingMultipleLoading.value = false
-    closeDeleteMultipleModal()
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
   }
 }
 
-const closeDeleteMultipleModal = () => {
-  showDeleteMultipleModal.value = false
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
 }
 
-// Messages for modals
-const getDeleteMessage = () => {
+// Messages for modals - MODIFIÉ
+const getSingleDeleteMessage = () => {
   if (!roomRateToDelete.value) return ''
   const roomType = roomRateToDelete.value.roomType?.roomTypeName || 'Room Rate'
   const rateType = roomRateToDelete.value.rateType?.rateTypeName || ''
-  return t('confirmDeleteRoomRate', { roomType, rateType })
+  return `Are you sure you want to delete for "${roomType}"?`
 }
 
-const getDeleteMultipleMessage = () => {
+const getBulkDeleteMessage = () => {
   const count = selectedRoomRates.value.length
-  return t('confirmDeleteSelectedRoomRates', { count })
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const roomRate = selectedRoomRates.value[0]
+    const roomType = roomRate.roomType?.roomTypeName || 'Room Rate'
+    const rateType = roomRate.rateType?.rateTypeName || ''
+    return `Are you sure you want to delete the selected room rate for "${roomType}" (${rateType})?`
+  } else {
+    return `Are you sure you want to delete ${count} selected room rates?`
+  }
 }
 
 // Actions configuration
 const actions = ref([
   {
     label: t('edit'),
-    handler: editRoomRate,
-    icon: Edit
+    handler: (item) => onAction('edit', item),
+    icon: Edit,
+    variant: 'primary'
   },
   {
     label: t('delete'),
-    handler: handleDeleteRoomRate,
-    icon: Trash,
+    handler: (item) => onAction('delete', item),
+    icon: Trash2,
     variant: 'danger'
   }
 ])

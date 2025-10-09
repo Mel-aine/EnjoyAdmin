@@ -9,7 +9,7 @@
         :actions="actions" 
         :loading="loading"
         search-placeholder="Search rooms..." 
-        :selectable="false" 
+        :selectable="true" 
         empty-state-title="No rooms found"
         empty-state-message="Click 'Add Room' to create your first room." 
         @action="onAction"
@@ -18,9 +18,10 @@
           <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus" />
           <BasicButton 
             v-if="selectedRooms.length > 0" 
-            @click="deleteSelected" 
+            @click="showBulkDeleteModal = true" 
             label="Delete Selected" 
-            :icon="Trash2" 
+            :icon="Trash2"
+            variant="danger"
           />
         </template>
 
@@ -304,18 +305,32 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Single Confirmation Modal -->
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('confirmDeleteTitle')" 
-      :message="getDeleteMessage()"
-      :loading="confirmLoading" 
+      :title="t('Delete Room Floor')" 
+      :message="getSingleDeleteMessage()"
+      :loading="isDeletingLoading" 
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDelete"
-      @close="closeDeleteModal"
-      action="INFO"
+      @confirm="confirmDeleteSingleRoom"
+      @close="closeSingleDeleteModal"
+      action="DANGER"
+    />
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Room Floors')" 
+      :message="getBulkDeleteMessage()"
+      :loading="isBulkDeletingLoading" 
+      :confirm-text="t('deleteSelected')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmBulkDeleteRooms"
+      @close="closeBulkDeleteModal"
+      action="DANGER"
     />
   </ConfigurationLayout>
 </template>
@@ -323,7 +338,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-// Importation du composant ModalConfirmation
 import ModalConfirmation from '../../../components/modal/ModalConfirmation.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -338,7 +352,7 @@ import { formatCurrency } from '../../../components/utilities/UtilitiesFunction'
 
 // Types
 interface Room {
-  id: string | number  // Accepte à la fois string et number
+  id: string | number
   shortCode: string
   roomNumber: string
   roomTypeId: number
@@ -416,6 +430,13 @@ const editingRoom = ref<Room | null>(null)
 const loading = ref(false)
 const saving = ref(false)
 
+// Delete related reactive data - MODIFIÉ
+const roomToDelete = ref<Room | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false) // NOUVEAU - modal séparée pour la suppression multiple
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false) // NOUVEAU - loading séparé pour la suppression multiple
+
 // Form data with proper typing
 const formData = ref<RoomFormData>({
   shortCode: '',
@@ -452,6 +473,9 @@ const bedTypeOptions = computed<Option[]>(() => {
     label: (bt.bedTypeName || bt.name || `Bed Type ${bt.id}`)
   }))
 })
+
+// Computed properties
+const selectedCount = computed(() => selectedRooms.value.length)
 
 // Handler functions for Select components
 const handleRoomTypeChange = (value: string | number | undefined) => {
@@ -565,7 +589,7 @@ const onAction = (action: string, item: Room) => {
   if (action === 'edit') {
     editRoom(item)
   } else if (action === 'delete') {
-    deleteRoom(item)
+    handleDeleteRoom(item)
   }
 }
 
@@ -598,58 +622,60 @@ const editRoom = (room: Room) => {
   showEditModal.value = true
 }
 
-// State for delete confirmation
-const showDeleteModal = ref(false)
-const roomToDelete = ref<Room | null>(null)
-const confirmLoading = ref(false)
-
-const deleteRoom = (room: Room) => {
+// Single item delete - MODIFIÉ
+const handleDeleteRoom = (room: Room) => {
   roomToDelete.value = room
   showDeleteModal.value = true
 }
 
-const deleteSelected = () => {
+// Bulk delete - MODIFIÉ
+const handleDeleteSelected = () => {
   if (selectedRooms.value.length === 0) return
-  
-  // For multiple selection, we'll use the first item to show in the modal
-  roomToDelete.value = { ...selectedRooms.value[0], id: 'multiple' } as Room
-  showDeleteModal.value = true
+  showBulkDeleteModal.value = true
 }
 
-const confirmDelete = async () => {
+const confirmDeleteSingleRoom = async () => {
   if (!roomToDelete.value) return
-  
+
+  isDeletingLoading.value = true
   try {
-    confirmLoading.value = true
-    
-    if (roomToDelete.value.id === 'multiple') {
-      // Delete multiple rooms
-      const selectedIds = selectedRooms.value.map(r => r.id)
-      // Appel API pour supprimer plusieurs chambres
-      const deletePromises = selectedRooms.value.map(room => 
-        deleteRoomByIdLocal(room.id as number)
-      )
-      await Promise.all(deletePromises)
-      
+    if (roomToDelete.value.id) {
+      await deleteRoomByIdLocal(roomToDelete.value.id as number)
       // Mise à jour locale
-      rooms.value = rooms.value.filter(r => !selectedIds.includes(r.id))
-      selectedRooms.value = []
-      toast.success(t('selectedRoomsDeleted', { count: selectedIds.length }))
-    } else {
-      // Suppression d'une seule chambre
-      if (roomToDelete.value.id) {
-        await deleteRoomByIdLocal(roomToDelete.value.id as number)
-        // Mise à jour locale
-        rooms.value = rooms.value.filter(r => r.id !== roomToDelete.value?.id)
-        toast.success(t('roomDeletedSuccessfully'))
-      }
+      rooms.value = rooms.value.filter(r => r.id !== roomToDelete.value?.id)
+      toast.success(t('roomDeletedSuccessfully'))
     }
+  } catch (error) {
+    console.error('Error deleting room:', error)
+    toast.error(t('errorDeletingRoom'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const confirmBulkDeleteRooms = async () => {
+  if (selectedRooms.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const selectedIds = selectedRooms.value.map(r => r.id)
+    // Appel API pour supprimer plusieurs chambres
+    const deletePromises = selectedRooms.value.map(room => 
+      deleteRoomByIdLocal(room.id as number)
+    )
+    await Promise.all(deletePromises)
+    
+    // Mise à jour locale
+    rooms.value = rooms.value.filter(r => !selectedIds.includes(r.id))
+    selectedRooms.value = []
+    toast.success(t('selectedRoomsDeleted', { count: selectedIds.length }))
   } catch (error) {
     console.error('Error deleting room(s):', error)
     toast.error(t('errorDeletingRoom'))
   } finally {
-    confirmLoading.value = false
-    closeDeleteModal()
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
   }
 }
 
@@ -662,13 +688,37 @@ const deleteRoomByIdLocal = async (id: number) => {
     }
   } catch (error) {
     console.error('Error deleting room:', error)
-    throw error // Propager l'erreur pour la gestion dans confirmDelete
+    throw error
   }
 }
 
-const closeDeleteModal = () => {
+// Close methods - MODIFIÉ
+const closeSingleDeleteModal = () => {
   showDeleteModal.value = false
   roomToDelete.value = null
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// Message methods - MODIFIÉ
+const getSingleDeleteMessage = () => {
+  if (!roomToDelete.value) return ''
+  const roomNumber = roomToDelete.value.roomNumber
+  return `Are you sure you want to delete room "${roomNumber}"? `
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedRooms.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const roomNumber = selectedRooms.value[0].roomNumber
+    return `Are you sure you want to delete the selected room "${roomNumber}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected rooms? `
+  }
 }
 
 const handleImageUpload = (event: Event, index: number) => {
@@ -804,17 +854,6 @@ const closeModal = () => {
     connectedRooms: [],
     taxRateIds: []
   }
-}
-
-// Helper function to get delete confirmation message
-const getDeleteMessage = () => {
-  if (!roomToDelete.value) return ''
-  
-  if (roomToDelete.value.id === 'multiple') {
-    return t('confirmDeleteMultipleRooms', { count: selectedRooms.value.length })
-  }
-  
-  return t('confirmDeleteRoom', { roomNumber: roomToDelete.value.roomNumber || '' })
 }
 
 // Initialize data

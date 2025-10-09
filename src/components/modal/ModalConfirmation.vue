@@ -17,16 +17,12 @@
         class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg w-full max-w-md p-6 relative"
       >
         <div class="text-center">
-          <!-- Icône dynamique -->
+          <!-- Icône jaune avec l'icône de suppression -->
           <div
-            :class="[
-              'flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full',
-              action === 'DANGER' ? 'bg-red-100' : 'bg-blue-100'
-            ]"
+            class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100"
           >
             <svg
-              v-if="action === 'DANGER'"
-              class="w-8 h-8 text-red-500"
+              class="w-8 h-8 text-yellow-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -36,45 +32,16 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728"
-              />
-            </svg>
-            <svg
-              v-else
-              class="w-8 h-8 text-blue-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 110 20 10 10 0 010-20z"
+                d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
               />
             </svg>
           </div>
 
-          <!-- Titre et message -->
-          <h2
-            :class="[
-              'text-2xl font-semibold mb-2',
-              action === 'DANGER'
-                ? 'text-red-700 dark:text-red-400'
-                : 'text-blue-800 dark:text-blue-300'
-            ]"
-          >
+          <!-- Titre et message en noir -->
+          <h2 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
             {{ title }}
           </h2>
-          <p
-            :class="[
-              'text-sm mb-6',
-              action === 'DANGER'
-                ? 'text-red-600 dark:text-red-500'
-                : 'text-blue-600 dark:text-blue-400'
-            ]"
-          >
+          <p class="text-sm mb-6 text-gray-700 dark:text-gray-300">
             {{ message }}
           </p>
 
@@ -83,12 +50,7 @@
             <button
               @click="$emit('confirm')"
               :disabled="isLoading"
-              :class="[
-                'font-semibold py-2 px-6 rounded-lg transition',
-                action === 'DANGER'
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              ]"
+              class="font-semibold py-2 px-6 rounded-lg transition bg-red-600 hover:bg-red-700 text-white flex items-center gap-2"
             >
               <span v-if="!isLoading">{{ $t('Confirm') }}</span>
               <span v-else class="flex items-center gap-2">
@@ -98,12 +60,7 @@
             </button>
             <button
               @click="$emit('close')"
-              :class="[
-                'font-semibold py-2 px-6 rounded-lg border transition',
-                action === 'DANGER'
-                  ? 'bg-red-100 hover:bg-red-200 text-red-700 border-red-300'
-                  : 'bg-blue-100 hover:bg-blue-200 text-blue-700 border-blue-300'
-              ]"
+              class="font-semibold py-2 px-6 rounded-lg border transition bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 dark:border-gray-600"
             >
               {{ $t('Cancel') }}
             </button>

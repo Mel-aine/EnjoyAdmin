@@ -17,11 +17,13 @@
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addAmenity')" :icon="Plus">
           </BasicButton>
-          <button v-if="selectedAmenities.length > 0" @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
-            <Trash2 class="w-4 h-4" />
-            <span>{{ t('deleteSelected') }} ({{ selectedAmenities.length }})</span>
-          </button>
+          <BasicButton 
+            v-if="selectedAmenities.length > 0" 
+            @click="showBulkDeleteModal = true"
+            variant="danger"
+            :label="t('deleteSelected')" 
+            :icon="Trash2"
+          />
         </template>
 
         <!-- Custom column for created/modified info -->
@@ -109,18 +111,33 @@
         </div>
       </div>
     </div>
-    <!-- Delete Confirmation Modal -->
+
+    <!-- Delete Single Confirmation Modal -->
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('confirmDeleteAmenityTitle')" 
-      :message="getDeleteMessage()"
+      :title="t('Delete Amenities')" 
+      :message="getSingleDeleteMessage()"
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteAmenity"
-      @close="() => { showDeleteModal = false; amenityToDelete = null; }"
+      @confirm="confirmDeleteSingleAmenity"
+      @close="closeSingleDeleteModal"
       :loading="isDeletingLoading"
-      action="INFO"
+      action="DANGER"
+    />
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Amenities')" 
+      :message="getBulkDeleteMessage()"
+      :confirm-text="t('deleteSelected')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmBulkDeleteAmenities"
+      @close="closeBulkDeleteModal"
+      :loading="isBulkDeletingLoading"
+      action="DANGER"
     />
   </ConfigurationLayout>
 </template>
@@ -148,8 +165,16 @@ const showEditModal = ref(false)
 const selectedAmenities = ref([])
 const editingAmenity = ref(null)
 const isLoading = ref(false)
-const loading =ref(false);
-const toast = useToast();
+const loading = ref(false)
+const toast = useToast()
+
+// Delete related reactive data - MODIFIÉ
+const amenityToDelete = ref(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false) // NOUVEAU - modal séparée pour la suppression multiple
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false) // NOUVEAU - loading séparé pour la suppression multiple
+
 // Form data
 const formData = ref({
   name: '',
@@ -195,9 +220,13 @@ const columns = ref([
     component: 'badge'
   }
 ])
+
+// Computed properties
+const selectedCount = computed(() => selectedAmenities.value.length)
+
 const editAmenity = (amenity) => {
   editingAmenity.value = amenity
-  console.log('data',amenity)
+  console.log('data', amenity)
   formData.value = {
     name: amenity.amenityName,
     type: amenity.amenityType,
@@ -207,16 +236,19 @@ const editAmenity = (amenity) => {
   showEditModal.value = true
 }
 
-const amenityToDelete = ref(null)
-const showDeleteModal = ref(false)
-const isDeletingLoading = ref(false)
-
+// Single item delete - MODIFIÉ
 const handleDeleteAmenity = (amenity) => {
   amenityToDelete.value = amenity
   showDeleteModal.value = true
 }
 
-const confirmDeleteAmenity = async () => {
+// Bulk delete - MODIFIÉ
+const handleDeleteSelected = () => {
+  if (selectedAmenities.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmDeleteSingleAmenity = async () => {
   if (!amenityToDelete.value) return
 
   isDeletingLoading.value = true
@@ -237,15 +269,65 @@ const confirmDeleteAmenity = async () => {
     toast.error(t('errorDeletingAmenity'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteModal.value = false
-    amenityToDelete.value = null
+    closeSingleDeleteModal()
   }
 }
 
-const getDeleteMessage = () => {
-  if (!amenityToDelete.value) return ''
-  return t('confirmDeleteAmenity', { name: amenityToDelete.value.amenityName })
+const confirmBulkDeleteAmenities = async () => {
+  if (selectedAmenities.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedAmenities.value.map(amenity => 
+      deleteAmenityAPI(amenity.id)
+    )
+    await Promise.all(deletePromises)
+    
+    // Mettre à jour la liste localement
+    const selectedIds = selectedAmenities.value.map(a => a.id)
+    amenities.value = amenities.value.filter(a => !selectedIds.includes(a.id))
+    
+    const count = selectedAmenities.value.length
+    selectedAmenities.value = []
+    toast.success(t('amenitiesDeletedSuccess', { count }))
+  } catch (error) {
+    console.error('Error deleting amenities:', error)
+    toast.error(t('errorDeletingSelectedAmenities'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
 }
+
+// Close methods - MODIFIÉ
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  amenityToDelete.value = null
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// Message methods - MODIFIÉ
+const getSingleDeleteMessage = () => {
+  if (!amenityToDelete.value) return ''
+  const amenityName = amenityToDelete.value.amenityName
+  return `Are you sure you want to delete "${amenityName}"? `
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedAmenities.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const amenityName = selectedAmenities.value[0].amenityName
+    return `Are you sure you want to delete the selected amenity "${amenityName}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected amenities?`
+  }
+}
+
 const actions = ref([
   {
     label: t('edit'),
@@ -274,24 +356,6 @@ const onAction = (action, item) => {
     editAmenity(item)
   } else if (action === 'delete') {
     handleDeleteAmenity(item)
-  }
-}
-
-
-
-const deleteSelected = async () => {
-  const count = selectedAmenities.value.length;
-  if (confirm(t('confirmDeleteSelected', { count }))) {
-    try {
-      const deletePromises = selectedAmenities.value.map(id => deleteAmenityAPI(id));
-      await Promise.all(deletePromises);
-      loadData();
-      selectedAmenities.value = [];
-      toast.success(t('amenitiesDeletedSuccess', { count }));
-    } catch (error) {
-      console.error('Error deleting amenities:', error);
-      toast.error(t('errorDeletingSelectedAmenities'));
-    }
   }
 }
 
@@ -353,6 +417,7 @@ const saveAmenity = async () => {
     isLoading.value = false;
   }
 }
+
 const loadData = async () => {
   loading.value = true;
   try {
@@ -375,6 +440,7 @@ const loadData = async () => {
     loading.value = false
   }
 }
+
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
@@ -386,5 +452,6 @@ const closeModal = () => {
     status: 'Available'
   }
 }
+
 loadData();
 </script>

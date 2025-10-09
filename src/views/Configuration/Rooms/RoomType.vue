@@ -16,14 +16,23 @@
         :data="roomTypes" 
         :actions="actions"
         :search-placeholder="t('searchRoomTypes')" 
+        :selectable="true"
         :empty-state-title="t('noRoomTypesFound')"
         :empty-state-message="t('getStartedByAddingRoomType')" 
         @action="onAction"
+        @selection-change="onSelectionChange"
         :loading="loading"
       >
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRoomType')" :icon="Plus">
           </BasicButton>
+          <BasicButton 
+            v-if="selectedRoomTypes.length > 0" 
+            @click="showBulkDeleteModal = true"
+            variant="danger"
+            :label="t('deleteSelected')" 
+            :icon="Trash2"
+          />
         </template>
 
         <!-- Custom column for capacity info -->
@@ -56,18 +65,32 @@
         </template>
       </ReusableTable>
 
-      <!-- Delete Confirmation Modal -->
+      <!-- Delete Single Confirmation Modal -->
       <ModalConfirmation 
-        v-if="showDeleteConfirmation" 
-        v-model="showDeleteConfirmation"
-        :title="t('confirmDeleteTitle')"
-        :message="t('confirmDeleteRoomType', { name: roomTypeToDelete?.roomTypeName || roomTypeToDelete?.shortCode })"
+        v-if="showDeleteModal" 
+        v-model="showDeleteModal"
+        :title="t('Delete Room Type')"
+        :message="getSingleDeleteMessage()"
         :loading="isDeletingLoading"
         :confirm-text="t('delete')"
         :cancel-text="t('cancel')"
-        @confirm="confirmDeleteRoomType"
-        @close="() => { showDeleteConfirmation = false; roomTypeToDelete = null }"
-        action="INFO"
+        @confirm="confirmDeleteSingleRoomType"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showBulkDeleteModal" 
+        v-model="showBulkDeleteModal"
+        :title="t('Delete Selected Room Type')"
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading"
+        :confirm-text="t('deleteSelected')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmBulkDeleteRoomTypes"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
       />
 
       <!-- Add/Edit Modal -->
@@ -90,7 +113,7 @@
                   v-model="formData.shortCode" 
                   type="text" 
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                   :placeholder="t('shortCodePlaceholder')"
                 >
               </div>
@@ -103,7 +126,7 @@
                   v-model="formData.roomTypeName" 
                   type="text" 
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                   :placeholder="t('roomTypeNamePlaceholder')"
                 >
               </div>
@@ -119,7 +142,7 @@
                   type="number" 
                   min="1" 
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                 >
               </div>
 
@@ -131,7 +154,7 @@
                   v-model.number="formData.baseChild" 
                   type="number" 
                   min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                 >
               </div>
 
@@ -144,7 +167,7 @@
                   type="number" 
                   min="1" 
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                 >
               </div>
 
@@ -156,7 +179,7 @@
                   v-model.number="formData.maxChild" 
                   type="number" 
                   min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                 >
               </div>
             </div>
@@ -167,7 +190,7 @@
                   <input 
                     v-model="formData.publishToWebsite" 
                     type="checkbox"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 focus:ring-2 focus:ring-offset-0"
                   >
                   <span class="text-sm font-medium text-gray-700">{{ t('publishToWebsite') }}</span>
                 </label>
@@ -181,7 +204,7 @@
                   v-model.number="formData.defaultWebInventory" 
                   type="number" 
                   min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-hidden focus:border-purple-500 focus:ring-3 focus:ring-purple-500/10"
                   :placeholder="t('numberOfRooms')"
                 >
               </div>
@@ -194,7 +217,7 @@
               <input 
                 v-model="formData.color" 
                 type="color"
-                class="w-20 h-10 border border-gray-300 rounded-md cursor-pointer"
+                class="w-20 h-10 border border-gray-300 rounded-md cursor-pointer focus:outline-hidden focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10"
               >
             </div>
 
@@ -202,7 +225,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 {{ t('selectRoomAmenities') }}
               </label>
-              <div class="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto">
+              <div class="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/10">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <label 
                     v-for="amenity in availableAmenities" 
@@ -213,7 +236,7 @@
                       v-model="formData.roomAmenities" 
                       :value="amenity.id" 
                       type="checkbox"
-                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 focus:ring-2 focus:ring-offset-0"
                     >
                     <span class="text-sm text-gray-700">{{ amenity.amenityName }}</span>
                   </label>
@@ -245,7 +268,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -266,9 +289,14 @@ const showEditModal = ref(false)
 const editingRoomType = ref(null)
 const loading = ref(false)
 const isLoading = ref(false)
-const showDeleteConfirmation = ref(false)
+
+// Delete related reactive data - MODIFIÉ
+const selectedRoomTypes = ref([])
 const roomTypeToDelete = ref(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false) // NOUVEAU - modal séparée pour la suppression multiple
 const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false) // NOUVEAU - loading séparé pour la suppression multiple
 
 // Form data
 const formData = ref({
@@ -286,6 +314,9 @@ const formData = ref({
 
 // Available amenities
 const availableAmenities = ref([])
+
+// Computed properties
+const selectedCount = computed(() => selectedRoomTypes.value.length)
 
 // Table configuration
 const columns = ref([
@@ -351,11 +382,15 @@ const actions = ref([
 const roomTypes = ref([])
 
 // Methods
+const onSelectionChange = (selection) => {
+  selectedRoomTypes.value = selection
+}
+
 const onAction = (action, item) => {
   if (action === 'edit') {
     editRoomType(item)
   } else if (action === 'delete') {
-    deleteRoomType(item)
+    handleDeleteRoomType(item)
   }
 }
 
@@ -393,12 +428,19 @@ const editRoomType = (roomType) => {
   showEditModal.value = true
 }
 
-const deleteRoomType = (roomType) => {
+// Single item delete - MODIFIÉ
+const handleDeleteRoomType = (roomType) => {
   roomTypeToDelete.value = roomType
-  showDeleteConfirmation.value = true
+  showDeleteModal.value = true
 }
 
-const confirmDeleteRoomType = async () => {
+// Bulk delete - MODIFIÉ
+const handleDeleteSelected = () => {
+  if (selectedRoomTypes.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmDeleteSingleRoomType = async () => {
   if (!roomTypeToDelete.value) return
 
   isDeletingLoading.value = true
@@ -418,8 +460,62 @@ const confirmDeleteRoomType = async () => {
     toast.error(t('errorDeletingRoomType'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteConfirmation.value = false
-    roomTypeToDelete.value = null
+    closeSingleDeleteModal()
+  }
+}
+
+const confirmBulkDeleteRoomTypes = async () => {
+  if (selectedRoomTypes.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedRoomTypes.value.map(roomType => 
+      deleteRoomTypeApi(roomType.id)
+    )
+    await Promise.all(deletePromises)
+    
+    // Mettre à jour la liste localement
+    const selectedIds = selectedRoomTypes.value.map(rt => rt.id)
+    roomTypes.value = roomTypes.value.filter(rt => !selectedIds.includes(rt.id))
+    
+    const count = selectedRoomTypes.value.length
+    selectedRoomTypes.value = []
+    toast.success(t('roomTypesDeletedSuccess', { count }))
+  } catch (error) {
+    console.error('Error deleting room types:', error)
+    toast.error(t('errorDeletingSelectedRoomTypes'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+// Close methods - MODIFIÉ
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  roomTypeToDelete.value = null
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// Message methods - MODIFIÉ
+const getSingleDeleteMessage = () => {
+  if (!roomTypeToDelete.value) return ''
+  const roomTypeName = roomTypeToDelete.value.roomTypeName
+  return `Are you sure you want to delete room type "${roomTypeName}"?`
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedRoomTypes.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const roomTypeName = selectedRoomTypes.value[0].roomTypeName
+    return `Are you sure you want to delete the selected room type "${roomTypeName}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected room types?`
   }
 }
 

@@ -29,13 +29,13 @@
             :icon="Plus">
           </BasicButton>
 
-          <button 
+          <BasicButton 
             v-if="selectedBedTypes.length > 0" 
-            @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
-            <Trash2 class="w-4 h-4" />
-            <span>{{ t('deleteSelected') }} ({{ selectedBedTypes.length }})</span>
-          </button>
+            @click="showBulkDeleteModal = true"
+            variant="danger"
+            :label="t('deleteSelected')" 
+            :icon="Trash2"
+          />
         </template>
 
         <template #column-status="{ item }">
@@ -132,24 +132,38 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Single Confirmation Modal -->
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('confirmDeleteBedTypeTitle')" 
-      :message="getDeleteMessage()"
+      :title="t('Delete Bed Type')" 
+      :message="getSingleDeleteMessage()"
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteBedType"
-      @close="() => { showDeleteModal = false; bedTypeToDelete = null; }"
+      @confirm="confirmDeleteSingleBedType"
+      @close="closeSingleDeleteModal"
       :loading="isDeletingLoading"
-      action="INFO"
+      action="DANGER"
+    />
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Bed Type')" 
+      :message="getBulkDeleteMessage()"
+      :confirm-text="t('deleteSelected')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmBulkDeleteBedTypes"
+      @close="closeBulkDeleteModal"
+      :loading="isBulkDeletingLoading"
+      action="DANGER"
     />
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -174,9 +188,13 @@ const selectedBedTypes = ref<any[]>([])
 const editingBedType = ref<any>(null)
 const isLoading = ref(false)
 const loading = ref(false)
+
+// Delete related reactive data - MODIFIÉ
 const bedTypeToDelete = ref<any>(null)
 const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false) // NOUVEAU - modal séparée pour la suppression multiple
 const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false) // NOUVEAU - loading séparé pour la suppression multiple
 
 // Form data
 const formData = ref({
@@ -232,6 +250,9 @@ const actions: Action[] = [
 // Sample data
 const bedTypes = ref<any[]>([])
 
+// Computed properties
+const selectedCount = computed(() => selectedBedTypes.value.length)
+
 // Methods
 const onSelectionChange = (selected: any) => {
   selectedBedTypes.value = selected
@@ -255,12 +276,19 @@ const editBedType = (bedType: any) => {
   showEditModal.value = true
 }
 
+// Single item delete - MODIFIÉ
 const handleDeleteBedType = (bedType: any) => {
   bedTypeToDelete.value = bedType
   showDeleteModal.value = true
 }
 
-const confirmDeleteBedType = async () => {
+// Bulk delete - MODIFIÉ
+const handleDeleteSelected = () => {
+  if (selectedBedTypes.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmDeleteSingleBedType = async () => {
   if (!bedTypeToDelete.value) return
 
   isDeletingLoading.value = true
@@ -281,29 +309,62 @@ const confirmDeleteBedType = async () => {
     toast.error(t('errorDeletingBedType'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteModal.value = false
-    bedTypeToDelete.value = null
+    closeSingleDeleteModal()
   }
 }
 
-const getDeleteMessage = () => {
-  if (!bedTypeToDelete.value) return ''
-  return t('confirmDeleteBedType', { name: bedTypeToDelete.value.bedTypeName })
+const confirmBulkDeleteBedTypes = async () => {
+  if (selectedBedTypes.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedBedTypes.value.map(bedType => 
+      deleteBedTypeAPI(bedType.id)
+    )
+    await Promise.all(deletePromises)
+    
+    // Mettre à jour la liste localement
+    const selectedIds = selectedBedTypes.value.map(bt => bt.id)
+    bedTypes.value = bedTypes.value.filter(bt => !selectedIds.includes(bt.id))
+    
+    const count = selectedBedTypes.value.length
+    selectedBedTypes.value = []
+    toast.success(t('bedTypesDeletedSuccess', { count }))
+  } catch (error) {
+    console.error('Error deleting bed types:', error)
+    toast.error(t('errorDeletingSelectedBedTypes'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
 }
 
-const deleteSelected = async () => {
+// Close methods - MODIFIÉ
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  bedTypeToDelete.value = null
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// Message methods - MODIFIÉ
+const getSingleDeleteMessage = () => {
+  if (!bedTypeToDelete.value) return ''
+  const bedTypeName = bedTypeToDelete.value.bedTypeName
+  return `Are you sure you want to delete "${bedTypeName}"?`
+}
+
+const getBulkDeleteMessage = () => {
   const count = selectedBedTypes.value.length
-  if (confirm(t('confirmDeleteSelectedBedTypes', { count }))) {
-    try {
-      const deletePromises = selectedBedTypes.value.map(bedType => deleteBedTypeAPI(bedType.id))
-      await Promise.all(deletePromises)
-      loadData()
-      selectedBedTypes.value = []
-      toast.success(t('bedTypesDeletedSuccess', { count }))
-    } catch (error) {
-      console.error('Error deleting bed types:', error)
-      toast.error(t('errorDeletingSelectedBedTypes'))
-    }
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const bedTypeName = selectedBedTypes.value[0].bedTypeName
+    return `Are you sure you want to delete the selected bed type "${bedTypeName}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected bed types?`
   }
 }
 
