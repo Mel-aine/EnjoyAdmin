@@ -831,9 +831,10 @@ export const checkReportsHealth = async (): Promise<ApiResponse | undefined> => 
 }
 export const generateDailyRevenueReport = async (filters: DailyRevenueReportFilters): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+    console.log('filters@@@', filters)
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-revenue`,
-      { filters },
+      filters,
       getHeaders()
     )
     return response.data

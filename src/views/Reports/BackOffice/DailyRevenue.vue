@@ -112,14 +112,14 @@
             >
             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Only Unassign Rooms') }}</span>
           </label>
-          <label class="inline-flex items-center">
+     <!--      <label class="inline-flex items-center">
             <input 
               type="checkbox" 
               v-model="filters.showUnpostedInclusion"
               class="form-checkbox h-4 w-4 text-blue-600 rounded"
             >
             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Unposted Inclusion') }}</span>
-          </label>
+          </label> -->
           <label class="inline-flex items-center">
             <input 
               type="checkbox" 
@@ -287,7 +287,7 @@
             <span class="font-semibold ml-4">Date Type:</span> {{ formatDateType(reportData.filters?.dateType) }} 
             <span class="font-semibold ml-4">Show Guest Unassigned Rooms:</span> {{ reportData.filters?.showUnassignRooms ? 'Yes' : 'No' }} 
             <span class="font-semibold ml-4">Discard Unconfirmed Bookings:</span> {{ reportData.filters?.discardUnconfirmedBookings ? 'Yes' : 'No' }} 
-            <span class="font-semibold ml-4">Include Unposted Inclusion:</span> {{ reportData.filters?.showUnpostedInclusion ? 'Yes' : 'No' }}
+            <!-- <span class="font-semibold ml-4">Include Unposted Inclusion:</span> {{ reportData.filters?.showUnpostedInclusion ? 'Yes' : 'No' }} -->
           </div>
           <div class="font-semibold mb-1">
             *Total Revenue: Revenue Only From Property (After deduction of commission)
@@ -301,7 +301,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="border-t-2 border-b-2 border-gray-900 dark:border-gray-700">
+              <tr class="border-b-2 border-gray-900 dark:border-gray-700">
                 <th class="px-2 py-3 text-center font-bold">Sr. No</th>
                 <th class="px-2 py-3 text-center font-bold">Guest Name</th>
                 <th class="px-2 py-3 text-center font-bold">Source</th>
@@ -578,7 +578,7 @@ const formatDateType = (dateType: string): string => {
 }
 
 const exportData = async (): Promise<void> => {
-  try {
+    try {
     isLoading.value = true
     errorMessage.value = ''
 
@@ -586,23 +586,15 @@ const exportData = async (): Promise<void> => {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
-    
-    console.log('📤 Exporting with params:', currentParams.value)
-    
-    // Génération du PDF
+
     const newPdfUrl = await generateDailyRevenuPdf(currentParams.value)
     pdfUrl.value = newPdfUrl
+    openPDFInNewPage()
 
-    // Téléchargement automatique
-    const link = document.createElement('a')
-    link.href = pdfUrl.value
-    link.download = `daily_revenue_report_${filters.value.dateType}_${filters.value.fromDate}_to_${filters.value.toDate}.pdf`
-    link.click()
-
-    console.log('✅ Daily revenue report exported successfully:', reportTitle.value)
+    console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
   } catch (error) {
-    console.error('❌ Error exporting daily revenue report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to export report'
+    console.error('❌ Error generating daily receipt report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate PDF'
   } finally {
     isLoading.value = false
   }
@@ -618,7 +610,8 @@ const generateReport = async (): Promise<void> => {
     
     // Fetch report data from API
     const response = await generateDailyRevenueReport(currentParams.value)
-    reportData.value = response.data
+    console.log('API Response:>>>>>', response)
+    reportData.value = response?.data
     showReport.value = true
 
     console.log('✅ Daily revenue report generated successfully:', reportTitle.value)
@@ -658,6 +651,19 @@ const resetForm = (): void => {
   }
   
   console.log('🔄 Form reset to default values')
+}
+const openPDFInNewPage = () => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
 }
 
 const cleanup = (): void => {
