@@ -89,7 +89,7 @@
                         </svg>
                         <div class="flex-1">
                             <h4 class="text-sm font-semibold text-amber-800 mb-2">
-                                {{ $t('Meal Plan will be added separately') }}
+                                {{ $t('Meal Plan will be added ') }}
                             </h4>
                             <div v-if="currentMealPlan" class="text-sm text-amber-700">
                                 <p class="font-medium mb-1">{{ currentMealPlan.name }}</p>
@@ -130,6 +130,8 @@
                         </div>
                     </div>
                 </div>
+
+
                 <!-- Transaction Selection (only for group reservations and selected_transaction) -->
                 <div v-if="formData.applyOn === 'date'" class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -228,6 +230,7 @@ const serviceStore = useServiceStore();
 const loadingRates = ref(false);
 const availableTransactions = ref<any[]>([])
 const loadingTransactions = ref(false)
+const taxeAmount = ref(null)
 const formData = ref({
     rateType: 0,
     adults: 0,
@@ -271,6 +274,36 @@ const currentMealPlan = computed(() => {
     return selectedRateTypeData.value.mealPlan
 })
 
+const calculatedAmount = computed(() => {
+    const selectedRate = rateTypesData.value.find(rt => rt.rateTypeId === formData.value.rateType)
+
+    // Si pas de rate sélectionné, retourner l'amount actuel (pour éviter de réinitialiser à 0)
+    if (!selectedRate) {
+        return formData.value.amount || 0
+    }
+
+    let amount = Number(selectedRate.baseRate || 0)
+    console.log('Base Rate:', amount)
+
+    // Add meal plan if NOT included
+    if (selectedRate.mealPlanId && !formData.value.mealPlanRateInclude) {
+        const mealPlanCost = mealPlanTotal.value
+        amount += mealPlanCost
+        console.log('Adding Meal Plan (not included):', mealPlanCost, 'New Amount:', amount)
+    }
+
+    // Add tax if NOT included
+    if (!formData.value.taxInclude) {
+        // Calculate tax based on current amount
+        const taxRate = Number(taxeAmount.value ) || 1
+        // const taxAmount = amount * taxRate
+        amount += taxRate
+        console.log('Adding Tax (not included):', taxRate, 'New Amount:', amount)
+    }
+
+    return roundToTwo(amount)
+})
+
 // Computed: Calculate meal plan total
 const mealPlanTotal = computed(() => {
     if (!currentMealPlan.value || !currentMealPlan.value.extraCharges) {
@@ -307,6 +340,8 @@ watch(() => props.reservationId, (newVal) => {
     }
 })
 
+
+
 // Watch for rate type changes
 watch(() => formData.value.rateType, (newRateTypeId) => {
     console.log('Rate Type Changed to:', newRateTypeId)
@@ -316,11 +351,6 @@ watch(() => formData.value.rateType, (newRateTypeId) => {
     console.log('Selected Rate Full Data:', selectedRate)
 
     if (selectedRate) {
-        // Update amount with base rate
-        const newAmount = Number(selectedRate.baseRate || 0)
-        console.log('Updating amount from', formData.value.amount, 'to', newAmount)
-        formData.value.amount = newAmount
-
         // Update tax include based on rate settings
         formData.value.taxInclude = selectedRate.taxInclude || false
         console.log('Tax Include:', formData.value.taxInclude)
@@ -334,12 +364,26 @@ watch(() => formData.value.rateType, (newRateTypeId) => {
             formData.value.mealPlanRateInclude = false
             console.log('No Meal Plan for this rate')
         }
+
+        // Update amount with calculated value
+        formData.value.amount = calculatedAmount.value
+        console.log('Updated Amount:', formData.value.amount)
     } else {
         console.warn('No rate found for ID:', newRateTypeId)
     }
 })
 
+// Watch for tax include changes
+watch(() => formData.value.taxInclude, () => {
+    formData.value.amount = calculatedAmount.value
+    console.log('Tax Include Changed - Updated Amount:', formData.value.amount)
+})
 
+// Watch for meal plan include changes
+watch(() => formData.value.mealPlanRateInclude, () => {
+    formData.value.amount = calculatedAmount.value
+    console.log('Meal Plan Include Changed - Updated Amount:', formData.value.amount)
+})
 
 const getReservationDetails = async () => {
   if (!props.reservationId) return;
@@ -359,13 +403,14 @@ const getReservationDetails = async () => {
     }
 
     // Remplissage du formulaire
-    formData.value.amount = reservationRoom.roomRate;
-    formData.value.rateType = reservationRoom.roomRates?.rateTypeId || 0;
+    formData.value.amount = calculatedAmount.value || reservationRoom.roomRate
+    formData.value.rateType = reservationRoom.rateTypeId || 0;
     formData.value.adults = reservationRoom.adults;
     formData.value.children = reservationRoom.children;
     formData.value.isComplementary = reservationRoom.isComplementary;
     formData.value.taxInclude = reservationRoom.taxIncludes;
     formData.value.mealPlanRateInclude = reservationRoom.mealPlanRateInclude;
+    taxeAmount.value = reservationRoom.taxAmount
 
     console.log(' Reservation data fetched:', reservation.value);
 
@@ -373,7 +418,7 @@ const getReservationDetails = async () => {
     const roomTypeId = reservationRoom.roomTypeId;
     if (roomTypeId) {
       console.log(' Chargement des rate types pour roomTypeId:', roomTypeId);
-      await fectRateTypes(roomTypeId); // on attend aussi cet appel pour éviter les erreurs
+      await fectRateTypes(roomTypeId);
     } else {
       console.warn(' roomTypeId introuvable dans reservationRoom');
     }
