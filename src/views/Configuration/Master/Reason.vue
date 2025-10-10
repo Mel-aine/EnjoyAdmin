@@ -23,6 +23,16 @@
             @click="openAddModal" 
             :disabled="loading" 
           />
+
+          <!-- Bouton de suppression multiple - aligné avec la première vue -->
+          <BasicButton 
+            v-if="selectedReasons.length > 0"
+            @click="showBulkDeleteModal = true"
+            variant="danger"
+            :label="$t('deleteSelected')"
+            :icon="Trash2"
+            :disabled="loading"
+          />
         </template>
 
         <template #column-status="{ item }">
@@ -147,7 +157,6 @@
         action="DANGER"
       />
     </div>
-
   </ConfigurationLayout>
 </template>
 
@@ -245,7 +254,7 @@ const statusOptions: Option[] = [
   { label: t('configuration.reason.status_inactive'), value: 'inactive' }
 ]
 
-// Computed properties
+// Computed properties - aligné avec la première vue
 const selectedCount = computed(() => selectedReasons.value.length)
 
 // Table configuration - aligné avec la première vue
@@ -329,27 +338,31 @@ const editReason = (reason: Reason) => {
   showEditModal.value = true
 }
 
+const openAddModal = () => {
+  showAddModal.value = true
+}
+
 // Single item delete - aligné avec la première vue
 const handleDeleteReason = (reason: Reason) => {
   reasonToDelete.value = reason
   showDeleteModal.value = true
 }
 
-// Bulk delete - aligné avec la première vue
-const handleDeleteSelected = () => {
-  if (selectedReasons.value.length === 0) return
-  showBulkDeleteModal.value = true
-}
-
+// Bulk delete methods - COMPLÈTEMENT ALIGNÉ avec la première vue
 const confirmDeleteSingleReason = async () => {
   if (!reasonToDelete.value) return
 
   isDeletingLoading.value = true
   try {
-    if (reasonToDelete.value.id) {
-      await deleteReasonByIdLocal(reasonToDelete.value.id as number)
-      reasons.value = reasons.value.filter(r => r.id !== reasonToDelete.value?.id)
+    const response = await deleteReasonById(reasonToDelete.value.id as number)
+    if (response.status === 200 || response.status === 204) {
+      const index = reasons.value.findIndex(r => r.id === reasonToDelete.value?.id)
+      if (index !== -1) {
+        reasons.value.splice(index, 1)
+      }
       toast.success(t('configuration.reason.delete_success'))
+    } else {
+      throw new Error('Failed to delete reason')
     }
   } catch (error) {
     console.error('Error deleting reason:', error)
@@ -365,34 +378,23 @@ const confirmBulkDeleteReasons = async () => {
 
   isBulkDeletingLoading.value = true
   try {
-    const selectedIds = selectedReasons.value.map(r => r.id)
     const deletePromises = selectedReasons.value.map(reason => 
-      deleteReasonByIdLocal(reason.id as number)
+      deleteReasonById(reason.id as number)
     )
     await Promise.all(deletePromises)
     
+    const selectedIds = selectedReasons.value.map(r => r.id)
     reasons.value = reasons.value.filter(r => !selectedIds.includes(r.id))
+    
+    const count = selectedReasons.value.length
     selectedReasons.value = []
-    toast.success(t('configuration.reason.bulk_delete_success', { count: selectedIds.length }))
+    toast.success(t('configuration.reason.bulk_delete_success', { count }))
   } catch (error) {
-    console.error('Error deleting reason(s):', error)
-    toast.error(t('configuration.reason.delete_error'))
+    console.error('Error deleting reasons:', error)
+    toast.error(t('configuration.reason.bulk_delete_error'))
   } finally {
     isBulkDeletingLoading.value = false
     closeBulkDeleteModal()
-  }
-}
-
-// Utility function for deletion
-const deleteReasonByIdLocal = async (id: number) => {
-  try {
-    const response = await deleteReasonById(id)
-    if (response.status !== 200 && response.status !== 204) {
-      throw new Error('Failed to delete reason')
-    }
-  } catch (error) {
-    console.error('Error deleting reason:', error)
-    throw error
   }
 }
 
@@ -410,7 +412,7 @@ const closeBulkDeleteModal = () => {
 const getSingleDeleteMessage = () => {
   if (!reasonToDelete.value) return ''
   const reasonName = reasonToDelete.value.reasonName
-  return `Are you sure you want to delete "${reasonName}"? `
+  return `Are you sure you want to delete reason "${reasonName}"? This action cannot be undone.`
 }
 
 const getBulkDeleteMessage = () => {
@@ -419,9 +421,9 @@ const getBulkDeleteMessage = () => {
   
   if (count === 1) {
     const reasonName = selectedReasons.value[0].reasonName
-    return `Are you sure you want to delete the selected reason "${reasonName}"?`
+    return `Are you sure you want to delete the selected reason "${reasonName}"? This action cannot be undone.`
   } else {
-    return `Are you sure you want to delete ${count} selected reasons?`
+    return `Are you sure you want to delete ${count} selected reasons? This action cannot be undone.`
   }
 }
 
@@ -449,18 +451,36 @@ const saveReason = async () => {
     }
 
     if (showEditModal.value && editingReason.value) {
-      await updateReasonById(Number(editingReason.value.id), reasonData)
-      toast.success(t('configuration.reason.update_success'))
+      const resp = await updateReasonById(Number(editingReason.value.id), reasonData)
+      if (resp.status === 200 || resp.status === 201) {
+        const index = reasons.value.findIndex(r => r.id === editingReason.value?.id)
+        if (index !== -1) {
+          reasons.value[index] = {
+            ...reasons.value[index],
+            reasonName: formData.value.reasonName,
+            category: formData.value.category,
+            status: formData.value.status
+          }
+        }
+        toast.success(t('configuration.reason.update_success'))
+        closeModal()
+      } else {
+        throw new Error(resp.data?.message || t('somethingWentWrong'))
+      }
     } else {
-      await postReason(reasonData)
-      toast.success(t('configuration.reason.create_success'))
+      const resp = await postReason(reasonData)
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(t('configuration.reason.create_success'))
+        await fetchReasons()
+        closeModal()
+      } else {
+        throw new Error(resp.data?.message || t('somethingWentWrong'))
+      }
     }
-
-    await fetchReasons()
-    closeModal()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving reason:', error)
-    toast.error(t('configuration.reason.save_error'))
+    const errorMessage = error.response?.data?.message || error.message || t('configuration.reason.save_error')
+    toast.error(errorMessage)
   } finally {
     saving.value = false
   }
