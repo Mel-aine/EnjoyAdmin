@@ -453,7 +453,7 @@ export const postExchangeRoomReservation = async (reservationId: number, datas: 
  */
 export const updateReservationDetails = async (reservationId: number, datas: any): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse> = await apiClient.put(
       `/reservations/${reservationId}/update-details`, datas, getHeaders()
     )
     console.log(response.data)

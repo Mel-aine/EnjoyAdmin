@@ -184,6 +184,7 @@ interface Props {
   columns: Column[]
   data: any[]
   actions?: Action[] | any
+  getActions?: Function,
   searchable?: boolean
   searchPlaceholder?: string
   selectable?: boolean
@@ -228,8 +229,11 @@ const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)
 const dropdownDirection = ref<'up' | 'down'>('down')
 
-const hasActions = computed(() => props.actions.length > 0)
-
+// const hasActions = computed(() => props.actions.length > 0)
+const hasActions = computed(() => {
+  const result = props.actions.length > 0 || !!props.getActions
+  return result
+})
 
 const filteredData = computed(() => {
   if (!searchQuery.value || !props.searchable) return props.data
@@ -255,16 +259,16 @@ const getItemKey = (item: any, index: number) => {
   return getNestedValue(item, props.itemKey) || index
 }
 
-const getItemActions = (item: any) => {
-  // Don't show actions if the row has noaction set to true
-  if (item.noaction === true) {
-    return []
-  }
+// const getItemActions = (item: any) => {
+//   // Don't show actions if the row has noaction set to true
+//   if (item.noaction === true) {
+//     return []
+//   }
 
-  return props.actions.filter((action: any) =>
-    !action.condition || action.condition(item)
-  )
-}
+//   return props.actions.filter((action: any) =>
+//     !action.condition || action.condition(item)
+//   )
+// }
 
 const getBadgeClass = (value: string, colorMap?: Record<string, string>) => {
   if (colorMap && colorMap[value.toLowerCase()]) {
@@ -304,6 +308,26 @@ const toggleSelectAll = () => {
 // const toggleDropdown = (index: number) => {
 //   openDropdown.value = openDropdown.value === index ? null : index
 // }
+
+const getItemActions = (item: any) => {
+
+  // Don't show actions if the row has noaction set to true
+  if (item.noaction === true) {
+    return []
+  }
+
+  // Si getActions existe, l'utiliser (actions dynamiques)
+  if (props.getActions) {
+    const dynamicActions = props.getActions(item)
+    return dynamicActions
+  }
+
+  // Sinon, utiliser actions statiques avec filtrage par condition
+  const staticActions = props.actions.filter((action: any) =>
+    !action.condition || action.condition(item)
+  )
+  return staticActions
+}
 
 
 
