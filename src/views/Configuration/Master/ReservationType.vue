@@ -13,32 +13,42 @@
         :empty-state-message="t('configuration.reservation_type.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            :icon="PlusIcon"
+            :icon="Plus"
             :label="t('configuration.reservation_type.add_reservation_type')"
             @click="openAddModal"
+            :disabled="loading"
+          />
+          <!-- Bulk Delete Button (Visible when items are selected) -->
+          <BasicButton 
+            v-if="selectedTypes.length > 0" 
+            @click="handleDeleteSelected" 
+            :label="$t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
+            :disabled="loading"
           />
         </template>
 
-       <!-- Custom column for created info -->
-          <template #column-createdInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-            </div>
-          </template>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </template>
 
-          <!-- Custom column for modified info -->
-          <template #column-modifiedInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-            </div>
-          </template>
- 
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
+        </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
@@ -76,15 +86,32 @@
         </div>
       </div>
 
-      <!-- Delete Confirmation Modal -->
+      <!-- Delete Single Confirmation Modal -->
       <ModalConfirmation
-        v-if="showDeleteConfirmation"
-        :title="t('configuration.reservation_type.delete_confirmation_title')"
-        :message="t('configuration.reservation_type.delete_confirmation_message')"
-        :confirm-text="t('configuration.reservation_type.delete')"
-        :cancel-text="t('configuration.reservation_type.cancel')"
-        @confirm="deleteReservationType"
-        @close="showDeleteConfirmation = false; reservationTypeToDelete = null"
+        v-if="showDeleteModal"
+        v-model="showDeleteModal"
+        :title="t('Delete Reservation Type')"
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading"
+        :confirm-text="t('delete')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmDeleteSingleType"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showBulkDeleteModal"
+        v-model="showBulkDeleteModal"
+        :title="t('Delete Selected Reservation Types')"
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading"
+        :confirm-text="t('deleteSelected')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmBulkDeleteTypes"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
       />
     </div>
   </ConfigurationLayout>
@@ -101,14 +128,13 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { Action, Column } from '../../../utils/models'
-// Icons removed as they're no longer used in the template
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 import {
   getReservationTypes,
   postReservationType,
   updateReservationTypeById,
   deleteReservationTypeById
 } from '@/services/configrationApi'
-import PlusIcon from '../../../icons/Plus.vue'
 
 // Initialize composables
 const { t } = useI18n()
@@ -121,17 +147,103 @@ const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 const loading = ref(false)
 const saving = ref(false)
-const showDeleteConfirmation = ref(false)
-const reservationTypeToDelete = ref<any>(null)
-
 const reservationTypes = ref<any[]>([])
+
+// Selection & Delete State
+const selectedTypes = ref<any[]>([])
+const typeToDelete = ref<any | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 const formData = ref({
   name: '',
 })
 
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!typeToDelete.value) return ''
+  const typeName = typeToDelete.value.name
+  return t('configuration.reservation_type.delete_confirmation_message', { name: typeName })
+}
 
+const getBulkDeleteMessage = () => {
+  const count = selectedTypes.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const typeName = selectedTypes.value[0].name
+    return t('configuration.reservation_type.delete_confirmation_message', { name: typeName })
+  } else {
+    return t('configuration.reservation_type.bulk_delete_confirm', { count: count })
+  }
+}
 
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected: any[]) => {
+  selectedTypes.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteType = (type: any) => {
+  typeToDelete.value = type
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleType = async () => {
+  if (!typeToDelete.value || !typeToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deleteReservationTypeById(typeToDelete.value.id)
+    await fetchReservationTypes()
+    toast.success(t('configuration.reservation_type.delete_success'))
+  } catch (error) {
+    console.error('Error deleting reservation type:', error)
+    toast.error(t('configuration.reservation_type.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  typeToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedTypes.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteTypes = async () => {
+  if (selectedTypes.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedTypes.value.map(type =>
+      deleteReservationTypeById(type.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchReservationTypes()
+    selectedTypes.value = []
+    toast.success(t('configuration.reservation_type.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting reservation type(s):', error)
+    toast.error(t('configuration.reservation_type.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Table configuration
 const columns = computed((): Column[] => [
@@ -143,12 +255,14 @@ const columns = computed((): Column[] => [
 const actions = computed((): Action[] => [
   {
     label: t('configuration.reservation_type.edit'),
-    handler: (item: any) => editReservationType(item),
+    icon: Edit,
+    handler: (item: any) => onAction('edit', item),
     variant: 'primary'
   },
   {
     label: t('configuration.reservation_type.delete'),
-    handler: (item: any) => confirmDeleteReservationType(item),
+    icon: Trash2,
+    handler: (item: any) => onAction('delete', item),
     variant: 'danger'
   }
 ])
@@ -225,31 +339,11 @@ const saveReservationType = async () => {
   }
 }
 
-const confirmDeleteReservationType = (reservationType: any) => {
-  reservationTypeToDelete.value = reservationType
-  showDeleteConfirmation.value = true
-}
-
-const deleteReservationType = async () => {
-  if (!reservationTypeToDelete.value) return
-
-  try {
-    await deleteReservationTypeById(reservationTypeToDelete.value.id)
-    toast.success(t('configuration.reservation_type.delete_success'))
-    showDeleteConfirmation.value = false
-    reservationTypeToDelete.value = null
-    await fetchReservationTypes()
-  } catch (error) {
-    console.error('Error deleting reservation type:', error)
-    toast.error(t('configuration.reservation_type.delete_error'))
-  }
-}
-
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editReservationType(item)
   } else if (action === 'delete') {
-    confirmDeleteReservationType(item)
+    handleDeleteType(item)
   }
 }
 

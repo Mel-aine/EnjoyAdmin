@@ -8,11 +8,20 @@
         :searchPlaceholder="$t('configuration.preference_type.search_placeholder')"
         :emptyStateTitle="$t('configuration.preference_type.empty_state_title')"
         :emptyStateMessage="$t('configuration.preference_type.empty_state_message')" :selectable="true"
-        @action="onAction">
+        @action="onAction" @selection-change="onSelectionChange">
         <!-- Header Actions -->
         <template #header-actions>
-          <BasicButton variant="primary" :icon="PlusIcon"
-            :label="$t('configuration.preference_type.add_preference_type')" @click="openAddModal" />
+          <BasicButton variant="primary" :icon="Plus"
+            :label="$t('configuration.preference_type.add_preference_type')" @click="openAddModal" :disabled="loading" />
+          <!-- Bulk Delete Button (Visible when items are selected) -->
+          <BasicButton 
+            v-if="selectedPreferences.length > 0" 
+            @click="handleDeleteSelected" 
+            :label="$t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
+            :disabled="loading"
+          />
         </template>
 
         <!-- Custom column for created info -->
@@ -51,23 +60,51 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton variant="secondary" @click="closeModal" type="button"
-                :label="t('configuration.reservation_type.cancel')">
-              </BasicButton>
-              <BasicButton variant="primary" type="submit"
-                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
-                :icon="isEditing ? Edit : Save" :loading="saving" :disabled="saving">
-              </BasicButton>
+              <BasicButton 
+                type="button"
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')"
+                :disabled="saving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
+                :label="isEditing ? t('Update Type') : t('Add Type')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteConfirmation"
-        :title="$t('configuration.preference_type.delete_confirmation_title')"
-        :message="$t('configuration.preference_type.delete_confirmation_message')" @confirm="confirmDelete"
-        @close="cancelDelete" />
+      <!-- Delete Single Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showDeleteModal"
+        v-model="showDeleteModal"
+        :title="t('Delete Preference Type')"
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading"
+        :confirm-text="t('delete')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmDeleteSinglePreference"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showBulkDeleteModal"
+        v-model="showBulkDeleteModal"
+        :title="t('Delete Selected Preference Types')"
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading"
+        :confirm-text="t('deleteSelected')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmBulkDeletePreferences"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
+      />
     </div>
   </ConfigurationLayout>
 </template>
@@ -88,7 +125,7 @@ import {
   updatePreferenceTypeById,
   deletePreferenceTypeById
 } from '../../../services/configrationApi'
-import PlusIcon from '../../../icons/PlusIcon.vue'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 
 // Composables
 const { t } = useI18n()
@@ -101,14 +138,104 @@ const isEditing = ref(false)
 const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
-const showDeleteConfirmation = ref(false)
-const preferenceTypeToDelete = ref(null)
 const preferenceTypes = ref([])
+
+// Selection & Delete State
+const selectedPreferences = ref([])
+const preferenceToDelete = ref(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 // Form data
 const formData = ref({
   name: ''
 })
+
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!preferenceToDelete.value) return ''
+  const preferenceName = preferenceToDelete.value.name
+  return t('configuration.preference_type.delete_confirmation_message', { name: preferenceName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedPreferences.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const preferenceName = selectedPreferences.value[0].name
+    return t('configuration.preference_type.delete_confirmation_message', { name: preferenceName })
+  } else {
+    return t('configuration.preference_type.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected) => {
+  selectedPreferences.value = selected
+}
+
+// Single Delete Handlers
+const handleDeletePreference = (preference) => {
+  preferenceToDelete.value = preference
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSinglePreference = async () => {
+  if (!preferenceToDelete.value || !preferenceToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deletePreferenceTypeById(preferenceToDelete.value.id)
+    await fetchPreferenceTypes()
+    toast.success(t('configuration.preference_type.delete_success'))
+  } catch (error) {
+    console.error('Error deleting preference type:', error)
+    toast.error(t('configuration.preference_type.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  preferenceToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedPreferences.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeletePreferences = async () => {
+  if (selectedPreferences.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedPreferences.value.map(preference =>
+      deletePreferenceTypeById(preference.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchPreferenceTypes()
+    selectedPreferences.value = []
+    toast.success(t('configuration.preference_type.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting preference type(s):', error)
+    toast.error(t('configuration.preference_type.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Table configuration
 const columns = computed(() => [
@@ -120,12 +247,14 @@ const columns = computed(() => [
 const actions = computed(() => [
   {
     label: t('configuration.preference_type.edit'),
-    handler: (item) => editPreferenceType(item),
+    icon: Edit,
+    handler: (item) => onAction('edit', item),
     variant: 'primary'
   },
   {
     label: t('configuration.preference_type.delete'),
-    handler: (item) => confirmDeletePreferenceType(item),
+    icon: Trash2,
+    handler: (item) => onAction('delete', item),
     variant: 'danger'
   }
 ])
@@ -190,29 +319,6 @@ const savePreferenceType = async () => {
   }
 }
 
-const confirmDeletePreferenceType = (item) => {
-  preferenceTypeToDelete.value = item
-  showDeleteConfirmation.value = true
-}
-
-const confirmDelete = async () => {
-  try {
-    await deletePreferenceTypeById(preferenceTypeToDelete.value.id)
-    toast.success(t('configuration.preference_type.delete_success'))
-    showDeleteConfirmation.value = false
-    preferenceTypeToDelete.value = null
-    await fetchPreferenceTypes()
-  } catch (error) {
-    console.error('Error deleting preference type:', error)
-    toast.error(t('configuration.preference_type.delete_error'))
-  }
-}
-
-const cancelDelete = () => {
-  showDeleteConfirmation.value = false
-  preferenceTypeToDelete.value = null
-}
-
 const closeModal = () => {
   showModal.value = false
   isEditing.value = false
@@ -223,16 +329,11 @@ const closeModal = () => {
 }
 
 const onAction = (action, item) => {
-  if (action.handler === 'edit') {
+  if (action === 'edit') {
     editPreferenceType(item)
-  } else if (action.handler === 'delete') {
-    confirmDeletePreferenceType(item)
+  } else if (action === 'delete') {
+    handleDeletePreference(item)
   }
-}
-
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString()
 }
 
 // Lifecycle

@@ -7,11 +7,12 @@
         :data="discounts"
         :actions="actions"
         :search-placeholder="$t('configuration.discount.search_placeholder')"
-        :selectable="false"
+        :selectable="true"
         :empty-state-title="$t('configuration.discount.empty_state_title')"
         :empty-state-message="$t('configuration.discount.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton 
@@ -21,14 +22,25 @@
             @click="openAddModal"
             :disabled="loading"
           />
+          <!-- Bulk Delete Button (Visible when items are selected) -->
+          <BasicButton 
+            v-if="selectedDiscounts.length > 0" 
+            @click="handleDeleteSelected" 
+            :label="$t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
+            :disabled="loading"
+          />
         </template>
- <!-- Custom column for created info -->
+
+        <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
             <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
+
         <template #column-status="{ item }">
           <span 
             :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
@@ -124,7 +136,6 @@
               </label>
             </div>
             
-            
            <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 type="button" 
@@ -143,6 +154,34 @@
           </form>
         </div>
       </div>
+
+      <!-- Delete Single Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showDeleteModal" 
+        v-model="showDeleteModal" 
+        :title="$t('Delete Discount')" 
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading" 
+        :confirm-text="$t('delete')" 
+        :cancel-text="$t('cancel')" 
+        @confirm="confirmDeleteSingleDiscount"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showBulkDeleteModal" 
+        v-model="showBulkDeleteModal" 
+        :title="$t('Delete Selected Discounts')" 
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading" 
+        :confirm-text="$t('deleteSelected')" 
+        :cancel-text="$t('cancel')" 
+        @confirm="confirmBulkDeleteDiscounts"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
+      />
     </div>
   </ConfigurationLayout>
 </template>
@@ -157,8 +196,9 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { Action, Column } from '../../../utils/models'
-import Plus from '../../../icons/Plus.vue'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 import {
   getDiscounts,
   postDiscount,
@@ -176,6 +216,14 @@ const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 
+// Selection & Delete State
+const selectedDiscounts = ref<any[]>([])
+const discountToDelete = ref<any | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
+
 const formData = ref({
   id: null as number | null,
   shortCode: '',
@@ -188,8 +236,6 @@ const formData = ref({
 })
 
 const discounts = ref<any[]>([])
-
-
 
 // Options with translations
 const typeOptions = computed(() => [
@@ -211,7 +257,7 @@ const statusOptions = computed(() => [
 const columns = computed<Column[]>(() => [
   { key: 'shortCode', label: t('configuration.discount.short_code'), type: 'text' },
   { key: 'name', label: t('configuration.discount.discount_name'), type: 'text' },
-  { key: 'type', label: t('configuration.discount.type'), type: 'text',translatable: true },
+  { key: 'type', label: t('configuration.discount.type'), type: 'text', translatable: true },
   { key: 'value', label: t('configuration.discount.value'), type: 'text' },
   { key: 'applyOn', label: t('configuration.discount.apply_on'), type: 'text' },
   { key: 'openDiscount', label: t('configuration.discount.open_discount'), type: 'custom' },
@@ -220,11 +266,113 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editDiscount(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deleteDiscount(item), variant: 'danger' }
+  { 
+    label: t('edit'), 
+    icon: Edit,
+    handler: (item: any) => onAction('edit', item), 
+    variant: 'primary' 
+  },
+  { 
+    label: t('delete'), 
+    icon: Trash2,
+    handler: (item: any) => onAction('delete', item), 
+    variant: 'danger' 
+  }
 ])
 
-// Fetch discounts from API
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!discountToDelete.value) return ''
+  const name = discountToDelete.value.name
+  return t('configuration.discount.delete_confirm', { name: name })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedDiscounts.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const name = selectedDiscounts.value[0].name
+    return t('configuration.discount.delete_confirm', { name: name })
+  } else {
+    return t('configuration.discount.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected: any[]) => {
+  selectedDiscounts.value = selected
+}
+
+const onAction = (action: string, item: any) => {
+  if (action === 'edit') {
+    editDiscount(item)
+  } else if (action === 'delete') {
+    handleDeleteDiscount(item)
+  }
+}
+
+// Single Delete Handlers
+const handleDeleteDiscount = (discount: any) => {
+  discountToDelete.value = discount
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleDiscount = async () => {
+  if (!discountToDelete.value || !discountToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deleteDiscountById(discountToDelete.value.id)
+    await fetchDiscounts()
+    toast.success(t('configuration.discount.delete_success'))
+  } catch (error) {
+    console.error('Error deleting discount:', error)
+    toast.error(t('configuration.discount.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  discountToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedDiscounts.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteDiscounts = async () => {
+  if (selectedDiscounts.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedDiscounts.value.map(discount =>
+      deleteDiscountById(discount.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchDiscounts()
+    selectedDiscounts.value = []
+    toast.success(t('configuration.discount.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting discount(s):', error)
+    toast.error(t('configuration.discount.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// --- CRUD Operations ---
 const fetchDiscounts = async () => {
   try {
     loading.value = true
@@ -238,7 +386,6 @@ const fetchDiscounts = async () => {
   }
 }
 
-// Functions
 const openAddModal = () => {
   isEditing.value = false
   formData.value = {
@@ -297,30 +444,6 @@ const saveDiscount = async () => {
     toast.error(t('configuration.discount.save_error'))
   } finally {
     saving.value = false
-  }
-}
-
-const deleteDiscount = async (discount: any) => {
-  if (confirm(t('configuration.discount.delete_confirm'))) {
-    try {
-      loading.value = true
-      await deleteDiscountById(discount.id)
-      toast.success(t('configuration.discount.delete_success'))
-      await fetchDiscounts()
-    } catch (error) {
-      console.error('Error deleting discount:', error)
-      toast.error(t('configuration.discount.delete_error'))
-    } finally {
-      loading.value = false
-    }
-  }
-}
-
-const onAction = (action: string, item: any) => {
-  if (action === 'edit') {
-    editDiscount(item)
-  } else if (action === 'delete') {
-    deleteDiscount(item)
   }
 }
 

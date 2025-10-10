@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { Building2, Wrench, UserCog, User, Edit, Trash2, Eye } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -15,9 +14,9 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import PlusIcon from '../../../icons/PlusIcon.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { Column } from '@/utils/models'
-import {deleteUser} from '@/services/userApi'
+import { deleteUser } from '@/services/userApi'
 
 // Types
 interface Department {
@@ -40,6 +39,14 @@ const selectedUser = ref<any>(null)
 const isEditMode = ref(false)
 const { t } = useI18n()
 
+// Selection & Delete State
+const selectedUsers = ref<userDataType[]>([])
+const userToDelete = ref<userDataType | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
+
 const filter = ref<FitlterItem>({
   checkInDate: "",
   checkOutDate: "",
@@ -51,6 +58,98 @@ const filter = ref<FitlterItem>({
 })
 
 const form = ref<Form>(defaultData())
+
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!userToDelete.value) return ''
+  const userName = `${userToDelete.value.firstName} ${userToDelete.value.lastName}`
+  return t('deleteUserConfirmMessage', { name: userName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedUsers.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const userName = `${selectedUsers.value[0].firstName} ${selectedUsers.value[0].lastName}`
+    return t('deleteUserConfirmMessage', { name: userName })
+  } else {
+    return t('configuration.staffManager.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected: userDataType[]) => {
+  selectedUsers.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteUser = (user: userDataType) => {
+  userToDelete.value = user
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleUser = async () => {
+  if (!userToDelete.value || !userToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deleteUser(userToDelete.value.id)
+    await fetchUser()
+    toast.success(t('toast.userDeleted'))
+  } catch (error: any) {
+    console.error('Delete error:', error)
+    if (error.response?.status === 409) {
+      toast.error(t('toast.userDeleteConstraintError'))
+    } else {
+      toast.error(t('toast.userDeleteError'))
+    }
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  userToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedUsers.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteUsers = async () => {
+  if (selectedUsers.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedUsers.value.map(user =>
+      deleteUser(user.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchUser()
+    selectedUsers.value = []
+    toast.success(t('configuration.staffManager.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error: any) {
+    console.error('Error deleting user(s):', error)
+    if (error.response?.status === 409) {
+      toast.error(t('toast.userDeleteConstraintError'))
+    } else {
+      toast.error(t('toast.userDeleteError'))
+    }
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Methods
 const refresh = () => {
@@ -64,7 +163,7 @@ const fetchUser = async () => {
   try {
     const hotelId = serviceStore.serviceId
     if (!hotelId) throw new Error('hotelId is not defined')
-    const response = await getEmployeesForService(hotelId,filter.value)
+    const response = await getEmployeesForService(hotelId, filter.value)
     console.log('response', response)
 
     const assignmentsWithNames = await Promise.all(
@@ -81,7 +180,6 @@ const fetchUser = async () => {
     console.log('Filtered users with user info:', users.value)
   } catch (error) {
     console.error('fetch failed:', error)
-
   } finally {
     loading.value = false
   }
@@ -137,8 +235,6 @@ const columns = computed<Column[]>(() => [
   },
 ])
 
-
-
 const usersWithRoleLabels = computed(() =>
   users.value.map((user: any) => {
     return {
@@ -149,7 +245,7 @@ const usersWithRoleLabels = computed(() =>
 
 // Event handlers
 const onEditUser = (user: any) => handleUserAction('edit', user)
-const onDeleteUser = (user: any) => handleUserAction('delete', user)
+const onDeleteUser = (user: any) => handleDeleteUser(user) // MODIFIÉ
 const onView = (user: any) => handleUserAction('view', user)
 
 const handleUserAction = (action: string, user: any) => {
@@ -158,45 +254,11 @@ const handleUserAction = (action: string, user: any) => {
     selectedUser.value = user
     isEditMode.value = true
     router.push({ name: "editUser", params: { id: user.id } })
-  } else if (action === 'delete') {
-    selectedUserId.value = user.id
-    show.value = true
   } else if (action === 'view') {
     selectedUser.value = user
     router.push({ name: "usersDetails", params: { id: user.id } })
   }
 }
-
-
-const confirmDelete = async () => {
-  if (selectedUserId.value !== null) {
-    loadingDelete.value = true
-    try {
-
-       await deleteUser(selectedUserId.value)
-
-      toast.success(t('toast.userDeleted'))
-        users.value = users.value.filter((r: any) => r.id !== selectedUserId.value)
-
-
-      console.log(`User deleted with ID: ${selectedUserId.value}`)
-    } catch (error:any) {
-      console.error('Delete error:', error)
-
-      // Gestion des différents types d'erreurs
-      if (error.response?.status === 409) {
-        toast.error(t('toast.userDeleteConstraintError'))
-      } else {
-        toast.error(t('toast.userDeleteError'))
-      }
-    } finally {
-      loadingDelete.value = false
-      show.value = false
-      selectedUserId.value = null
-    }
-  }
-}
-
 
 const actions = computed(() => [
   {
@@ -218,7 +280,7 @@ const actions = computed(() => [
     action: 'delete',
     icon: Trash2,
     variant: 'danger',
-    handler: (item: any) => onDeleteUser(item),
+    handler: (item: any) => onDeleteUser(item), // MODIFIÉ
   },
 ])
 
@@ -226,7 +288,7 @@ const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     onEditUser(item)
   } else if (action === 'delete') {
-    onDeleteUser(item)
+    onDeleteUser(item) // MODIFIÉ
   } else if (action === 'view') {
     onView(item)
   }
@@ -239,13 +301,7 @@ const closeModal = () => {
   form.value = defaultData()
 }
 
-// const OpenModal = () => {
-//   modalOpen.value = true
-//   isEditMode.value = false
-//   selectedUser.value = null
-//   form.value = defaultData()
-// }
-const goToUserForm = () =>{
+const goToUserForm = () => {
   router.push('/users/new')
 }
 
@@ -276,56 +332,73 @@ const applyFilters = (filterOp: FitlterItem) => {
           :searchPlaceholder="$t('configuration.staffManager.search_placeholder')"
           :emptyStateTitle="$t('configuration.staffManager.empty_state_title')"
           :emptyStateMessage="$t('configuration.staffManager.empty_state_message')"
-          :selectable="false"
+          :selectable="true"
           @action="onAction"
+          @selection-change="onSelectionChange"
         >
-
           <template #header-actions>
             <BasicButton
               variant="primary"
               :icon="PlusIcon"
               :label="$t('AddUser')"
               @click="goToUserForm()"
+              :disabled="loading"
+            />
+            <!-- Bulk Delete Button (Visible when items are selected) -->
+            <BasicButton 
+              v-if="selectedUsers.length > 0" 
+              @click="handleDeleteSelected" 
+              :label="$t('deleteSelected')" 
+              :icon="Trash2"
+              variant="danger"
+              :disabled="loading"
             />
             <UserFilters @filter="applyFilters" />
           </template>
-              <!--custom column for responsible-->
-            <template #column-department="{ item }">
-            <span
-              class=" capitalize font-medium"
-            >
-               {{ item.department?.name }}
+          
+          <!--custom column for responsible-->
+          <template #column-department="{ item }">
+            <span class="capitalize font-medium">
+              {{ item.department?.name }}
             </span>
           </template>
 
-            <!--custom column for responsible-->
-            <template #column-role="{ item }">
-            <span
-              class=" capitalize font-normal text-orange-600 "
-            >
-               {{ item.role?.roleName }}
+          <!--custom column for responsible-->
+          <template #column-role="{ item }">
+            <span class="capitalize font-normal text-orange-600">
+              {{ item.role?.roleName }}
             </span>
           </template>
-
         </ReusableTable>
       </div>
-
-
     </div>
-   <ConfirmationModal
-    v-model:show="show"
-    :title="$t('confirmDelete')"
-    :message="$t('deleteUserConfirmMessage')"
-    :confirm-text="$t('delete')"
-    :cancel-text="$t('cancel')"
-    variant="danger"
-    :loading="loadingDelete"
-    @confirm="confirmDelete"
-    @cancel="show = false"
-  />
 
+    <!-- Delete Single Confirmation Modal -->
+    <ModalConfirmation
+      v-if="showDeleteModal"
+      v-model="showDeleteModal"
+      :title="t('Delete User')"
+      :message="getSingleDeleteMessage()"
+      :loading="isDeletingLoading"
+      :confirm-text="t('delete')"
+      :cancel-text="t('cancel')"
+      @confirm="confirmDeleteSingleUser"
+      @close="closeSingleDeleteModal"
+      action="DANGER"
+    />
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <ModalConfirmation
+      v-if="showBulkDeleteModal"
+      v-model="showBulkDeleteModal"
+      :title="t('Delete Selected Users')"
+      :message="getBulkDeleteMessage()"
+      :loading="isBulkDeletingLoading"
+      :confirm-text="t('deleteSelected')"
+      :cancel-text="t('cancel')"
+      @confirm="confirmBulkDeleteUsers"
+      @close="closeBulkDeleteModal"
+      action="DANGER"
+    />
   </ConfigurationLayout>
-
-
 </template>
-

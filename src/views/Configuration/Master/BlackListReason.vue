@@ -21,6 +21,7 @@
         :empty-state-message="t('configuration.blacklist_reason.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton
@@ -28,24 +29,34 @@
             :icon="Plus"
             :label="t('configuration.blacklist_reason.add_blacklist_reason')"
             @click="openAddModal"
+            :disabled="loading"
+          />
+          <!-- Bulk Delete Button (Visible when items are selected) -->
+          <BasicButton 
+            v-if="selectedReasons.length > 0" 
+            @click="handleDeleteSelected" 
+            :label="$t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
+            :disabled="loading"
           />
         </template>
 
-         <!-- Custom column for created info -->
-          <template #column-createdInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-            </div>
-          </template>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </template>
 
-          <!-- Custom column for modified info -->
-          <template #column-modifiedInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-            </div>
-          </template>
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+          </div>
+        </template>
 
         <template #column-severity="{ item }">
           <span
@@ -118,6 +129,34 @@
           </form>
         </div>
       </div>
+
+      <!-- Delete Single Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showDeleteModal" 
+        v-model="showDeleteModal" 
+        :title="t('Delete Blacklist Reason')" 
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading" 
+        :confirm-text="t('delete')" 
+        :cancel-text="t('cancel')" 
+        @confirm="confirmDeleteSingleReason"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showBulkDeleteModal" 
+        v-model="showBulkDeleteModal" 
+        :title="t('Delete Selected Blacklist Reasons')" 
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading" 
+        :confirm-text="t('deleteSelected')" 
+        :cancel-text="t('cancel')" 
+        @confirm="confirmBulkDeleteReasons"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
+      />
     </div>
   </ConfigurationLayout>
 </template>
@@ -127,11 +166,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
   getBlackListReasonsByHotel,
@@ -140,7 +179,7 @@ import {
   deleteBlackListReasonById
 } from '@/services/configrationApi'
 import type { Column } from '../../../utils/models'
-import Plus from '../../../icons/Plus.vue'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -153,6 +192,14 @@ const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const blacklistReasons = ref([])
+
+// Selection & Delete State
+const selectedReasons = ref<any[]>([])
+const reasonToDelete = ref<any | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 const formData = ref({
   reason: '',
@@ -210,23 +257,106 @@ const columns = computed<Column[]>(() => [
     sortable: false,
     type:"custom"
   },
-
 ])
 
+// CORRECTION: Ajout des icônes dans les actions
 const actions = computed(() => [
   {
     label: t('configuration.blacklist_reason.edit'),
+    icon: Edit, // ✅ ICÔNE AJOUTÉE
     variant: 'primary',
     handler:(item:any)=>editBlacklistReason(item)
   },
   {
     label: t('configuration.blacklist_reason.delete'),
+    icon: Trash2, // ✅ ICÔNE AJOUTÉE
     variant: 'danger',
-    handler:(item:any)=>deleteBlacklistReason(item)
+    handler:(item:any)=>handleDeleteReason(item)
   }
 ])
 
+// --- Logique de suppression avec modales ---
+const getSingleDeleteMessage = () => {
+  if (!reasonToDelete.value) return ''
+  const reasonName = reasonToDelete.value.reason
+  return t('configuration.blacklist_reason.delete_confirmation', { name: reasonName })
+}
 
+const getBulkDeleteMessage = () => {
+  const count = selectedReasons.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const reasonName = selectedReasons.value[0].reason
+    return t('configuration.blacklist_reason.delete_confirmation', { name: reasonName })
+  } else {
+    return t('configuration.blacklist_reason.bulk_delete_confirm', { count: count })
+  }
+}
+
+const onSelectionChange = (selected: any[]) => {
+  selectedReasons.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteReason = (reason: any) => {
+  reasonToDelete.value = reason
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleReason = async () => {
+  if (!reasonToDelete.value || !reasonToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deleteBlackListReasonById(reasonToDelete.value.id)
+    await fetchBlacklistReasons()
+    toast.success(t('configuration.blacklist_reason.delete_success'))
+  } catch (error) {
+    console.error('Error deleting blacklist reason:', error)
+    toast.error(t('configuration.blacklist_reason.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  reasonToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedReasons.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteReasons = async () => {
+  if (selectedReasons.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedReasons.value.map(reason =>
+      deleteBlackListReasonById(reason.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchBlacklistReasons()
+    selectedReasons.value = []
+    toast.success(t('configuration.blacklist_reason.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting blacklist reason(s):', error)
+    toast.error(t('configuration.blacklist_reason.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // API Functions
 const fetchBlacklistReasons = async () => {
@@ -313,24 +443,11 @@ const saveBlacklistReason = async () => {
   }
 }
 
-const deleteBlacklistReason = async (id: number) => {
-  try {
-    await deleteBlackListReasonById(id)
-    toast.success(t('configuration.blacklist_reason.delete_success'))
-    await fetchBlacklistReasons()
-  } catch (error) {
-    console.error('Error deleting blacklist reason:', error)
-    toast.error(t('configuration.blacklist_reason.delete_error'))
-  }
-}
-
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editBlacklistReason(item)
   } else if (action === 'delete') {
-    if (confirm(t('configuration.blacklist_reason.delete_confirmation'))) {
-      deleteBlacklistReason(item.id)
-    }
+    handleDeleteReason(item)
   }
 }
 

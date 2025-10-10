@@ -1,99 +1,168 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <ReusableTable :title="$t('configuration.reason.title')" :columns="columns" :data="reasons" :actions="actions"
-        :search-placeholder="$t('configuration.reason.search_placeholder')" :selectable="false"
-        :empty-state-title="$t('configuration.reason.empty_state_title')"
-        :empty-state-message="$t('configuration.reason.empty_state_message')" :loading="loading" @action="onAction">
+      <!-- Reasons Table using ReusableTable -->
+      <ReusableTable 
+        :title="$t('configuration.reason.title')" 
+        :columns="columns" 
+        :data="reasons" 
+        :actions="actions"
+        :loading="loading"
+        search-placeholder="Search reasons..." 
+        :selectable="true"
+        empty-state-title="No reasons found"
+        empty-state-message="Click 'Add Reason' to create your first reason." 
+        @action="onAction"
+        @selection-change="onSelectionChange">
+        
         <template #header-actions>
-          <BasicButton
-            variant="primary"
-            :icon="PlusIcon"
+          <BasicButton 
+            variant="primary" 
+            :icon="PlusIcon" 
             :label="$t('configuration.reason.add_reason')"
-            @click="openAddModal"
-            :disabled="loading"
+            @click="openAddModal" 
+            :disabled="loading" 
           />
         </template>
 
         <template #column-status="{ item }">
-          <span
-            :class="item.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-            {{ item.status === 'active' ? $t('configuration.reason.status_active') :
-              $t('configuration.reason.status_inactive') }}
+          <span 
+            :class="{
+              'bg-green-100 text-green-800': item.status === 'active',
+              'bg-red-100 text-red-800': item.status === 'inactive'
+            }" 
+            class="px-2 py-1 text-xs font-medium rounded-full">
+            {{ item.status === 'active' ? $t('configuration.reason.status_active') : $t('configuration.reason.status_inactive') }}
           </span>
         </template>
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
+
+        <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.creator?.firstName || 'N/A' }}</div>
+            <div class="text-xs text-gray-400">{{ formatDate(item.createdAt) }}</div>
           </div>
         </template>
-        <template #status="{ item }">
-          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-            :class="item.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-            {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
-          </span>
+
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.modifier?.firstName || 'N/A' }}</div>
+            <div class="text-xs text-gray-400">{{ formatDate(item.updatedAt) }}</div>
+          </div>
         </template>
       </ReusableTable>
 
-      <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? $t('configuration.reason.edit_reason') : $t('configuration.reason.add_new_reason') }}
+      <!-- Add/Edit Reason Modal -->
+      <div 
+        v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+          <h3 class="text-lg font-semibold mb-4">
+            {{ showEditModal ? $t('configuration.reason.edit_reason') : $t('configuration.reason.add_new_reason') }}
           </h3>
 
           <form @submit.prevent="saveReason" class="space-y-4">
-            <Input :lb="$t('configuration.reason.reason_name')" :inputType="'text'" :isRequired="true"
-              v-model="formData.reasonName" :placeholder="$t('configuration.reason.reason_name_placeholder')" />
-
+            <!-- Reason Name -->
             <div>
-              <Select :lb="$t('configuration.reason.category')" :isRequired="true" v-model="formData.category"
-                :options="categoryOptions" :defaultValue="$t('configuration.reason.select_category')" />
+              <Input
+                :lb="$t('configuration.reason.reason_name')"
+                v-model="formData.reasonName"
+                :placeholder="$t('configuration.reason.reason_name_placeholder')"
+                :is-required="true"
+                customClass="w-full"
+              />
             </div>
 
+            <!-- Category -->
             <div>
-              <Select :lb="$t('configuration.reason.status')" :isRequired="true" v-model="formData.status"
-                :options="statusOptions" :defaultValue="$t('configuration.reason.select_status')" />
+              <Select
+                :lb="$t('configuration.reason.category')"
+                :modelValue="formData.category"
+                @update:modelValue="handleCategoryChange"
+                :options="categoryOptions"
+                :placeholder="$t('configuration.reason.select_category')"
+                :is-required="true"
+                customClass="w-full"
+              />
+            </div>
+
+            <!-- Status -->
+            <div>
+              <Select
+                :lb="$t('configuration.reason.status')"
+                :modelValue="formData.status"
+                @update:modelValue="handleStatusChange"
+                :options="statusOptions"
+                :placeholder="$t('configuration.reason.select_status')"
+                :is-required="true"
+                customClass="w-full"
+              />
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton
-                type="button"
-                variant="outline"
-                @click="closeModal"
-                :label="$t('cancel')"
-                :disabled="saving"
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                :label="$t('cancel')" 
+                @click="closeModal" 
+                :disabled="saving" 
               />
-              <BasicButton
-                type="submit"
-                variant="primary"
-                :label="isEditing ? $t('configuration.reason.update_reason') : $t('configuration.reason.save_reason')"
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :icon="showEditModal ? Edit : Plus"
+                :label="saving ? t('saving') + '...' : showEditModal ? $t('update') : $t('configuration.reason.save_reason')" 
                 :loading="saving"
+                :disabled="saving"
               />
             </div>
           </form>
         </div>
       </div>
+
+      <!-- Delete Single Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showDeleteModal" 
+        v-model="showDeleteModal" 
+        :title="$t('Delete Reason')" 
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading" 
+        :confirm-text="$t('delete')" 
+        :cancel-text="$t('cancel')" 
+        @confirm="confirmDeleteSingleReason"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation 
+        v-if="showBulkDeleteModal" 
+        v-model="showBulkDeleteModal" 
+        :title="$t('Delete Selected Reasons')" 
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading" 
+        :confirm-text="$t('deleteSelected')" 
+        :cancel-text="$t('cancel')" 
+        @confirm="confirmBulkDeleteReasons"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
+      />
     </div>
 
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import type { Action, Column } from '../../../utils/models'
-import PlusIcon from '../../../icons/Plus.vue'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 import {
   getReasons,
   postReason,
@@ -101,28 +170,59 @@ import {
   deleteReasonById
 } from '@/services/configrationApi'
 
+// Types
+interface Reason {
+  id: string | number
+  reasonName: string
+  category: string
+  status: string
+  creator?: { firstName: string }
+  modifier?: { firstName: string }
+  createdAt: string
+  updatedAt: string
+}
+
+interface ReasonFormData {
+  reasonName: string
+  category: string
+  status: string
+}
+
+interface Option {
+  value: string
+  label: string
+}
 
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
 
-// Reactive data
-const showModal = ref(false)
-const isEditing = ref(false)
+// Reactive data - aligné avec la première vue
+const showAddModal = ref(false)
+const showEditModal = ref(false)
+const selectedReasons = ref<Reason[]>([])
+const editingReason = ref<Reason | null>(null)
 const loading = ref(false)
 const saving = ref(false)
 
-const formData = ref({
-  id: null as number | null,
+// Delete related reactive data - aligné avec la première vue
+const reasonToDelete = ref<Reason | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
+
+// Form data
+const formData = ref<ReasonFormData>({
   reasonName: '',
   category: '',
   status: 'active'
 })
 
-const reasons = ref<any[]>([])
+const reasons = ref<Reason[]>([])
 
 // Category options
-const categoryOptions = [
+const categoryOptions: Option[] = [
   { label: 'Block Room', value: 'Block Room' },
   { label: 'Cancel Reservation', value: 'Cancel Reservation' },
   { label: 'Check In', value: 'Check In' },
@@ -139,67 +239,208 @@ const categoryOptions = [
   { label: 'Void Reservation', value: 'Void Reservation' }
 ]
 
-// Status options with translations
-const statusOptions = computed(() => [
+// Status options
+const statusOptions: Option[] = [
   { label: t('configuration.reason.status_active'), value: 'active' },
   { label: t('configuration.reason.status_inactive'), value: 'inactive' }
+]
+
+// Computed properties
+const selectedCount = computed(() => selectedReasons.value.length)
+
+// Table configuration - aligné avec la première vue
+const columns = ref([
+  {
+    key: 'reasonName',
+    label: 'configuration.reason.reason_name',
+    sortable: true,
+    searchable: true
+  },
+  {
+    key: 'category',
+    label: 'configuration.reason.category',
+    sortable: true,
+    searchable: true
+  },
+  {
+    key: 'createdInfo',
+    label: 'configuration.reason.created_by',
+    sortable: false,
+    type: 'custom' as const
+  },
+  {
+    key: 'modifiedInfo',
+    label: 'configuration.reason.modified_by',
+    sortable: false,
+    type: 'custom' as const
+  },
+  {
+    key: 'status',
+    label: 'configuration.reason.status',
+    sortable: true,
+    type: 'custom' as const
+  }
 ])
 
-// Table configuration with translations
-const columns = computed<Column[]>(() => [
-  { key: 'reasonName', label: t('configuration.reason.reason_name'), type: 'text' },
-  { key: 'category', label: t('configuration.reason.category'), type: 'text' },
-  { key: 'createdinfo', label: t('configuration.reason.created_by'), type: 'custom' },
-  { key: 'modifiedInfo', label: t('configuration.reason.modified_by'), type: 'custom' },
-  { key: 'status', label: t('configuration.reason.status'), type: 'custom' }
+const actions = ref([
+  {
+    label: t('edit'),
+    icon: Edit,
+    variant: 'primary',
+    handler: (item: Reason) => onAction('edit', item)
+  },
+  {
+    label: t('delete'),
+    icon: Trash2,
+    variant: 'danger',
+    handler: (item: Reason) => onAction('delete', item)
+  }
 ])
 
-const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editReason(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deleteReason(item), variant: 'danger' }
-])
+// Handler functions for Select components - aligné avec la première vue
+const handleCategoryChange = (value: string | undefined) => {
+  formData.value.category = value || ''
+}
 
-// Fetch reasons from API
-const fetchReasons = async () => {
-  try {
-    loading.value = true
-    const response = await getReasons()
-    reasons.value = response.data.data || []
-  } catch (error) {
-    console.error('Error fetching reasons:', error)
-    toast.error(t('configuration.reason.fetch_error'))
-  } finally {
-    loading.value = false
+const handleStatusChange = (value: string | undefined) => {
+  formData.value.status = value || 'active'
+}
+
+// Selection and actions - aligné avec la première vue
+const onSelectionChange = (selected: Reason[]) => {
+  selectedReasons.value = selected
+}
+
+const onAction = (action: string, item: Reason) => {
+  if (action === 'edit') {
+    editReason(item)
+  } else if (action === 'delete') {
+    handleDeleteReason(item)
   }
 }
 
-// Functions
-const openAddModal = () => {
-  isEditing.value = false
+const editReason = (reason: Reason) => {
+  editingReason.value = reason
   formData.value = {
-    id: null,
-    reasonName: '',
-    category: '',
-    status: 'active'
+    reasonName: reason.reasonName,
+    category: reason.category,
+    status: reason.status
   }
-  showModal.value = true
+  showEditModal.value = true
 }
 
-const editReason = (reason: any) => {
-  isEditing.value = true
-  formData.value = { ...reason }
-  showModal.value = true
+// Single item delete - aligné avec la première vue
+const handleDeleteReason = (reason: Reason) => {
+  reasonToDelete.value = reason
+  showDeleteModal.value = true
 }
 
-const closeModal = () => {
-  showModal.value = false
-  isEditing.value = false
+// Bulk delete - aligné avec la première vue
+const handleDeleteSelected = () => {
+  if (selectedReasons.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmDeleteSingleReason = async () => {
+  if (!reasonToDelete.value) return
+
+  isDeletingLoading.value = true
+  try {
+    if (reasonToDelete.value.id) {
+      await deleteReasonByIdLocal(reasonToDelete.value.id as number)
+      reasons.value = reasons.value.filter(r => r.id !== reasonToDelete.value?.id)
+      toast.success(t('configuration.reason.delete_success'))
+    }
+  } catch (error) {
+    console.error('Error deleting reason:', error)
+    toast.error(t('configuration.reason.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const confirmBulkDeleteReasons = async () => {
+  if (selectedReasons.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const selectedIds = selectedReasons.value.map(r => r.id)
+    const deletePromises = selectedReasons.value.map(reason => 
+      deleteReasonByIdLocal(reason.id as number)
+    )
+    await Promise.all(deletePromises)
+    
+    reasons.value = reasons.value.filter(r => !selectedIds.includes(r.id))
+    selectedReasons.value = []
+    toast.success(t('configuration.reason.bulk_delete_success', { count: selectedIds.length }))
+  } catch (error) {
+    console.error('Error deleting reason(s):', error)
+    toast.error(t('configuration.reason.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+// Utility function for deletion
+const deleteReasonByIdLocal = async (id: number) => {
+  try {
+    const response = await deleteReasonById(id)
+    if (response.status !== 200 && response.status !== 204) {
+      throw new Error('Failed to delete reason')
+    }
+  } catch (error) {
+    console.error('Error deleting reason:', error)
+    throw error
+  }
+}
+
+// Close methods - aligné avec la première vue
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  reasonToDelete.value = null
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
+
+// Message methods - aligné avec la première vue
+const getSingleDeleteMessage = () => {
+  if (!reasonToDelete.value) return ''
+  const reasonName = reasonToDelete.value.reasonName
+  return `Are you sure you want to delete "${reasonName}"? `
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedReasons.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const reasonName = selectedReasons.value[0].reasonName
+    return `Are you sure you want to delete the selected reason "${reasonName}"?`
+  } else {
+    return `Are you sure you want to delete ${count} selected reasons?`
+  }
+}
+
+// Date formatting utility
+const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString()
 }
 
 const saveReason = async () => {
-  try {
-    saving.value = true
+  // Validation
+  if (!formData.value.reasonName || !formData.value.category || !formData.value.status) {
+    toast.error(t('pleaseCompleteAllRequiredFields'))
+    return
+  }
 
+  saving.value = true
+
+  try {
     const reasonData = {
       reasonName: formData.value.reasonName,
       category: formData.value.category,
@@ -207,18 +448,16 @@ const saveReason = async () => {
       hotelId: serviceStore.serviceId
     }
 
-    if (isEditing.value && formData.value.id) {
-      // Update existing reason
-      await updateReasonById(formData.value.id, reasonData)
+    if (showEditModal.value && editingReason.value) {
+      await updateReasonById(Number(editingReason.value.id), reasonData)
       toast.success(t('configuration.reason.update_success'))
     } else {
-      // Add new reason
       await postReason(reasonData)
       toast.success(t('configuration.reason.create_success'))
     }
-    closeModal()
 
     await fetchReasons()
+    closeModal()
   } catch (error) {
     console.error('Error saving reason:', error)
     toast.error(t('configuration.reason.save_error'))
@@ -227,31 +466,32 @@ const saveReason = async () => {
   }
 }
 
-const deleteReason = async (reason: any) => {
-  if (confirm(t('configuration.reason.delete_confirm'))) {
-    try {
-      loading.value = true
-      await deleteReasonById(reason.id)
-      toast.success(t('configuration.reason.delete_success'))
-      await fetchReasons()
-    } catch (error) {
-      console.error('Error deleting reason:', error)
-      toast.error(t('configuration.reason.delete_error'))
-    } finally {
-      loading.value = false
-    }
+const fetchReasons = async () => {
+  loading.value = true
+  try {
+    const response = await getReasons()
+    reasons.value = response.data.data || []
+  } catch (error) {
+    console.error('Error fetching reasons:', error)
+    toast.error(t('configuration.reason.fetch_error'))
+    reasons.value = []
+  } finally {
+    loading.value = false
   }
 }
 
-const onAction = (action: string, item: any) => {
-  if (action === 'edit') {
-    editReason(item)
-  } else if (action === 'delete') {
-    deleteReason(item)
+const closeModal = () => {
+  showAddModal.value = false
+  showEditModal.value = false
+  editingReason.value = null
+  formData.value = {
+    reasonName: '',
+    category: '',
+    status: 'active'
   }
 }
 
-// Load reasons on component mount
+// Initialize data
 onMounted(() => {
   fetchReasons()
 })

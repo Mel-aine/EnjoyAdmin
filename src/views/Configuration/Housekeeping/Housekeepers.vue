@@ -206,14 +206,12 @@ const columns: Column[] = [
     key: 'name', 
     label: t('housekeeperName'), 
     type: 'text',
-    sortable: true,
     searchable: true
   },
   { 
     key: 'mobile', 
     label: t('mobileNumber'), 
     type: 'text',
-    sortable: true
   },
   { 
     key: 'createdInfo', 

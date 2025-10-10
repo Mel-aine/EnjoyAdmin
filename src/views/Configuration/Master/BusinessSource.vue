@@ -11,14 +11,28 @@
           :loading="loading"
           :searchPlaceholder="t('configuration.business_source.search_placeholder')"
           :selectable="true"
+          @action="onAction"
+          @selection-change="onSelectionChange"
         >
-
-        <template #header-actions> <BasicButton 
-          variant="primary"
-          :icon="Plus"
-          :label="t('configuration.business_source.add_button')"
-          @click="openAddModal"
-        /></template>
+          <template #header-actions> 
+            <BasicButton 
+              variant="primary"
+              :icon="Plus"
+              :label="t('configuration.business_source.add_button')"
+              @click="openAddModal"
+              :disabled="loading"
+            />
+            <!-- Bulk Delete Button (Visible when items are selected) -->
+            <BasicButton 
+              v-if="selectedSources.length > 0" 
+              @click="handleDeleteSelected" 
+              :label="$t('deleteSelected')" 
+              :icon="Trash2"
+              variant="danger"
+              :disabled="loading"
+            />
+          </template>
+          
           <template #column-color="{ item }">
             <div class="flex items-center space-x-2">
               <div 
@@ -28,21 +42,22 @@
               <span class="text-sm text-gray-600">{{ item.color }}</span>
             </div>
           </template>
-         <!-- Custom column for created info -->
-        <template #column-createdInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-          </div>
-        </template>
+          
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-          </div>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
         </ReusableTable>
       </div>
 
@@ -124,7 +139,7 @@
               </select>
             </div>
 
-         <div class="flex justify-end space-x-3 pt-4">
+            <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
                 type="button" 
                 variant="outline" 
@@ -135,7 +150,7 @@
               <BasicButton 
                 type="submit" 
                 variant="primary" 
-                :label="isEditing ? t('configuration.payment_method.update_payment_method') : t('configuration.payment_method.save_payment_method')"
+                :label="isEditing ? t('configuration.business_source.update_business_source') : t('configuration.business_source.save_business_source')"
                 :loading="saving"
               />
             </div>
@@ -143,16 +158,32 @@
         </div>
       </div>
 
-      <!-- Delete Confirmation Modal -->
+      <!-- Delete Single Confirmation Modal -->
       <ModalConfirmation
         v-if="showDeleteModal"
-        :title="t('configuration.business_source.delete_title')"
-        :message="t('configuration.business_source.delete_message')"
-        :confirmText="t('common.delete')"
-        :cancelText="t('common.cancel')"
-        variant="danger"
-        @confirm="confirmDelete"
-        @cancel="cancelDelete"
+        v-model="showDeleteModal"
+        :title="t('Delete Business Source')"
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading"
+        :confirm-text="t('delete')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmDeleteSingleSource"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showBulkDeleteModal"
+        v-model="showBulkDeleteModal"
+        :title="t('Delete Selected Business Sources')"
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading"
+        :confirm-text="t('deleteSelected')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmBulkDeleteSources"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
       />
     </div>
   </ConfigurationLayout>
@@ -169,7 +200,7 @@ import * as configrationApi from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import type { Action, Column } from '../../../utils/models'
-import Plus from '../../../icons/Plus.vue'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -177,15 +208,19 @@ const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
-const showDeleteModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
-const deleteItemId = ref<any>(null)
-
-// Data
 const businessSources = ref([])
+
+// Selection & Delete State
+const selectedSources = ref<any[]>([])
+const sourceToDelete = ref<any | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 // Form data
 const formData = ref({
@@ -197,8 +232,91 @@ const formData = ref({
 })
 
 // Market code options
-const marketCodeOptions = ref<any>([
-])
+const marketCodeOptions = ref<any>([])
+
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!sourceToDelete.value) return ''
+  const sourceName = sourceToDelete.value.name
+  return t('configuration.business_source.delete_message', { name: sourceName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedSources.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const sourceName = selectedSources.value[0].name
+    return t('configuration.business_source.delete_message', { name: sourceName })
+  } else {
+    return t('configuration.business_source.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected: any[]) => {
+  selectedSources.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteSource = (source: any) => {
+  sourceToDelete.value = source
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleSource = async () => {
+  if (!sourceToDelete.value || !sourceToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await configrationApi.deleteBusinessSourceById(sourceToDelete.value.id)
+    await loadBusinessSources()
+    toast.success(t('configuration.business_source.delete_success'))
+  } catch (error) {
+    console.error('Error deleting business source:', error)
+    toast.error(t('configuration.business_source.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  sourceToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedSources.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteSources = async () => {
+  if (selectedSources.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedSources.value.map(source =>
+      configrationApi.deleteBusinessSourceById(source.id)
+    )
+    await Promise.all(deletePromises)
+
+    await loadBusinessSources()
+    selectedSources.value = []
+    toast.success(t('configuration.business_source.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting business source(s):', error)
+    toast.error(t('configuration.business_source.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Table configuration
 const columns: Column[] = [
@@ -214,12 +332,14 @@ const columns: Column[] = [
 const actions: Action[] = [
   {
     label: t('common.edit'),
-    handler: (item) => editBusinessSource(item),
+    icon: Edit,
+    handler: (item) => onAction('edit', item),
     variant: 'primary'
   },
   {
     label: t('common.delete'),
-    handler: (item) => deleteBusinessSource(item.id),
+    icon: Trash2,
+    handler: (item) => onAction('delete', item),
     variant: 'danger'
   }
 ]
@@ -292,27 +412,12 @@ const saveBusinessSource = async () => {
   }
 }
 
-const deleteBusinessSource = (id:string) => {
-  deleteItemId.value = id
-  showDeleteModal.value = true
-}
-
-const confirmDelete = async () => {
-  try {
-    await configrationApi.deleteBusinessSourceById(deleteItemId.value)
-    toast.success(t('configuration.business_source.delete_success'))
-    showDeleteModal.value = false
-    deleteItemId.value = null
-    await loadBusinessSources()
-  } catch (error) {
-    console.error('Error deleting business source:', error)
-    toast.error(t('configuration.business_source.delete_error'))
+const onAction = (action: string, item: any) => {
+  if (action === 'edit') {
+    editBusinessSource(item)
+  } else if (action === 'delete') {
+    handleDeleteSource(item)
   }
-}
-
-const cancelDelete = () => {
-  showDeleteModal.value = false
-  deleteItemId.value = null
 }
 
 const closeModal = () => {
@@ -327,6 +432,7 @@ const closeModal = () => {
     marketCodeId: ''
   }
 }
+
 const fetchMarketCode = async () => {
   try {
     loading.value = true
@@ -344,6 +450,7 @@ const fetchMarketCode = async () => {
     loading.value = false
   }
 }
+
 // Load data on component mount
 onMounted(() => {
   loadBusinessSources();

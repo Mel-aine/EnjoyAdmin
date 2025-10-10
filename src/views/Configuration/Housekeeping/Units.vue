@@ -3,35 +3,35 @@
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('units') }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ t('housekeepers') }}</h1>
         <p class="text-gray-600 mt-1">
-          {{ t('unitsDescription') }}
+          {{ t('housekeepersDescription') }}
         </p>
       </div>
 
-      <!-- Units Table using ReusableTable -->
+      <!-- Housekeepers Table using ReusableTable -->
       <ReusableTable
-        :title="t('unitsList')"
+        :title="t('housekeepersList')"
         :columns="columns"
-        :data="units"
+        :data="housekeepers"
         :actions="actions"
-        :search-placeholder="t('searchUnits')"
+        :search-placeholder="t('searchHousekeepers')"
         :selectable="true"
-        :empty-state-title="t('noUnitsFound')"
-        :empty-state-message="t('addUnitMessage')"
+        :empty-state-title="t('noHousekeepersFound')"
+        :empty-state-message="t('addHousekeeperMessage')"
         @action="onAction"
         @selection-change="onSelectionChange"
         :loading="loading"
       >
         <template #header-actions>
-          <BasicButton 
+          <BasicButton
             @click="showAddModal = true"
-            :label="t('addUnit')"
+            :label="t('addHousekeeper')"
             :icon="Plus"
           />
 
           <BasicButton 
-            v-if="selectedUnits.length > 0"
+            v-if="selectedHousekeepers.length > 0"
             @click="showBulkDeleteModal = true"
             variant="danger"
             :label="t('deleteSelected')"
@@ -41,11 +41,11 @@
 
         <!-- Custom column for status -->
         <template #column-status="{ item }">
-          <span 
+          <span
             :class="[
               'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.status === 'Active' 
-                ? 'bg-green-100 text-green-800' 
+              item.status === 'Active'
+                ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
             ]"
           >
@@ -77,32 +77,42 @@
       >
         <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4">
-            {{ showEditModal ? t('editUnit') : t('addUnit') }}
+            {{ showEditModal ? t('editHousekeeper') : t('addHousekeeper') }}
           </h3>
-          
-          <form @submit.prevent="saveUnit">
+
+          <form @submit.prevent="saveHousekeeper">
             <div class="mb-4">
               <Input
                 v-model="formData.name"
-                :lb="t('unitName')"
+                :lb="t('housekeeperName')"
                 type="text"
-                :placeholder="t('enterUnitName')"
+                :placeholder="t('enterHousekeeperName')"
                 :is-required="true"
               />
             </div>
-            
+
+            <div class="mb-4">
+              <InputPhone
+                v-model="formData.mobile"
+                :lb="t('mobileNumber')"
+                :title="t('mobileNumber')"
+                :placeholder="t('enterMobileNumber')"
+                :is-required="true"
+              />
+            </div>
+
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
+              <BasicButton
+                type="button"
+                variant="outline"
                 @click="closeModal"
                 :label="t('cancel')"
                 :disabled="isSaving"
               />
-              <BasicButton 
-                type="submit" 
+              <BasicButton
+                type="submit"
                 variant="primary"
-                :label="isSaving ? t('saving') + '...' : (showEditModal ? t('update') : t('save'))"
+                :label="isSaving ? t('saving') + '...' : showEditModal ? t('update') : t('save')"
                 :loading="isSaving"
                 :disabled="isSaving"
               />
@@ -116,11 +126,11 @@
     <ModalConfirmation 
       v-if="showDeleteModal" 
       v-model="showDeleteModal" 
-      :title="t('Delete Unit')" 
+      :title="t('Delete Housekeeper')" 
       :message="getSingleDeleteMessage()"
       :confirm-text="t('delete')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmDeleteSingleUnit"
+      @confirm="confirmDeleteSingleHousekeeper"
       @close="closeSingleDeleteModal"
       :loading="isDeletingLoading"
       action="DANGER"
@@ -130,11 +140,11 @@
     <ModalConfirmation 
       v-if="showBulkDeleteModal" 
       v-model="showBulkDeleteModal" 
-      :title="t('Delete Selected Units')" 
+      :title="t('Delete Selected Housekeepers')" 
       :message="getBulkDeleteMessage()"
       :confirm-text="t('deleteSelected')" 
       :cancel-text="t('cancel')" 
-      @confirm="confirmBulkDeleteUnits"
+      @confirm="confirmBulkDeleteHousekeepers"
       @close="closeBulkDeleteModal"
       :loading="isBulkDeletingLoading"
       action="DANGER"
@@ -143,51 +153,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
+import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
+import { useServiceStore } from '@/composables/serviceStore'
+import {
+  getHousekeepers,
+  postHousekeeper,
+  updateHousekeeperById,
+  deleteHousekeeperById
+} from '@/services/configrationApi'
 
 const { t } = useI18n()
 const toast = useToast()
+const serviceStore = useServiceStore()
 
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
-const selectedUnits = ref<any[]>([])
-const editingUnit = ref<any>(null)
+const selectedHousekeepers = ref<any[]>([])
+const editingHousekeeper = ref<any>(null)
 const loading = ref(false)
 const isSaving = ref(false)
 
 // Delete modals states
 const showDeleteModal = ref(false)
 const showBulkDeleteModal = ref(false)
-const unitToDelete = ref<any>(null)
+const housekeeperToDelete = ref<any>(null)
 const isDeletingLoading = ref(false)
 const isBulkDeletingLoading = ref(false)
 
 // Form data
 const formData = reactive({
-  name: ''
+  name: '',
+  mobile: ''
 })
 
 // Computed properties
-const selectedCount = computed(() => selectedUnits.value.length)
+const selectedCount = computed(() => selectedHousekeepers.value.length)
 
-// Table configuration
+// Table configuration - CORRIGÉ : retirer sortable et searchable
 const columns: Column[] = [
   { 
     key: 'name', 
-    label: t('unitName'), 
-    type: 'text',
-    sortable: true,
-    searchable: true
+    label: t('housekeeperName'), 
+    type: 'text'
+  },
+  { 
+    key: 'mobile', 
+    label: t('mobileNumber'), 
+    type: 'text'
   },
   { 
     key: 'createdInfo', 
@@ -221,77 +244,77 @@ const actions: Action[] = [
   }
 ]
 
-const units = ref([
-  { 
-    id: 1, 
-    name: 'Visitors Lobby', 
-    createdBy: 'admin', 
-    createdDate: '2013-05-13', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 2, 
-    name: 'Reception Area', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 3, 
-    name: 'Recreation Area', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  }
-])
+const housekeepers = ref<any[]>([])
 
 // Methods
 const onSelectionChange = (selected: any[]) => {
-  selectedUnits.value = selected
+  selectedHousekeepers.value = selected
 }
 
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
-    editUnit(item)
+    editHousekeeper(item)
   } else if (action === 'delete') {
-    handleDeleteUnit(item)
+    handleDeleteHousekeeper(item)
   }
 }
 
-const editUnit = (unit: any) => {
-  editingUnit.value = unit
-  formData.name = unit.name
+const fetchHousekeepers = async () => {
+  try {
+    loading.value = true
+    const hotelId = serviceStore.serviceId
+    const resp = await getHousekeepers({ hotel_id: hotelId as number })
+    const data = resp?.data?.data?.data ?? resp?.data ?? []
+    housekeepers.value = Array.isArray(data)
+      ? data.map((h: any) => ({
+          id: h.id,
+          name: h.name,
+          mobile: h.phone ?? h.mobile ?? '',
+          createdBy: h.createdBy ?? h.createdByUserId ?? 'admin',
+          createdDate: h.createdAt ? new Date(h.createdAt).toISOString().split('T')[0] : 'N/A',
+          modifiedBy: h.modifiedBy ?? h.updatedByUserId ?? 'admin',
+          modifiedDate: h.updatedAt ? new Date(h.updatedAt).toISOString().split('T')[0] : 'N/A',
+          status: h.status ?? 'Active',
+        }))
+      : []
+  } catch (e) {
+    console.error('Failed to fetch housekeepers', e)
+    toast.error(t('errorLoadingHousekeepers'))
+  } finally {
+    loading.value = false
+  }
+}
+
+const editHousekeeper = (housekeeper: any) => {
+  editingHousekeeper.value = housekeeper
+  formData.name = housekeeper.name
+  formData.mobile = housekeeper.mobile
   showEditModal.value = true
 }
 
-// Single unit deletion
-const handleDeleteUnit = (unit: any) => {
-  unitToDelete.value = unit
+// Single housekeeper deletion
+const handleDeleteHousekeeper = (housekeeper: any) => {
+  housekeeperToDelete.value = housekeeper
   showDeleteModal.value = true
 }
 
-const confirmDeleteSingleUnit = async () => {
-  if (!unitToDelete.value) return
+const confirmDeleteSingleHousekeeper = async () => {
+  if (!housekeeperToDelete.value) return
 
   isDeletingLoading.value = true
   try {
-    // Simuler un appel API
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await deleteHousekeeperById(housekeeperToDelete.value.id)
     
-    const index = units.value.findIndex(u => u.id === unitToDelete.value.id)
-    if (index !== -1) {
-      units.value.splice(index, 1)
+    // Update local list
+    const index = housekeepers.value.findIndex(h => h.id === housekeeperToDelete.value.id)
+    if (index > -1) {
+      housekeepers.value.splice(index, 1)
     }
-    toast.success(t('unitDeletedSuccessfully'))
-  } catch (error) {
-    console.error('Error deleting unit:', error)
-    toast.error(t('errorDeletingUnit'))
+    
+    toast.success(t('housekeeperDeletedSuccessfully'))
+  } catch (e) {
+    console.error('Failed to delete housekeeper', e)
+    toast.error(t('errorDeletingHousekeeper'))
   } finally {
     isDeletingLoading.value = false
     closeSingleDeleteModal()
@@ -300,28 +323,31 @@ const confirmDeleteSingleUnit = async () => {
 
 const closeSingleDeleteModal = () => {
   showDeleteModal.value = false
-  unitToDelete.value = null
+  housekeeperToDelete.value = null
 }
 
-// Multiple units deletion
-const confirmBulkDeleteUnits = async () => {
-  if (selectedUnits.value.length === 0) return
+// Multiple housekeepers deletion
+const confirmBulkDeleteHousekeepers = async () => {
+  if (selectedHousekeepers.value.length === 0) return
 
   isBulkDeletingLoading.value = true
   try {
-    // Simuler des appels API
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const deletePromises = selectedHousekeepers.value.map(housekeeper => 
+      deleteHousekeeperById(housekeeper.id)
+    )
     
-    // Mettre à jour la liste localement
-    const selectedIds = selectedUnits.value.map(u => u.id)
-    units.value = units.value.filter(u => !selectedIds.includes(u.id))
+    await Promise.all(deletePromises)
     
-    const count = selectedUnits.value.length
-    selectedUnits.value = []
-    toast.success(t('unitsDeletedSuccess', { count }))
-  } catch (error) {
-    console.error('Error deleting units:', error)
-    toast.error(t('errorDeletingSelectedUnits'))
+    // Update local list
+    const selectedIds = selectedHousekeepers.value.map(h => h.id)
+    housekeepers.value = housekeepers.value.filter(h => !selectedIds.includes(h.id))
+    
+    const count = selectedHousekeepers.value.length
+    selectedHousekeepers.value = []
+    toast.success(t('housekeepersDeletedSuccess', { count }))
+  } catch (e) {
+    console.error('Failed to delete housekeepers', e)
+    toast.error(t('errorDeletingSelectedHousekeepers'))
   } finally {
     isBulkDeletingLoading.value = false
     closeBulkDeleteModal()
@@ -334,67 +360,58 @@ const closeBulkDeleteModal = () => {
 
 // Message methods
 const getSingleDeleteMessage = () => {
-  if (!unitToDelete.value) return ''
-  const unitName = unitToDelete.value.name
-  return `Are you sure you want to delete unit "${unitName}"?`
+  if (!housekeeperToDelete.value) return ''
+  const housekeeperName = housekeeperToDelete.value.name
+  return `Are you sure you want to delete housekeeper "${housekeeperName}"? `
 }
 
 const getBulkDeleteMessage = () => {
-  const count = selectedUnits.value.length
+  const count = selectedHousekeepers.value.length
   if (count === 0) return ''
   
   if (count === 1) {
-    const unitName = selectedUnits.value[0].name
-    return `Are you sure you want to delete the selected unit "${unitName}"?`
+    const housekeeperName = selectedHousekeepers.value[0].name
+    return `Are you sure you want to delete the selected housekeeper "${housekeeperName}"? `
   } else {
-    return `Are you sure you want to delete ${count} selected units?`
+    return `Are you sure you want to delete ${count} selected housekeepers? `
   }
 }
 
-const saveUnit = async () => {
+const saveHousekeeper = async () => {
   try {
     isSaving.value = true
     
     // Validation
     if (!formData.name.trim()) {
-      toast.error(t('unitNameRequired'))
+      toast.error(t('housekeeperNameRequired'))
+      return
+    }
+    
+    if (!formData.mobile.trim()) {
+      toast.error(t('mobileNumberRequired'))
       return
     }
 
-    // Simuler un appel API
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const hotelId = serviceStore.serviceId as number
+    const housekeeperData = {
+      hotel_id: hotelId,
+      name: formData.name.trim(),
+      phone: formData.mobile.trim(),
+    }
 
-    if (showEditModal.value && editingUnit.value) {
-      // Update existing unit
-      const index = units.value.findIndex(u => u.id === editingUnit.value.id)
-      if (index !== -1) {
-        units.value[index] = {
-          ...units.value[index],
-          name: formData.name.trim(),
-          modifiedBy: 'admin',
-          modifiedDate: new Date().toISOString().split('T')[0]
-        }
-      }
-      toast.success(t('unitUpdatedSuccessfully'))
+    if (showEditModal.value && editingHousekeeper.value) {
+      await updateHousekeeperById(editingHousekeeper.value.id, housekeeperData)
+      toast.success(t('housekeeperUpdatedSuccessfully'))
     } else {
-      // Add new unit
-      const newUnit = {
-        id: Math.max(...units.value.map(u => u.id)) + 1,
-        name: formData.name.trim(),
-        createdBy: 'admin',
-        createdDate: new Date().toISOString().split('T')[0],
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0],
-        status: 'Active'
-      }
-      units.value.push(newUnit)
-      toast.success(t('unitAddedSuccessfully'))
+      await postHousekeeper(housekeeperData)
+      toast.success(t('housekeeperCreatedSuccessfully'))
     }
     
     closeModal()
-  } catch (error) {
-    console.error('Error saving unit:', error)
-    toast.error(t('errorSavingUnit'))
+    await fetchHousekeepers()
+  } catch (e) {
+    console.error('Failed to save housekeeper', e)
+    toast.error(t('errorSavingHousekeeper'))
   } finally {
     isSaving.value = false
   }
@@ -403,7 +420,12 @@ const saveUnit = async () => {
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
-  editingUnit.value = null
+  editingHousekeeper.value = null
   formData.name = ''
+  formData.mobile = ''
 }
+
+onMounted(() => {
+  fetchHousekeepers()
+})
 </script>

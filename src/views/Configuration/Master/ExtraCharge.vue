@@ -375,11 +375,11 @@ const formData = reactive({
 // Computed properties
 const selectedCount = computed(() => selectedExtraCharges.value.length)
 
-// Table columns
+// Table columns - CORRIGÉ : retirer sortable et searchable
 const columns: Column[] = [
-  { key: 'shortCode', label: t('shortCode'), type: 'text', sortable: true, searchable: true },
-  { key: 'name', label: t('name'), type: 'text', sortable: true, searchable: true },
-  { key: 'rate', label: t('rate'), type: 'text', sortable: true },
+  { key: 'shortCode', label: t('shortCode'), type: 'text' },
+  { key: 'name', label: t('name'), type: 'text' },
+  { key: 'rate', label: t('rate'), type: 'text' },
   { key: 'taxes', label: t('tax'), type: 'custom' },
   { key: 'rateInclusiveTax', label: t('rateInclusiveTax'), type: 'text' },
   { key: 'fixedPrice', label: t('fixedPrice'), type: 'custom' },

@@ -21,13 +21,24 @@
         :empty-state-message="t('configuration.market_code.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton 
             variant="primary" 
-            :icon="PlusIcon"
+            :icon="Plus"
             :label="t('configuration.market_code.add_market_code')"
             @click="openAddModal"
+            :disabled="loading"
+          />
+          <!-- Bulk Delete Button (Visible when items are selected) -->
+          <BasicButton 
+            v-if="selectedCodes.length > 0" 
+            @click="handleDeleteSelected" 
+            :label="$t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
+            :disabled="loading"
           />
         </template>
 
@@ -105,14 +116,32 @@
         </div>
       </div>
 
-      <!-- Delete Confirmation Modal -->
+      <!-- Delete Single Confirmation Modal -->
       <ModalConfirmation
-        v-if="showDeleteConfirmation"
-        @close="showDeleteConfirmation = false; marketCodeToDelete = null"
-        @confirm="deleteMarketCode"
-        :action="'DANGER'"
-        :title="t('configuration.market_code.delete_confirmation_title')"
-        :message="t('configuration.market_code.delete_confirmation_message', { name: marketCodeToDelete?.name || '' })"
+        v-if="showDeleteModal"
+        v-model="showDeleteModal"
+        :title="t('Delete Market Code')"
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading"
+        :confirm-text="t('delete')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmDeleteSingleCode"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showBulkDeleteModal"
+        v-model="showBulkDeleteModal"
+        :title="t('Delete Selected Market Codes')"
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading"
+        :confirm-text="t('deleteSelected')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmBulkDeleteCodes"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
       />
     </div>
   </ConfigurationLayout>
@@ -135,9 +164,8 @@ import {
   updateMarketCodeById, 
   deleteMarketCodeById 
 } from '@/services/configrationApi'
-// Save icon removed as it's no longer used in the template
 import type { Action, Column } from '../../../utils/models'
-import PlusIcon from '../../../icons/PlusIcon.vue'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -149,9 +177,15 @@ const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 const loading = ref(false)
 const saving = ref(false)
-const showDeleteConfirmation = ref(false)
-const marketCodeToDelete = ref<any>(null)
 const marketCodes = ref([])
+
+// Selection & Delete State
+const selectedCodes = ref<any[]>([])
+const codeToDelete = ref<any | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 const formData = ref({
   name: '',
@@ -170,6 +204,90 @@ const segmentOptions = [
   { label: 'Events', value: 'Events' },
   { label: 'Other', value: 'Other' }
 ]
+
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!codeToDelete.value) return ''
+  const codeName = codeToDelete.value.name
+  return t('configuration.market_code.delete_confirmation_message', { name: codeName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedCodes.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const codeName = selectedCodes.value[0].name
+    return t('configuration.market_code.delete_confirmation_message', { name: codeName })
+  } else {
+    return t('configuration.market_code.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected: any[]) => {
+  selectedCodes.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteCode = (code: any) => {
+  codeToDelete.value = code
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleCode = async () => {
+  if (!codeToDelete.value || !codeToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deleteMarketCodeById(codeToDelete.value.id)
+    await fetchMarketCodes()
+    toast.success(t('configuration.market_code.delete_success'))
+  } catch (error) {
+    console.error('Error deleting market code:', error)
+    toast.error(t('configuration.market_code.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  codeToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedCodes.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteCodes = async () => {
+  if (selectedCodes.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedCodes.value.map(code =>
+      deleteMarketCodeById(code.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchMarketCodes()
+    selectedCodes.value = []
+    toast.success(t('configuration.market_code.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting market code(s):', error)
+    toast.error(t('configuration.market_code.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Computed properties
 const columns = computed<Column[]>(() => [
@@ -210,13 +328,15 @@ const columns = computed<Column[]>(() => [
 const actions = computed(() => [
   {
     label: t('configuration.market_code.edit'),
+    icon: Edit,
     variant: 'primary',
-    handler: (item: any) => editMarketCode(item)
+    handler: (item: any) => onAction('edit', item)
   },
   {
     label: t('configuration.market_code.delete'),
+    icon: Trash2,
     variant: 'danger',
-    handler: (item: any) => confirmDeleteMarketCode(item)
+    handler: (item: any) => onAction('delete', item)
   }
 ])
 
@@ -304,29 +424,11 @@ const saveMarketCode = async () => {
   }
 }
 
-const confirmDeleteMarketCode = (marketCode: any) => {
-  marketCodeToDelete.value = marketCode
-  showDeleteConfirmation.value = true
-}
-
-const deleteMarketCode = async () => {
-  try {
-    await deleteMarketCodeById(marketCodeToDelete.value.id)
-    toast.success(t('configuration.market_code.delete_success'))
-    showDeleteConfirmation.value = false
-    marketCodeToDelete.value = null
-    await fetchMarketCodes()
-  } catch (error) {
-    console.error('Error deleting market code:', error)
-    toast.error(t('configuration.market_code.delete_error'))
-  }
-}
-
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editMarketCode(item)
   } else if (action === 'delete') {
-    confirmDeleteMarketCode(item)
+    handleDeleteCode(item)
   }
 }
 

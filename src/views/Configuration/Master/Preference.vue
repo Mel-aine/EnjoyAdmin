@@ -4,39 +4,49 @@
       <!-- Table -->
       <div class="bg-white rounded-lg shadow">
         <ReusableTable
-                :title="$t('configuration.preference.title')"
-
+          :title="$t('configuration.preference.title')"
           :columns="columns"
           :data="preferences"
           :actions="actions"
           :loading="loading"
           :searchPlaceholder="$t('configuration.preference.search_placeholder')"
           :selectable="true"
+          @action="onAction"
+          @selection-change="onSelectionChange"
         >
-        <template #header-actions>
-          <BasicButton 
-          variant="primary"
-          :icon="Plus"
-          :label="$t('configuration.preference.add_preference')"
-          @click="openAddModal"
-          :disabled="loading"
-        />
-        </template>
-           <!-- Custom column for created info -->
-        <template #column-createdInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-          </div>
-        </template>
+          <template #header-actions>
+            <BasicButton 
+              variant="primary"
+              :icon="Plus"
+              :label="$t('configuration.preference.add_preference')"
+              @click="openAddModal"
+              :disabled="loading"
+            />
+            <!-- Bulk Delete Button (Visible when items are selected) -->
+            <BasicButton 
+              v-if="selectedPreferences.length > 0" 
+              @click="handleDeleteSelected" 
+              :label="$t('deleteSelected')" 
+              :icon="Trash2"
+              variant="danger"
+              :disabled="loading"
+            />
+          </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-          </div>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
         </ReusableTable>
       </div>
 
@@ -50,7 +60,6 @@
           <form @submit.prevent="savePreference">
             <!-- Name -->
             <div class="mb-4">
-              
               <Input 
                 v-model="formData.name"
                 :lb=" $t('configuration.preference.name')"
@@ -93,16 +102,32 @@
         </div>
       </div>
 
-      <!-- Modal Confirmation -->
+      <!-- Delete Single Confirmation Modal -->
       <ModalConfirmation
         v-if="showDeleteModal"
-        :title="$t('configuration.preference.delete_confirmation_title')"
-        :message="$t('configuration.preference.delete_confirmation_message')"
-        :confirmText="$t('configuration.preference.delete')"
-        :cancelText="$t('configuration.preference.cancel')"
-        variant="danger"
-        @confirm="confirmDelete"
-        @close="cancelDelete"
+        v-model="showDeleteModal"
+        :title="t('Delete Preference')"
+        :message="getSingleDeleteMessage()"
+        :loading="isDeletingLoading"
+        :confirm-text="t('delete')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmDeleteSinglePreference"
+        @close="closeSingleDeleteModal"
+        action="DANGER"
+      />
+
+      <!-- Bulk Delete Confirmation Modal -->
+      <ModalConfirmation
+        v-if="showBulkDeleteModal"
+        v-model="showBulkDeleteModal"
+        :title="t('Delete Selected Preferences')"
+        :message="getBulkDeleteMessage()"
+        :loading="isBulkDeletingLoading"
+        :confirm-text="t('deleteSelected')"
+        :cancel-text="t('cancel')"
+        @confirm="confirmBulkDeletePreferences"
+        @close="closeBulkDeleteModal"
+        action="DANGER"
       />
     </div>
   </ConfigurationLayout>
@@ -117,34 +142,122 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceById } from '../../../services/configrationApi'
+import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceById, deletePreferenceById } from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import Plus from '../../../icons/Plus.vue'
-// Edit and Save icons removed as they're no longer used in the template
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
+
 // Reactive data
 const showModal = ref(false)
-const showDeleteModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const loadingPreferenceTypes = ref(false)
-const deleteItemId = ref(null)
-
-// Data
 const preferences = ref([])
 const preferenceTypes = ref([])
+
+// Selection & Delete State
+const selectedPreferences = ref([])
+const preferenceToDelete = ref(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 // Form data
 const formData = ref({
   name: '',
   preferenceTypeId: null
 })
+
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!preferenceToDelete.value) return ''
+  const preferenceName = preferenceToDelete.value.name
+  return t('configuration.preference.delete_confirmation_message', { name: preferenceName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedPreferences.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const preferenceName = selectedPreferences.value[0].name
+    return t('configuration.preference.delete_confirmation_message', { name: preferenceName })
+  } else {
+    return t('configuration.preference.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected) => {
+  selectedPreferences.value = selected
+}
+
+// Single Delete Handlers
+const handleDeletePreference = (preference) => {
+  preferenceToDelete.value = preference
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSinglePreference = async () => {
+  if (!preferenceToDelete.value || !preferenceToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deletePreferenceById(preferenceToDelete.value.id)
+    await loadPreferences()
+    toast.success(t('preference.delete_success'))
+  } catch (error) {
+    console.error('Error deleting preference:', error)
+    toast.error(t('preference.delete_error'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  preferenceToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedPreferences.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeletePreferences = async () => {
+  if (selectedPreferences.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedPreferences.value.map(preference =>
+      deletePreferenceById(preference.id)
+    )
+    await Promise.all(deletePromises)
+
+    await loadPreferences()
+    selectedPreferences.value = []
+    toast.success(t('configuration.preference.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting preference(s):', error)
+    toast.error(t('preference.delete_error'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Computed
 const preferenceTypeOptions = computed(() => {
@@ -165,12 +278,14 @@ const columns = [
 const actions = [
   {
     label: t('configuration.preference.edit'),
-    handler: (item) => editPreference(item),
+    icon: Edit,
+    handler: (item) => onAction('edit', item),
     variant: 'primary'
   },
   {
     label: t('configuration.preference.delete'),
-    handler: (item) => deletePreference(item.id),
+    icon: Trash2,
+    handler: (item) => onAction('delete', item),
     variant: 'danger'
   }
 ]
@@ -192,7 +307,7 @@ const loadPreferences = async () => {
 const loadPreferenceTypes = async () => {
   try {
     loadingPreferenceTypes.value = true
-    const response = await  getPreferenceTypes()
+    const response = await getPreferenceTypes()
     preferenceTypes.value = response.data.data.data || []
   } catch (error) {
     console.error('Error loading preference types:', error)
@@ -250,27 +365,12 @@ const savePreference = async () => {
   }
 }
 
-const deletePreference = (id) => {
-  deleteItemId.value = id
-  showDeleteModal.value = true
-}
-
-const confirmDelete = async () => {
-  try {
-    await configrationApi.deletePreferenceById(deleteItemId.value)
-    toast.success(t('preference.delete_success'))
-    showDeleteModal.value = false
-    deleteItemId.value = null
-    await loadPreferences()
-  } catch (error) {
-    console.error('Error deleting preference:', error)
-    toast.error(t('preference.delete_error'))
+const onAction = (action, item) => {
+  if (action === 'edit') {
+    editPreference(item)
+  } else if (action === 'delete') {
+    handleDeletePreference(item)
   }
-}
-
-const cancelDelete = () => {
-  showDeleteModal.value = false
-  deleteItemId.value = null
 }
 
 const closeModal = () => {
@@ -281,11 +381,6 @@ const closeModal = () => {
     name: '',
     preferenceTypeId: null
   }
-}
-
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString()
 }
 
 // Lifecycle

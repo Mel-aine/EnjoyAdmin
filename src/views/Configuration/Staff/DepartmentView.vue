@@ -85,16 +85,27 @@
           :searchPlaceholder="$t('configuration.departments.search_placeholder')"
           :emptyStateTitle="$t('configuration.departments.empty_state_title')"
           :emptyStateMessage="$t('configuration.departments.empty_state_message')"
-          :selectable="false"
+          :selectable="true"
           @action="onAction"
+          @selection-change="onSelectionChange"
         >
           <!-- Header Actions -->
           <template #header-actions>
             <BasicButton
               variant="primary"
-              :icon="PlusIcon"
+              :icon="Plus"
               :label="$t('departments.add')"
               @click="openAddDepartmentModal()"
+              :disabled="loading"
+            />
+            <!-- Bulk Delete Button (Visible when items are selected) -->
+            <BasicButton 
+              v-if="selectedDepartments.length > 0" 
+              @click="handleDeleteSelected" 
+              :label="$t('deleteSelected')" 
+              :icon="Trash2"
+              variant="danger"
+              :disabled="loading"
             />
           </template>
 
@@ -121,34 +132,49 @@
       </div>
     </div>
   </ConfigurationLayout>
-  <ConfirmationModal
-    v-model:show="show"
-    :title="$t('confirmDelete')"
-    :message="$t('deleteDepartmentConfirmMessage')"
-    :confirm-text="$t('delete')"
-    :cancel-text="$t('cancel')"
-    variant="danger"
-    :loading="loadingDelete"
-    @confirm="confirmDelete"
-    @cancel="show = false"
+
+  <!-- Delete Single Confirmation Modal -->
+  <ModalConfirmation
+    v-if="showDeleteModal"
+    v-model="showDeleteModal"
+    :title="t('Delete Department')"
+    :message="getSingleDeleteMessage()"
+    :loading="isDeletingLoading"
+    :confirm-text="t('delete')"
+    :cancel-text="t('cancel')"
+    @confirm="confirmDeleteSingleDepartment"
+    @close="closeSingleDeleteModal"
+    action="DANGER"
+  />
+
+  <!-- Bulk Delete Confirmation Modal -->
+  <ModalConfirmation
+    v-if="showBulkDeleteModal"
+    v-model="showBulkDeleteModal"
+    :title="t('Delete Selected Departments')"
+    :message="getBulkDeleteMessage()"
+    :loading="isBulkDeletingLoading"
+    :confirm-text="t('deleteSelected')"
+    :cancel-text="t('cancel')"
+    @confirm="confirmBulkDeleteDepartments"
+    @close="closeBulkDeleteModal"
+    action="DANGER"
   />
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue'
+import { defineAsyncComponent, ref, onMounted, computed } from 'vue'
 import { createDepartment, getDepartment, updateDpt, deleteDpt } from '@/services/departmentApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import router from '@/router'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import PlusIcon from '../../../icons/PlusIcon.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
-import { Edit, Trash2 } from 'lucide-vue-next'
-import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { getEmployeesForService } from '@/services/userApi'
 import type { Column } from '@/utils/models'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 
 // Types
 interface Department {
@@ -171,44 +197,121 @@ interface Department {
   }
 }
 
-interface department {
- name: string
-  description: string
-  manager: number | null  // peut être null si pas de responsable
-  employeeCount: number
-  status: 'active' | 'inactive' | 'archived'
-}
-
 // Async Components
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
-const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'))
 
 // Reactive data
 const isAddModalOpen = ref(false)
 const isLoading = ref(false)
 const loading = ref(false)
-const { t, locale } = useI18n({ useScope: 'global' })
+const { t } = useI18n({ useScope: 'global' })
 const toast = useToast()
 const serviceStore = useServiceStore()
 const isEditing = ref(false)
 const departmentsData = ref<Department[]>([])
 const Users = ref<any[]>([])
-const show = ref(false)
-const loadingDelete = ref(false)
-const selectedId = ref<number | null>(null)
-const showModal = ref(false)
-const selectedDepartment = ref<Department | null>(null)
 const selected = ref<Department | null>(null)
 
+// Selection & Delete State
+const selectedDepartments = ref<Department[]>([])
+const departmentToDelete = ref<Department | null>(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
-const newDepartment =  ref<any>({
+const newDepartment = ref<any>({
   name: '',
   description: '',
   manager: null,
   status: 'active',
 })
+
+// --- Message methods ---
+const getSingleDeleteMessage = () => {
+  if (!departmentToDelete.value) return ''
+  const departmentName = departmentToDelete.value.name
+  return t('deleteDepartmentConfirmMessage', { name: departmentName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedDepartments.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const departmentName = selectedDepartments.value[0].name
+    return t('deleteDepartmentConfirmMessage', { name: departmentName })
+  } else {
+    return t('configuration.departments.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected: Department[]) => {
+  selectedDepartments.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteDepartment = (department: Department) => {
+  departmentToDelete.value = department
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleDepartment = async () => {
+  if (!departmentToDelete.value || !departmentToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deleteDpt(departmentToDelete.value.id)
+    await fetchDepartment()
+    toast.success(t('toast.DeletedSuccess'))
+  } catch (error) {
+    console.error('Delete error:', error)
+    toast.error(t('toast.deleteErrors'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  departmentToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedDepartments.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteDepartments = async () => {
+  if (selectedDepartments.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedDepartments.value.map(department =>
+      deleteDpt(department.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchDepartment()
+    selectedDepartments.value = []
+    toast.success(t('configuration.departments.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting department(s):', error)
+    toast.error(t('toast.deleteErrors'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // Computed
 const columns = computed<Column[]>(() => [
@@ -222,22 +325,19 @@ const columns = computed<Column[]>(() => [
 const actions = computed(() => [
   {
     label: t('common.edit'),
-    action: 'edit',
     icon: Edit,
     variant: 'primary',
-    handler: (item: Department) => editDepartment(item),
+    handler: (item: Department) => onAction('edit', item),
   },
   {
     label: t('common.delete'),
-    action: 'delete',
     icon: Trash2,
     variant: 'danger',
-    handler: (item: Department) => deleteDepartmentAction(item),
+    handler: (item: Department) => onAction('delete', item),
   },
 ])
 
 // Methods
-
 const openAddDepartmentModal = () => {
   isAddModalOpen.value = true
 }
@@ -340,6 +440,7 @@ const addDepartment = async () => {
     isLoading.value = false
   }
 }
+
 const fetchDepartment = async () => {
   loading.value = true
 
@@ -383,13 +484,13 @@ const fetchUser = async () => {
     if (!hotelId) throw new Error('hotelId is not defined')
     const response = await getEmployeesForService(hotelId)
     console.log('response', response)
-    ;(Users.value = response.data.data.map((user: any) => {
+    Users.value = response.data.data.map((user: any) => {
       return {
         value: user.id,
         label: user.firstName + ' ' + user.lastName,
       }
-    })),
-      console.log('Filtered users with user info:', Users.value)
+    })
+    console.log('Filtered users with user info:', Users.value)
   } catch (error) {
     console.error('fetch failed:', error)
   } finally {
@@ -410,11 +511,6 @@ const editDepartment = (dept: Department) => {
   isAddModalOpen.value = true
 }
 
-const deleteDepartmentAction = (dept: Department) => {
-  selectedId.value = dept.id
-  show.value = true
-}
-
 const getStatusColor = (status: string): string => {
   switch (status) {
     case 'active':
@@ -426,39 +522,15 @@ const getStatusColor = (status: string): string => {
   }
 }
 
-const confirmDelete = async () => {
-  if (selectedId.value === null) return
-
-  loadingDelete.value = true
-
-  try {
-    await deleteDpt(selectedId.value)
-    departmentsData.value = departmentsData.value.filter(
-      (d: Department) => d.id !== selectedId.value,
-    )
-    toast.success(t('toast.DeletedSuccess'))
-  } catch (error) {
-    console.error('Delete error:', error)
-    toast.error(t('toast.deleteErrors'))
-  } finally {
-    loadingDelete.value = false
-    show.value = false
-    selectedId.value = null
-  }
-}
-
 const onAction = (action: string, item: Department) => {
   if (action === 'edit') {
     editDepartment(item)
   } else if (action === 'delete') {
-    deleteDepartmentAction(item)
+    handleDeleteDepartment(item)
   }
 }
 
-// // Watchers
-// watch(locale, fetchDepartment);
-
-// // Lifecycle
+// Lifecycle
 onMounted(async () => {
   await fetchUser()
   await fetchDepartment()

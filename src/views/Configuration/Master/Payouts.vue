@@ -1,8 +1,6 @@
 <template>
   <ConfigurationLayout>
     <div class="space-y-6">
-  
-
       <!-- Table -->
       <ReusableTable
         :title="t('configuration.payout_reasons.table_title')"
@@ -10,11 +8,12 @@
         :data="payoutReasons"
         :actions="actions"
         :search-placeholder="t('configuration.payout_reasons.search_placeholder')"
-        :selectable="false"
+        :selectable="true"
         :loading="loading"
         :empty-state-title="t('configuration.payout_reasons.no_data_title')"
         :empty-state-message="t('configuration.payout_reasons.no_data_message')"
         @action="handleAction"
+        @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton 
@@ -22,6 +21,15 @@
             @click="openAddModal"
             :icon="Plus"
             :label="t('configuration.payout_reasons.add_payout_reason')"
+            :disabled="loading"
+          />
+          <!-- Bulk Delete Button (Visible when items are selected) -->
+          <BasicButton 
+            v-if="selectedReasons.length > 0" 
+            @click="handleDeleteSelected" 
+            :label="t('deleteSelected')" 
+            :icon="Trash2"
+            variant="danger"
             :disabled="loading"
           />
         </template>
@@ -101,6 +109,34 @@
         </form>
       </div>
     </div>
+
+    <!-- Delete Single Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showDeleteModal" 
+      v-model="showDeleteModal" 
+      :title="t('Delete Payout Reason')" 
+      :message="getSingleDeleteMessage()"
+      :loading="isDeletingLoading" 
+      :confirm-text="t('delete')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmDeleteSingleReason"
+      @close="closeSingleDeleteModal"
+      action="DANGER"
+    />
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <ModalConfirmation 
+      v-if="showBulkDeleteModal" 
+      v-model="showBulkDeleteModal" 
+      :title="t('Delete Selected Payout Reasons')" 
+      :message="getBulkDeleteMessage()"
+      :loading="isBulkDeletingLoading" 
+      :confirm-text="t('deleteSelected')" 
+      :cancel-text="t('cancel')" 
+      @confirm="confirmBulkDeleteReasons"
+      @close="closeBulkDeleteModal"
+      action="DANGER"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -114,6 +150,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import {
   getPayoutReasons,
@@ -134,6 +171,14 @@ const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const payoutReasons = ref([])
+
+// Selection & Delete State
+const selectedReasons = ref([])
+const reasonToDelete = ref(null)
+const showDeleteModal = ref(false)
+const showBulkDeleteModal = ref(false)
+const isDeletingLoading = ref(false)
+const isBulkDeletingLoading = ref(false)
 
 // Form data
 const formData = reactive({
@@ -203,16 +248,101 @@ const columns = computed(() => [
 const actions = computed(() => [
   {
     label: t('common.edit'),
-    handler:(item)=> openEditModal(item),
-    icon: Edit
+    handler: (item) => handleAction('edit', item),
+    icon: Edit,
+    variant: 'primary'
   },
   {
     label: t('common.delete'),
-    handler:(item)=> deletePayout(item),
+    handler: (item) => handleAction('delete', item),
     icon: Trash2,
     variant: 'danger'
   }
 ])
+
+// --- Message methods (CORRIGÉ avec les bonnes propriétés) ---
+const getSingleDeleteMessage = () => {
+  if (!reasonToDelete.value) return ''
+  const reasonName = reasonToDelete.value.reason // ✅ Utilise "reason" au lieu de "name"
+  return t('configuration.payout_reasons.delete_confirm', { name: reasonName })
+}
+
+const getBulkDeleteMessage = () => {
+  const count = selectedReasons.value.length
+  if (count === 0) return ''
+  
+  if (count === 1) {
+    const reasonName = selectedReasons.value[0].reason // ✅ Utilise "reason" au lieu de "name"
+    return t('configuration.payout_reasons.delete_confirm', { name: reasonName })
+  } else {
+    return t('configuration.payout_reasons.bulk_delete_confirm', { count: count })
+  }
+}
+
+// --- Handlers for Table and Modals ---
+const onSelectionChange = (selected) => {
+  selectedReasons.value = selected
+}
+
+// Single Delete Handlers
+const handleDeleteReason = (reason) => {
+  reasonToDelete.value = reason
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSingleReason = async () => {
+  if (!reasonToDelete.value || !reasonToDelete.value.id) return
+
+  isDeletingLoading.value = true
+  try {
+    await deletePayoutReasonById(reasonToDelete.value.id)
+    await fetchPayoutReasons()
+    toast.success(t('toast.deleteSuccess'))
+  } catch (error) {
+    console.error('Error deleting payout reason:', error)
+    toast.error(t('toast.deleteError'))
+  } finally {
+    isDeletingLoading.value = false
+    closeSingleDeleteModal()
+  }
+}
+
+const closeSingleDeleteModal = () => {
+  showDeleteModal.value = false
+  reasonToDelete.value = null
+}
+
+// Bulk Delete Handlers
+const handleDeleteSelected = () => {
+  if (selectedReasons.value.length === 0) return
+  showBulkDeleteModal.value = true
+}
+
+const confirmBulkDeleteReasons = async () => {
+  if (selectedReasons.value.length === 0) return
+
+  isBulkDeletingLoading.value = true
+  try {
+    const deletePromises = selectedReasons.value.map(reason =>
+      deletePayoutReasonById(reason.id)
+    )
+    await Promise.all(deletePromises)
+
+    await fetchPayoutReasons()
+    selectedReasons.value = []
+    toast.success(t('configuration.payout_reasons.bulk_delete_success', { count: deletePromises.length }))
+  } catch (error) {
+    console.error('Error deleting payout reason(s):', error)
+    toast.error(t('toast.deleteError'))
+  } finally {
+    isBulkDeletingLoading.value = false
+    closeBulkDeleteModal()
+  }
+}
+
+const closeBulkDeleteModal = () => {
+  showBulkDeleteModal.value = false
+}
 
 // API Functions
 const fetchPayoutReasons = async () => {
@@ -243,26 +373,13 @@ const savePayout = async () => {
       await postPayoutReason(payload)
       toast.success(t('toast.createSuccess'))
     }
-    loseModal()
+    closeModal() // ✅ Corrigé: "closeModal" au lieu de "loseModal"
     await fetchPayoutReasons()
   } catch (error) {
     console.error('Error saving payout reason:', error)
     toast.error(t('toast.saveError'))
   } finally {
     saving.value = false
-  }
-}
-
-const deletePayout = async (item) => {
-  if (confirm(t('common.deleteConfirmation', { name: item.name }))) {
-    try {
-      await deletePayoutReasonById(item.id)
-      toast.success(t('toast.deleteSuccess'))
-      await fetchPayoutReasons()
-    } catch (error) {
-      console.error('Error deleting payout reason:', error)
-      toast.error(t('toast.deleteError'))
-    }
   }
 }
 
@@ -303,7 +420,7 @@ const handleAction = (action, item) => {
       openEditModal(item)
       break
     case 'delete':
-      deletePayout(item)
+      handleDeleteReason(item) // ✅ Utilise la nouvelle méthode avec modale
       break
   }
 }
