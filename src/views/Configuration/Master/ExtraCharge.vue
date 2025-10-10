@@ -166,7 +166,15 @@
                 <label class="flex items-center">
                   <input v-model="formData.fixedPrice" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700">{{ t('fixedPrice') }}</span>
+                  <span class="ml-2 text-sm text-gray-700">{{ t('configuration.extra_charge.fixed_price') }}</span>
+                </label>
+              </div>
+
+              <div class="mb-4">
+                <label class="flex items-center">
+                  <input v-model="formData.isMealPlanComponent" type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                  <span class="ml-2 text-sm text-gray-700">Meal Plan Component</span>
                 </label>
               </div>
 
@@ -351,6 +359,7 @@ const formData = reactive({
   taxes: [] as string[],
   rateInclusiveTax: 0,
   fixedPrice: false,
+  isMealPlanComponent: false,
   frontDeskSortKey: 1,
   publishOnWeb: false,
   voucherNo: 'auto_general',
@@ -575,6 +584,7 @@ const closeModal = () => {
     taxes: [],
     rateInclusiveTax: 0,
     fixedPrice: false,
+    isMealPlanComponent: false,
     frontDeskSortKey: 1,
     publishOnWeb: false,
     voucherNo: 'auto_general',

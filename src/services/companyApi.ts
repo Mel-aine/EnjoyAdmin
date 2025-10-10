@@ -1,10 +1,11 @@
 import type { AxiosResponse } from 'axios'
-import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '../composables/serviceStore'
 import axios from 'axios'
-const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration`
-
+const API_URL = () => {
+  const hotelId = useServiceStore().serviceId
+  return `${import.meta.env.VITE_API_URL as string}/configuration/hotels/${hotelId}/company_accounts`
+}
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
@@ -66,9 +67,8 @@ const handleApiError = (error: any): never => {
 // Get all companies
 export const getCompanies = async (): Promise<Company[] | undefined> => {
   try {
-    const serviceStore = useServiceStore()
-    const response: AxiosResponse<ApiResponse<Company[]>> = await apiClient.get(
-      `/configuration/company_accounts/hotel/${serviceStore.serviceId}`,
+    const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
+      `${API_URL()}`,
       getHeaders()
     )
     return response.data.data
@@ -80,10 +80,10 @@ export const getCompanies = async (): Promise<Company[] | undefined> => {
 // Get filtered companies
 export const getFilteredCompanies = async (filter: CompanyFilter): Promise<Company[] | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company[]>> = await apiClient.post(
-      '/configuration/company_accounts/filter',
-      filter,
-      getHeaders()
+    const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
+      `${API_URL()}`,
+      { params: filter, ...getHeaders() },
+     
     )
     return response.data.data
   } catch (error) {
@@ -94,8 +94,8 @@ export const getFilteredCompanies = async (filter: CompanyFilter): Promise<Compa
 // Get company by ID
 export const getCompanyById = async (companyId: number): Promise<Company | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company>> = await apiClient.get(
-      `/configuration/company_accounts/${companyId}`,
+    const response: AxiosResponse<ApiResponse<Company>> = await axios.get(
+      `${API_URL()}/${companyId}`,
       getHeaders()
     )
     return response.data.data
@@ -107,8 +107,8 @@ export const getCompanyById = async (companyId: number): Promise<Company | undef
 // Create new company
 export const createCompany = async (companyData: Partial<Company>): Promise<Company | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company>> = await apiClient.post(
-      '/configuration/company_accounts',
+    const response: AxiosResponse<ApiResponse<Company>> = await axios.post(
+      `${API_URL()}`,
       companyData,
       getHeaders()
     )
@@ -121,8 +121,8 @@ export const createCompany = async (companyData: Partial<Company>): Promise<Comp
 // Update company
 export const updateCompany = async (companyId: number, companyData: Partial<Company>): Promise<Company | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company>> = await apiClient.put(
-      `/configuration/company_accounts/${companyId}`,
+    const response: AxiosResponse<ApiResponse<Company>> = await axios.put(
+      `${API_URL()}/${companyId}`,
       companyData,
       getHeaders()
     )
@@ -135,8 +135,8 @@ export const updateCompany = async (companyId: number, companyData: Partial<Comp
 // Delete company
 export const deleteCompany = async (companyId: number): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.delete(
-      `/configuration/company_accounts/${companyId}`,
+    const response: AxiosResponse<ApiResponse> = await axios.delete(
+      `${API_URL()}/${companyId}`,
       getHeaders()
     )
     console.log('response', response)
@@ -149,8 +149,8 @@ export const deleteCompany = async (companyId: number): Promise<ApiResponse | un
 // Export companies
 export const exportCompanies = async (): Promise<Blob | undefined> => {
   try {
-    const response: AxiosResponse<Blob> = await apiClient.get(
-      '/configuration/company_accounts/export',
+    const response: AxiosResponse<Blob> = await axios.get(
+      `${API_URL()}/export`,
       {
         ...getHeaders(),
         responseType: 'blob',
@@ -165,8 +165,8 @@ export const exportCompanies = async (): Promise<Blob | undefined> => {
 // Audit companies
 export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      '/configuration/company_accounts/audit',
+    const response: AxiosResponse<ApiResponse> = await axios.get(
+      `${API_URL()}/audit`,
       getHeaders()
     )
     return response.data
@@ -182,8 +182,8 @@ export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
 
 export const getCityLedger = async (hotelId: number): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/configuration/company_accounts/city_ledger/${hotelId}`,
+    const response: AxiosResponse<ApiResponse> = await axios.get(
+      `${API_URL()}/city_ledger/${hotelId}`,
       getHeaders()
     )
     console.log('response', response)
@@ -194,7 +194,7 @@ export const getCityLedger = async (hotelId: number): Promise<ApiResponse | unde
 }
 
 /**
- * filter city lefer transaction 
+ * filter city ledger transaction 
  */
 
 export const getCityLedgerDetails = async (params: {
@@ -209,8 +209,8 @@ export const getCityLedgerDetails = async (params: {
   limit: number
 }): Promise<any> => {
   try {
-    const response: AxiosResponse<AxiosResponse> = await axios.get(
-      `${API_URL}/city_ledger`,
+    const response: AxiosResponse<ApiResponse> = await axios.get(
+      `${API_URL()}/city_ledger`,
       {
         params,
         ...getHeaders()
@@ -228,8 +228,8 @@ export const getCityLedgerDetails = async (params: {
  */
 export const postTransactionPayCompanyBulk = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse<AxiosResponse> = await axios.post(
-      `${API_URL}/company_folios/payment-with-assignment`, data, getHeaders()
+    const response: AxiosResponse<ApiResponse> = await axios.post(
+      `${API_URL()}/company_folios/payment-with-assignment`, data, getHeaders()
     )
     console.log('response', response)
     return response.data

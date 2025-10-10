@@ -359,18 +359,37 @@
 
           <!-- Form actions -->
           <div class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4">
-            <BasicButton type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
+            <BasicButton v-if="!showCheckinButton && !pendingReservation" type="button" @click="resetForm" :disabled="isLoading" :label="$t('Cancel')">
             </BasicButton>
 
             <div class="flex space-x-3">
-             <BasicButton v-if="showCheckinButton" type="button" @click="handleCheckIn"
-                :loading="isLoading" :disabled="isLoading"
-                :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
+             <BasicButton v-if="showCheckinButton && !pendingReservation" type="button" @click="handleCheckIn"
+                :loading="isLoading" :disabled="isLoading" variant="info"
+                 :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
               </BasicButton>
               <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
                 :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
               </BasicButton>
+              <button
+                v-if="pendingReservation && reservationId"
+                type="button"
+                @click="handleConfirmReservation"
+                :disabled="isConfirmingReservation"
+                class="bg-green-500 text-white text-sm py-2 px-4 rounded hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg
+                  v-if="isConfirmingReservation"
+                  class="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isConfirmingReservation ? $t('Processing...') : $t('ConfirmBooking') }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -380,7 +399,11 @@
       <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
-          <span v-if="confirmReservation"
+          <span v-if="pendingReservation"
+            class="bg-yellow-500 text-white text-sm py-2 px-4 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+            {{ $t('Unconfirmed Booking Inquiry') }}
+          </span>
+          <span v-else-if="confirmReservation"
             class="bg-green-600 text-white text-sm py-2 px-4 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
             {{ $t('ConfirmBooking') }}
           </span>
@@ -505,12 +528,57 @@
               <div v-show="showTaxDetails[room.id]" class="transition-all duration-200">
                 <div v-for="tax in room.taxes" :key="tax.id"
                   class="flex justify-between font-medium text-gray-800 text-sm mb-1">
-                  <span class="font-medium text-gray-500">{{ tax.taxName }}({{
+                  <span class="font-medium text-gray-500">{{ tax.name }}({{
                     tax.postingType == 'flat_amount'
                       ? formatCurrency(parseFloat(tax.amount))
                       : `${tax.percentage}%`
                   }})</span>
                   <span class="text-gray-500">{{ formatCurrency(tax.taxAmount) }}</span>
+                </div>
+              </div>
+            </div>
+            <!--etra charges-->
+            <div v-if="room.extraCharges && room.extraCharges.length > 0" class="flex flex-col mt-3">
+              <div class="flex items-center justify-between mb-2 cursor-pointer" @click="toggleExtraChargesDetails(room.id)">
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-700">{{ $t('detailsOfExtraCharges') }}</span>
+                  <svg
+                    class="w-4 h-4 ml-2 transform transition-transform duration-200"
+                    :class="{ 'rotate-180': showChargesDetails[room.id] }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+                <span class="px-2 py-1   text-xs rounded-full" :class="[isExtraChargesIncluded? 'text-green-700 bg-green-100' : 'text-blue-700 bg-blue-100']">
+                  {{ isExtraChargesIncluded ? $t('Included') : $t('ExtraServices') }}
+                </span>
+              </div>
+
+              <div v-show="showChargesDetails[room.id]" class="transition-all duration-200">
+                <div
+                  v-for="charge in room.extraCharges"
+                  :key="charge.id"
+                  class="flex justify-between items-center font-medium text-gray-800 text-sm mb-2 p-1 bg-gray-50 rounded"
+                >
+                  <div class="flex flex-col">
+                    <span class="font-medium text-gray-700">{{ charge.name }}</span>
+
+                  </div>
+                  <span class="text-gray-700 font-semibold">{{ formatCurrency(parseFloat(charge.rate)) }}</span>
+                </div>
+
+                <!-- Total des extra charges si plus d'un élément -->
+                <div
+                  v-if="room.extraCharges.length > 1"
+                  class="flex justify-between items-center font-bold text-gray-900 text-sm mt-2 pt-2 border-t border-gray-300"
+                >
+                  <span>{{ $t('TotalExtraCharges') }}</span>
+                  <span>
+                    {{ formatCurrency(room.extraCharges.reduce((sum, charge) => sum + parseFloat(charge.rate), 0)) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -607,7 +675,7 @@ import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { useReservation } from '@/composables/useReservation'
-import { getReservationDetailsById } from '../../services/reservation'
+import { getReservationDetailsById,confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
 
@@ -622,6 +690,8 @@ const reservationDetails = ref<{ payment_method?: number; payment_type?: string 
 const {performCheckIn}= useReservation()
 
 const isAddPaymentModalOpen = ref(false)
+const isConfirmingReservation = ref(false)
+
 const performChecking = () => { }
 const toast = useToast()
 const closeAddPaymentModal = () => {
@@ -629,17 +699,24 @@ const closeAddPaymentModal = () => {
 }
 
 const showTaxDetails = ref<Record<string, boolean>>({})
+const showChargesDetails = ref<Record<string, boolean>>({})
 
 const toggleTaxDetails = (roomId: string) => {
   showTaxDetails.value[roomId] = !showTaxDetails.value[roomId]
 }
 
+const toggleExtraChargesDetails = (roomId: string) => {
+  showChargesDetails.value[roomId] = !showChargesDetails.value[roomId]
+}
 const handleSavePayment = (payment: any) => {
   router.push({
     name: 'ReservationDetails',
     params: { id: reservationId.value },
   })
 }
+
+
+
 
 
 const openAddPaymentModal = async () => {
@@ -722,6 +799,7 @@ const {
   dateError,
   isPaymentButtonShow,
   confirmReservation,
+  pendingReservation,
   isCustomPrize,
   isCheckedIn,
   voucherEmailError,
@@ -765,7 +843,8 @@ const {
   onRoomNumberChange,
   pendingUploads,
   holdReleaseData,
-  canCityLedgerPay
+  canCityLedgerPay,
+  isExtraChargesIncluded
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -774,6 +853,16 @@ const hasPendingUploads = computed(() => {
 })
 const isGroupReservation = computed(() => {
   return roomConfigurations.value.length > 1
+})
+
+const checkinButtonLabel = computed(() => {
+  if (pendingReservation.value) {
+    return t('Confirm Reservation')
+  }
+  if (isGroupReservation.value) {
+    return t('Check-In')
+  }
+  return t('Quick Check-In')
 })
 
 
@@ -838,6 +927,44 @@ const handleCheckIn = async () => {
   }
 }
 
+// Ajoutez
+const handleConfirmReservation = async () => {
+  if (!reservationId.value) {
+    toast.error(t('No reservation to confirm'))
+    return
+  }
+
+  try {
+    isConfirmingReservation.value = true
+
+    const data = {
+      status: 'confirmed'
+    }
+
+    const res = await confirmBooking(reservationId.value, data)
+    console.log("Confirmation response:", res)
+
+    if (res.status === 200 || res.data) {
+      // Mettre à jour l'état de la réservation
+      pendingReservation.value = false
+      confirmReservation.value = true
+
+      toast.success(t('Reservation confirmed successfully'))
+
+       await router.push({
+          name: 'ReservationDetails',
+          params: { id: reservationId.value },
+        })
+      }
+
+  } catch (error: any) {
+    console.error('Error confirming reservation:', error)
+    const errorMessage = error.response?.data?.message || error.message || t('Failed to confirm reservation')
+    toast.error(errorMessage)
+  } finally {
+    isConfirmingReservation.value = false
+  }
+}
 const initializeForm = () => {
   // Call the original initialize from useBooking if it sets default values
   initialize()

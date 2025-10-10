@@ -478,5 +478,17 @@ export const applyDiscountReservationDetails = async (reservationId: number, dat
   }
 }
 
-
+/**
+ * reservation update status
+ */
+export const confirmBooking = async (id: number,data:any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
+      `/reservation/${id}/update_status`,data, getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 

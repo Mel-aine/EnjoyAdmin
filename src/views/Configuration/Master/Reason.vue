@@ -6,12 +6,12 @@
         :empty-state-title="$t('configuration.reason.empty_state_title')"
         :empty-state-message="$t('configuration.reason.empty_state_message')" :loading="loading" @action="onAction">
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
-            :icon="PlusIcon" 
+          <BasicButton
+            variant="primary"
+            :icon="PlusIcon"
             :label="$t('configuration.reason.add_reason')"
-            @click="openAddModal" 
-            :disabled="loading" 
+            @click="openAddModal"
+            :disabled="loading"
           />
         </template>
 
@@ -78,6 +78,7 @@
         </div>
       </div>
     </div>
+
   </ConfigurationLayout>
 </template>
 
@@ -99,6 +100,7 @@ import {
   updateReasonById,
   deleteReasonById
 } from '@/services/configrationApi'
+
 
 const { t } = useI18n()
 const toast = useToast()

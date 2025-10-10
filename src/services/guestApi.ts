@@ -43,7 +43,7 @@ export interface GuestPayload {
   idExpiryDate?: string
   issuingCountry?: string
   issuingCity?: string
-  vipStatus?: string
+  vipStatusId?: any
   idType?: string
   idNumber?: string
   dateOfBirth?: string

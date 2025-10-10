@@ -6255,5 +6255,15 @@
   "Exchange this room" : "Exchange this room",
   "Current Room" : "Current Room",
   "Current Rooms" : "Current Rooms",
-  "enterAmount":"Enter amount"
+  "enterAmount":"Enter amount",
+  "mealPlanDetails": "Meal Plan Details",
+  "allInclusive": "All Inclusive",
+  "includedCharges": "Included Charges",
+  "totalPerDay": "Total per day",
+  "noChargesIncluded": "No extra charges included",
+  "noRoomRatesFound" : "No Room Rates Found",
+  "clickAddRoomRate" : "Click Add Room Rate",
+  "detailsOfExtraCharges" : "Details Of Extra Charges",
+  "ExtraServices" : "Extra Services",
+  "TotalExtraCharges" : "Total Extra Charges"
 }

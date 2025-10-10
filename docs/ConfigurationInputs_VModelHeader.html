@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+  <html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuration — v-model en en-têtes</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      h2 { margin-top: 32px; font-size: 18px; }
+      table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+      th, td { border: 1px solid #ccc; padding: 6px 8px; font-size: 12px; }
+      th { background: #f3f3f3; }
+      .file-path { color: #555; font-size: 12px; }
+      .label-row th { background: #fff; color: #444; font-weight: normal; }
+    </style>
+  </head>
+  <body>
+    <h1>Configuration — Tables avec v-model en en-têtes</h1>
+    <p>Chaque table utilise les expressions <code>v-model</code> comme en-têtes. La première ligne contient la traduction FR du libellé d'entrée.</p>
+  <h2>ConfigurationIndex.vue</h2><div class="file-path">src/views/Configuration/ConfigurationIndex.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>ConfigurationLayout.vue</h2><div class="file-path">src/views/Configuration/ConfigurationLayout.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>Housekeepers.vue</h2><div class="file-path">src/views/Configuration/Housekeeping/Housekeepers.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.mobile</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>housekeeperName</td><td>Mobile Number</td></tr>
+        <tr><td>Input</td><td>InputPhone</td></tr>
+      </tbody>
+    </table>
+<h2>Status.vue</h2><div class="file-path">src/views/Configuration/Housekeeping/Status.vue</div>
+<table>
+      <thead><tr><th>tempColor</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td></tr>
+        <tr><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>Units.vue</h2><div class="file-path">src/views/Configuration/Housekeeping/Units.vue</div>
+<table>
+      <thead><tr><th>formData.name</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Unit Name</td></tr>
+        <tr><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>BlackListReason.vue</h2><div class="file-path">src/views/Configuration/Master/BlackListReason.vue</div>
+<table>
+      <thead><tr><th>formData.reason</th><th>formData.category</th><th>formData.severity</th><th>formData.description</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Reason Name</td><td>Category</td><td>Severity</td><td>Description</td></tr>
+        <tr><td>Input</td><td>Select</td><td>Select</td><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>BusinessSource.vue</h2><div class="file-path">src/views/Configuration/Master/BusinessSource.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.name</th><th>formData.color</th><th>formData.registrationNumber</th><th>formData.marketCodeId</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>input</td><td>input</td><td>input</td><td>input</td><td>select</td></tr>
+      </tbody>
+    </table>
+<h2>Currency.vue</h2><div class="file-path">src/views/Configuration/Master/Currency.vue</div>
+<table>
+      <thead><tr><th>formData.country</th><th>formData.name</th><th>formData.sign</th><th>formData.prefixSuffix</th><th>formData.currencyCode</th><th>formData.digitsAfterDecimal</th><th>formData.exchangeRate</th><th>formData.isDefault</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td>Devise</td><td>Sign</td><td></td><td>Code de la devise</td><td>Chiffres après la virgule</td><td></td><td></td></tr>
+        <tr><td>InputCountries</td><td>Input</td><td>Input</td><td>input</td><td>Input</td><td>Input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>Discounts.vue</h2><div class="file-path">src/views/Configuration/Master/Discounts.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.name</th><th>formData.type</th><th>formData.value</th><th>formData.applyOn</th><th>formData.status</th><th>formData.openDiscount</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court</td><td>Nom de la réduction</td><td>Type</td><td>Valeur</td><td>S&#39;applique sur</td><td>Statut</td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td><td>Input</td><td>Select</td><td>Select</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>ExtraCharge.vue</h2><div class="file-path">src/views/Configuration/Master/ExtraCharge.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.name</th><th>formData.rate</th><th>formData.taxes</th><th>formData.rateInclusiveTax</th><th>formData.fixedPrice</th><th>formData.frontDeskSortKey</th><th>formData.publishOnWeb</th><th>formData.voucherNo</th><th>formData.description</th><th>formData.chargeAppliesOn</th><th>formData.applyChargeOn</th><th>formData.applyChargeAlways</th><th>formData.validFrom</th><th>formData.validTo</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Input</td><td>input</td><td>input</td><td>input</td><td>Input</td><td>input</td><td>select</td><td>textarea</td><td>select</td><td>select</td><td>input</td><td>InputDatePicker</td><td>InputDatePicker</td></tr>
+      </tbody>
+    </table>
+<h2>IdentityType.vue</h2><div class="file-path">src/views/Configuration/Master/IdentityType.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.name</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court</td><td>Nom du type d&#39;identité</td></tr>
+        <tr><td>Input</td><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>MarketCode.vue</h2><div class="file-path">src/views/Configuration/Master/MarketCode.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.code</th><th>formData.segment</th><th>formData.description</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>configuration.market_code.name</td><td>configuration.market_code.code</td><td>configuration.market_code.segment</td><td>Description</td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>PayMethod.vue</h2><div class="file-path">src/views/Configuration/Master/PayMethod.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.name</th><th>formData.type</th><th>formData.cardProcessing</th><th>formData.surchargeSetting</th><th>formData.surchargeType</th><th>formData.surchargeValue</th><th>formData.extraCharge</th><th>formData.receiptNoSetting</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court</td><td>Méthode de paiement</td><td></td><td></td><td></td><td></td><td>Valeur</td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>select</td><td>input</td><td>input</td><td>select</td><td>Input</td><td>select</td><td>select</td></tr>
+      </tbody>
+    </table>
+<h2>Payouts.vue</h2><div class="file-path">src/views/Configuration/Master/Payouts.vue</div>
+<table>
+      <thead><tr><th>formData.reason</th><th>formData.description</th><th>formData.category</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>Preference.vue</h2><div class="file-path">src/views/Configuration/Master/Preference.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.preferenceTypeId</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom de la préférence</td><td></td></tr>
+        <tr><td>Input</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>PreferenceType.vue</h2><div class="file-path">src/views/Configuration/Master/PreferenceType.vue</div>
+<table>
+      <thead><tr><th>formData.name</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td></tr>
+        <tr><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>Reason.vue</h2><div class="file-path">src/views/Configuration/Master/Reason.vue</div>
+<table>
+      <thead><tr><th>formData.reasonName</th><th>formData.category</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom du motif</td><td>Catégorie</td><td>Statut</td></tr>
+        <tr><td>Input</td><td>Select</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>ReservationType.vue</h2><div class="file-path">src/views/Configuration/Master/ReservationType.vue</div>
+<table>
+      <thead><tr><th>formData.name</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom</td></tr>
+        <tr><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>Template.vue</h2><div class="file-path">src/views/Configuration/Master/Template.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.category</th><th>formData.autoSend</th><th>formData.attachment</th><th>formData.emailAccount</th><th>formData.scheduleDate</th><th>formData.subject</th><th>formData.messageBody</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Template Name</td><td>Template Category</td><td>Auto Send</td><td>Attachment</td><td>Email Account</td><td>Schedule Date</td><td>Subject</td><td></td></tr>
+        <tr><td>Input</td><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Input</td><td>Input</td><td>textarea</td></tr>
+      </tbody>
+    </table>
+<h2>TemplateCategory.vue</h2><div class="file-path">src/views/Configuration/Master/TemplateCategory.vue</div>
+<table>
+      <thead><tr><th>formData.category</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom de la catégorie</td></tr>
+        <tr><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>TransportationMode.vue</h2><div class="file-path">src/views/Configuration/Master/TransportationMode.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.description</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom du mode de transport</td><td>Description</td></tr>
+        <tr><td>Input</td><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>VipStatus.vue</h2><div class="file-path">src/views/Configuration/Master/VipStatus.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.color</th><th>formData.icon</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom</td><td></td><td>Icône</td></tr>
+        <tr><td>Input</td><td>input</td><td>VipIconPicker</td></tr>
+      </tbody>
+    </table>
+<h2>RateType.vue</h2><div class="file-path">src/views/Configuration/Rates/RateType.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.rateTypeName</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court</td><td>Nom du type de tarif</td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>RoomRates.vue</h2><div class="file-path">src/views/Configuration/Rates/RoomRates.vue</div>
+<table>
+      <thead><tr><th>formData.roomType</th><th>formData.rateType</th><th>formData.season</th><th>formData.sourceName</th><th>formData.baseRate</th><th>formData.extraAdultRate</th><th>formData.extraChildRate</th><th>formData.effectiveFrom</th><th>formData.effectiveTo</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Type de chambre</td><td>Type de tarif</td><td>Saison</td><td>Nom de la source</td><td>Tarif de base</td><td>Tarif pour adulte supplémentaire</td><td>Tarif pour enfant supplémentaire</td><td></td><td></td><td>Statut</td></tr>
+        <tr><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Input</td><td>Input</td><td>Input</td><td>InputDatePicker</td><td>InputDatePicker</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>Season.vue</h2><div class="file-path">src/views/Configuration/Rates/Season.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.seasonName</th><th>formData.fromDay</th><th>formData.fromMonth</th><th>formData.toDay</th><th>formData.toMonth</th><th>formData.startDate</th><th>formData.expireDate</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court</td><td>Nom de la saison</td><td>Du jour/date</td><td>Du mois</td><td>Au jour/date</td><td>Au mois</td><td>Date de début</td><td>Date d&#39;expiration</td><td>Statut</td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>InputDatePicker</td><td>InputDatePicker</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>SetOffers.vue</h2><div class="file-path">src/views/Configuration/Rates/SetOffers.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>SortRates.vue</h2><div class="file-path">src/views/Configuration/Rates/SortRates.vue</div>
+<table>
+      <thead><tr><th>rate.sortOrder</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td></tr>
+        <tr><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>Taxes.vue</h2><div class="file-path">src/views/Configuration/Rates/Taxes.vue</div>
+<table>
+      <thead><tr><th>formData.shortName</th><th>formData.taxName</th><th>formData.appliesFrom</th><th>formData.exemptAfter</th><th>formData.postingType</th><th>formData.applyTax</th><th>formData.amount</th><th>formData.percentage</th><th>formData.slabInfo</th><th>formData.taxApplyAfter</th><th>formData.applyTaxOnRackRate</th><th>formData.status</th><th>showConfirmModal</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom court</td><td>Nom de la taxe</td><td>S&#39;applique à partir de</td><td></td><td>Type de publication</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>confirmTitle</td></tr>
+        <tr><td>Input</td><td>Input</td><td>InputDatePicker</td><td>Input</td><td>Select</td><td>input</td><td>Input</td><td>Input</td><td>textarea</td><td>input</td><td>input</td><td>Select</td><td>ModalConfirmation</td></tr>
+      </tbody>
+    </table>
+<h2>BedType.vue</h2><div class="file-path">src/views/Configuration/Rooms/BedType.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.bedTypeName</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court </td><td>Nom du type de lit *</td><td>Statut</td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>RoomAmenities.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomAmenities.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.type</th><th>formData.sortKey</th><th>formData.status</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom de l&#39;équipement</td><td>Type d&#39;équipement</td><td>Clé de tri</td><td>Statut</td></tr>
+        <tr><td>Input</td><td>Select</td><td>Input</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>RoomFloor.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomFloor.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.roomNumber</th><th>formData.phoneExtension</th><th>formData.keyCardAlias</th><th>formData.sortKey</th><th>formData.smokingAllowed</th><th>formData.connectedRooms</th><th>formData.taxRateIds</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Code court</td><td>Nom de la chambre</td><td>Poste téléphonique</td><td>Alias de la clé magnétique</td><td>Clé de tri</td><td></td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Input</td><td>Input</td><td>Input</td><td>input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>RoomOwner.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomOwner.vue</div>
+<table>
+      <thead><tr><th>formData.name</th><th>formData.businessName</th><th>formData.address</th><th>formData.country</th><th>formData.state</th><th>formData.city</th><th>formData.zipCode</th><th>formData.phone</th><th>formData.fax</th><th>formData.mobile</th><th>formData.email</th><th>formData.commissionPlan</th><th>formData.commissionValue</th><th>formData.rate</th><th>formData.roomInventory</th><th>formData.openingBalance</th><th>formData.createUser</th><th>formData.roomIds</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom</td><td>businessName</td><td>Adresse</td><td></td><td>État/Province</td><td>Ville</td><td>Code postal</td><td>Téléphone</td><td>Fax</td><td>Mobile</td><td>E-mail</td><td>commissionPlan</td><td>commissionValue</td><td>Tarif</td><td>roomInventory</td><td>openingBalance</td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Input</td><td>InputCountries</td><td>Input</td><td>Input</td><td>Input</td><td>InputPhone</td><td>Input</td><td>InputPhone</td><td>InputEmail</td><td>Select</td><td>Input</td><td>Select</td><td>Select</td><td>Input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>RoomType.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomType.vue</div>
+<table>
+      <thead><tr><th>formData.shortCode</th><th>formData.roomTypeName</th><th>formData.baseAdult</th><th>formData.baseChild</th><th>formData.maxAdult</th><th>formData.maxChild</th><th>formData.publishToWebsite</th><th>formData.defaultWebInventory</th><th>formData.color</th><th>formData.roomAmenities</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>SetRoomTypes.vue</h2><div class="file-path">src/views/Configuration/Rooms/SetRoomTypes.vue</div>
+<table>
+      <thead><tr><th>item.sortOrder</th><th>formData.sortOrder</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Cliquez pour modifier l&#39;ordre de tri</td><td></td></tr>
+        <tr><td>Input</td><td>Input</td></tr>
+      </tbody>
+    </table>
+<h2>StatusColor.vue</h2><div class="file-path">src/views/Configuration/Rooms/StatusColor.vue</div>
+<table>
+      <thead><tr><th>tempColor</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td></tr>
+        <tr><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>CheckInAndReservationSettings.vue</h2><div class="file-path">src/views/Configuration/Settings/CheckInAndReservationSettings.vue</div>
+<table>
+      <thead><tr><th>timeSettings.twentyFourHourCheckout</th><th>timeSettings.checkInTime</th><th>timeSettings.checkOutTime</th><th>dayUseSettings.autoPost</th><th>dayUseSettings.gracePeriodHours</th><th>dayUseSettings.roomChargePercentage</th><th>lateCheckoutSettings.autoPost</th><th>lateCheckoutSettings.gracePeriodHours</th><th>lateCheckoutSettings.roomChargePercentage</th><th>cancellationSettings.postFee</th><th>cancellationSettings.feeType</th><th>cancellationSettings.percentage</th><th>cancellationSettings.fixedAmount</th><th>cancellationSettings.numberOfNights</th><th>cancellationSettings.daysBeforeReservation</th><th>cancellationSettings.daysBeforeArrival</th><th>noShowSettings.postFee</th><th>noShowSettings.feeType</th><th>noShowSettings.percentage</th><th>noShowSettings.fixedAmount</th><th>noShowSettings.numberOfNights</th><th>financialSettings.startMonth</th><th>financialSettings.startDay</th><th>field.required</th><th>otherSettings.emailReservationVoucher</th><th>otherSettings.allowOverbooking</th><th>otherSettings.baseOccupancy</th><th>otherSettings.frontRateMode</th><th>otherSettings.sendReviewEmailTo</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>input</td><td>Input</td><td>Input</td><td>input</td><td>Input</td><td>Input</td><td>input</td><td>Input</td><td>Input</td><td>input</td><td>Select</td><td>Input</td><td>Input</td><td>Input</td><td>Input</td><td>Input</td><td>input</td><td>Select</td><td>Input</td><td>Input</td><td>Input</td><td>Select</td><td>Input</td><td>input</td><td>input</td><td>input</td><td>Input</td><td>Select</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>DisplaySettings.vue</h2><div class="file-path">src/views/Configuration/Settings/DisplaySettings.vue</div>
+<table>
+      <thead><tr><th>formatSettings.timeFormat</th><th>formatSettings.dateFormat</th><th>formatSettings.arrivalDepartureDateFormat</th><th>formatSettings.timeZone</th><th>captionSettings.stateCaption</th><th>captionSettings.zipCodeCaption</th><th>defaultValues.selectIdentity</th><th>defaultValues.reservationType</th><th>defaultValues.salutation</th><th>defaultValues.billTo</th><th>defaultValues.paymentMode</th><th>defaultValues.paymentGateway</th><th>roundOffSettings.type</th><th>roundOffSettings.limit</th><th>webSettings.rateMode</th><th>webSettings.inventoryMode</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Input</td><td>Input</td><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Select</td><td>Input</td><td>Select</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>DocumentNumbering.vue</h2><div class="file-path">src/views/Configuration/Settings/DocumentNumbering.vue</div>
+<table>
+      <thead><tr><th>document.prefix</th><th>document.nextNumber</th><th>document.resetFrequency</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>EmailAccounts.vue</h2><div class="file-path">src/views/Configuration/Settings/EmailAccounts.vue</div>
+<table>
+      <thead><tr><th>formData.title</th><th>formData.emailAddress</th><th>formData.displayName</th><th>formData.signature</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Titre</td><td>Email Address</td><td></td><td></td></tr>
+        <tr><td>Input</td><td>InputEmail</td><td>Input</td><td>textarea</td></tr>
+      </tbody>
+    </table>
+<h2>Formula.vue</h2><div class="file-path">src/views/Configuration/Settings/Formula.vue</div>
+<table>
+      <thead><tr><th>formula.totalRoomRevenue.nightSoldRevenue</th><th>formula.totalRoomRevenue.dayUseRevenue</th><th>formula.totalRoomRevenue.lateCheckoutRevenue</th><th>formula.totalRoomRevenue.cancellationRevenue</th><th>formula.totalRoomRevenue.noShowRevenue</th><th>formula.totalRooms.includeOutOfOrder</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>HotelInformation.vue</h2><div class="file-path">src/views/Configuration/Settings/HotelInformation.vue</div>
+<table>
+      <thead><tr><th>hotelInfo.hotelName</th><th>hotelInfo.email</th><th>hotelInfo.phoneNumber</th><th>hotelInfo.fax</th><th>hotelInfo.website</th><th>hotelInfo.country</th><th>hotelInfo.address</th><th>hotelInfo.address2</th><th>hotelInfo.city</th><th>hotelInfo.stateProvince</th><th>hotelInfo.postalCode</th><th>hotelInfo.propertyType</th><th>hotelInfo.grade</th><th>hotelInfo.registrationNo1</th><th>hotelInfo.registrationNo2</th><th>hotelInfo.registrationNo3</th><th>hotelInfo.cancellationPolicy</th><th>hotelInfo.hotelPolicy</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom de l&#39;hôtel</td><td>E-mail</td><td>Téléphone</td><td>Fax</td><td>Site web</td><td></td><td>Adresse 1</td><td>Adresse 2</td><td>Ville</td><td>État/Province</td><td>Code postal</td><td>Type de propriété</td><td>Classement/Évaluation</td><td>Numéro d&#39;enregistrement 1</td><td>Numéro d&#39;enregistrement 2</td><td>Numéro d&#39;enregistrement 3</td><td></td><td></td></tr>
+        <tr><td>Input</td><td>InputEmail</td><td>InputPhone</td><td>Input</td><td>Input</td><td>InputCountries</td><td>Input</td><td>Input</td><td>Input</td><td>Input</td><td>Input</td><td>Select</td><td>Select</td><td>Input</td><td>Input</td><td>Input</td><td>textarea</td><td>textarea</td></tr>
+      </tbody>
+    </table>
+<h2>Notices.vue</h2><div class="file-path">src/views/Configuration/Settings/Notices.vue</div>
+<table>
+      <thead><tr><th>notices.folio</th><th>notices.registrationCard</th><th>notices.termsAndConditions</th><th>notices.cancellation</th><th>notices.groupProformatInvoice</th><th>notices.receipt</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Folio</td><td>Carte d&#39;enregistrement</td><td>CGV (Conditions Générales de Vente)</td><td>Annulation</td><td>Facture Proforma de Groupe</td><td>Reçu</td></tr>
+        <tr><td>InputTextArea</td><td>InputTextArea</td><td>InputTextArea</td><td>InputTextArea</td><td>InputTextArea</td><td>InputTextArea</td></tr>
+      </tbody>
+    </table>
+<h2>PrintAndEmailSettings.vue</h2><div class="file-path">src/views/Configuration/Settings/PrintAndEmailSettings.vue</div>
+<table>
+      <thead><tr><th>printSettings.printCityLedgerOnInvoice</th><th>template.selectedTemplate</th><th>emailOption.enabled</th><th>emailOption.template</th><th>emailOption.subject</th><th>additionalSettings.reviewEmailTarget</th><th>additionalSettings.reviewEmailTemplate</th><th>additionalSettings.reviewEmailDelay</th><th>additionalSettings.sendVoucherToGuest</th><th>additionalSettings.sendVoucherToCompany</th><th>additionalSettings.sendVoucherToTravelAgent</th><th>additionalSettings.voucherEmailTemplate</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>input</td><td>Select</td><td>input</td><td>Select</td><td>Input</td><td>Select</td><td>Select</td><td>Input</td><td>input</td><td>input</td><td>input</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>RegistrationSettings.vue</h2><div class="file-path">src/views/Configuration/Settings/RegistrationSettings.vue</div>
+<table>
+      <thead><tr><th>registrationSettings.requireIdProof</th><th>registrationSettings.requireSignature</th><th>registrationSettings.requireAddress</th><th>registrationSettings.requireEmergencyContact</th><th>mandatoryFields.phone</th><th>mandatoryFields.email</th><th>mandatoryFields.nationality</th><th>mandatoryFields.dateOfBirth</th><th>mandatoryFields.gender</th><th>mandatoryFields.occupation</th><th>cardSettings.printRegistrationCard</th><th>cardSettings.includePhoto</th><th>cardSettings.includeSignature</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table>
+<h2>DepartmentView.vue</h2><div class="file-path">src/views/Configuration/Staff/DepartmentView.vue</div>
+<table>
+      <thead><tr><th>newDepartment.name</th><th>newDepartment.description</th><th>newDepartment.manager</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom</td><td></td><td>Gérant</td></tr>
+        <tr><td>Input</td><td>textarea</td><td>Select</td></tr>
+      </tbody>
+    </table>
+<h2>EStaffStaffManager.vue</h2><div class="file-path">src/views/Configuration/Staff/EStaffStaffManager.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>UserRoleView.vue</h2><div class="file-path">src/views/Configuration/Staff/UserRoleView.vue</div>
+<table>
+      <thead><tr><th>newRole.name</th><th>newRole.description</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Nom</td><td></td></tr>
+        <tr><td>Input</td><td>textarea</td></tr>
+      </tbody>
+    </table>
+<h2>UserUpsertForm.vue</h2><div class="file-path">src/views/Configuration/Staff/UserUpsertForm.vue</div>
+<table>
+      <thead><tr><th>form.firstName</th><th>form.lastName</th><th>form.gender</th><th>form.phoneNumber</th><th>form.email</th><th>form.dateOfBirth</th><th>form.placeOfBirth</th><th>form.nationalIdNumber</th><th>form.password</th><th>form.roleId</th><th>form.department</th><th>form.language</th><th>form.addressLine</th><th>form.country</th><th>form.stateProvince</th><th>form.city</th><th>form.postalCode</th><th>form.nationality</th><th>form.companyName</th><th>form.fax</th><th>form.registrationNumber</th><th>form.selectedPrivileges</th><th>form.selectedReports</th><th>form.selectedDiscounts</th></tr></thead>
+      <tbody>
+        <tr class="label-row"><td>Prénom</td><td>Nom de famille</td><td>Genre</td><td>Téléphone</td><td>E-mail</td><td>Date de naissance</td><td>Lieu de naissance</td><td>Numéro de carte d&#39;identité nationale</td><td></td><td>Rôle</td><td>Département :</td><td>Langue</td><td></td><td></td><td>État/Province</td><td>Ville</td><td>Code postal</td><td>nationality</td><td>Nom de l&#39;entreprise</td><td>Fax</td><td>N° d&#39;enregistrement</td><td></td><td></td><td></td></tr>
+        <tr><td>Input</td><td>Input</td><td>Select</td><td>InputPhone</td><td>InputEmail</td><td>InputDatePicker</td><td>Input</td><td>Input</td><td>input</td><td>Select</td><td>Select</td><td>Select</td><td>textarea</td><td>InputCountries</td><td>Input</td><td>Input</td><td>Input</td><td>InputCountries</td><td>Input</td><td>Input</td><td>Input</td><td>input</td><td>input</td><td>input</td></tr>
+      </tbody>
+    </table></body></html>

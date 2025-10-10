@@ -55,6 +55,7 @@ const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/
 const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reservations/ExchangeRoomModal.vue'))
 const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { useToast } from 'vue-toastification'
+import { confirmBooking } from '@/services/reservation';
 
 // États des modals
 const isAddPaymentModalOpen = ref(false)
@@ -68,6 +69,7 @@ const isCkeckInModalOpen = ref(false)
 const isExchangeRoomModalOpen = ref(false)
 const isRoomMoveModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
+const isPending = ref(false)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -628,6 +630,9 @@ const getBookingDetailsById = async () => {
   console.log('reservation',response)
   if (response.status === 200) {
     localReservation.value = response.data
+    if(response.data.status === 'pending'){
+      isPending.value = true
+    }
   }
   isLoading.value = false
 }
@@ -760,6 +765,40 @@ const getActionLoadingText = (action: string | null) => {
 
   return loadingTexts[action || ''] || t('Processing...')
 }
+//fonction to confirm reservation
+const isConfirming = ref(false)
+
+const ReservationConfirm = async () => {
+  try {
+    isConfirming.value = true
+
+    const data = {
+      status: 'confirmed'
+    }
+
+    const res = await confirmBooking(localReservation.value.id, data)
+    console.log("res", res)
+
+    if (res.status === 200 || res.data) {
+      updateLocalReservation({
+        status: 'confirmed'
+      })
+
+      isPending.value = false
+
+      toast.success(t('Reservation confirmed successfully'))
+
+      await getBookingDetailsById()
+    }
+
+  } catch (error: any) {
+    console.error('Error confirming reservation:', error)
+    const errorMessage = error.response?.data?.message || error.message || t('Failed to confirm reservation')
+    toast.error(errorMessage)
+  } finally {
+    isConfirming.value = false
+  }
+}
 
 onMounted(() => {
   getBookingDetailsById()
@@ -828,9 +867,31 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <div class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
+        <div v-if="isPending" class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
+          <button
+            type="button"
+            @click="ReservationConfirm"
+            :disabled="isConfirming"
+            class="bg-green-500 rounded-lg px-4 py-2 text-sm flex gap-2 items-center text-white shadow-theme-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          >
+            <svg
+              v-if="isConfirming"
+              class="animate-spin h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ isConfirming ? $t('processing') || 'Processing...' : $t('ConfirmBooking') }}</span>
+          </button>
+        </div>
+        <div v-else class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
           <ReservationStatus :status="localReservation.status" />
         </div>
+
+
       </div>
 
       <!--main-->
