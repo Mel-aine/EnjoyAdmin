@@ -5,20 +5,20 @@
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">{{ t('housekeepers') }}</h1>
         <p class="text-gray-600 mt-1">
-          {{ t('housekeepersDescription') }}
+          {{ t('housekeepers Description') }}
         </p>
       </div>
 
       <!-- Housekeepers Table using ReusableTable -->
       <ReusableTable
-        :title="t('housekeepersList')"
+        :title="t('housekeepers List')"
         :columns="columns"
         :data="housekeepers"
         :actions="actions"
-        :search-placeholder="t('searchHousekeepers')"
+        :search-placeholder="t('search Housekeepers')"
         :selectable="true"
-        :empty-state-title="t('noHousekeepersFound')"
-        :empty-state-message="t('addHousekeeperMessage')"
+        :empty-state-title="t('noHousekeepers Found')"
+        :empty-state-message="t('add Housekeeper Message')"
         @action="onAction"
         @selection-change="onSelectionChange"
         :loading="loading"
@@ -26,7 +26,7 @@
         <template #header-actions>
           <BasicButton
             @click="showAddModal = true"
-            :label="t('addHousekeeper')"
+            :label="t('add Housekeeper')"
             :icon="Plus"
           />
 
