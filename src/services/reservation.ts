@@ -436,3 +436,59 @@ export const postRoomMoveReservation = async (reservationId: number, datas: any)
     handleApiError(error)
   }
 }
+
+export const postExchangeRoomReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/exchange-room`, datas, getHeaders()
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+/***
+ * update reservation details
+ */
+export const updateReservationDetails = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.put(
+      `/reservations/${reservationId}/update-details`, datas, getHeaders()
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/***
+ * update reservation details
+ */
+export const applyDiscountReservationDetails = async (reservationId: number, datas: any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservations/${reservationId}/apply-discount`, datas, getHeaders()
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+/**
+ * reservation update status
+ */
+export const confirmBooking = async (id: number,data:any): Promise<any | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.patch(
+      `/reservation/${id}/update_status`,data, getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+

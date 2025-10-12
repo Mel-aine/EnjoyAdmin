@@ -87,19 +87,18 @@
             />
             
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                variant="secondary" 
-                @click="closeModal"
+              <BasicButton
                 type="button"
-                :label="t('configuration.market_code.cancel')"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
+                :disabled="saving"
               />
-              <BasicButton 
-                variant="primary" 
+              <BasicButton
                 type="submit"
-                :icon="Save"
+                variant="primary"
                 :label="isEditing ? t('configuration.market_code.update_market_code') : t('configuration.market_code.save_market_code')"
                 :loading="saving"
-                :disabled="saving"
               />
             </div>
           </form>
@@ -136,7 +135,7 @@ import {
   updateMarketCodeById, 
   deleteMarketCodeById 
 } from '@/services/configrationApi'
-import { Save } from 'lucide-vue-next'
+// Save icon removed as it's no longer used in the template
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/PlusIcon.vue'
 

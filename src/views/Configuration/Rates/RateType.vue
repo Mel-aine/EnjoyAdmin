@@ -86,15 +86,20 @@
               </div>
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4">
-              <button type="button" @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
-                {{ t('cancel') }}
-              </button>
-              <button type="submit" :disabled="isLoading"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ isLoading ? t('saving') : (showAddModal ? t('addRateType') : t('updateRateType')) }}
-              </button>
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
+                :disabled="isLoading"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isLoading ? t('saving') + '...' : showAddModal ? t('addRateType') : t('updateRateType')"
+                :loading="isLoading"
+              />
             </div>
           </form>
         </div>

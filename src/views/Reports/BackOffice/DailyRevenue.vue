@@ -12,27 +12,89 @@
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- As On Date -->
+        <!-- Date Selection Radio Buttons -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            {{ t('Date') }}
+          </label>
+          <div class="flex gap-6">
+            <label class="inline-flex items-center">
+              <input 
+                type="radio" 
+                v-model="filters.dateType" 
+                value="booking"
+                class="form-radio h-4 w-4 text-blue-600"
+              >
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Booking') }}</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input 
+                type="radio" 
+                v-model="filters.dateType" 
+                value="stay"
+                class="form-radio h-4 w-4 text-blue-600"
+              >
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Stay') }}</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input 
+                type="radio" 
+                v-model="filters.dateType" 
+                value="departure"
+                class="form-radio h-4 w-4 text-blue-600"
+              >
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Departure') }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <!-- From Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('asOnDate') }}
+              {{ t('From') }}
             </label>
             <InputDatepicker 
-              v-model="filters.asOnDate" 
+              v-model="filters.fromDate" 
               placeholder="DD/MM/YYYY"
               class="w-full"
             />
           </div>
           
-          <!-- Revenue Types -->
+          <!-- To Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('revenueType') }}
+              {{ t('To') }}
+            </label>
+            <InputDatepicker 
+              v-model="filters.toDate" 
+              placeholder="DD/MM/YYYY"
+              class="w-full"
+            />
+          </div>
+
+          <!-- Business Source -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('Business Source') }}
             </label>
             <SelectComponent 
-              v-model="filters.revenueBy"
-              :options="revenueTypeOptions"
+              v-model="filters.businessSource"
+              :options="BusinessSource"
+              placeholder="--Select--"
+              :multiple="false"
+              class="w-full"
+            />
+          </div>
+
+          <!-- Room -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ t('Room') }}
+            </label>
+            <SelectComponent 
+              v-model="filters.room"
+              :options="roomOptions"
               placeholder="--Select--"
               :multiple="false"
               class="w-full"
@@ -40,32 +102,143 @@
           </div>
         </div>
 
+        <!-- Checkboxes Row -->
+        <div class="flex flex-wrap gap-6 mb-6">
+          <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="filters.showOnlyUnassignRooms"
+              class="form-checkbox h-4 w-4 text-blue-600 rounded"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Only Unassign Rooms') }}</span>
+          </label>
+     <!--      <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="filters.showUnpostedInclusion"
+              class="form-checkbox h-4 w-4 text-blue-600 rounded"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Unposted Inclusion') }}</span>
+          </label> -->
+          <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="filters.discardUnconfirmedBookings"
+              class="form-checkbox h-4 w-4 text-blue-600 rounded"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Discard Unconfirmed Bookings') }}</span>
+          </label>
+        </div>
+
+        <!-- Export Settings Section -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mb-6">
+          <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+            {{ t('Below Settings Available only for Export Functionality :') }}
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+            <!-- Payment Method -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {{ t('Payment Method') }}
+              </label>
+              <div class="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                <div class="p-4 pb-1 border-b border-gray-300 dark:border-gray-600">
+                  <label class="inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      :checked="filters.paymentMethod.length === paymentMethodOptions.length"
+                      @change="toggleAllPaymentMethods"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ t('Select All') }}</span>
+                  </label>
+                </div>
+                <div class="max-h-40 overflow-y-auto p-2">
+                  <label v-for="option in paymentMethodOptions" :key="option.value" class="flex items-center py-1 hover:bg-gray-50 dark:hover:bg-gray-600 px-2 rounded">
+                    <input 
+                      type="checkbox" 
+                      :value="option.value"
+                      v-model="filters.paymentMethod"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ option.label }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Taxes -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {{ t('Taxes') }}
+              </label>
+              <div class="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                <div class="p-4 pb-1 border-b border-gray-300 dark:border-gray-600">
+                  <label class="inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      :checked="filters.taxes.length === taxesOptions.length"
+                      @change="toggleAllTaxes"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ t('Select All') }}</span>
+                  </label>
+                </div>
+                <div class="max-h-40 overflow-y-auto p-2">
+                  <label v-for="option in taxesOptions" :key="option.value" class="flex items-center py-1 hover:bg-gray-50 dark:hover:bg-gray-600 px-2 rounded">
+                    <input 
+                      type="checkbox" 
+                      :value="option.value"
+                      v-model="filters.taxes"
+                      class="form-checkbox h-4 w-4 text-blue-600 rounded"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ option.label }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Note -->
+          <div class="p-3 mb-4">
+            <p class="text-xs text-gray-900 dark:text-gray-100">
+              <strong>{{ t('NOTE :') }}</strong> {{ t("Nights will calculate on Primary(Master) folio. In second folio, Nights will show as '-'") }}
+            </p>
+          </div>
+        </div>
+
         <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 mt-6">
-          <!-- Bouton Export -->
-          <div class="relative">
-            <button 
-              @click="exportData" 
-              :disabled="isLoading || !filters.asOnDate"
-              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
-            >
-              <span v-if="!isLoading">{{ t('common.export') }}</span>
-              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </button>
-          </div>
+        <div class="flex justify-end gap-2">
+          <!-- Export Button -->
+          <button 
+            @click="exportData" 
+            :disabled="isLoading || !filters.fromDate || !filters.toDate"
+            class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+          >
+            <span v-if="!isLoading">{{ t('Export') }}</span>
+            <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
           
-          <!-- Bouton Reset -->
-          <div class="relative">
-            <button
-              @click="resetForm"
-              class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
-            >
-              {{ t('common.reset') }}
-            </button>
-          </div>
+          <!-- Report Button -->
+          <button
+            @click="generateReport"
+            :disabled="isLoading || !filters.fromDate || !filters.toDate"
+            class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+          >
+            {{ t('Report') }}
+          </button>
+          
+          <!-- Reset Button -->
+          <button
+            @click="resetForm"
+            class="inline-flex justify-center items-center px-6 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+          >
+            {{ t('Reset') }}
+          </button>
         </div>
       </div>
 
@@ -93,22 +266,117 @@
           </div>
         </div>
       </div>
+
+      <!-- Report Display Section -->
+      <div v-if="showReport && reportData" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <!-- Report Header -->
+        <div class="flex justify-between items-center p-6 border-b-2 border-gray-900 dark:border-gray-700">
+          <h1 class="text-lg font-bold text-blue-900 dark:text-blue-400">
+            {{ reportData.hotelDetails?.hotelName || 'Hotel Name' }}
+          </h1>
+          <h2 class="text-lg font-bold text-red-700 dark:text-red-400">
+            Detail Revenue Report
+          </h2>
+        </div>
+
+        <!-- Filters Info Section -->
+        <div class="px-6 py-4 text-xs border-b-2 border-gray-900 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div class="mb-2">
+            <span class="font-semibold">Query From:</span> {{ reportData.dateRange?.fromDate }} 
+            <span class="font-semibold ml-4">To:</span> {{ reportData.dateRange?.toDate }} 
+            <span class="font-semibold ml-4">Date Type:</span> {{ formatDateType(reportData.filters?.dateType) }} 
+            <span class="font-semibold ml-4">Show Guest Unassigned Rooms:</span> {{ reportData.filters?.showUnassignRooms ? 'Yes' : 'No' }} 
+            <span class="font-semibold ml-4">Discard Unconfirmed Bookings:</span> {{ reportData.filters?.discardUnconfirmedBookings ? 'Yes' : 'No' }} 
+            <!-- <span class="font-semibold ml-4">Include Unposted Inclusion:</span> {{ reportData.filters?.showUnpostedInclusion ? 'Yes' : 'No' }} -->
+          </div>
+          <div class="font-semibold mb-1">
+            *Total Revenue: Revenue Only From Property (After deduction of commission)
+          </div>
+          <div class="font-bold">
+            *Room Rate = Offered Rate
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="border-b-2 border-gray-900 dark:border-gray-700">
+                <th class="px-2 py-3 text-center font-bold">Sr. No</th>
+                <th class="px-2 py-3 text-center font-bold">Guest Name</th>
+                <th class="px-2 py-3 text-center font-bold">Source</th>
+                <th class="px-2 py-3 text-center font-bold">Arrival</th>
+                <th class="px-2 py-3 text-center font-bold">Dept</th>
+                <th class="px-2 py-3 text-center font-bold">Nights</th>
+                <th class="px-2 py-3 text-center font-bold">Room</th>
+                <th class="px-2 py-3 text-center font-bold">Vouc No</th>
+                <th class="px-2 py-3 text-center font-bold">Rate Type</th>
+                <th class="px-2 py-3 text-center font-bold">Folio No</th>
+                <th class="px-2 py-3 text-center font-bold">Room Rate<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Charges<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Taxes<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Commission<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">Revenue<br>(XAF)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!reportData.reportData?.reservations || reportData.reportData.reservations.length === 0">
+                <td colspan="15" class="px-2 py-6 text-center text-gray-500 italic">
+                  No reservations found for the selected period
+                </td>
+              </tr>
+              <template v-else>
+                <tr v-for="reservation in reportData.reportData.reservations" :key="reservation.serialNo" class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900">
+                  <td class="px-2 py-2 text-center">{{ reservation.serialNo }}</td>
+                  <td class="px-2 py-2 text-left">{{ reservation.guestName }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.businessSource }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.arrivalDate }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.departureDate }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.nights }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.room }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.voucherNo }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.rateType }}</td>
+                  <td class="px-2 py-2 text-center">{{ reservation.folioNo }}</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.roomRate) }}</td>
+                  <td class="px-2 py-2 text-right">-</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.totalTaxes) }}</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.commission) }}</td>
+                  <td class="px-2 py-2 text-right">{{ formatCurrency(reservation.totalRevenue - reservation.commission) }}</td>
+                </tr>
+                
+                <!-- Grand Total Row -->
+                <tr class="border-t-2 border-b-2 border-gray-900 dark:border-gray-700 bg-white dark:bg-gray-800 font-bold">
+                  <td class="px-2 py-3 text-left">Grand Total</td>
+                  <td colspan="9" class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalRoomRate) }}</td>
+                  <td class="px-2 py-3 text-right">-</td>
+                  <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalTaxes) }}</td>
+                  <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalCommission) }}</td>
+                  <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalRevenue - reportData.grandTotals?.totalCommission) }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </ReportsLayout>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { useServiceStore } from '@/composables/serviceStore'
+import { getPaymentMethods } from '@/services/paymentMethodApi'
+import { getExtraCharges, getTaxes, getRooms } from '@/services/configrationApi'
+import { useBooking } from '@/composables/useBooking2'
 import {
-  getDailyRevenuePDFUrl,
-  validateDailyRevenueParams,
-  type DailyRevenueParams
+  generateDailyRevenuPdf,
+  generateDailyRevenueReport,
+  type DailyRevenueReportFilters
 } from '@/services/reportsApi'
 
 const { t } = useI18n()
@@ -121,75 +389,232 @@ interface FilterOptions {
 }
 
 interface Filters {
-  asOnDate: string;
-  revenueBy: string;
+  dateType: 'booking' | 'stay' | 'departure';
+  fromDate: string;
+  toDate: string;
+  businessSource: string;
+  room: string;
+  showOnlyUnassignRooms: boolean;
+  showUnpostedInclusion: boolean;
+  discardUnconfirmedBookings: boolean;
+  extraCharges: string[];
+  paymentMethod: string[];
+  taxes: string[];
+  showMobileNoField: boolean;
+  showEmailField: boolean;
+  reportTemplate: string;
 }
+
+const {
+  BookingSource,
+  BusinessSource,
+  BookingType,
+  creditTypes,
+  billToOptions,
+  MarketCode,
+  reservationId,
+} = useBooking()
 
 // Reactive data
 const isLoading = ref<boolean>(false)
 const errorMessage = ref<string>('')
 const pdfUrl = ref<string>('')
+const showReport = ref<boolean>(false)
+const reportData = ref<any>(null)
+const roomOptions = ref<FilterOptions[]>([])
+const extraChargesOptions = ref<FilterOptions[]>([])
+const paymentMethodOptions = ref<FilterOptions[]>([])
+const taxesOptions = ref<FilterOptions[]>([])
 
 const filters = ref<Filters>({
-  asOnDate: (() => {
+  dateType: 'booking',
+  fromDate: (() => {
     const today = new Date()
     return today.toISOString().split('T')[0]
   })(),
-  revenueBy: ''
+  toDate: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
+  businessSource: '',
+  room: '',
+  showOnlyUnassignRooms: false,
+  showUnpostedInclusion: false,
+  discardUnconfirmedBookings: false,
+  extraCharges: [],
+  paymentMethod: [],
+  taxes: [],
+  showMobileNoField: false,
+  showEmailField: false,
+  reportTemplate: 'default'
 })
 
-// Fonction helper pour normaliser revenueBy en tableau
-const normalizeRevenueBy = (value: string | null): string[] => {
-  if (!value) return []
-  return [value]
+// Fetch data functions
+const fetchPaymentMethods = async () => {
+  try {
+    const resp = await getPaymentMethods(serviceStore.serviceId!)
+    paymentMethodOptions.value = resp.data.data.map((pm: any) => ({
+      label: pm.methodName,
+      value: String(pm.id)
+    }))
+  } catch (error) {
+    console.error('Error fetching payment methods:', error)
+  }
 }
 
-// Revenue type options matching the backend default values
-const revenueTypeOptions = ref<FilterOptions[]>([
-  { value: 'room_revenue', label: 'Room Revenue' },
-  { value: 'no_show_revenue', label: 'No Show Revenue' },
-  { value: 'cancellation_revenue', label: 'Cancellation Revenue' },
-  { value: 'dayuser_revenue', label: 'Day User Revenue' },
-  { value: 'late_check_out_revenue', label: 'Late Check Out Revenue' }
-])
+const fetchExtraCharges = async () => {
+  try {
+    const resp = await getExtraCharges()
+    console.log('Extra Charges Response:', resp)
+    extraChargesOptions.value = resp.data.data.data.map((ec: any) => ({
+      label: ec.name,
+      value: String(ec.id)
+    }))
+  } catch (error) {
+    console.error('Error fetching extra charges:', error)
+  }
+}
+
+const fetchTaxes = async () => {
+  try {
+    const resp = await getTaxes()
+    console.log('Taxes Response:', resp)
+    taxesOptions.value = resp.data.data.data.map((tax: any) => ({
+      label: tax.taxName,
+      value: String(tax.taxRateId)
+    }))
+  } catch (error) {
+    console.error('Error fetching taxes:', error)
+  }
+}
+
+const fetchRoom = async () => {
+  try {
+    const resp = await getRooms()
+    console.log('Room Response:', resp)
+    roomOptions.value = resp.data.data.data.map((room: any) => ({
+      label: `${room.roomNumber} - ${room.roomType.roomTypeName}`,
+      value: String(room.id)
+    }))
+  } catch (error) {
+    console.error('Error fetching room:', error)
+  }
+}
 
 // Computed properties
-const currentParams = computed((): DailyRevenueParams => {
-  const revenueByArray = normalizeRevenueBy(filters.value.revenueBy)
+const currentParams = computed(():DailyRevenueReportFilters => {
   return {
     hotelId: serviceStore.serviceId!,
-    asOnDate: filters.value.asOnDate,
-    revenueBy: revenueByArray.length > 0 ? revenueByArray.join(',') : undefined
+    fromDate: filters.value.fromDate,
+    toDate: filters.value.toDate,
+    dateType: filters.value.dateType,
+    roomId: filters.value.room ? Number(filters.value.room) : undefined,
+    businessSourceId: filters.value.businessSource ? Number(filters.value.businessSource) : undefined,
+    paymentMethodIds: filters.value.paymentMethod.length > 0 
+      ? filters.value.paymentMethod.map(id => Number(id)) 
+      : undefined,
+    taxIds: filters.value.taxes.length > 0 
+      ? filters.value.taxes.map(id => Number(id)) 
+      : undefined,
+    extraChargeIds: filters.value.extraCharges.length > 0 
+      ? filters.value.extraCharges.map(id => Number(id)) 
+      : undefined,
+    showUnassignRooms: filters.value.showOnlyUnassignRooms,
+    showUnpostedInclusion: filters.value.showUnpostedInclusion,
+    discardUnconfirmedBookings: filters.value.discardUnconfirmedBookings,
+    showMobileNoField: filters.value.showMobileNoField,
+    showEmailField: filters.value.showEmailField
   }
 })
 
 const reportTitle = computed(() => {
-  return `Daily Revenue Report - ${filters.value.asOnDate}`
+  const dateTypeLabel = {
+    booking: 'Booking Date',
+    stay: 'Stay Date',
+    departure: 'Departure Date'
+  }[filters.value.dateType]
+  
+  return `Daily Revenue Report (${dateTypeLabel}) - ${filters.value.fromDate} to ${filters.value.toDate}`
 })
 
 // Methods
+const toggleAllExtraCharges = (event: Event): void => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    filters.value.extraCharges = extraChargesOptions.value.map(option => option.value)
+  } else {
+    filters.value.extraCharges = []
+  }
+}
+
+const toggleAllPaymentMethods = (event: Event): void => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    filters.value.paymentMethod = paymentMethodOptions.value.map(option => option.value)
+  } else {
+    filters.value.paymentMethod = []
+  }
+}
+
+const toggleAllTaxes = (event: Event): void => {
+  const target = event.target as HTMLInputElement
+  if (target.checked) {
+    filters.value.taxes = taxesOptions.value.map(option => option.value)
+  } else {
+    filters.value.taxes = []
+  }
+}
+
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value || 0)
+}
+
+const formatDateType = (dateType: string): string => {
+  if (!dateType) return 'Stay'
+  return dateType.charAt(0).toUpperCase() + dateType.slice(1)
+}
+
 const exportData = async (): Promise<void> => {
-  try {
+    try {
     isLoading.value = true
     errorMessage.value = ''
 
-    // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
 
-    // Validate parameters using the API validation function
-    validateDailyRevenueParams(currentParams.value)
-
-    // Generate new PDF URL using the API function
-    const newPdfUrl = await getDailyRevenuePDFUrl(currentParams.value)
+    const newPdfUrl = await generateDailyRevenuPdf(currentParams.value)
     pdfUrl.value = newPdfUrl
-
-    // Open PDF in new window/tab
     openPDFInNewPage()
 
-    console.log('📊 Daily revenue report generated successfully:', reportTitle.value)
+    console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
+  } catch (error) {
+    console.error('❌ Error generating daily receipt report:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate PDF'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const generateReport = async (): Promise<void> => {
+  try {
+    isLoading.value = true
+    errorMessage.value = ''
+    showReport.value = false
+
+    console.log('📊 Generating report with params:', currentParams.value)
+    
+    // Fetch report data from API
+    const response = await generateDailyRevenueReport(currentParams.value)
+    console.log('API Response:>>>>>', response)
+    reportData.value = response?.data
+    showReport.value = true
+
+    console.log('✅ Daily revenue report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating daily revenue report:', error)
     errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
@@ -198,11 +623,40 @@ const exportData = async (): Promise<void> => {
   }
 }
 
-const openPDFInNewPage = (): void => {
+const resetForm = (): void => {
+  const today = new Date().toISOString().split('T')[0]
+  filters.value = {
+    dateType: 'booking',
+    fromDate: today,
+    toDate: today,
+    businessSource: '',
+    room: '',
+    showOnlyUnassignRooms: false,
+    showUnpostedInclusion: false,
+    discardUnconfirmedBookings: false,
+    extraCharges: [],
+    paymentMethod: [],
+    taxes: [],
+    showMobileNoField: false,
+    showEmailField: false,
+    reportTemplate: 'default'
+  }
+  errorMessage.value = ''
+  showReport.value = false
+  reportData.value = null
+  
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+    pdfUrl.value = ''
+  }
+  
+  console.log('🔄 Form reset to default values')
+}
+const openPDFInNewPage = () => {
   if (pdfUrl.value) {
     const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
     const routeData = router.resolve({
-      name: 'PDFViewer', // Adjust route name according to your routing setup
+      name: 'PDFViewer',
       query: {
         url: encodedUrl,
         title: reportTitle.value
@@ -212,46 +666,35 @@ const openPDFInNewPage = (): void => {
   }
 }
 
-const resetForm = (): void => {
-  filters.value = {
-    asOnDate: (() => {
-      const today = new Date()
-      return today.toISOString().split('T')[0]
-    })(),
-    revenueBy: ''
-  }
-  errorMessage.value = ''
-  
-  // Cleanup previous PDF URL
-  if (pdfUrl.value) {
-    URL.revokeObjectURL(pdfUrl.value)
-    pdfUrl.value = ''
-  }
-}
-
-// Cleanup function
 const cleanup = (): void => {
   if (pdfUrl.value) {
     URL.revokeObjectURL(pdfUrl.value)
   }
 }
 
-// Cleanup on unmount
+onMounted(() => {
+  console.log('🚀 Component mounted, fetching initial data...')
+  fetchPaymentMethods()
+  fetchExtraCharges()
+  fetchTaxes()
+  fetchRoom()
+})
+
 onUnmounted(cleanup)
 </script>
 
 <style scoped>
-/* Responsive adjustments */
 @media (max-width: 640px) {
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
   
-  .md\:grid-cols-2 {
+  .md\:grid-cols-2,
+  .md\:grid-cols-3 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
   
-  .lg\:grid-cols-3 {
+  .lg\:grid-cols-4 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }

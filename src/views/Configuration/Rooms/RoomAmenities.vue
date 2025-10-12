@@ -49,59 +49,60 @@
           </h3>
 
           <form @submit.prevent="saveAmenity" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('amenityNameRequired') }}
-              </label>
-              <input v-model="formData.name" type="text" required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="t('enterAmenityName')">
-            </div>
+            <Input
+              :lb="t('amenityNameRequired')"
+              :placeholder="t('enterAmenityName')"
+              :is-required="true"
+              v-model="formData.name"
+              input-type="text"
+              class="w-full"
+            />
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('amenityTypeRequired') }}
-              </label>
-              <select v-model="formData.type" required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">{{ t('selectOption') }}</option>
-                <option value="Room">{{ t('room') }}</option>
-                <option value="Hotel">{{ t('hotel') }}</option>
-                <option value="Both">{{ t('both') }}</option>
-              </select>
-            </div>
+            <Select
+              :lb="t('amenityTypeRequired')"
+              :is-required="true"
+              v-model="formData.type"
+              :placeholder="t('selectOption')"
+              :options="[
+                { value: 'Room', label: t('room') },
+                { value: 'Hotel', label: t('hotel') },
+                { value: 'Both', label: t('both') }
+              ]"
+              class="w-full"
+            />
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('sortKey') }}
-              </label>
-              <input v-model.number="formData.sortKey" type="number" min="0"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="t('enterSortOrder')">
-            </div>
+            <Input
+              :lb="t('sortKey')"
+              :placeholder="t('enterSortOrder')"
+              v-model.number="formData.sortKey"
+              input-type="number"
+              :min="0"
+              class="w-full"
+            />
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('status') }}
-              </label>
-              <select v-model="formData.status"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="Available">{{ t('available') }}</option>
-                <option value="Unavailable">{{ t('unavailable') }}</option>
-              </select>
-            </div>
+            <Select
+              :lb="t('status')"
+              v-model="formData.status"
+              :options="[
+                { value: 'Available', label: t('available') },
+              ]"
+              class="w-full"
+            />
 
-            <div class="flex justify-end space-x-3 pt-4">
-              <button type="button" @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
-                {{ t('Cancel') }}
-              </button>
-              <button type="submit"
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
                 :disabled="isLoading"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2">
-                <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>{{ showAddModal ? t('addAmenity') : t('updateAmenity') }}</span>
-              </button>
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isLoading ? t('saving') + '...' : showAddModal ? t('Add Amenities') : t('update')"
+                :loading="isLoading"
+              />
             </div>
           </form>
         </div>
@@ -116,6 +117,8 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
+import Input from '@/components/forms/FormElements/Input.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
 import { getAmenities, postAmenity, updateAmenity, deleteAmenity as deleteAmenityAPI } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'

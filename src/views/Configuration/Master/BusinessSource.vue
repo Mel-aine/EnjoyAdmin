@@ -125,13 +125,19 @@
             </div>
 
          <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton variant="secondary" @click="closeModal" type="button"
-                :label="t('configuration.reservation_type.cancel')">
-              </BasicButton>
-              <BasicButton variant="primary" type="submit"
-                :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
-                :icon="isEditing ? Edit : Save" :loading="saving" :disabled="saving">
-              </BasicButton>
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
+                :disabled="saving"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isEditing ? t('configuration.payment_method.update_payment_method') : t('configuration.payment_method.save_payment_method')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -153,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
@@ -163,7 +169,6 @@ import * as configrationApi from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import type { Action, Column } from '../../../utils/models'
-import { Edit, Save } from 'lucide-vue-next'
 import Plus from '../../../icons/Plus.vue'
 
 const { t } = useI18n()

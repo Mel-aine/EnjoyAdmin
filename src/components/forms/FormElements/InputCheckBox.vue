@@ -1,26 +1,33 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 const props = defineProps({
-    label: {
-        type: String,
-        required: true,
-    },
-    modelValue: {
-        type: Boolean,
-        default: false,
-    },
-    id: {
-        type: String,
-        default: null,
-    },
-},
-)
+  label: {
+    type: String,
+    default: '',
+  },
+  // Backward-compat for existing usage with `lb`
+  lb: {
+    type: String,
+    default: '',
+  },
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
+  id: {
+    type: String,
+    default: null,
+  },
+})
 const emits = defineEmits(['update:modelValue'])
 const checked = ref(props.modelValue)
 watch(checked, (newValue) => {
-    emits('update:modelValue', newValue)
+  emits('update:modelValue', newValue)
 })
+
+// Prefer `label`, fallback to `lb` for legacy calls
+const labelText = computed(() => props.label || props.lb || '')
 
 </script>
 
@@ -44,7 +51,7 @@ watch(checked, (newValue) => {
                         </span>
                     </div>
                 </div>
-                {{ label }}
+                {{ labelText }}
             </label>
         </div>
     </div>

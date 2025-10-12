@@ -10,6 +10,15 @@ const router = createRouter({
   },
   routes: [
     {
+      path: '/setup',
+      name: 'SetupSpace',
+      component: () => import('../views/Pages/SetupSpace.vue'),
+      meta: {
+        title: 'Setting up your space',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/reports/dashboard',
       name: 'dashboard',
       component: () => import('../views/Edashboard.vue'),
@@ -934,6 +943,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/configuration/rates/meal-plan-builder',
+      name: 'MealPlanBuilder',
+      component: () => import('../views/Configuration/Rates/MealPlanBuilder.vue'),
+      meta: {
+        title: 'Meal Plan Builder',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/configuration/rates/taxes',
       name: 'Taxes',
       component: () => import('../views/Configuration/Rates/Taxes.vue'),
@@ -1427,15 +1445,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/demo/apply-discount',
-      name: 'ApplyDiscountDemo',
-      component: () => import('../components/demo/ApplyDiscountDemo.vue'),
-      meta: {
-        title: 'Apply Discount Demo',
-        requiresAuth: true,
-      },
-    },
+   
      {
       path: '/stay_view',
       name: 'ReservationCalendar',
@@ -1465,21 +1475,20 @@ const router = createRouter({
       },
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: () => import('../views/Others/UserProfile.vue'),
-      meta: {
-        title: 'Profile',
-        requiresAuth: true,
-      },
-    },
-
-    {
       path: '/form-elements',
       name: 'Form Elements',
       component: () => import('../views/Forms/FormElements.vue'),
       meta: {
         title: 'Form Elements',
+        requiresAuth: true,
+      },
+    },
+        {
+      path: '/profile',
+      name: 'Profile',
+      component: () => import('../views/Others/UserProfile.vue'),
+      meta: {
+        title: 'Profile',
         requiresAuth: true,
       },
     },

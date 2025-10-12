@@ -124,6 +124,14 @@
               </div>
 
               <div class="mb-4">
+                <label class="flex items-center">
+                  <input v-model="formData.isMealPlanComponent" type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                  <span class="ml-2 text-sm text-gray-700">Meal Plan Component</span>
+                </label>
+              </div>
+
+              <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.front_desk_sort_key') }}</label>
                 <Input v-model="formData.frontDeskSortKey" type="number" :placeholder="t('configuration.extra_charge.front_desk_sort_key_placeholder')" class="w-full" />
               </div>
@@ -207,12 +215,20 @@
             </div>
 
 
-            <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
-                :disabled="isSaving" />
-              <BasicButton type="submit" variant="primary" :icon="Save"
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
+                :disabled="isSaving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? $t('configuration.extra_charge.update_extra_charge') : $t('configuration.extra_charge.save_extra_charge')"
-                :loading="isSaving" />
+                :loading="isSaving"
+              />
             </div>
           </form>
         </div>
@@ -283,6 +299,7 @@ const formData = reactive({
   taxes: [] as string[],
   rateInclusiveTax: 0,
   fixedPrice: false,
+  isMealPlanComponent: false,
   frontDeskSortKey: 1,
   publishOnWeb: false,
   voucherNo: 'auto_general',
@@ -341,6 +358,7 @@ const openAddModal = () => {
     taxes: [],
     rateInclusiveTax: 0,
     fixedPrice: false,
+    isMealPlanComponent: false,
     frontDeskSortKey: 1,
     publishOnWeb: false,
     voucherNo: 'auto_general',
@@ -375,6 +393,7 @@ const closeModal = () => {
     taxes: [],
     rateInclusiveTax: 0,
     fixedPrice: false,
+    isMealPlanComponent: false,
     frontDeskSortKey: 1,
     publishOnWeb: false,
     voucherNo: 'auto_general',

@@ -26,7 +26,7 @@
             </div>
 
             <!-- Modal Form -->
-            <form v-else @submit.prevent="handleSubmit">
+            <form v-else>
                 <!-- Date -->
                 <div class="mb-4">
                     <InputDatePicker v-model="formData.date" :title="$t('Date')" />
@@ -75,13 +75,11 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { getReservationDetailsById } from '../../../services/reservation'
-import { createFolioTransaction, getReservationFolios } from '../../../services/foglioApi'
-import { formatCurrency } from '../../utilities/UtilitiesFunction'
+import { applyDiscountHandler } from '../../../services/foglioApi'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import InputFolioSelect from './InputFolioSelect.vue'
@@ -92,6 +90,7 @@ interface Props {
     isOpen: boolean
     reservationId: number
     reservationNumber?: string
+    folioId?: number
 }
 
 interface Emits {
@@ -138,7 +137,8 @@ interface TransactionInfo {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    isOpen: false
+    isOpen: false,
+    folioId: undefined
 })
 
 const emit = defineEmits<Emits>()
@@ -147,31 +147,30 @@ const toast = useToast()
 
 const loading = ref(false)
 const isLoading = ref(false)
-const loadingTransactions = ref(false)
 const reservation = ref<any>()
 const selectedDiscount = ref<DiscountOption | null>(null)
 const selectedFolio = ref<any | null>(null)
 const availableNights = ref<NightInfo[]>([])
-const availableTransactions = ref<TransactionInfo[]>([])
 const serviceStore = useServiceStore()
 const formData = ref({
     discountId: 0 as number,
     discountAmount: 0,
     date: new Date().toISOString().split('T')[0],
-    folio: '',
+    folio: '' as any,
     notes: ''
 })
 const isSaving = ref(false);
-// Computed properties
-const isGroupReservation = computed(() => {
-    return reservation.value?.reservationRooms?.length > 1
-})
+
 
 // Watch for modal open/close
 watch(() => props.isOpen, (newValue) => {
     if (newValue && props.reservationId) {
         resetForm()
         getReservationDetails()
+        // Initialize folio from prop if provided
+        if (props.folioId) {
+            formData.value.folio = props.folioId
+        }
     }
 })
 
@@ -179,6 +178,13 @@ watch(() => props.isOpen, (newValue) => {
 watch(() => props.reservationId, (newVal) => {
     if (newVal) {
         getReservationDetails()
+    }
+})
+
+// Watch for folioId changes and sync to formData
+watch(() => props.folioId, (newVal) => {
+    if (newVal) {
+        formData.value.folio = newVal
     }
 })
 
@@ -233,9 +239,6 @@ const handleDiscountSelect = (discount: DiscountOption) => {
     recomputeDiscountAmount()
 }
 
-const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString()
-}
 
 const resetForm = () => {
     formData.value = {
@@ -243,7 +246,7 @@ const resetForm = () => {
         discountAmount: 0,
         notes: '',
         date: new Date().toISOString().split('T')[0],
-        folio: ''
+        folio: props.folioId
     }
     selectedFolio.value = null
 }
@@ -262,38 +265,20 @@ const handleSubmit = async () => {
             return
         }
 
-
-
-        if (selectedDiscount.value?.open_discount && (!formData.value.discountAmount || formData.value.discountAmount <= 0)) {
-            toast.error(t('pleaseEnterValidDiscountAmount'))
-            return
-        }
-
         isSaving.value = true
 
-        // Prepare transaction data for API with safe numeric conversion
-        const transactionData = {
+        // Build payload matching applyDiscountHandler schema
+        const payload = {
             folioId: safeParseInt(formData.value.folio),
-            transactionType: 'discount',
-            transactionCategory: 'payment',
-            category: 'payment',
-            description: `Discount - ${selectedDiscount.value?.name}`,
-            amount: prepareFolioAmount(formData.value.discountAmount),
-           /// reference: formData.recVouNumber,
-            notes: formData.value.notes,
-            discountId: formData.value.discountId,
-            //paymentMethodId: safeParseInt(formData.method),
-          //  currency: formData.currency,
+            discountId: safeParseInt(formData.value.discountId),
+            reservationId: safeParseInt(props.reservationId),
+            hotelId: safeParseInt(serviceStore.serviceId),
             transactionDate: formData.value.date,
-            status: "posted",
-            hotelId: serviceStore.serviceId,
-            reservationId: props.reservationId
+            notes: formData.value.notes?.trim() || undefined
         }
 
-        console.log('Transaction data being sent:', transactionData)
-
-        // Call the API to create folio transaction
-        const response = await createFolioTransaction(transactionData)
+        console.log('Calling applyDiscountHandler with payload:', payload)
+        const response = await applyDiscountHandler(payload)
 
 
         // Emit the discount applied event
@@ -323,6 +308,7 @@ onMounted(() => {
     if (props.reservationId) {
         getReservationDetails()
     }
+    formData.value.folio = props.folioId
 })
 
 // Helpers

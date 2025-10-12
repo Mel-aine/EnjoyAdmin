@@ -8,9 +8,13 @@
         :empty-state-message="t('configuration.transportation_mode.empty_state_message')" :loading="loading"
         @action="onAction">
         <template #header-actions>
-          <BasicButton variant="primary" :icon="Plus"
-            :label="t('configuration.transportation_mode.add_transportation_mode')" :disabled="loading"
-            @click="openAddModal" />
+          <BasicButton 
+            variant="primary" 
+            :icon="PlusIcon"
+            :label="t('configuration.transportation_mode.add_transportation_mode')" 
+            :disabled="loading"
+            @click="openAddModal" 
+          />
         </template>
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
@@ -53,11 +57,19 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton variant="secondary" :label="t('configuration.transportation_mode.cancel')"
-                @click="closeModal" type="button" :disabled="saving" />
-              <BasicButton variant="primary"
-                :label="saving ? t('configuration.transportation_mode.saving') : (isEditing ? t('configuration.transportation_mode.update_transportation_mode') : t('configuration.transportation_mode.save_transportation_mode'))"
-                type="submit" :disabled="saving" />
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('configuration.transportation_mode.cancel')"
+                :disabled="saving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
+                :label="isEditing ? t('configuration.transportation_mode.update_transportation_mode') : t('configuration.transportation_mode.save_transportation_mode')"
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -76,7 +88,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
-import Plus from '../../../icons/Plus.vue'
+import PlusIcon from '../../../icons/Plus.vue'
 import {
   getTransportationModes,
   postTransportationMode,

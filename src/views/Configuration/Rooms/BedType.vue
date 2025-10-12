@@ -57,49 +57,59 @@
 
           <form @submit.prevent="saveBedType" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('shortCodeRequired') }}
-              </label>
-              <input v-model="formData.shortCode" type="text" required maxlength="10"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="t('shortCodePlaceholder')">
+              <Input
+                :lb="t('shortCodeRequired')"
+                v-model="formData.shortCode"
+                :placeholder="t('shortCodePlaceholder')"
+                input-type="text"
+                :maxlength="10"
+                :is-required="true"
+                label-class="after:content-['*'] after:ml-0.5 after:text-red-500"
+                class="w-full"
+              />
               <p class="text-xs text-gray-500 mt-1">{{ t('shortCodeDescription') }}</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('bedTypeNameRequired') }}
-              </label>
-              <input v-model="formData.bedTypeName" type="text" required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="t('bedTypeNamePlaceholder')">
+              <Input
+                :lb="t('bedTypeNameRequired')"
+                v-model="formData.bedTypeName"
+                :placeholder="t('bedTypeNamePlaceholder')"
+                input-type="text"
+                :is-required="true"
+                label-class="after:content-['*'] after:ml-0.5 after:text-red-500"
+                class="w-full"
+              />
               <p class="text-xs text-gray-500 mt-1">{{ t('bedTypeNameDescription') }}</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('status') }}
-              </label>
-              <select v-model="formData.status"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="Active">{{ t('active') }}</option>
-                <option value="Inactive">{{ t('inactive') }}</option>
-              </select>
+              <Select
+                :lb="t('status')"
+                v-model="formData.status"
+                :options="[
+                  { value: 'Active', label: t('active') },
+                  { value: 'Inactive', label: t('inactive') }
+                ]"
+                :default-value="formData.status || 'Active'"
+                class="w-full"
+              />
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4">
-              <button type="button" @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
-                {{ t('cancel') }}
-              </button>
-              <button type="submit" :disabled="isLoading"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ showEditModal ? t('update') : t('save') }}
-              </button>
+            <div class="flex justify-end space-x-3 mt-6">
+              <BasicButton 
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="t('cancel')" 
+                :disabled="isLoading"
+              />
+              <BasicButton 
+                type="submit" 
+                variant="primary" 
+                :label="isLoading ? t('saving') + '...' : showEditModal ? t('update') : t('save')"
+                :loading="isLoading"
+              />
             </div>
           </form>
         </div>
@@ -114,6 +124,8 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Trash2, Edit, Trash } from 'lucide-vue-next'
+import Input from '@/components/forms/FormElements/Input.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
 import { getBedTypes, postBedType, updateBedTypeById } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'

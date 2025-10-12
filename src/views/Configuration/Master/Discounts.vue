@@ -127,15 +127,15 @@
             
            <div class="flex justify-end space-x-3 pt-4">
               <BasicButton 
-                variant="secondary" 
-                @click="closeModal"
-                type="button"
-                :label="$t('cancel')"
+                type="button" 
+                variant="outline" 
+                @click="closeModal" 
+                :label="$t('cancel')" 
                 :disabled="saving"
               />
               <BasicButton 
+                type="submit" 
                 variant="primary" 
-                type="submit"
                 :label="isEditing ? $t('configuration.discount.update_discount') : $t('configuration.discount.save_discount')"
                 :loading="saving"
               />

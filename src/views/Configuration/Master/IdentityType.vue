@@ -65,12 +65,20 @@
 
             </div>
 
-            <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
-                :disabled="saving" />
-              <BasicButton type="submit" variant="primary" :icon="Save"
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
+                :disabled="saving"
+              />
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? $t('configuration.identity_type.update_identity_type') : $t('configuration.identity_type.save_identity_type')"
-                :loading="saving" />
+                :loading="saving"
+              />
             </div>
           </form>
         </div>
@@ -95,7 +103,7 @@ import {
   updateIdentityTypeById,
   deleteIdentityTypeById
 } from '@/services/configrationApi'
-import { Save } from 'lucide-vue-next'
+// Save icon removed as it's no longer used in the template
 
 const { t } = useI18n()
 const toast = useToast()

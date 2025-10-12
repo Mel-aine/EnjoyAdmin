@@ -21,9 +21,6 @@ import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
-
-
-
 if (useLanguage.language) {
   t.locale.value = useLanguage.language;
 } else {

@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+  <html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuration — Champs v-model</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      h2 { margin-top: 32px; font-size: 18px; }
+      table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+      th, td { border: 1px solid #ccc; padding: 6px 8px; font-size: 12px; }
+      th { background: #f3f3f3; }
+      .file-path { color: #555; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <h1>Configuration — Inventaire des champs (v-model)</h1>
+    <p>Ce document recense les champs liés via <code>v-model</code> dans les vues sous <code>src/views/Configuration</code> (hors <code>ChannelManager</code>).</p>
+  <h2>ConfigurationIndex.vue</h2><div class="file-path">src/views/Configuration/ConfigurationIndex.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>ConfigurationLayout.vue</h2><div class="file-path">src/views/Configuration/ConfigurationLayout.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>Housekeepers.vue</h2><div class="file-path">src/views/Configuration/Housekeeping/Housekeepers.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;housekeeperName&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>Enter housekeeper name</td>
+    </tr>
+<tr>
+      <td>Mobile Number</td>
+      <td>InputPhone</td>
+      <td>formData.mobile</td>
+      <td>Oui</td>
+      <td>Enter mobile number</td>
+    </tr>
+</tbody></table>
+<h2>Status.vue</h2><div class="file-path">src/views/Configuration/Housekeeping/Status.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>tempColor</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>tempColor</td>
+      <td>Non</td>
+      <td>#000000</td>
+    </tr>
+</tbody></table>
+<h2>Units.vue</h2><div class="file-path">src/views/Configuration/Housekeeping/Units.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>Unit Name</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>Enter unit name</td>
+    </tr>
+</tbody></table>
+<h2>BlackListReason.vue</h2><div class="file-path">src/views/Configuration/Master/BlackListReason.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>&#39;Reason Name&#39;</td>
+      <td>Input</td>
+      <td>formData.reason</td>
+      <td>Oui</td>
+      <td>&#39;Enter blacklist reason name&#39;</td>
+    </tr>
+<tr>
+      <td>&#39;Category&#39;</td>
+      <td>Select</td>
+      <td>formData.category</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Severity&#39;</td>
+      <td>Select</td>
+      <td>formData.severity</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Description&#39;</td>
+      <td>Input</td>
+      <td>formData.description</td>
+      <td>Non</td>
+      <td>&#39;Enter description (optional)&#39;</td>
+    </tr>
+</tbody></table>
+<h2>BusinessSource.vue</h2><div class="file-path">src/views/Configuration/Master/BusinessSource.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.business_source.short_code_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.business_source.name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.color</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.registrationNumber</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.business_source.registration_number_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.marketCodeId</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>Currency.vue</h2><div class="file-path">src/views/Configuration/Master/Currency.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>InputCountries</td>
+      <td>formData.country</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;Currency&#39;) </td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;Enter currency name&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;Sign&#39;)</td>
+      <td>Input</td>
+      <td>formData.sign</td>
+      <td>Oui</td>
+      <td>$t(&#39;Enter currency symbol&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.prefixSuffix</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.prefixSuffix</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;Currency Code&#39;) + &#39; *&#39;</td>
+      <td>Input</td>
+      <td>formData.currencyCode</td>
+      <td>Oui</td>
+      <td>$t(&#39;Ex: USD (For United States)&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;Digits after Decimal&#39;)</td>
+      <td>Input</td>
+      <td>formData.digitsAfterDecimal</td>
+      <td>Oui</td>
+      <td>$t(&#39;Enter digits after decimal&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.exchangeRate</td>
+      <td>Oui</td>
+      <td>$t(&#39;Enter exchange rate&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.isDefault</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>Discounts.vue</h2><div class="file-path">src/views/Configuration/Master/Discounts.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;configuration.discount.short_code&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.discount.short_code_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.discount.discount_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.discount.discount_name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.discount.type&#39;)</td>
+      <td>Select</td>
+      <td>formData.type</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.discount.value&#39;)</td>
+      <td>Input</td>
+      <td>formData.value</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.discount.value_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.discount.apply_on&#39;)</td>
+      <td>Select</td>
+      <td>formData.applyOn</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.discount.status&#39;)</td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.openDiscount</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>ExtraCharge.vue</h2><div class="file-path">src/views/Configuration/Master/ExtraCharge.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.extra_charge.short_code_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.extra_charge.name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.rate</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.extra_charge.rate_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.taxes</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.taxes</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.rateInclusiveTax</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.extra_charge.rate_inclusive_tax_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.fixedPrice</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.frontDeskSortKey</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.extra_charge.front_desk_sort_key_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.publishOnWeb</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.voucherNo</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>formData.description</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.extra_charge.description_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.chargeAppliesOn</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.applyChargeOn</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.applyChargeAlways</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputDatePicker</td>
+      <td>formData.validFrom</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputDatePicker</td>
+      <td>formData.validTo</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>IdentityType.vue</h2><div class="file-path">src/views/Configuration/Master/IdentityType.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;shortCode&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>$t(&#39;shortCode&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.identity_type.identity_type_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.identity_type.name_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>MarketCode.vue</h2><div class="file-path">src/views/Configuration/Master/MarketCode.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;configuration.market_code.name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.market_code.name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.market_code.code&#39;)</td>
+      <td>Input</td>
+      <td>formData.code</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.market_code.code_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.market_code.segment&#39;)</td>
+      <td>Select</td>
+      <td>formData.segment</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.market_code.description&#39;)</td>
+      <td>Input</td>
+      <td>formData.description</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.market_code.description_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>PayMethod.vue</h2><div class="file-path">src/views/Configuration/Master/PayMethod.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;configuration.payment_method.short_code&#39;) + &#39; *&#39;</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.payment_method.short_code_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.payment_method.payment_method&#39;) + &#39; *&#39;</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.payment_method.name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.type</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.cardProcessing</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.surchargeSetting</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.surchargeType</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.payment_method.value&#39;)</td>
+      <td>Input</td>
+      <td>formData.surchargeValue</td>
+      <td>Non</td>
+      <td>$t(&#39;configuration.payment_method.enter_value&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.extraCharge</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>select</td>
+      <td>formData.receiptNoSetting</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>Payouts.vue</h2><div class="file-path">src/views/Configuration/Master/Payouts.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.reason</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.payout_reasons.payout_reason_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.description</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.payout_reasons.description_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formData.category</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.payout_reasons.category_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.payout_reasons.select_status&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>Preference.vue</h2><div class="file-path">src/views/Configuration/Master/Preference.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td> $t(&#39;configuration.preference.name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.preference.name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formData.preferenceTypeId</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.preference.preference_type_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>PreferenceType.vue</h2><div class="file-path">src/views/Configuration/Master/PreferenceType.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.preference_type.name_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>Reason.vue</h2><div class="file-path">src/views/Configuration/Master/Reason.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;configuration.reason.reason_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.reasonName</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.reason.reason_name_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.reason.category&#39;)</td>
+      <td>Select</td>
+      <td>formData.category</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;configuration.reason.status&#39;)</td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>ReservationType.vue</h2><div class="file-path">src/views/Configuration/Master/ReservationType.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;configuration.reservation_type.name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.reservation_type.name_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>Template.vue</h2><div class="file-path">src/views/Configuration/Master/Template.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>&#39;Template Name&#39;</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>&#39;Enter template name&#39;</td>
+    </tr>
+<tr>
+      <td>&#39;Template Category&#39;</td>
+      <td>Select</td>
+      <td>formData.category</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Auto Send&#39;</td>
+      <td>Select</td>
+      <td>formData.autoSend</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Attachment&#39;</td>
+      <td>Select</td>
+      <td>formData.attachment</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Email Account&#39;</td>
+      <td>Select</td>
+      <td>formData.emailAccount</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Schedule Date&#39;</td>
+      <td>Input</td>
+      <td>formData.scheduleDate</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>&#39;Subject&#39;</td>
+      <td>Input</td>
+      <td>formData.subject</td>
+      <td>Oui</td>
+      <td>&#39;Enter email subject&#39;</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>formData.messageBody</td>
+      <td>Oui</td>
+      <td>Enter the email template message body...</td>
+    </tr>
+</tbody></table>
+<h2>TemplateCategory.vue</h2><div class="file-path">src/views/Configuration/Master/TemplateCategory.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;configuration.template_category.category_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.category</td>
+      <td>Oui</td>
+      <td>$t(&#39;configuration.template_category.category_name_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>TransportationMode.vue</h2><div class="file-path">src/views/Configuration/Master/TransportationMode.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;configuration.transportation_mode.transportation_mode_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.transportation_mode.transportation_mode_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.transportation_mode.description&#39;)</td>
+      <td>Input</td>
+      <td>formData.description</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.transportation_mode.description_placeholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>VipStatus.vue</h2><div class="file-path">src/views/Configuration/Master/VipStatus.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;vip_status.name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>$t(&#39;vip_status.namePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.color</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.color</td>
+      <td>Non</td>
+      <td>$t(&#39;vip_status.colorPlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>$t(&#39;vip_status.icon&#39;)</td>
+      <td>VipIconPicker</td>
+      <td>formData.icon</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>RateType.vue</h2><div class="file-path">src/views/Configuration/Rates/RateType.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;shortCode&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>t(&#39;enterShortCodePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;rateTypeName&#39;)</td>
+      <td>Input</td>
+      <td>formData.rateTypeName</td>
+      <td>Oui</td>
+      <td>t(&#39;enterRateTypeNamePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Non</td>
+      <td>t(&#39;selectStatusPlaceholder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>RoomRates.vue</h2><div class="file-path">src/views/Configuration/Rates/RoomRates.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;roomType&#39;)</td>
+      <td>Select</td>
+      <td>formData.roomType</td>
+      <td>Oui</td>
+      <td>t(&#39;selectRoomType&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;rateType&#39;)</td>
+      <td>Select</td>
+      <td>formData.rateType</td>
+      <td>Oui</td>
+      <td>t(&#39;selectRateType&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;season&#39;)</td>
+      <td>Select</td>
+      <td>formData.season</td>
+      <td>Oui</td>
+      <td>t(&#39;selectSeason&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;sourceName&#39;)</td>
+      <td>Select</td>
+      <td>formData.sourceName</td>
+      <td>Non</td>
+      <td>t(&#39;selectSource&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;baseRate&#39;)</td>
+      <td>Input</td>
+      <td>formData.baseRate</td>
+      <td>Oui</td>
+      <td>t(&#39;enterBaseRate&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;rateForExtraAdult&#39;)</td>
+      <td>Input</td>
+      <td>formData.extraAdultRate</td>
+      <td>Non</td>
+      <td>t(&#39;enterRateForExtraAdult&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;rateForExtraChild&#39;)</td>
+      <td>Input</td>
+      <td>formData.extraChildRate</td>
+      <td>Non</td>
+      <td>t(&#39;enterRateForExtraChild&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputDatePicker</td>
+      <td>formData.effectiveFrom</td>
+      <td>Non</td>
+      <td>t(&#39;selectEffectiveFromDate&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputDatePicker</td>
+      <td>formData.effectiveTo</td>
+      <td>Non</td>
+      <td>t(&#39;selectEffectiveToDate&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;status&#39;)</td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Non</td>
+      <td>t(&#39;selectStatus&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>Season.vue</h2><div class="file-path">src/views/Configuration/Rates/Season.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;shortCode&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>t(&#39;shortCodePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;seasonName&#39;)</td>
+      <td>Input</td>
+      <td>formData.seasonName</td>
+      <td>Oui</td>
+      <td>t(&#39;seasonNamePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;fromDay&#39;)</td>
+      <td>Select</td>
+      <td>formData.fromDay</td>
+      <td>Oui</td>
+      <td>t(&#39;selectDay&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;fromMonth&#39;)</td>
+      <td>Select</td>
+      <td>formData.fromMonth</td>
+      <td>Oui</td>
+      <td>t(&#39;selectMonth&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;toDay&#39;)</td>
+      <td>Select</td>
+      <td>formData.toDay</td>
+      <td>Oui</td>
+      <td>t(&#39;selectDay&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;toMonth&#39;)</td>
+      <td>Select</td>
+      <td>formData.toMonth</td>
+      <td>Oui</td>
+      <td>t(&#39;selectMonth&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;startDate&#39;)</td>
+      <td>InputDatePicker</td>
+      <td>formData.startDate</td>
+      <td>Oui</td>
+      <td>t(&#39;startDatePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;expireDate&#39;)</td>
+      <td>InputDatePicker</td>
+      <td>formData.expireDate</td>
+      <td>Oui</td>
+      <td>t(&#39;expireDatePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;status&#39;)</td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Non</td>
+      <td>t(&#39;selectStatus&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>SetOffers.vue</h2><div class="file-path">src/views/Configuration/Rates/SetOffers.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>SortRates.vue</h2><div class="file-path">src/views/Configuration/Rates/SortRates.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>rate.sortOrder</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>Taxes.vue</h2><div class="file-path">src/views/Configuration/Rates/Taxes.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;configuration.taxes.short_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortName</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.taxes.tax_name&#39;)</td>
+      <td>Input</td>
+      <td>formData.taxName</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.taxes.applies_from&#39;)</td>
+      <td>InputDatePicker</td>
+      <td>formData.appliesFrom</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.taxes.applies_from_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.exemptAfter</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.taxes.exempt_after_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;configuration.taxes.posting_type&#39;)</td>
+      <td>Select</td>
+      <td>formData.postingType</td>
+      <td>Oui</td>
+      <td>t(&#39;configuration.taxes.posting_type_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.applyTax</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.applyTax</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.amount</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.taxes.amount_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.percentage</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.taxes.percentage_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>formData.slabInfo</td>
+      <td>Non</td>
+      <td>t(&#39;configuration.taxes.slab_placeholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.taxApplyAfter</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.applyTaxOnRackRate</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Non</td>
+      <td>t(&#39;select_status&#39;)</td>
+    </tr>
+<tr>
+      <td>confirmTitle</td>
+      <td>ModalConfirmation</td>
+      <td>showConfirmModal</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>BedType.vue</h2><div class="file-path">src/views/Configuration/Rooms/BedType.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;shortCodeRequired&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>t(&#39;shortCodePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;bedTypeNameRequired&#39;)</td>
+      <td>Input</td>
+      <td>formData.bedTypeName</td>
+      <td>Oui</td>
+      <td>t(&#39;bedTypeNamePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;status&#39;)</td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>RoomAmenities.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomAmenities.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;amenityNameRequired&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>t(&#39;enterAmenityName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;amenityTypeRequired&#39;)</td>
+      <td>Select</td>
+      <td>formData.type</td>
+      <td>Oui</td>
+      <td>t(&#39;selectOption&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;sortKey&#39;)</td>
+      <td>Input</td>
+      <td>formData.sortKey</td>
+      <td>Non</td>
+      <td>t(&#39;enterSortOrder&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;status&#39;)</td>
+      <td>Select</td>
+      <td>formData.status</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>RoomFloor.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomFloor.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;shortCode&#39;)</td>
+      <td>Input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>t(&#39;enterShortCode&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;RoomName&#39;)</td>
+      <td>Input</td>
+      <td>formData.roomNumber</td>
+      <td>Oui</td>
+      <td>t(&#39;enterRoomName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;phoneExtension&#39;)</td>
+      <td>Input</td>
+      <td>formData.phoneExtension</td>
+      <td>Non</td>
+      <td>t(&#39;enterPhoneExtension&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;keyCardAlias&#39;)</td>
+      <td>Input</td>
+      <td>formData.keyCardAlias</td>
+      <td>Non</td>
+      <td>t(&#39;enterKeyCardAlias&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;sortKey&#39;)</td>
+      <td>Input</td>
+      <td>formData.sortKey</td>
+      <td>Non</td>
+      <td>t(&#39;enterSortKey&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.smokingAllowed</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.connectedRooms</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.taxRateIds</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>RoomOwner.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomOwner.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;Name&#39;)</td>
+      <td>Input</td>
+      <td>formData.name</td>
+      <td>Oui</td>
+      <td>t(&#39;enterOwnerName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;businessName&#39;)</td>
+      <td>Input</td>
+      <td>formData.businessName</td>
+      <td>Oui</td>
+      <td>t(&#39;enterBusinessName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;Address&#39;)</td>
+      <td>Input</td>
+      <td>formData.address</td>
+      <td>Oui</td>
+      <td>t(&#39;enterAddress&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputCountries</td>
+      <td>formData.country</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;State&#39;)</td>
+      <td>Input</td>
+      <td>formData.state</td>
+      <td>Oui</td>
+      <td>t(&#39;enterState&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;City&#39;)</td>
+      <td>Input</td>
+      <td>formData.city</td>
+      <td>Oui</td>
+      <td>t(&#39;enterCity&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;ZipCode&#39;)</td>
+      <td>Input</td>
+      <td>formData.zipCode</td>
+      <td>Oui</td>
+      <td>t(&#39;enterZipCode&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;phone&#39;)</td>
+      <td>InputPhone</td>
+      <td>formData.phone</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;Fax&#39;)</td>
+      <td>Input</td>
+      <td>formData.fax</td>
+      <td>Oui</td>
+      <td>t(&#39;enterFax&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;mobile&#39;)</td>
+      <td>InputPhone</td>
+      <td>formData.mobile</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;email&#39;)</td>
+      <td>InputEmail</td>
+      <td>formData.email</td>
+      <td>Oui</td>
+      <td>t(&#39;emailAddress&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;commissionPlan&#39;)</td>
+      <td>Select</td>
+      <td>formData.commissionPlan</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;commissionValue&#39;)</td>
+      <td>Input</td>
+      <td>formData.commissionValue</td>
+      <td>Oui</td>
+      <td>t(&#39;enterCommissionValue&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;rate&#39;)</td>
+      <td>Select</td>
+      <td>formData.rate</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;roomInventory&#39;)</td>
+      <td>Select</td>
+      <td>formData.roomInventory</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;openingBalance&#39;)</td>
+      <td>Input</td>
+      <td>formData.openingBalance</td>
+      <td>Oui</td>
+      <td>t(&#39;enterOpeningBalance&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.createUser</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.roomIds</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>RoomType.vue</h2><div class="file-path">src/views/Configuration/Rooms/RoomType.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.shortCode</td>
+      <td>Oui</td>
+      <td>t(&#39;shortCodePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.roomTypeName</td>
+      <td>Oui</td>
+      <td>t(&#39;roomTypeNamePlaceholder&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.baseAdult</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.baseChild</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.maxAdult</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.maxChild</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.publishToWebsite</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.defaultWebInventory</td>
+      <td>Non</td>
+      <td>t(&#39;numberOfRooms&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.color</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formData.roomAmenities</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>SetRoomTypes.vue</h2><div class="file-path">src/views/Configuration/Rooms/SetRoomTypes.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;clickToEditSortOrder&#39;)</td>
+      <td>Input</td>
+      <td>item.sortOrder</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.sortOrder</td>
+      <td>Oui</td>
+      <td>t(&#39;enterSortOrder&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>StatusColor.vue</h2><div class="file-path">src/views/Configuration/Rooms/StatusColor.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>tempColor</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>tempColor</td>
+      <td>Non</td>
+      <td>#000000</td>
+    </tr>
+</tbody></table>
+<h2>CheckInAndReservationSettings.vue</h2><div class="file-path">src/views/Configuration/Settings/CheckInAndReservationSettings.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>timeSettings.twentyFourHourCheckout</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>timeSettings.checkInTime</td>
+      <td>Non</td>
+      <td>Select check-in time</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>timeSettings.checkOutTime</td>
+      <td>Non</td>
+      <td>Select check-out time</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>dayUseSettings.autoPost</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>dayUseSettings.gracePeriodHours</td>
+      <td>Non</td>
+      <td>Enter grace period in hours</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>dayUseSettings.roomChargePercentage</td>
+      <td>Non</td>
+      <td>Enter percentage</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>lateCheckoutSettings.autoPost</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>lateCheckoutSettings.gracePeriodHours</td>
+      <td>Non</td>
+      <td>Enter grace period in hours</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>lateCheckoutSettings.roomChargePercentage</td>
+      <td>Non</td>
+      <td>Enter percentage</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>cancellationSettings.postFee</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>cancellationSettings.feeType</td>
+      <td>Non</td>
+      <td>Select fee type</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>cancellationSettings.percentage</td>
+      <td>Non</td>
+      <td>Enter percentage</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>cancellationSettings.fixedAmount</td>
+      <td>Non</td>
+      <td>Enter fixed amount</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>cancellationSettings.numberOfNights</td>
+      <td>Non</td>
+      <td>Enter number of nights</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>cancellationSettings.daysBeforeReservation</td>
+      <td>Non</td>
+      <td>Enter days</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>cancellationSettings.daysBeforeArrival</td>
+      <td>Non</td>
+      <td>Enter days</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>noShowSettings.postFee</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>noShowSettings.feeType</td>
+      <td>Non</td>
+      <td>Select fee type</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>noShowSettings.percentage</td>
+      <td>Non</td>
+      <td>Enter percentage</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>noShowSettings.fixedAmount</td>
+      <td>Non</td>
+      <td>Enter fixed amount</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>noShowSettings.numberOfNights</td>
+      <td>Non</td>
+      <td>Enter number of nights</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>financialSettings.startMonth</td>
+      <td>Non</td>
+      <td>Select start month</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>financialSettings.startDay</td>
+      <td>Non</td>
+      <td>Enter start day</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>field.required</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>otherSettings.emailReservationVoucher</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>otherSettings.allowOverbooking</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>otherSettings.baseOccupancy</td>
+      <td>Non</td>
+      <td>Enter base occupancy</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>otherSettings.frontRateMode</td>
+      <td>Non</td>
+      <td>Select rate mode</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>otherSettings.sendReviewEmailTo</td>
+      <td>Non</td>
+      <td>Select target</td>
+    </tr>
+</tbody></table>
+<h2>DisplaySettings.vue</h2><div class="file-path">src/views/Configuration/Settings/DisplaySettings.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formatSettings.timeFormat</td>
+      <td>Non</td>
+      <td>Select time format</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formatSettings.dateFormat</td>
+      <td>Non</td>
+      <td>Select date format</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formatSettings.arrivalDepartureDateFormat</td>
+      <td>Non</td>
+      <td>Select arrival/departure date format</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>formatSettings.timeZone</td>
+      <td>Non</td>
+      <td>Select time zone</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>captionSettings.stateCaption</td>
+      <td>Non</td>
+      <td>Enter caption for State field</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>captionSettings.zipCodeCaption</td>
+      <td>Non</td>
+      <td>Enter caption for Zip Code field</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>defaultValues.selectIdentity</td>
+      <td>Non</td>
+      <td>Select default identity</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>defaultValues.reservationType</td>
+      <td>Non</td>
+      <td>Select default reservation type</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>defaultValues.salutation</td>
+      <td>Non</td>
+      <td>Select default salutation</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>defaultValues.billTo</td>
+      <td>Non</td>
+      <td>Select default bill to option</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>defaultValues.paymentMode</td>
+      <td>Non</td>
+      <td>Select default payment mode</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>defaultValues.paymentGateway</td>
+      <td>Non</td>
+      <td>Select default payment gateway</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>roundOffSettings.type</td>
+      <td>Non</td>
+      <td>Select round off type</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>roundOffSettings.limit</td>
+      <td>Non</td>
+      <td>Enter round off limit</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>webSettings.rateMode</td>
+      <td>Non</td>
+      <td>Select web rate mode</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>webSettings.inventoryMode</td>
+      <td>Non</td>
+      <td>Select web inventory mode</td>
+    </tr>
+</tbody></table>
+<h2>DocumentNumbering.vue</h2><div class="file-path">src/views/Configuration/Settings/DocumentNumbering.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>document.prefix</td>
+      <td>Non</td>
+      <td>Enter prefix</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>document.nextNumber</td>
+      <td>Non</td>
+      <td>Enter next number</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>document.resetFrequency</td>
+      <td>Non</td>
+      <td>Select reset frequency</td>
+    </tr>
+</tbody></table>
+<h2>EmailAccounts.vue</h2><div class="file-path">src/views/Configuration/Settings/EmailAccounts.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;Title&#39;)</td>
+      <td>Input</td>
+      <td>formData.title</td>
+      <td>Oui</td>
+      <td>Enter the title for this email account</td>
+    </tr>
+<tr>
+      <td>$t(&#39;Email Address&#39;)</td>
+      <td>InputEmail</td>
+      <td>formData.emailAddress</td>
+      <td>Oui</td>
+      <td>Enter the email address</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>formData.displayName</td>
+      <td>Oui</td>
+      <td>Name to display when email is sent</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>formData.signature</td>
+      <td>Non</td>
+      <td>Create and edit signatures for outgoing messages, replies and forwards</td>
+    </tr>
+</tbody></table>
+<h2>Formula.vue</h2><div class="file-path">src/views/Configuration/Settings/Formula.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formula.totalRoomRevenue.nightSoldRevenue</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formula.totalRoomRevenue.dayUseRevenue</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formula.totalRoomRevenue.lateCheckoutRevenue</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formula.totalRoomRevenue.cancellationRevenue</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formula.totalRoomRevenue.noShowRevenue</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>formula.totalRooms.includeOutOfOrder</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>HotelInformation.vue</h2><div class="file-path">src/views/Configuration/Settings/HotelInformation.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;hotelInformation.fields.hotelName&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.hotelName</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.hotelName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.email&#39;)</td>
+      <td>InputEmail</td>
+      <td>hotelInfo.email</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.email&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.phone&#39;)</td>
+      <td>InputPhone</td>
+      <td>hotelInfo.phoneNumber</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.phone&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.fax&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.fax</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.fax&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.website&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.website</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.website&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputCountries</td>
+      <td>hotelInfo.country</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.address1&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.address</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.address1&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.address2&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.address2</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.address2&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.city&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.city</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.city&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.stateProvince&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.stateProvince</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.stateProvince&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.zipPostalCode&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.postalCode</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.zipPostalCode&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.propertyType&#39;)</td>
+      <td>Select</td>
+      <td>hotelInfo.propertyType</td>
+      <td>Oui</td>
+      <td>t(&#39;hotelInformation.placeholders.propertyType&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.gradeRating&#39;)</td>
+      <td>Select</td>
+      <td>hotelInfo.grade</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.gradeRating&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.registrationNo1&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.registrationNo1</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.registrationNo1&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.registrationNo2&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.registrationNo2</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.registrationNo2&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;hotelInformation.fields.registrationNo3&#39;)</td>
+      <td>Input</td>
+      <td>hotelInfo.registrationNo3</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.registrationNo3&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>hotelInfo.cancellationPolicy</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.cancellationPolicy&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>hotelInfo.hotelPolicy</td>
+      <td>Non</td>
+      <td>t(&#39;hotelInformation.placeholders.hotelPolicy&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>Notices.vue</h2><div class="file-path">src/views/Configuration/Settings/Notices.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;notices.fields.folio&#39;)</td>
+      <td>InputTextArea</td>
+      <td>notices.folio</td>
+      <td>Non</td>
+      <td>t(&#39;notices.placeholders.folio&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;notices.fields.registrationCard&#39;)</td>
+      <td>InputTextArea</td>
+      <td>notices.registrationCard</td>
+      <td>Non</td>
+      <td>t(&#39;notices.placeholders.registrationCard&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;notices.fields.termsAndConditions&#39;)</td>
+      <td>InputTextArea</td>
+      <td>notices.termsAndConditions</td>
+      <td>Non</td>
+      <td>t(&#39;notices.placeholders.termsAndConditions&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;notices.fields.cancellation&#39;)</td>
+      <td>InputTextArea</td>
+      <td>notices.cancellation</td>
+      <td>Non</td>
+      <td>t(&#39;notices.placeholders.cancellation&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;notices.fields.groupProformatInvoice&#39;)</td>
+      <td>InputTextArea</td>
+      <td>notices.groupProformatInvoice</td>
+      <td>Non</td>
+      <td>t(&#39;notices.placeholders.groupProformatInvoice&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;notices.fields.receipt&#39;)</td>
+      <td>InputTextArea</td>
+      <td>notices.receipt</td>
+      <td>Non</td>
+      <td>t(&#39;notices.placeholders.receipt&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>PrintAndEmailSettings.vue</h2><div class="file-path">src/views/Configuration/Settings/PrintAndEmailSettings.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>printSettings.printCityLedgerOnInvoice</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>template.selectedTemplate</td>
+      <td>Non</td>
+      <td>`Select ${template.name.toLowerCase()}`</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>emailOption.enabled</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>emailOption.template</td>
+      <td>Non</td>
+      <td>Select email template</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>emailOption.subject</td>
+      <td>Non</td>
+      <td>Enter email subject</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>additionalSettings.reviewEmailTarget</td>
+      <td>Non</td>
+      <td>Select target audience</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>additionalSettings.reviewEmailTemplate</td>
+      <td>Non</td>
+      <td>Select review email template</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Input</td>
+      <td>additionalSettings.reviewEmailDelay</td>
+      <td>Non</td>
+      <td>Enter delay in hours</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>additionalSettings.sendVoucherToGuest</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>additionalSettings.sendVoucherToCompany</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>additionalSettings.sendVoucherToTravelAgent</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>Select</td>
+      <td>additionalSettings.voucherEmailTemplate</td>
+      <td>Non</td>
+      <td>Select voucher email template</td>
+    </tr>
+</tbody></table>
+<h2>RegistrationSettings.vue</h2><div class="file-path">src/views/Configuration/Settings/RegistrationSettings.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>registrationSettings.requireIdProof</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>registrationSettings.requireSignature</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>registrationSettings.requireAddress</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>registrationSettings.requireEmergencyContact</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>mandatoryFields.phone</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>mandatoryFields.email</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>mandatoryFields.nationality</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>mandatoryFields.dateOfBirth</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>mandatoryFields.gender</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>mandatoryFields.occupation</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>cardSettings.printRegistrationCard</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>cardSettings.includePhoto</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>cardSettings.includeSignature</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>DepartmentView.vue</h2><div class="file-path">src/views/Configuration/Staff/DepartmentView.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;Name&#39;)</td>
+      <td>Input</td>
+      <td>newDepartment.name</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>newDepartment.description</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>$t(&#39;manager&#39;)</td>
+      <td>Select</td>
+      <td>newDepartment.manager</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table>
+<h2>EStaffStaffManager.vue</h2><div class="file-path">src/views/Configuration/Staff/EStaffStaffManager.vue</div><p>Aucun champ lié via v-model.</p>
+<h2>UserRoleView.vue</h2><div class="file-path">src/views/Configuration/Staff/UserRoleView.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>$t(&#39;Name&#39;)</td>
+      <td>Input</td>
+      <td>newRole.name</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>newRole.description</td>
+      <td>Non</td>
+      <td>$t(&#39;enter_description&#39;)</td>
+    </tr>
+</tbody></table>
+<h2>UserUpsertForm.vue</h2><div class="file-path">src/views/Configuration/Staff/UserUpsertForm.vue</div>
+<table><thead><tr>
+      <th>Label/Titre</th>
+      <th>Composant</th>
+      <th>Expression v-model</th>
+      <th>Requis</th>
+      <th>Placeholder</th>
+    </tr></thead><tbody>
+<tr>
+      <td>t(&#39;FirstName&#39;)</td>
+      <td>Input</td>
+      <td>form.firstName</td>
+      <td>Oui</td>
+      <td>$t(&#39;FirstName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;LastName&#39;)</td>
+      <td>Input</td>
+      <td>form.lastName</td>
+      <td>Oui</td>
+      <td>$t(&#39;LastName&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;gender&#39;)</td>
+      <td>Select</td>
+      <td>form.gender</td>
+      <td>Oui</td>
+      <td>$t(&#39;selectGender&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;Phone&#39;)</td>
+      <td>InputPhone</td>
+      <td>form.phoneNumber</td>
+      <td>Oui</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;Email&#39;)</td>
+      <td>InputEmail</td>
+      <td>form.email</td>
+      <td>Oui</td>
+      <td>info@gmail.com</td>
+    </tr>
+<tr>
+      <td>t(&#39;dateOfBirth&#39;)</td>
+      <td>InputDatePicker</td>
+      <td>form.dateOfBirth</td>
+      <td>Oui</td>
+      <td>t(&#39;dateOfBirth&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;placeOfBirth&#39;)</td>
+      <td>Input</td>
+      <td>form.placeOfBirth</td>
+      <td>Oui</td>
+      <td>$t(&#39;placeOfBirth&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;nationalIdNumber&#39;)</td>
+      <td>Input</td>
+      <td>form.nationalIdNumber</td>
+      <td>Oui</td>
+      <td>$t(&#39;nationalIdNumber&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>form.password</td>
+      <td>Oui</td>
+      <td>t(&#39;Enteryourpassword&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;Role&#39;)</td>
+      <td>Select</td>
+      <td>form.roleId</td>
+      <td>Oui</td>
+      <td>$t(&#39;selectRole&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;staffManager.department&#39;)</td>
+      <td>Select</td>
+      <td>form.department</td>
+      <td>Oui</td>
+      <td>$t(&#39;selectDepartment&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;Language&#39;)</td>
+      <td>Select</td>
+      <td>form.language</td>
+      <td>Oui</td>
+      <td>$t(&#39;selectLanguage&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>textarea</td>
+      <td>form.addressLine</td>
+      <td>Non</td>
+      <td>t(&#39;Address&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>InputCountries</td>
+      <td>form.country</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;State/Province&#39;)</td>
+      <td>Input</td>
+      <td>form.stateProvince</td>
+      <td>Non</td>
+      <td>$t(&#39;State/Province&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;city&#39;)</td>
+      <td>Input</td>
+      <td>form.city</td>
+      <td>Non</td>
+      <td>$t(&#39;city&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;postalCode&#39;)</td>
+      <td>Input</td>
+      <td>form.postalCode</td>
+      <td>Non</td>
+      <td>$t(&#39;postalCode&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;nationality&#39;)</td>
+      <td>InputCountries</td>
+      <td>form.nationality</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td>t(&#39;Company Name&#39;)</td>
+      <td>Input</td>
+      <td>form.companyName</td>
+      <td>Non</td>
+      <td>$t(&#39;Company Name&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;Fax&#39;)</td>
+      <td>Input</td>
+      <td>form.fax</td>
+      <td>Non</td>
+      <td>t(&#39;Fax&#39;)</td>
+    </tr>
+<tr>
+      <td>t(&#39;RegistrationNo&#39;)</td>
+      <td>Input</td>
+      <td>form.registrationNumber</td>
+      <td>Non</td>
+      <td>t(&#39;RegistrationNo&#39;)</td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>form.selectedPrivileges</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>form.selectedReports</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+<tr>
+      <td></td>
+      <td>input</td>
+      <td>form.selectedDiscounts</td>
+      <td>Non</td>
+      <td></td>
+    </tr>
+</tbody></table></body></html>
