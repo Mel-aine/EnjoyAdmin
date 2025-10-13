@@ -285,6 +285,19 @@ export const postTransaction = async (data: TransactionData): Promise<any> => {
 }
 
 /**
+ * Post Transaction
+ */
+export const updateTransaction = async (transactionId:any,data: TransactionData): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.put(`${API_URL}/transactions/${transactionId}`, data, getHeaders())
+    return response.data
+  } catch (error) {
+    console.error('Error posting transaction:', error)
+    throw error
+  }
+}
+
+/**
  * Settle Folio
  */
 export const settleFolio = async (data: SettlementData): Promise<any> => {
@@ -815,8 +828,8 @@ export const reverseFolioTransaction = async (id: number, data: { reason: string
 
 /**
  * folio printer
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const printFolio = async (data: {
   folioId: number
@@ -835,8 +848,8 @@ export const printFolio = async (data: {
 
 /**
  * folio printer
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const printFolioPdf = async (data: {
   folioId: number
@@ -930,8 +943,8 @@ export const findFolio = async (params: {
 
 /**
  * split folio
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const splitFolioHandler = async (data: any): Promise<any> => {
   try {
@@ -945,8 +958,8 @@ export const splitFolioHandler = async (data: any): Promise<any> => {
 
 /**
  * cut folio
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const cutFolioHandler = async (data: any): Promise<any> => {
   try {
@@ -960,7 +973,7 @@ export const cutFolioHandler = async (data: any): Promise<any> => {
 
 /**
  * add room charge
- * @param data 
+ * @param data
  * @returns   room charge
  */
 export const addRoomChargeHandler = async (data: any): Promise<any> => {
@@ -974,8 +987,23 @@ export const addRoomChargeHandler = async (data: any): Promise<any> => {
 }
 
 /**
+ * update room charge
+ * @param data
+ * @returns   room charge
+ */
+export const updateRoomChargeHandler = async (transactionId:any,data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/update/${transactionId}`, data, getHeaders())
+    return response.data
+  } catch (error) {
+    console.error('Error update room charge:', error)
+    throw error
+  }
+}
+
+/**
  * add adjustment
- * @param data 
+ * @param data
  * @returns   adjustment
  */
 export const addAdjustmentHandler = async (data: any): Promise<any> => {
@@ -988,9 +1016,23 @@ export const addAdjustmentHandler = async (data: any): Promise<any> => {
   }
 }
 
+
+/**
+ * update adjustement
+ */
+export const updateAdjustmentHandler = async (transactionId:any,data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/${transactionId}`, data, getHeaders())
+    return response.data
+  } catch (error) {
+    console.error('Error update adjustment:', error)
+    throw error
+  }
+}
+
 /**
  * apply discount
- * @param data 
+ * @param data
  * @returns   discount
  */
 export const applyDiscountHandler = async (data: any): Promise<any> => {
@@ -999,6 +1041,19 @@ export const applyDiscountHandler = async (data: any): Promise<any> => {
     return response.data
   } catch (error) {
     console.error('Error applying discount:', error)
+    throw error
+  }
+}
+
+/**
+ * update Discount
+ */
+export const updateDiscountHandler = async (transactionId:any,data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/update/discount/${transactionId}`, data, getHeaders())
+    return response.data
+  } catch (error) {
+    console.error('Error updating discount:', error)
     throw error
   }
 }

@@ -11,8 +11,8 @@
                         <!-- Header -->
                         <div class="px-4 py-2 sm:px-4 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-start justify-between">
-                                <h2 class="text-sm font-medium text-gray-900 dark:text-white" id="slide-over-title">{{
-                                    $t('roomCharges') }}</h2>
+                                <h2 class="text-sm font-medium text-gray-900 dark:text-white" id="slide-over-title">
+                                   {{ props.isEditMode ? $t('Edit Room Charges') : $t('roomCharges') }}</h2>
                                 <XIcon @click="closeModal" class="text-gray-300 hover:text-red-500 cursor-pointer"
                                     aria-label="Close panel" />
                             </div>
@@ -32,7 +32,7 @@
 
                                 <div>
                                     <InputFolioSelect :title="$t('folio')" v-model="formData.folioId"
-                                        :reservationId="props.reservationId!" />
+                                        :reservationId="props.reservationId" />
 
                                 </div>
 
@@ -50,7 +50,7 @@
                                         {{ $t('comment') }}
                                     </label>
                                     <textarea v-model="formData.description" rows="3"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                         :placeholder=" $t('comment')"></textarea>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                                 <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')"
                                     :disabled="isLoading" />
                                 <BasicButton variant="primary" @click="saveRoomCharge"
-                                    :label="isLoading ? $t('Processing') + '...' : $t('save')"
+                                    :label="isLoading ? (props.isEditMode ? $t('Updating...') : $t('Processing...')) : (props.isEditMode ? $t('Update') : $t('save'))"
                                     :disabled="isLoading || !isFormValid" :loading="isLoading" />
                             </div>
                         </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted,nextTick,watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { XIcon } from 'lucide-vue-next'
@@ -86,18 +86,23 @@ import Select from '../../forms/FormElements/Select.vue'
 import InputFolioSelect from './InputFolioSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
-import { addRoomChargeHandler } from '../../../services/foglioApi'
+import { addRoomChargeHandler ,updateRoomChargeHandler } from '../../../services/foglioApi'
 
 interface Props {
     folioId?: number | string
     reservationId?: number
     isOpen?: boolean
+    isEditMode?: boolean
+    transactionData?: any
+
 }
 
 const props = withDefaults(defineProps<Props>(), {
     folioId: undefined,
     reservationId: undefined,
-    isOpen: false
+    isOpen: false,
+    isEditMode: false,
+   transactionData: null
 })
 
 const { t } = useI18n()
@@ -112,7 +117,7 @@ const formData = reactive({
     description: '',
     date: new Date().toISOString().split('T')[0], // Today's date
     taxInclusive: false,
-    folioId:0 as number,
+    folioId:0 as any,
     complementary:false,
     discount:0 as number,
     chargeSubtype:'',
@@ -122,7 +127,7 @@ const formData = reactive({
 const isFormValid = computed(() => {
     return formData.chargeSubtype &&
         formData.amount &&
-        formData.amount > 0 
+        formData.amount > 0
 })
 
 const closeModal = () => {
@@ -181,12 +186,19 @@ const saveRoomCharge = async () => {
             discountId:formData.discount ? Number(formData.discount) : undefined,
         }
 
-        // Here you would call the appropriate API function
-        const response = await addRoomChargeHandler(payload)
+          const responseRoomCharges = props.isEditMode
+          ? await updateRoomChargeHandler(props.transactionData.id,payload)
+          : await addRoomChargeHandler(payload)
 
-    
+         if (responseRoomCharges && responseRoomCharges.success !== false) {
+          emit('refresh')
+          toast.success(props.isEditMode ? t('RoomChargesUpdatedSuccessfully') : t('roomChargeAddedSuccessfully'))
+          closeModal()
+        } else {
+          const errorMessage = responseRoomCharges?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
+          toast.error(errorMessage)
+        }
 
-        toast.success(t('roomChargeAddedSuccessfully'))
         emit('save', payload)
         emit('refresh')
         closeModal()
@@ -200,6 +212,60 @@ const saveRoomCharge = async () => {
         isLoading.value = false
     }
 }
+
+const loadTransactionData = () => {
+  if (props.isEditMode && props.transactionData) {
+    const tx = props.transactionData
+    console.log("tx",props.transactionData)
+
+    formData.date = tx.postingDate || new Date().toISOString().split('T')[0]
+    formData.chargeSubtype = tx.subcategory
+    formData.folioId = tx.folioId || ''
+    formData.amount = tx.grossAmount || tx.amount || 0
+    formData.description = tx.notes || tx.description || ''
+    formData.discount = tx.discountId
+    formData.complementary = tx.complementary
+    formData.taxInclusive = tx.taxExempt
+
+
+
+  }
+}
+
+watch(() => props.isOpen, async(newVal) => {
+  if (newVal) {
+      console.log('Watch open triggered:', { isEditMode: props.isEditMode, tx: props.transactionData })
+    if (props.isEditMode && props.transactionData) {
+      console.log('props.isEditMode',props.isEditMode)
+      // Mode édition : charger les données
+      loadTransactionData()
+      await nextTick()
+
+    } else {
+      // Mode création : réinitialiser
+      formData.date = new Date().toISOString().split('T')[0]
+      formData.chargeSubtype = ''
+      formData.folioId = props.folioId
+      formData.amount = 0
+      formData.description = ''
+      formData.discount = 0
+      formData.complementary = false
+      formData.taxInclusive = false
+
+    }
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal()
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }
+}, { immediate: true })
 onMounted(()=>{
     if(props.folioId)
     formData.folioId = Number(props.folioId)

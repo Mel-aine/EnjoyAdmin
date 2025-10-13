@@ -1,7 +1,7 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="$t('Add Charge')" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Charge') : $t('Add Charge')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('Add Charge') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ props.isEditMode ? $t('Edit Charge') : $t('Add Charge') }}</h3>
     </template>
     <!-- Form -->
     <div class="px-2 space-y-4">
@@ -28,7 +28,7 @@
       <div>
         <InputExtractChargeSelect v-model="formData.charge" :lb="$t('Charge')" @select="chargeSelected" />
       </div>
-      <!-- Add as Inclusion 
+      <!-- Add as Inclusion
       <div class="flex items-center">
         <input v-model="formData.addAsInclusion" type="checkbox" id="addAsInclusion"
           class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
@@ -54,7 +54,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
         <textarea v-model="formData.comment" rows="3"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none"
           placeholder="Enter any additional comments..."></textarea>
       </div>
     </div>
@@ -62,7 +62,7 @@
     <template #footer>
       <div class="flex justify-end space-x-3">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('cancel')" :disabled="isLoading"></BasicButton>
-        <BasicButton variant="primary" @click="saveCharge" :label="isLoading ? $t('Adding...') : $t('add')" :disabled="isLoading"></BasicButton>
+        <BasicButton variant="primary" @click="saveCharge"  :label="isLoading ? (props.isEditMode ? $t('Updating...') : $t('Adding...')) : (props.isEditMode ? $t('Update') : $t('Add'))"  :disabled="isLoading"></BasicButton>
       </div>
     </template>
   </RightSideModal>
@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch,nextTick } from 'vue'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
@@ -79,14 +79,17 @@ import InputFolioSelect from './InputFolioSelect.vue'
 import InputExtractChargeSelect from './InputExtractChargeSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
-import { postTransaction } from '@/services/foglioApi'
+import { postTransaction ,updateTransaction } from '@/services/foglioApi'
 import { prepareFolioAmount, safeParseFloat, isValidMonetaryAmount } from '@/utils/numericUtils'
 import { useToast } from 'vue-toastification'
+
 
 interface Props {
   isOpen: boolean
   reservationId: number
   folioId?: number | string
+  isEditMode?: boolean
+  transactionData?: any
 }
 
 interface Emits {
@@ -95,14 +98,17 @@ interface Emits {
   (e: 'refresh'): void
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isEditMode: false,
+  transactionData: null
+})
 const emit = defineEmits<Emits>()
 const selectedCharge = ref<any>(null)
 const isLoading = ref(false)
 const toast = useToast()
 const formData = reactive({
   date: new Date().toISOString().split('T')[0],
-  folio: 0 as any,
+  folio: props.folioId as any,
   recVouNumber: '',
   charge: '',
   addAsInclusion: false,
@@ -123,32 +129,30 @@ const closeModal = () => {
   emit('close')
 }
 
+
 const saveCharge = async () => {
   if (isLoading.value) return
-  
+
   try {
     isLoading.value = true
-    
+
     // Validate required fields
     if (!formData.folio || !formData.charge || !formData.amount || !selectedCharge.value) {
       toast.error('Please fill in all required fields (Folio, Charge, and Amount)')
       return
     }
 
-    // Validate amount is a valid monetary value
     if (!isValidMonetaryAmount(formData.amount)) {
       toast.error('Please enter a valid amount')
       return
     }
 
-    // Validate quantity
     if (formData.quantity < 1) {
       toast.error('Quantity must be at least 1')
       return
     }
 
-    // Prepare charge data with proper mapping
-    const chargeData = {
+    const chargeData :any = {
       folioId: Number(formData.folio),
       transactionType: 'charge',
       category: 'extract_charge',
@@ -163,30 +167,49 @@ const saveCharge = async () => {
       discountId: formData.discount ? Number(formData.discount) : undefined
     }
 
-    console.log('Sending charge data:', chargeData)
+    // Si mode édition, ajouter l'ID de la transaction
+    if (props.isEditMode && props.transactionData?.id) {
+      chargeData.id = props.transactionData.id
+    }
 
-    // Post the transaction
-    const responseCharges = await postTransaction(chargeData)
-    
-    console.log('Response from API:', responseCharges)
-    
-    // Check if the response indicates success
+    console.log('Sending charge data:', chargeData )
+
+    const responseCharges = props.isEditMode
+      ? await updateTransaction(props.transactionData.id,chargeData)
+      : await postTransaction(chargeData)
+
     if (responseCharges && responseCharges.success !== false) {
-      // Emit success event for parent component to refresh
-     // emit('save', { ...chargeData, response: responseCharges })
       emit('refresh')
-      toast.success('Charge added successfully!')
+      toast.success(props.isEditMode ? 'Charge updated successfully!' : 'Charge added successfully!')
       closeModal()
     } else {
-      const errorMessage = responseCharges?.message || 'Failed to add charge. Please try again.'
+      const errorMessage = responseCharges?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
       toast.error(errorMessage)
     }
   } catch (error: any) {
     console.error('Error saving charge:', error)
-    const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred while adding the charge. Please try again.'
+    const errorMessage = error?.response?.data?.message || error?.message || `An error occurred while ${props.isEditMode ? 'updating' : 'adding'} the charge. Please try again.`
     toast.error(errorMessage)
   } finally {
     isLoading.value = false
+  }
+}
+
+const loadTransactionData = () => {
+  if (props.isEditMode && props.transactionData) {
+    const tx = props.transactionData
+    console.log("tx",props.transactionData)
+
+    formData.date = tx.postingDate || new Date().toISOString().split('T')[0]
+    formData.folio = tx.folioId || props.folioId
+    formData.recVouNumber = tx.transactionNumber || ''
+    formData.quantity = tx.quantity || 1
+    formData.amount = tx.grossAmount || tx.amount || 0
+    formData.discount = tx.discountId || ''
+    formData.comment = tx.notes || tx.description || ''
+    formData.charge = tx.extraChargeId || tx.chargeId || tx.particular_id || ''
+
+
   }
 }
 
@@ -198,21 +221,29 @@ watch(() => formData.quantity, (newQuantity) => {
 })
 
 // Reset form when modal opens
-watch(() => props.isOpen, (newVal) => {
+watch(() => props.isOpen, async(newVal) => {
   if (newVal) {
-    // Reset form data
-    formData.date = new Date().toISOString().split('T')[0]
-    formData.folio = props.folioId
-    formData.recVouNumber = ''
-    formData.charge = ''
-    formData.addAsInclusion = false
-    formData.quantity = 1
-    formData.amount = 0
-    formData.currency = 'Xaf'
-    formData.discount = ''
-    formData.comment = ''
-    selectedCharge.value = null
-    
+      console.log('Watch open triggered:', { isEditMode: props.isEditMode, tx: props.transactionData })
+    if (props.isEditMode && props.transactionData) {
+      console.log('props.isEditMode',props.isEditMode)
+      loadTransactionData()
+      await nextTick()
+
+    } else {
+      // Mode création : réinitialiser
+      formData.date = new Date().toISOString().split('T')[0]
+      formData.folio = props.folioId
+      formData.recVouNumber = ''
+      formData.charge = ''
+      formData.addAsInclusion = false
+      formData.quantity = 1
+      formData.amount = 0
+      formData.currency = 'Xaf'
+      formData.discount = ''
+      formData.comment = ''
+      selectedCharge.value = null
+    }
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeModal()
@@ -224,7 +255,7 @@ watch(() => props.isOpen, (newVal) => {
       document.removeEventListener('keydown', handleEscape)
     }
   }
-})
+}, { immediate: true })
 
 // Keep formData.folio in sync if folioId prop changes while modal is open
 watch(() => props.folioId, (newVal) => {
@@ -233,9 +264,7 @@ watch(() => props.folioId, (newVal) => {
   }
 })
 
-onMounted(()=>{
-  formData.folio = props.folioId
-})
+
 </script>
 
 <style scoped>
