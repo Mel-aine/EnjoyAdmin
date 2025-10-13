@@ -311,7 +311,6 @@ const resetForm = (): void => {
     roomTypeId: '',
     floor: ''
   }
-  showResults.value = false
 }
 const cleanup = () => {
   if (pdfUrl.value) {
