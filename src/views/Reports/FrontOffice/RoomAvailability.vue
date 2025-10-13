@@ -54,20 +54,31 @@
         </div>
 
         <div class="mt-4 flex justify-end">
-          <button
-            @click="generatePDF"
-            :disabled="isGeneratingPDF || !isDateRangeValid"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-          >
-            <svg v-if="isGeneratingPDF" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-            </svg>
-            {{ isGeneratingPDF ? $t('common.generating') : $t('generatePdf') }}
-          </button>
+          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button 
+              @click="generatePDF"
+                :disabled="isGeneratingPDF || !isDateRangeValid"
+                class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+              >
+              <svg v-if="isGeneratingPDF" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+                <span class="flex items-center">
+                  {{  t('Report') }}
+                </span>
+            </button>
+                      <!-- Bouton Reset -->
+              <button 
+                @click="resetForm"
+                class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {{ t('common.reset') }}
+              </button>
+            </div>
         </div>
       </div>
 
@@ -140,7 +151,7 @@ interface FilterOptions {
 const filters = ref({
   hotelId: serviceStore.serviceId,
   dateFrom: new Date().toISOString().split('T')[0],
-  dateTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  dateTo: new Date().toISOString().split('T')[0],
   roomTypeId: '',
   floor: ''
 })
@@ -292,7 +303,16 @@ const fetchRoomtype = async () => {
     console.error('Error fetching roomType:', error)
   }
 }
-
+const resetForm = (): void => {
+  filters.value = {
+    hotelId: serviceStore.serviceId,
+    dateFrom: new Date().toISOString().split('T')[0],
+    dateTo: new Date().toISOString().split('T')[0],
+    roomTypeId: '',
+    floor: ''
+  }
+  showResults.value = false
+}
 const cleanup = () => {
   if (pdfUrl.value) {
     console.log('Nettoyage URL PDF:', pdfUrl.value)
