@@ -28,7 +28,7 @@ if (useLanguage.language) {
 }
 
 // Inactivity tracking (5 minutes)
-const IDLE_TIMEOUT_MS = 5 * 60 * 1000
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000
 const isReAuthOpen = ref(false)
 let idleTimer: number | null = null
 const authStore = useAuthStore()
