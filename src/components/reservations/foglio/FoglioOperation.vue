@@ -608,7 +608,7 @@ const getFolosReservations = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status === "voided") ;
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null) ;
             if (transaction.transactionType === 'payment') {
               allTransactions.value.push({
                 ...transaction,
