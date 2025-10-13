@@ -1,9 +1,9 @@
 <template>
     <!-- Apply Discount Room Charge Modal -->
     <!-- No Show Reservation Modal -->
-    <RightSideModal :is-open="isOpen" :title="$t('applyDiscount')" @close="closeModal">
+    <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Discount') : $t('applyDiscount')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">{{ $t('applyDiscount') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900">{{ props.isEditMode ? $t('Edit Discount') : $t('applyDiscount') }}</h3>
         </template>
         <div>
             <!-- Loading Skeleton -->
@@ -30,23 +30,38 @@
                 <!-- Date -->
                 <div class="mb-4">
                     <InputDatePicker v-model="formData.date" :title="$t('Date')" />
-
                 </div>
+
                 <!-- Discount Selection -->
                 <div class="mb-4">
-                    <InputDiscountSelect v-model="formData.discountId" :lb="$t('discount')" :is-required="true"
-                        @select="handleDiscountSelect" />
+                    <InputDiscountSelect
+                        v-model="formData.discountId"
+                        :lb="$t('discount')"
+                        :is-required="true"
+                        @select="handleDiscountSelect"
+                    />
                 </div>
+
                 <!-- Folio -->
                 <div class="mb-4">
-                    <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId"
-                        :is-required="true" @select="handleFolioSelect" />
+                    <InputFolioSelect
+                        :title="$t('folio')"
+                        v-model="formData.folio"
+                        :reservation-id="reservationId"
+                        :is-required="true"
+                        @select="handleFolioSelect"
+                    />
                 </div>
 
                 <!-- Discount Amount (if open discount) -->
                 <div class="mb-4">
-                    <InputCurrency v-model="formData.discountAmount" :lb="$t('discountAmount')" disabled
-                        :placeholder="$t('enterDiscountAmount')" :is-required="true" />
+                    <InputCurrency
+                        v-model="formData.discountAmount"
+                        :lb="$t('discountAmount')"
+                        disabled
+                        :placeholder="$t('enterDiscountAmount')"
+                        :is-required="true"
+                    />
                 </div>
 
                 <!-- Notes -->
@@ -54,43 +69,58 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         {{ $t('notes') }}
                     </label>
-                    <textarea v-model="formData.notes" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                        :placeholder="$t('enterAdditionalNotes')"></textarea>
+                    <textarea
+                        v-model="formData.notes"
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                        :placeholder="$t('enterAdditionalNotes')"
+                    ></textarea>
                 </div>
             </form>
         </div>
         <template #footer>
             <div class="flex justify-end space-x-3 bg-gray-50">
-                <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
-                    :disabled="loading" />
-                <BasicButton type="submit" variant="primary" @click="handleSubmit" :label="$t('applyDiscount')"
-                    :loading="loading" />
+                <BasicButton
+                    type="button"
+                    variant="outline"
+                    @click="closeModal"
+                    :label="$t('cancel')"
+                    :disabled="loading"
+                />
+                <BasicButton
+                    type="submit"
+                    variant="primary"
+                    @click="handleSubmit"
+                    :label="loading ? (props.isEditMode ? $t('Updating...') : $t('Processing...')) : (props.isEditMode ? $t('Update') : $t('applyDiscount'))"
+                    :loading="loading"
+                />
             </div>
         </template>
     </RightSideModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { getReservationDetailsById } from '../../../services/reservation'
-import { applyDiscountHandler } from '../../../services/foglioApi'
+import { applyDiscountHandler ,updateDiscountHandler } from '../../../services/foglioApi'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
 import InputFolioSelect from './InputFolioSelect.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { prepareFolioAmount, safeParseInt } from '../../../utils/numericUtils'
+import { safeParseInt } from '../../../utils/numericUtils'
 
 interface Props {
     isOpen: boolean
     reservationId: number
     reservationNumber?: string
     folioId?: number
+    isEditMode?: boolean
+    transactionData?: any
 }
 
 interface Emits {
@@ -125,20 +155,11 @@ interface NightInfo {
     isAudited: boolean
 }
 
-interface TransactionInfo {
-    id: number
-    particular: string
-    description: string
-    amount: number
-    postingDate: string
-    guest?: {
-        displayName: string
-    }
-}
-
 const props = withDefaults(defineProps<Props>(), {
     isOpen: false,
-    folioId: undefined
+    folioId: undefined,
+    isEditMode: false,
+    transactionData: null
 })
 
 const emit = defineEmits<Emits>()
@@ -152,6 +173,7 @@ const selectedDiscount = ref<DiscountOption | null>(null)
 const selectedFolio = ref<any | null>(null)
 const availableNights = ref<NightInfo[]>([])
 const serviceStore = useServiceStore()
+
 const formData = ref({
     discountId: 0 as number,
     discountAmount: 0,
@@ -159,25 +181,67 @@ const formData = ref({
     folio: '' as any,
     notes: ''
 })
-const isSaving = ref(false);
 
+const isSaving = ref(false)
+
+const loadTransactionData = () => {
+    if (props.isEditMode && props.transactionData) {
+        const tx = props.transactionData
+        console.log("Loading transaction data:", tx)
+
+        // Extraire la date de transactionDate (format ISO)
+        const txDate = tx.transactionDate ? tx.transactionDate.split('T')[0] : new Date().toISOString().split('T')[0]
+        formData.value.date = txDate
+
+        // Charger le discountId
+        formData.value.discountId = tx.discountId || 0
+
+        // Charger le montant de la remise (convertir en positif car amount est négatif)
+        formData.value.discountAmount = tx.discountAmount ? parseFloat(tx.discountAmount) : 0
+
+        // Charger le folioId
+        formData.value.folio = tx.folioId || ''
+
+        // Charger les notes ou la description
+        formData.value.notes = tx.notes || tx.description || ''
+    }
+}
 
 // Watch for modal open/close
-watch(() => props.isOpen, (newValue) => {
-    if (newValue && props.reservationId) {
-        resetForm()
-        getReservationDetails()
-        // Initialize folio from prop if provided
-        if (props.folioId) {
-            formData.value.folio = props.folioId
+watch(() => props.isOpen, async(newVal) => {
+    if (newVal && props.reservationId) {
+        // await getReservationDetails()
+
+        if (props.isEditMode && props.transactionData) {
+            console.log('Edit Mode activated')
+            // Mode édition : charger les données
+            await nextTick()
+            loadTransactionData()
+        } else {
+
+            if (props.folioId) {
+                formData.value.folio = ''
+            }
+        }
+
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                closeModal()
+            }
+        }
+        document.addEventListener('keydown', handleEscape)
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape)
         }
     }
-})
+}, { immediate: true })
 
 // Watch for reservationId changes
 watch(() => props.reservationId, (newVal) => {
     if (newVal) {
         getReservationDetails()
+        resetForm()
     }
 })
 
@@ -187,8 +251,6 @@ watch(() => props.folioId, (newVal) => {
         formData.value.folio = newVal
     }
 })
-
-
 
 const getReservationDetails = async () => {
     if (!props.reservationId) return
@@ -230,14 +292,6 @@ const generateAvailableNights = () => {
     availableNights.value = nights
 }
 
-const handleDiscountSelect = (discount: DiscountOption) => {
-    selectedDiscount.value = discount
-    console.log('Selected discount:', discount)
-    // Ensure form data holds the selected discount ID
-    formData.value.discountId = discount.id
-    // Recompute discount amount when discount changes
-    recomputeDiscountAmount()
-}
 
 
 const resetForm = () => {
@@ -246,9 +300,10 @@ const resetForm = () => {
         discountAmount: 0,
         notes: '',
         date: new Date().toISOString().split('T')[0],
-        folio: props.folioId
+        folio: props.folioId || ''
     }
     selectedFolio.value = null
+    selectedDiscount.value = null
 }
 
 const closeModal = () => {
@@ -265,10 +320,15 @@ const handleSubmit = async () => {
             return
         }
 
+        if (!formData.value.folio) {
+            toast.error(t('pleaseSelectFolio'))
+            return
+        }
+
         isSaving.value = true
 
         // Build payload matching applyDiscountHandler schema
-        const payload = {
+        const payload: any = {
             folioId: safeParseInt(formData.value.folio),
             discountId: safeParseInt(formData.value.discountId),
             reservationId: safeParseInt(props.reservationId),
@@ -277,38 +337,80 @@ const handleSubmit = async () => {
             notes: formData.value.notes?.trim() || undefined
         }
 
-        console.log('Calling applyDiscountHandler with payload:', payload)
-        const response = await applyDiscountHandler(payload)
+        // Si mode édition, ajouter l'ID de la transaction
+        if (props.isEditMode && props.transactionData?.id) {
+            payload.transactionId = props.transactionData.id
+        }
 
+        console.log('Calling applyDiscountHandler with payload:', payload)
+        const responseDiscount = props.isEditMode
+          ? await updateDiscountHandler(props.transactionData.id,payload)
+          : await applyDiscountHandler(payload)
+
+         if (responseDiscount && responseDiscount.success !== false) {
+          // emit('refresh')
+           toast.success(props.isEditMode ? t('discountUpdatedSuccessfully') : t('discountAppliedSuccessfully'))
+          closeModal()
+        } else {
+          const errorMessage = responseDiscount?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
+          toast.error(errorMessage)
+        }
 
         // Emit the discount applied event
-        emit('discount-applied', response)
-
-        // Show success message
-        toast.success(t('discountAppliedSuccessfully'))
-
+        emit('discount-applied', responseDiscount)
         // Close modal
         closeModal()
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error applying discount:', error)
-        toast.error(t('errorApplyingDiscount'))
+        const errorMessage = error?.response?.data?.message || error?.message
+        toast.error(errorMessage || (props.isEditMode ? t('errorUpdatingDiscount') : t('errorApplyingDiscount')))
     } finally {
         loading.value = false
+        isSaving.value = false
     }
 }
+
 const handleFolioSelect = (folio: any) => {
-    console.log('folio', folio)
-    // Capture selected folio and set its ID
-    selectedFolio.value = folio
-    formData.value.folio = folio?.id || ''
-    // Recompute discount based on folio balance and selected discount
-    recomputeDiscountAmount()
+  console.log('Selected folio:', folio)
+  selectedFolio.value = folio
+
+  if (typeof folio === 'number' || typeof folio === 'string') {
+    const found = reservation.value?.folios?.find((f: any) => f.id === Number(folio))
+    if (found) {
+      selectedFolio.value = found
+      console.log('Resolved folio object with balance:', found)
+    }
+  }
+
+  formData.value.folio = selectedFolio.value?.id || ''
+  recomputeDiscountAmount()
 }
+
+const handleDiscountSelect = (discount: DiscountOption) => {
+  selectedDiscount.value = discount
+  console.log('Selected discount:', discount)
+
+  if (formData.value.folio) {
+    formData.value.folio = ''
+    selectedFolio.value = null
+    console.log('Folio reset due to discount change')
+  }
+
+  formData.value.discountId = discount.id
+
+  recomputeDiscountAmount()
+}
+
+
+
 onMounted(() => {
+
     if (props.reservationId) {
         getReservationDetails()
     }
-    formData.value.folio = props.folioId
+    // if (props.folioId) {
+    //     formData.value.folio = props.folioId
+    // }
 })
 
 // Helpers
@@ -319,30 +421,70 @@ const roundToTwo = (num: number) => {
 // Compute discount amount based on selected folio balance and discount type
 const recomputeDiscountAmount = () => {
     const discount = selectedDiscount.value
-    const balance = selectedFolio.value?.balance
+    let rawBalance = selectedFolio.value?.balance
+
 
     if (!discount) {
         formData.value.discountAmount = 0
         return
     }
+      if (!discount || !selectedFolio.value) {
+        formData.value.discountAmount = 0
+        return
+      }
+
+
+    // Normalize values (force number)
+    const discountValue = Number(discount.value ?? 0)
+    const discountType = discount.type
+    let balanceNum = 0
+
+    if (rawBalance == null) {
+        balanceNum = 0
+    } else {
+        // remove spaces, replace commas if they are thousand separators (basic)
+        const cleaned = String(rawBalance).trim().replace(/\s+/g, '').replace(/,/g, '.')
+        balanceNum = Number(cleaned)
+        if (!Number.isFinite(balanceNum)) balanceNum = 0
+    }
 
     let amount = 0
-    if (discount.type === 'percentage') {
-        // Percentage of folio balance
-        const base = parseFloat(`${balance}`)
-        amount = roundToTwo(base * (Number(discount.value) / 100))
-    } else if (discount.type === 'flat') {
-        // Flat amount
-        amount = roundToTwo(Number(discount.value))
+    if (discountType === 'percentage') {
+        // Percentage of folio balance (assume percentage is e.g. 10 for 10%)
+        const base = balanceNum
+        amount = roundToTwo(base * (discountValue / 100))
+    } else if (discountType === 'flat') {
+        amount = roundToTwo(discountValue)
+    } else {
+        // fallback
+        amount = roundToTwo(discountValue)
     }
 
-    // Optional: prevent discount exceeding current balance
-    if (typeof balance === 'number') {
-        amount = Math.min(amount, roundToTwo(balance))
+    // If balance is positive (guest owes money), do not exceed balance.
+    // If balance is negative or zero, keep computed amount (or clamp to 0 if you want)
+    if (Number.isFinite(balanceNum) && balanceNum > 0) {
+        amount = Math.min(amount, roundToTwo(balanceNum))
     }
+
+    // Guard against negative discount amount
+    if (!Number.isFinite(amount) || amount < 0) amount = 0
+
+    console.log('[recompute] computed amount:', amount, 'balanceNum:', balanceNum, 'discountValue:', discountValue)
 
     formData.value.discountAmount = amount
 }
+
+watch(selectedFolio, () => {
+    recomputeDiscountAmount()
+})
+
+watch(selectedDiscount, () => {
+    recomputeDiscountAmount()
+})
+
+
+
+
 </script>
 
 <style scoped>

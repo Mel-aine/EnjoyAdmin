@@ -159,14 +159,14 @@
                   :disabled="!editMode" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Company') }}</label>
+                <label class="block text-sm font-medium text-gray-700 ">{{ $t('Company') }}</label>
                 <div class="flex">
                   <div class="flex-1">
                     <Select v-model="sourceData.company" :options="companyOptions" :placeholder="$t('-Select-')"
                       :disabled="!editMode" customClass="rounded-r-none h-11" />
                   </div>
                   <button
-                    class="w-11 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
+                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
                     :disabled="!editMode">
                     <Building class="w-4 h-4" />
                   </button>
@@ -371,7 +371,7 @@ const getCompaniesList = async () => {
   try {
     const resp: any = await getCompanies()
     console.log('Companies response:', resp)
-    companyOptions.value = resp.map((c: any) => ({
+    companyOptions.value = resp.data.map((c: any) => ({
       label: c.companyName,
       value: c.companyCode
     }))

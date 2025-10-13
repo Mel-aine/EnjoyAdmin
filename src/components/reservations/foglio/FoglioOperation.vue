@@ -64,6 +64,7 @@
             <div class="relative" v-if="(canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
                 :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
+
             </div>
             <!-- Status indicators
             <div class="ml-auto flex items-center gap-2">
@@ -136,7 +137,7 @@
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
           <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" :folio-id="selectedFolio?.id" @close="closeAddChargeModal"
-            @refresh="refreshFolio" />
+            @refresh="refreshFolio"  :isEditMode="isEditMode"  :transactionData="transactionToEdit" />
         </template>
 
         <!-- Add Payment Modal -->
@@ -159,12 +160,13 @@
         </template>
         <template v-if="isRoomChargesModal">
           <RoomChargeModal :reservation-id="reservationId" :folio-id="selectedFolio?.id" :is-open="isRoomChargesModal"
-            @close="closeRoomChargesModal" @save="handleSaveRoomCharges" @refresh="refreshFolio" />
+            @close="closeRoomChargesModal" @save="handleSaveRoomCharges" @refresh="refreshFolio"
+            :isEditMode="isEditMode" :transactionData="transactionToEdit" />
         </template>
         <template v-if="isAdjustmentModal">
           <AdjustmentFolioModal :reservation-id="reservationId" :folio-id="selectedFolio?.id"
             :is-open="isAdjustmentModal" @close="closeAdjustmentModal" @save="handleSaveAdjustment"
-            @refresh="refreshFolio" />
+            @refresh="refreshFolio" :isEditMode="isEditMode" :transactionData="transactionToEdit" />
         </template>
         <!-- Print Modal -->
         <template v-if="isPrintModalOpen">
@@ -179,7 +181,7 @@
         </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId" :folio-id="selectedFolio?.id"
+          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId" :folio-id="selectedFolio?.id" :isEditMode="isEditMode" :transactionData="transactionToEdit"
             :reservation-number="reservation?.reservationNumber" @close="closeApplyDiscountModal"
             @discount-applied="handleDiscountApplied" />
         </template>
@@ -198,7 +200,7 @@ import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 const AddPaymentModal = defineAsyncComponent(() => import('./AddPaymentModal.vue'))
 import CreateFolioModal from './CreateFolioModal.vue'
-import { PlusCircle, ChevronRight } from 'lucide-vue-next'
+import { PlusCircle, ChevronRight,Edit,Printer,Trash2 } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Action, Column } from '../../../utils/models'
@@ -273,6 +275,8 @@ const handleSaveCut = (cutData: any) => {
 }
 const closeRoomChargesModal = () => {
   isRoomChargesModal.value = false
+  isEditMode.value = false
+  transactionToEdit.value = null
 }
 const handleSaveRoomCharges = (roomChargesData: any) => {
   console.log('Save room charges:', roomChargesData)
@@ -284,9 +288,11 @@ const closeVoidTransactionModal = () => {
 }
 const closeApplyDiscountModal = () => {
   isApplyDiscountModal.value = false
+  selectedTransaction.value = null;
 }
 const openApplyDiscountModal = () => {
   isApplyDiscountModal.value = true
+  isEditMode.value = false
 }
 const handleDiscountApplied = (discountData: any) => {
   console.log('Discount applied:', discountData)
@@ -296,6 +302,8 @@ const handleDiscountApplied = (discountData: any) => {
 }
 const closeAdjustmentModal = () => {
   isAdjustmentModal.value = false
+  isEditMode.value = false
+  transactionToEdit.value = null
 }
 const handleSaveAdjustment = (adjustmentData: any) => {
   console.log('Save adjustment:', adjustmentData)
@@ -308,7 +316,6 @@ const handleSaveSendFolio = (sendFolioData: any) => {
   console.log('Save send folio:', sendFolioData)
   // Add save logic here
 }
-
 
 
 // More actions dropdown options
@@ -362,6 +369,8 @@ const balance = ref(0)
 const selectedFolio = ref<any>(null)
 const allTransactions = ref<FoglioItem[]>([])
 const folioList = ref<any[]>([])
+const isEditMode = ref(false)
+const transactionToEdit = ref<any>(null)
 
 // Computed property to filter transactions based on selected folio
 const foglioData = computed(() => {
@@ -388,29 +397,29 @@ const actionTransactions = computed<Action[]>(() => {
     {
       label: t('edit'),
       handler: (item) => onAction('edit', item),
-      icon: 'edit'
+      icon: Edit,
     },
     {
       label: t('void'),
       handler: (item) => onAction('void', item),
-      icon: 'void'
+      icon: Trash2
     },
         {
       label: t('printVoucher'),
       handler: (item) => onAction('printVoucher', item),
-      condition: (item) => item.transactionType === 'room_posting' || item.category === 'extract_charge',
-      icon: 'print'
+      condition: (item) => item.transactionType === 'room_posting' || item.category === 'extract_charge' ,
+      icon: Printer
     },
     {
       label: t('printReceipt'),
       handler: (item) => onAction('printReceipt', item),
       condition: (item) => item.transactionType === 'payment',
-      icon: 'print'
+      icon: Printer
     },{
       label: t('printPosReceipt'),
       handler: (item) => onAction('printPosReceipt', item),
       condition: (item) => item.transactionType === 'room_posting',
-      icon: 'print'
+      icon: Printer
     },
   ]
 })
@@ -431,10 +440,33 @@ const onAction = (action: any, item: any) => {
       break
     case 'printPosReceipt':
       printPosReceipt(item);
-      break 
+      break
+    case 'edit':
+      EditTransaction(item)
+      break
   }
 
 }
+
+const EditTransaction = (item: any) => {
+  console.log('EditTransaction', item)
+  transactionToEdit.value = item
+  isEditMode.value = true
+
+  // Déterminer quel modal ouvrir en fonction du type de transaction
+  if (item.category === 'adjustment') {
+    isAdjustmentModal.value = true
+  } else if (item.category === 'room' || item.transactionType === 'room_posting') {
+    isRoomChargesModal.value = true
+  } else if (item.category === 'discount') {
+    isApplyDiscountModal.value = true
+  } else if (item.category === 'extract_charge') {
+    isAddChargeModalOpen.value = true
+  }else {
+    isRoomChargesModal.value = true
+  }
+}
+
 // Helper functions
 const formatDate = (dateStr: string) => {
   return dateStr
@@ -492,10 +524,13 @@ const getAmountColor = (amount: number) => {
 // Modal handlers
 const openAddChargeModal = () => {
   isAddChargeModalOpen.value = true
+  isEditMode.value = false
 }
 
 const closeAddChargeModal = () => {
   isAddChargeModalOpen.value = false
+  isEditMode.value = false
+  transactionToEdit.value = null
 }
 
 // Payment modal handlers
@@ -573,7 +608,7 @@ const getFolosReservations = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge");
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") ;
             if (transaction.transactionType === 'payment') {
               allTransactions.value.push({
                 ...transaction,
@@ -659,7 +694,7 @@ const printInvoiceDirect = async () => {
 }
 
 const handlePdfGenerated = (_blob: Blob) => {
-  // rien à faire ici pour l’instant
+  // rien à faire ici pour l'instant
 }
 
 const handlePdfError = (err: any) => {
@@ -708,11 +743,13 @@ const handleCutFolio = () => {
 const handleRoomCharges = () => {
   console.log('Room charges action')
   isRoomChargesModal.value = true
+  isEditMode.value = false
 }
 
 const handleAdjustTransaction = () => {
   console.log('Adjust transaction action')
   isAdjustmentModal.value = true
+  isEditMode.value = false
 }
 
 

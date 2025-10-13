@@ -6265,5 +6265,10 @@
   "clickAddRoomRate" : "Click Add Room Rate",
   "detailsOfExtraCharges" : "Details Of Extra Charges",
   "ExtraServices" : "Extra Services",
-  "TotalExtraCharges" : "Total Extra Charges"
+  "TotalExtraCharges" : "Total Extra Charges",
+  "selectChargeSubType" : "Select Charge SubType",
+  "Edit Adjustment Folio" : "Edit Adjustment Folio",
+  "AdjustmentUpdatedSuccessfully" : "Adjustment Updated Successfully!",
+  "RoomChargesUpdatedSuccessfully" : "Room Charges Updated Successfully!",
+  "discountUpdatedSuccessfully" : "Discount Updated Successfully"
 }

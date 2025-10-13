@@ -20,12 +20,12 @@
         @keydown="handleKeydown"
         @focus="handleFocus"
       />
-      
+
       <!-- Loading spinner -->
       <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
         <DotSpinner></DotSpinner>
       </div>
-      
+
       <!-- Search icon when typing, dropdown arrow otherwise -->
       <div v-else class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg v-if="searchQuery.length > 0" class="w-4 h-4" :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,36 +41,36 @@
       <ul v-if="isDropdownOpen && !isLoading"
         class="custom-scrollbar absolute top-full left-0 z-999999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
-        
+
         <!-- No results message -->
-        <li v-if="discountOptions.length === 0 && searchQuery.length > 0" 
+        <li v-if="discountOptions.length === 0 && searchQuery.length > 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('No discounts found') }}
         </li>
-        
+
         <!-- Initial message when no search -->
-        <li v-else-if="discountOptions.length === 0 && searchQuery.length === 0" 
+        <li v-else-if="discountOptions.length === 0 && searchQuery.length === 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('Start typing to search discounts...') }}
         </li>
-        
+
         <!-- Discount options -->
-        <li v-for="discount in discountOptions" 
-          :key="discount.id" 
-          @click="selectDiscount(discount)" 
+        <li v-for="discount in discountOptions"
+          :key="discount.id"
+          @click="selectDiscount(discount)"
           :class="[
             'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
             disabled ? 'cursor-not-allowed text-gray-400' : '',
             selectedDiscount?.id === discount.id ? 'bg-brand-50 text-brand-700' : ''
-          ]" 
-          role="option" 
+          ]"
+          role="option"
           :aria-selected="selectedDiscount?.id === discount.id">
           <div class="flex flex-col">
             <div class="font-medium text-sm">
               {{ discount.name || discount.discount_name }}
             </div>
             <div class="text-xs text-gray-500 mt-1">
-              {{ $t('Type') }}: {{ discount.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} | 
+              {{ $t('Type') }}: {{ discount.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} |
               {{ $t('Value') }}: {{ formatDiscountValue(discount) }} |
               {{ $t('Status') }}: {{ discount.status === 'active' ? $t('Active') : $t('Inactive') }}
             </div>
@@ -161,6 +161,17 @@ watch(
   { immediate: true }
 )
 
+// Nouveau watch à ajouter après celui de modelValue
+watch(allDiscounts, (newDiscounts) => {
+  if (props.modelValue && newDiscounts.length > 0 && !selectedDiscount.value) {
+    const found = newDiscounts.find(d => d.id === Number(props.modelValue))
+    if (found) {
+      selectedDiscount.value = found
+      searchQuery.value = found.name || found.discount_name || ''
+    }
+  }
+})
+
 // Filter discounts based on search query
 const filterDiscounts = (query: string) => {
   if (!query.trim()) {
@@ -173,9 +184,9 @@ const filterDiscounts = (query: string) => {
     const name = (discount.name || discount.discount_name || '').toLowerCase()
     const shortCode = (discount.short_code || '').toLowerCase()
     const type = discount.type.toLowerCase()
-    
-    return name.includes(searchTerm) || 
-           shortCode.includes(searchTerm) || 
+
+    return name.includes(searchTerm) ||
+           shortCode.includes(searchTerm) ||
            type.includes(searchTerm)
   })
 }
@@ -190,7 +201,7 @@ const loadDiscounts = async () => {
   try {
     isLoading.value = true
     const response = await getDiscounts()
-    
+
     // Transform the response data
     const discounts = (response.data?.data?.data || response.data?.data || response.data || []).map((discount: any) => {
       return {
@@ -205,7 +216,7 @@ const loadDiscounts = async () => {
         open_discount: discount.open_discount
       }
     })
-    
+
     allDiscounts.value = discounts
     discountOptions.value = discounts
   } catch (error) {
@@ -220,12 +231,12 @@ const loadDiscounts = async () => {
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value
-  
+
   // Clear selection if user is typing
   if (selectedDiscount.value && searchQuery.value !== (selectedDiscount.value.name || selectedDiscount.value.discount_name)) {
     selectedDiscount.value = null
   }
-  
+
   // Open dropdown and search
   isDropdownOpen.value = true
   debouncedSearch(searchQuery.value)
@@ -253,7 +264,7 @@ const selectDiscount = (discount: DiscountOption) => {
     selectedDiscount.value = discount
     searchQuery.value = discount.name || discount.discount_name || ''
     isDropdownOpen.value = false
-    
+
     emit('update:modelValue', discount.id)
     emit('select', discount)
     emit('change', discount.id)
