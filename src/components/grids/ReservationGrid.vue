@@ -174,7 +174,7 @@
         :showHeader="false"
         :columns="tableColumns"
         :data="paginatedReservations"
-        :actions="tableActions"
+        :get-actions="getTableActionsForReservation"
         :searchable="false"
         :empty-state-title="$t('No reservations')"
         :empty-state-description="$t('Get started by creating a new reservation.')"
@@ -279,20 +279,137 @@
     </div>
   </div>
 
-  <!-- Delete Modal -->
+  <!-- Modals -->
   <ModalDelete
     v-if="modalShow"
     @close="modalShow = false"
     @delete="confirmDelete"
     :isLoading="loadingDelete"
   />
+
   <AddBookingModal v-if="showBookingModal" @close="showBookingModal = false" @refresh="refresh" />
 
-  <!-- booking form view  -->
+  <!-- Cancel Reservation Modal -->
+  <template v-if="showCancelModal && selectedReservation">
+    <CancelReservation
+      :is-open="showCancelModal"
+      :reservation-id="selectedReservation.id"
+      :reservation-data="selectedReservation"
+      @close="showCancelModal = false"
+      @cancel-confirmed="handleCancelConfirmed"
+    />
+  </template>
+
+  <!-- Void Reservation Modal -->
+  <template v-if="showVoidModal && selectedReservation">
+    <VoidReservation
+      :is-open="showVoidModal"
+      :reservation-data="selectedReservation"
+      @close="showVoidModal = false"
+      :reservation-id="selectedReservation.id"
+      :reservation-number="selectedReservation.reservationNumber"
+      @void-confirmed="handleVoidConfirmed"
+    />
+  </template>
+
+  <!-- Amend Stay Modal -->
+  <template v-if="showAmendModal && selectedReservation">
+    <AmendStay
+      :is-open="showAmendModal"
+      :reservation-data="selectedReservation"
+      @close="showAmendModal = false"
+      :reservation-id="selectedReservation.id"
+      :reservation-number="selectedReservation.reservationNumber"
+      @amend-confirmed="handleAmendConfirmed"
+      :reservation="selectedReservation"
+    />
+  </template>
+
+  <!-- NoShow Reservation Modal -->
+  <template v-if="showNoShowModal && selectedReservation">
+    <NoShowReservation
+      :is-open="showNoShowModal"
+      :reservation-id="selectedReservation.id"
+      @close="showNoShowModal = false"
+      @noshow-confirmed="handleNoShowConfirmed"
+    />
+  </template>
+
+  <!-- Add Payment Modal -->
+  <template v-if="isAddPaymentModalOpen && selectedReservation">
+    <AddPaymentModal
+      :reservation-id="selectedReservation.id"
+      :is-open="isAddPaymentModalOpen"
+      @close="closeAddPaymentModal"
+      @save="handleSavePayment"
+    />
+  </template>
+
+  <!-- Check Out Modal -->
+  <template v-if="isCkeckOutModalOpen && selectedReservation">
+    <CheckOutReservation
+      :reservation-id="selectedReservation.id"
+      :is-open="isCkeckOutModalOpen"
+      @close="closeCheckOutReservationModal"
+      @success="handleCheckOutSuccess"
+    />
+  </template>
+
+  <!-- Check In Modal -->
+  <template v-if="isCkeckInModalOpen && selectedReservation">
+    <CheckInReservation
+      :reservation-id="selectedReservation.id"
+      :is-open="isCkeckInModalOpen"
+      @close="closeCheckInReservationModal"
+      @success="handleCheckInSuccess"
+    />
+  </template>
+
+  <!-- Unassign Room Modal -->
+  <template v-if="isUnAssignModalOpen && selectedReservation">
+    <UnAssignRoomReservation
+      :reservation-id="selectedReservation.id"
+      :is-open="isUnAssignModalOpen"
+      @close="closeUnAssignReservationModal"
+      @success="handleUnassignSuccess"
+    />
+  </template>
+
+  <!-- Print Modal -->
+  <template v-if="showPrintModal && selectedReservation">
+    <PrintModal
+      :is-open="showPrintModal"
+      :document-data="printDocumentData"
+      @close="showPrintModal = false"
+      @print-success="handlePrintSuccess"
+      @print-error="handlePrintError"
+      :reservation-id="selectedReservation.id"
+    />
+  </template>
+
+  <!-- Room Move Modal -->
+  <template v-if="isRoomMoveModalOpen && selectedReservation">
+    <RoomMoveModal
+      :reservation-id="selectedReservation.id"
+      :is-open="isRoomMoveModalOpen"
+      @close="closeRoomMoveModal"
+      @success="handleRoomMoveSuccess"
+    />
+  </template>
+
+  <!-- Exchange Room Modal -->
+  <template v-if="isExchangeRoomModalOpen && selectedReservation">
+    <ExchangeRoomModal
+      :reservation-id="selectedReservation.id"
+      :is-open="isExchangeRoomModalOpen"
+      @close="closeExchangeRoomModal"
+      @success="handleExchangeSuccess"
+    />
+  </template>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { ReservationType } from '@/types/option'
 import { useRouter } from 'vue-router'
@@ -306,10 +423,26 @@ import type { FitlterItem } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
 import AddBookingModal from '../modal/AddBookingModal.vue'
 import { filterReservation } from '../../services/hotelApi'
+import { getReservationById } from '@/services/reservation';
 import ReservationCardItem from '../reservations/ReservationCardItem.vue'
 import ReservationStatus from '@/components/common/ReservationStatus.vue'
 import { Users, User } from 'lucide-vue-next'
 import { useAuthStore } from '../../composables/user'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { useReservation } from '../../composables/useReservation'
+
+// Lazy load modal components
+const CancelReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/CancelReseravtion.vue'))
+const VoidReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/VoidReservation.vue'))
+const AmendStay = defineAsyncComponent(() => import('@/components/reservations/foglio/AmendStay.vue'))
+const AddPaymentModal = defineAsyncComponent(() => import('@/components/reservations/foglio/AddPaymentModal.vue'))
+const NoShowReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/NoShowReservation.vue'))
+const CheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/CheckOutReservation.vue'))
+const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/reservations/UnAssignRoomReservation.vue'))
+const PrintModal = defineAsyncComponent(() => import('../common/PrintModal.vue'))
+const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reservations/ExchangeRoomModal.vue'))
+const RoomMoveModal = defineAsyncComponent(() => import('../modal/RoomMoveModal.vue'))
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -317,10 +450,30 @@ const { t, locale } = useI18n({ useScope: 'global' })
 const serviceStore = useServiceStore()
 const toast = useToast()
 const store = useBookingStore()
+const authStore = useAuthStore()
+
+// Initialize the reservation composable
+const {
+  isCheckingIn,
+  isCheckingOut,
+  isAmendingStay,
+  isMovingRoom,
+  isExchangingRoom,
+  isStoppingRoomMove,
+  isUpdatingInclusionList,
+  isMarkingNoShow,
+  isVoidingReservation,
+  performCheckIn,
+  performCheckOut,
+  showNoShowModal,
+  handleNoShowConfirmed,
+  performAvhe: avheReservation
+} = useReservation()
 
 // Reactive data
 const modalShow = ref(false)
 const selectedReservationId = ref<number | null>(null)
+const selectedReservation = ref<any>(null)
 const loadingDelete = ref(false)
 const loading = ref(true)
 
@@ -331,7 +484,18 @@ const currentPage = ref(1)
 const pageSize = ref(12)
 const filter = ref<FitlterItem>()
 const allReservations = ref<ReservationType[]>([])
-const authStore = useAuthStore()
+const showCancelModal = ref(false)
+const showPrintModal = ref(false)
+const showVoidModal = ref(false)
+const showAmendModal = ref(false)
+const isAddPaymentModalOpen = ref(false)
+const isCkeckOutModalOpen = ref(false)
+const isCkeckInModalOpen = ref(false)
+const isExchangeRoomModalOpen = ref(false)
+const isRoomMoveModalOpen = ref(false)
+const isUnAssignModalOpen = ref(false)
+const currentAction = ref<string | null>(null)
+
 // Utility functions
 const safeTranslate = (key: string) => {
   try {
@@ -352,30 +516,36 @@ const formatDate = (dateString: string) => {
 }
 
 const handleReservationUpdate = (updatedReservation: any) => {
-  // Mettre à jour la réservation dans votre liste/store
-  // Par exemple, si vous avez une liste de réservations :
   const index = allReservations.value.findIndex((r) => r.id === updatedReservation.id)
   if (index !== -1) {
     allReservations.value[index] = updatedReservation
   }
+
+  // Si c'est la réservation sélectionnée, la mettre à jour aussi
+  if (selectedReservation.value?.id === updatedReservation.id) {
+    selectedReservation.value = updatedReservation
+  }
 }
 
 const handleSave = (data: any) => {
-  // Logique existante pour les actions qui nécessitent un refresh complet
-  // ou des actions spéciales
   console.log('Save event:', data)
+  if (data.needsRefresh) {
+    refresh()
+  }
 }
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat(locale.value, {
     style: 'currency',
-    currency: 'XOF', // or your preferred currency
+    currency: 'XOF',
   }).format(amount)
 }
+
 const canAddBooking = computed(() => {
   return authStore.hasPermission('add_reservation')
 })
-// Table configuration for ReusableTable
+
+// Table configuration
 const tableColumns = computed(() => [
   {
     key: 'reservationNumber',
@@ -403,36 +573,19 @@ const tableColumns = computed(() => [
     type: 'custom' as const,
   },
 ])
+
 const statistics = ref({
   totalReservations: 0,
   arrivals: 0,
   departures: 0,
   inHouse: 0,
 })
-const tableActions = [
-  {
-    label: t('View'),
-    handler: (item: any) => handleBookingAction('view', item),
-    variant: 'primary' as const,
-  },
-  {
-    label: t('Edit'),
-    handler: (item: any) => handleBookingAction('edit', item),
-    variant: 'secondary' as const,
-  },
-  {
-    label: t('Delete'),
-    handler: (item: any) => handleBookingAction('delete', item),
-    variant: 'danger' as const,
-  },
-]
 
 // Computed properties
 const filteredReservations = computed(() => {
   let filtered = [...allReservations.value]
-    filtered = filtered.filter(reservation => reservation.status !== 'voided')
+  filtered = filtered.filter(reservation => reservation.status !== 'voided')
 
-  // Filter based on activeFilter
   switch (activeFilter.value) {
     case 'arrivals':
       filtered = filtered.filter(
@@ -451,13 +604,8 @@ const filteredReservations = computed(() => {
     case 'inHouse':
       filtered = filtered.filter((reservation) => isInHouse(reservation))
       break
-    case 'totalReservations':
-    default:
-      // No filtering needed for 'totalReservations', use the full 'filtered' array
-      break
   }
 
-  // Filter based on reservation mode
   if (reservationMode.value === 'single') {
     filtered = filtered.filter((reservation: any) => {
       return !reservation.reservationRooms || reservation.reservationRooms.length === 1
@@ -467,9 +615,7 @@ const filteredReservations = computed(() => {
       return reservation.reservationRooms && reservation.reservationRooms.length > 1
     })
   }
-  // 'all' mode shows all reservations, no filtering needed
 
-  // Sort reservations
   filtered.sort((a, b) => {
     const aValue = a[sortBy.value as keyof ReservationType]
     const bValue = b[sortBy.value as keyof ReservationType]
@@ -502,7 +648,20 @@ const paginatedReservations = computed(() => {
   return filteredReservations.value.slice(start, end)
 })
 
-// Helper functions for empty state
+const printDocumentData = computed(() => {
+  if (!selectedReservation.value) return null
+
+  return {
+    reservation: selectedReservation.value,
+    guest: selectedReservation.value.guest,
+    rooms: selectedReservation.value.reservationRooms,
+    totalAmount: selectedReservation.value.totalAmount,
+    paidAmount: selectedReservation.value.paidAmount,
+    remainingAmount: selectedReservation.value.remainingAmount
+  }
+})
+
+// Helper functions
 const getEmptyStateTitle = () => {
   if (reservationMode.value === 'single') {
     return safeTranslate('No single room reservations')
@@ -521,13 +680,357 @@ const getEmptyStateMessage = () => {
   return safeTranslate('Get started by creating a new reservation.')
 }
 
-// Methods
-const applyFilter = async (filter: FitlterItem) => {
-  loading.value = true
-  console.log('filter:', filter)
+// Refresh reservation data from API
+const refreshReservationData = async (reservationId: number) => {
+  try {
+    const updatedReservation = await getReservationById(reservationId)
+
+    // Update in allReservations array
+    const index = allReservations.value.findIndex((r: any) => r.id === reservationId)
+    if (index !== -1) {
+      allReservations.value[index] = {
+        ...updatedReservation,
+        date: updatedReservation.arrivedDate,
+        dateD: updatedReservation.departDate,
+        email: updatedReservation.guest?.email || '',
+        phone: updatedReservation.guest?.phoneNumber || '',
+        userFullName: updatedReservation.guest ?
+          `${updatedReservation.guest.firstName} ${updatedReservation.guest.lastName}` : 'Inconnu',
+      }
+    }
+
+    // Update selected reservation if it's the current one
+    if (selectedReservation.value?.id === reservationId) {
+      selectedReservation.value = allReservations.value[index]
+    }
+
+    return updatedReservation
+  } catch (error) {
+    console.error('Error refreshing reservation:', error)
+    toast.error(t('Error refreshing reservation data'))
+    return null
+  }
+}
+
+// Generic action executor
+const executeAction = async (actionId: string, actionFn: () => Promise<void>, loadingMessage?: string, successMessage?: string) => {
+  if (currentAction.value) {
+    return
+  }
 
   try {
-    const res = await filterReservation(serviceStore.serviceId!, filter)
+    currentAction.value = actionId
+
+    if (loadingMessage) {
+      toast.info(loadingMessage, {
+        timeout: 2000,
+        hideProgressBar: false
+      })
+    }
+
+    await actionFn()
+
+    currentAction.value = null
+
+    if (successMessage) {
+      toast.success(successMessage)
+    }
+
+  } catch (error: any) {
+    console.error(`${actionId} error:`, error)
+    const errorMessage = error.response?.data?.message ||
+                        error.message ||
+                        t(`Failed to ${actionId.replace('_', ' ')}`)
+    toast.error(errorMessage)
+    currentAction.value = null
+  } finally {
+    if (currentAction.value === actionId) {
+      currentAction.value = null
+    }
+  }
+}
+
+// Auto check-in handler
+const performAutoCheckIn = async (reservation: any, availableRoom: any) => {
+  const checkInDateTime = new Date().toISOString()
+  const checkInPayload = {
+    reservationRooms: [availableRoom.id],
+    actualCheckInTime: checkInDateTime,
+    notes: '',
+    keyCardsIssued: 2,
+    depositAmount: 0
+  }
+
+  await performCheckIn(reservation.id, checkInPayload)
+  await refreshReservationData(reservation.id)
+}
+
+// Auto check-out handler
+const performAutoCheckOut = async (reservation: any, availableRoom: any) => {
+  const checkOutDateTime = new Date().toISOString()
+  const checkOutPayload = {
+    reservationRooms: [availableRoom.id],
+    actualCheckOutTime: checkOutDateTime,
+    notes: '',
+  }
+
+  await performCheckOut(reservation.id, checkOutPayload)
+  await refreshReservationData(reservation.id)
+}
+
+// Auto unassign handler
+const performAutoUnassign = async (reservation: any, availableRoom: any) => {
+  try {
+    const unassignDateTime = new Date().toISOString()
+    const unassignPayload = {
+      reservationRooms: [availableRoom.id],
+      actualCheckInTime: unassignDateTime,
+      notes: ''
+    }
+
+    await avheReservation(reservation.id, unassignPayload)
+    await refreshReservationData(reservation.id)
+  } catch (error) {
+    console.error('Unassign error:', error)
+  }
+}
+
+// Modal handlers
+const openAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = true
+}
+
+const closeAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = false
+}
+
+const openCheckOutReservationModal = () => {
+  isCkeckOutModalOpen.value = true
+}
+
+const closeCheckOutReservationModal = () => {
+  isCkeckOutModalOpen.value = false
+}
+
+const openCheckInReservationModal = () => {
+  isCkeckInModalOpen.value = true
+}
+
+const closeCheckInReservationModal = () => {
+  isCkeckInModalOpen.value = false
+}
+
+const openUnAssignReservationModal = () => {
+  isUnAssignModalOpen.value = true
+}
+
+const closeUnAssignReservationModal = () => {
+  isUnAssignModalOpen.value = false
+}
+
+const closeExchangeRoomModal = () => {
+  isExchangeRoomModalOpen.value = false
+}
+
+const closeRoomMoveModal = () => {
+  isRoomMoveModalOpen.value = false
+}
+
+// Success handlers for modals
+const handleCancelConfirmed = async (cancelData: any) => {
+  showCancelModal.value = false
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleVoidConfirmed = async (voidData: any) => {
+  showVoidModal.value = false
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleAmendConfirmed = async (amendData: any) => {
+  showAmendModal.value = false
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleNoShowConfirmedLocal = async (noShowData: any) => {
+  await handleNoShowConfirmed(noShowData)
+  showNoShowModal.value = false
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleSavePayment = async (data: any) => {
+  closeAddPaymentModal()
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleCheckInSuccess = async (data: any) => {
+  closeCheckInReservationModal()
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleCheckOutSuccess = async (data: any) => {
+  closeCheckOutReservationModal()
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleUnassignSuccess = async (data: any) => {
+  closeUnAssignReservationModal()
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleExchangeSuccess = async () => {
+  closeExchangeRoomModal()
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handleRoomMoveSuccess = async () => {
+  closeRoomMoveModal()
+  if (selectedReservation.value) {
+    await refreshReservationData(selectedReservation.value.id)
+  }
+}
+
+const handlePrintSuccess = (data: any) => {
+  console.log('Print successful:', data)
+  showPrintModal.value = false
+}
+
+const handlePrintError = (error: any) => {
+  console.error('Print error:', error)
+}
+
+// Action handler for table
+const handleReservationAction = async (actionId: string, reservation: any) => {
+  selectedReservation.value = reservation
+
+  if (actionId === 'view') {
+    router.push({
+      name: 'ReservationDetails',
+      params: { id: reservation.id }
+    })
+    return
+  }
+
+  switch (actionId) {
+    case 'add_payment':
+      openAddPaymentModal()
+      break
+
+    case 'amend_stay':
+      showAmendModal.value = true
+      break
+
+    case 'cancel_reservation':
+      showCancelModal.value = true
+      break
+
+    case 'void_reservation':
+      showVoidModal.value = true
+      break
+
+    case 'check_in':
+      const availableRoomsForCheckin = reservation.reservationRooms?.filter((room: any) =>
+        !room.actualCheckInTime &&
+        room.status !== 'checked_in' &&
+        room.status !== 'occupied' &&
+        !room.checkedIn
+      ) || []
+
+      if (availableRoomsForCheckin.length === 0) {
+        toast.info(t('All rooms have already been checked in'))
+        return
+      } else if (availableRoomsForCheckin.length === 1) {
+        await executeAction(
+          'check_in',
+          () => performAutoCheckIn(reservation, availableRoomsForCheckin[0])
+        )
+      } else {
+        openCheckInReservationModal()
+      }
+      break
+
+    case 'check_out':
+      const availableRoomsForCheckout = reservation.reservationRooms?.filter((room: any) =>
+        room.status === 'checked_in'
+      ) || []
+
+      if (availableRoomsForCheckout.length === 0) {
+        toast.info(t('No rooms available for check-out'))
+        return
+      } else if (availableRoomsForCheckout.length === 1) {
+        await executeAction(
+          'check_out',
+          () => performAutoCheckOut(reservation, availableRoomsForCheckout[0])
+        )
+      } else {
+        openCheckOutReservationModal()
+      }
+      break
+
+    case 'unassign_room':
+      const availableRoomsForUnassign = reservation.reservationRooms?.filter((room: any) =>
+        room.roomId && room.room?.roomNumber
+      ) || []
+
+      if (availableRoomsForUnassign.length === 0) {
+        toast.info(t('No rooms available for unassignment'))
+        return
+      } else if (availableRoomsForUnassign.length === 1) {
+        await executeAction(
+          'unassign_room',
+          () => performAutoUnassign(reservation, availableRoomsForUnassign[0])
+        )
+      } else {
+        openUnAssignReservationModal()
+      }
+      break
+
+    case 'no_show':
+      showNoShowModal.value = true
+      break
+
+    case 'print':
+      showPrintModal.value = true
+      break
+
+    case 'room_move':
+      isRoomMoveModalOpen.value = true
+      break
+
+    case 'exchange_room':
+      isExchangeRoomModalOpen.value = true
+      break
+
+    default:
+      console.log(`Action ${actionId} not handled`)
+  }
+}
+
+// Methods
+const applyFilter = async (filterItem: FitlterItem) => {
+  loading.value = true
+  console.log('filter:', filterItem)
+
+  try {
+    const res = await filterReservation(serviceStore.serviceId!, filterItem)
 
     if (res.status === 200 || res.status === 201) {
       console.log(res.data)
@@ -553,7 +1056,7 @@ const applyFilter = async (filter: FitlterItem) => {
     toast.error(t('Error loading reservations'))
   } finally {
     loading.value = false
-    currentPage.value = 1 // Reset to first page after filtering
+    currentPage.value = 1
   }
 }
 
@@ -579,15 +1082,24 @@ const handleBookingAction = (action: string, booking: any) => {
   }
 }
 
-const onTableAction = (action: string, item: any) => {
-  handleBookingAction(action.toLowerCase(), item)
+const onTableAction = (actionLabel: string, item: any) => {
+  // Find the corresponding action from availableActions
+  const action = item.availableActions?.find((a: any) => a.label === actionLabel)
+
+  if (action) {
+    handleReservationAction(action.action, item)
+  } else if (actionLabel.toLowerCase() === 'view') {
+    handleReservationAction('view', item)
+  } else {
+    // Fallback to old behavior
+    handleBookingAction(actionLabel.toLowerCase(), item)
+  }
 }
 
 const confirmDelete = async () => {
   if (selectedReservationId.value !== null) {
     loadingDelete.value = true
     try {
-      //await deleteReservation(selectedReservationId.value)
       toast.success(t('toast.reservationDelete'))
       allReservations.value = allReservations.value.filter(
         (r: any) => r.id !== selectedReservationId.value,
@@ -612,13 +1124,12 @@ onMounted(async () => {
     searchText: '',
     status: '',
   }
-  //await applyFilter(filter.value)
 })
 
 const openBookingModal = () => {
-  // showBookingModal.value = true
   router.push({ name: 'New Booking' })
 }
+
 const refresh = () => {
   if (filter.value) applyFilter(filter.value)
 }
@@ -638,7 +1149,7 @@ const getActiveFilterLabel = () => {
       return t('AllReservations')
   }
 }
-// Check if a date is today
+
 const isToday = (dateString: string) => {
   if (!dateString) return false
   const today = new Date()
@@ -650,7 +1161,6 @@ const isToday = (dateString: string) => {
   )
 }
 
-// Check if guest is currently in house
 const isInHouse = (reservation: any) => {
   if (!reservation.arrivedDate || !reservation.departDate) return false
   const today = new Date()
@@ -677,6 +1187,87 @@ const handleFilterClick = (filterType: string) => {
 const clearFilter = () => {
   activeFilter.value = 'totalReservations'
   currentPage.value = 1
+}
+
+// Icon mapping
+const actionIconMap = {
+  'view': Eye,
+  'check_in': CheckCircle,
+  'check_out': CheckCircle,
+  'add_payment': CreditCard,
+  'amend_stay': Calendar,
+  'room_move': ArrowUpDown,
+  'exchange_room': ArrowUpDown,
+  'stop_room_move': StopCircle,
+  'inclusion_list': List,
+  'cancel_reservation': X,
+  'no_show': Eye,
+  'void_reservation': Trash2,
+  'unassign_room': UserMinus,
+}
+
+const actionColorMap = {
+  'view': 'text-blue-600',
+  'check_in': 'text-blue-600',
+  'check_out': 'text-green-600',
+  'add_payment': 'text-green-600',
+  'amend_stay': 'text-purple-600',
+  'room_move': 'text-orange-600',
+  'exchange_room': 'text-indigo-600',
+  'stop_room_move': 'text-red-600',
+  'inclusion_list': 'text-gray-600',
+  'cancel_reservation': 'text-red-600',
+  'no_show': 'text-yellow-600',
+  'void_reservation': 'text-red-700',
+  'unassign_room': 'text-gray-600',
+}
+
+// Dynamic table actions based on reservation's available actions
+const getTableActionsForReservation = (reservation: any) => {
+  if (reservation?.status === 'voided') {
+    return []
+  }
+
+  const actions = [{
+    label: t('View'),
+    handler: (item: any) => handleReservationAction('view', item),
+    variant: 'primary' as const,
+    icon: Eye,
+    color: 'text-blue-600'
+  }]
+
+  if (reservation?.availableActions) {
+    const dynamicActions = reservation.availableActions
+      .filter((action: any) => action.available)
+      .map((action: any) => {
+        const variantMap: Record<string, 'primary' | 'secondary' | 'danger' | 'success'> = {
+          'check_in': 'success',
+          'check_out': 'success',
+          'add_payment': 'success',
+          'cancel_reservation': 'danger',
+          'void_reservation': 'danger',
+          'no_show': 'danger',
+          'amend_stay': 'secondary',
+          'room_move': 'secondary',
+          'exchange_room': 'secondary',
+          'unassign_room': 'secondary',
+        }
+
+        return {
+          label: action.label,
+          handler: (item: any) => handleReservationAction(action.action, item),
+          variant: variantMap[action.action] || 'secondary' as const,
+          description: action.description,
+          route: action.route,
+          icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
+          color: actionColorMap[action.action as keyof typeof actionColorMap] || 'text-gray-600'
+        }
+      })
+
+    actions.push(...dynamicActions)
+  }
+
+  return actions
 }
 </script>
 

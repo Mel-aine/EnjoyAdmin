@@ -137,6 +137,8 @@ export function useBooking() {
   const isLoading = ref(false)
   const isLoadingRoom = ref(false)
   const isExtraChargesIncluded = ref(false)
+  const taxIncludes = ref(false)
+  const mealPlanRateInclude = ref(false)
   // const isLoadingRate = ref(false)
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
@@ -704,6 +706,7 @@ watch(
       }
 
       const response = await getRateTypesByRoomTypes(roomTypeId)
+      console.log("fetchRateTypes",response)
 
       if (!response.data) {
         throw new Error('Invalid rate types data structure')
@@ -1050,6 +1053,8 @@ const validateAllRooms = () => {
             child_count: safeParseInt(room.childCount, 0),
             room_rate_id: RoomRateById.value,
             meal_plan_id : mealPlanId.value,
+            meal_plan_rate_include: mealPlanRateInclude.value ,
+            tax_includes: taxIncludes.value ,
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
@@ -1332,6 +1337,8 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
 
     RoomRateById.value = response.id
     mealPlanId.value = response.mealPlanId
+    taxIncludes.value = response.taxInclude
+    mealPlanRateInclude.value = response.mealPlanRateInclude
 
     // Calculer le tarif de base avec meal plan si nécessaire
     let calculatedBaseRate = Number(response?.baseRate) || 0

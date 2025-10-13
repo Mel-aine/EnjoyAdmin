@@ -855,7 +855,7 @@ export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Bl
       }
     })
 
-    const url = `${API_URL}/statistics/daily-revenue-pdf?${queryParams.toString()}`
+    const url = `${API_URL}/statistics/daily-y-pdf?${queryParams.toString()}`
     
     // Configuration axios pour recevoir une réponse blob
     const config = {

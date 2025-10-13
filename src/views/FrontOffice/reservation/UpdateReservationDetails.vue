@@ -70,7 +70,45 @@
                             </span>
                         </label>
                     </div>
+                    <!-- Meal Plan Rate Include - Only show if selected rate type has meal plan -->
+                    <div v-if="selectedRateHasMealPlan" class="space-x-2">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox" v-model="formData.mealPlanRateInclude" />
+                            <span class="ml-2  text-md font-medium text-gray-700 dark:text-gray-400">
+                                {{ $t('Meal Plan Rate Include') }}
+                            </span>
+                        </label>
+                    </div>
                 </div>
+
+                <!-- Meal Plan Details Warning (if meal plan unchecked but rate includes it) -->
+                <div v-if="showMealPlanWarning" class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-amber-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-amber-800 mb-2">
+                                {{ $t('Meal Plan will be added ') }}
+                            </h4>
+                            <div v-if="currentMealPlan" class="text-sm text-amber-700">
+                                <p class="font-medium mb-1">{{ currentMealPlan.name }}</p>
+                                <div v-if="currentMealPlan.extraCharges && currentMealPlan.extraCharges.length > 0" class="space-y-1">
+                                    <p class="text-xs font-semibold">{{ $t('Includes') }}:</p>
+                                    <ul class="list-disc list-inside space-y-0.5 text-xs">
+                                        <li v-for="charge in currentMealPlan.extraCharges" :key="charge.id">
+                                            {{ charge.name }} - {{ formatCurrency(charge.rate) }}
+                                        </li>
+                                    </ul>
+                                    <p class="font-semibold mt-2 pt-2 border-t border-amber-300">
+                                        {{ $t('Total Meal Plan Cost') }}: {{ formatCurrency(mealPlanTotal) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div class="md:flex relative justify-between mb-4">
                         <div class="space-x-2">
@@ -92,6 +130,8 @@
                         </div>
                     </div>
                 </div>
+
+
                 <!-- Transaction Selection (only for group reservations and selected_transaction) -->
                 <div v-if="formData.applyOn === 'date'" class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -156,7 +196,7 @@ import InputDatePicker from '../../../components/forms/FormElements/InputDatePic
 import InputCurrency from '../../../components/forms/FormElements/InputCurrency.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
-import { getRateStayViewTypeByHotelId } from '../../../services/configrationApi'
+import { getRatesByHotelIdAndRoomType } from '../../../services/configrationApi'
 import Select from '../../../components/forms/FormElements/Select.vue'
 import { formatDate } from '../../../components/utilities/UtilitiesFunction'
 
@@ -164,14 +204,16 @@ interface Props {
     isOpen: boolean
     reservationId: number
     reservationNumber?: string
-    roomCharges:any
+    roomCharges: any
 }
 
 interface Emits {
     (e: 'close'): void
     (e: 'save', data: any): void
 }
+
 const rateTypes = ref<any[]>([]);
+const rateTypesData = ref<any[]>([]);
 
 const props = withDefaults(defineProps<Props>(), {
     isOpen: false
@@ -186,19 +228,102 @@ const isLoading = ref(false)
 const reservation = ref<any>()
 const serviceStore = useServiceStore();
 const loadingRates = ref(false);
-const availableTransactions =ref<any[]>([])
+const availableTransactions = ref<any[]>([])
 const loadingTransactions = ref(false)
+const taxeAmount = ref(null)
 const formData = ref({
     rateType: 0,
     adults: 0,
     children: 0,
     isComplementary: false,
+    mealPlanRateInclude: false,
     amount: 0,
     taxInclude: false,
     applyOn: 'stay',
     date: new Date().toISOString().split('T')[0],
     notes: '',
     transactionIds: [] as Number[]
+})
+
+// Computed: Get selected rate type details
+const selectedRateTypeData = computed(() => {
+    const found = rateTypesData.value.find(rt => rt.rateTypeId === formData.value.rateType)
+    console.log('Computed selectedRateTypeData:', found)
+    return found
+})
+
+// Computed: Check if selected rate has meal plan
+const selectedRateHasMealPlan = computed(() => {
+    if (!selectedRateTypeData.value) {
+        console.log('selectedRateHasMealPlan: false (no rate data)')
+        return false
+    }
+    const hasMealPlan = selectedRateTypeData.value.mealPlanId !== null &&
+                        selectedRateTypeData.value.mealPlanId !== undefined
+    console.log('selectedRateHasMealPlan:', hasMealPlan, 'mealPlanId:', selectedRateTypeData.value.mealPlanId)
+    return hasMealPlan
+})
+
+// Computed: Get current meal plan details
+const currentMealPlan = computed(() => {
+    if (!selectedRateTypeData.value || !selectedRateTypeData.value.mealPlan) {
+        console.log('currentMealPlan: null')
+        return null
+    }
+    console.log('currentMealPlan:', selectedRateTypeData.value.mealPlan)
+    return selectedRateTypeData.value.mealPlan
+})
+
+const calculatedAmount = computed(() => {
+    const selectedRate = rateTypesData.value.find(rt => rt.rateTypeId === formData.value.rateType)
+
+    // Si pas de rate sélectionné, retourner l'amount actuel (pour éviter de réinitialiser à 0)
+    if (!selectedRate) {
+        return formData.value.amount || 0
+    }
+
+    let amount = Number(selectedRate.baseRate || 0)
+    console.log('Base Rate:', amount)
+
+    // Add meal plan if NOT included
+    if (selectedRate.mealPlanId && !formData.value.mealPlanRateInclude) {
+        const mealPlanCost = mealPlanTotal.value
+        amount += mealPlanCost
+        console.log('Adding Meal Plan (not included):', mealPlanCost, 'New Amount:', amount)
+    }
+
+    // Add tax if NOT included
+    if (!formData.value.taxInclude) {
+        // Calculate tax based on current amount
+        const taxRate = Number(taxeAmount.value ) || 1
+        // const taxAmount = amount * taxRate
+        amount += taxRate
+        console.log('Adding Tax (not included):', taxRate, 'New Amount:', amount)
+    }
+
+    return roundToTwo(amount)
+})
+
+// Computed: Calculate meal plan total
+const mealPlanTotal = computed(() => {
+    if (!currentMealPlan.value || !currentMealPlan.value.extraCharges) {
+        console.log('mealPlanTotal: 0 (no charges)')
+        return 0
+    }
+
+    const total = currentMealPlan.value.extraCharges.reduce((total: number, charge: any) => {
+        return total + Number(charge.rate || 0)
+    }, 0)
+
+    console.log('mealPlanTotal:', total, 'from charges:', currentMealPlan.value.extraCharges)
+    return total
+})
+
+// Computed: Show meal plan warning
+const showMealPlanWarning = computed(() => {
+    const show = selectedRateHasMealPlan.value && !formData.value.mealPlanRateInclude
+    console.log('showMealPlanWarning:', show)
+    return show
 })
 
 // Watch for modal open/close
@@ -215,56 +340,139 @@ watch(() => props.reservationId, (newVal) => {
     }
 })
 
-const fectRateTypes = async () => {
-    loadingRates.value = true;
-    const response = await getRateStayViewTypeByHotelId(serviceStore.serviceId!)
-    console.log('rateTypeOptions', response.data?.data)
 
-    rateTypes.value = response.data?.data?.map((item: any) => {
-        return {
-            label: item.rateTypeName,
-            value: item.rateTypeId
+
+// Watch for rate type changes
+watch(() => formData.value.rateType, (newRateTypeId) => {
+    console.log('Rate Type Changed to:', newRateTypeId)
+    console.log('Available Rate Types:', rateTypesData.value)
+
+    const selectedRate = rateTypesData.value.find(rt => rt.rateTypeId === newRateTypeId)
+    console.log('Selected Rate Full Data:', selectedRate)
+
+    if (selectedRate) {
+        // Update tax include based on rate settings
+        formData.value.taxInclude = selectedRate.taxInclude || false
+        console.log('Tax Include:', formData.value.taxInclude)
+
+        // Auto-check meal plan if rate includes it
+        if (selectedRate.mealPlanId) {
+            formData.value.mealPlanRateInclude = selectedRate.mealPlanRateInclude || false
+            console.log('Meal Plan ID:', selectedRate.mealPlanId, 'Include:', formData.value.mealPlanRateInclude)
+            console.log('Meal Plan Details:', selectedRate.mealPlan)
+        } else {
+            formData.value.mealPlanRateInclude = false
+            console.log('No Meal Plan for this rate')
         }
-    })
-    loadingRates.value = false;
-    return response.data?.data || []
-}
-const getReservationDetails = async () => {
-    if (!props.reservationId) return
 
-    isLoading.value = true
-    try {
-        const response = await getReservationDetailsById(Number(props.reservationId))
-        console.log('Reservation response:', response)
-        reservation.value = response;
-        const reservationRoom = response.reservationRooms[0];
-        console.log('reservationRooms', reservationRoom)
-        formData.value.amount = reservationRoom.roomRate;
-        formData.value.rateType = reservationRoom.roomRates.rateTypeId;
-        formData.value.adults = reservationRoom.adults;
-        formData.value.children = reservationRoom.children;
-        formData.value.isComplementary = reservationRoom.isComplementary;
-        console.log('Reservation data fetched:', reservation.value)
-    } catch (error) {
-        console.error('Error fetching reservation details:', error)
-        toast.error(t('errorFetchingReservationDetails'))
-    } finally {
-        isLoading.value = false
+        // Update amount with calculated value
+        formData.value.amount = calculatedAmount.value
+        console.log('Updated Amount:', formData.value.amount)
+    } else {
+        console.warn('No rate found for ID:', newRateTypeId)
     }
-}
+})
 
+// Watch for tax include changes
+watch(() => formData.value.taxInclude, () => {
+    formData.value.amount = calculatedAmount.value
+    console.log('Tax Include Changed - Updated Amount:', formData.value.amount)
+})
+
+// Watch for meal plan include changes
+watch(() => formData.value.mealPlanRateInclude, () => {
+    formData.value.amount = calculatedAmount.value
+    console.log('Meal Plan Include Changed - Updated Amount:', formData.value.amount)
+})
+
+const getReservationDetails = async () => {
+  if (!props.reservationId) return;
+
+  isLoading.value = true;
+  try {
+    console.log(' getReservationDetails() → fetching reservation', props.reservationId);
+
+    const response = await getReservationDetailsById(Number(props.reservationId));
+    reservation.value = response;
+
+    const reservationRoom = response?.reservationRooms?.[0];
+    if (!reservationRoom) {
+      console.warn(' Aucun room trouvé dans reservationRooms');
+      toast.warning(t('noRoomFoundInReservation'));
+      return;
+    }
+
+    // Remplissage du formulaire
+    formData.value.amount = calculatedAmount.value || reservationRoom.roomRate
+    formData.value.rateType = reservationRoom.rateTypeId || 0;
+    formData.value.adults = reservationRoom.adults;
+    formData.value.children = reservationRoom.children;
+    formData.value.isComplementary = reservationRoom.isComplementary;
+    formData.value.taxInclude = reservationRoom.taxIncludes;
+    formData.value.mealPlanRateInclude = reservationRoom.mealPlanRateInclude;
+    taxeAmount.value = reservationRoom.taxAmount
+
+    console.log(' Reservation data fetched:', reservation.value);
+
+    //  Maintenant qu'on a le roomTypeId, on peut appeler fectRateTypes
+    const roomTypeId = reservationRoom.roomTypeId;
+    if (roomTypeId) {
+      console.log(' Chargement des rate types pour roomTypeId:', roomTypeId);
+      await fectRateTypes(roomTypeId);
+    } else {
+      console.warn(' roomTypeId introuvable dans reservationRoom');
+    }
+
+  } catch (error) {
+    console.error(' Erreur lors du chargement des détails de réservation:', error);
+    toast.error(t('errorFetchingReservationDetails'));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
+const fectRateTypes = async (roomTypeId?: number) => {
+  loadingRates.value = true;
+  try {
+    if (!roomTypeId) {
+      console.error(' roomTypeId manquant');
+      toast.error(t('errorFetchingRateTypes'));
+      return;
+    }
+
+    const response = await getRatesByHotelIdAndRoomType(roomTypeId);
+    rateTypesData.value = response.data?.data || [];
+
+    console.log(' Rate types chargés:', rateTypesData.value);
+
+    rateTypes.value = rateTypesData.value.map((item: any) => ({
+      label: item.rateTypeName,
+      value: item.rateTypeId
+    }));
+  } catch (error) {
+    console.error(' Erreur fetching rate types:', error);
+    toast.error(t('errorFetchingRateTypes'));
+  } finally {
+    loadingRates.value = false;
+  }
+};
 
 const closeModal = () => {
     emit('close')
 }
 
-
-onMounted(() => {
+onMounted(async () => {
+  try {
     if (props.reservationId) {
-        getReservationDetails()
+      await getReservationDetails();
+    } else {
+      console.warn(' Aucun reservationId fourni');
     }
-    fectRateTypes();
-})
+  } catch (err) {
+    console.error(' Erreur dans onMounted:', err);
+  }
+});
 
 // Helpers
 const roundToTwo = (num: number) => {
@@ -284,9 +492,9 @@ const handleSubmit = async () => {
             isComplementary: formData.value.isComplementary,
             amount: roundToTwo(Number(formData.value.amount)),
             taxInclude: formData.value.taxInclude,
+            mealPlanRateInclude: formData.value.mealPlanRateInclude,
             applyOn: formData.value.applyOn === 'date' ? 'date' : 'stay',
         }
-
 
         // Optional date
         if (formData.value.date) {
@@ -305,7 +513,8 @@ const handleSubmit = async () => {
         if (Array.isArray(formData.value.transactionIds) && formData.value.transactionIds.length > 0) {
             payload.transactionIds = formData.value.transactionIds.map((id: any) => safeParseInt(id)).filter((n: number) => Number.isFinite(n) && n > 0)
         }
-        console.log('payload',payload)
+
+        console.log('payload', payload)
         const res = await updateReservationDetails(props.reservationId, payload)
 
         // Handle message and emit save
@@ -324,6 +533,7 @@ const handleSubmit = async () => {
         loading.value = false
     }
 }
+
 const loadTransactions = async () => {
     if (!props.roomCharges) return
 
@@ -338,6 +548,7 @@ const loadTransactions = async () => {
         loadingTransactions.value = false
     }
 }
+
 loadTransactions();
 </script>
 
