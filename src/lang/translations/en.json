@@ -4006,6 +4006,9 @@
       "creditAmount": "Credit Amount",
       "balanceAmount": "Balance Amount",
       "totalFolios": "Total Folios",
+      "totalCharges": "Total Charges",
+      "totalTax": "Total Tax",
+      "totalCredit": "Total Credits",
       "totalBalance": "Total Balance"
     }
   },
