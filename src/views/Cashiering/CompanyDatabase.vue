@@ -3,7 +3,7 @@
     <div class="p-6">
 
       <ReusableTable :title="$t('companyDatabase.title')" :columns="columns" :data="filteredCompanies"
-        :actions="actions" :loading="loading" @action="onAction" :selectable="true"
+        :actions="actions" :loading="loading" @action="onAction"
         :search-placeholder="$t('companyFilter.searchText')" :empty-title="$t('companyDatabase.empty_title')"
         :empty-description="$t('companyDatabase.noCompaniesMessage')">
 
