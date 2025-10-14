@@ -993,7 +993,7 @@ export const addRoomChargeHandler = async (data: any): Promise<any> => {
  */
 export const updateRoomChargeHandler = async (transactionId:any,data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/update/${transactionId}`, data, getHeaders())
+    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/${transactionId}`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error update room charge:', error)
