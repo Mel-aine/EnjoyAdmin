@@ -38,8 +38,8 @@
 
                     <!-- Payment Type -->
                     <Select lb="Payment Type" v-model="formData.paymentType" :options="[
-                      { label: 'Cash', value: 'cash' },
-                      { label: 'Bank Transfer', value: 'bank' }
+                      { label: t('cash'), value: 'cash' },
+                      { label: t('city_ledger'), value: 'city_ledger' }
                     ]" :isRequired="true" />
 
                     <!-- Payment method -->
@@ -333,14 +333,14 @@ const canSelectItem = (item: any) => {
 const handleGuestSelectionChange = (selected: any) => {
   // Filter out items that cannot be selected (open balance <= 0)
   const validSelected = selected.filter((item: any) => canSelectItem(item))
-  
+
   // Show warning if user tried to select items with zero balance
   if (selected.length > validSelected.length) {
     toast.warning('Cannot select items with zero open balance')
   }
-  
+
   selectedGuests.value = validSelected
-  
+
   // Update the selected property in guestData
   guestData.value.forEach((guest:any) => {
     const isSelected = selectedGuests.value.some((item: any) => item.id === guest.id)

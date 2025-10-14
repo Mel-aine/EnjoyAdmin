@@ -20,12 +20,12 @@
         @keydown="handleKeydown"
         @focus="handleFocus"
       />
-      
+
       <!-- Loading spinner -->
       <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
         <DotSpinner></DotSpinner>
       </div>
-      
+
       <!-- Search icon when typing, dropdown arrow otherwise -->
       <div v-else class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg v-if="searchQuery.length > 0" class="w-4 h-4" :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,36 +41,36 @@
       <ul v-if="isDropdownOpen && !isLoading"
         class="custom-scrollbar  absolute top-full left-0  z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
-        
+
         <!-- No results message -->
-        <li v-if="cityLedgerOptions.length === 0 && searchQuery.length > 0" 
+        <li v-if="cityLedgerOptions.length === 0 && searchQuery.length > 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('No city ledger found') }}
         </li>
-        
+
         <!-- Initial message when no search -->
-        <li v-else-if="cityLedgerOptions.length === 0 && searchQuery.length === 0" 
+        <li v-else-if="cityLedgerOptions.length === 0 && searchQuery.length === 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('Start typing to search city ledger...') }}
         </li>
-        
+
         <!-- City ledger options -->
-        <li v-for="ledger in cityLedgerOptions" 
-          :key="ledger.id" 
-          @click="selectCityLedger(ledger)" 
+        <li v-for="ledger in cityLedgerOptions"
+          :key="ledger.id"
+          @click="selectCityLedger(ledger)"
           :class="[
             'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
             disabled ? 'cursor-not-allowed text-gray-400' : '',
             selectedCityLedger?.id === ledger.id ? 'bg-brand-50 text-brand-700' : ''
-          ]" 
-          role="option" 
+          ]"
+          role="option"
           :aria-selected="selectedCityLedger?.id === ledger.id">
           <div class="flex flex-col">
             <div class="font-medium text-sm">
               {{ ledger.name }}
             </div>
             <div class="text-xs text-gray-500 mt-1">
-              {{ $t('Contact') }}: {{ ledger.contactPerson || 'N/A' }} | 
+              {{ $t('Contact') }}: {{ ledger.contactPerson || 'N/A' }} |
             </div>
             <div v-if="ledger.balance !== undefined" class="text-xs text-gray-600 mt-1">
               {{ $t('Balance') }}: {{ formatBalance(ledger.balance, ledger.currency) }}
@@ -161,9 +161,9 @@ const filterCityLedgers = (query: string) => {
     const email = (ledger.email || '').toLowerCase()
     const shortCode = (ledger.shortCode || '').toLowerCase()
     const registrationNumber = (ledger.registrationNumber || '').toLowerCase()
-    
-    return name.includes(searchTerm) || 
-           contactPerson.includes(searchTerm) || 
+
+    return name.includes(searchTerm) ||
+           contactPerson.includes(searchTerm) ||
            email.includes(searchTerm) ||
            shortCode.includes(searchTerm) ||
            registrationNumber.includes(searchTerm)
@@ -181,7 +181,7 @@ const loadCityLedgers = async () => {
     isLoading.value = true
     const hotelId = serviceStore.serviceId!
     const response = await getCityLedger(hotelId)
-    
+
     // Transform the response data
     const ledgers = (response?.data?.data || response?.data || []).map((ledger: any) => {
       console.log('value', ledger)
@@ -194,10 +194,10 @@ const loadCityLedgers = async () => {
         shortCode: ledger.companyCode
       }
     })
-    
+
     allCityLedgers.value = ledgers
     cityLedgerOptions.value = ledgers
-    
+
   } catch (error) {
     console.error('Error loading city ledgers:', error)
     allCityLedgers.value = []
@@ -215,7 +215,7 @@ watch(
       if (allCityLedgers.value.length === 0) {
         await loadCityLedgers()
       }
-      
+
       // Find the ledger in current options or all ledgers
       const found = cityLedgerOptions.value.find(ledger => ledger.id === Number(newVal)) ||
                    allCityLedgers.value.find(ledger => ledger.id === Number(newVal))
@@ -238,12 +238,12 @@ watch(
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value
-  
+
   // Clear selection if user is typing
   if (selectedCityLedger.value && searchQuery.value !== selectedCityLedger.value.name) {
     selectedCityLedger.value = null
   }
-  
+
   // Open dropdown and search
   isDropdownOpen.value = true
   debouncedSearch(searchQuery.value)
@@ -271,7 +271,7 @@ const selectCityLedger = (ledger: CityLedgerOption) => {
     selectedCityLedger.value = ledger
     searchQuery.value = ledger.name || ''
     isDropdownOpen.value = false
-    
+
     emit('update:modelValue', ledger.id)
     emit('select', ledger)
     emit('change', ledger.id)

@@ -1,17 +1,10 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('bedType') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ t('bedTypeDescription') }}
-        </p>
-      </div>
-
+     
       <!-- Bed Types Table using ReusableTable -->
       <ReusableTable :title="t('bedTypes')" :columns="columns" :data="bedTypes" :actions="actions"
-        :search-placeholder="t('searchBedTypes')" :selectable="true" :empty-state-title="t('noBedTypesFound')"
+        :search-placeholder="t('searchBedTypes')" :selectable="false" :empty-state-title="t('noBedTypesFound')"
         :empty-state-message="t('clickAddBedType')" @action="onAction"
         @selection-change="onSelectionChange" :loading="loading">
         <template #header-actions>
@@ -35,14 +28,14 @@
         <template #column-createdInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -131,6 +124,7 @@ import { getBedTypes, postBedType, updateBedTypeById } from '../../../services/c
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()

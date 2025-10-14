@@ -109,7 +109,7 @@ const statusOptions = ref([
 
 const applyFilters = () => {
   emits('filter', filters.value);
-  showFilter.value = false;
+  // showFilter.value = false;
 };
 
 const clearFilters = () => {

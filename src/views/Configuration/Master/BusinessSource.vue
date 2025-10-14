@@ -3,46 +3,35 @@
     <div class="p-6">
       <!-- Table -->
       <div class="bg-white rounded-lg shadow">
-        <ReusableTable
-          :title="t('configuration.business_source.title')"
-          :columns="columns"
-          :data="businessSources"
-          :actions="actions"
-          :loading="loading"
-          :searchPlaceholder="t('configuration.business_source.search_placeholder')"
-          :selectable="true"
-        >
+        <ReusableTable :title="t('configuration.business_source.title')" :columns="columns" :data="businessSources"
+          :actions="actions" :loading="loading"
+          :searchPlaceholder="t('configuration.business_source.search_placeholder')" :selectable="false">
 
-        <template #header-actions> <BasicButton 
-          variant="primary"
-          :icon="Plus"
-          :label="t('configuration.business_source.add_button')"
-          @click="openAddModal"
-        /></template>
+          <template #header-actions>
+            <BasicButton variant="primary" :icon="Plus" :label="t('configuration.business_source.add_button')"
+              @click="openAddModal" />
+          </template>
           <template #column-color="{ item }">
             <div class="flex items-center space-x-2">
-              <div 
-                class="w-6 h-6 rounded border border-gray-300" 
-                :style="{ backgroundColor: item.color }"
-              ></div>
+              <div class="w-6 h-6 rounded border border-gray-300" :style="{ backgroundColor: item.color }"></div>
               <span class="text-sm text-gray-600">{{ item.color }}</span>
             </div>
           </template>
-         <!-- Custom column for created info -->
-        <template #column-createdInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-          </div>
-        </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            </div>
+          </template>
 
-        <!-- Custom column for modified info -->
-        <template #column-modifiedInfo="{ item }">
-          <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-          </div>
-        </template>
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            </div>
+          </template>
         </ReusableTable>
       </div>
 
@@ -50,37 +39,23 @@
       <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            {{ isEditing ? t('configuration.business_source.edit_title') : t('configuration.business_source.add_title') }}
+            {{ isEditing ? t('configuration.business_source.edit_title') : t('configuration.business_source.add_title')
+            }}
           </h3>
-          
+
           <form @submit.prevent="saveBusinessSource">
             <!-- Short Code -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('configuration.business_source.short_code') }} *
-              </label>
-              <input 
-                type="text"
-                v-model="formData.shortCode"
+               <Input type="text" v-model="formData.name"
                 :placeholder="t('configuration.business_source.short_code_placeholder')"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                maxlength="10"
-                required
-              />
+                :lb="t('configuration.business_source.short_code')" isRequired maxlength="10" />
             </div>
 
             <!-- Business Source Name -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('configuration.business_source.name') }} *
-              </label>
-              <input 
-                type="text"
-                v-model="formData.name"
+              <Input type="text" v-model="formData.name"
                 :placeholder="t('configuration.business_source.name_placeholder')"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
+                :lb="t('configuration.business_source.name')" isRequired />
             </div>
 
             <!-- Color -->
@@ -88,11 +63,8 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('configuration.business_source.color') }}
               </label>
-              <input 
-                type="color"
-                v-model="formData.color"
-                class="w-16 h-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
+              <input type="color" v-model="formData.color"
+                class="w-16 h-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
             </div>
 
             <!-- Registration Number -->
@@ -100,12 +72,9 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('configuration.business_source.registration_number') }}
               </label>
-              <input 
-                type="text"
-                v-model="formData.registrationNumber"
+              <input type="text" v-model="formData.registrationNumber"
                 :placeholder="t('configuration.business_source.registration_number_placeholder')"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
             </div>
 
             <!-- Market Code -->
@@ -113,10 +82,8 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('configuration.business_source.market_code') }}
               </label>
-              <select 
-                v-model="formData.marketCodeId"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
+              <select v-model="formData.marketCodeId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 <option value="">{{ t('configuration.business_source.market_code_placeholder') }}</option>
                 <option v-for="option in marketCodeOptions" :key="option.value" :value="option.value">
                   {{ option.label }}
@@ -124,36 +91,21 @@
               </select>
             </div>
 
-         <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
-                :disabled="saving"
-              />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+            <div class="flex justify-end space-x-3 pt-4">
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="t('cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary"
                 :label="isEditing ? t('configuration.payment_method.update_payment_method') : t('configuration.payment_method.save_payment_method')"
-                :loading="saving"
-              />
+                :loading="saving" />
             </div>
           </form>
         </div>
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteModal"
-        :title="t('configuration.business_source.delete_title')"
-        :message="t('configuration.business_source.delete_message')"
-        :confirmText="t('common.delete')"
-        :cancelText="t('common.cancel')"
-        variant="danger"
-        @confirm="confirmDelete"
-        @cancel="cancelDelete"
-      />
+      <ModalConfirmation v-if="showDeleteModal" :title="t('configuration.business_source.delete_title')"
+        :message="t('configuration.business_source.delete_message')" :confirmText="t('common.delete')"
+        :cancelText="t('common.cancel')" variant="danger" @confirm="confirmDelete" @cancel="cancelDelete" />
     </div>
   </ConfigurationLayout>
 </template>
@@ -170,6 +122,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
+import Input from '../../../components/forms/FormElements/Input.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -229,7 +182,7 @@ const loadBusinessSources = async () => {
   loading.value = true
   try {
     const response = await configrationApi.getBusinessSources()
-    console.log('data',response)
+    console.log('data', response)
     businessSources.value = response.data.data.data || []
   } catch (error) {
     console.error('Error loading business sources:', error)
@@ -253,7 +206,7 @@ const openAddModal = () => {
   showModal.value = true
 }
 
-const editBusinessSource = (item:any) => {
+const editBusinessSource = (item: any) => {
   isEditing.value = true
   editingId.value = item.id
   formData.value = {
@@ -281,7 +234,7 @@ const saveBusinessSource = async () => {
       await configrationApi.postBusinessSource(payload)
       toast.success(t('configuration.business_source.create_success'))
     }
-    
+
     closeModal()
     await loadBusinessSources()
   } catch (error) {
@@ -292,7 +245,7 @@ const saveBusinessSource = async () => {
   }
 }
 
-const deleteBusinessSource = (id:string) => {
+const deleteBusinessSource = (id: string) => {
   deleteItemId.value = id
   showDeleteModal.value = true
 }
@@ -331,7 +284,7 @@ const fetchMarketCode = async () => {
   try {
     loading.value = true
     const response = await configrationApi.getMarketCodes();
-    marketCodeOptions.value = (response.data.data.data || []).map((e:any)=>{
+    marketCodeOptions.value = (response.data.data.data || []).map((e: any) => {
       return {
         label: e.name,
         value: e.id

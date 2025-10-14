@@ -8,6 +8,7 @@
         :data="housekeepers"
         :actions="actions"
         :searchable="false"
+        :loading="isLoading"
         search-placeholder="Search housekeepers..."
         empty-state-title="No housekeepers found"
         empty-state-description="Get started by adding your first housekeeper."
@@ -33,6 +34,21 @@
             {{ item.status }}
           </span>
         </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            </div>
+          </template>
       </ReusableTable>
     </div>
 
@@ -84,10 +100,7 @@
         </div>
       </div>
     </div>
-    <!-- Spinner overlay -->
-    <Spinner v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-50">
-      <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-    </Spinner>
+
   </ConfigurationLayout>
 </template>
 
@@ -109,6 +122,7 @@ import {
   updateHousekeeperById,
   deleteHousekeeperById
 } from '@/services/configrationApi'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Reactive data
 const showModal = ref(false)
@@ -128,8 +142,8 @@ const formData = reactive({
 const columns :Column[] = [
   { key: 'name', label: 'Housekeeper', type: 'text' },
   { key: 'mobile', label: 'Mobile', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
+  { key: 'createdInfo', label: 'Created By', type: 'custom' },
+  { key: 'modifiedInfo', label: 'Modified By', type: 'custom' },
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
@@ -154,13 +168,13 @@ const fetchHousekeepers = async () => {
     const hotelId = serviceStore.serviceId
     const resp = await getHousekeepers({ hotel_id: hotelId as number })
     const data = resp?.data?.data?.data ?? resp?.data ?? []
+    console.log('data', resp)
     housekeepers.value = Array.isArray(data)
       ? data.map((h: any) => ({
+      ...h,
           id: h.id,
           name: h.name,
           mobile: h.phone ?? h.mobile ?? '',
-          createdBy: h.createdBy ?? h.createdByUserId ?? '',
-          modifiedBy: h.modifiedBy ?? h.updatedByUserId ?? '',
           status: h.status ?? 'Active',
         }))
       : []

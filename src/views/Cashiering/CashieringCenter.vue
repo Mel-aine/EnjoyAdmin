@@ -9,8 +9,8 @@
                 <div class="flex space-x-2">
 
                     <BasicButton :icon="PlusIcon" :label="$t('new_payment')" @click="openNewPaymentModal"/>
-                    <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" />
-                 <!-- <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />-->  
+                    <!-- <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" /> -->
+                 <!-- <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />-->
                   <!---->  <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
 
                 </div>
@@ -38,11 +38,11 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-between flex-col gap-6">
-                        <InputCheckBox v-model="pendingLedgerCommission" label="Pending Ledger Commission" id="pending" />
+                    <div class="flex justify-start  gap-6">
+                        <!-- <InputCheckBox v-model="pendingLedgerCommission" label="Pending Ledger Commission" id="pending" /> -->
                         <InputCheckBox v-model="displayVoid" label="Display Void" id="display-void" />
                     </div>
-                   
+
                 </div>
                  <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
                         <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full ">
@@ -69,7 +69,7 @@
                     </div>
                     </div>
 
-              
+
                 <!-- Table Content -->
                 <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false" :show-header="false"
                     :selectable="true" @selection-change="handleSelectionChange">
@@ -110,8 +110,8 @@
         </div>
 
         <template v-if="newPaymentVisible">
-            <NewPaymentCityLedger 
-                v-if="newPaymentVisible" 
+            <NewPaymentCityLedger
+                v-if="newPaymentVisible"
                 :selectedCompanyId="selectCityLedger?.id"
                 :dateRange="dateRange"
                 :activeTab="activeTab"
@@ -238,7 +238,7 @@ const loadCityLedgerData = async () => {
 
         const response = await getCityLedgerDetails(params)
         console.log('response', response)
-        
+
         if (response?.data) {
             cityLedgerData.value = response.companyAccount
             totals.value = response.totals;

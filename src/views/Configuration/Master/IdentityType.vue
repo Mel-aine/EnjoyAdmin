@@ -1,45 +1,38 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('configuration.identity_type.title') }}</h1>
 
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
-          {{ $t('configuration.identity_type.description') }}
-        </p>
-        <ReusableTable :title="$t('configuration.identity_type.table_title')" :columns="columns" :data="identityTypes"
-          :actions="actions" :loading="loading" @action="onAction"
-          :selectable="true"
-          :search-placeholder="$t('configuration.identity_type.search_placeholder')"
-          :empty-title="$t('configuration.identity_type.empty_title')"
-          :empty-description="$t('configuration.identity_type.empty_description')">
-          <template v-slot:header-actions>
-            <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
-              :label="$t('configuration.identity_type.add_identity_type')" :loading="loading" />
-          </template>
-          <!-- Custom column for created info -->
-          <template #column-createdInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-            </div>
-          </template>
+      <ReusableTable :title="$t('configuration.identity_type.table_title')" :columns="columns" :data="identityTypes"
+        :actions="actions" :loading="loading" @action="onAction" :selectable="false"
+        :search-placeholder="$t('configuration.identity_type.search_placeholder')"
+        :empty-title="$t('configuration.identity_type.empty_title')"
+        :empty-description="$t('configuration.identity_type.empty_description')">
+        <template v-slot:header-actions>
+          <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
+            :label="$t('configuration.identity_type.add_identity_type')" :loading="loading" />
+        </template>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+          </div>
+        </template>
 
-          <!-- Custom column for modified info -->
-          <template #column-modifiedInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-            </div>
-          </template>
-          <template #column-status="{ item }">
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-              :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-              {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
-            </span>
-          </template>
-        </ReusableTable>
-      </div>
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+          </div>
+        </template>
+        <template #column-status="{ item }">
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+            :class="item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+            {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
+          </span>
+        </template>
+      </ReusableTable>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -66,19 +59,11 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton
-                type="button"
-                variant="outline"
-                @click="closeModal"
-                :label="$t('cancel')"
-                :disabled="saving"
-              />
-              <BasicButton
-                type="submit"
-                variant="primary"
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary"
                 :label="isEditing ? $t('configuration.identity_type.update_identity_type') : $t('configuration.identity_type.save_identity_type')"
-                :loading="saving"
-              />
+                :loading="saving" />
             </div>
           </form>
         </div>
@@ -103,6 +88,7 @@ import {
   updateIdentityTypeById,
   deleteIdentityTypeById
 } from '@/services/configrationApi'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 // Save icon removed as it's no longer used in the template
 
 const { t } = useI18n()
@@ -114,11 +100,11 @@ const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 
-const columns = computed<Column[]>(() => [
-  { key: 'name', label: t('configuration.identity_type.identity_type_name'), type: 'text' },
-  { key: 'createdInfo', label: t('configuration.identity_type.created_by'), type: 'custom' },
-  { key: 'modifiedInfo', label: t('configuration.identity_type.modified_by'), type: 'custom' },
-  { key: 'shortCode', label: t('shortCode'), type: 'custom' }
+const columns = computed<Column[]>(() => [{ key: 'shortCode', label: t('shortCode'), type: 'custom' }
+  ,
+{ key: 'name', label: t('configuration.identity_type.identity_type_name'), type: 'text' },
+{ key: 'createdInfo', label: t('configuration.identity_type.created_by'), type: 'custom' },
+{ key: 'modifiedInfo', label: t('configuration.identity_type.modified_by'), type: 'custom' },
 ])
 
 const actions = computed<Action[]>(() => [
@@ -127,7 +113,7 @@ const actions = computed<Action[]>(() => [
 ])
 
 const formData = ref({
-  id:'',
+  id: '',
   shortCode: "",
   name: ''
 })
@@ -151,7 +137,7 @@ const fetchIdentityTypes = async () => {
 const openAddModal = () => {
   isEditing.value = false
   formData.value = {
-    id:"",
+    id: "",
     shortCode: "",
     name: ''
   }
