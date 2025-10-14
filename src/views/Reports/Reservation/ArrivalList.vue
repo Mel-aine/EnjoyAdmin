@@ -66,7 +66,7 @@
           </div>
           
           <!-- Travel Agent -->
-          <div>
+<!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Travel Agent
             </label>
@@ -76,7 +76,7 @@
               placeholder="-- select Travel Agent --"
               class="w-full"
             />
-          </div>
+          </div> -->
           
           <!-- Rate Type -->
           <div>
@@ -90,9 +90,6 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -105,7 +102,10 @@
               class="w-full"
             />
           </div>
-          
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+  
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -131,10 +131,7 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Rate Range -->
+                  <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate From
@@ -147,6 +144,10 @@
             />
           </div>
           
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+  
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate To
@@ -171,9 +172,6 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- Reservation Type -->
           <div>
             <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
@@ -183,6 +181,10 @@
               placeholder="--Select Reservation Type --"
             />
           </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+
           <!-- Tax Inclusive -->
           <div class="mt-12">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -358,6 +360,7 @@ import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { useRouter } from 'vue-router'
 import { getEmployeesForService } from '@/services/userApi' 
+import { get } from 'lodash'
 
 interface FilterOptions {
   value: string;
@@ -406,10 +409,28 @@ const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
 
+
+const getTodayDate = (): string => {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const getYesterdayDate = (): string => {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const year = yesterday.getFullYear()
+  const month = String(yesterday.getMonth() + 1).padStart(2, '0')
+  const day = String(yesterday.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Filtres pour l'interface utilisateur
 const filters = ref<Filters>({
-  arrivalFrom: '',
-  arrivalTo: '',
+  arrivalFrom: getYesterdayDate(),
+  arrivalTo: getTodayDate(),
   roomType: '',
   rateType: '',
   showAmount: 'rent_per_night',
@@ -539,7 +560,7 @@ const availableColumns = ref<FilterOptions[]>([
   { value: 'balanceDue', label: 'Balance Due' },
   { value: 'marketCode', label: 'Market Code' },
   { value: 'businessSource', label: 'Business Source' },
-  { value: 'mealPlan', label: 'Meal Plan' },
+  //{ value: 'mealPlan', label: 'Meal Plan' },
   { value: 'rateType', label: 'Rate Type' }
 ])
 
@@ -749,8 +770,8 @@ const formatCurrency = (amount: number): string => {
 
 const resetForm = (): void => {
   filters.value = {
-    arrivalFrom: '',
-    arrivalTo: '',
+    arrivalFrom: getYesterdayDate(),
+    arrivalTo: getTodayDate(),
     roomType: '',
     rateType: '',
     showAmount: 'rent_per_night',
