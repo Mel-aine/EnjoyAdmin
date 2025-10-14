@@ -1,16 +1,10 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ t('configuration.extra_charge.title') }}</h1>
-
-      <p class="text-gray-600 mb-6">
-        {{ t('configuration.extra_charge.define_extra_charge_details') }}
-      </p>
-
 
       <ReusableTable title="Extra Charges Management" :columns="columns" :data="extraCharges" :actions="actions"
         search-placeholder="Search extra charges..." empty-title="No extra charges found" :loading="loading"
-        :selectable="true"
+        :selectable="false"
         empty-description="Start by adding your first extra charge." @action="onAction">
         <template #header-actions>
           <BasicButton variant="primary" @click="openAddModal" :icon="Plus" :label="t('configuration.extra_charge.add_extra_charge')" />

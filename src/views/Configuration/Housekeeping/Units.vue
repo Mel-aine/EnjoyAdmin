@@ -1,82 +1,57 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">Units</h1>
-      
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
-          Units here refer to the different areas in the hotel premises which need to be attended by the housekeepers. 
-          It can be anything like – visitors lobby, Reception area, Recreation area, etc.
-        </p>
-        
-        <div class="flex justify-between items-center mb-6">
-          <div class="flex items-center space-x-4">
-            <BasicButton 
-              variant="primary" 
-              @click="openAddModal"
-              icon="Plus"
-              label="Add Unit"
-            />
-          </div>
-        </div>
-
-        <ReusableTable
-          title="Units"
-          :columns="columns"
-          :data="units"
-          :actions="actions"
-          search-placeholder="Search units..."
-          empty-state-title="No units found"
-          empty-state-description="Get started by adding your first unit."
-          @action="onAction"
-        >
+ <ReusableTable title="Units" :columns="columns" :data="units" :actions="actions"
+         :loading="loading"
+         search-placeholder="Search units..." empty-state-title="No units found"
+         empty-state-description="Get started by adding your first unit." @action="onAction">
+          <template #header-actions>
+            <BasicButton variant="primary" @click="openAddModal" :icon="Plus" :disabled="loading" label="Add Unit" />
+          </template>
           <template #status="{ item }">
-            <span 
-              :class="[
-                'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                item.status === 'Active' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
-              ]"
-            >
+            <span :class="[
+              'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
+              item.status === 'Active'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            ]">
               {{ item.status }}
             </span>
           </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            </div>
+          </template>
         </ReusableTable>
-      </div>
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
             {{ isEditing ? 'Edit Unit' : 'Add Unit' }}
           </h3>
-          
+
           <form @submit.prevent="saveUnit">
             <div class="mb-4">
-              <Input
-                v-model="formData.name"
-                label="Unit Name"
-                type="text"
-                placeholder="Enter unit name"
-                required
-              />
+              <Input v-model="formData.name" label="Unit Name" type="text" placeholder="Enter unit name" required />
             </div>
-            
+
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal"
-                label="Cancel"
-              />
-              <BasicButton 
-                type="submit" 
-                variant="primary"
-                :label="isEditing ? 'Update' : 'Save'"
-              />
+              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" :disabled="saving" />
+              <BasicButton type="submit" variant="primary" :label="isEditing ? 'Update' : 'Save'" :loading="saving" />
             </div>
           </form>
         </div>
@@ -86,18 +61,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { Plus } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
+import { useToast } from 'vue-toastification'
+import { useServiceStore } from '@/composables/serviceStore'
+import { getUnits, postUnit, updateUnitById, deleteUnitById } from '@/services/configrationApi'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const loading = ref(false)
+const saving = ref(false)
+const toast = useToast()
+const serviceStore = useServiceStore()
 
 const formData = reactive({
   name: ''
@@ -106,8 +89,8 @@ const formData = reactive({
 // Table configuration
 const columns: Column[] = [
   { key: 'name', label: 'Unit Name', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'modifiedBy', label: 'Modified By', type: 'text' },
+  { key: 'createdInfo', label: 'Created By', type: 'custom' },
+  { key: 'modifiedInfo', label: 'Modified By', type: 'custom' },
   { key: 'status', label: 'Status', type: 'custom' }
 ]
 
@@ -124,35 +107,27 @@ const actions: Action[] = [
   }
 ]
 
-const units = ref([
-  { 
-    id: 1, 
-    name: 'Visitors Lobby', 
-    createdBy: 'admin', 
-    createdDate: '2013-05-13', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 2, 
-    name: 'Reception Area', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
-  },
-  { 
-    id: 3, 
-    name: 'Recreation Area', 
-    createdBy: 'admin', 
-    createdDate: '2013-08-03', 
-    modifiedBy: 'admin', 
-    modifiedDate: '2013-08-03', 
-    status: 'Active' 
+const units = ref<any[]>([])
+
+const fetchUnits = async () => {
+  try {
+    loading.value = true
+    const response = await getUnits()
+    console.log('responser',response);
+    const list = response?.data?.data?.data ?? []
+    units.value = list.map((u: any) => ({
+      ...u,
+      id: u.id ,
+      name: u.name ?? u.unitName ?? '',
+      status: u.status ?? 'Active'
+    }))
+  } catch (error) {
+    console.error('Error fetching units:', error)
+    toast.error('Failed to load units')
+  } finally {
+    loading.value = false
   }
-])
+}
 
 // Functions
 const openAddModal = () => {
@@ -176,44 +151,57 @@ const closeModal = () => {
   formData.name = ''
 }
 
-const saveUnit = () => {
-  if (isEditing.value && editingId.value) {
-    // Update existing unit
-    const index = units.value.findIndex(u => u.id === editingId.value)
-    if (index !== -1) {
-      units.value[index] = {
-        ...units.value[index],
-        name: formData.name,
-        modifiedBy: 'admin',
-        modifiedDate: new Date().toISOString().split('T')[0]
-      }
-    }
-  } else {
-    // Add new unit
-    const newUnit = {
-      id: Math.max(...units.value.map(u => u.id)) + 1,
+const saveUnit = async () => {
+  try {
+    saving.value = true
+    const payload = {
       name: formData.name,
-      createdBy: 'admin',
-      createdDate: new Date().toISOString().split('T')[0],
-      modifiedBy: 'admin',
-      modifiedDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+      hotelId: serviceStore.serviceId
     }
-    units.value.push(newUnit)
+
+    if (isEditing.value && editingId.value) {
+      await updateUnitById(editingId.value, payload)
+      toast.success('Unit updated successfully')
+    } else {
+      await postUnit(payload)
+      toast.success('Unit created successfully')
+    }
+
+    closeModal()
+    await fetchUnits()
+  } catch (error) {
+    console.error('Error saving unit:', error)
+    toast.error('Failed to save unit')
+  } finally {
+    saving.value = false
   }
-  closeModal()
 }
 
-const deleteUnit = (id: number) => {
+const deleteUnit = async (id: number) => {
   if (confirm('Are you sure you want to delete this unit?')) {
-    const index = units.value.findIndex(u => u.id === id)
-    if (index !== -1) {
-      units.value.splice(index, 1)
+    try {
+      loading.value = true
+      await deleteUnitById(id)
+      toast.success('Unit deleted successfully')
+      await fetchUnits()
+    } catch (error) {
+      console.error('Error deleting unit:', error)
+      toast.error('Failed to delete unit')
+    } finally {
+      loading.value = false
     }
   }
 }
 
 const onAction = (action: string, item: any) => {
-  console.log('Action:', action, 'Item:', item)
+  if (action === 'edit') {
+    editUnit(item)
+  } else if (action === 'delete') {
+    deleteUnit(item.id)
+  }
 }
+
+onMounted(() => {
+  fetchUnits()
+})
 </script>

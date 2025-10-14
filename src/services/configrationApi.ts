@@ -66,6 +66,49 @@ export const deleteHousekeeperById = (id: number | string): Promise<AxiosRespons
 }
 
 
+////// this is the Housekeeping Units sections
+/**
+ * Get all housekeeping units
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getUnits = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/units`, getHeaders())
+}
+/**
+ * Create a new housekeeping unit
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postUnit = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL()}/units`, data, getHeaders())
+}
+/**
+ * Get a housekeeping unit by ID
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getUnitById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/units/${id}`, getHeaders())
+}
+/**
+ * Update a housekeeping unit
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateUnitById = (id: number | string, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL()}/units/${id}`, data, getHeaders())
+}
+/**
+ * Delete a housekeeping unit
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteUnitById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL()}/units/${id}`, getHeaders())
+}
+
+
 ///// this is the amenities sections
 /**
  * Get all amenities
