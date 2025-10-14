@@ -13,7 +13,7 @@
                   :placeholder="$t('Enter company name')" id="companyName" />
               </div>
               <InputTitleName v-model="formData.contactPerson" :lb="$t('Contact Person')" inputType="text"
-                :isRequired="true" :placeholder="$t('Enter contact person name')" id="contactPerson" />
+                :isRequired="true" :placeholder="$t('Enter contact person name')" id="contactPerson" class="z-99999" />
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Email -->
@@ -63,7 +63,7 @@
               {{ $t('Address') }}
             </label>
             <textarea v-model="formData.address" rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-purple-500 focus:border-purple-500"
               :placeholder="$t('Enter company address')"></textarea>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -89,7 +89,7 @@
               {{ $t('Notes') }}
             </label>
             <textarea v-model="formData.notes" rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-purple-500 focus:border-purple-500"
               :placeholder="$t('Enter notes about this company')"></textarea>
           </div>
 
@@ -189,7 +189,7 @@ const handleSubmit = async () => {
       current_balance: parseFloat(formData.openingBalance.toString()),
       credit_limit: formData.creditLimit ? parseFloat(formData.creditLimit.toString()) : 0,
       preferred_currency: formData.currency || selectedCurrency.value,
-      billing_address_line1: formData.address,
+      billing_address_line: formData.address,
       billing_country: formData.country,
       billing_state_province: formData.state,
       billing_city: formData.city,
@@ -204,6 +204,7 @@ const handleSubmit = async () => {
       credit_status: 'Good',
       hotel_id: serviceStore.serviceId,
     }
+    console.log("companyData",companyData)
 
     let result
     if (isEditMode.value) {

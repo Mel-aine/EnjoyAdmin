@@ -566,6 +566,7 @@ const refreshFolio = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null) ;
             allTransactions.value.push({
               ...transaction,
               amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.

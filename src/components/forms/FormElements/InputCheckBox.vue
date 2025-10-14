@@ -26,6 +26,14 @@ watch(checked, (newValue) => {
   emits('update:modelValue', newValue)
 })
 
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    checked.value = newValue
+  }
+)
+
 // Prefer `label`, fallback to `lb` for legacy calls
 const labelText = computed(() => props.label || props.lb || '')
 

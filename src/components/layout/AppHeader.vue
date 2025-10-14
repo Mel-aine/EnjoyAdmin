@@ -25,7 +25,7 @@
               fill="currentColor" />
           </svg>
         </button>
-        <HeaderLogo />
+        <!-- <HeaderLogo /> -->
         <button @click="toggleApplicationMenu"
           class="flex items-center justify-center w-10 h-10 text-gray-600 rounded-xl z-99999 transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:border-blue-200 hover:shadow-md hover:scale-105 dark:text-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 lg:hidden">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

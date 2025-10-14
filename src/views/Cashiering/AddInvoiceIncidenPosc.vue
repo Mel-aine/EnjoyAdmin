@@ -49,8 +49,8 @@
                 {{ $t('cash') }}
               </label>
               <label class="flex items-center">
-                <input type="radio" v-model="form.paymentType" value="bank" class="mr-2" />
-                {{ $t('bank') }}
+                <input type="radio" v-model="form.paymentType" value="city_ledger" class="mr-2" />
+                {{ $t('city_ledger')}}
               </label>
             </div>
           </div>
@@ -268,7 +268,7 @@ function handleChargeChange(selectedCharge: any, chargeIndex: number) {
       charge.name = selectedCharge.name || selectedCharge.charge_name
       charge.rateInclusiveTax = selectedCharge.rateInclusiveTax
       charge.taxAmount = selectedCharge.taxAmount || 0
-      
+
       console.log('Charge selected:', selectedCharge)
       console.log('Updated charge amount to:', charge.amount, 'for quantity:', quantity)
     }
@@ -309,7 +309,7 @@ async function saveInvoice() {
   }
   try {
     isLoading.value = true
-    
+
     // Map form data to API structure
     const invoiceData = {
       hotelId: useServiceStore().serviceId,
@@ -341,7 +341,7 @@ async function saveInvoice() {
     if (response.data) {
       // Show success toast
       toast.success(t('Invoice created successfully!'))
-      
+
       // Emit success event with the created invoice
       emit('invoice-created', response.data)
     } else {

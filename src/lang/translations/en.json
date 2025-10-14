@@ -5415,6 +5415,16 @@
     "search": "Search",
     "noCompaniesFound": "No Companies Found",
     "noCompaniesMessage": "No companies match your current filters",
+    "delete_title": "Delete Company",
+    "delete_confirm_message": "Are you sure you want to delete the company {name}?",
+    "delete_success": "The company has been deleted successfully.",
+    "delete_cancel": "Deletion cancelled.",
+    "delete_error": "An error occurred while deleting the company. Please try again.",
+    "filter_error": "An error occurred while filtering companies. Please try again.",
+    "fetch_error": "An error occurred while fetching company data. Please try again.",
+    "audit_error" : "An error occurred while fetching audit logs for the company. Please try again.",
+    "export_success": "Company data has been exported successfully.",
+    "export_error": "An error occurred while exporting company data. Please try again.",
     "columns": {
       "name": "Name",
       "contactPerson": "Contact Person",
@@ -6271,4 +6281,5 @@
   "AdjustmentUpdatedSuccessfully" : "Adjustment Updated Successfully!",
   "RoomChargesUpdatedSuccessfully" : "Room Charges Updated Successfully!",
   "discountUpdatedSuccessfully" : "Discount Updated Successfully"
+  
 }

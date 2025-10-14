@@ -10,7 +10,7 @@
         <template v-slot:header-actions>
           <div class="flex  align-middle self-center items-center gap-2">
             <BasicButton variant="primary" @click="navigateToAddCompany" :icon="Plus"
-              :label="$t('companyDatabase.addCompany')" :loading="loading" />
+              :label="$t('companyDatabase.addCompany')"  />
             <BasicButton variant="secondary" @click="exportCompaniesData" :icon="Download"
               :label="$t('companyDatabase.export')" :loading="exporting" />
             <BasicButton variant="secondary" @click="auditCompaniesData" :icon="FileText"
@@ -20,8 +20,8 @@
             </div>
           </div>
         </template>
-        
-       
+
+
 
         <!-- Custom column for contact person -->
         <template #column-contactPerson="{ item }">
@@ -56,7 +56,7 @@
           v-if="showDeleteModal"
           :is-loading="deleting"
           :title="$t('companyDatabase.delete_title')"
-          :message="$t('companyDatabase.delete_confirm_message', { name: 'companyToDelete?.companyName' })"
+          :message="$t('companyDatabase.delete_confirm_message', { name: companyToDelete?.companyName })"
           action="DANGER"
           @close="closeDeleteModal"
           @confirm="confirmDeleteCompany"
@@ -207,7 +207,7 @@ const closeDeleteModal = () => {
 
 const confirmDeleteCompany = async () => {
   if (!companyToDelete.value) return
-  
+
   try {
     deleting.value = true
     const result = await deleteCompany(companyToDelete.value.id)
