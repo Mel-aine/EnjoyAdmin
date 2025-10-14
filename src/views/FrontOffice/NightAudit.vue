@@ -208,6 +208,7 @@ const VoidReservation = defineAsyncComponent(() => import('../../components/rese
 const NoShowReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/NoShowReservation.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('../../components/reservations/CheckInReservation.vue'))
 const CheckOutReservation = defineAsyncComponent(() => import('../../components/reservations/CheckOutReservation.vue'))
+const CancelReseravtion = defineAsyncComponent(()=>import('../../components/reservations/foglio/CancelReseravtion.vue'))
 const AmendStay = defineAsyncComponent(() => import('../../components/reservations/foglio/AmendStay.vue'))
 const serviceStore = useServiceStore();
 const router = useRouter()

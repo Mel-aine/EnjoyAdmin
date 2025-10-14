@@ -5,14 +5,14 @@
  <p class="text-gray-600 mb-6">
           {{ $t('configuration.payment_method.description') }}
         </p>
-       <ReusableTable 
-          :title="$t('configuration.payment_method.table_title')" 
-          :columns="columns" 
-          :data="payMethods" 
+       <ReusableTable
+          :title="$t('configuration.payment_method.table_title')"
+          :columns="columns"
+          :data="payMethods"
           :actions="actions"
           :loading="loading"
-          @action="onAction" 
-          :search-placeholder="$t('configuration.payment_method.search_placeholder')" 
+          @action="onAction"
+          :search-placeholder="$t('configuration.payment_method.search_placeholder')"
           :empty-title="$t('configuration.payment_method.empty_title')"
           :empty-description="$t('configuration.payment_method.empty_description')">
           <template #cardProcessing="{ item }">
@@ -22,12 +22,12 @@
             </span>
           </template>
           <template v-slot:header-actions>
-            <BasicButton 
-              variant="primary" 
-              @click="openAddModal" 
-              :icon="Plus" 
+            <BasicButton
+              variant="primary"
+              @click="openAddModal"
+              :icon="Plus"
               :label="$t('configuration.payment_method.add_payment_method')"
-              :loading="loading" 
+
             />
           </template>
           <template #status="{ item }">
@@ -51,22 +51,22 @@
           <form @submit.prevent="savePayMethod">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <Input 
-                  v-model="formData.shortCode" 
+                <Input
+                  v-model="formData.shortCode"
                   :lb="$t('configuration.payment_method.short_code') + ' *'"
-                  inputType="text" 
+                  inputType="text"
                   :isRequired="true"
-                  :placeholder="$t('configuration.payment_method.short_code_placeholder')" 
+                  :placeholder="$t('configuration.payment_method.short_code_placeholder')"
                 />
               </div>
 
               <div class="mb-4">
-                <Input 
-                  v-model="formData.name" 
+                <Input
+                  v-model="formData.name"
                   :lb="$t('configuration.payment_method.payment_method') + ' *'"
-                  inputType="text" 
+                  inputType="text"
                   :isRequired="true"
-                  :placeholder="$t('configuration.payment_method.name_placeholder')" 
+                  :placeholder="$t('configuration.payment_method.name_placeholder')"
                 />
               </div>
             </div>
@@ -149,16 +149,16 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="$t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
                 :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? $t('configuration.payment_method.update_payment_method') : $t('configuration.payment_method.save_payment_method')"
                 :loading="saving"
               />
@@ -181,11 +181,11 @@ import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
-import { 
-  getPaymentMethods, 
-  postPaymentMethod, 
-  updatePaymentMethodById, 
-  deletePaymentMethodById 
+import {
+  getPaymentMethods,
+  postPaymentMethod,
+  updatePaymentMethodById,
+  deletePaymentMethodById
 } from '@/services/configrationApi'
 
 const { t } = useI18n()
@@ -272,7 +272,7 @@ const closeModal = () => {
 const savePayMethod = async () => {
   try {
     saving.value = true
-    
+
     const paymentMethodData = {
       shortCode: formData.value.shortCode,
       name: formData.value.name,
@@ -285,7 +285,7 @@ const savePayMethod = async () => {
       receiptNoSetting: formData.value.receiptNoSetting,
       hotelId: serviceStore.serviceId
     }
-    
+
     if (isEditing.value && formData.value.id) {
       // Update existing payment method
       await updatePaymentMethodById(formData.value.id, paymentMethodData)
@@ -295,7 +295,7 @@ const savePayMethod = async () => {
       await postPaymentMethod(paymentMethodData)
       toast.success(t('configuration.payment_method.create_success'))
     }
-    
+
     await fetchPaymentMethods()
     closeModal()
   } catch (error) {

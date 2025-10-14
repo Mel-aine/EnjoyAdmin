@@ -288,12 +288,12 @@ onMounted(() => {
 
 
         <!-- Tab Content -->
-       <div class="p-6 mx-4 mt-4 bg-gray-50 rounded-lg shadow-xl">
+       <div class="p-5 mt-4 ">
           <!-- Company Details Tab -->
           <div v-if="activeTab === 'company_details'" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Company Information Card -->
-              <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div class="bg-white p-6 rounded-lg border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -343,7 +343,7 @@ onMounted(() => {
               </div>
 
               <!-- Address Information Card -->
-              <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div class="bg-white p-6 rounded-lg  border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -399,9 +399,9 @@ onMounted(() => {
 
           <!-- Contact Information Tab -->
           <div v-if="activeTab === 'contact_info'" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
               <!-- Primary Contact Card -->
-              <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div class="bg-white p-6 rounded-lg  border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -441,9 +441,9 @@ onMounted(() => {
 
           <!-- Financial Information Tab -->
           <div v-if="activeTab === 'financial_info'" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
               <!-- Balance Information Card -->
-              <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div class="bg-white p-6 rounded-lg  border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -497,7 +497,7 @@ onMounted(() => {
 
           <!-- Booking History Tab -->
           <div v-if="activeTab === 'booking_history'" class="space-y-6">
-            <div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="text-center py-12 bg-white rounded-lg  border border-gray-200">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-12 w-12 mx-auto text-gray-400 mb-4"

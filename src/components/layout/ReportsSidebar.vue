@@ -55,13 +55,16 @@
               <div v-if="dashbordReport.length > 0">
               <router-link v-for="report in dashbordReport" :key="report.path" :to="report.path"
                       :class="[
-                        'menu-dropdown-item text-sm flex items-center gap-2',
+                        'menu-dropdown-item  text-sm flex items-center gap-2',
                         {
                           'menu-dropdown-item-active': isActive(report.path),
                           'menu-dropdown-item-inactive': !isActive(report.path),
                         },
                       ]">
-                      {{ $t(report.label) }}
+                      <span v-if="isExpanded || isHovered || isMobileOpen">
+                        {{ $t(report.label) }}
+                    </span>
+
                     </router-link>
               </div>
 
