@@ -1,13 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('sortRoomTypes') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ t('sortRoomTypesDescription') }}
-        </p>
-      </div>
+      
 
       <!-- Sort Room Types Table using ReusableTable -->
       <ReusableTable
@@ -59,15 +53,15 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -137,6 +131,7 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import { getRoomTypes, updateRoomTypeSortOrder } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const toast = useToast()
 const { t } = useI18n()

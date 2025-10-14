@@ -1,13 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ t('roomType') }}</h1>
-        <p class="text-gray-600">
-          {{ t('roomTypeDescription') }}
-        </p>
-      </div>
+      
 
       <!-- Room Types Table using ReusableTable -->
       <ReusableTable :title="t('roomTypeList')" :columns="columns" :data="roomTypes" :actions="actions"
@@ -37,15 +31,15 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{  formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -194,6 +188,7 @@ import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 
@@ -268,12 +263,12 @@ const columns = ref([
     sortable: false,
     type: "custom"
   },
-  {
+/*  {
     key: 'status',
     label: t('status'),
     sortable: true,
     component: 'badge'
-  }
+  }*/
 ])
 
 const actions = ref([

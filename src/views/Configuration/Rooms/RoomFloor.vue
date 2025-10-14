@@ -63,15 +63,15 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.creator?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.creator?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.modifier?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.modifier?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -134,7 +134,6 @@
                   @update:modelValue="handleBedTypeChange"
                   :options="bedTypeOptions"
                   :placeholder="t('selectBedType')"
-                  :is-required="true"
                   customClass="w-full"
                 />
                 <p class="text-xs text-gray-500 mt-1">{{ t('bedTypeDescription') }}</p>
@@ -318,7 +317,7 @@ import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { formatCurrency } from '../../../components/utilities/UtilitiesFunction'
+import { formatCurrency, formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Types
 interface Room {
@@ -608,8 +607,7 @@ const saveRoom = async () => {
   // Validation
   if (!formData.value.shortCode || 
       !formData.value.roomNumber || 
-      !formData.value.roomTypeId || 
-      !formData.value.bedTypeId) {
+      !formData.value.roomTypeId ) {
     toast.error(t('pleaseCompleteAllRequiredFields'))
     return
   }
