@@ -152,7 +152,6 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span v-if="loading" class="ml-2">{{ t('common.generating') }}</span>
               </button>
             </div>
 
@@ -198,6 +197,7 @@
             :columns="selectedTableColumns"
             :loading="loading"
             :empty-message="folioData?.length === 0 && !loading ? t('reports.noDataAvailable') : ''"
+            :show-header="false"
             class="w-full mb-4 min-w-max" 
           />
         </div>
@@ -206,10 +206,10 @@
         <div v-if="reportTotals && folioData?.length > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm font-medium text-gray-900 dark:text-white">
             <div>{{ t('reports.folio.totalFolios') }}: {{ reportTotals?.totalFolios || 0 }}</div>
-            <div>{{ t('reports.folio.totalCharges') }}: {{ reportTotals?.totalChargeAmount || 0 }} {{ currency || 'USD' }}</div>
-            <div>{{ t('reports.folio.totalTax') }}: {{ reportTotals?.totalTaxAmount || 0 }} {{ currency || 'USD' }}</div>
-            <div>{{ t('reports.folio.totalCredit') }}: {{ reportTotals?.totalCreditAmount || 0 }} {{ currency || 'USD' }}</div>
-            <div>{{ t('reports.folio.totalBalance') }}: {{ reportTotals?.totalBalance || 0 }} {{ currency || 'USD' }}</div>
+            <div>{{ t('reports.folio.totalCharges') }}: {{ reportTotals?.totalChargeAmount || 0 }} {{'XAF' }}</div>
+            <div>{{ t('reports.folio.totalTax') }}: {{ reportTotals?.totalTaxAmount || 0 }} {{  'XAF' }}</div>
+            <div>{{ t('reports.folio.totalCredit') }}: {{ reportTotals?.totalCreditAmount || 0 }} {{  'XAF' }}</div>
+            <div>{{ t('reports.folio.totalBalance') }}: {{ reportTotals?.totalBalance || 0 }} {{  'XAF' }}</div>
           </div>
         </div>
       </div>
@@ -409,7 +409,8 @@ const generateReport = async (): Promise<void> => {
 
 const exportData = async (): Promise<void> => {
   if (!folioData.value || folioData.value.length === 0) return
-  
+  exportLoading.value = true
+  error.value = ''
   try {
     const headers = selectedTableColumns.value.map(col => col.label).join(',')
     const rows = folioData.value.map(folio => 
@@ -434,6 +435,8 @@ const exportData = async (): Promise<void> => {
     console.log('CSV exported successfully')
   } catch (error) {
     console.error('Error exporting CSV:', error)
+  } finally {
+    exportLoading.value = false
   }
 }
 
