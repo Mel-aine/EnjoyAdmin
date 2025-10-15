@@ -320,11 +320,11 @@
                 </div>
                 <!-- Société -->
                 <div>
-                  <Input
+                  <Select
                     :lb="$t('Company Name')"
                     v-model="guestData.company"
-                    type="text"
-                    :placeholder="$t('Company')"
+                    :options="companyOptions"
+                    :placeholder="$t('-select-')"
                     :disabled="!isEditing"
                   />
                 </div>
@@ -565,6 +565,7 @@ import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 import { vipStatusApi } from '@/services/configrationApi'
+import { getCompanies } from '@/services/companyApi'
 
 interface GuestData {
   title: string
@@ -620,6 +621,7 @@ const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
 const Preferences = ref<SelectOption[]>([])
+const companyOptions = ref<Array<{ label: string; value: string }>>([])
 
 // State
 const isSaving = ref(false)
@@ -788,6 +790,9 @@ const guestTypeOptions: SelectOption[] = [
 
 
 // --- Méthodes ---
+
+
+
 
 const selectGuest = (guest: any) => {
   selectedGuest.value = guest
@@ -1179,11 +1184,25 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
   }
 }
 
+const getCompaniesList = async () => {
+  try {
+    const resp: any = await getCompanies()
+    console.log('Companies response:', resp)
+    companyOptions.value = resp.data.map((c: any) => ({
+      label: c.companyName,
+      value: c.companyName
+    }))
+  } catch (error) {
+    console.error('Error fetching companies:', error)
+  }
+}
+
 
 onMounted(() => {
   loadPreferences()
   fetchIdentityTypes()
   fetchVipStatuses()
+  getCompaniesList()
 
 })
 </script>

@@ -127,7 +127,7 @@ const formData = reactive({
 const isFormValid = computed(() => {
     return formData.chargeSubtype &&
         formData.amount &&
-        formData.amount > 0
+        formData.amount > 0 && formData.description
 })
 
 const closeModal = () => {
@@ -185,6 +185,7 @@ const saveRoomCharge = async () => {
             complementary:formData.complementary,
             discountId:formData.discount ? Number(formData.discount) : undefined,
         }
+        console.log('payload',payload)
 
           const responseRoomCharges = props.isEditMode
           ? await updateRoomChargeHandler(props.transactionData.id,payload)

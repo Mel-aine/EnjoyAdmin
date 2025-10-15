@@ -119,7 +119,7 @@
         <InputCountries v-model="form.nationality" :lb="$t('customerDetails.basicInfo.nationality')" />
       </div>
       <div>
-        <Input :lb="$t('Company Name')" v-model="form.companyName" placeholder="Société" />
+        <Select :lb="$t('Company Name')" v-model="form.companyName" :options="companyOptions" :placeholder="$t('-select-')" />
       </div>
       <div>
         <Input v-model="form.fax" :lb="$t('Fax')" :placeholder="$t('Fax')" />
@@ -266,6 +266,7 @@ import {getPreferencesByHotelId} from '@/services/configrationApi'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import { ChevronDownIcon } from 'lucide-vue-next'
 import { vipStatusApi } from '@/services/configrationApi'
+import { getCompanies } from '@/services/companyApi'
 
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
@@ -351,6 +352,7 @@ const pendingImages = ref<string[]>([])
 const Preferences = ref<SelectOption[]>([])
 const loading = ref(false)
 const vipStatusOptions = ref<any[]>([])
+const companyOptions = ref<Array<{ label: string; value: string }>>([])
 
 // CustomerFom.vue
 
@@ -477,6 +479,18 @@ const onUploadError = (error: any) => {
   pendingImages.value = []
 }
 
+const getCompaniesList = async () => {
+  try {
+    const resp: any = await getCompanies()
+    console.log('Companies response:', resp)
+    companyOptions.value = resp.data.map((c: any) => ({
+      label: c.companyName,
+      value: c.companyName
+    }))
+  } catch (error) {
+    console.error('Error fetching companies:', error)
+  }
+}
 // Fonction principale de soumission
 
 const handleSubmit = async () => {
@@ -683,6 +697,7 @@ onMounted(() => {
   fetchIdentityTypes()
   loadPreferences()
   fetchVipStatuses()
+  getCompaniesList()
 })
 
 defineExpose({

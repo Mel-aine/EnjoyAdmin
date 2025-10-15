@@ -25,6 +25,7 @@ export interface ApiResponse<T = any> {
 export interface Company {
   id: number
   name: string
+  companyName?:string
   contactPerson: string
   contactTitle?: string
   country: string
@@ -82,8 +83,10 @@ export const getFilteredCompanies = async (filter: CompanyFilter): Promise<Compa
   try {
     const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
       `${API_URL()}`,
-      { params: filter, ...getHeaders() },
-     
+      {  params: {
+          filters: filter
+        }, ...getHeaders() },
+
     )
     return response.data.data
   } catch (error) {
@@ -177,7 +180,7 @@ export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
 
 
 /** get getCityLedger
- * 
+ *
  */
 
 export const getCityLedger = async (hotelId: number): Promise<ApiResponse | undefined> => {
@@ -194,7 +197,7 @@ export const getCityLedger = async (hotelId: number): Promise<ApiResponse | unde
 }
 
 /**
- * filter city ledger transaction 
+ * filter city ledger transaction
  */
 
 export const getCityLedgerDetails = async (params: {
@@ -224,7 +227,7 @@ export const getCityLedgerDetails = async (params: {
 }
 
 /**
- * pos transaction payment 
+ * pos transaction payment
  */
 export const postTransactionPayCompanyBulk = async (data: any): Promise<any> => {
   try {
