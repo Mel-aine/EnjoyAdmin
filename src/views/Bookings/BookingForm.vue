@@ -370,9 +370,6 @@
                           {{ voucherEmailError }}
                          </p>
                       </div>
-                      <div class="flex flex-col h-full justify-center align-middle self-center mt-2">
-                        <BasicButton :label="$t('otherInfo.previewVoucher')" variant="dark"></BasicButton>
-                      </div>
                     </div>
                   </div>
 

@@ -234,7 +234,10 @@ const checkinButtonLabel = computed(() => {
   return t('Quick Check-In')
 })
 
-
+const gotoNew  =()=>{
+  emits("close")
+  router.push('new_booking')
+}
 const handleCheckIn = async () => {
   try {
     if (isGroupReservation.value) {
@@ -461,7 +464,7 @@ onMounted(() => {
             <div class="">
               <!-- Left Column: Add Reservation Form -->
               <div class="p">
-                <form class="grid grid-cols-1 xl:grid-cols-1 gap-6 p-2">
+                <form class="grid grid-cols-1 xl:grid-cols-1 gap-6 p-2 text-sm">
                   <!-- Left Side: Reservation Form -->
                   <div class="space-y-6">
                     <!-- Check-in/out dates and time -->
@@ -522,13 +525,15 @@ onMounted(() => {
                           :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
                       </div>
                       <div>
-                        <Input :lb="$t('arriveFrom')"></Input>
+                        <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'"
+                          :placeholder="$t('ArrivingTo')" />
                       </div>
                       <div>
-                        <Input :lb="$t('Going to')"></Input>
+                        <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')" />
                       </div>
                       <div>
-                        <Input :lb="$t('Transportaion Mode')"></Input>
+                        <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel="'means'"
+                          :placeholder="$t('MeansOfTransportation')" />
                       </div>
                     </div>
                     <!-- Room Type -->
@@ -545,7 +550,7 @@ onMounted(() => {
                         </div>
                         <div v-for="(room, index) in roomConfigurations" :key="room.id" class="">
                           <!-- Room Configuration Fields -->
-                          <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end px-3" >
+                          <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end px-3">
                             <div class="relative col-span-3">
                               <p v-if="isRoomTypeInvalid(room)" class="text-sm text-red-600 mb-1">
                                 {{ $t('validation.invalidRoomType') }}
@@ -563,8 +568,8 @@ onMounted(() => {
                                 {{ $t('validation.invalidRateType') }}
                               </p>
                               <AutoCompleteSelect v-model="room.rateType" :options="getRateTypesForRoom(room.id)"
-                                :defaultValue="$t('SelectRateType')" 
-                                :is-required="false" :use-dropdown="useDropdownRateType" :disabled="!room.roomType"
+                                :defaultValue="$t('SelectRateType')" :is-required="false"
+                                :use-dropdown="useDropdownRateType" :disabled="!room.roomType"
                                 @update:modelValue="onRateTypeChange(room.id, $event)"
                                 @clear-error="emit('clear-error')"
                                 :class="{ 'border-red-500': isRateTypeInvalid(room) }" />
@@ -575,16 +580,15 @@ onMounted(() => {
                                 {{ $t('invalidRoomNumber') }}
                               </p>
                               <AutoCompleteSelect v-model="room.roomNumber" :options="getRoomsForRoom(room.id)"
-                                :defaultValue="$t('SelectRoom')"  :is-required="false"
-                                :use-dropdown="useDropdownRoom" :disabled="!room.roomType"
-                                :isLoading="room.isLoadingRooms" @update:modelValue="onRoomNumberChange(room)"
-                                @clear-error="emit('clear-error')"
+                                :defaultValue="$t('SelectRoom')" :is-required="false" :use-dropdown="useDropdownRoom"
+                                :disabled="!room.roomType" :isLoading="room.isLoadingRooms"
+                                @update:modelValue="onRoomNumberChange(room)" @clear-error="emit('clear-error')"
                                 :class="{ 'border-red-500': isRoomNumberInvalid(room) }" />
                             </div>
 
                             <!-- Adult Count avec gestion des changements -->
                             <div class="col-span-1">
-                        
+
                               <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
                                 @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
                                 :disabled="!room.roomType"
@@ -593,7 +597,7 @@ onMounted(() => {
 
                             <!-- Child Count avec gestion des changements -->
                             <div class="col-span-1">
-                             
+
                               <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
                                 @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
                                 :disabled="!room.roomType"
@@ -603,7 +607,7 @@ onMounted(() => {
                             <!-- Rate Display avec détails -->
                             <div class="flex align-center self-center col-span-2">
                               <div class="relative inline-block w-full">
-                               
+
                                 <div v-if="!isCustomPrize"
                                   class="flex items-center border border-gray-300 mt-1.5 h-11  bg-gray-200 px-4 py-2.5 text-sm"
                                   :class="{ 'opacity-50': room.isLoadingRate }">
@@ -637,7 +641,7 @@ onMounted(() => {
                                         <div class="flex flex-col">
                                           <span class="font-medium text-gray-500 dark:text-gray-200">{{
                                             option.label
-                                            }}</span>
+                                          }}</span>
                                         </div>
                                       </li>
                                     </ul>
@@ -648,18 +652,18 @@ onMounted(() => {
                                     class="dark:bg-dark-900 h-11 w-full  border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                                 </div>
                               </div>
-                             
+
                             </div>
-                             <div class=" flex flex-col justify-center">
-                                <button v-if="roomConfigurations.length > 1" @click="removeRoom(room.id)" type="button"
-                                  class="inline-flex items-center justify-center w-8 h-8 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                                  :title="$t('RemoveRoom')">
-                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                </button>
-                              </div>
+                            <div class=" flex flex-col justify-center">
+                              <button v-if="roomConfigurations.length > 1" @click="removeRoom(room.id)" type="button"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                                :title="$t('RemoveRoom')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -680,7 +684,7 @@ onMounted(() => {
                       <!-- Hold Release Date & Time Section -->
                       <div class="">
                         <h2 class="text-sm font-semibold text-gray-800 uppercase mb-5">{{ $t('hold_release_date_time')
-                        }}</h2>
+                          }}</h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4">
                           <!-- Date Input -->
@@ -731,12 +735,10 @@ onMounted(() => {
                       </div>
                     </section>
                     <!-- Guest Information -->
-                    <section class="border-t border-gray-300 pt-4 space-y-4">
-                      <h2 class="text-sm font-semibold text-gray-800 uppercase">
-                        {{ $t('guest_info') }}
-                      </h2>
+                    <section class="border-t border-gray-300 pt-2 space-y-4">
+                     
                       <div>
-                        <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
+                        <CustomerCard :show-image="false" @customerSelected="onCustomerSelected" v-model="formData" />
                       </div>
                     </section>
 
@@ -748,7 +750,11 @@ onMounted(() => {
 
           <!-- Footer -->
           <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
-            <div class="flex space-x-3">
+            <div class="flex justify-between  space-x-3">
+               <BasicButton type="button" @click="gotoNew"
+                :loading="isLoading" :disabled="isLoading" variant=""
+                :label="$t('More Options')">
+              </BasicButton>
               <BasicButton v-if="showCheckinButton && !pendingReservation" type="button" @click="handleCheckIn"
                 :loading="isLoading" :disabled="isLoading" variant="info"
                 :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
