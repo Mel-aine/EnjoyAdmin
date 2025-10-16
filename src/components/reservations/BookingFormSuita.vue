@@ -10,7 +10,7 @@
       <div class="flex items-center justify-between w-full">
         <button class="btn btn-ghost" @click="showMoreOptions = !showMoreOptions">More Options</button>
         <div class="flex items-center gap-2">
-          <button class="btn" @click="handleConfirm">Confirm</button>
+          <BaseButton class="btn" @click="handleConfirm">Confirm</BaseButton>
         </div>
       </div>
     </template>
@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import RightSideModal from '@/components/modal/RightSideModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 // We alias to avoid name collision with other useBooking composable
 import { useBooking as useBooking2 } from '@/composables/useBooking2'
 
