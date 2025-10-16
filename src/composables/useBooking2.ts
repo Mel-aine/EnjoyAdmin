@@ -911,7 +911,7 @@ const validateAllRooms = () => {
         throw new Error(t(validation.error || 'validation.invalidDateTime'))
       }
       // Validation
-      if (!formData.value.firstName || !formData.value.lastName  || !formData.value.phoneNumber || !formData.value.email ) {
+      if (!formData.value.firstName || !formData.value.lastName  ) {
         throw new Error(t('Guest information is incomplete'))
       }
 
@@ -923,9 +923,9 @@ const validateAllRooms = () => {
         throw new Error(t('Service ID is missing'))
       }
 
-      if (!billing.value.paymentMode) {
+     /* if (!billing.value.paymentMode) {
         throw new Error(t('Please select the payment method'))
-      }
+      }*/
 
        const roomValidation = validateAllRooms()
         if (!roomValidation.isValid) {

@@ -2,73 +2,6 @@
   <AdminLayout>
     <div class="p-6">
       <!-- Header -->
-      <!-- <div class=" ">
-      <div class=" px-2 relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 mb-8">
-        <div class="absolute inset-0 bg-white dark:from-blue-400/5 dark:to-indigo-400/5"></div>
-        <div class="relative py-6">
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div class="mb-6 lg:mb-0">
-              <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent mb-2">
-                {{ $t('frontOffice.dashboard.title') }}
-              </h1>
-            </div>
-
-
-            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center ">
-
-              <div class=" space-y-2">
-
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Période d'analyse
-                </label>
-                <div class="relative">
-                  <select
-                    v-model="selectedRange"
-                    @change="handleDateRangeChange"
-                    class="appearance-none bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-300/60 dark:border-slate-600/60 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 transition-all duration-200"
-                  >
-                    <option value="today">Aujourd'hui</option>
-                    <option value="yesterday">Hier</option>
-                    <option value="thisWeek">Cette semaine</option>
-                    <option value="lastWeek">Semaine dernière</option>
-                    <option value="thisMonth">Ce mois</option>
-                    <option value="lastMonth">Mois dernier</option>
-                    <option value="custom">Date personnalisée</option>
-                  </select>
-                  <ChevronDown class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                </div>
-
-
-                <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="customDate"  v-if="selectedRange === 'custom'" @change="loadDashboardData"/>
-                 <input
-                  v-if="selectedRange === 'custom'"
-                  type="date"
-                  v-model="customDate"
-                  @change="loadDashboardData"
-                  class="mt-2 w-full px-4 py-3 border border-slate-300/60 dark:border-slate-600/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 dark:bg-slate-800/90 dark:text-slate-100 backdrop-blur-sm transition-all duration-200"
-                />
-              </div>
-
-
-              <div class="relative">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 opacity-0">
-                  Action
-                </label>
-                <button
-                  @click="loadDashboardData"
-                  :disabled="isLoading"
-                  class="group relative flex items-center px-6 py-3  focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-60 disabled:cursor-not-allowed  transform hover:-translate-y-0.5   group/refresh text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-all duration-200"
-                >
-                  <RefreshCw class="w-4 h-4 mr-2 transition-transform duration-300" :class="{ 'animate-spin': isLoading, 'group-hover:rotate-180': !isLoading }" />
-                  Actualiser
-                  <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
       <div class="mb-6">
         <div class="flex items-center justify-between bg-white shadow-md">
           <h1 class="font-bold text-gray-900 dark:text-white mb-2 p-3 text-md">
@@ -86,7 +19,7 @@
       </div>
 
       <!-- Main Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8 shadow-md">
         <!-- Arrival Card -->
         <DashboardCircle
           :title="$t('frontOffice.dashboard.arrival')"
@@ -173,10 +106,10 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 ">
         <!-- folio unpaid Panel -->
 
-        <div class="bg-white dark:bg-gray-800 p-6">
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
@@ -191,7 +124,7 @@
           </div>
 
           <!-- List -->
-          <div v-if="isLoading" class="flex items-center justify-center py-8">
+          <div v-if="isLoading" class="flex items-center justify-center py-8 ">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
           </div>
           <div
@@ -236,7 +169,7 @@
         </div>
 
         <!-- roomtype -->
-        <div class="bg-white dark:bg-gray-800 p-6">
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
           <div class="relative">
             <!-- Header with Controls -->
             <div class="flex items-center justify-between mb-6">
@@ -306,9 +239,9 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8  ">
         <!-- Notifications Panel -->
-        <div class="bg-white dark:bg-gray-800 p-6">
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
           <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
             <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
               <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -343,7 +276,7 @@
         </div>
 
         <!-- Activity Feeds -->
-        <div class="bg-white dark:bg-gray-800 p-6">
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
               <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg mr-3">
