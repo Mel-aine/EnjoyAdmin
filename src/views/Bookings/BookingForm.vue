@@ -20,52 +20,74 @@
             <!-- Left Side: Reservation Form -->
             <div class="space-y-6">
               <!-- Check-in/out dates and time -->
-              <div class="md:flex relative items-start gap-2">
-                <!-- Check-In -->
-                <div class="flex flex-col w-full">
-                  <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('check_in') }}
-                  </label>
-                  <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates="false"
-                      :placeholder="$t('Selectdate')" />
-                    <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
-                  </div>
-                </div>
-
-                <!-- Nights -->
-                <div class="flex flex-col">
-                  <Input :lb="$t('nights')" :disabled="true" :modelValue="numberOfNights.toString()" />
-                </div>
-
-                <!-- Check-Out -->
-                <div class="flex flex-col w-full">
-                  <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('check_out') }}
-                  </label>
-                  <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
-                      class="rounded-r-none" />
-                    <InputTimePicker v-model="reservation.checkoutTime" class="rounded-l-none" />
-                  </div>
-                  <p v-if="dateError" class="text-sm text-red-600">
-                    {{ $t(dateError) }}
-                  </p>
+            <div class="flex flex-wrap items-start gap-4">
+              <!-- Check-In -->
+              <div class="flex flex-col w-auto">
+                <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('check_in') }}
+                </label>
+                <div class="flex">
+                  <InputDatePicker
+                    v-model="reservation.checkinDate"
+                    class="rounded-r-none"
+                    :allowPastDates="false"
+                    :placeholder="$t('Selectdate')"
+                  />
+                  <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                 </div>
               </div>
 
-              <div class="grid md:grid-cols-4 grid-cols-1 gap-4">
-                <div>
-                  <Input :inputType="'number'" :lb="$t('Room')" :id="'room-qty'" forLabel="'room-qty'"
-                    v-model.number="reservation.rooms" :min="1" :disabled="true" />
-                </div>
+              <!-- Nights -->
+              <div class="flex flex-col w-20">
+                <Input
+                  :lb="$t('nights')"
+                  :disabled="true"
+                  :modelValue="numberOfNights.toString()"
+                />
+              </div>
 
-                <div>
-                  <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
-                    :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
-                    :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
+              <!-- Check-Out -->
+              <div class="flex flex-col w-auto">
+                <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('check_out') }}
+                </label>
+                <div class="flex">
+                  <InputDatePicker
+                    v-model="reservation.checkoutDate"
+                    :placeholder="$t('Selectdate')"
+                    class="rounded-r-none"
+                  />
+                  <InputTimePicker v-model="reservation.checkoutTime" class="rounded-l-none" />
                 </div>
+                <p v-if="dateError" class="text-sm text-red-600">
+                  {{ $t(dateError) }}
+                </p>
+              </div>
 
+              <!-- Booking Type -->
+              <div class="flex flex-col w-auto">
+                <AutoCompleteSelect
+                  v-model="reservation.bookingType"
+                  :options="BookingType"
+                  :defaultValue="$t('SelectReservationType')"
+                  :lb="$t('ReservationType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                />
+              </div>
+            </div>
+
+
+              <div class="grid md:grid-cols-5 grid-cols-1 gap-4">
+
+                <!--arriving to-->
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" />
+
+                 <!--going to-->
+                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')"/>
+                  <!--means of transportation-->
+                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" />
                 <!-- Booking Source -->
                 <div>
                   <AutoCompleteSelect v-model="reservation.bookingSource" :options="BookingSource"

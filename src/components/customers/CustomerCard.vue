@@ -379,65 +379,154 @@ console.log('modalevalue', props.modelValue)
         </div>
       </button>
 
-      <div v-show="!showInfoSection" class="mt-6 transition-all duration-300 ease-in-out">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-          <div class="md:col-span-2 max-w-xs">
-            <ImageUploader ref="profilePhotoUploader" v-model="selectedCustomer.profilePhoto"
-              :label="$t('ProfilePhoto')" :max-size-m-b="5" :cloudinary-config="cloudinaryConfig"
-              @file-selected="onProfilePhotoSelected" @file-removed="onProfilePhotoRemoved"
-              @upload-success="onProfilePhotoSuccess" @upload-error="onUploadError" />
-          </div>
-         <div class="col-span-10 grid grid-cols-1 md:grid-cols-12 gap-6">
-           <div class="md:col-span-6 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-0">
-              <div class="sm:col-span-2">
-                <Select :lb="$t('Title')" :options="GuestTitles" v-model="selectedCustomer.title"
-                  :default-value="$t('guestTitles.mr')" custom-class="rounded-r-none" />
-              </div>
-              <div class="sm:col-span-10">
-                <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
-              </div>
-            </div>
-          </div>
-          <div class="md:col-span-6">
-            <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
-          </div>
+    <div
+  v-show="!showInfoSection"
+  class="mt-6 transition-all duration-300 ease-in-out"
+>
+  <div class="p-2">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+      <!-- Photo -->
+      <div class="md:col-span-2">
+        <ImageUploader
+          ref="profilePhotoUploader"
+          v-model="selectedCustomer.profilePhoto"
+          :label="$t('ProfilePhoto')"
+          :max-size-m-b="5"
+          :cloudinary-config="cloudinaryConfig"
+          @file-selected="onProfilePhotoSelected"
+          @file-removed="onProfilePhotoRemoved"
+          @upload-success="onProfilePhotoSuccess"
+          @upload-error="onUploadError"
+        />
+      </div>
 
-          <div class="md:col-span-6">
-            <div>
-              <InputPhone :title="$t('Phone')" v-model="selectedCustomer.phoneNumber" :id="'phone'"
-                :is-required="false" />
-            </div>
-          </div>
-          <div class="md:col-span-6">
-              <InputEmail v-model="selectedCustomer.email" placeholder="info@gmail.com" :title="$t('Email')" required />
-            </div>
-         </div>
+      <!-- Informations principales -->
+      <div class="md:col-span-10 grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Ligne 1 : Titre + Recherche client -->
+        <div class="md:col-span-12">
+  <div class="flex flex-wrap items-end ">
+    <!-- Titre -->
+    <div class="w-24">
+      <Select
+        :lb="$t('Title')"
+        :options="GuestTitles"
+        v-model="selectedCustomer.title"
+        :default-value="$t('guestTitles.mr')"
+        custom-class="rounded-r-none"
+      />
+    </div>
+
+    <!-- Recherche client -->
+    <div class="flex-1 min-w-[250px]">
+      <CustomerSarch
+        @customer-selected="selectCustomer"
+        v-model="selectedCustomer"
+      />
+    </div>
+
+    <!-- Nom -->
+    <div class="flex-1 min-w-[200px] ml-4">
+      <Input
+        :lb="$t('LastName')"
+        v-model="selectedCustomer.lastName"
+      />
+    </div>
+  </div>
+</div>
+
+
+        <!-- Ligne 2 : Nom + Date de naissance -->
+
+        <div class="md:col-span-6">
+          <InputDatePicker
+            :title="$t('DateOfBirth')"
+            v-model="selectedCustomer.dateOfBirth"
+            :placeholder="$t('Select Date')"
+          />
         </div>
 
-        <div class="mt-4">
-          <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" forLabel="'address'"
-            v-model="selectedCustomer.address" />
+        <!-- Ligne 3 : Lieu de naissance + Profession -->
+        <div class="md:col-span-6">
+          <Input
+            :lb="$t('PlaceOfBirth')"
+            :id="'placeOfBirth'"
+            v-model="selectedCustomer.placeOfBirth"
+            :placeholder="$t('PlaceOfBirth')"
+          />
+        </div>
+        <div class="md:col-span-6">
+          <Input
+            :lb="$t('profession')"
+            :id="'profession'"
+            v-model="selectedCustomer.profession"
+            :placeholder="$t('profession')"
+          />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          <div>
-            <InputCountries :lb="$t('country')" v-model="selectedCustomer.country" />
-          </div>
-          <div>
-            <Input :inputType="'text'" :lb="$t('hotelInformation.fields.stateProvince')" :id="'State'" forLabel="'State'" :placeholder="$t('enterState')"
-              v-model="selectedCustomer.state" />
-          </div>
-          <div>
-            <Input :inputType="'text'" :lb="$t('City')" :id="'city'" forLabel="'city'"
-              v-model="selectedCustomer.city" />
-          </div>
-          <div>
-            <Input :inputType="'text'" :lb="$t('postalCode')" :id="'zipcode'" forLabel="'zipcode'" :placeholder="$t('postalCode')"
-              v-model="selectedCustomer.zipcode" />
-          </div>
+        <!-- Ligne 4 : Téléphone + Fax -->
+        <div class="md:col-span-6">
+          <InputPhone
+            :lb="$t('Phone')"
+            v-model="selectedCustomer.phoneNumber"
+            :id="'phone'"
+          />
+        </div>
+        <div class="md:col-span-6">
+          <InputPhone
+            :lb="$t('Fax')"
+            v-model="selectedCustomer.faxNumber"
+            :id="'fax'"
+          />
+        </div>
+
+        <!-- Ligne 5 : Email -->
+        <div class="md:col-span-6">
+          <InputEmail
+            v-model="selectedCustomer.email"
+            placeholder="info@gmail.com"
+            :lb="$t('Email')"
+            required
+          />
         </div>
       </div>
+    </div>
+
+    <!-- Informations complémentaires -->
+    <div class=" mt-4 pt-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div>
+          <InputCountries
+            :lb="$t('nationality')"
+            v-model="selectedCustomer.nationality"
+          />
+        </div>
+        <div>
+          <InputCountries
+            :lb="$t('countryOfPermanentResidence')"
+            v-model="selectedCustomer.countryOfResidence"
+          />
+        </div>
+        <div>
+          <Input
+            :lb="$t('hotelInformation.fields.stateProvince')"
+            :id="'state'"
+            v-model="selectedCustomer.state"
+            :placeholder="$t('enterState')"
+          />
+        </div>
+        <div>
+          <Input
+            :lb="$t('postalCode')"
+            :id="'zipcode'"
+            v-model="selectedCustomer.zipcode"
+            :placeholder="$t('postalCode')"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
     </div>
