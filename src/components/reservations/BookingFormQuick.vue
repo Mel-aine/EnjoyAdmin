@@ -24,7 +24,7 @@ import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSele
 import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById, confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
-const emits = defineEmits(['close', 'open']);
+const emits = defineEmits(['close', 'open',"clear-error"]);
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -505,7 +505,7 @@ onMounted(() => {
                       <div class="flex-col flex w-full ms-2">
                         <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
                           :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
-                          :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
+                          :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
                     </div>
 
@@ -516,13 +516,13 @@ onMounted(() => {
                       <div>
                         <AutoCompleteSelect v-model="reservation.bookingSource" :options="BookingSource"
                           :defaultValue="$t('SelectBookingSource')" :lb="$t('booking_source')" :is-required="false"
-                          :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
+                          :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
 
                       <div>
                         <AutoCompleteSelect v-model="reservation.businessSource" :options="BusinessSource"
                           :defaultValue="$t('SelectBusinessSource')" :lb="$t('business_source')" :is-required="false"
-                          :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
+                          :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
                       <div>
                         <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'"
@@ -559,7 +559,7 @@ onMounted(() => {
                                 :defaultValue="$t('SelectRoomType')" :is-required="false"
                                 :use-dropdown="useDropdownRoomType" :disabled="isLoadingRoom"
                                 @update:modelValue="onRoomTypeChange(room.id, $event)"
-                                @clear-error="emit('clear-error')"
+                                @clear-error="emits('clear-error')"
                                 :class="{ 'border-red-500': isRoomTypeInvalid(room) }" />
                             </div>
 
@@ -571,7 +571,7 @@ onMounted(() => {
                                 :defaultValue="$t('SelectRateType')" :is-required="false"
                                 :use-dropdown="useDropdownRateType" :disabled="!room.roomType"
                                 @update:modelValue="onRateTypeChange(room.id, $event)"
-                                @clear-error="emit('clear-error')"
+                                @clear-error="emits('clear-error')"
                                 :class="{ 'border-red-500': isRateTypeInvalid(room) }" />
                             </div>
 
@@ -582,7 +582,7 @@ onMounted(() => {
                               <AutoCompleteSelect v-model="room.roomNumber" :options="getRoomsForRoom(room.id)"
                                 :defaultValue="$t('SelectRoom')" :is-required="false" :use-dropdown="useDropdownRoom"
                                 :disabled="!room.roomType" :isLoading="room.isLoadingRooms"
-                                @update:modelValue="onRoomNumberChange(room)" @clear-error="emit('clear-error')"
+                                @update:modelValue="onRoomNumberChange(room)" @clear-error="emits('clear-error')"
                                 :class="{ 'border-red-500': isRoomNumberInvalid(room) }" />
                             </div>
 
