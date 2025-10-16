@@ -173,7 +173,37 @@
                     </div>
                   </div>
 
+                   <!--  Date de naissance -->
+                    <div class="">
+                      <InputDatePicker
+                        :title="$t('DateOfBirth')"
+                        v-model="guestData.dateOfBirth"
+                        :placeholder="$t('Select Date')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <!-- Lieu de naissance -->
+                    <div class="">
+                      <Input
+                        :lb="$t('PlaceOfBirth')"
+                        :id="'placeOfBirth'"
+                        v-model="guestData.placeOfBirth"
+                        :placeholder="$t('PlaceOfBirth')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        :lb="$t('profession')"
+                        :id="'profession'"
+                        v-model="guestData.profession"
+                        :placeholder="$t('profession')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+
                   <!-- Téléphone -->
+
                   <div>
                     <InputPhone
                       :title="$t('Phone')"
@@ -591,6 +621,8 @@ interface GuestData {
   idType: string
   idNumber: string
   dateOfBirth: string
+  profession: string
+  placeOfBirth: string
   idExpiryDate: string
   issuingCountry: string
   issuingCity: string
@@ -688,6 +720,8 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     idType: '',
     idNumber: '',
     dateOfBirth: customer?.dateOfBirth || '',
+    profession: customer?.profession || '',
+    placeOfBirth: customer?.placeOfBirth || '',
     idExpiryDate: '',
     issuingCountry: customer?.issuingCountry || '',
     issuingCity: customer?.issuingCity || '',
@@ -745,6 +779,8 @@ const initializeGuestData = (guest: any = null): GuestData => {
     idType: '',
     idNumber: '',
     dateOfBirth: '',
+    profession: '',
+    placeOfBirth: '',
     idExpiryDate: '',
     issuingCountry: '',
     issuingCity: '',
@@ -925,6 +961,8 @@ const prepareGuestPayload = (): GuestPayload => {
     idType: guestData.idType,
     idNumber: guestData.idNumber,
     dateOfBirth: guestData.dateOfBirth,
+    profession: guestData.profession,
+    placeOfBirth: guestData.placeOfBirth,
     idExpiryDate: guestData.idExpiryDate,
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,

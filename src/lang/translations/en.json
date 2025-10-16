@@ -6286,6 +6286,9 @@
   "discountUpdatedSuccessfully" : "Discount Updated Successfully",
   "ArrivingTo" : "Arriving To" ,
   "GoingTo" : "Going To",
-  "MeansOfTransportation" : "Means Of Transportation"
+  "MeansOfTransportation" : "Means Of Transportation",
+  "profession" : "Profession",
+  "PlaceOfBirth" : "Place Of Birth",
+  "DateOfBirth" : "Date Of Birth"
   
 }

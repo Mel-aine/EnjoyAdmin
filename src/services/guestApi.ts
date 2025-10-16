@@ -47,6 +47,8 @@ export interface GuestPayload {
   idType?: string
   idNumber?: string
   dateOfBirth?: string
+  placeOfBirth?: string
+  profession?: string
   reservationId?: number
   preferences?: any;
 }

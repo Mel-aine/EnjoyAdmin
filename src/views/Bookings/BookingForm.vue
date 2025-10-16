@@ -81,13 +81,7 @@
 
               <div class="grid md:grid-cols-5 grid-cols-1 gap-4">
 
-                <!--arriving to-->
-                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" />
 
-                 <!--going to-->
-                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')"/>
-                  <!--means of transportation-->
-                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" />
                 <!-- Booking Source -->
                 <div>
                   <AutoCompleteSelect v-model="reservation.bookingSource" :options="BookingSource"
@@ -100,6 +94,14 @@
                     :defaultValue="$t('SelectBusinessSource')" :lb="$t('business_source')" :is-required="false"
                     :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
                 </div>
+
+                <!--arriving to-->
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" />
+
+                 <!--going to-->
+                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')"/>
+                  <!--means of transportation-->
+                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" />
               </div>
 
               <!-- Room Type -->
