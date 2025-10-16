@@ -6283,12 +6283,12 @@
   "Edit Adjustment Folio" : "Edit Adjustment Folio",
   "AdjustmentUpdatedSuccessfully" : "Adjustment Updated Successfully!",
   "RoomChargesUpdatedSuccessfully" : "Room Charges Updated Successfully!",
-  "discountUpdatedSuccessfully" : "Discount Updated Successfully",
+  "discountUpdatedSuccessfully" : "Discount Updated Successfully!",,
   "ArrivingTo" : "Arriving To" ,
   "GoingTo" : "Going To",
   "MeansOfTransportation" : "Means Of Transportation",
   "profession" : "Profession",
   "PlaceOfBirth" : "Place Of Birth",
   "DateOfBirth" : "Date Of Birth"
-  
+  "QuickBooking" : "Quick Reservation"
 }
