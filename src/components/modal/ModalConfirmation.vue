@@ -7,7 +7,7 @@
     >
       <!-- Overlay -->
       <div
-        class="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[10px]"
+        class="fixed inset-0 h-full w-full bg-black/25"
         aria-hidden="true"
         @click="$emit('close')"
       ></div>

@@ -1,22 +1,14 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('configuration.blacklist_reason.title') }}
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          {{ t('configuration.blacklist_reason.description') }}
-        </p>
-      </div>
-
+     
       <ReusableTable
         :title="t('configuration.blacklist_reason.table_title')"
         :columns="columns"
         :data="blacklistReasons"
         :actions="actions"
         :search-placeholder="t('configuration.blacklist_reason.search_placeholder')"
-        :selectable="true"
+        :selectable="false"
         :empty-state-title="t('configuration.blacklist_reason.empty_state_title')"
         :empty-state-message="t('configuration.blacklist_reason.empty_state_message')"
         :loading="loading"
@@ -34,16 +26,16 @@
          <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{formatDateT( item.updatedAt) }}</div>
             </div>
           </template>
 
@@ -111,7 +103,7 @@
               <BasicButton 
                 type="submit" 
                 variant="primary" 
-                :label="isEditing ? t('configuration.payment_method.update_payment_method') : t('configuration.payment_method.save_payment_method')"
+                :label="isEditing ? t('update') : t('save')"
                 :loading="saving"
               />
             </div>
@@ -141,6 +133,7 @@ import {
 } from '@/services/configrationApi'
 import type { Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const toast = useToast()

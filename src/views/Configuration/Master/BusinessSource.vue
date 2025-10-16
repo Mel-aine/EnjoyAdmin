@@ -20,16 +20,16 @@
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
         </ReusableTable>
@@ -46,7 +46,7 @@
           <form @submit.prevent="saveBusinessSource">
             <!-- Short Code -->
             <div class="mb-4">
-               <Input type="text" v-model="formData.name"
+              <Input type="text" v-model="formData.shortCode"
                 :placeholder="t('configuration.business_source.short_code_placeholder')"
                 :lb="t('configuration.business_source.short_code')" isRequired maxlength="10" />
             </div>
@@ -69,26 +69,16 @@
 
             <!-- Registration Number -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('configuration.business_source.registration_number') }}
-              </label>
-              <input type="text" v-model="formData.registrationNumber"
+              <Input type="text" v-model="formData.registrationNumber"
                 :placeholder="t('configuration.business_source.registration_number_placeholder')"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                :lb="t('configuration.business_source.registration_number')" isRequired />
             </div>
 
             <!-- Market Code -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('configuration.business_source.market_code') }}
-              </label>
-              <select v-model="formData.marketCodeId"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                <option value="">{{ t('configuration.business_source.market_code_placeholder') }}</option>
-                <option v-for="option in marketCodeOptions" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
+              <Select v-model="formData.marketCodeId" :options="marketCodeOptions"
+                :placeholder="t('configuration.business_source.market_code_placeholder')"
+                :lb="t('configuration.business_source.market_code')" isRequired />
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
@@ -103,9 +93,9 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteModal" :title="t('configuration.business_source.delete_title')"
-        :message="t('configuration.business_source.delete_message')" :confirmText="t('common.delete')"
-        :cancelText="t('common.cancel')" variant="danger" @confirm="confirmDelete" @cancel="cancelDelete" />
+      <ModalConfirmation v-if="showDeleteModal" :title="t('configuration.business_source.delete_confirmation_title')"
+        :message="t('configuration.business_source.delete_confirmation_message')" :confirmText="t('common.delete')"
+        :cancelText="t('common.cancel')" action="DANGER" @confirm="confirmDelete" @close="cancelDelete" />
     </div>
   </ConfigurationLayout>
 </template>
@@ -123,6 +113,8 @@ import { useToast } from 'vue-toastification'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import Select from '../../../components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 const toast = useToast()

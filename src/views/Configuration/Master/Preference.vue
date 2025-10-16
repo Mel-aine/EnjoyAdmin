@@ -11,7 +11,7 @@
           :actions="actions"
           :loading="loading"
           :searchPlaceholder="$t('configuration.preference.search_placeholder')"
-          :selectable="true"
+          :selectable="false"
         >
         <template #header-actions>
           <BasicButton 

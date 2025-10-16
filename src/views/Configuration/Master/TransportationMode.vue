@@ -8,27 +8,23 @@
         :empty-state-message="t('configuration.transportation_mode.empty_state_message')" :loading="loading"
         @action="onAction">
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
-            :icon="PlusIcon"
-            :label="t('configuration.transportation_mode.add_transportation_mode')" 
-            :disabled="loading"
-            @click="openAddModal" 
-          />
+          <BasicButton variant="primary" :icon="PlusIcon"
+            :label="t('configuration.transportation_mode.add_transportation_mode')" :disabled="loading"
+            @click="openAddModal" />
         </template>
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -49,27 +45,12 @@
             <Input :lb="t('configuration.transportation_mode.description')" :inputType="'text'"
               v-model="formData.description"
               :placeholder="t('configuration.transportation_mode.description_placeholder')" />
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('configuration.transportation_mode.status') }}
-              </label>
-            </div>
-
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton
-                type="button"
-                variant="outline"
-                @click="closeModal"
-                :label="t('configuration.transportation_mode.cancel')"
-                :disabled="saving"
-              />
-              <BasicButton
-                type="submit"
-                variant="primary"
+              <BasicButton type="button" variant="outline" @click="closeModal"
+                :label="t('configuration.transportation_mode.cancel')" :disabled="saving" />
+              <BasicButton type="submit" variant="primary"
                 :label="isEditing ? t('configuration.transportation_mode.update_transportation_mode') : t('configuration.transportation_mode.save_transportation_mode')"
-                :loading="saving"
-              />
+                :loading="saving" />
             </div>
           </form>
         </div>
@@ -95,6 +76,7 @@ import {
   updateTransportationModeById,
   deleteTransportationModeById
 } from '@/services/configrationApi'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Composables
 const { t } = useI18n()
@@ -143,7 +125,7 @@ const fetchTransportationModes = async () => {
     loading.value = true
     const response = await getTransportationModes(hotelId!)
     transportationModes.value = response.data.data.data
-    console.log('data',transportationModes)
+    console.log('data', transportationModes)
   } catch (error) {
     console.error('Error fetching transportation modes:', error)
     toast.error(t('configuration.transportation_mode.fetch_error'))
@@ -160,7 +142,7 @@ const openAddModal = () => {
     id: null,
     name: '',
     description: '',
-   }
+  }
   showModal.value = true
 }
 
@@ -171,7 +153,7 @@ const editTransportationMode = (mode: any) => {
     id: mode.id,
     name: mode.name,
     description: mode.description,
-   }
+  }
   showModal.value = true
 }
 
@@ -183,7 +165,7 @@ const closeModal = () => {
     id: null,
     name: '',
     description: '',
-   }
+  }
 }
 
 const saveTransportationMode = async () => {
@@ -192,7 +174,7 @@ const saveTransportationMode = async () => {
     const transportationModeData = {
       name: formData.value.name,
       description: formData.value.description,
-       hotelId: serviceStore.serviceId
+      hotelId: serviceStore.serviceId
     }
 
     if (isEditing.value && editingId.value) {

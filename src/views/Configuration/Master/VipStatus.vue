@@ -1,21 +1,15 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('vip_status.title') }}</h1>
-
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
-          {{ $t('vip_status.subtitle') }}
-        </p>
-        <ReusableTable :title="$t('vip_status.title')" :columns="columns" :data="vipStatuses"
+      <ReusableTable :title="$t('vip_status.title')" :columns="columns" :data="vipStatuses"
           :actions="actions" :loading="loading" @action="onAction"
-          :selectable="true"
+          :selectable="false"
           :search-placeholder="$t('vip_status.search')"
           :empty-title="$t('vip_status.noResults')"
           :empty-description="$t('vip_status.noResultsMessage')">
           <template v-slot:header-actions>
             <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
-              :label="$t('vip_status.add')" :loading="loading" />
+              :label="$t('vip_status.add')" :disabled="loading" />
           </template>
           
           <!-- Custom column for color display -->
@@ -40,20 +34,19 @@
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
         </ReusableTable>
-      </div>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -122,6 +115,7 @@ import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import VipIconPicker from '../../../components/utilities/VipIconPicker.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const toast = useToast()
 const { t } = useI18n()

@@ -7,7 +7,7 @@
         :actions="actions" :loading="loading"
         :searchPlaceholder="$t('configuration.preference_type.search_placeholder')"
         :emptyStateTitle="$t('configuration.preference_type.empty_state_title')"
-        :emptyStateMessage="$t('configuration.preference_type.empty_state_message')" :selectable="true"
+        :emptyStateMessage="$t('configuration.preference_type.empty_state_message')" :selectable="false"
         @action="onAction">
         <!-- Header Actions -->
         <template #header-actions>
@@ -18,16 +18,16 @@
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -89,6 +89,7 @@ import {
   deletePreferenceTypeById
 } from '../../../services/configrationApi'
 import PlusIcon from '../../../icons/PlusIcon.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Composables
 const { t } = useI18n()
