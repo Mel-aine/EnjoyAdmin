@@ -63,7 +63,7 @@
               {{ $t('Address') }}
             </label>
             <textarea v-model="formData.address" rows="3"
-              class="w-full px-3 py-2 border border-black/50 focus:outline-none  focus:ring-purple-500 focus:border-purple-500"
+              class="w-full px-3 py-2 border border-black/50 focus:outline-none rounded-lg  focus:ring-purple-500 focus:border-purple-500"
               :placeholder="$t('Enter company address')"></textarea>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -89,7 +89,7 @@
               {{ $t('Notes') }}
             </label>
             <textarea v-model="formData.notes" rows="3"
-              class="w-full px-3 py-2 border border-black/50 focus:outline-none  focus:ring-purple-500 focus:border-purple-500"
+              class="w-full px-3 py-2 border border-black/50 focus:outline-none rounded-lg focus:ring-purple-500 focus:border-purple-500"
               :placeholder="$t('Enter notes about this company')"></textarea>
           </div>
 

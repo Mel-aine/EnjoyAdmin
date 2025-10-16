@@ -91,7 +91,7 @@ onMounted(async () => {
                         type="button"
                         @click="toggleDropdown"
                         :disabled="disabled || isLoading"
-                        class="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                        class="flex items-center gap-1 text-sm font-medium  text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
                         :class="{
                             'cursor-pointer': !disabled && !isLoading,
                             'cursor-not-allowed opacity-50': disabled || isLoading
@@ -117,7 +117,7 @@ onMounted(async () => {
                             :key="currency.id"
                             type="button"
                             @click="selectCurrency(currency)"
-                            class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between"
+                            class="w-full px-3 py-2 text-left text-sm  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between"
                             :class="{
                                 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300': selectedCurrency === currency.code
                             }"
@@ -139,7 +139,7 @@ onMounted(async () => {
                 @input="handleInput"
                 :placeholder="placeholder"
                 :class="[
-                  'h-11 w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
+                  'h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
                   {
                     'pl-20': showCurrencySelector,
                     'pl-14': !showCurrencySelector

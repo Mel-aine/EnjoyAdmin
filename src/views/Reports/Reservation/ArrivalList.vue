@@ -139,7 +139,7 @@
             <input
               v-model="filters.rateFrom"
               type="number"
-              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+              class="w-full px-3 py-2 border rounded-lg border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               placeholder="From"
             />
           </div>
@@ -155,7 +155,7 @@
             <input
               v-model="filters.rateTo"
               type="number"
-              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+              class="w-full px-3 rounded-lg py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               placeholder="To"
             />
           </div>

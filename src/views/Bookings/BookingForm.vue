@@ -32,6 +32,7 @@
                     class="rounded-r-none"
                     :allowPastDates="false"
                     :placeholder="$t('Selectdate')"
+                    :custom-class="'rounded-r-none'"
                   />
                   <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                 </div>
@@ -43,6 +44,7 @@
                   :lb="$t('nights')"
                   :disabled="true"
                   :modelValue="numberOfNights.toString()"
+                  custom-class="rounded-none"
                 />
               </div>
 
@@ -55,9 +57,9 @@
                   <InputDatePicker
                     v-model="reservation.checkoutDate"
                     :placeholder="$t('Selectdate')"
-                    class="rounded-r-none"
+                    :custom-class="'rounded-none'"
                   />
-                  <InputTimePicker v-model="reservation.checkoutTime" class="rounded-l-none" />
+                  <InputTimePicker v-model="reservation.checkoutTime"  customClass="rounded-r-lg"/>
                 </div>
                 <p v-if="dateError" class="text-sm text-red-600">
                   {{ $t(dateError) }}
@@ -205,7 +207,7 @@
                         <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
                           @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
                           :disabled="!room.roomType"
-                          class="dark:bg-dark-900 h-11 w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Child Count avec gestion des changements -->
@@ -216,7 +218,7 @@
                         <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
                           @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
                           :disabled="!room.roomType"
-                          class="dark:bg-dark-900 h-11 w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Rate Display avec détails -->
@@ -225,7 +227,7 @@
                           {{ $t('rate')}} (XAF)
                         </label>
                         <div v-if="!isCustomPrize"
-                          class="flex items-center border border-black/50 bg-gray-100 px-4 py-2.5 text-sm"
+                          class="flex items-center rounded-lg border border-black/50 bg-gray-100 px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': room.isLoadingRate }">
                           <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
                             @click="isCustomPrize = true">
@@ -645,7 +647,7 @@
           </div>
 
           <div class="space-y-4 w-full">
-            <InputPaymentMethodSelect :paymentType="billing.paymentType" v-model="billing.paymentMode"  :custom-class="'rounded-none'"
+            <InputPaymentMethodSelect :paymentType="billing.paymentType" v-model="billing.paymentMode"
               :hide-label="true" />
           </div>
         </div>

@@ -13,7 +13,7 @@
         :placeholder="placeholder"
         :disabled="disabled"
         :class="[
-          'block w-full pl-3 pr-10 py-2.5 text-base border  leading-5 focus:outline-none focus:ring-1 sm:text-sm   text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
+          'block w-full pl-3 pr-10 py-2.5 text-base border rounded-lg leading-5 focus:outline-none focus:ring-1 sm:text-sm   text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
           disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white ',
           error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-black/50 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
           'dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400',

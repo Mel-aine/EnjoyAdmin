@@ -14,7 +14,7 @@
         type="text"
         :placeholder="placeholder || $t('Search discounts...')"
         :disabled="disabled || isLoading"
-        class="flex justify-between dark:bg-dark-900 h-11 w-full truncate  border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg  border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-black/50', customClass]"
         @input="handleInput"
         @keydown="handleKeydown"

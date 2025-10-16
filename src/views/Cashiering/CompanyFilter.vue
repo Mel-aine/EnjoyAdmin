@@ -18,7 +18,7 @@
       <div>
         <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('companyFilter.status') }}:</label>
         <select id="status" v-model="filters.status"
-          class="dark:bg-dark-900 h-11 w-full  border border-black/50 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+          class="dark:bg-dark-900 h-11 w-full  border rounded-lg border-black/50 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
           <option value="">{{ $t('all') }}</option>
           <option v-for="statusOption in statusOptions" :key="statusOption" :value="statusOption">
             {{ $t(`${statusOption.toLowerCase()}`) }}

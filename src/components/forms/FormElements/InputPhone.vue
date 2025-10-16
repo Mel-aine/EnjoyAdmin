@@ -171,7 +171,7 @@ onMounted(() => {
             <div class="relative flex-grow-0">
                 <select id="country-code" name="country-code" v-model="selectedCountryCode"
                  :class="[
-                    'h-11 pl-3 pr-10 py-2.5 text-base border border-black/50  focus:outline-none focus:ring-purple-500/10 focus:border-purple-300 sm:text-sm appearance-none cursor-pointer transition duration-150 ease-in-out hover:border-purple-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-purple-800',
+                    'h-11 pl-3 pr-10 py-2.5 rounded-l-lg text-base border border-black/50  focus:outline-none focus:ring-purple-500/10 focus:border-purple-300 sm:text-sm appearance-none cursor-pointer transition duration-150 ease-in-out hover:border-purple-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-purple-800',
                     props.customSelectClass
                   ]">
 
@@ -194,7 +194,7 @@ onMounted(() => {
             <!-- Phone Number Input -->
             <input type="tel" id="phone-number" name="phone-number" v-model="phoneNumber" :required="isRequired" :disabled="disabled"
                 :class="[
-                    'h-11 w-full flex-1 border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 -ml-px',
+                    'h-11 w-full flex-1 border rounded-r-lg border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 -ml-px',
                     props.customClass
                   ]"
                 :placeholder="$t('phoneNumberPlaceholder')" aria-describedby="phone-number-error" />

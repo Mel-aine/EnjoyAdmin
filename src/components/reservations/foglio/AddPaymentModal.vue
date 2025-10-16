@@ -13,7 +13,7 @@
       <!-- Folio -->
       <div>
         <InputFolioSelect :title="$t('folio')" v-model="formData.folio" @select="folioSelected"
-          :reservation-id="reservationId" :is-required="true" customClass="rounded-none" />
+          :reservation-id="reservationId" :is-required="true"  />
       </div>
 
       <!-- Rec/Vou # -->
@@ -30,7 +30,7 @@
 
         <!-- Method -->
         <div>
-          <InputPaymentMethodSelect v-model="formData.method" :payment-type="formData.type" @select="onMethodSelect" custom-class="rounded-none" />
+          <InputPaymentMethodSelect v-model="formData.method" :payment-type="formData.type" @select="onMethodSelect"  />
         </div>
       </div>
 
@@ -48,7 +48,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
         <textarea v-model="formData.comment" rows="3"
-          class="w-full px-3 py-2 border border-black/50  focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none"
+          class="w-full px-3 py-2 border rounded-lg border-black/50  focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none"
           placeholder="Enter any additional comments..."></textarea>
       </div>
     </div>
