@@ -20,7 +20,7 @@
             <!-- Left Side: Reservation Form -->
             <div class="space-y-6">
               <!-- Check-in/out dates and time -->
-            <div class="flex flex-wrap items-start gap-4">
+            <div class="flex md:flex-nowrap flex-wrap items-start">
               <!-- Check-In -->
               <div class="flex flex-col w-auto">
                 <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -65,7 +65,7 @@
               </div>
 
               <!-- Booking Type -->
-              <div class="flex flex-col w-auto">
+              <div class="flex flex-col translate-x-4">
                 <AutoCompleteSelect
                   v-model="reservation.bookingType"
                   :options="BookingType"
