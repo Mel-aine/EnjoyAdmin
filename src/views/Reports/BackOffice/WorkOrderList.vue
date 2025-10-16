@@ -15,38 +15,38 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ $t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Date de début -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.startDate') }}
             </label>
-            <InputDatepicker 
+            <InputDatepicker
               v-model="filters.startDate"
               :placeholder="$t('selectDate')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Date de fin -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.endDate') }}
             </label>
-            <InputDatepicker 
+            <InputDatepicker
               v-model="filters.endDate"
               :placeholder="$t('selectDate')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Statut -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('status') }}
             </label>
-            <select 
+            <select
               v-model="filters.status"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -59,14 +59,14 @@
             </select>
           </div>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
           <!-- Priorité -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.priority') }}
             </label>
-            <select 
+            <select
               v-model="filters.priority"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -77,13 +77,13 @@
               <option value="urgent">{{ $t('urgent') }}</option>
             </select>
           </div>
-          
+
           <!-- Département -->
    <!--        <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.department') }}
             </label>
-            <select 
+            <select
               v-model="filters.departmentId"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -93,13 +93,13 @@
               </option>
             </select>
           </div> -->
-          
+
           <!-- Assigné à -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.assignedTo') }}
             </label>
-            <select 
+            <select
               v-model="filters.assignedTo"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -109,13 +109,13 @@
               </option>
             </select>
           </div>
-          
+
           <!-- Chambre -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.room') }}
             </label>
-            <select 
+            <select
               v-model="filters.roomId"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -133,7 +133,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.category') }}
             </label>
-            <select 
+            <select
               v-model="filters.category"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -144,13 +144,13 @@
               <option value="inspection">{{ $t('inspection') }}</option>
             </select>
           </div>
-          
+
           <!-- Créé par -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('User') }}
             </label>
-            <select 
+            <select
               v-model="filters.createdBy"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -167,11 +167,11 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ $t('common.reportType') }}
           </h2>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div v-for="report in availableReports" :key="report.id" class="flex items-start">
-              <input 
-                type="radio" 
+              <input
+                type="radio"
                 :id="report.id"
                 :value="report.id"
                 v-model="selectedReportType"
@@ -179,7 +179,7 @@
               >
               <label :for="report.id" class="ml-2 text-sm text-gray-900 dark:text-white cursor-pointer">
                 <span class="font-medium">{{ report.name }}</span>
-            
+
               </label>
             </div>
           </div>
@@ -188,7 +188,7 @@
         <!-- Boutons d'action -->
         <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Bouton Réinitialiser -->
-          <button 
+          <button
             @click="resetFilters"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
@@ -197,9 +197,9 @@
             </svg>
             {{ $t('common.reset') }}
           </button>
-          
+
           <!-- Bouton Rapport -->
-          <button 
+          <button
             @click="generateReport"
             :disabled="!selectedReportType || loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -230,10 +230,10 @@
             </span>
           </div>
         </div>
-        
+
         <!-- Contenu HTML du rapport ou tableau -->
         <div v-if="reportData?.data?.html" v-html="reportData.data.html" class="report-html-container p-6"></div>
-        
+
         <!-- Affichage du rapport en fonction du type -->
         <div v-else class="p-6">
           <!-- Rapport de synthèse -->
@@ -267,7 +267,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Résumé par priorité -->
               <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3">
@@ -290,10 +290,10 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Tableau pour les autres types de rapports -->
           <div v-else-if="reportData?.data?.data">
-            <ResultTable 
+            <ResultTable
               :title="reportData.data?.title || 'Rapport'"
               :data="formatTableData()"
               :columns="getTableColumns()"
@@ -302,7 +302,7 @@
           </div>
         </div>
       </div>
-      
+
     </div>
   </ReportsLayout>
 </template>
@@ -313,8 +313,8 @@ import { useI18n } from 'vue-i18n';
 import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue';
 import ResultTable from '@/components/tables/ReusableTable.vue';
-import { 
-  getAvailableWorkOrderReports, 
+import {
+  getAvailableWorkOrderReports,
   generateWorkOrderReport,
   type WorkOrderFilters,
   type WorkOrderReportResponse,
@@ -410,8 +410,8 @@ const fetchUsers = async () => {
   } catch (error) {
     console.error('Error fetching users:', error)
   }
-} 
- 
+}
+
 
 const fetchRooms = async () => {
   try {
@@ -425,24 +425,24 @@ const fetchRooms = async () => {
   } catch (error) {
     console.error('Error fetching rooms:', error)
   }
-} 
+}
 
 const generateReport = async (): Promise<void> => {
   if (!selectedReportType.value) return;
-  
+
   loading.value = true;
   showResults.value = false;
-  
+
   try {
     console.log('Generating work order report:', selectedReportType.value, filters);
-    
+
     const response = await generateWorkOrderReport(selectedReportType.value, {
       ...filters,
       hotelId: hotelId || undefined
     });
-    
+
     console.log('Report generation response:', response);
-    
+
     if (response && response.success) {
       reportData.value = response;
       showResults.value = true;
@@ -467,39 +467,39 @@ const formatDate = (date: Date): string => {
 
 const getTotalCount = (): number => {
   if (!reportData.value?.data?.summary) return 0;
-  
+
   if (selectedReportType.value === 'workOrdersSummary') {
     return reportData.value.data.summary.statusSummary?.total || 0;
   }
-  
+
   // Pour les autres types de rapports, compter les éléments
   if (Array.isArray(reportData.value.data.data)) {
     return reportData.value.data.data.length;
   }
-  
+
   // Pour les rapports groupés, compter le total d'éléments
   if (typeof reportData.value.data.data === 'object') {
     return Object.values(reportData.value.data.data).reduce((total: number, items) => {
       return total + (Array.isArray(items) ? items.length : 0);
     }, 0);
   }
-  
+
   return 0;
 };
 
 type GenericRow = Record<string, unknown>
 const formatTableData = (): GenericRow[] => {
   if (!reportData.value?.data?.data) return [];
-  
+
   // Si les données sont déjà un tableau
   if (Array.isArray(reportData.value.data.data)) {
     return reportData.value.data.data as GenericRow[];
   }
-  
+
   // Si les données sont groupées (par statut, priorité, etc.)
   if (typeof reportData.value.data.data === 'object') {
     const flattenedData: GenericRow[] = [];
-    
+
     Object.entries(reportData.value.data.data).forEach(([groupKey, items]) => {
       if (Array.isArray(items)) {
         items.forEach(item => {
@@ -510,10 +510,10 @@ const formatTableData = (): GenericRow[] => {
         });
       }
     });
-    
+
     return flattenedData;
   }
-  
+
   return [];
 };
 
@@ -528,7 +528,7 @@ const getTableColumns = (): TableColumn[] => {
     { key: 'createdAt', label: t('common.createdAt') },
     { key: 'dueDate', label: t('common.dueDate') }
   ];
-  
+
   // Ajouter des colonnes spécifiques selon le type de rapport
   switch (selectedReportType.value) {
     case 'workOrdersByStatus':
@@ -549,7 +549,7 @@ const getTableColumns = (): TableColumn[] => {
       baseColumns.push({ key: 'completionTime', label: t('workOrder.completionTime') });
       break;
   }
-  
+
   return baseColumns;
 };
 
@@ -638,11 +638,11 @@ onMounted(() => {
   .flex-col > div {
     width: 100%;
   }
-  
+
   .flex-col > div + div {
     margin-top: 1rem;
   }
-  
+
   .items-end {
     align-items: stretch;
   }

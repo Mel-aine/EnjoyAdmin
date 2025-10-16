@@ -15,15 +15,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Filters
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Cancellation Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Cancellation From
             </label>
-            <InputDatepicker 
-              v-model="filters.cancellationFrom" 
+            <InputDatepicker
+              v-model="filters.cancellationFrom"
               placeholder="From"
               class="w-full"
               @update:modelValue="updateDateFilter('startDate', $event)"
@@ -33,8 +33,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Cancellation To
             </label>
-            <InputDatepicker 
-              v-model="filters.cancellationTo" 
+            <InputDatepicker
+              v-model="filters.cancellationTo"
               placeholder="To"
               class="w-full"
               @update:modelValue="updateDateFilter('endDate', $event)"
@@ -44,7 +44,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Room Type
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
               placeholder="All Room Types"
@@ -59,33 +59,33 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate Type
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
               placeholder="All Rate Types"
               class="w-full"
             />
           </div>
-          
+
           <!-- Company -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Company
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
               placeholder="All Companies"
               class="w-full"
             />
           </div>
-          
+
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Business Source
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.businessSource"
               :options="businessSourceOptions"
               placeholder="All Sources"
@@ -100,33 +100,33 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Travel Agent
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
               placeholder="All Travel Agents"
               class="w-full"
             />
           </div>
-          
+
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Market
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.market"
               :options="marketOptions"
               placeholder="All Markets"
               class="w-full"
             />
           </div>
-          
+
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               User
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.user"
               :options="userOptions"
               placeholder="All Users"
@@ -141,31 +141,31 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate From
             </label>
-            <input 
-              v-model="filters.rateFrom" 
-              type="number" 
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            <input
+              v-model="filters.rateFrom"
+              type="number"
+              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               placeholder="From"
             />
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate To
             </label>
-            <input 
-              v-model="filters.rateTo" 
-              type="number" 
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            <input
+              v-model="filters.rateTo"
+              type="number"
+              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               placeholder="To"
             />
           </div>
-          
+
           <!-- Tax Inclusive -->
           <div class="flex items-end">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <input 
-                v-model="filters.taxInclusive" 
+              <input
+                v-model="filters.taxInclusive"
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
@@ -192,11 +192,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            
+
             <!-- Menu déroulant Export -->
             <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-              <button 
-                @click="exportCSV" 
+              <button
+                @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -205,8 +205,8 @@
                 </svg>
                 CSV
               </button>
-              <button 
-                @click="exportPDF" 
+              <button
+                @click="exportPDF"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -215,8 +215,8 @@
                 </svg>
                 PDF
               </button>
-           <!--    <button 
-                @click="exportExcel" 
+           <!--    <button
+                @click="exportExcel"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -227,9 +227,9 @@
               </button> -->
             </div>
           </div>
-          
+
           <!-- Bouton Report -->
-          <button 
+          <button
             @click="generateCancelledReport"
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -240,9 +240,9 @@
             </svg>
             Report
           </button>
-          
+
           <!-- Bouton Reset -->
-          <button 
+          <button
             @click="resetForm"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
@@ -266,18 +266,18 @@
             <span class="ml-4">Total Records: {{ reservationData.length }}</span>
           </div>
         </div>
-        
+
         <!-- Message si aucune donnée -->
         <div v-if="reservationData.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
           Aucune réservation annulée trouvée pour les critères sélectionnés.
         </div>
-        
+
         <!-- Tableau des résultats -->
         <div v-else class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th v-for="column in tableColumns" :key="column.key" 
+                <th v-for="column in tableColumns" :key="column.key"
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   {{ column.label }}
                 </th>
@@ -286,9 +286,9 @@
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <template v-for="(item, index) in tableDataWithRemarks" :key="item.id || index">
                 <tr :class="{'bg-gray-50 dark:bg-gray-700': item.isRemarkRow}">
-                  <td v-for="column in tableColumns" :key="column.key" 
-                      class="px-6 py-4 whitespace-nowrap text-sm" 
-                      :class="{'font-medium text-gray-700 dark:text-gray-300 italic': item.isRemarkRow, 
+                  <td v-for="column in tableColumns" :key="column.key"
+                      class="px-6 py-4 whitespace-nowrap text-sm"
+                      :class="{'font-medium text-gray-700 dark:text-gray-300 italic': item.isRemarkRow,
                               'text-gray-900 dark:text-white': !item.isRemarkRow}">
                     <template v-if="column.key === 'resNo'">
                       <div :class="{'italic': item.isRemarkRow}">
@@ -312,7 +312,7 @@
             </tbody>
           </table>
         </div>
-        
+
         <!-- Total Row -->
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -508,7 +508,7 @@ const fetchUsers = async () => {
   } catch (error) {
     console.error('Error fetching users:', error)
   }
-} 
+}
 
 const {
   // Options
@@ -569,7 +569,7 @@ const tableColumns = computed<TableColumn[]>(() => [
 // Table data with integrated remarks rows
 const tableDataWithRemarks = computed(() => {
   const result: TableRow[] = []
-  
+
   reservationData.value.forEach((reservation, index) => {
     // Add main reservation row
     result.push({
@@ -591,7 +591,7 @@ const tableDataWithRemarks = computed(() => {
       cancelledDate: reservation.cancelledDate,
       isRemarkRow: false
     })
-    
+
     // Add remarks row if exists
     if (reservation.remarks) {
       result.push({
@@ -615,7 +615,7 @@ const tableDataWithRemarks = computed(() => {
       })
     }
   })
-  
+
   return result
 })
 
@@ -626,9 +626,9 @@ watch(filters, (newFilters) => {
     ...apiFilters.value,
     startDate: newFilters.cancellationFrom,
     endDate: newFilters.cancellationTo,
-    roomTypeId: newFilters.roomType && !isNaN(parseInt(newFilters.roomType)) 
+    roomTypeId: newFilters.roomType && !isNaN(parseInt(newFilters.roomType))
       ? parseInt(newFilters.roomType) : undefined,
-    ratePlanId: newFilters.rateType && !isNaN(parseInt(newFilters.rateType)) 
+    ratePlanId: newFilters.rateType && !isNaN(parseInt(newFilters.rateType))
       ? parseInt(newFilters.rateType) : undefined,
     company: newFilters.company || undefined,
     travelAgent: newFilters.travelAgent || undefined,
@@ -682,12 +682,12 @@ const totalBalance = computed(() => {
 const generateCancelledReport = async () => {
   loading.value = true
   showResults.value = false
-  
+
   try {
     console.log('Generating report with filters:', apiFilters.value)
     const response = await generateCancelledList(apiFilters.value)
     console.log('Report Data:', response)
-    
+
     if (response && response.success && response.data) {
       // Récupérer les données brutes au lieu du HTML
       if (response.data.datas && response.data.datas.data) {
@@ -710,7 +710,7 @@ const generateCancelledReport = async () => {
           cancelledDate: item.cancelledDate || 'N/A',
           remarks: item.remarks || ''
         }))
-        
+
         // Stocker aussi les données pour les exports
         reportData.value = {
           title: response.data.title || 'Cancelled Reservations Report',
@@ -720,7 +720,7 @@ const generateCancelledReport = async () => {
           data: reservationData.value, // Ajouter les données formatées
           summary: response.data.datas?.summary
         }
-        
+
         showResults.value = true
       } else {
         console.warn('Aucune donnée trouvée dans la réponse')
@@ -802,7 +802,7 @@ const exportToCSV = () => {
   // Ajouter une ligne de totaux
   const totalRow = [
     'TOTAL', '', '', '', '', '',
-    '', totalADR.value, totalCarRevenue.value, totalCharges.value, 
+    '', totalADR.value, totalCarRevenue.value, totalCharges.value,
     totalPaid.value, totalBalance.value, '', '', '', ''
   ]
   worksheetData.push(totalRow)
@@ -810,7 +810,7 @@ const exportToCSV = () => {
   // Créer le classeur Excel
   const wb = XLSX.utils.book_new()
   const ws = XLSX.utils.aoa_to_sheet(worksheetData)
-  
+
   // Ajuster la largeur des colonnes
   const columnWidths = [
     { wch: 10 }, { wch: 12 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 10 },
@@ -833,11 +833,11 @@ const exportToCSV = () => {
   }
 
   XLSX.utils.book_append_sheet(wb, ws, 'Cancelled Reservations')
-  
+
   // Ajouter les métadonnées
   const timestamp = new Date().toLocaleString('fr-FR')
   const fileName = `cancelled-reservations-${new Date().toISOString().split('T')[0]}.xlsx`
-  
+
   XLSX.writeFile(wb, fileName)
 }
  */
@@ -866,7 +866,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = false
   }
 }
-/* 
+/*
 const exportExcel = async (): Promise<void> => {
   try {
     exportLoading.value = true
@@ -903,7 +903,7 @@ const updateDateFilter = (field: 'startDate' | 'endDate', value: string) => {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
-  
+
   try {
     const date = new Date(dateString)
     return date.toLocaleString('fr-FR', {
@@ -969,7 +969,7 @@ onUnmounted(() => {
   .flex-col > div {
     width: 100%;
   }
-  
+
   .flex-col > div + div {
     margin-top: 1rem;
   }

@@ -1,7 +1,7 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="$t('Booking')" />
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-2">
       <!-- Left Column: Add Reservation Form -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
@@ -32,6 +32,7 @@
                     class="rounded-r-none"
                     :allowPastDates="false"
                     :placeholder="$t('Selectdate')"
+                    :custom-class="'rounded-r-none'"
                   />
                   <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                 </div>
@@ -43,6 +44,7 @@
                   :lb="$t('nights')"
                   :disabled="true"
                   :modelValue="numberOfNights.toString()"
+                  custom-class="rounded-none"
                 />
               </div>
 
@@ -55,9 +57,9 @@
                   <InputDatePicker
                     v-model="reservation.checkoutDate"
                     :placeholder="$t('Selectdate')"
-                    class="rounded-r-none"
+                    :custom-class="'rounded-none'"
                   />
-                  <InputTimePicker v-model="reservation.checkoutTime" class="rounded-l-none" />
+                  <InputTimePicker v-model="reservation.checkoutTime"  customClass="rounded-r-lg"/>
                 </div>
                 <p v-if="dateError" class="text-sm text-red-600">
                   {{ $t(dateError) }}
@@ -205,7 +207,7 @@
                         <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
                           @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
                           :disabled="!room.roomType"
-                          class="dark:bg-dark-900 h-11 w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Child Count avec gestion des changements -->
@@ -216,7 +218,7 @@
                         <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
                           @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
                           :disabled="!room.roomType"
-                          class="dark:bg-dark-900 h-11 w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Rate Display avec détails -->
@@ -225,7 +227,7 @@
                           {{ $t('rate')}} (XAF)
                         </label>
                         <div v-if="!isCustomPrize"
-                          class="flex items-center border border-black/50 bg-gray-100 px-4 py-2.5 text-sm"
+                          class="flex items-center rounded-lg border border-black/50 bg-gray-100 px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': room.isLoadingRate }">
                           <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
                             @click="isCustomPrize = true">
@@ -417,7 +419,7 @@
       </div>
 
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky">
+      <div class="bg-white rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
           <span v-if="pendingReservation"
@@ -642,7 +644,7 @@
           </div>
 
           <div class="space-y-4 w-full">
-            <InputPaymentMethodSelect :paymentType="billing.paymentType" v-model="billing.paymentMode"  :custom-class="'rounded-none'"
+            <InputPaymentMethodSelect :paymentType="billing.paymentType" v-model="billing.paymentMode"
               :hide-label="true" />
           </div>
         </div>
@@ -699,6 +701,10 @@ import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById,confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+import { useBookingStorage } from '@/composables/useBookingStorage'
+
+
+
 
 
 interface ReservationDetails {
@@ -709,7 +715,7 @@ const route = useRoute()
 const isCkeckInModalOpen = ref(false)
 const reservationDetails = ref<{ payment_method?: number; payment_type?: string }>({})
 const {performCheckIn}= useReservation()
-
+const { loadBooking ,clearBooking} = useBookingStorage()
 const isAddPaymentModalOpen = ref(false)
 const isConfirmingReservation = ref(false)
 
@@ -892,6 +898,7 @@ const handleCheckIn = async () => {
     if (isGroupReservation.value) {
       // Pour les réservations de groupe, ouvrir la modal
       openCheckInReservationModal()
+      clearBooking()
     } else {
       isLoading.value = true
 
@@ -933,7 +940,7 @@ const handleCheckIn = async () => {
 
       if (result) {
         handleCheckInComplete()
-
+        clearBooking()
 
         await router.push({
           name: 'ReservationDetails',
@@ -1061,9 +1068,94 @@ const onQuickGroupBookingChange = (event: Event) => {
   }
 }
 
+
+
+
+
+
+// Ajoutez cette nouvelle fonction pour charger le brouillon
+const loadDraft = () => {
+  const draft = loadBooking()
+  console.log('draft',draft)
+
+  if (!draft) {
+    console.log('No draft found')
+    return
+  }
+
+  try {
+    // Charger les données de réservation
+    if (draft.reservation) {
+      reservation.value.checkinDate = draft.reservation.checkinDate
+      reservation.value.checkinTime = draft.reservation.checkinTime
+      reservation.value.checkoutDate = draft.reservation.checkoutDate
+      reservation.value.checkoutTime = draft.reservation.checkoutTime
+      reservation.value.bookingType = draft.reservation.bookingType
+      reservation.value.bookingSource = draft.reservation.bookingSource
+      reservation.value.businessSource = draft.reservation.businessSource
+      reservation.value.isComplementary = draft.reservation.isComplementary
+      reservation.value.isHold = draft.reservation.isHold
+      reservation.value.rooms = draft.reservation.rooms
+    }
+
+    // Charger les configurations de chambres
+    if (draft.roomConfigurations && draft.roomConfigurations.length > 0) {
+      // Réinitialiser les configurations
+      roomConfigurations.value = []
+
+      // Recréer les configurations depuis le brouillon
+      draft.roomConfigurations.forEach((roomDraft, index) => {
+        if (index === 0) {
+          // Utiliser la première chambre existante
+          const firstRoom = roomConfigurations.value[0] || addRoom()
+          Object.assign(firstRoom, roomDraft)
+        } else {
+          // Ajouter les chambres supplémentaires
+          const newRoom:any = addRoom()
+          Object.assign(newRoom, roomDraft)
+        }
+      })
+    }
+
+    // Charger les données du formulaire client
+    if (draft.formData) {
+      Object.assign(formData.value, draft.formData)
+    }
+
+    // Charger les autres informations
+    if (draft.otherInfo) {
+      otherInfo.value.emailBookingVouchers = draft.otherInfo.emailBookingVouchers
+      otherInfo.value.voucherEmail = draft.otherInfo.voucherEmail
+    }
+
+    // Charger les informations de facturation
+    if (draft.billing) {
+      billing.value.billTo = draft.billing.billTo
+      billing.value.paymentType = draft.billing.paymentType
+    }
+
+    // Charger les données de hold/release si présentes
+    if (draft.holdReleaseData && reservation.value.isHold) {
+      holdReleaseData.value = { ...draft.holdReleaseData }
+    }
+
+    console.log('Draft loaded successfully')
+
+  } catch (error) {
+    console.error('Error loading draft:', error)
+
+  }
+}
+
+
+
+
+
 onMounted(() => {
   initialize()
   initializeForm()
+  loadDraft()
+
 })
 </script>
 <style scoped>

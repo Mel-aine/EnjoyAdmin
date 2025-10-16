@@ -15,7 +15,7 @@
               <div class="flex items-start justify-between">
                 <h2 class="text-sm font-medium text-gray-900 dark:text-white" id="slide-over-title">{{
                   $t('New Payment') }}</h2>
-                <XIcon @click="closeModal" class="text-gray-300 hover:text-white" aria-label="Close panel" />
+                <XIcon @click="closeModal" class="text-gray-300 hover:text-black" aria-label="Close panel" />
               </div>
             </div>
 
@@ -31,7 +31,7 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" customClass="rounded-none" />
+                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger"  />
 
                     <!-- Date -->
                     <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" />
@@ -43,7 +43,7 @@
                     ]" :isRequired="true" />
 
                     <!-- Payment method -->
-                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" custom-class="rounded-none"/>
+                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType"/>
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
