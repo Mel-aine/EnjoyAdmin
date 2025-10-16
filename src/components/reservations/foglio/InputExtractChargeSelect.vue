@@ -14,18 +14,18 @@
         type="text"
         :placeholder="placeholder || $t('Search extra charges...')"
         :disabled="disabled || isLoading"
-        class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-        :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-gray-300', customClass]"
+        class="flex justify-between dark:bg-dark-900 h-11 w-full truncate  border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+        :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-black/50', customClass]"
         @input="handleInput"
         @keydown="handleKeydown"
         @focus="handleFocus"
       />
-      
+
       <!-- Loading spinner -->
       <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
         <DotSpinner></DotSpinner>
       </div>
-      
+
       <!-- Search icon when typing, dropdown arrow otherwise -->
       <div v-else class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg v-if="searchQuery.length > 0" class="w-4 h-4" :class="isDropdownOpen ? 'text-purple-500' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,36 +41,36 @@
       <ul v-if="isDropdownOpen && !isLoading"
         class="custom-scrollbar  absolute top-full left-0  z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
-        
+
         <!-- No results message -->
-        <li v-if="chargeOptions.length === 0 && searchQuery.length > 0" 
+        <li v-if="chargeOptions.length === 0 && searchQuery.length > 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('No extra charges found') }}
         </li>
-        
+
         <!-- Initial message when no search -->
-        <li v-else-if="chargeOptions.length === 0 && searchQuery.length === 0" 
+        <li v-else-if="chargeOptions.length === 0 && searchQuery.length === 0"
           class="px-5 py-3 text-gray-500 text-center italic">
           {{ $t('Start typing to search extra charges...') }}
         </li>
-        
+
         <!-- Extra charge options -->
-        <li v-for="charge in chargeOptions" 
-          :key="charge.id" 
-          @click="selectCharge(charge)" 
+        <li v-for="charge in chargeOptions"
+          :key="charge.id"
+          @click="selectCharge(charge)"
           :class="[
             'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
             disabled ? 'cursor-not-allowed text-gray-400' : '',
             selectedCharge?.id === charge.id ? 'bg-brand-50 text-brand-700' : ''
-          ]" 
-          role="option" 
+          ]"
+          role="option"
           :aria-selected="selectedCharge?.id === charge.id">
           <div class="flex flex-col">
             <div class="font-medium text-sm">
               {{ charge.name || charge.charge_name }}
             </div>
             <div class="text-xs text-gray-500 mt-1">
-              {{ $t('Type') }}: {{ charge.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} | 
+              {{ $t('Type') }}: {{ charge.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} |
               {{ $t('Value') }}: {{ formatCurrency(charge.rateInclusiveTax) }} |
             </div>
           </div>
@@ -175,9 +175,9 @@ const filterCharges = (query: string) => {
     const shortCode = (charge.short_code || '').toLowerCase()
     const type = charge.type.toLowerCase()
     const description = (charge.description || '').toLowerCase()
-    
-    return name.includes(searchTerm) || 
-           shortCode.includes(searchTerm) || 
+
+    return name.includes(searchTerm) ||
+           shortCode.includes(searchTerm) ||
            type.includes(searchTerm) ||
            description.includes(searchTerm)
   })
@@ -208,7 +208,7 @@ const loadExtraCharges = async () => {
         description: charge.description
       }
     })
-    
+
     allCharges.value = charges
     chargeOptions.value = charges
   } catch (error) {
@@ -223,12 +223,12 @@ const loadExtraCharges = async () => {
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value
-  
+
   // Clear selection if user is typing
   if (selectedCharge.value && searchQuery.value !== (selectedCharge.value.name || selectedCharge.value.charge_name)) {
     selectedCharge.value = null
   }
-  
+
   // Open dropdown and search
   isDropdownOpen.value = true
   debouncedSearch(searchQuery.value)
@@ -256,7 +256,7 @@ const selectCharge = (charge: ExtraChargeOption) => {
     selectedCharge.value = charge
     searchQuery.value = charge.name || charge.charge_name || ''
     isDropdownOpen.value = false
-    
+
     emit('update:modelValue', charge.id)
     emit('select', charge)
     emit('change', charge.id)

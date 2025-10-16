@@ -407,64 +407,66 @@ console.log('modalevalue', props.modelValue)
             </div>
 
             <!-- Informations principales -->
-            <div class="md:col-span-10 grid grid-cols-1 md:grid-cols-12 gap-6">
-              <!--  Titre + Recherche client -->
-              <div class="md:col-span-12">
-                <div class="flex flex-wrap items-end">
-                  <!-- Titre -->
-                  <div class="w-24">
-                    <Select
-                      :lb="$t('Title')"
-                      :options="GuestTitles"
-                      v-model="selectedCustomer.title"
-                      :default-value="$t('guestTitles.mr')"
-                      custom-class="rounded-r-none"
-                    />
-                  </div>
+          <div class="md:col-span-10 grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!--  Titre + Recherche client -->
+            <div class="md:col-span-12">
+              <div class="flex flex-wrap items-end">
+                <!-- Titre -->
+                <div class="w-24">
+                  <Select
+                    :lb="$t('Title')"
+                    :options="GuestTitles"
+                    v-model="selectedCustomer.title"
+                    :default-value="$t('guestTitles.mr')"
+                    custom-class="rounded-r-none"
+                  />
+                </div>
 
-                  <!-- Recherche client -->
-                  <div class="flex-1 min-w-[250px]">
-                    <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
-                  </div>
+                <!-- Recherche client -->
+                <div class="flex-1 min-w-[250px]">
+                  <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
+                </div>
 
-                  <!-- Nom -->
-                  <div class="flex-1 min-w-[200px] ml-4">
-                    <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
-                  </div>
+                <!-- Nom -->
+                <div class="flex-1 min-w-[200px] ml-4">
+                  <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
                 </div>
               </div>
+            </div>
 
-              <!--  Date de naissance -->
-              <div class="md:col-span-6">
-                <InputDatePicker
-                  :title="$t('DateOfBirth')"
-                  v-model="selectedCustomer.dateOfBirth"
-                  :placeholder="$t('Select Date')"
-                />
-              </div>
+            <!-- Ligne : Date de naissance, Lieu de naissance, Profession -->
+            <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Date de naissance -->
+              <InputDatePicker
+                :title="$t('DateOfBirth')"
+                v-model="selectedCustomer.dateOfBirth"
+                :placeholder="$t('Select Date')"
+              />
 
               <!-- Lieu de naissance -->
-              <div class="md:col-span-6">
-                <Input
-                  :lb="$t('PlaceOfBirth')"
-                  :id="'placeOfBirth'"
-                  v-model="selectedCustomer.placeOfBirth"
-                  :placeholder="$t('PlaceOfBirth')"
-                />
-              </div>
+              <Input
+                :lb="$t('PlaceOfBirth')"
+                :id="'placeOfBirth'"
+                v-model="selectedCustomer.placeOfBirth"
+                :placeholder="$t('PlaceOfBirth')"
+              />
+
+              <!-- Profession -->
+              <Input
+                :lb="$t('profession')"
+                :id="'profession'"
+                v-model="selectedCustomer.profession"
+                :placeholder="$t('profession')"
+              />
             </div>
           </div>
+
+          </div>
+
           <!--  Profession + Téléphone + Fax + Email -->
           <div class="mt-2 pt-2">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div>
-                <Input
-                  :lb="$t('profession')"
-                  :id="'profession'"
-                  v-model="selectedCustomer.profession"
-                  :placeholder="$t('profession')"
-                />
-              </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
 
               <div>
                 <InputPhone
@@ -482,6 +484,7 @@ console.log('modalevalue', props.modelValue)
                   v-model="selectedCustomer.fax"
                   :id="'fax'"
                   :is-required="false"
+                  :placeholder="$t('Fax')"
                 />
               </div>
 
@@ -495,13 +498,17 @@ console.log('modalevalue', props.modelValue)
               </div>
             </div>
           </div>
+        <div class="mt-4">
+          <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" :forLabel="'address'" :placeholder="$t('Address')"
+            v-model="selectedCustomer.address" />
+        </div>
 
           <!-- Informations complémentaires -->
           <div class="mt-3 pt-2">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- <div>
                 <InputCountries :lb="$t('nationality')" v-model="selectedCustomer.nationality" />
-              </div>
+              </div> -->
               <div>
                 <InputCountries
                   :lb="$t('countryOfPermanentResidence')"
@@ -621,9 +628,9 @@ console.log('modalevalue', props.modelValue)
                 </div>
                 <div>
                   <Input
-                    :lb="$t('Cityofissue')"
-                    v-model="selectedCustomer.issuingCity"
-                    :placeholder="$t('Cityofissue')"
+                    :lb="$t('nationality')"
+                    v-model="selectedCustomer.nationality"
+                    :placeholder="$t('nationality')"
                   />
                 </div>
               </div>

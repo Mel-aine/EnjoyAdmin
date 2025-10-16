@@ -97,7 +97,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <InputPaymentMethodSelect v-if="billingData.paymentType" :label="$t('PaymentMode')" :paymentType="billingData.paymentType"
-                  v-model="billingData.paymentMode" :hide-label="false" :disabled="!editMode" />
+                  v-model="billingData.paymentMode" :hide-label="false" :disabled="!editMode" custom-class="rounded-none" />
               </div>
 
               <div>
@@ -166,7 +166,7 @@
                       :disabled="!editMode" customClass="rounded-r-none h-11" />
                   </div>
                   <button
-                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 hover:bg-gray-300 transition-colors"
+                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300  text-gray-600 hover:bg-gray-300 transition-colors"
                     :disabled="!editMode">
                     <Building class="w-4 h-4" />
                   </button>

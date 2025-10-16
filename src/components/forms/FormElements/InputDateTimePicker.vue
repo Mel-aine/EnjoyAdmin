@@ -10,7 +10,7 @@
         <flat-pickr
           v-model="internalDate"
           :config="dateConfig"
-          class="dark:bg-dark-900 h-11 w-full appearance-none border border-gray-300 bg-transparent px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 rounded-l-lg rounded-r-none"
+          class="dark:bg-dark-900 h-11 w-full appearance-none border border-black/50 bg-transparent px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800  rounded-r-none"
           placeholder="Sélectionner une date"
         />
         <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
@@ -23,7 +23,7 @@
         <flat-pickr
           v-model="internalTime"
           :config="timeConfig"
-          class="dark:bg-dark-900 h-11 w-full appearance-none border border-l-0 border-gray-300 bg-transparent px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 rounded-r-lg rounded-l-none"
+          class="dark:bg-dark-900 h-11 w-full appearance-none border border-l-0 border-black/50 bg-transparent px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800  rounded-l-none"
           placeholder="Heure"
         />
         <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
@@ -145,9 +145,9 @@ watch(internalDate, (newDate) => {
   if (props.showDebug) {
     console.log('📅 Internal date changed:', newDate)
   }
-  
+
   emit('clear-error')
-  
+
   // Si on a une date mais pas d'heure, mettre une heure par défaut
   if (newDate && !internalTime.value) {
     internalTime.value = '12:00'
@@ -155,7 +155,7 @@ watch(internalDate, (newDate) => {
       console.log('⏰ Auto-set time to 12:00')
     }
   }
-  
+
   // Émettre la nouvelle valeur
   if (combinedDateTime.value) {
     emit('update:modelValue', combinedDateTime.value)
@@ -169,9 +169,9 @@ watch(internalTime, (newTime) => {
   if (props.showDebug) {
     console.log('⏰ Internal time changed:', newTime)
   }
-  
+
   emit('clear-error')
-  
+
   // Émettre la nouvelle valeur
   if (combinedDateTime.value) {
     emit('update:modelValue', combinedDateTime.value)

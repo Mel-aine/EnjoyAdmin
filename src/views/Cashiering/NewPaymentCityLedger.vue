@@ -31,7 +31,7 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" />
+                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" customClass="rounded-none" />
 
                     <!-- Date -->
                     <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" />
@@ -43,7 +43,7 @@
                     ]" :isRequired="true" />
 
                     <!-- Payment method -->
-                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" />
+                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" custom-class="rounded-none"/>
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->

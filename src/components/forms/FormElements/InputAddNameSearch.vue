@@ -150,7 +150,7 @@ watch(value, (newValue) => {
 
     if (exactMatch) {
         selectCustomer(exactMatch);
-    } 
+    }
 });
 
 // Handle opening create customer modal
@@ -162,10 +162,10 @@ const handleCreateCustomer = () => {
 const handleCustomerCreated = (newCustomer: any) => {
     // Add the new customer to the list
     customers.value.unshift(newCustomer);
-    
+
     // Select the newly created customer
     selectCustomer(newCustomer);
-    
+
     // Close the modal
     showCreateModal.value = false;
 };
@@ -178,20 +178,20 @@ onBeforeMount(() => {
 
 <template>
     <div class="w-full relative">
-        <label 
-            v-if="lb" 
-            :for="id" 
+        <label
+            v-if="lb"
+            :for="id"
             class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
             :class="{ 'text-purple-500': isFocused }"
         >
             {{ lb }}
             <span v-if="isRequired" class="text-red-500">*</span>
         </label>
-        
+
         <div class="relative">
             <!-- User Icon (left side) -->
-            <div 
-                v-if="showUserIcon" 
+            <div
+                v-if="showUserIcon"
                 class="absolute left-3 top-1/2 transform -translate-y-1/2 z-10"
             >
                 <button
@@ -205,7 +205,7 @@ onBeforeMount(() => {
                     <UserIcon :size="18" />
                 </button>
             </div>
-            
+
             <!-- Input Field -->
             <input
                 :id="id"
@@ -219,7 +219,7 @@ onBeforeMount(() => {
                 @blur="handleBlur"
                 @keydown.enter="handleSearch"
                 :class="[
-                    'dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 transition-all duration-200',
+                    'dark:bg-dark-900 h-11 w-full  border border-black/50 bg-transparent py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 transition-all duration-200',
                     showUserIcon ? 'pl-10' : 'pl-4',
                     showSearchIcon ? 'pr-10' : 'pr-4',
                     customClass,
@@ -229,7 +229,7 @@ onBeforeMount(() => {
                     }
                 ]"
             />
-            
+
             <!-- Search Icon (right side) -->
             <button
                 v-if="showSearchIcon"
@@ -242,14 +242,14 @@ onBeforeMount(() => {
                     'hover:text-purple-500': !disabled
                 }"
             >
-                <SearchIcon 
-                    :size="18" 
+                <SearchIcon
+                    :size="18"
                     class="text-gray-400 dark:text-gray-500"
                     :class="{ 'text-purple-500': isFocused }"
                 />
             </button>
         </div>
-        
+
         <!-- Customer Dropdown -->
         <div v-if="filteredCustomers.length > 0 && isFocused" class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-auto">
             <div
@@ -273,7 +273,7 @@ onBeforeMount(() => {
                 </div>
             </div>
         </div>
-        
+
         <!-- Customer Create Modal -->
          <CustomerCreateModal
              :is-open="showCreateModal"

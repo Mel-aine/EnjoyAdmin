@@ -15,15 +15,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ $t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Arrival Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Arrival From
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalFrom" 
+            <InputDatepicker
+              v-model="filters.arrivalFrom"
               placeholder="From"
               class="w-full"
             />
@@ -32,8 +32,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Arrival To
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalTo" 
+            <InputDatepicker
+              v-model="filters.arrivalTo"
               placeholder="To"
               class="w-full"
             />
@@ -42,7 +42,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Company
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
               placeholder="-- select Company --"
@@ -57,33 +57,33 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Room Type
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
               placeholder="-- select Room Types --"
               class="w-full"
             />
           </div>
-          
+
           <!-- Travel Agent -->
 <!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Travel Agent
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
               placeholder="-- select Travel Agent --"
               class="w-full"
             />
           </div> -->
-          
+
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate Type
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
               placeholder="-- select Rate Types --"
@@ -95,7 +95,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Business Source
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.businessSource"
               :options="BusinessSource"
               placeholder="-- Select Business Source --"
@@ -105,26 +105,26 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-  
+
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Market
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.market"
               :options="MarketCode"
               placeholder="--Select Market --"
               class="w-full"
             />
           </div>
-          
+
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               User
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.user"
               :options="userOptions"
               placeholder="-- select User --"
@@ -136,36 +136,36 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate From
             </label>
-            <input 
-              v-model="filters.rateFrom" 
-              type="number" 
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            <input
+              v-model="filters.rateFrom"
+              type="number"
+              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               placeholder="From"
             />
           </div>
-          
+
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rate To
             </label>
-            <input 
-              v-model="filters.rateTo" 
-              type="number" 
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            <input
+              v-model="filters.rateTo"
+              type="number"
+              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               placeholder="To"
             />
           </div>
-          
+
           <!-- Show Amount -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Show Amount
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.showAmount"
               :options="showAmountOptions"
               placeholder=" -- Select Amount Type --"
@@ -175,7 +175,7 @@
           <!-- Reservation Type -->
           <div>
             <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.reservationType"
               :options="BookingType"
               placeholder="--Select Reservation Type --"
@@ -188,8 +188,8 @@
           <!-- Tax Inclusive -->
           <div class="mt-12">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <input 
-                v-model="filters.taxInclusive" 
+              <input
+                v-model="filters.taxInclusive"
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
@@ -210,13 +210,13 @@
             Select Additional Columns (Any 5)
           </label>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <label 
+            <label
               class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
-              v-for="column in availableColumns" 
+              v-for="column in availableColumns"
               :key="column.value"
             >
-              <input 
-                v-model="filters.selectedColumns" 
+              <input
+                v-model="filters.selectedColumns"
                 :value="column.value"
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
@@ -248,11 +248,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            
+
             <!-- Menu déroulant Export -->
             <div v-if="exportMenuOpen && showResults" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-              <button 
-                @click="exportCSV" 
+              <button
+                @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -261,8 +261,8 @@
                 </svg>
                 CSV
               </button>
-              <button 
-                @click="exportPDF" 
+              <button
+                @click="exportPDF"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -271,8 +271,8 @@
                 </svg>
                 PDF
               </button>
-              <button 
-                @click="exportExcel" 
+              <button
+                @click="exportExcel"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -283,9 +283,9 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Bouton Report -->
-          <button 
+          <button
             @click="generateArrivalReport"
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -296,9 +296,9 @@
             </svg>
             Report
           </button>
-          
+
           <!-- Bouton Reset -->
-          <button 
+          <button
             @click="resetForm"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
@@ -321,17 +321,17 @@
             <span>Generated: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
           </div>
         </div>
-        
+
         <!-- Table des résultats -->
         <div class="overflow-x-auto">
-          <ResultTable 
+          <ResultTable
             title="Arrival List Results"
             :data="tableData"
             :columns="selectedTableColumns"
             class="w-full"
           />
         </div>
-        
+
         <!-- Summary -->
         <div v-if="reportData?.datas?.summary" class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -359,7 +359,7 @@ import { getCompanies } from '@/services/companyApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { useRouter } from 'vue-router'
-import { getEmployeesForService } from '@/services/userApi' 
+import { getEmployeesForService } from '@/services/userApi'
 import { get } from 'lodash'
 
 interface FilterOptions {
@@ -528,7 +528,7 @@ const fetchUsers = async () => {
   } catch (error) {
     console.error('Error fetching users:', error)
   }
-} 
+}
 
 const showAmountOptions = ref<FilterOptions[]>([
   { value: 'rent_per_night', label: 'Rent Per Night' },
@@ -567,7 +567,7 @@ const availableColumns = ref<FilterOptions[]>([
 // Computed pour les données du tableau
 const tableData = computed(() => {
   if (!reportData.value?.datas?.data) return []
-  
+
   return reportData.value.datas.data.map((item: any) => {
     const baseRow: any = {
       reservationNumber: item.reservationNumber,
@@ -579,14 +579,14 @@ const tableData = computed(() => {
       totalPax: item.totalPax,
       status: item.status,
     }
-    
+
     // Ajouter les colonnes de montant selon showAmount
     if (filters.value.showAmount === 'rent_per_night') {
       baseRow.amount = formatCurrency(item.ratePerNight)
     } else {
       baseRow.amount = formatCurrency(item.totalAmount)
     }
-    
+
     // Ajouter les colonnes sélectionnées
     filters.value.selectedColumns.forEach(col => {
       switch(col) {
@@ -625,7 +625,7 @@ const tableData = computed(() => {
           break
       }
     })
-    
+
     return baseRow
   })
 })
@@ -643,7 +643,7 @@ const selectedTableColumns = computed(() => {
     { key: 'amount', label: filters.value.showAmount === 'rent_per_night' ? 'Rate/Night' : 'Total Amount' },
     { key: 'status', label: 'Status' }
   ]
-  
+
   // Ajouter les colonnes sélectionnées
   filters.value.selectedColumns.forEach(col => {
     const columnConfig = availableColumns.value.find(c => c.value === col)
@@ -654,7 +654,7 @@ const selectedTableColumns = computed(() => {
       })
     }
   })
-  
+
   return baseColumns
 })
 
@@ -662,12 +662,12 @@ const selectedTableColumns = computed(() => {
 const generateArrivalReport = async () => {
   loading.value = true
   showResults.value = false
-  
+
   try {
     console.log('Generating report with filters:', apiFilters.value)
     const response = await generateArrivalList(apiFilters.value)
     console.log('Report Data:', response)
-    
+
     if (response && response.success && response.data) {
       reportData.value = response.data
       showResults.value = true
@@ -709,7 +709,7 @@ const exportPDF = async (): Promise<void> => {
     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
   } catch (error) {
-    console.error('Erreur détaillée PDF:', error) 
+    console.error('Erreur détaillée PDF:', error)
   } finally {
     exportLoading.value = false
   }
@@ -745,7 +745,7 @@ const openPDFInNewPage = () => {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
-  
+
   try {
     const date = new Date(dateString)
     return date.toLocaleString('fr-FR', {
@@ -821,7 +821,7 @@ onUnmounted(() => {
   .flex-col > div {
     width: 100%;
   }
-  
+
   .flex-col > div + div {
     margin-top: 1rem;
   }

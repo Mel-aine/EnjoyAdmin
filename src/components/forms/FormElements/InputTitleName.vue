@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
  * InputTitleName component
- * 
+ *
  * A form component that allows users to input a title, first name, and last name.
- * 
+ *
  * @example
  * <InputTitleName v-model="person" :disabled="isReadOnly" />
- * 
+ *
  * Where person is an object with the structure:
  * {
  *   title: string,
@@ -95,11 +95,11 @@ watch([title, firstName, lastName], () => {
                 <div v-else class="flex-1 flex gap-0">
                     <div class="flex-1">
                         <input v-model="firstName" type="text" :placeholder="$t('FirstName')"
-                            class="h-11 w-full rounded-lg rounded-l-none rounded-r-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                            class="h-11 w-full rounded-lg rounded-l-none rounded-r-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                     </div>
                     <div class="flex-1">
                         <input v-model="lastName" type="text" :placeholder="$t('LastName')"
-                            class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                            class="h-11 w-full  rounded-l-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                     </div>
                 </div>
             </div>

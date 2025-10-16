@@ -31,6 +31,10 @@ const props = defineProps({
     showCurrencySelector: {
         type: Boolean,
         default: true // Allow currency selection by default
+    },
+    customClass:{
+      type:String,
+      default:''
     }
 })
 
@@ -101,7 +105,7 @@ onMounted(async () => {
                     <span v-else class="text-gray-600 dark:text-gray-400 pointer-events-none">
                         {{ selectedCurrency }}
                     </span>
-                    
+
                     <!-- Currency Dropdown -->
                     <div v-if="showDropdown && showCurrencySelector" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
                         <div v-if="isLoading" class="p-3 text-center text-sm text-gray-500">
@@ -124,7 +128,7 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
-            
+
             <input
                 :type="inputType"
                 :id="id"
@@ -134,14 +138,18 @@ onMounted(async () => {
                 :value="modelValue"
                 @input="handleInput"
                 :placeholder="placeholder"
-                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                :class="{
+                :class="[
+                  'h-11 w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
+                  {
                     'pl-20': showCurrencySelector,
                     'pl-14': !showCurrencySelector
-                }"
+                },
+                props.customClass
+                ]"
+
             />
         </div>
-        
+
         <!-- Click outside to close dropdown -->
         <div v-if="showDropdown" @click="showDropdown = false" class="fixed inset-0 z-10"></div>
     </div>

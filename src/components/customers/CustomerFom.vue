@@ -124,7 +124,7 @@
         <textarea
           v-model="form.addressLine"
           rows="2"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+          class="w-full px-3 py-2 border border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
           :placeholder="$t('Address')"
         ></textarea>
       </div>

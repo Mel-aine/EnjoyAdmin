@@ -10,7 +10,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
         <!-- Search by Name/Number -->
         <div class="lg:col-span-2">
-          
+
           <Input :lb="$t('reservationsList.searchByNameOrNumber')" :inputType="'text'"
             :placeholder="$t('reservationsList.searchPlaceholder')" :id="'searchText'"
             :forLabel="'reservationsList.searchByNameOrNumber'" v-model="filters.searchText" />
@@ -19,10 +19,11 @@
 
         <!-- Status Filter -->
         <div>
+
           <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{ $t('reservationsList.filterStatus')
           }}:</label>
           <select id="status" v-model="filters.status"
-            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+            class="dark:bg-dark-900 h-10 w-full  border border-black/50 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
 
             <option value="">{{ $t('reservationsList.filterAll') }}</option>
             <option v-for="statusOption in statusOptions" :key="statusOption.value" :value="statusOption.value">{{
@@ -51,7 +52,7 @@
             $t('reservationsList.filterCheckInDate') }}:</label>
           <div class="relative">
             <flat-pickr v-model="filters.checkInDate" :config="flatpickrConfig"
-              class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+              class="dark:bg-dark-900 h-11 w-full appearance-none  border border-black/50 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
               :placeholder="$t('Selectdate')" />
             <span
               class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
@@ -65,7 +66,7 @@
             $t('reservationsList.filterCheckOutDate') }}:</label>
           <div class="relative">
             <flat-pickr v-model="filters.checkOutDate" :config="flatpickrConfig"
-              class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+              class="dark:bg-dark-900 h-11 w-full appearance-none  border border-black/50 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
               :placeholder="$t('Selectdate')" />
             <span
               class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
@@ -168,12 +169,12 @@ watch(()=>selectedRoomType.value,(newVal)=>{
 const fetchRoomTypeSuggestions = async (query: string) => {
   try {
     const allRoomTypes = activeRoomTypes.value
-    
+
     if (!query) {
       return allRoomTypes
     }
-    
-    return allRoomTypes.filter((type: RoomTypeData) => 
+
+    return allRoomTypes.filter((type: RoomTypeData) =>
       type.label.toLowerCase().includes(query.toLowerCase())    )
   } catch (error) {
     console.error('Error fetching room type suggestions:', error)

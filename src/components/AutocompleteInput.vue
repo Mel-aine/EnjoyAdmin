@@ -13,11 +13,11 @@
         :placeholder="placeholder"
         :disabled="disabled"
         :class="[
-          'block w-full pl-3 pr-10 py-2 text-base border rounded-md leading-5 focus:outline-none focus:ring-1 sm:text-sm   text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
-          disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white',
-          error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
+          'block w-full pl-3 pr-10 py-2.5 text-base border  leading-5 focus:outline-none focus:ring-1 sm:text-sm   text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
+          disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white ',
+          error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-black/50 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
           'dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400',
-          'transition duration-150 ease-in-out'
+          'transition duration-150 ease-in-out',props.customClass
         ]"
         :aria-invalid="error ? 'true' : 'false'"
         :aria-describedby="error ? `${id}-error` : undefined"
@@ -27,7 +27,7 @@
         role="combobox"
         autocomplete="off"
       />
-      
+
       <!-- Loading indicator -->
       <div v-if="loading" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
         <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
       </div>
-      
+
       <!-- Dropdown arrow -->
       <div v-else class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
         <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -43,13 +43,13 @@
         </svg>
       </div>
     </div>
-    
+
     <!-- Error message -->
     <p v-if="error" :id="`${id}-error`" class="mt-2 text-sm text-red-600 dark:text-red-500">{{ error }}</p>
-    
+
     <!-- Dropdown menu -->
-    <div 
-      v-if="isOpen" 
+    <div
+      v-if="isOpen"
       :id="`${id}-listbox`"
       class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
       role="listbox"
@@ -58,12 +58,12 @@
       <div v-if="loading && suggestions.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center">
         Loading...
       </div>
-      
+
       <!-- No results state -->
       <div v-else-if="suggestions.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center">
         No results found
       </div>
-      
+
       <!-- Suggestions list -->
       <div v-else>
         <div
@@ -85,16 +85,16 @@
               {{ getSuggestionLabel(suggestion) }}
             </span>
           </template>
-          
+
           <!-- Custom suggestion rendering -->
-          <slot 
-            v-else 
-            name="suggestion" 
-            :suggestion="suggestion" 
-            :index="index" 
+          <slot
+            v-else
+            name="suggestion"
+            :suggestion="suggestion"
+            :index="index"
             :active="activeIndex === index"
           ></slot>
-          
+
           <!-- Selected indicator -->
           <span
             v-if="isSelected(suggestion)"
@@ -124,7 +124,7 @@ const props = defineProps({
     type: [String, Number, Object],
     default: null
   },
-  
+
   // Display configuration
   placeholder: {
     type: String,
@@ -138,7 +138,7 @@ const props = defineProps({
     type: String,
     default: 'id'
   },
-  
+
   // API configuration
   fetchSuggestions: {
     type: Function,
@@ -152,7 +152,7 @@ const props = defineProps({
     type: Number,
     default: 300
   },
-  
+
   // State
   disabled: {
     type: Boolean,
@@ -162,11 +162,15 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  
+
   // Customization
   allowCustomValue: {
     type: Boolean,
     default: false
+  },
+  customClass:{
+    type:String,
+    default:''
   }
 })
 
@@ -190,14 +194,14 @@ const displayValue = computed(() => {
   if (inputValue.value !== undefined && inputValue.value !== null) {
     return inputValue.value
   }
-  
+
   if (props.modelValue) {
     if (typeof props.modelValue === 'object') {
       return props.modelValue[props.labelKey] || ''
     }
     return String(props.modelValue)
   }
-  
+
   return ''
 })
 
@@ -225,11 +229,11 @@ function getSuggestionValue(suggestion:any) {
 
 function isSelected(suggestion:any) {
   if (!props.modelValue) return false
-  
+
   if (typeof props.modelValue === 'object' && typeof suggestion === 'object') {
     return props.modelValue[props.valueKey] === suggestion[props.valueKey]
   }
-  
+
   return props.modelValue === getSuggestionValue(suggestion)
 }
 
@@ -237,18 +241,18 @@ async function fetchData(query:any) {
   if (debounceTimeout.value) {
     clearTimeout(debounceTimeout.value)
   }
-  
+
   // Skip fetching if query is too short
   if (query.length < props.minChars) {
     suggestions.value = []
     loading.value = false
     return
   }
-  
+
   debounceTimeout.value = setTimeout(async () => {
     loading.value = true
     emit('search', query)
-    
+
     try {
       const results = await props.fetchSuggestions(query)
       suggestions.value = Array.isArray(results) ? results : []
@@ -264,7 +268,7 @@ async function fetchData(query:any) {
 function handleInput(event:any) {
   const value = event.target.value
   inputValue.value = value
-  
+
   if (value) {
     fetchData(value)
     if (!isOpen.value) {
@@ -293,7 +297,7 @@ function handleBlur() {
   setTimeout(() => {
     isOpen.value = false
     activeIndex.value = -1
-    
+
     // Reset input value if no selection and custom values not allowed
     if (!props.allowCustomValue && !props.modelValue && inputValue.value) {
       inputValue.value = ''
@@ -308,22 +312,22 @@ function handleKeydown(event:any) {
     event.preventDefault()
     return
   }
-  
+
   if (!isOpen.value) return
-  
+
   switch (event.key) {
     case 'ArrowDown':
       event.preventDefault()
       activeIndex.value = (activeIndex.value + 1) % suggestions.value.length
       scrollToActive()
       break
-      
+
     case 'ArrowUp':
       event.preventDefault()
       activeIndex.value = activeIndex.value <= 0 ? suggestions.value.length - 1 : activeIndex.value - 1
       scrollToActive()
       break
-      
+
     case 'Enter':
       event.preventDefault()
       if (activeIndex.value >= 0 && activeIndex.value < suggestions.value.length) {
@@ -334,13 +338,13 @@ function handleKeydown(event:any) {
         isOpen.value = false
       }
       break
-      
+
     case 'Escape':
       event.preventDefault()
       isOpen.value = false
       activeIndex.value = -1
       break
-      
+
     case 'Tab':
       isOpen.value = false
       activeIndex.value = -1
@@ -352,7 +356,7 @@ function selectSuggestion(suggestion:any) {
   const value = suggestion
   emit('update:modelValue', value)
   emit('change', value)
-  
+
   inputValue.value = getSuggestionLabel(suggestion)
   isOpen.value = false
   activeIndex.value = -1

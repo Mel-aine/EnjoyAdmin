@@ -6291,5 +6291,7 @@
   "PlaceOfBirth" : "Place Of Birth",
   "DateOfBirth" : "Date Of Birth",
   "QuickBooking" : "Quick Reservation",
-  "countryOfPermanentResidence" : "Country Of Permanent Residence"
+  "countryOfPermanentResidence" : "Country Of Permanent Residence",
+  "AllActions" : "All Actions",
+  "AllUsers" : "All Users"
 }

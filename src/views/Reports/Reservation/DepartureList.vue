@@ -15,15 +15,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ $t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Departure Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('reports.reservation.departure') }} From
             </label>
-            <InputDatepicker 
-              v-model="filters.departureFrom" 
+            <InputDatepicker
+              v-model="filters.departureFrom"
               :placeholder="$t('common.from')"
               class="w-full"
             />
@@ -32,8 +32,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('reports.reservation.departure') }} To
             </label>
-            <InputDatepicker 
-              v-model="filters.departureTo" 
+            <InputDatepicker
+              v-model="filters.departureTo"
               :placeholder="$t('common.to')"
               class="w-full"
             />
@@ -42,7 +42,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.company') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
               :placeholder="$t('common.select')"
@@ -57,33 +57,33 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.roomType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
               :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Travel Agent -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.travelAgent') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
               :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
               :placeholder="$t('common.select')"
@@ -98,33 +98,33 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.businessSource') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.businessSource"
               :options="BusinessSource"
               :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.market') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.market"
               :options="MarketCode"
               :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
-          
+
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.user') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.user"
               :options="userOptions"
               :placeholder="$t('common.select')"
@@ -139,32 +139,32 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('reports.reservation.rateFrom') }}
             </label>
-            <input 
-              v-model="filters.rateFrom" 
-              type="number" 
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            <input
+              v-model="filters.rateFrom"
+              type="number"
+              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               :placeholder="$t('common.from')"
             />
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.to') }}
             </label>
-            <input 
-              v-model="filters.rateTo" 
-              type="number" 
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            <input
+              v-model="filters.rateTo"
+              type="number"
+              class="w-full px-3 py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               :placeholder="$t('common.to')"
             />
           </div>
-          
+
           <!-- Show Amount -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('reports.reservation.showAmount') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.showAmount"
               :options="showAmountOptions"
               :placeholder="$t('common.select')"
@@ -177,18 +177,18 @@
           <!-- Reservation Type -->
           <div>
             <label class="font-medium mb-1 text-gray-600">{{ $t('common.reservationType') }}</label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.reservationType"
               :options="BookingType"
               :placeholder="$t('common.select')"
             />
           </div>
-          
+
           <!-- Tax Inclusive -->
           <div class="mt-12">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <input 
-                v-model="filters.taxInclusive" 
+              <input
+                v-model="filters.taxInclusive"
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
@@ -215,11 +215,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            
+
             <!-- Export Dropdown Menu -->
             <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-              <button 
-                @click="exportCSV" 
+              <button
+                @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -228,8 +228,8 @@
                 </svg>
                 CSV
               </button>
-              <button 
-                @click="exportPDF" 
+              <button
+                @click="exportPDF"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -238,8 +238,8 @@
                 </svg>
                 PDF
               </button>
-              <button 
-                @click="exportExcel" 
+              <button
+                @click="exportExcel"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -250,9 +250,9 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Report Button -->
-          <button 
+          <button
             @click="generateDepartureReport"
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -263,9 +263,9 @@
             </svg>
             {{ $t('common.report') }}
           </button>
-          
+
           <!-- Reset Button -->
-          <button 
+          <button
             @click="resetForm"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
@@ -288,23 +288,23 @@
             <span>{{ $t('common.generated') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
           </div>
         </div>
-        
+
         <!-- HTML Report Content -->
         <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
-        
+
         <!-- Fallback if no HTML (normal table display) -->
         <div v-else>
           <div class="overflow-x-auto">
-            <ResultTable 
+            <ResultTable
               :title="$t('reports.reservation.departureResults')"
               :data="reservationData"
               :columns="tableColumns"
               class="w-full"
             />
           </div>
-          
+
           <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <span>{{ $t('reports.reservation.totalReservations') }}: #{{ totalReservations }}</span> • 
+            <span>{{ $t('reports.reservation.totalReservations') }}: #{{ totalReservations }}</span> •
             <span>{{ $t('reports.reservation.totalPax') }}: {{ totalPax }}</span>
           </div>
         </div>
@@ -377,7 +377,7 @@ const apiFilters = ref<ReportFilters>({
 // UI Filters
 const filters = ref({
   departureFrom: '',
-  departureTo: '', 
+  departureTo: '',
   roomType: '',
   rateType: '',
   showAmount: 'rent_per_night',
@@ -499,7 +499,7 @@ const fetchUsers = async () => {
   } catch (error) {
     console.error('Error fetching users:', error)
   }
-} 
+}
 
 // Mettre à jour les filtres API quand les filtres UI changent
 watch(filters, (newFilters) => {
@@ -539,12 +539,12 @@ const totalPax = computed(() => {
 const generateDepartureReport = async () => {
   loading.value = true
   showResults.value = false
-  
+
   try {
     console.log('Generating departure report with filters:', apiFilters.value)
     const response = await generateDepatureList(apiFilters.value)
     console.log('Departure Report Data:', response)
-    
+
     if (response && response.success && response.data) {
       reportData.value = response.data
       showResults.value = true
@@ -605,7 +605,7 @@ const exportExcel = async (): Promise<void> => {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
-  
+
   try {
     const date = new Date(dateString)
     return date.toLocaleString('fr-FR', {
@@ -672,7 +672,7 @@ onUnmounted(() => {
   .flex-col > div {
     width: 100%;
   }
-  
+
   .flex-col > div + div {
     margin-top: 1rem;
   }

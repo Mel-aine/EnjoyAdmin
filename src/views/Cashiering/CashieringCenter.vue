@@ -22,7 +22,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
                     <div class="mr-4 w-52">
-                        <InputSelectCityLeger v-model="selectCityLedger" @select="handChangeCityLedger" />
+                        <InputSelectCityLeger v-model="selectCityLedger" @select="handChangeCityLedger" customClass="rounded-none" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <div>

@@ -2,12 +2,12 @@
   <ExchangeRateModal :is-open='isOpen' @close="closeModal" />
   <AdminLayout>
     <div class="p-6">
-      <ReusableTable :title="$t('Currency Management')" :columns="columns" :data="currencies" 
+      <ReusableTable :title="$t('Currency Management')" :columns="columns" :data="currencies"
         :search-placeholder="$t('Search currencies...')" :empty-title="$t('No currencies found')" :searchable="false"
         :empty-description="$t('Start by adding your first currency.')" :loading="loading">
         <template v-slot:header-actions>
           <BasicButton variant="primary" @click="openModal"  :label="$t('Exchange Rate')"
-            :loading="loading" />
+             />
         </template>
         <template #isDefault="{ item }">
           <span v-if="item.isDefault"
@@ -97,7 +97,7 @@ const openModal = () => {
 const closeModal = () => {
   isOpen.value = false;
 }
-</script> 
+</script>
 
 
 <style scoped>
