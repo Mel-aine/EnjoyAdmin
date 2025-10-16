@@ -366,7 +366,6 @@ console.log('modalevalue', props.modelValue)
               d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
             <circle cx="10" cy="7" r="4" />
           </svg>
-
           {{ $t('personalInformation') }}
         </h2>
 
@@ -381,97 +380,138 @@ console.log('modalevalue', props.modelValue)
       <div v-show="!showInfoSection" class="mt-6 transition-all duration-300 ease-in-out">
         <div class="p-2">
           <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-            <!-- Photo -->
-            <div class="md:col-span-2" v-if="showImage">
-              <ImageUploader ref="profilePhotoUploader" v-model="selectedCustomer.profilePhoto"
-                :label="$t('ProfilePhoto')" :max-size-m-b="5" :cloudinary-config="cloudinaryConfig"
-                @file-selected="onProfilePhotoSelected" @file-removed="onProfilePhotoRemoved"
-                @upload-success="onProfilePhotoSuccess" @upload-error="onUploadError" />
+            <!-- Photo - Conditionnelle -->
+            <div v-if="showImage" class="md:col-span-2">
+              <ImageUploader
+                ref="profilePhotoUploader"
+                v-model="selectedCustomer.profilePhoto"
+                :label="$t('ProfilePhoto')"
+                :max-size-m-b="5"
+                :cloudinary-config="cloudinaryConfig"
+                @file-selected="onProfilePhotoSelected"
+                @file-removed="onProfilePhotoRemoved"
+                @upload-success="onProfilePhotoSuccess"
+                @upload-error="onUploadError"
+              />
             </div>
 
-            <!-- Informations principales -->
-            <div class="md:col-span-10 grid grid-cols-1 md:grid-cols-12 gap-6">
-              <!--  Titre + Recherche client -->
-              <div class="md:col-span-12">
-                <div class="flex flex-wrap items-end">
-                  <!-- Titre -->
+            <!-- Informations principales - S'adapte selon showImage -->
+            <div :class="[
+              'grid grid-cols-1 md:grid-cols-12 gap-6',
+              showImage ? 'md:col-span-10' : 'md:col-span-12'
+            ]">
+              <!-- Title + FirstName + LastName + Date + Place -->
+              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <!-- Bloc collé : Title + First + Last -->
+                <div class="flex items-end w-full col-span-3 space-x-0">
+                  <!-- Title -->
                   <div class="w-24">
-                    <Select :lb="$t('Title')" :options="GuestTitles" v-model="selectedCustomer.title"
-                      :default-value="$t('guestTitles.mr')" custom-class="rounded-r-none" />
+                    <Select
+                      :lb="$t('Title')"
+                      :options="GuestTitles"
+                      v-model="selectedCustomer.title"
+                      :default-value="$t('guestTitles.mr')"
+                      custom-class="rounded-r-none h-11"
+                    />
                   </div>
 
-                  <!-- Recherche client -->
-                  <div class="flex-1 min-w-[250px]">
-                    <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
+                  <!-- First Name -->
+                  <div class="flex-1">
+                      <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
                   </div>
 
-                  <!-- Nom -->
-                  <div class="flex-1 min-w-[200px] ml-4">
-                    <Input :lb="$t('LastName')" v-model="selectedCustomer.lastName" />
+                  <!-- Last Name -->
+                  <div class="flex-1">
+                    <Input
+                      :lb="$t('LastName')"
+                      v-model="selectedCustomer.lastName"
+                      :placeholder="$t('LastName')"
+                      custom-class="rounded-l-none h-11 border-l-0"
+                    />
                   </div>
+                </div>
+
+                <!-- Date de naissance -->
+                <div>
+                  <InputDatePicker
+                    :title="$t('DateOfBirth')"
+                    v-model="selectedCustomer.dateOfBirth"
+                    :placeholder="$t('Select Date')"
+                  />
+                </div>
+
+                <!-- Lieu de naissance -->
+                <div>
+                  <Input
+                    :lb="$t('PlaceOfBirth')"
+                    :id="'placeOfBirth'"
+                    v-model="selectedCustomer.placeOfBirth"
+                    :placeholder="$t('PlaceOfBirth')"
+                  />
                 </div>
               </div>
 
-              <!-- Ligne : Date de naissance, Lieu de naissance, Profession -->
-              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Date de naissance -->
-                <InputDatePicker :title="$t('DateOfBirth')" v-model="selectedCustomer.dateOfBirth"
-                  :placeholder="$t('Select Date')" />
+              <!-- Profession + Phone + Email -->
+              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <Input
+                  :lb="$t('profession')"
+                  :id="'profession'"
+                  v-model="selectedCustomer.profession"
+                  :placeholder="$t('profession')"
+                  custom-class="h-11"
+                />
 
-                <!-- Lieu de naissance -->
-                <Input :lb="$t('PlaceOfBirth')" :id="'placeOfBirth'" v-model="selectedCustomer.placeOfBirth"
-                  :placeholder="$t('PlaceOfBirth')" />
+                <InputPhone
+                  :title="$t('Phone')"
+                  v-model="selectedCustomer.phoneNumber"
+                  :id="'phone'"
+                  :is-required="false"
+                  custom-class="h-11"
+                />
 
-                <!-- Profession -->
-                <Input :lb="$t('profession')" :id="'profession'" v-model="selectedCustomer.profession"
-                  :placeholder="$t('profession')" />
-              </div>
-            </div>
-
-          </div>
-
-          <!--  Profession + Téléphone + Fax + Email -->
-          <div class="mt-2 pt-2">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-
-              <div>
-                <InputPhone :title="$t('Phone')" v-model="selectedCustomer.phoneNumber" :id="'phone'"
-                  :is-required="false" />
-              </div>
-
-              <div>
-                <Input :lb="$t('Fax')" :input-type="'number'" v-model="selectedCustomer.fax" :id="'fax'"
-                  :is-required="false" :placeholder="$t('Fax')" />
-              </div>
-
-              <div>
-                <InputEmail v-model="selectedCustomer.email" placeholder="info@gmail.com" :title="$t('Email')"
-                  required />
+                <InputEmail
+                  v-model="selectedCustomer.email"
+                  placeholder="info@gmail.com"
+                  :title="$t('Email')"
+                  required
+                  custom-class="h-11"
+                />
               </div>
             </div>
           </div>
+
           <div class="mt-4">
-            <Input :inputType="'text'" :lb="$t('Address')" :id="'address'" :forLabel="'address'"
-              :placeholder="$t('Address')" v-model="selectedCustomer.address" />
+            <Input
+              :inputType="'text'"
+              :lb="$t('Address')"
+              :id="'address'"
+              :forLabel="'address'"
+              :placeholder="$t('Address')"
+              v-model="selectedCustomer.address"
+            />
           </div>
 
           <!-- Informations complémentaires -->
           <div class="mt-3 pt-2">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <!-- <div>
-                <InputCountries :lb="$t('nationality')" v-model="selectedCustomer.nationality" />
-              </div> -->
               <div>
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="selectedCustomer.country" />
               </div>
               <div>
-                <Input :lb="$t('hotelInformation.fields.stateProvince')" :id="'state'" v-model="selectedCustomer.state"
-                  :placeholder="$t('enterState')" />
+                <Input
+                  :lb="$t('hotelInformation.fields.stateProvince')"
+                  :id="'state'"
+                  v-model="selectedCustomer.state"
+                  :placeholder="$t('enterState')"
+                />
               </div>
               <div>
-                <Input :lb="$t('postalCode')" :id="'zipcode'" v-model="selectedCustomer.zipcode"
-                  :placeholder="$t('postalCode')" />
+                <Input
+                  :lb="$t('postalCode')"
+                  :id="'zipcode'"
+                  v-model="selectedCustomer.zipcode"
+                  :placeholder="$t('postalCode')"
+                />
               </div>
             </div>
           </div>
@@ -503,43 +543,66 @@ console.log('modalevalue', props.modelValue)
       <div class="p-2">
         <div v-show="showIdentitySection" class="mt-6 transition-all duration-300 ease-in-out">
           <div class="md:grid md:grid-cols-12 gap-6 items-start">
-            <div class="col-span-12 md:col-span-3 lg:col-span-2"  v-if="showImage" >
+            <!-- Photo ID - Conditionnelle -->
+            <div v-if="showImage" class="col-span-12 md:col-span-3 lg:col-span-2">
               <label class="text-sm font-medium text-gray-700 mb-3">
                 {{ $t('IDPhoto') }}
               </label>
               <div class="w-full max-w-xs">
-                <ImageUploader ref="idPhotoUploader" v-model="selectedCustomer.idPhoto"
-                  :cloudinary-config="cloudinaryConfig" @upload-success="onIdPhotoSuccess" @upload-error="onUploadError"
-                  @file-selected="onIdPhotoSelected" @file-removed="onIdPhotoRemoved" :key="`id-${resetKey}`"
-                  class="w-full aspect-square" />
+                <ImageUploader
+                  ref="idPhotoUploader"
+                  v-model="selectedCustomer.idPhoto"
+                  :cloudinary-config="cloudinaryConfig"
+                  @upload-success="onIdPhotoSuccess"
+                  @upload-error="onUploadError"
+                  @file-selected="onIdPhotoSelected"
+                  @file-removed="onIdPhotoRemoved"
+                  :key="`id-${resetKey}`"
+                  class="w-full aspect-square"
+                />
               </div>
             </div>
 
-            <div class="col-span-12 md:col-span-9 lg:col-span-10 space-y-4">
+            <!-- Champs d'identité - S'adapte selon showImage -->
+            <div :class="[
+              'space-y-4',
+              showImage ? 'col-span-12 md:col-span-9 lg:col-span-10' : 'col-span-12'
+            ]">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Select :lb="$t('IDType')" v-model="selectedCustomer.idType" :options="idTypeOptions"
-                    :placeholder="$t('Select ID Type')" />
+                  <Select
+                    :lb="$t('IDType')"
+                    v-model="selectedCustomer.idType"
+                    :options="idTypeOptions"
+                    :placeholder="$t('Select ID Type')"
+                  />
                 </div>
                 <div class="md:col-span-2">
-                  <Input :lb="idNumberLabel" v-model="selectedCustomer.idNumber" type="text"
-                    :placeholder="idNumberLabel" />
+                  <Input
+                    :lb="idNumberLabel"
+                    v-model="selectedCustomer.idNumber"
+                    type="text"
+                    :placeholder="idNumberLabel"
+                  />
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <InputDatePicker :title="$t('ExpiryDate')" v-model="selectedCustomer.idExpiryDate"
-                    :placeholder="$t('Select Date')" />
+                  <InputDatePicker
+                    :title="$t('ExpiryDate')"
+                    v-model="selectedCustomer.idExpiryDate"
+                    :placeholder="$t('Select Date')"
+                  />
                 </div>
                 <div>
                   <InputCountries :lb="$t('Countryofissue')" v-model="selectedCustomer.issuingCountry" />
                 </div>
                 <Input
-                    :lb="$t('Cityofissue')"
-                    v-model="selectedCustomer.issuingCity"
-                    :placeholder="$t('Cityofissue')"
-                  />
+                  :lb="$t('Cityofissue')"
+                  v-model="selectedCustomer.issuingCity"
+                  :placeholder="$t('Cityofissue')"
+                />
               </div>
             </div>
           </div>

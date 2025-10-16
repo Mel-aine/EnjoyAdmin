@@ -1,7 +1,7 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="$t('Booking')" />
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-2">
       <!-- Left Column: Add Reservation Form -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
@@ -419,7 +419,7 @@
       </div>
 
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky">
+      <div class="bg-white rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
           <span v-if="pendingReservation"
@@ -701,6 +701,10 @@ import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById,confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+import { useBookingStorage } from '@/composables/useBookingStorage'
+
+
+
 
 
 interface ReservationDetails {
@@ -711,7 +715,7 @@ const route = useRoute()
 const isCkeckInModalOpen = ref(false)
 const reservationDetails = ref<{ payment_method?: number; payment_type?: string }>({})
 const {performCheckIn}= useReservation()
-
+const { loadBooking ,clearBooking} = useBookingStorage()
 const isAddPaymentModalOpen = ref(false)
 const isConfirmingReservation = ref(false)
 
@@ -894,6 +898,7 @@ const handleCheckIn = async () => {
     if (isGroupReservation.value) {
       // Pour les réservations de groupe, ouvrir la modal
       openCheckInReservationModal()
+      clearBooking()
     } else {
       isLoading.value = true
 
@@ -935,7 +940,7 @@ const handleCheckIn = async () => {
 
       if (result) {
         handleCheckInComplete()
-
+        clearBooking()
 
         await router.push({
           name: 'ReservationDetails',
@@ -1063,9 +1068,94 @@ const onQuickGroupBookingChange = (event: Event) => {
   }
 }
 
+
+
+
+
+
+// Ajoutez cette nouvelle fonction pour charger le brouillon
+const loadDraft = () => {
+  const draft = loadBooking()
+  console.log('draft',draft)
+
+  if (!draft) {
+    console.log('No draft found')
+    return
+  }
+
+  try {
+    // Charger les données de réservation
+    if (draft.reservation) {
+      reservation.value.checkinDate = draft.reservation.checkinDate
+      reservation.value.checkinTime = draft.reservation.checkinTime
+      reservation.value.checkoutDate = draft.reservation.checkoutDate
+      reservation.value.checkoutTime = draft.reservation.checkoutTime
+      reservation.value.bookingType = draft.reservation.bookingType
+      reservation.value.bookingSource = draft.reservation.bookingSource
+      reservation.value.businessSource = draft.reservation.businessSource
+      reservation.value.isComplementary = draft.reservation.isComplementary
+      reservation.value.isHold = draft.reservation.isHold
+      reservation.value.rooms = draft.reservation.rooms
+    }
+
+    // Charger les configurations de chambres
+    if (draft.roomConfigurations && draft.roomConfigurations.length > 0) {
+      // Réinitialiser les configurations
+      roomConfigurations.value = []
+
+      // Recréer les configurations depuis le brouillon
+      draft.roomConfigurations.forEach((roomDraft, index) => {
+        if (index === 0) {
+          // Utiliser la première chambre existante
+          const firstRoom = roomConfigurations.value[0] || addRoom()
+          Object.assign(firstRoom, roomDraft)
+        } else {
+          // Ajouter les chambres supplémentaires
+          const newRoom:any = addRoom()
+          Object.assign(newRoom, roomDraft)
+        }
+      })
+    }
+
+    // Charger les données du formulaire client
+    if (draft.formData) {
+      Object.assign(formData.value, draft.formData)
+    }
+
+    // Charger les autres informations
+    if (draft.otherInfo) {
+      otherInfo.value.emailBookingVouchers = draft.otherInfo.emailBookingVouchers
+      otherInfo.value.voucherEmail = draft.otherInfo.voucherEmail
+    }
+
+    // Charger les informations de facturation
+    if (draft.billing) {
+      billing.value.billTo = draft.billing.billTo
+      billing.value.paymentType = draft.billing.paymentType
+    }
+
+    // Charger les données de hold/release si présentes
+    if (draft.holdReleaseData && reservation.value.isHold) {
+      holdReleaseData.value = { ...draft.holdReleaseData }
+    }
+
+    console.log('Draft loaded successfully')
+
+  } catch (error) {
+    console.error('Error loading draft:', error)
+
+  }
+}
+
+
+
+
+
 onMounted(() => {
   initialize()
   initializeForm()
+  loadDraft()
+
 })
 </script>
 <style scoped>

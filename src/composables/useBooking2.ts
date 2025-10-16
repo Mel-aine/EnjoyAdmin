@@ -10,6 +10,7 @@ import { createReservation } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
 import { getAvailableRoomsByTypeId, getMarketCodesByHotelId } from '../services/configrationApi'
+import { useBookingStorage } from '@/composables/useBookingStorage'
 
 // Types existants...
 interface RoomConfiguration {
@@ -143,6 +144,7 @@ export function useBooking() {
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
   const quickGroupBooking = ref(false)
+  const {  clearBooking } = useBookingStorage()
 
   // Data refs
   const RoomTypes = ref<Option[]>([])
@@ -1157,6 +1159,7 @@ const validateAllRooms = () => {
   }
 
   const goBack = () => {
+    clearBooking()
     router.back()
   }
 
@@ -1530,6 +1533,7 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
   })
 
   const resetForm = () => {
+    clearBooking()
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],

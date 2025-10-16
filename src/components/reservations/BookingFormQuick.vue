@@ -24,6 +24,7 @@ import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSele
 import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById, confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
+import { useBookingStorage } from '@/composables/useBookingStorage'
 const emits = defineEmits(['close', 'open']);
 const props = defineProps({
   isOpen: {
@@ -37,6 +38,7 @@ const props = defineProps({
 });
 
 const isVisible = ref(false);
+const { saveBooking } = useBookingStorage()
 
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
@@ -234,9 +236,83 @@ const checkinButtonLabel = computed(() => {
   return t('Quick Check-In')
 })
 
-const gotoNew  =()=>{
-  emits("close")
-  router.push('new_booking')
+
+
+const gotoNew = () => {
+  // Sauvegarder les données actuelles dans localStorage
+  const draftData:any = {
+    reservation: {
+      checkinDate: reservation.value.checkinDate,
+      checkinTime: reservation.value.checkinTime,
+      checkoutDate: reservation.value.checkoutDate,
+      checkoutTime: reservation.value.checkoutTime,
+      bookingType: reservation.value.bookingType,
+      bookingSource: reservation.value.bookingSource,
+      businessSource: reservation.value.businessSource,
+      isComplementary: reservation.value.isComplementary,
+      isHold: reservation.value.isHold,
+      rooms: reservation.value.rooms
+    },
+    roomConfigurations: roomConfigurations.value.map(room => ({
+      id: room.id,
+      roomType: room.roomType,
+      rateType: room.rateType,
+      roomNumber: room.roomNumber,
+      adultCount: room.adultCount,
+      childCount: room.childCount,
+      rate: room.rate
+    })),
+    formData: {
+      title: formData.value.title,
+      firstName: formData.value.firstName,
+      lastName: formData.value.lastName,
+      email: formData.value.email,
+      phoneNumber: formData.value.phoneNumber,
+      address: formData.value.address,
+      country: formData.value.country,
+      state: formData.value.state,
+      zipcode: formData.value.zipcode,
+      dateOfBirth: formData.value.dateOfBirth,
+      placeOfBirth: formData.value.placeOfBirth,
+      profession: formData.value.profession,
+      idType: formData.value.idType,
+      idNumber: formData.value.idNumber,
+      idExpiryDate: formData.value.idExpiryDate,
+      issuingCountry: formData.value.issuingCountry,
+      issuingCity: formData.value.issuingCity,
+      profilePhoto: formData.value.profilePhoto,
+      idPhoto: formData.value.idPhoto
+    },
+    otherInfo: {
+      emailBookingVouchers: otherInfo.value.emailBookingVouchers,
+      voucherEmail: otherInfo.value.voucherEmail
+    },
+    billing: {
+      billTo: billing.value.billTo,
+      paymentType: billing.value.paymentType,
+      paymentMode: billing.value.paymentMode
+    },
+    ...(reservation.value.isHold && {
+      holdReleaseData: {
+        date: holdReleaseData.value.date,
+        time: holdReleaseData.value.time,
+        releaseTerm: holdReleaseData.value.releaseTerm,
+        remindDays: holdReleaseData.value.remindDays,
+        dateType: holdReleaseData.value.dateType
+      }
+    })
+  }
+
+  // Sauvegarder dans localStorage
+  const saved = saveBooking(draftData)
+
+  if (saved) {
+    console.log('Draft saved successfully')
+  }
+
+  // Fermer la modal et rediriger
+  emits('close')
+  router.push({ name: 'New Booking' })
 }
 const handleCheckIn = async () => {
   try {
@@ -475,7 +551,7 @@ onMounted(() => {
                           {{ $t('check_in') }}
                         </label>
                         <div class="flex gap-0">
-                          <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none"
+                          <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
                             :allowPastDates="false" :placeholder="$t('Selectdate')" />
                           <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                         </div>
@@ -483,7 +559,7 @@ onMounted(() => {
 
                       <!-- Nights -->
                       <div class="flex flex-col">
-                        <Input :lb="$t('nights')" :disabled="true" custom-class="rounded-0"
+                        <Input :lb="$t('nights')" :disabled="true" custom-class="rounded-none"
                           :modelValue="numberOfNights.toString()" />
                       </div>
 
@@ -494,8 +570,8 @@ onMounted(() => {
                         </label>
                         <div class="flex gap-0">
                           <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
-                            class="rounded-r-none" />
-                          <InputTimePicker v-model="reservation.checkoutTime" class="rounded-l-none" />
+                            custom-class="rounded-none" />
+                          <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
                         </div>
 
                         <p v-if="dateError" class="text-sm text-red-600">
@@ -550,7 +626,7 @@ onMounted(() => {
                         </div>
                         <div v-for="(room, index) in roomConfigurations" :key="room.id" class="">
                           <!-- Room Configuration Fields -->
-                          <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end px-3">
+                          <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end ">
                             <div class="relative col-span-3">
                               <p v-if="isRoomTypeInvalid(room)" class="text-sm text-red-600 mb-1">
                                 {{ $t('validation.invalidRoomType') }}
@@ -592,7 +668,7 @@ onMounted(() => {
                               <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
                                 @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
                                 :disabled="!room.roomType"
-                                class="dark:bg-dark-900 h-11 w-full border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                                class="dark:bg-dark-900 h-11 rounded-lg w-full border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                             </div>
 
                             <!-- Child Count avec gestion des changements -->
@@ -601,7 +677,7 @@ onMounted(() => {
                               <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
                                 @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
                                 :disabled="!room.roomType"
-                                class="dark:bg-dark-900 h-11 w-full border border-black/50 bg-transparent  px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                                class="dark:bg-dark-900 h-11 rounded-lg w-full border border-black/50 bg-transparent  px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                             </div>
 
                             <!-- Rate Display avec détails -->
@@ -609,7 +685,7 @@ onMounted(() => {
                               <div class="relative inline-block w-full">
 
                                 <div v-if="!isCustomPrize"
-                                  class="flex items-center border border-gray-300 mt-1.5 h-11  bg-gray-200 px-4 py-2.5 text-sm"
+                                  class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11  bg-gray-200 px-4 py-2.5 text-sm"
                                   :class="{ 'opacity-50': room.isLoadingRate }">
                                   <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
                                     @click="isCustomPrize = true">
@@ -736,7 +812,7 @@ onMounted(() => {
                     </section>
                     <!-- Guest Information -->
                     <section class="border-t border-gray-300 pt-2 space-y-4">
-                     
+
                       <div>
                         <CustomerCard :show-image="false" @customerSelected="onCustomerSelected" v-model="formData" />
                       </div>
