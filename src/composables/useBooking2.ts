@@ -1856,73 +1856,67 @@ const loadDraftData = (draftData: any) => {
   }
 
   try {
-
     if (draftData.reservation) {
       Object.keys(draftData.reservation).forEach(key => {
         if (key in reservation.value) {
           (reservation.value as any)[key] = draftData.reservation[key]
         }
       })
-      console.log('Loaded reservation data:', reservation.value)
     }
-
 
     if (draftData.roomConfigurations && draftData.roomConfigurations.length > 0) {
-      // Vider les configurations existantes
       roomConfigurations.value = []
 
-      // Recréer chaque configuration
-      roomConfigurations.value = draftData.roomConfigurations.map((roomDraft: any) => ({
-        id: roomDraft.id,
-        roomType: roomDraft.roomType,
-        rateType: roomDraft.rateType,
-        roomNumber: roomDraft.roomNumber,
-        adultCount: roomDraft.adultCount || 1,
-        childCount: roomDraft.childCount || 0,
-        rate:  0,
-        isOpen: false,
-        taxes: roomDraft.taxes || [],
-        extraCharges: roomDraft.extraCharges || [],
-        isLoadingRooms: false,
-        isLoadingRate: false,
-      }))
-
-      console.log('Loaded room configurations:', draftData)
+      draftData.roomConfigurations.forEach((roomDraft: any) => {
+        const newRoom: RoomConfiguration = {
+          id: roomDraft.id,
+          roomType: roomDraft.roomType,
+          rateType: roomDraft.rateType,
+          roomNumber: roomDraft.roomNumber,
+          adultCount: roomDraft.adultCount || 1,
+          childCount: roomDraft.childCount || 0,
+          rate: roomDraft.rate || 0,
+          isOpen: false,
+          taxes: roomDraft.taxes || [],
+          extraCharges: roomDraft.extraCharges || [],
+          isLoadingRooms: false,
+          isLoadingRate: false,
+        }
+        roomConfigurations.value.push(newRoom)
+      })
+      console.log('Loaded room configurations:', roomConfigurations.value)
     }
 
-
     if (draftData.formData) {
-        formData.value = {
-          firstName: draftData.formData.firstName || '',
-          lastName: draftData.formData.lastName || '',
-          phoneNumber: draftData.formData.phoneNumber || '',
-          email: draftData.formData.email || '',
-          roleId: draftData.formData.roleId ?? null,
-          companyName: draftData.formData.companyName || '',
-          groupName: draftData.formData.groupName || '',
-          fax: draftData.formData.fax || '',
-          placeOfBirth: draftData.formData.placeOfBirth || '',
-          dateOfBirth: draftData.formData.dateOfBirth || '',
-          natonality: draftData.formData.natonality || '',
-          profession: draftData.formData.profession || '',
-          title: draftData.formData.title || '',
-          id: draftData.formData.id ?? 0,
-          address: draftData.formData.address || '',
-          country: draftData.formData.country || '',
-          state: draftData.formData.state || '',
-          city: draftData.formData.city || '',
-          zipcode: draftData.formData.zipcode || '',
-          idPhoto: draftData.formData.idPhoto || '',
-          idType: draftData.formData.idType || '',
-          idNumber: draftData.formData.idNumber || '',
-          idExpiryDate: draftData.formData.idExpiryDate || '',
-          issuingCountry: draftData.formData.issuingCountry || '',
-          issuingCity: draftData.formData.issuingCity || '',
-          profilePhoto: draftData.formData.profilePhoto || ''
-        }
+      formData.value = {
+        firstName: draftData.formData.firstName || '',
+        lastName: draftData.formData.lastName || '',
+        phoneNumber: draftData.formData.phoneNumber || '',
+        email: draftData.formData.email || '',
+        roleId: draftData.formData.roleId ?? null,
+        companyName: draftData.formData.companyName || '',
+        groupName: draftData.formData.groupName || '',
+        fax: draftData.formData.fax || '',
+        placeOfBirth: draftData.formData.placeOfBirth || '',
+        dateOfBirth: draftData.formData.dateOfBirth || '',
+        natonality: draftData.formData.natonality || '',
+        profession: draftData.formData.profession || '',
+        title: draftData.formData.title || '',
+        id: draftData.formData.id ?? 0,
+        address: draftData.formData.address || '',
+        country: draftData.formData.country || '',
+        state: draftData.formData.state || '',
+        city: draftData.formData.city || '',
+        zipcode: draftData.formData.zipcode || '',
+        idPhoto: draftData.formData.idPhoto || '',
+        idType: draftData.formData.idType || '',
+        idNumber: draftData.formData.idNumber || '',
+        idExpiryDate: draftData.formData.idExpiryDate || '',
+        issuingCountry: draftData.formData.issuingCountry || '',
+        issuingCity: draftData.formData.issuingCity || '',
+        profilePhoto: draftData.formData.profilePhoto || ''
       }
-
-
+    }
 
     if (draftData.otherInfo) {
       otherInfo.value.emailBookingVouchers = draftData.otherInfo.emailBookingVouchers || false
@@ -1936,7 +1930,6 @@ const loadDraftData = (draftData: any) => {
         billing.value.paymentMode = draftData.billing.paymentMode
       }
     }
-
 
     if (draftData.holdReleaseData && reservation.value.isHold) {
       Object.keys(draftData.holdReleaseData).forEach(key => {
@@ -1956,58 +1949,60 @@ const loadDraftData = (draftData: any) => {
 }
 
 
+const loadDraftAsyncData = async () => {
+  console.log('Loading async data for draft rooms...')
+
+  for (const room of roomConfigurations.value) {
+    if (room.roomType) {
+      // Sauvegarder le rate original avant le chargement
+      const originalRate = room.rate
 
 
-// const loadDraftAsyncData = async () => {
-//   console.log('Loading async data for draft rooms...')
+      await loadRateTypesForRoomType(room.roomType.toString())
 
-//   for (const room of roomConfigurations.value) {
-//     if (room.roomType) {
-//       // Charger les rate types
-//       await loadRateTypesForRoomType(room.roomType)
 
-//       // Charger les chambres disponibles
-//       await loadRoomsForRoomType(room.roomType, room.id)
+      await loadRoomsForRoomType(room.roomType.toString(), room.id)
 
-//       // Si on a un rateType, recharger les infos de tarif
-//       if (room.rateType) {
-//         try {
-//           room.isLoadingRate = true
-//           const rateInfo = await fetchRateInfo(
-//             room.roomType,
-//             room.rateType,
-//             reservation.value.checkinDate
-//           )
 
-//           if (rateInfo) {
-//             // Mettre à jour les infos de base du room type
-//             const baseInfo = roomTypeBaseInfo.value.get(room.roomType ) || {
-//               baseAdult: 1,
-//               baseChild: 0,
-//               extraAdultRate: 0,
-//               extraChildRate: 0,
-//             }
+      if (room.rateType) {
+        try {
+          room.isLoadingRate = true
+          const rateInfo = await fetchRateInfo(
+            room.roomType,
+            room.rateType,
+            reservation.value.checkinDate
+          )
 
-//             baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
-//             baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
-//             roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
+          if (rateInfo) {
 
-//             // Restaurer les extra charges
-//             room.extraCharges = rateInfo.extraCharges || []
-//           }
-//         } catch (error) {
-//           console.error('Error loading rate info for draft room:', error)
-//         } finally {
-//           room.isLoadingRate = false
-//         }
-//       }
-//     }
-//   }
+            const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
+              baseAdult: 1,
+              baseChild: 0,
+              extraAdultRate: 0,
+              extraChildRate: 0,
+            }
 
-//   // Mettre à jour la facturation après avoir chargé toutes les données
-//   updateBilling()
-//   console.log('Async data loading completed')
-// }
+            baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+            baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+            roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
+
+            room.extraCharges = rateInfo.extraCharges || []
+
+            room.rate = originalRate
+          }
+        } catch (error) {
+          console.error('Error loading rate info for draft room:', error)
+        } finally {
+          room.isLoadingRate = false
+        }
+      }
+    }
+  }
+
+  // Mettre à jour la facturation après avoir chargé toutes les données
+  updateBilling()
+  console.log('Async data loading completed')
+}
 
 
   return {
@@ -2023,7 +2018,7 @@ const loadDraftData = (draftData: any) => {
     PaymentMethods,
     roomTypeBaseInfo,
     validateCheckInCheckOut,
-    // loadDraftAsyncData,
+    loadDraftAsyncData,
       loadDraftData,
 
     // Room type data

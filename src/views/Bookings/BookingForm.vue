@@ -672,7 +672,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref, defineAsyncComponent } from 'vue'
+import { onMounted, computed, ref, defineAsyncComponent ,nextTick} from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
@@ -1083,19 +1083,17 @@ const loadDraft = async () => {
   }
 
   try {
-
     const loaded = loadDraftData(draft)
 
     if (!loaded) {
       console.error('Failed to load draft data')
       return false
     }
-    // await loadDraftAsyncData()
+
+    await loadDraftAsyncData()
+
 
     console.log('Draft loaded successfully!')
-    console.log('Final formData:', formData.value)
-    console.log('Final roomConfigurations:', roomConfigurations.value)
-
     return true
 
   } catch (error) {
@@ -1103,17 +1101,21 @@ const loadDraft = async () => {
     return false
   }
 }
-
 onMounted(async () => {
-
   await initialize()
 
   const draftLoaded = await loadDraft()
 
   if (!draftLoaded) {
     initializeForm()
+  } else {
+
+    await nextTick()
+    console.log('Draft loaded and components updated')
   }
 })
+
+
 </script>
 
 <style scoped>

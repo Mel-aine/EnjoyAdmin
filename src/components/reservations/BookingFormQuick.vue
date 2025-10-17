@@ -263,7 +263,9 @@ const gotoNew = () => {
       roomNumber: room.roomNumber,
       adultCount: room.adultCount,
       childCount: room.childCount,
-      rate: room.rate
+      rate: room.rate,
+      taxes: room.taxes || [],
+      extraCharges: room.extraCharges || []
     })),
     formData: {
       title: formData.value.title,
