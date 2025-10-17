@@ -508,6 +508,7 @@ isRoomMoveModalOpen.value = false
   await getBookingDetailsById()
 }
 const handleRoomMoveSuccess = ()=>{
+    getBookingDetailsById()
 
 }
 const closeExchangeRoomModal = async()=>{
@@ -516,6 +517,7 @@ const closeExchangeRoomModal = async()=>{
 
 }
 const handleExchangeSuccess = ()=>{
+    getBookingDetailsById()
 
 }
 // ====== GESTION DES OPTIONS ======

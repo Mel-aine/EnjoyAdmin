@@ -1856,24 +1856,18 @@ const loadDraftData = (draftData: any) => {
   }
 
   try {
-
     if (draftData.reservation) {
       Object.keys(draftData.reservation).forEach(key => {
         if (key in reservation.value) {
           (reservation.value as any)[key] = draftData.reservation[key]
         }
       })
-      console.log('Loaded reservation data:', reservation.value)
     }
 
-
     if (draftData.roomConfigurations && draftData.roomConfigurations.length > 0) {
-      // Vider les configurations existantes
       roomConfigurations.value = []
 
-      // Recréer chaque configuration
       draftData.roomConfigurations.forEach((roomDraft: any) => {
-        console.log('roomDraft',roomDraft)
         const newRoom: RoomConfiguration = {
           id: roomDraft.id,
           roomType: roomDraft.roomType,
@@ -1893,48 +1887,36 @@ const loadDraftData = (draftData: any) => {
       console.log('Loaded room configurations:', roomConfigurations.value)
     }
 
-    // if (draftData.formData) {
-    //   Object.keys(draftData.formData).forEach(key => {
-
-
-    //     if (key in formData.value) {
-    //       (formData.value as any)[key] = draftData.formData[key]
-    //     }
-    //   })
-    //   console.log('Loaded formData:', formData.value)
-    // }
     if (draftData.formData) {
-        formData.value = {
-          firstName: draftData.formData.firstName || '',
-          lastName: draftData.formData.lastName || '',
-          phoneNumber: draftData.formData.phoneNumber || '',
-          email: draftData.formData.email || '',
-          roleId: draftData.formData.roleId ?? null,
-          companyName: draftData.formData.companyName || '',
-          groupName: draftData.formData.groupName || '',
-          fax: draftData.formData.fax || '',
-          placeOfBirth: draftData.formData.placeOfBirth || '',
-          dateOfBirth: draftData.formData.dateOfBirth || '',
-          natonality: draftData.formData.natonality || '',
-          profession: draftData.formData.profession || '',
-          title: draftData.formData.title || '',
-          id: draftData.formData.id ?? 0,
-          address: draftData.formData.address || '',
-          country: draftData.formData.country || '',
-          state: draftData.formData.state || '',
-          city: draftData.formData.city || '',
-          zipcode: draftData.formData.zipcode || '',
-          idPhoto: draftData.formData.idPhoto || '',
-          idType: draftData.formData.idType || '',
-          idNumber: draftData.formData.idNumber || '',
-          idExpiryDate: draftData.formData.idExpiryDate || '',
-          issuingCountry: draftData.formData.issuingCountry || '',
-          issuingCity: draftData.formData.issuingCity || '',
-          profilePhoto: draftData.formData.profilePhoto || ''
-        }
+      formData.value = {
+        firstName: draftData.formData.firstName || '',
+        lastName: draftData.formData.lastName || '',
+        phoneNumber: draftData.formData.phoneNumber || '',
+        email: draftData.formData.email || '',
+        roleId: draftData.formData.roleId ?? null,
+        companyName: draftData.formData.companyName || '',
+        groupName: draftData.formData.groupName || '',
+        fax: draftData.formData.fax || '',
+        placeOfBirth: draftData.formData.placeOfBirth || '',
+        dateOfBirth: draftData.formData.dateOfBirth || '',
+        natonality: draftData.formData.natonality || '',
+        profession: draftData.formData.profession || '',
+        title: draftData.formData.title || '',
+        id: draftData.formData.id ?? 0,
+        address: draftData.formData.address || '',
+        country: draftData.formData.country || '',
+        state: draftData.formData.state || '',
+        city: draftData.formData.city || '',
+        zipcode: draftData.formData.zipcode || '',
+        idPhoto: draftData.formData.idPhoto || '',
+        idType: draftData.formData.idType || '',
+        idNumber: draftData.formData.idNumber || '',
+        idExpiryDate: draftData.formData.idExpiryDate || '',
+        issuingCountry: draftData.formData.issuingCountry || '',
+        issuingCity: draftData.formData.issuingCity || '',
+        profilePhoto: draftData.formData.profilePhoto || ''
       }
-
-
+    }
 
     if (draftData.otherInfo) {
       otherInfo.value.emailBookingVouchers = draftData.otherInfo.emailBookingVouchers || false
@@ -1948,7 +1930,6 @@ const loadDraftData = (draftData: any) => {
         billing.value.paymentMode = draftData.billing.paymentMode
       }
     }
-
 
     if (draftData.holdReleaseData && reservation.value.isHold) {
       Object.keys(draftData.holdReleaseData).forEach(key => {
@@ -1968,32 +1949,33 @@ const loadDraftData = (draftData: any) => {
 }
 
 
-// Dans useBooking2.ts, ajoutez cette fonction
-
 const loadDraftAsyncData = async () => {
   console.log('Loading async data for draft rooms...')
 
   for (const room of roomConfigurations.value) {
     if (room.roomType) {
-      // Charger les rate types
+      // Sauvegarder le rate original avant le chargement
+      const originalRate = room.rate
+
+
       await loadRateTypesForRoomType(room.roomType.toString())
 
-      // Charger les chambres disponibles
+
       await loadRoomsForRoomType(room.roomType.toString(), room.id)
 
-      // Si on a un rateType, recharger les infos de tarif
+
       if (room.rateType) {
         try {
           room.isLoadingRate = true
           const rateInfo = await fetchRateInfo(
-            room.roomType.toString(),
-            room.rateType.toString(),
+            room.roomType,
+            room.rateType,
             reservation.value.checkinDate
           )
 
           if (rateInfo) {
-            // Mettre à jour les infos de base du room type
-            const baseInfo = roomTypeBaseInfo.value.get(room.roomType.toString()) || {
+
+            const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
               baseAdult: 1,
               baseChild: 0,
               extraAdultRate: 0,
@@ -2004,8 +1986,9 @@ const loadDraftAsyncData = async () => {
             baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
             roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
 
-            // Restaurer les extra charges
             room.extraCharges = rateInfo.extraCharges || []
+
+            room.rate = originalRate
           }
         } catch (error) {
           console.error('Error loading rate info for draft room:', error)
