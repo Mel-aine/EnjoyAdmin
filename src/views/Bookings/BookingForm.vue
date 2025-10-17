@@ -871,7 +871,9 @@ const {
   pendingUploads,
   holdReleaseData,
   canCityLedgerPay,
-  isExtraChargesIncluded
+  isExtraChargesIncluded,
+  loadDraftData,
+  loadDraftAsyncData,
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -1070,108 +1072,50 @@ const onQuickGroupBookingChange = (event: Event) => {
 
 
 
-
-
-
-// Ajoutez cette nouvelle fonction pour charger le brouillon
+// Fonction
 const loadDraft = async () => {
   const draft = loadBooking()
-  console.log('draft',draft)
+  console.log('Loading draft from localStorage:', draft)
 
   if (!draft) {
     console.log('No draft found')
-    return
+    return false
   }
 
   try {
-    // Charger les données de réservation
-    if (draft.reservation) {
-      reservation.value.checkinDate = draft.reservation.checkinDate
-      reservation.value.checkinTime = draft.reservation.checkinTime
-      reservation.value.checkoutDate = draft.reservation.checkoutDate
-      reservation.value.checkoutTime = draft.reservation.checkoutTime
-      reservation.value.bookingType = draft.reservation.bookingType
-      reservation.value.bookingSource = draft.reservation.bookingSource
-      reservation.value.businessSource = draft.reservation.businessSource
-      reservation.value.isComplementary = draft.reservation.isComplementary
-      reservation.value.isHold = draft.reservation.isHold
-      reservation.value.rooms = draft.reservation.rooms
-      reservation.value.arrivingTo = draft.reservation.arrivingTo
-      reservation.value.goingTo = draft.reservation.goingTo
-      reservation.value.meansOfTransport = draft.reservation.meansOfTransport
 
+    const loaded = loadDraftData(draft)
+
+    if (!loaded) {
+      console.error('Failed to load draft data')
+      return false
     }
+    await loadDraftAsyncData()
 
-    // Charger les configurations de chambres
-    if (draft.roomConfigurations && draft.roomConfigurations.length > 0) {
-      // Vider les configurations existantes
-      while (roomConfigurations.value.length > 0) {
-        roomConfigurations.value.pop()
-      }
+    console.log('Draft loaded successfully!')
+    console.log('Final formData:', formData.value)
+    console.log('Final roomConfigurations:', roomConfigurations.value)
 
-      // Recréer les configurations depuis le brouillon
-      for (const roomDraft of draft.roomConfigurations) {
-        addRoom()
-        const lastRoom = roomConfigurations.value[roomConfigurations.value.length - 1]
-        if (lastRoom) {
-          // Assigner les valeurs de base
-          Object.assign(lastRoom, roomDraft)
-
-          // Déclencher les changements pour charger les données dépendantes
-          if (roomDraft.roomType) {
-            await onRoomTypeChange(lastRoom.id, roomDraft.roomType)
-          }
-          if (roomDraft.rateType) {
-            await onRateTypeChange(lastRoom.id, roomDraft.rateType)
-          }
-          if (roomDraft.roomNumber) {
-            await onRoomNumberChange(lastRoom)
-          }
-        }
-      }
-    }
-
-    // Charger les données du formulaire client
-    if (draft.formData) {
-      Object.assign(formData.value, draft.formData)
-    }
-
-    // Charger les autres informations
-    if (draft.otherInfo) {
-      otherInfo.value.emailBookingVouchers = draft.otherInfo.emailBookingVouchers
-      otherInfo.value.voucherEmail = draft.otherInfo.voucherEmail
-    }
-
-    // Charger les informations de facturation
-    if (draft.billing) {
-      billing.value.billTo = draft.billing.billTo
-      billing.value.paymentType = draft.billing.paymentType
-    }
-
-    // Charger les données de hold/release si présentes
-    if (draft.holdReleaseData && reservation.value.isHold) {
-      holdReleaseData.value = { ...draft.holdReleaseData }
-    }
-
-    console.log('Draft loaded successfully')
+    return true
 
   } catch (error) {
     console.error('Error loading draft:', error)
-
+    return false
   }
 }
 
+onMounted(async () => {
 
+  await initialize()
 
+  const draftLoaded = await loadDraft()
 
-
-onMounted(() => {
-  initialize()
-  initializeForm()
-  loadDraft()
-
+  if (!draftLoaded) {
+    initializeForm()
+  }
 })
 </script>
+
 <style scoped>
 .sidebar-scroll {
   -ms-overflow-style: none;

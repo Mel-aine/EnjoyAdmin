@@ -1085,9 +1085,9 @@ const validateAllRooms = () => {
             meal_plan_id : mealPlanId.value,
             meal_plan_rate_include: mealPlanRateInclude.value ,
             tax_includes: taxIncludes.value ,
-            meansOfTransport:reservation.value.meansOfTransport,
-            goingTo:reservation.value.goingTo,
-            arrivingTo:reservation.value.arrivingTo,
+            means_of_transport:reservation.value.meansOfTransport,
+            going_to:reservation.value.goingTo,
+            arriving_to:reservation.value.arrivingTo,
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
@@ -1843,6 +1843,185 @@ watch(() => otherInfo.value.voucherEmail, () => {
     validateVoucherEmail()
   }
 })
+
+
+
+// Fonction pour charger les données asynchrones après le chargement du draft
+const loadDraftData = (draftData: any) => {
+  console.log('Loading draft data into useBooking2:', draftData)
+
+  if (!draftData) {
+    console.log('No draft data to load')
+    return false
+  }
+
+  try {
+
+    if (draftData.reservation) {
+      Object.keys(draftData.reservation).forEach(key => {
+        if (key in reservation.value) {
+          (reservation.value as any)[key] = draftData.reservation[key]
+        }
+      })
+      console.log('Loaded reservation data:', reservation.value)
+    }
+
+
+    if (draftData.roomConfigurations && draftData.roomConfigurations.length > 0) {
+      // Vider les configurations existantes
+      roomConfigurations.value = []
+
+      // Recréer chaque configuration
+      draftData.roomConfigurations.forEach((roomDraft: any) => {
+        console.log('roomDraft',roomDraft)
+        const newRoom: RoomConfiguration = {
+          id: roomDraft.id,
+          roomType: roomDraft.roomType,
+          rateType: roomDraft.rateType,
+          roomNumber: roomDraft.roomNumber,
+          adultCount: roomDraft.adultCount || 1,
+          childCount: roomDraft.childCount || 0,
+          rate: roomDraft.rate || 0,
+          isOpen: false,
+          taxes: roomDraft.taxes || [],
+          extraCharges: roomDraft.extraCharges || [],
+          isLoadingRooms: false,
+          isLoadingRate: false,
+        }
+        roomConfigurations.value.push(newRoom)
+      })
+      console.log('Loaded room configurations:', roomConfigurations.value)
+    }
+
+    // if (draftData.formData) {
+    //   Object.keys(draftData.formData).forEach(key => {
+
+
+    //     if (key in formData.value) {
+    //       (formData.value as any)[key] = draftData.formData[key]
+    //     }
+    //   })
+    //   console.log('Loaded formData:', formData.value)
+    // }
+    if (draftData.formData) {
+        formData.value = {
+          firstName: draftData.formData.firstName || '',
+          lastName: draftData.formData.lastName || '',
+          phoneNumber: draftData.formData.phoneNumber || '',
+          email: draftData.formData.email || '',
+          roleId: draftData.formData.roleId ?? null,
+          companyName: draftData.formData.companyName || '',
+          groupName: draftData.formData.groupName || '',
+          fax: draftData.formData.fax || '',
+          placeOfBirth: draftData.formData.placeOfBirth || '',
+          dateOfBirth: draftData.formData.dateOfBirth || '',
+          natonality: draftData.formData.natonality || '',
+          profession: draftData.formData.profession || '',
+          title: draftData.formData.title || '',
+          id: draftData.formData.id ?? 0,
+          address: draftData.formData.address || '',
+          country: draftData.formData.country || '',
+          state: draftData.formData.state || '',
+          city: draftData.formData.city || '',
+          zipcode: draftData.formData.zipcode || '',
+          idPhoto: draftData.formData.idPhoto || '',
+          idType: draftData.formData.idType || '',
+          idNumber: draftData.formData.idNumber || '',
+          idExpiryDate: draftData.formData.idExpiryDate || '',
+          issuingCountry: draftData.formData.issuingCountry || '',
+          issuingCity: draftData.formData.issuingCity || '',
+          profilePhoto: draftData.formData.profilePhoto || ''
+        }
+      }
+
+
+
+    if (draftData.otherInfo) {
+      otherInfo.value.emailBookingVouchers = draftData.otherInfo.emailBookingVouchers || false
+      otherInfo.value.voucherEmail = draftData.otherInfo.voucherEmail || ''
+    }
+
+    if (draftData.billing) {
+      billing.value.billTo = draftData.billing.billTo || 'guest'
+      billing.value.paymentType = draftData.billing.paymentType || 'cash'
+      if (draftData.billing.paymentMode) {
+        billing.value.paymentMode = draftData.billing.paymentMode
+      }
+    }
+
+
+    if (draftData.holdReleaseData && reservation.value.isHold) {
+      Object.keys(draftData.holdReleaseData).forEach(key => {
+        if (key in holdReleaseData.value) {
+          (holdReleaseData.value as any)[key] = draftData.holdReleaseData[key]
+        }
+      })
+    }
+
+    console.log('Draft data loaded successfully into useBooking2')
+    return true
+
+  } catch (error) {
+    console.error('Error loading draft data:', error)
+    return false
+  }
+}
+
+
+// Dans useBooking2.ts, ajoutez cette fonction
+
+const loadDraftAsyncData = async () => {
+  console.log('Loading async data for draft rooms...')
+
+  for (const room of roomConfigurations.value) {
+    if (room.roomType) {
+      // Charger les rate types
+      await loadRateTypesForRoomType(room.roomType.toString())
+
+      // Charger les chambres disponibles
+      await loadRoomsForRoomType(room.roomType.toString(), room.id)
+
+      // Si on a un rateType, recharger les infos de tarif
+      if (room.rateType) {
+        try {
+          room.isLoadingRate = true
+          const rateInfo = await fetchRateInfo(
+            room.roomType.toString(),
+            room.rateType.toString(),
+            reservation.value.checkinDate
+          )
+
+          if (rateInfo) {
+            // Mettre à jour les infos de base du room type
+            const baseInfo = roomTypeBaseInfo.value.get(room.roomType.toString()) || {
+              baseAdult: 1,
+              baseChild: 0,
+              extraAdultRate: 0,
+              extraChildRate: 0,
+            }
+
+            baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+            baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+            roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
+
+            // Restaurer les extra charges
+            room.extraCharges = rateInfo.extraCharges || []
+          }
+        } catch (error) {
+          console.error('Error loading rate info for draft room:', error)
+        } finally {
+          room.isLoadingRate = false
+        }
+      }
+    }
+  }
+
+  // Mettre à jour la facturation après avoir chargé toutes les données
+  updateBilling()
+  console.log('Async data loading completed')
+}
+
+
   return {
     // Data
     canCityLedgerPay,
@@ -1856,6 +2035,8 @@ watch(() => otherInfo.value.voucherEmail, () => {
     PaymentMethods,
     roomTypeBaseInfo,
     validateCheckInCheckOut,
+    loadDraftAsyncData,
+      loadDraftData,
 
     // Room type data
     RoomTypes,
