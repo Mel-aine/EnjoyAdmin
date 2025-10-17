@@ -1,7 +1,7 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="$t('Booking')" />
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4">
       <!-- Left Column: Add Reservation Form -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
@@ -98,12 +98,12 @@
                 </div>
 
                 <!--arriving to-->
-                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" />
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" v-model="reservation.arrivingTo" />
 
                  <!--going to-->
-                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')"/>
+                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
                   <!--means of transportation-->
-                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" />
+                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
               </div>
 
               <!-- Room Type -->
@@ -1074,7 +1074,7 @@ const onQuickGroupBookingChange = (event: Event) => {
 
 
 // Ajoutez cette nouvelle fonction pour charger le brouillon
-const loadDraft = () => {
+const loadDraft = async () => {
   const draft = loadBooking()
   console.log('draft',draft)
 
@@ -1096,25 +1096,39 @@ const loadDraft = () => {
       reservation.value.isComplementary = draft.reservation.isComplementary
       reservation.value.isHold = draft.reservation.isHold
       reservation.value.rooms = draft.reservation.rooms
+      reservation.value.arrivingTo = draft.reservation.arrivingTo
+      reservation.value.goingTo = draft.reservation.goingTo
+      reservation.value.meansOfTransport = draft.reservation.meansOfTransport
+
     }
 
     // Charger les configurations de chambres
     if (draft.roomConfigurations && draft.roomConfigurations.length > 0) {
-      // Réinitialiser les configurations
-      roomConfigurations.value = []
+      // Vider les configurations existantes
+      while (roomConfigurations.value.length > 0) {
+        roomConfigurations.value.pop()
+      }
 
       // Recréer les configurations depuis le brouillon
-      draft.roomConfigurations.forEach((roomDraft, index) => {
-        if (index === 0) {
-          // Utiliser la première chambre existante
-          const firstRoom = roomConfigurations.value[0] || addRoom()
-          Object.assign(firstRoom, roomDraft)
-        } else {
-          // Ajouter les chambres supplémentaires
-          const newRoom:any = addRoom()
-          Object.assign(newRoom, roomDraft)
+      for (const roomDraft of draft.roomConfigurations) {
+        addRoom()
+        const lastRoom = roomConfigurations.value[roomConfigurations.value.length - 1]
+        if (lastRoom) {
+          // Assigner les valeurs de base
+          Object.assign(lastRoom, roomDraft)
+
+          // Déclencher les changements pour charger les données dépendantes
+          if (roomDraft.roomType) {
+            await onRoomTypeChange(lastRoom.id, roomDraft.roomType)
+          }
+          if (roomDraft.rateType) {
+            await onRateTypeChange(lastRoom.id, roomDraft.rateType)
+          }
+          if (roomDraft.roomNumber) {
+            await onRoomNumberChange(lastRoom)
+          }
         }
-      })
+      }
     }
 
     // Charger les données du formulaire client

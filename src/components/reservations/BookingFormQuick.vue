@@ -251,7 +251,10 @@ const gotoNew = () => {
       businessSource: reservation.value.businessSource,
       isComplementary: reservation.value.isComplementary,
       isHold: reservation.value.isHold,
-      rooms: reservation.value.rooms
+      rooms: reservation.value.rooms,
+      meansOfTransport:reservation.value.meansOfTransport,
+      goingTo:reservation.value.goingTo,
+      arrivingTo:reservation.value.arrivingTo,
     },
     roomConfigurations: roomConfigurations.value.map(room => ({
       id: room.id,

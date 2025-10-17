@@ -42,6 +42,9 @@ interface Reservation {
   complimentaryRoom?: boolean
   isHold: boolean
   reservationStatus: string
+  meansOfTransport:string
+  goingTo:string
+  arrivingTo:string
 }
 
 interface Guest {
@@ -214,6 +217,9 @@ export function useBooking() {
     complimentaryRoom: false,
     isHold: false,
     reservationStatus: 'confirmed',
+    meansOfTransport:'',
+    goingTo:'',
+    arrivingTo:''
   })
 
   const guest = ref<Guest>({
@@ -1079,6 +1085,9 @@ const validateAllRooms = () => {
             meal_plan_id : mealPlanId.value,
             meal_plan_rate_include: mealPlanRateInclude.value ,
             tax_includes: taxIncludes.value ,
+            meansOfTransport:reservation.value.meansOfTransport,
+            goingTo:reservation.value.goingTo,
+            arrivingTo:reservation.value.arrivingTo,
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
@@ -1552,6 +1561,9 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
     complimentaryRoom: false,
     isHold: false,
     reservationStatus: 'confirmed',
+    meansOfTransport:'',
+    goingTo:'',
+    arrivingTo:''
   })
 
   // Reset room configurations

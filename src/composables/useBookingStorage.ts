@@ -15,6 +15,10 @@ export interface Booking {
     isComplementary: boolean
     isHold: boolean
     rooms: number
+    meansOfTransport:string
+    goingTo:string
+    arrivingTo:string
+
   }
   roomConfigurations: Array<{
     id: string
@@ -86,14 +90,7 @@ export function useBookingStorage() {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (!stored) return null
 
-      const draft = JSON.parse(stored) as BookingDraft
-
-      // Vérifier si le brouillon n'est pas trop ancien (24 heures)
-      const twentyFourHours = 24 * 60 * 60 * 1000
-      if (Date.now() - draft.timestamp > twentyFourHours) {
-        clearBookingDraft()
-        return null
-      }
+      const draft = JSON.parse(stored) as Booking
 
       return draft
     } catch (error) {
