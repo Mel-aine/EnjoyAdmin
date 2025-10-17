@@ -9,6 +9,8 @@ export const useBookingStore = defineStore('booking', {
     selectRoom: null as any | null,
     selectedCustomer: null as any | null,
     isFromRoomCard: false,
+    shouldRefreshGrid: false,
+    shouldRefreshCalendar: false,
   }),
   getters: {
     getBooking: (state) => state.selectedBooking,
@@ -33,6 +35,18 @@ export const useBookingStore = defineStore('booking', {
     clearRoom() {
       this.selectedRoom = null
       this.isFromRoomCard = false
+    },
+    triggerGridRefresh() {
+      this.shouldRefreshGrid = true
+    },
+    clearGridRefresh() {
+      this.shouldRefreshGrid = false
+    },
+    triggerCalendarRefresh() {
+      this.shouldRefreshCalendar = true
+    },
+    clearCalendarRefresh() {
+      this.shouldRefreshCalendar = false
     },
   }, persist: true
 })

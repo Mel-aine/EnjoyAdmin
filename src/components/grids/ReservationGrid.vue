@@ -409,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent, watch } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { ReservationType } from '@/types/option'
 import { useRouter } from 'vue-router'
@@ -1133,6 +1133,17 @@ const openBookingModal = () => {
 const refresh = () => {
   if (filter.value) applyFilter(filter.value)
 }
+
+// Watch for external refresh signals from the booking store
+watch(
+  () => store.shouldRefreshGrid,
+  (shouldRefresh) => {
+    if (shouldRefresh) {
+      refresh()
+      store.clearGridRefresh()
+    }
+  }
+)
 
 const activeFilter = ref<string>('totalReservations')
 

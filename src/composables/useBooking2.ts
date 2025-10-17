@@ -11,6 +11,7 @@ import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
 import { getAvailableRoomsByTypeId, getMarketCodesByHotelId } from '../services/configrationApi'
 import { useBookingStorage } from '@/composables/useBookingStorage'
+import { useBookingStore } from '@/composables/booking'
 
 // Types existants...
 interface RoomConfiguration {
@@ -133,6 +134,7 @@ export function useBooking() {
   const { t } = useI18n()
   const serviceStore = useServiceStore()
   const authStore = useAuthStore()
+  const bookingStore = useBookingStore()
 
   // Loading states
   const isLoading = ref(false)
@@ -1131,6 +1133,8 @@ const validateAllRooms = () => {
       }
 
       toast.success(t('reservationCreated'))
+      bookingStore.triggerGridRefresh()
+      bookingStore.triggerCalendarRefresh()
 
       return response
     } catch (error: any) {
