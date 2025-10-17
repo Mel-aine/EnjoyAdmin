@@ -1,56 +1,37 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('configuration.template_category.title') }}</h1>
+      <ReusableTable :title="$t('configuration.template_category.table_title')" :columns="columns"
+        :data="templateCategories" :actions="actions" :loading="loading" @action="onAction"
+        :search-placeholder="$t('configuration.template_category.search_placeholder')"
+        :empty-title="$t('configuration.template_category.empty_state_title')"
+        :empty-description="$t('configuration.template_category.empty_state_message')">
+        <template v-slot:header-actions>
+          <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
+            :label="$t('configuration.template_category.add_template_category')" :disabled="loading"/>
+        </template>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT( item.createdAt) }}</div>
+          </div>
+        </template>
 
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600 mb-6">
-          {{ $t('configuration.template_category.description') }}
-        </p>
-        <ReusableTable 
-          :title="$t('configuration.template_category.table_title')" 
-          :columns="columns" 
-          :data="templateCategories"
-          :actions="actions" 
-          :loading="loading" 
-          @action="onAction"
-          :search-placeholder="$t('configuration.template_category.search_placeholder')"
-          :empty-title="$t('configuration.template_category.empty_state_title')"
-          :empty-description="$t('configuration.template_category.empty_state_message')"
-        >
-          <template v-slot:header-actions>
-            <BasicButton 
-              variant="primary" 
-              @click="openAddModal" 
-              :icon="Plus"
-              :label="$t('configuration.template_category.add_template_category')" 
-              :loading="loading" 
-            />
-          </template>
-          <!-- Custom column for created info -->
-          <template #column-createdInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-            </div>
-          </template>
-
-          <!-- Custom column for modified info -->
-          <template #column-modifiedInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-            </div>
-          </template>
-        </ReusableTable>
-      </div>
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+          </div>
+        </template>
+      </ReusableTable>
     </div>
 
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div
-        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto"
-      >
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
             {{ isEditing ? $t('configuration.template_category.edit_template_category') :
@@ -59,30 +40,17 @@
 
           <form @submit.prevent="saveTemplateCategory">
             <div class="mb-4">
-              <Input 
-                v-model="formData.category" 
-                :lb="$t('configuration.template_category.category_name')" 
-                inputType="text"
-                :isRequired="true" 
-                :placeholder="$t('configuration.template_category.category_name_placeholder')" 
-              />
+              <Input v-model="formData.category" :lb="$t('configuration.template_category.category_name')"
+                inputType="text" :isRequired="true"
+                :placeholder="$t('configuration.template_category.category_name_placeholder')" />
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="$t('cancel')"
-                :disabled="saving" 
-              />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
-                :icon="Save"
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary" :icon="Save"
                 :label="isEditing ? $t('configuration.template_category.update_template_category') : $t('configuration.template_category.save_template_category')"
-                :loading="saving" 
-              />
+                :loading="saving" />
             </div>
           </form>
         </div>
@@ -109,6 +77,7 @@ import {
   deleteTemplateCategoryById
 } from '@/services/configrationApi'
 import { Save } from 'lucide-vue-next'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -141,7 +110,7 @@ const fetchTemplateCategories = async () => {
   try {
     loading.value = true
     const response = await getTemplateCategories()
-    templateCategories.value = response.data.data.data|| []
+    templateCategories.value = response.data.data.data || []
   } catch (error) {
     console.error('Error fetching template categories:', error)
     toast.error(t('configuration.template_category.fetch_error'))

@@ -1,6 +1,6 @@
 <template>
   <div ref="selectWrapper" class="w-full">
-    <label v-if="!hideLabel" for="payment_method_select" 
+    <label v-if="!hideLabel" for="payment_method_select"
       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
       :class="showDropdown ? 'text-brand-500' : 'text-gray-500'">
       {{ label || 'Payment Method' }}
@@ -9,11 +9,13 @@
     <div class="relative font-sans cursor-pointer" @click="handleFocus">
       <div
         class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-        :class="showDropdown ? 'border-purple-500 text-gray-900' : 'border-gray-300'">
+        :class="[ showDropdown ? 'border-purple-500 text-gray-900' : 'border-black/50', props.customClass]">
+
         <input ref="inputRef" type="text" :value="displayValue" @input="handleInput" @focus="handleFocus"
           @keydown="handleKeydown" :placeholder="placeholder || 'Search payment methods...'"
-          class="w-full bg-transparent outline-none border-none p-0 text-sm text-gray-800 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30" />
-        
+          class="w-full bg-transparent outline-none border-none p-0 text-sm text-gray-800 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30',">
+
+
         <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
         <span v-else :class="showDropdown ? 'text-purple-500' : 'text-gray-500'">▼</span>
       </div>
@@ -26,7 +28,7 @@
           Loading payment methods...
         </li>
         <li v-else v-for="(paymentMethod, index) in filteredPaymentMethods" :key="paymentMethod.id"
-          @click="selectPaymentMethod(paymentMethod)" 
+          @click="selectPaymentMethod(paymentMethod)"
           class="px-5 py-2 cursor-pointer hover:bg-brand-100 transition-colors duration-150"
           :class="{
             'bg-blue-50': index === selectedIndex,
@@ -65,6 +67,7 @@ interface Props {
   hideLabel?: boolean
   paymentType?: string // Filter parameter
   disabled?:boolean
+  customClass?:string
 }
 
 interface Emits {
@@ -139,7 +142,7 @@ watch(() => props.paymentType, () => {
   emit('update:modelValue', null)
   emit('change', null)
   searchQuery.value = ''
-  
+
   // Reload payment methods when payment type changes
   loadPaymentMethods()
 })
@@ -162,7 +165,7 @@ const handleInput = (event: Event) => {
 const handleFocus = () => {
   showDropdown.value = true
   isUserTyping.value = false // Reset typing state on focus to show all options
-  
+
   // Clear search query when focusing to show all available options
   if (props.modelValue) {
     const selectedMethod = paymentMethods.value.find(method => method.id === props.modelValue)
@@ -170,7 +173,7 @@ const handleFocus = () => {
   } else {
     searchQuery.value = ''
   }
-  
+
   if (paymentMethods.value.length === 0) {
     loadPaymentMethods()
   }

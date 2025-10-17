@@ -44,6 +44,31 @@
             </div>
           </div>
         </div>
+        <!--  Date de naissance -->
+        <div class="">
+          <InputDatePicker
+            :title="$t('DateOfBirth')"
+            v-model="form.dateOfBirth"
+            :placeholder="$t('Select Date')"
+          />
+        </div>
+        <!-- Lieu de naissance -->
+        <div class="">
+          <Input
+            :lb="$t('PlaceOfBirth')"
+            :id="'placeOfBirth'"
+            v-model="form.placeOfBirth"
+            :placeholder="$t('PlaceOfBirth')"
+          />
+        </div>
+        <div>
+          <Input
+            :lb="$t('profession')"
+            :id="'profession'"
+            v-model="form.profession"
+            :placeholder="$t('profession')"
+          />
+        </div>
 
         <div>
           <InputPhone
@@ -99,12 +124,12 @@
         <textarea
           v-model="form.addressLine"
           rows="2"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+          class="w-full px-3 py-2 border border-black/50 rounded-lg focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
           :placeholder="$t('Address')"
         ></textarea>
       </div>
       <div>
-        <InputCountries v-model="form.country" />
+        <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="form.country" />
       </div>
       <div>
         <Input :lb="$t('State/Province')" v-model="form.stateProvince" placeholder="State" />
@@ -116,10 +141,18 @@
         <Input :lb="$t('postalCode')" v-model="form.postalCode" :placeholder="$t('postalCode')" />
       </div>
       <div>
-        <InputCountries v-model="form.nationality" :lb="$t('customerDetails.basicInfo.nationality')" />
+        <InputCountries
+          v-model="form.nationality"
+          :lb="$t('customerDetails.basicInfo.nationality')"
+        />
       </div>
       <div>
-        <Select :lb="$t('Company Name')" v-model="form.companyName" :options="companyOptions" :placeholder="$t('-select-')" />
+        <Select
+          :lb="$t('Company Name')"
+          v-model="form.companyName"
+          :options="companyOptions"
+          :placeholder="$t('-select-')"
+        />
       </div>
       <div>
         <Input v-model="form.fax" :lb="$t('Fax')" :placeholder="$t('Fax')" />
@@ -139,11 +172,11 @@
         @click="toggleSection('identity')"
         class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
       >
-       <ChevronDownIcon
-                  :class="[
-                    'w-6 h-6 text-gray-500 transition-transform',
-                    { 'rotate-180': sections.identity },
-                  ]"
+        <ChevronDownIcon
+          :class="[
+            'w-6 h-6 text-gray-500 transition-transform',
+            { 'rotate-180': sections.identity },
+          ]"
         />
 
         {{ $t('IdentityInformation') }}
@@ -204,29 +237,26 @@
         @click="toggleSection('otherInformation')"
         class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
       >
-           <ChevronDownIcon
-                  :class="[
-                    'w-6 h-6 text-gray-500 transition-transform',
-                    { 'rotate-180': sections.otherInformation },
-                  ]"
+        <ChevronDownIcon
+          :class="[
+            'w-6 h-6 text-gray-500 transition-transform',
+            { 'rotate-180': sections.otherInformation },
+          ]"
         />
 
         {{ $t('OtherInformation') }}
       </h3>
       <div v-if="sections.otherInformation" class="mt-6 pt-4">
         <div>
-        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-          {{ $t('Preference') }}
-        </label>
-        <MultipleSelect
-         v-model="form.preferences"
-          :options="Preferences"
-          :placeholder="$t('SelectPreferences')"
-
-        />
-      </div>
-
-
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            {{ $t('Preference') }}
+          </label>
+          <MultipleSelect
+            v-model="form.preferences"
+            :options="Preferences"
+            :placeholder="$t('SelectPreferences')"
+          />
+        </div>
       </div>
     </div>
 
@@ -262,12 +292,11 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import { getIdentityTypesByHotelId } from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
-import {getPreferencesByHotelId} from '@/services/configrationApi'
+import { getPreferencesByHotelId } from '@/services/configrationApi'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import { ChevronDownIcon } from 'lucide-vue-next'
 import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
-
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -302,6 +331,8 @@ interface CustomerForm {
   issuingCountry: string
   issuingCity: string
   dateOfBirth: string
+  placeOfBirth: string
+  profession:string
   preferences: string[]
 }
 
@@ -309,8 +340,8 @@ interface SelectOption {
   value: string
   label: string
   label_fr?: string
-  numberField?:any
-  dateField?:any
+  numberField?: any
+  dateField?: any
 }
 interface Sections {
   identity: boolean
@@ -383,7 +414,9 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   issuingCountry: '',
   issuingCity: '',
   dateOfBirth: '',
-   preferences: []
+  placeOfBirth: '',
+  profession:'',
+  preferences: [],
 })
 
 const sections = reactive<Sections>({
@@ -400,7 +433,7 @@ const titleOptions = computed(() => [
   { label: t('Mrs'), value: 'Mrs' },
   { label: t('Ms'), value: 'Ms' },
   { label: t('Dr'), value: 'Dr' },
-  { label: t('Miss'), value: 'Miss' }
+  { label: t('Miss'), value: 'Miss' },
 ])
 
 const genderOptions = computed(() => [
@@ -408,8 +441,6 @@ const genderOptions = computed(() => [
   { label: t('Female'), value: 'female' },
   { label: t('Other'), value: 'other' },
 ])
-
-
 
 const guestTypeOptions: SelectOption[] = [
   { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
@@ -485,7 +516,7 @@ const getCompaniesList = async () => {
     console.log('Companies response:', resp)
     companyOptions.value = resp.data.map((c: any) => ({
       label: c.companyName,
-      value: c.companyName
+      value: c.companyName,
     }))
   } catch (error) {
     console.error('Error fetching companies:', error)
@@ -540,7 +571,6 @@ const handleSubmit = async () => {
       profilePhoto: profilePhotoUrl,
       idPhoto: idPhotoUrl,
       preferences: JSON.stringify(form.preferences),
-
     }
 
     console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
@@ -557,28 +587,22 @@ const handleSubmit = async () => {
 const populateForm = (data: Partial<CustomerForm>) => {
   Object.assign(form, data)
 
-    let finalPreferences: string[] = []
+  let finalPreferences: string[] = []
 
   if (data.preferences) {
-
     if (Array.isArray(data.preferences)) {
       finalPreferences = data.preferences
-    }
-
-    else if (typeof data.preferences === 'string') {
+    } else if (typeof data.preferences === 'string') {
       try {
         const parsed = JSON.parse(data.preferences)
 
         if (Array.isArray(parsed)) {
           finalPreferences = parsed
         }
-
       } catch (e) {
         console.error('Erreur de parsing des préférences JSON dans populateForm:', e)
-
       }
     }
-
   }
   form.preferences = finalPreferences
 }
@@ -586,15 +610,16 @@ const populateForm = (data: Partial<CustomerForm>) => {
 const fetchVipStatuses = async () => {
   try {
     loading.value = true
-    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!);
-    console.log("respinse",response)
-    vipStatusOptions.value = response.data?.data.map((s:any)=>{
-      return{
-        label:s.name,
-        value:s.id
-      }
-    }) || []
-    console.log("vipStatusOptions",vipStatusOptions.value)
+    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!)
+    console.log('respinse', response)
+    vipStatusOptions.value =
+      response.data?.data.map((s: any) => {
+        return {
+          label: s.name,
+          value: s.id,
+        }
+      }) || []
+    console.log('vipStatusOptions', vipStatusOptions.value)
   } catch (error) {
     console.error(error)
   } finally {
@@ -626,7 +651,6 @@ const fetchIdentityTypes = async () => {
     const res = await getIdentityTypesByHotelId(hotelId)
 
     idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
-
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {
@@ -708,13 +732,12 @@ const loadPreferences = async () => {
   try {
     const hotelId = serviceStore.serviceId
     const response = await getPreferencesByHotelId(hotelId!)
-    Preferences.value = response.data.data.data.map((i:any)=>({
-      label:i.name,
-      value:i.id
+    Preferences.value = response.data.data.data.map((i: any) => ({
+      label: i.name,
+      value: i.id,
     }))
   } catch (error) {
     console.error('Error loading preferences:', error)
-
   }
 }
 const saveButtonLabel = computed(() => {

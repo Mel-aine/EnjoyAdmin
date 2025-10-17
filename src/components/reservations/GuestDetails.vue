@@ -156,7 +156,7 @@
                             v-model="guestData.firstName"
                             type="text"
                             :placeholder="$t('FirstName')"
-                            class="h-11 w-full rounded-lg rounded-l-none rounded-r-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                            class="h-11 w-full  rounded-l-none rounded-r-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                             :disabled="!isEditing"
                           />
                         </div>
@@ -165,7 +165,7 @@
                             v-model="guestData.lastName"
                             type="text"
                             :placeholder="$t('LastName')"
-                            class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                            class="h-11 w-full  rounded-l-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                             :disabled="!isEditing"
                           />
                         </div>
@@ -173,7 +173,37 @@
                     </div>
                   </div>
 
+                   <!--  Date de naissance -->
+                    <div class="">
+                      <InputDatePicker
+                        :title="$t('DateOfBirth')"
+                        v-model="guestData.dateOfBirth"
+                        :placeholder="$t('Select Date')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <!-- Lieu de naissance -->
+                    <div class="">
+                      <Input
+                        :lb="$t('PlaceOfBirth')"
+                        :id="'placeOfBirth'"
+                        v-model="guestData.placeOfBirth"
+                        :placeholder="$t('PlaceOfBirth')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        :lb="$t('profession')"
+                        :id="'profession'"
+                        v-model="guestData.profession"
+                        :placeholder="$t('profession')"
+                        :disabled="!isEditing"
+                      />
+                    </div>
+
                   <!-- Téléphone -->
+
                   <div>
                     <InputPhone
                       :title="$t('Phone')"
@@ -256,7 +286,7 @@
                 <textarea
                   v-model="guestData.address"
                   rows="2"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                  class="w-full px-3 py-2 border border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
                   :placeholder="$t('Address')"
                   :disabled="!isEditing"
                 ></textarea>
@@ -591,6 +621,8 @@ interface GuestData {
   idType: string
   idNumber: string
   dateOfBirth: string
+  profession: string
+  placeOfBirth: string
   idExpiryDate: string
   issuingCountry: string
   issuingCity: string
@@ -688,6 +720,8 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     idType: '',
     idNumber: '',
     dateOfBirth: customer?.dateOfBirth || '',
+    profession: customer?.profession || '',
+    placeOfBirth: customer?.placeOfBirth || '',
     idExpiryDate: '',
     issuingCountry: customer?.issuingCountry || '',
     issuingCity: customer?.issuingCity || '',
@@ -745,6 +779,8 @@ const initializeGuestData = (guest: any = null): GuestData => {
     idType: '',
     idNumber: '',
     dateOfBirth: '',
+    profession: '',
+    placeOfBirth: '',
     idExpiryDate: '',
     issuingCountry: '',
     issuingCity: '',
@@ -925,6 +961,8 @@ const prepareGuestPayload = (): GuestPayload => {
     idType: guestData.idType,
     idNumber: guestData.idNumber,
     dateOfBirth: guestData.dateOfBirth,
+    profession: guestData.profession,
+    placeOfBirth: guestData.placeOfBirth,
     idExpiryDate: guestData.idExpiryDate,
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,

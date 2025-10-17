@@ -56,7 +56,7 @@
           </div>
 
           <div class="space-y-4">
-            <InputPaymentMethodSelect :paymentType="form.paymentType" v-model="form.paymentMethod" />
+            <InputPaymentMethodSelect :paymentType="form.paymentType" v-model="form.paymentMethod"  />
           </div>
         </div>
         <!-- Charges Section -->

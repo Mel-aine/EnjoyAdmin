@@ -373,6 +373,7 @@ import AssignRoomReservation from '../reservations/AssignRoomReservation.vue';
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useBookingStore } from '@/composables/booking'
 import { getDailyOccupancyAndReservations } from "@/services/api"
 //import CrownIcon from '@/icons/CrownIcon.vue'
 import AdminLayout from '../layout/AdminLayout.vue'
@@ -423,6 +424,7 @@ import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
 
 
 const router = useRouter()
+const bookingStore = useBookingStore()
 const selectionTooltipPosition = ref({ x: 0, y: 0 })
 const isTooltipAbove = ref(false)
 
@@ -872,6 +874,17 @@ const refresh = async () => {
   serviceResponse.value = response.data
   console.log('this is the response', serviceResponse.value)
 }
+
+// Watch for external refresh signals from the booking store
+watch(
+  () => bookingStore.shouldRefreshCalendar,
+  (shouldRefresh) => {
+    if (shouldRefresh) {
+      refresh()
+      bookingStore.clearCalendarRefresh()
+    }
+  }
+)
 function prevDay() {
   const d = new Date(selectedDate.value)
   d.setDate(d.getDate() - 1)

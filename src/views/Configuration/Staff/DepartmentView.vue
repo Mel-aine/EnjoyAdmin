@@ -1,13 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('Department') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ t('configuration.departments.description') }}
-        </p>
-      </div>
-
+     
       <Modal v-if="isAddModalOpen" @close="isAddModalOpen = false">
         <template #body>
           <div
@@ -386,7 +380,7 @@ const fetchUser = async () => {
     ;(Users.value = response.data.data.map((user: any) => {
       return {
         value: user.id,
-        label: user.firstName + ' ' + user.lastName,
+        label: user.lastName,
       }
     })),
       console.log('Filtered users with user info:', Users.value)

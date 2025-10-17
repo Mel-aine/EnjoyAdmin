@@ -10,6 +10,8 @@ import { createReservation } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
 import { getAvailableRoomsByTypeId, getMarketCodesByHotelId } from '../services/configrationApi'
+import { useBookingStorage } from '@/composables/useBookingStorage'
+import { useBookingStore } from '@/composables/booking'
 
 // Types existants...
 interface RoomConfiguration {
@@ -40,6 +42,9 @@ interface Reservation {
   complimentaryRoom?: boolean
   isHold: boolean
   reservationStatus: string
+  meansOfTransport:string
+  goingTo:string
+  arrivingTo:string
 }
 
 interface Guest {
@@ -132,6 +137,7 @@ export function useBooking() {
   const { t } = useI18n()
   const serviceStore = useServiceStore()
   const authStore = useAuthStore()
+  const bookingStore = useBookingStore()
 
   // Loading states
   const isLoading = ref(false)
@@ -143,6 +149,7 @@ export function useBooking() {
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
   const quickGroupBooking = ref(false)
+  const {  clearBooking } = useBookingStorage()
 
   // Data refs
   const RoomTypes = ref<Option[]>([])
@@ -210,6 +217,9 @@ export function useBooking() {
     complimentaryRoom: false,
     isHold: false,
     reservationStatus: 'confirmed',
+    meansOfTransport:'',
+    goingTo:'',
+    arrivingTo:''
   })
 
   const guest = ref<Guest>({
@@ -228,6 +238,11 @@ export function useBooking() {
     roleId: null,
     companyName: '',
     groupName: '',
+    fax: '',
+    placeOfBirth: '',
+    dateOfBirth: '',
+    natonality: '',
+    profession: '',
     title: '',
     id: 0,
     address: '',
@@ -313,7 +328,7 @@ export function useBooking() {
       const resp = await getMarketCodesByHotelId(hotelId!)
       console.log('Market Codes response:', resp)
       marketCodesLo.value = resp.data?.data?.data.map((s: any) => ({
-        value: s.code,
+        value: s.id,
         label: s.name,
       }))
     } catch (error) {
@@ -732,6 +747,11 @@ watch(
         companyName: customer.companyName || '',
         groupName: customer.groupName || '',
         title: customer.title || '',
+        fax: customer.fax || '',
+        placeOfBirth: customer.placeOfBirth || '',
+        dateOfBirth: customer.dateOfBirth || '',
+        natonality: customer.natonality || '',
+        profession: customer.profession || '',
         id: customer.id || 0,
         roleId: customer.roleId || null,
         address: customer.address || '',
@@ -759,6 +779,11 @@ watch(
         firstName: '',
         lastName: '',
         phoneNumber: '',
+        fax: '',
+        placeOfBirth: '',
+        dateOfBirth: '',
+        natonality: '',
+        profession: '',
         email: '',
         roleId: null,
         companyName: '',
@@ -911,7 +936,7 @@ const validateAllRooms = () => {
         throw new Error(t(validation.error || 'validation.invalidDateTime'))
       }
       // Validation
-      if (!formData.value.firstName || !formData.value.lastName  || !formData.value.phoneNumber || !formData.value.email ) {
+      if (!formData.value.firstName || !formData.value.lastName  ) {
         throw new Error(t('Guest information is incomplete'))
       }
 
@@ -923,9 +948,9 @@ const validateAllRooms = () => {
         throw new Error(t('Service ID is missing'))
       }
 
-      if (!billing.value.paymentMode) {
+     /* if (!billing.value.paymentMode) {
         throw new Error(t('Please select the payment method'))
-      }
+      }*/
 
        const roomValidation = validateAllRooms()
         if (!roomValidation.isValid) {
@@ -1012,6 +1037,11 @@ const validateAllRooms = () => {
         state: formData.value.state,
         city: formData.value.city,
         zipcode: formData.value.zipcode,
+        fax: formData.value.fax,
+        placeOfBirth: formData.value.placeOfBirth,
+        dateOfBirth: formData.value.dateOfBirth,
+        natonality: formData.value.natonality,
+        profession: formData.value.profession,
         ...identityPayload,
         reservation_status: reservation.value.reservationStatus,
         status: reservation.value.reservationStatus,
@@ -1055,6 +1085,9 @@ const validateAllRooms = () => {
             meal_plan_id : mealPlanId.value,
             meal_plan_rate_include: mealPlanRateInclude.value ,
             tax_includes: taxIncludes.value ,
+            means_of_transport:reservation.value.meansOfTransport,
+            going_to:reservation.value.goingTo,
+            arriving_to:reservation.value.arrivingTo,
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
@@ -1109,6 +1142,8 @@ const validateAllRooms = () => {
       }
 
       toast.success(t('reservationCreated'))
+      bookingStore.triggerGridRefresh()
+      bookingStore.triggerCalendarRefresh()
 
       return response
     } catch (error: any) {
@@ -1137,6 +1172,7 @@ const validateAllRooms = () => {
   }
 
   const goBack = () => {
+    clearBooking()
     router.back()
   }
 
@@ -1510,6 +1546,7 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
   })
 
   const resetForm = () => {
+    clearBooking()
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],
@@ -1524,6 +1561,9 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
     complimentaryRoom: false,
     isHold: false,
     reservationStatus: 'confirmed',
+    meansOfTransport:'',
+    goingTo:'',
+    arrivingTo:''
   })
 
   // Reset room configurations
@@ -1561,6 +1601,11 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
     roleId: null,
     companyName: '',
     groupName: '',
+    fax: '',
+    placeOfBirth: '',
+    dateOfBirth: '',
+    natonality: '',
+    profession: '',
     title: '',
     id: 0,
     address: '',
@@ -1798,6 +1843,185 @@ watch(() => otherInfo.value.voucherEmail, () => {
     validateVoucherEmail()
   }
 })
+
+
+
+// Fonction pour charger les données asynchrones après le chargement du draft
+const loadDraftData = (draftData: any) => {
+  console.log('Loading draft data into useBooking2:', draftData)
+
+  if (!draftData) {
+    console.log('No draft data to load')
+    return false
+  }
+
+  try {
+
+    if (draftData.reservation) {
+      Object.keys(draftData.reservation).forEach(key => {
+        if (key in reservation.value) {
+          (reservation.value as any)[key] = draftData.reservation[key]
+        }
+      })
+      console.log('Loaded reservation data:', reservation.value)
+    }
+
+
+    if (draftData.roomConfigurations && draftData.roomConfigurations.length > 0) {
+      // Vider les configurations existantes
+      roomConfigurations.value = []
+
+      // Recréer chaque configuration
+      draftData.roomConfigurations.forEach((roomDraft: any) => {
+        console.log('roomDraft',roomDraft)
+        const newRoom: RoomConfiguration = {
+          id: roomDraft.id,
+          roomType: roomDraft.roomType,
+          rateType: roomDraft.rateType,
+          roomNumber: roomDraft.roomNumber,
+          adultCount: roomDraft.adultCount || 1,
+          childCount: roomDraft.childCount || 0,
+          rate: roomDraft.rate || 0,
+          isOpen: false,
+          taxes: roomDraft.taxes || [],
+          extraCharges: roomDraft.extraCharges || [],
+          isLoadingRooms: false,
+          isLoadingRate: false,
+        }
+        roomConfigurations.value.push(newRoom)
+      })
+      console.log('Loaded room configurations:', roomConfigurations.value)
+    }
+
+    // if (draftData.formData) {
+    //   Object.keys(draftData.formData).forEach(key => {
+
+
+    //     if (key in formData.value) {
+    //       (formData.value as any)[key] = draftData.formData[key]
+    //     }
+    //   })
+    //   console.log('Loaded formData:', formData.value)
+    // }
+    if (draftData.formData) {
+        formData.value = {
+          firstName: draftData.formData.firstName || '',
+          lastName: draftData.formData.lastName || '',
+          phoneNumber: draftData.formData.phoneNumber || '',
+          email: draftData.formData.email || '',
+          roleId: draftData.formData.roleId ?? null,
+          companyName: draftData.formData.companyName || '',
+          groupName: draftData.formData.groupName || '',
+          fax: draftData.formData.fax || '',
+          placeOfBirth: draftData.formData.placeOfBirth || '',
+          dateOfBirth: draftData.formData.dateOfBirth || '',
+          natonality: draftData.formData.natonality || '',
+          profession: draftData.formData.profession || '',
+          title: draftData.formData.title || '',
+          id: draftData.formData.id ?? 0,
+          address: draftData.formData.address || '',
+          country: draftData.formData.country || '',
+          state: draftData.formData.state || '',
+          city: draftData.formData.city || '',
+          zipcode: draftData.formData.zipcode || '',
+          idPhoto: draftData.formData.idPhoto || '',
+          idType: draftData.formData.idType || '',
+          idNumber: draftData.formData.idNumber || '',
+          idExpiryDate: draftData.formData.idExpiryDate || '',
+          issuingCountry: draftData.formData.issuingCountry || '',
+          issuingCity: draftData.formData.issuingCity || '',
+          profilePhoto: draftData.formData.profilePhoto || ''
+        }
+      }
+
+
+
+    if (draftData.otherInfo) {
+      otherInfo.value.emailBookingVouchers = draftData.otherInfo.emailBookingVouchers || false
+      otherInfo.value.voucherEmail = draftData.otherInfo.voucherEmail || ''
+    }
+
+    if (draftData.billing) {
+      billing.value.billTo = draftData.billing.billTo || 'guest'
+      billing.value.paymentType = draftData.billing.paymentType || 'cash'
+      if (draftData.billing.paymentMode) {
+        billing.value.paymentMode = draftData.billing.paymentMode
+      }
+    }
+
+
+    if (draftData.holdReleaseData && reservation.value.isHold) {
+      Object.keys(draftData.holdReleaseData).forEach(key => {
+        if (key in holdReleaseData.value) {
+          (holdReleaseData.value as any)[key] = draftData.holdReleaseData[key]
+        }
+      })
+    }
+
+    console.log('Draft data loaded successfully into useBooking2')
+    return true
+
+  } catch (error) {
+    console.error('Error loading draft data:', error)
+    return false
+  }
+}
+
+
+// Dans useBooking2.ts, ajoutez cette fonction
+
+const loadDraftAsyncData = async () => {
+  console.log('Loading async data for draft rooms...')
+
+  for (const room of roomConfigurations.value) {
+    if (room.roomType) {
+      // Charger les rate types
+      await loadRateTypesForRoomType(room.roomType.toString())
+
+      // Charger les chambres disponibles
+      await loadRoomsForRoomType(room.roomType.toString(), room.id)
+
+      // Si on a un rateType, recharger les infos de tarif
+      if (room.rateType) {
+        try {
+          room.isLoadingRate = true
+          const rateInfo = await fetchRateInfo(
+            room.roomType.toString(),
+            room.rateType.toString(),
+            reservation.value.checkinDate
+          )
+
+          if (rateInfo) {
+            // Mettre à jour les infos de base du room type
+            const baseInfo = roomTypeBaseInfo.value.get(room.roomType.toString()) || {
+              baseAdult: 1,
+              baseChild: 0,
+              extraAdultRate: 0,
+              extraChildRate: 0,
+            }
+
+            baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+            baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+            roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
+
+            // Restaurer les extra charges
+            room.extraCharges = rateInfo.extraCharges || []
+          }
+        } catch (error) {
+          console.error('Error loading rate info for draft room:', error)
+        } finally {
+          room.isLoadingRate = false
+        }
+      }
+    }
+  }
+
+  // Mettre à jour la facturation après avoir chargé toutes les données
+  updateBilling()
+  console.log('Async data loading completed')
+}
+
+
   return {
     // Data
     canCityLedgerPay,
@@ -1811,6 +2035,8 @@ watch(() => otherInfo.value.voucherEmail, () => {
     PaymentMethods,
     roomTypeBaseInfo,
     validateCheckInCheckOut,
+    loadDraftAsyncData,
+      loadDraftData,
 
     // Room type data
     RoomTypes,

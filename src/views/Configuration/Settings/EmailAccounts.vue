@@ -1,17 +1,6 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Email Accounts</h1>
-          <p class="text-gray-600 mt-1">
-            Define all the email accounts that will be used by your staff to send emails to the guests and to business
-            source/partners.
-          </p>
-        </div>
-      </div>
-
       <!-- Table -->
       <div class="bg-white rounded-lg shadow">
         <ReusableTable :columns="columns" :data="emailAccounts" :actions="actions" :loading="isLoadingAccounts"

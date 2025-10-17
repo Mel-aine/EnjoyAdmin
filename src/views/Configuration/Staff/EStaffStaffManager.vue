@@ -258,13 +258,7 @@ const applyFilters = (filterOp: FitlterItem) => {
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ $t('staffManager.title') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ $t('staffManager.subtitle') }}
-        </p>
-      </div>
-
+    
       <div class="space-y-5 sm:space-y-6 min-h-screen">
         <ReusableTable
           :title="$t('UsersLists')"

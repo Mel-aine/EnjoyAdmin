@@ -1,91 +1,65 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <ReusableTable
-        :title="t('configuration.reservation_type.title')"
-        :description="t('configuration.reservation_type.description')"
-        :columns="columns"
-        :data="reservationTypes"
-        :actions="actions"
-        :search-placeholder="t('configuration.reservation_type.search_placeholder')"
-        :selectable="true"
-        :empty-state-title="t('configuration.reservation_type.empty_state_title')"
-        :empty-state-message="t('configuration.reservation_type.empty_state_message')"
-        :loading="loading"
-        @action="onAction"
-      >
+      <ReusableTable :title="t('configuration.reservation_type.title')"
+        :description="t('configuration.reservation_type.description')" :columns="columns" :data="reservationTypes"
+        :actions="actions" :search-placeholder="t('configuration.reservation_type.search_placeholder')"
+        :selectable="false" :empty-state-title="t('configuration.reservation_type.empty_state_title')"
+        :empty-state-message="t('configuration.reservation_type.empty_state_message')" :loading="loading"
+        @action="onAction">
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
-            :icon="PlusIcon"
-            :label="t('configuration.reservation_type.add_reservation_type')"
-            @click="openAddModal"
-          />
+          <BasicButton variant="primary" :icon="PlusIcon"
+            :label="t('configuration.reservation_type.add_reservation_type')" @click="openAddModal" />
         </template>
 
-       <!-- Custom column for created info -->
-          <template #column-createdInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
-            </div>
-          </template>
+        <!-- Custom column for created info -->
+        <template #column-createdInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+          </div>
+        </template>
 
-          <!-- Custom column for modified info -->
-          <template #column-modifiedInfo="{ item }">
-            <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
-            </div>
-          </template>
- 
+        <!-- Custom column for modified info -->
+        <template #column-modifiedInfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+          </div>
+        </template>
+
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
       <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? t('configuration.reservation_type.edit_reservation_type') : t('configuration.reservation_type.add_reservation_type') }}
+            {{ isEditing ? t('configuration.reservation_type.edit_reservation_type') :
+              t('configuration.reservation_type.add_reservation_type') }}
           </h3>
-          
+
           <form @submit.prevent="saveReservationType" class="space-y-4">
-            <Input 
-              :lb="t('configuration.reservation_type.name')"
-              :inputType="'text'"
-              :isRequired="true"
-              v-model="formData.name"
-              :placeholder="t('configuration.reservation_type.name_placeholder')"
-            />
-            
+            <Input :lb="t('configuration.reservation_type.name')" :inputType="'text'" :isRequired="true"
+              v-model="formData.name" :placeholder="t('configuration.reservation_type.name_placeholder')" />
+
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton
-                type="button"
-                variant="outline"
-                @click="closeModal"
-                :label="t('cancel')"
-                :disabled="saving"
-              />
-              <BasicButton
-                type="submit"
-                variant="primary"
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="t('cancel')"
+                :disabled="saving" />
+              <BasicButton type="submit" variant="primary"
                 :label="isEditing ? t('configuration.reservation_type.update') : t('configuration.reservation_type.save')"
-                :loading="saving"
-              />
+                :loading="saving" />
             </div>
           </form>
         </div>
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteConfirmation"
+      <ModalConfirmation v-if="showDeleteConfirmation"
         :title="t('configuration.reservation_type.delete_confirmation_title')"
         :message="t('configuration.reservation_type.delete_confirmation_message')"
         :confirm-text="t('configuration.reservation_type.delete')"
-        :cancel-text="t('configuration.reservation_type.cancel')"
-        @confirm="deleteReservationType"
-        @close="showDeleteConfirmation = false; reservationTypeToDelete = null"
-      />
+        :cancel-text="t('configuration.reservation_type.cancel')" @confirm="deleteReservationType"
+        @close="showDeleteConfirmation = false; reservationTypeToDelete = null" />
     </div>
   </ConfigurationLayout>
 </template>
@@ -109,6 +83,7 @@ import {
   deleteReservationTypeById
 } from '@/services/configrationApi'
 import PlusIcon from '../../../icons/Plus.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Initialize composables
 const { t } = useI18n()
@@ -214,7 +189,7 @@ const saveReservationType = async () => {
       await postReservationType(payload)
       toast.success(t('configuration.reservation_type.create_success'))
     }
-    
+
     closeModal()
     await fetchReservationTypes()
   } catch (error) {

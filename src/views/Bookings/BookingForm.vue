@@ -1,7 +1,7 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="$t('Booking')" />
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4">
       <!-- Left Column: Add Reservation Form -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
@@ -20,51 +20,69 @@
             <!-- Left Side: Reservation Form -->
             <div class="space-y-6">
               <!-- Check-in/out dates and time -->
-              <div class="md:flex relative items-start gap-2">
-                <!-- Check-In -->
-                <div class="flex flex-col w-full">
-                  <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('check_in') }}
-                  </label>
-                  <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkinDate" class="rounded-r-none" :allowPastDates="false"
-                      :placeholder="$t('Selectdate')" />
-                    <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
-                  </div>
-                </div>
-
-                <!-- Nights -->
-                <div class="flex flex-col w-full">
-                  <Input :lb="$t('nights')" :disabled="true" :modelValue="numberOfNights.toString()" />
-                </div>
-
-                <!-- Check-Out -->
-                <div class="flex flex-col w-full">
-                  <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('check_out') }}
-                  </label>
-                  <div class="flex gap-0">
-                    <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
-                      class="rounded-r-none" />
-                    <InputTimePicker v-model="reservation.checkoutTime" class="rounded-l-none" />
-                  </div>
-                  <p v-if="dateError" class="text-sm text-red-600">
-                    {{ $t(dateError) }}
-                  </p>
+            <div class="flex md:flex-nowrap flex-wrap items-start">
+              <!-- Check-In -->
+              <div class="flex flex-col w-auto">
+                <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('check_in') }}
+                </label>
+                <div class="flex">
+                  <InputDatePicker
+                    v-model="reservation.checkinDate"
+                    class="rounded-r-none"
+                    :allowPastDates="false"
+                    :placeholder="$t('Selectdate')"
+                    :custom-class="'rounded-r-none'"
+                  />
+                  <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                 </div>
               </div>
 
-              <div class="grid md:grid-cols-4 grid-cols-1 gap-4">
-                <div>
-                  <Input :inputType="'number'" :lb="$t('Room')" :id="'room-qty'" forLabel="'room-qty'"
-                    v-model.number="reservation.rooms" :min="1" :disabled="true" />
-                </div>
+              <!-- Nights -->
+              <div class="flex flex-col w-20">
+                <Input
+                  :lb="$t('nights')"
+                  :disabled="true"
+                  :modelValue="numberOfNights.toString()"
+                  custom-class="rounded-none"
+                />
+              </div>
 
-                <div>
-                  <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
-                    :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
-                    :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
+              <!-- Check-Out -->
+              <div class="flex flex-col w-auto">
+                <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('check_out') }}
+                </label>
+                <div class="flex">
+                  <InputDatePicker
+                    v-model="reservation.checkoutDate"
+                    :placeholder="$t('Selectdate')"
+                    :custom-class="'rounded-none'"
+                  />
+                  <InputTimePicker v-model="reservation.checkoutTime"  customClass="rounded-r-lg"/>
                 </div>
+                <p v-if="dateError" class="text-sm text-red-600">
+                  {{ $t(dateError) }}
+                </p>
+              </div>
+
+              <!-- Booking Type -->
+              <div class="flex flex-col w-[350px] translate-x-4">
+                <AutoCompleteSelect
+                  v-model="reservation.bookingType"
+                  :options="BookingType"
+                  :defaultValue="$t('SelectReservationType')"
+                  :lb="$t('ReservationType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                />
+              </div>
+            </div>
+
+
+              <div class="grid md:grid-cols-5 grid-cols-1 gap-4">
+
 
                 <!-- Booking Source -->
                 <div>
@@ -78,6 +96,14 @@
                     :defaultValue="$t('SelectBusinessSource')" :lb="$t('business_source')" :is-required="false"
                     :use-dropdown="useDropdownBooking" @clear-error="emit('clear-error')" />
                 </div>
+
+                <!--arriving to-->
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" v-model="reservation.arrivingTo" />
+
+                 <!--going to-->
+                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
+                  <!--means of transportation-->
+                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
               </div>
 
               <!-- Room Type -->
@@ -181,7 +207,7 @@
                         <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
                           @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
                           :disabled="!room.roomType"
-                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Child Count avec gestion des changements -->
@@ -192,7 +218,7 @@
                         <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
                           @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
                           :disabled="!room.roomType"
-                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                       </div>
 
                       <!-- Rate Display avec détails -->
@@ -201,7 +227,7 @@
                           {{ $t('rate')}} (XAF)
                         </label>
                         <div v-if="!isCustomPrize"
-                          class="flex items-center border border-gray-300 rounded-lg bg-gray-100 px-4 py-2.5 text-sm"
+                          class="flex items-center rounded-lg border border-black/50 bg-gray-100 px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': room.isLoadingRate }">
                           <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
                             @click="isCustomPrize = true">
@@ -346,9 +372,6 @@
                           {{ voucherEmailError }}
                          </p>
                       </div>
-                      <div class="flex flex-col h-full justify-center align-middle self-center mt-2">
-                        <BasicButton :label="$t('otherInfo.previewVoucher')" variant="dark"></BasicButton>
-                      </div>
                     </div>
                   </div>
 
@@ -396,7 +419,7 @@
       </div>
 
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-6 h-fit lg:col-span-1 lg:sticky">
+      <div class="bg-white rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
           <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
           <span v-if="pendingReservation"
@@ -678,6 +701,10 @@ import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById,confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
 const CheckInReservation = defineAsyncComponent(() => import('@/components/reservations/CheckInReservation.vue'))
+import { useBookingStorage } from '@/composables/useBookingStorage'
+
+
+
 
 
 interface ReservationDetails {
@@ -688,7 +715,7 @@ const route = useRoute()
 const isCkeckInModalOpen = ref(false)
 const reservationDetails = ref<{ payment_method?: number; payment_type?: string }>({})
 const {performCheckIn}= useReservation()
-
+const { loadBooking ,clearBooking} = useBookingStorage()
 const isAddPaymentModalOpen = ref(false)
 const isConfirmingReservation = ref(false)
 
@@ -844,7 +871,9 @@ const {
   pendingUploads,
   holdReleaseData,
   canCityLedgerPay,
-  isExtraChargesIncluded
+  isExtraChargesIncluded,
+  loadDraftData,
+  loadDraftAsyncData,
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -871,6 +900,7 @@ const handleCheckIn = async () => {
     if (isGroupReservation.value) {
       // Pour les réservations de groupe, ouvrir la modal
       openCheckInReservationModal()
+      clearBooking()
     } else {
       isLoading.value = true
 
@@ -912,7 +942,7 @@ const handleCheckIn = async () => {
 
       if (result) {
         handleCheckInComplete()
-
+        clearBooking()
 
         await router.push({
           name: 'ReservationDetails',
@@ -1040,11 +1070,52 @@ const onQuickGroupBookingChange = (event: Event) => {
   }
 }
 
-onMounted(() => {
-  initialize()
-  initializeForm()
+
+
+// Fonction
+const loadDraft = async () => {
+  const draft = loadBooking()
+  console.log('Loading draft from localStorage:', draft)
+
+  if (!draft) {
+    console.log('No draft found')
+    return false
+  }
+
+  try {
+
+    const loaded = loadDraftData(draft)
+
+    if (!loaded) {
+      console.error('Failed to load draft data')
+      return false
+    }
+    await loadDraftAsyncData()
+
+    console.log('Draft loaded successfully!')
+    console.log('Final formData:', formData.value)
+    console.log('Final roomConfigurations:', roomConfigurations.value)
+
+    return true
+
+  } catch (error) {
+    console.error('Error loading draft:', error)
+    return false
+  }
+}
+
+onMounted(async () => {
+
+  await initialize()
+
+  const draftLoaded = await loadDraft()
+
+  if (!draftLoaded) {
+    initializeForm()
+  }
 })
 </script>
+
 <style scoped>
 .sidebar-scroll {
   -ms-overflow-style: none;

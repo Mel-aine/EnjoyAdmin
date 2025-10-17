@@ -1,14 +1,6 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('rateType') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ t('rateTypeDescription') }}
-        </p>
-      </div>
-
       <!-- Rate Types Table using ReusableTable -->
       <ReusableTable :title="t('rateTypesList')" :columns="columns" :data="rateTypes" :actions="actions"
         :search-placeholder="t('searchRateTypes')" :selectable="true" :empty-state-title="t('noRateTypesFound')"
@@ -41,7 +33,7 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
             <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
@@ -49,7 +41,7 @@
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
             <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>

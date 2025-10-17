@@ -1,14 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('configuration.market_code.title') }}
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          {{ t('configuration.market_code.sub_title') }}
-        </p>
-      </div>
+     
 
       <ReusableTable
         :title="t('configuration.market_code.table_title')"
@@ -16,7 +9,7 @@
         :data="marketCodes"
         :actions="actions"
         :search-placeholder="t('configuration.market_code.search_placeholder')"
-        :selectable="true"
+        :selectable="false"
         :empty-state-title="t('configuration.market_code.empty_state_title')"
         :empty-state-message="t('configuration.market_code.empty_state_message')"
         :loading="loading"
@@ -34,16 +27,16 @@
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{formatDateT( item.createdAt) }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{formatDateT( item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -57,26 +50,26 @@
           
           <form @submit.prevent="saveMarketCode" class="space-y-4">
             <Input 
-              :lb="t('configuration.market_code.name')"
+              :lb="t('configuration.market_code.market_name')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.name"
-              :placeholder="t('configuration.market_code.name_placeholder')"
+              :placeholder="t('configuration.market_code.market_name_placeholder')"
             />
             
             <Input 
-              :lb="t('configuration.market_code.code')"
+              :lb="t('configuration.market_code.market_code')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.code"
-              :placeholder="t('configuration.market_code.code_placeholder')"
+              :placeholder="t('configuration.market_code.market_code_placeholder')"
             />
             
             <Select 
-              :lb="t('configuration.market_code.segment')"
+              :lb="t('configuration.market_code.market_segment')"
               v-model="formData.segment"
               :options="segmentOptions"
-              :defaultValue="t('configuration.market_code.segment_placeholder')"
+              :defaultValue="t('configuration.market_code.market_segment_placeholder')"
             />
             
             <Input 
@@ -138,6 +131,7 @@ import {
 // Save icon removed as it's no longer used in the template
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/PlusIcon.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -288,7 +282,7 @@ const saveMarketCode = async () => {
       toast.success(t('configuration.market_code.update_success'))
     } else {
       await postMarketCode(payload)
-      toast.success(t('configuration.market_code.save_success'))
+      toast.success(t('configuration.market_code.create_success'))
     }
     
     closeModal()

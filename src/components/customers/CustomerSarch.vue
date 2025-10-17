@@ -126,7 +126,7 @@ onBeforeMount(() => {
   <div class="relative">
     <form @submit.prevent>
       <div class="relative">
-        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'" custom-class="rounded-l-none"
+        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'" custom-class="rounded-none" :placeholder="$t('FirstName')"
           :forLabel="'customer-search'" />
       </div>
 

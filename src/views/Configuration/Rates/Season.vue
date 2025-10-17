@@ -1,17 +1,11 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('season') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ t('seasonDescription') }}
-        </p>
-      </div>
+     
 
       <!-- Seasons Table using ReusableTable -->
       <ReusableTable :title="t('seasonsList')" :columns="columns" :data="seasons" :actions="actions"
-        :search-placeholder="t('searchSeasons')" :selectable="true" :empty-state-title="t('noSeasonsFound')"
+        :search-placeholder="t('searchSeasons')" :selectable="false" :empty-state-title="t('noSeasonsFound')"
         :empty-state-message="t('addSeasonMessage')" @action="onAction" @selection-change="onSelectionChange" :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addSeason')" :icon="Plus">
@@ -34,7 +28,7 @@
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
             <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
@@ -42,7 +36,7 @@
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
             <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>

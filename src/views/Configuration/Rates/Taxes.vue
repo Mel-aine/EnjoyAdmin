@@ -1,14 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('configuration.taxes.title') }}</h1>
-        <p class="text-gray-600 mt-1">
-          {{ t('configuration.taxes.description') }}
-        </p>
-      </div>
-
+  
       <!-- Taxes Table using ReusableTable -->
       <ReusableTable :title="t('configuration.taxes.taxes_list')" :columns="columns" :data="taxes" :actions="actions"
         :search-placeholder="t('configuration.taxes.search_placeholder')" :selectable="false"

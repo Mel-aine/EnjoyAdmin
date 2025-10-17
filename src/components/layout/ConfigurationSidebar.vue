@@ -397,7 +397,7 @@ const ratesItems: MenuItem[] = [
 const housekeepingItems: MenuItem[] = [
   { path: '/configuration/housekeeping/housekeepers', label: 'Housekeepers' },
   { path: '/configuration/housekeeping/units', label: 'Units' },
-  { path: '/configuration/housekeeping/status', label: 'Status' }
+ // { path: '/configuration/housekeeping/status', label: 'Status' }
 ]
 
 const masterItems: MenuItem[] = [
@@ -410,7 +410,7 @@ const masterItems: MenuItem[] = [
   { path: '/configuration/master/transportation-mode', label: 'Transportation Mode' },
   { path: '/configuration/master/payouts', label: 'Payouts' },
   { path: '/configuration/master/template-category', label: 'Template Category' },
-  { path: '/configuration/master/template', label: 'Template' },
+//  { path: '/configuration/master/template', label: 'Template' },
   { path: '/configuration/master/black-list-reason', label: 'Black List Reason' },
   { path: '/configuration/master/market-code', label: 'Market Code' },
   { path: '/configuration/master/reservation-type', label: 'Reservation Type' },
@@ -421,7 +421,7 @@ const masterItems: MenuItem[] = [
 ]
 
 const settingsItems: MenuItem[] = [
-  { path: '/configuration/settings/email-accounts', label: 'Email Accounts' },
+//  { path: '/configuration/settings/email-accounts', label: 'Email Accounts' },
   { path: '/configuration/settings/hotel-information', label: 'Hotel Information' },
   { path: '/configuration/settings/formula', label: 'Formula' },
   { path: '/configuration/settings/notices', label: 'Notices' },
