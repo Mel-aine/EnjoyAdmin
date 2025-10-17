@@ -100,28 +100,46 @@ const Email = computed(() => {
 
 
 
+// const signOut = async () => {
+//   try {
+//     closeDropdown();
+//     authStore.forceLogout();
+//     authStore.clearPermissionsReports();
+//     serviceStore.clearServiceId();
+//     serviceStore.clearCurrentService();
+//     serviceStore.clearServiceCategory();
+//     serviceStore.clearPermissions();
+//     serviceStore.clearUserService();
+//     statusColor.clearStatusColors();
+//     localStorage.removeItem('token');
+//     localStorage.removeItem('user');
+//     localStorage.removeItem('roleId');
+//     localStorage.removeItem('UserId');
+
+//     sessionStorage.removeItem('token');
+//     sessionStorage.removeItem('user');
+//     sessionStorage.removeItem('roleId');
+//     sessionStorage.removeItem('UserId');
+//     sessionStorage.removeItem('auth_token');
+//     localStorage.removeItem('auth_token');
+
+//     await nextTick();
+
+//     try {
+//       await logout();
+//     } catch (err) {
+//       console.error('Erreur API logout:', err);
+//     }
+
+//     await router.replace('/');
+//   } catch (error) {
+//     console.error('Erreur lors du logout:', error);
+//   }
+// };
+
 const signOut = async () => {
   try {
     closeDropdown();
-    authStore.forceLogout();
-    authStore.clearPermissionsReports();
-    serviceStore.clearServiceId();
-    serviceStore.clearCurrentService();
-    serviceStore.clearServiceCategory();
-    serviceStore.clearPermissions();
-    serviceStore.clearUserService();
-    statusColor.clearStatusColors();
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('roleId');
-    localStorage.removeItem('UserId');
-
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('roleId');
-    sessionStorage.removeItem('UserId');
-    sessionStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_token');
 
     await nextTick();
 
@@ -131,12 +149,32 @@ const signOut = async () => {
       console.error('Erreur API logout:', err);
     }
 
+    authStore.forceLogout();
+    authStore.clearPermissionsReports();
+    serviceStore.clearServiceId();
+    serviceStore.clearCurrentService();
+    serviceStore.clearServiceCategory();
+    serviceStore.clearPermissions();
+    serviceStore.clearUserService();
+    statusColor.clearStatusColors();
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('roleId');
+    localStorage.removeItem('UserId');
+    localStorage.removeItem('auth_token');
+
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('roleId');
+    sessionStorage.removeItem('UserId');
+    sessionStorage.removeItem('auth_token');
+
     await router.replace('/');
   } catch (error) {
     console.error('Erreur lors du logout:', error);
   }
 };
-
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value

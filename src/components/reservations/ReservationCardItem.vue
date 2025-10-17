@@ -215,6 +215,7 @@ const handleExchangeSuccess = async () => {
         reservationRooms: updatedReservation.reservationRooms
       })
   closeExchangeRoomModal()
+
   await refreshAvailableActions(localReservation.value.id)
 
 

@@ -211,7 +211,7 @@
         <!-- Custom column for amount -->
         <template #column-totalAmount="{ item }">
           <div class="text-sm font-medium text-gray-900 dark:text-white">
-            {{ formatCurrency(item.totalAmount) }}
+            {{ formatCurrency(item.balanceSummary?.totalChargesWithTaxes) }}
           </div>
         </template>
 

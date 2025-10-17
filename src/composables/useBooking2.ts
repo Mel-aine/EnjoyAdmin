@@ -1893,16 +1893,7 @@ const loadDraftData = (draftData: any) => {
       console.log('Loaded room configurations:', roomConfigurations.value)
     }
 
-    // if (draftData.formData) {
-    //   Object.keys(draftData.formData).forEach(key => {
 
-
-    //     if (key in formData.value) {
-    //       (formData.value as any)[key] = draftData.formData[key]
-    //     }
-    //   })
-    //   console.log('Loaded formData:', formData.value)
-    // }
     if (draftData.formData) {
         formData.value = {
           firstName: draftData.formData.firstName || '',
@@ -1976,24 +1967,24 @@ const loadDraftAsyncData = async () => {
   for (const room of roomConfigurations.value) {
     if (room.roomType) {
       // Charger les rate types
-      await loadRateTypesForRoomType(room.roomType.toString())
+      await loadRateTypesForRoomType(room.roomType)
 
       // Charger les chambres disponibles
-      await loadRoomsForRoomType(room.roomType.toString(), room.id)
+      await loadRoomsForRoomType(room.roomType, room.id)
 
       // Si on a un rateType, recharger les infos de tarif
       if (room.rateType) {
         try {
           room.isLoadingRate = true
           const rateInfo = await fetchRateInfo(
-            room.roomType.toString(),
-            room.rateType.toString(),
+            room.roomType,
+            room.rateType,
             reservation.value.checkinDate
           )
 
           if (rateInfo) {
             // Mettre à jour les infos de base du room type
-            const baseInfo = roomTypeBaseInfo.value.get(room.roomType.toString()) || {
+            const baseInfo = roomTypeBaseInfo.value.get(room.roomType ) || {
               baseAdult: 1,
               baseChild: 0,
               extraAdultRate: 0,
