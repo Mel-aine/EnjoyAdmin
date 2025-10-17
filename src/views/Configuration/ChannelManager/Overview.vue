@@ -1,216 +1,248 @@
 <template>
  <ChannelManagerLayout>
      <div class="channel-manager-overview">
-    <!-- Main Content Grid -->
-    <div class="overview-grid">
-      <!-- Booking Sources Card -->
-      <div class="card booking-sources-card">
-        <div class="card-header">
-          <h3>Booking Sources</h3>
-          <div class="date-range">
-            <input type="date" v-model="dateRange.start" class="date-input" />
-            <span class="date-separator">-</span>
-            <input type="date" v-model="dateRange.end" class="date-input" />
-          </div>
+      <div class="overview-header">
+        <div class="flex justify-end" v-if="!currentService.channexPropertyId">
+          <BasicButton 
+          :label="isLoading ? t('configuration.channelManager.common.migrating') : t('configuration.channelManager.migrateHotelData')"
+          :loading="isLoading"
+          variant="secondary"
+          @click="handleMigrate"
+        />
         </div>
         
-        <div class="booking-sources-content">
-          <div class="booking-circle">
-            <div class="circle-chart">
-              <div class="circle-inner">
-                <span class="bookings-label">Bookings</span>
-                <span class="bookings-count">{{ totalBookings }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="booking-details">
-            <div class="booking-source" v-for="source in bookingSources" :key="source.name">
-              <div class="source-info">
-                <div class="source-icon">
-                  <span class="platform-badge">{{ source.initial }}</span>
-                </div>
-                <span class="source-name">{{ source.name }}</span>
-              </div>
-              <div class="source-stats">
-                <span class="booking-count">{{ source.bookings }}</span>
-                <span class="revenue">{{ source.revenue }}</span>
-                <span class="percentage">{{ source.percentage }}%</span>
-              </div>
-              <button class="details-btn" @click="viewSourceDetails(source)">Details</button>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <!-- Live Feed Events Card -->
-      <div class="card live-feed-card">
-        <div class="card-header">
-          <h3>Live Feed Events</h3>
-          <div class="filter-dropdown">
-            <select v-model="selectedFilter" class="filter-select">
-              <option value="all">All Events</option>
-              <option value="bookings">New Bookings</option>
-              <option value="cancellations">Cancellations</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="live-feed-content">
-          <div class="event-item" v-for="event in filteredEvents" :key="event.id">
-            <div class="event-time">{{ event.timeAgo }}</div>
-            <div class="event-badge" :class="event.type.toLowerCase().replace(' ', '-')">{{ event.type }}</div>
-            <div class="event-details">
-              <div class="event-title">{{ event.title }}</div>
-              <div class="event-subtitle" v-if="event.subtitle">{{ event.subtitle }}</div>
-            </div>
-            <div class="event-amount">{{ event.amount }}</div>
-            <div class="platform-icon">
-              <span class="platform-badge">{{ event.platform }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
- </ChannelManagerLayout>
+     <!-- Main Content Grid -->
+     <div class="overview-grid">
+       <!-- Booking Sources Card -->
+       <div class="card booking-sources-card">
+         <div class="card-header">
+           <h3>Booking Sources</h3>
+           <div class="date-range">
+             <input type="date" v-model="dateRange.start" class="date-input" />
+             <span class="date-separator">-</span>
+             <input type="date" v-model="dateRange.end" class="date-input" />
+           </div>
+         </div>
+         
+         <div class="booking-sources-content">
+           <div class="booking-circle">
+             <div class="circle-chart">
+               <div class="circle-inner">
+                 <span class="bookings-label">Bookings</span>
+                 <span class="bookings-count">{{ totalBookings }}</span>
+               </div>
+             </div>
+           </div>
+           
+           <div class="booking-details">
+             <div class="booking-source" v-for="source in bookingSources" :key="source.name">
+               <div class="source-info">
+                 <div class="source-icon">
+                   <span class="platform-badge">{{ source.initial }}</span>
+                 </div>
+                 <span class="source-name">{{ source.name }}</span>
+               </div>
+               <div class="source-stats">
+                 <span class="booking-count">{{ source.bookings }}</span>
+                 <span class="revenue">{{ source.revenue }}</span>
+                 <span class="percentage">{{ source.percentage }}%</span>
+               </div>
+               <button class="details-btn" @click="viewSourceDetails(source)">Details</button>
+             </div>
+           </div>
+         </div>
+       </div>
+ 
+       <!-- Live Feed Events Card -->
+       <div class="card live-feed-card">
+         <div class="card-header">
+           <h3>Live Feed Events</h3>
+           <div class="filter-dropdown">
+             <select v-model="selectedFilter" class="filter-select">
+               <option value="all">All Events</option>
+               <option value="bookings">New Bookings</option>
+               <option value="cancellations">Cancellations</option>
+             </select>
+           </div>
+         </div>
+         
+         <div class="live-feed-content">
+           <div class="event-item" v-for="event in filteredEvents" :key="event.id">
+             <div class="event-time">{{ event.timeAgo }}</div>
+             <div class="event-badge" :class="event.type.toLowerCase().replace(' ', '-')">{{ event.type }}</div>
+             <div class="event-details">
+               <div class="event-title">{{ event.title }}</div>
+               <div class="event-subtitle" v-if="event.subtitle">{{ event.subtitle }}</div>
+             </div>
+             <div class="event-amount">{{ event.amount }}</div>
+             <div class="platform-icon">
+               <span class="platform-badge">{{ event.platform }}</span>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+  </ChannelManagerLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ChannelManagerLayout from '../../../components/layout/ChannelManagerLayout.vue'
+import BasicButton from '@/components/buttons/BasicButton.vue'
+import { useToast } from 'vue-toastification'
+import { migrateCompleteHotel } from '@/services/channelManagerApi'
+import { useServiceStore } from '../../../composables/serviceStore'
 
-const { t } = useI18n()
-
-// Reactive data
-const dateRange = ref({
-  start: '2025-08-04',
-  end: '2025-09-04'
-})
-
-const selectedFilter = ref('all')
-
-const totalBookings = ref(16)
-
-const bookingSources = ref([
-  {
-    name: 'Booking.com',
-    initial: 'B',
-    bookings: 16,
-    revenue: '4 306 GBP',
-    percentage: 100
+ const { t } = useI18n()
+const toast = useToast()
+const isLoading = ref(false)
+const currentService = useServiceStore().getCurrentService;
+const handleMigrate = async () => {
+  try {
+    isLoading.value = true
+    const res = await migrateCompleteHotel()
+    const message = res?.data?.message || t('configuration.channelManager.common.success')
+    toast.success(message)
+  } catch (error: any) {
+    const message = error?.response?.data?.message || t('configuration.channelManager.migrationError')
+    toast.error(message)
+    console.error('migrateCompleteHotel error:', error)
+  } finally {
+    isLoading.value = false
   }
-])
-
-const liveEvents = ref([
-  {
-    id: 1,
-    timeAgo: 'a day ago',
-    type: 'CANCELLATION',
-    title: 'Original Missed Cancellation',
-    subtitle: '',
-    amount: '0.00 USD',
-    platform: 'B'
-  },
-  {
-    id: 2,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Fri, Jan 09, 2026',
-    subtitle: 'Arvind Verma • 1 room • 1 night',
-    amount: '50.00 GBP',
-    platform: 'B'
-  },
-  {
-    id: 3,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Sun, Sep 07, 2025',
-    subtitle: 'Pushparaj Kumaraguru • 2 rooms • 1 night',
-    amount: '810.44 GBP',
-    platform: 'B'
-  },
-  {
-    id: 4,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Wed, Nov 05, 2025',
-    subtitle: 'Arvind Verma • 1 room • 1 night',
-    amount: '50.00 GBP',
-    platform: 'B'
-  },
-  {
-    id: 5,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Fri, Sep 12, 2025',
-    subtitle: 'Kos3 Udnik3 • 1 room • 1 night',
-    amount: '110.00 GBP',
-    platform: 'B'
-  },
-  {
-    id: 6,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Thu, Sep 04, 2025',
-    subtitle: 'Wend Test • 1 room • 1 night',
-    amount: '629.48 GBP',
-    platform: 'B'
-  },
-  {
-    id: 7,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Tue, Dec 09, 2025',
-    subtitle: 'Arvind Verma • 1 room • 1 night',
-    amount: '50.00 GBP',
-    platform: 'B'
-  },
-  {
-    id: 8,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Fri, Feb 27, 2026',
-    subtitle: 'Arvind Verma • 1 room • 1 night',
-    amount: '50.00 GBP',
-    platform: 'B'
-  },
-  {
-    id: 9,
-    timeAgo: 'a day ago',
-    type: 'NEW BOOKING',
-    title: 'Fri, Sep 12, 2025',
-    subtitle: 'Kos4 Udnik4 • 1 room • 1 night',
-    amount: '110.00 GBP',
-    platform: 'B'
-  }
-])
-
-// Computed properties
-const filteredEvents = computed(() => {
-  if (selectedFilter.value === 'all') {
-    return liveEvents.value
-  }
-  return liveEvents.value.filter(event => {
-    if (selectedFilter.value === 'bookings') {
-      return event.type === 'NEW BOOKING'
-    }
-    if (selectedFilter.value === 'cancellations') {
-      return event.type === 'CANCELLATION'
-    }
-    return true
-  })
-})
-
-// Methods
-const viewSourceDetails = (source: any) => {
-  console.log('Viewing details for:', source.name)
 }
 
-onMounted(() => {
-  // Initialize component
-})
+ // Reactive data
+ const dateRange = ref({
+   start: '2025-08-04',
+   end: '2025-09-04'
+ })
+
+ const selectedFilter = ref('all')
+
+ const totalBookings = ref(16)
+
+ const bookingSources = ref([
+   {
+     name: 'Booking.com',
+     initial: 'B',
+     bookings: 16,
+     revenue: '4 306 GBP',
+     percentage: 100
+   }
+ ])
+
+ const liveEvents = ref([
+   {
+     id: 1,
+     timeAgo: 'a day ago',
+     type: 'CANCELLATION',
+     title: 'Original Missed Cancellation',
+     subtitle: '',
+     amount: '0.00 USD',
+     platform: 'B'
+   },
+   {
+     id: 2,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Fri, Jan 09, 2026',
+     subtitle: 'Arvind Verma • 1 room • 1 night',
+     amount: '50.00 GBP',
+     platform: 'B'
+   },
+   {
+     id: 3,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Sun, Sep 07, 2025',
+     subtitle: 'Pushparaj Kumaraguru • 2 rooms • 1 night',
+     amount: '810.44 GBP',
+     platform: 'B'
+   },
+   {
+     id: 4,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Wed, Nov 05, 2025',
+     subtitle: 'Arvind Verma • 1 room • 1 night',
+     amount: '50.00 GBP',
+     platform: 'B'
+   },
+   {
+     id: 5,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Fri, Sep 12, 2025',
+     subtitle: 'Kos3 Udnik3 • 1 room • 1 night',
+     amount: '110.00 GBP',
+     platform: 'B'
+   },
+   {
+     id: 6,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Thu, Sep 04, 2025',
+     subtitle: 'Wend Test • 1 room • 1 night',
+     amount: '629.48 GBP',
+     platform: 'B'
+   },
+   {
+     id: 7,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Tue, Dec 09, 2025',
+     subtitle: 'Arvind Verma • 1 room • 1 night',
+     amount: '50.00 GBP',
+     platform: 'B'
+   },
+   {
+     id: 8,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Fri, Feb 27, 2026',
+     subtitle: 'Arvind Verma • 1 room • 1 night',
+     amount: '50.00 GBP',
+     platform: 'B'
+   },
+   {
+     id: 9,
+     timeAgo: 'a day ago',
+     type: 'NEW BOOKING',
+     title: 'Fri, Sep 12, 2025',
+     subtitle: 'Kos4 Udnik4 • 1 room • 1 night',
+     amount: '110.00 GBP',
+     platform: 'B'
+   }
+ ])
+
+ // Computed properties
+ const filteredEvents = computed(() => {
+   if (selectedFilter.value === 'all') {
+     return liveEvents.value
+   }
+   return liveEvents.value.filter(event => {
+     if (selectedFilter.value === 'bookings') {
+       return event.type === 'NEW BOOKING'
+     }
+     if (selectedFilter.value === 'cancellations') {
+       return event.type === 'CANCELLATION'
+     }
+     return true
+   })
+ })
+
+ // Methods
+ const viewSourceDetails = (source: any) => {
+   console.log('Viewing details for:', source.name)
+ }
+
+ onMounted(() => {
+   // Initialize component
+ })
 </script>
 
 <style scoped>
