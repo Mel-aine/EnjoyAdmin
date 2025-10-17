@@ -159,6 +159,19 @@ export const generateArrivalList = async (filters: ReportFilters = {}): Promise<
     handleApiError(error)
   }
 }
+export const generateArrivalLis = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
+  try {
+    console.log('filters@@@', filters)
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/reservation/arrivals`,
+      filters,
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 
 // Departure Reports
 export const generateDepatureList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {

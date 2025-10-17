@@ -108,7 +108,6 @@ export const deleteUnitById = (id: number | string): Promise<AxiosResponse<any>>
   return axios.delete(`${API_URL()}/units/${id}`, getHeaders())
 }
 
-
 ///// this is the amenities sections
 /**
  * Get all amenities
@@ -173,6 +172,7 @@ export const updateRoomTypeSortOrder = (data: any): Promise<AxiosResponse<any>> 
   return axios.post(`${API_URL()}/room_types/sort/sort-order`, data, getHeaders())
 }
 
+
 /**
  * Post a new room type
  * @param data
@@ -222,9 +222,16 @@ export const getRooms = (): Promise<AxiosResponse<any>> => {
  * Get rooms by hotel id
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getRoomsByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
+ export const getRoomsByHotelId = (hotelId:number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL()}/rooms?hotelId=${hotelId}`, getHeaders())
 }
+
+ export const synChroReservationRooms = (hotelId:number): Promise<AxiosResponse<any>> => {
+  return axios.post(`${URL}/sync/bookings/hotelId=${hotelId}`, getHeaders())
+}
+
+
+
 /**
  * Post a new room
  * @param data
