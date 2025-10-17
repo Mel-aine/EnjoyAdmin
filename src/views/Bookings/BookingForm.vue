@@ -1090,7 +1090,7 @@ const loadDraft = async () => {
       console.error('Failed to load draft data')
       return false
     }
-    await loadDraftAsyncData()
+    // await loadDraftAsyncData()
 
     console.log('Draft loaded successfully!')
     console.log('Final formData:', formData.value)

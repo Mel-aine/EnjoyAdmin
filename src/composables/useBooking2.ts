@@ -1872,25 +1872,22 @@ const loadDraftData = (draftData: any) => {
       roomConfigurations.value = []
 
       // Recréer chaque configuration
-      draftData.roomConfigurations.forEach((roomDraft: any) => {
-        console.log('roomDraft',roomDraft)
-        const newRoom: RoomConfiguration = {
-          id: roomDraft.id,
-          roomType: roomDraft.roomType,
-          rateType: roomDraft.rateType,
-          roomNumber: roomDraft.roomNumber,
-          adultCount: roomDraft.adultCount || 1,
-          childCount: roomDraft.childCount || 0,
-          rate: roomDraft.rate || 0,
-          isOpen: false,
-          taxes: roomDraft.taxes || [],
-          extraCharges: roomDraft.extraCharges || [],
-          isLoadingRooms: false,
-          isLoadingRate: false,
-        }
-        roomConfigurations.value.push(newRoom)
-      })
-      console.log('Loaded room configurations:', roomConfigurations.value)
+      roomConfigurations.value = draftData.roomConfigurations.map((roomDraft: any) => ({
+        id: roomDraft.id,
+        roomType: roomDraft.roomType,
+        rateType: roomDraft.rateType,
+        roomNumber: roomDraft.roomNumber,
+        adultCount: roomDraft.adultCount || 1,
+        childCount: roomDraft.childCount || 0,
+        rate:  0,
+        isOpen: false,
+        taxes: roomDraft.taxes || [],
+        extraCharges: roomDraft.extraCharges || [],
+        isLoadingRooms: false,
+        isLoadingRate: false,
+      }))
+
+      console.log('Loaded room configurations:', draftData)
     }
 
 
@@ -1959,58 +1956,58 @@ const loadDraftData = (draftData: any) => {
 }
 
 
-// Dans useBooking2.ts, ajoutez cette fonction
 
-const loadDraftAsyncData = async () => {
-  console.log('Loading async data for draft rooms...')
 
-  for (const room of roomConfigurations.value) {
-    if (room.roomType) {
-      // Charger les rate types
-      await loadRateTypesForRoomType(room.roomType)
+// const loadDraftAsyncData = async () => {
+//   console.log('Loading async data for draft rooms...')
 
-      // Charger les chambres disponibles
-      await loadRoomsForRoomType(room.roomType, room.id)
+//   for (const room of roomConfigurations.value) {
+//     if (room.roomType) {
+//       // Charger les rate types
+//       await loadRateTypesForRoomType(room.roomType)
 
-      // Si on a un rateType, recharger les infos de tarif
-      if (room.rateType) {
-        try {
-          room.isLoadingRate = true
-          const rateInfo = await fetchRateInfo(
-            room.roomType,
-            room.rateType,
-            reservation.value.checkinDate
-          )
+//       // Charger les chambres disponibles
+//       await loadRoomsForRoomType(room.roomType, room.id)
 
-          if (rateInfo) {
-            // Mettre à jour les infos de base du room type
-            const baseInfo = roomTypeBaseInfo.value.get(room.roomType ) || {
-              baseAdult: 1,
-              baseChild: 0,
-              extraAdultRate: 0,
-              extraChildRate: 0,
-            }
+//       // Si on a un rateType, recharger les infos de tarif
+//       if (room.rateType) {
+//         try {
+//           room.isLoadingRate = true
+//           const rateInfo = await fetchRateInfo(
+//             room.roomType,
+//             room.rateType,
+//             reservation.value.checkinDate
+//           )
 
-            baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
-            baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
-            roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
+//           if (rateInfo) {
+//             // Mettre à jour les infos de base du room type
+//             const baseInfo = roomTypeBaseInfo.value.get(room.roomType ) || {
+//               baseAdult: 1,
+//               baseChild: 0,
+//               extraAdultRate: 0,
+//               extraChildRate: 0,
+//             }
 
-            // Restaurer les extra charges
-            room.extraCharges = rateInfo.extraCharges || []
-          }
-        } catch (error) {
-          console.error('Error loading rate info for draft room:', error)
-        } finally {
-          room.isLoadingRate = false
-        }
-      }
-    }
-  }
+//             baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+//             baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+//             roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
 
-  // Mettre à jour la facturation après avoir chargé toutes les données
-  updateBilling()
-  console.log('Async data loading completed')
-}
+//             // Restaurer les extra charges
+//             room.extraCharges = rateInfo.extraCharges || []
+//           }
+//         } catch (error) {
+//           console.error('Error loading rate info for draft room:', error)
+//         } finally {
+//           room.isLoadingRate = false
+//         }
+//       }
+//     }
+//   }
+
+//   // Mettre à jour la facturation après avoir chargé toutes les données
+//   updateBilling()
+//   console.log('Async data loading completed')
+// }
 
 
   return {
@@ -2026,7 +2023,7 @@ const loadDraftAsyncData = async () => {
     PaymentMethods,
     roomTypeBaseInfo,
     validateCheckInCheckOut,
-    loadDraftAsyncData,
+    // loadDraftAsyncData,
       loadDraftData,
 
     // Room type data
