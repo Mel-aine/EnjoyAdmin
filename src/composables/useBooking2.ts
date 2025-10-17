@@ -320,7 +320,7 @@ export function useBooking() {
       const resp = await getMarketCodesByHotelId(hotelId!)
       console.log('Market Codes response:', resp)
       marketCodesLo.value = resp.data?.data?.data.map((s: any) => ({
-        value: s.code,
+        value: s.id,
         label: s.name,
       }))
     } catch (error) {
