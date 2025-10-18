@@ -108,8 +108,8 @@
             </template>
 
             <template #column-amount="{ item }">
-              <div class="text-sm font-medium" :class="getAmountColor(item.amount)">
-                {{ formatAmount(item.amount) }}
+              <div class="text-sm font-medium" :class="getAmountColor(item.totalAmount)">
+                {{ formatAmount(item.totalAmount) }}
               </div>
             </template>
 
@@ -613,8 +613,8 @@ const getFolosReservations = async () => {
             if (transaction.transactionType === 'payment') {
               allTransactions.value.push({
                 ...transaction,
-                amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
-                  grossAmount,
+                totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                  totalAmount,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
                 folioId: folio.id,
                 guest: folio.guest

@@ -429,7 +429,8 @@ const settingsItems: MenuItem[] = [
   { path: '/configuration/settings/print-and-email-settings', label: 'Print and Email Settings' },
   { path: '/configuration/settings/check-in-and-reservation-settings', label: 'Check In and Reservation Settings' },
   { path: '/configuration/settings/display-settings', label: 'Display Settings' },
-  { path: '/configuration/settings/registration-settings', label: 'Registration Settings' }
+  { path: '/configuration/settings/registration-settings', label: 'Registration Settings' },
+  { path: '/configuration/settings/tac-configuration', label: 'Tax/Account Configuration' }
 ]
 
 const staffItems: MenuItem[] = [

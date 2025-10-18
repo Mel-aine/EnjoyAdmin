@@ -963,7 +963,7 @@ const validateAllRooms = () => {
 
       //email client
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.value.email)) {
+    if (formData.value.email && !emailRegex.test(formData.value.email)) {
       throw new Error(t('Invalid guest email address'))
     }
 

@@ -1234,6 +1234,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/configuration/settings/tac-configuration',
+      name: 'TacConfiguration',
+      component: () => import('../views/Configuration/Settings/TacConfiguration.vue'),
+      meta: {
+        title: 'Tax/Account Configuration',
+        requiresAuth: true,
+      },
+    },
     //configuration staff
     {
       path: '/configuration/staff/department',
