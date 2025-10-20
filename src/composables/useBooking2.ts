@@ -918,7 +918,7 @@ const fetchRoomTypes = async () => {
     // Charger les counts pour tous les types de chambres en parallèle
     await Promise.all(
       RoomTypes.value.map(roomType =>
-        loadRoomsForRoomType(roomType.value)
+        loadRoomsForRoomType(roomType.value.toString())
       )
     )
   } catch (error) {
