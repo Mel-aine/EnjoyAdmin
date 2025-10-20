@@ -20,6 +20,7 @@
         :class="isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-black/50'"
         :placeholder="defaultValue"
         v-model="search"
+        @click="openDropdown"
         @focus="openDropdown"
         @blur="onBlur"
         @input="onInput"
@@ -34,7 +35,7 @@
 
       <ul
         v-if="isDropdownOpen && displayOptions.length && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-50 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
         role="listbox"
         :aria-expanded="isDropdownOpen"
         aria-hidden="false"
@@ -49,13 +50,17 @@
               'bg-purple-100 text-purple-900': selectedOption?.value === option.value,
               'bg-blue-50': highlightedIndex === index && selectedOption?.value !== option.value,
               'hover:bg-gray-100': selectedOption?.value !== option.value && highlightedIndex !== index,
-              'cursor-not-allowed text-gray-400': disabled
+              'opacity-50 cursor-not-allowed text-gray-400': disabled || option.disabled,
+              'hover:bg-purple-100': !disabled && !option.disabled,
+              'text-red-600 bg-red-50': option.status === 'occupied',
             }
           ]"
           role="option"
           :aria-selected="selectedOption?.value === option.value"
         >
           <span>{{ option.label }}</span>
+          <span v-if="option.count !== undefined"   class="bg-red-200 text-red-800 px-3 py-0.5 rounded-full text-sm font-medium min-w-[24px] text-center">{{ option.count }}</span>
+            <span v-if="option.status === 'occupied'" class="ml-auto text-xs">({{ $t('Occupied') }})</span>
           <svg
             v-if="selectedOption?.value === option.value"
             class="w-4 h-4 text-purple-600"
@@ -70,7 +75,7 @@
       <!-- Message quand aucun résultat n'est trouvé -->
       <div
         v-if="isDropdownOpen && displayOptions.length === 0 && search && !isLoading"
-        class="absolute top-full left-0 right-0 z-50 mt-1 rounded-b-lg bg-white border-2 border-t-0 border-purple-100 px-5 py-3 text-gray-500 text-sm"
+        class="absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg bg-white border-2 border-t-0 border-purple-100 px-5 py-3 text-gray-500 text-sm"
       >
         {{ $t('no_fund') }}
       </div>
@@ -85,6 +90,9 @@ import DotSpinner from '@/components/spinner/DotSpinner.vue';
 interface Option {
   label: string
   value: string | number
+  count?:number
+  status?:string
+  disabled?:boolean
 }
 
 const props = defineProps<{
@@ -181,7 +189,9 @@ function onBlur() {
 }
 
 function selectOption(option: Option) {
-  if (!props.disabled && !props.isLoading) {
+   if (props.disabled || props.isLoading || option.disabled) {
+    return
+  }else{
     selectedOption.value = option
     search.value = option.label
     hasUserTyped.value = false

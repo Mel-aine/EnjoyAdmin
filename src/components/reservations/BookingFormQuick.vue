@@ -188,7 +188,7 @@ const {
   BookingSource,
   BusinessSource,
   BookingType,
-  creditTypes,
+  CustomTypes,
   billToOptions,
   reservationId,
   // Methods
@@ -214,8 +214,8 @@ const {
   onRoomNumberChange,
   pendingUploads,
   holdReleaseData,
-  canCityLedgerPay,
-  isExtraChargesIncluded
+   getChildOptions,
+    getAdultOptions
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -255,6 +255,8 @@ const gotoNew = () => {
       meansOfTransport:reservation.value.meansOfTransport,
       goingTo:reservation.value.goingTo,
       arrivingTo:reservation.value.arrivingTo,
+      customType:reservation.value.customType
+
     },
     roomConfigurations: roomConfigurations.value.map(room => ({
       id: room.id,
@@ -553,7 +555,7 @@ onMounted(() => {
                       <!-- Check-In -->
                       <div class="flex flex-col w-full">
                         <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          {{ $t('check_in') }}
+                          {{ $t('check_in_date') }}
                         </label>
                         <div class="flex gap-0">
                           <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
@@ -563,15 +565,18 @@ onMounted(() => {
                       </div>
 
                       <!-- Nights -->
-                      <div class="flex flex-col">
-                        <Input :lb="$t('nights')" :disabled="true" custom-class="rounded-none"
-                          :modelValue="numberOfNights.toString()" />
-                      </div>
+                       <div class="flex flex-col w-20">
+                          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                              {{ $t('nights') }}
+                          </label>
+                          <input type="text" id="id" disabled :value="numberOfNights.toString()"
+                              class="dark:bg-dark-900 h-11 w-full rounded-none  bg-black text-white px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
+                        </div>
 
                       <!-- Check-Out -->
                       <div class="flex flex-col w-full">
-                        <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          {{ $t('check_out') }}
+                        <label for="checkout" class="mb-1.5 ml-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                          {{ $t('check_out_date') }}
                         </label>
                         <div class="flex gap-0">
                           <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
@@ -583,21 +588,22 @@ onMounted(() => {
                           {{ $t(dateError) }}
                         </p>
                       </div>
-                      <div class="flex-col flex w-full ms-2">
+                      <div class="flex-col flex w-[500px]  ms-2">
                         <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
                           :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
+                          :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
+                      </div>
+                       <!-- Booking Source -->
+                      <div class="flex-col flex w-[500px] ms-2">
+                        <AutoCompleteSelect v-model="reservation.bookingSource" :options="BookingSource"
+                          :defaultValue="$t('SelectBookingSource')" :lb="$t('booking_source')" :is-required="false"
                           :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
                     </div>
 
                     <div class="grid md:grid-cols-5 grid-cols-1 gap-2">
-
-
-                      <!-- Booking Source -->
                       <div>
-                        <AutoCompleteSelect v-model="reservation.bookingSource" :options="BookingSource"
-                          :defaultValue="$t('SelectBookingSource')" :lb="$t('booking_source')" :is-required="false"
-                          :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
+                        <Select :lb="$t('customType')" :options="CustomTypes" :placeholder="$t('select_custom_type')" v-model="reservation.customType"/>
                       </div>
 
                       <div>
@@ -669,20 +675,26 @@ onMounted(() => {
 
                             <!-- Adult Count avec gestion des changements -->
                             <div class="col-span-1">
-
-                              <input type="number" :id="'adult-' + room.id" v-model.number="room.adultCount"
-                                @input="onOccupancyChange(room.id, 'adultCount', room.adultCount)" :min="0"
+                               <Select
+                                v-model="room.adultCount"
+                                :options="getAdultOptions(room.roomType)"
                                 :disabled="!room.roomType"
-                                class="dark:bg-dark-900 h-11 rounded-lg w-full border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                                :placeholder="$t('1')"
+                                @change="onOccupancyChange(room.id, 'adultCount', $event)"
+                                custom-class=""
+                              />
                             </div>
 
                             <!-- Child Count avec gestion des changements -->
                             <div class="col-span-1">
 
-                              <input type="number" :id="'child-' + room.id" v-model.number="room.childCount"
-                                @input="onOccupancyChange(room.id, 'childCount', room.childCount)" :min="0"
+                              <Select
+                                v-model="room.childCount"
+                                :options="getChildOptions(room.roomType)"
                                 :disabled="!room.roomType"
-                                class="dark:bg-dark-900 h-11 rounded-lg w-full border border-black/50 bg-transparent  px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                                :placeholder="$t('0')"
+                                @change="onOccupancyChange(room.id, 'childCount', $event)"
+                              />
                             </div>
 
                             <!-- Rate Display avec détails -->
@@ -698,14 +710,14 @@ onMounted(() => {
                                   </span>
 
                                   <!-- Indicateur de chargement du rate -->
-                                  <div v-if="room.isLoadingRate" class="flex-grow flex items-center">
+                                  <div v-if="room.isLoadingRate" class="flex-grow flex justify-end items-end">
                                     <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2">
                                     </div>
                                   </div>
 
                                   <!-- Rate avec breakdown -->
                                   <div v-else class="flex-grow">
-                                    <div class="font-medium text-gray-800">
+                                    <div class="font-medium text-gray-800 justify-end flex">
                                       {{ room.rate }}
                                     </div>
                                   </div>
@@ -750,16 +762,33 @@ onMounted(() => {
                       </div>
 
                       <!-- Action Buttons -->
-                      <div class="flex space-x-3">
-                        <button @click="addRoom" type="button"
-                          class="inline-flex items-center px-4 py-2 border border-orange-600 text-orange-600 rounded-md text-sm font-normal hover:bg-orange-600 hover:text-white transition-colors">
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                          </svg>
-                          {{ $t('AddRoom') }}
-                        </button>
+                       <div class="flex flex-wrap items-end gap-4">
 
-                      </div>
+                          <div class="flex-1">
+                            <button @click="addRoom" type="button"
+                              class="inline-flex items-center px-4 py-2 border border-orange-600 text-orange-600 rounded-md text-sm font-normal hover:bg-orange-600 hover:text-white transition-colors">
+                              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                              </svg>
+                              {{ $t('AddRoom') }}
+                            </button>
+                          </div>
+
+
+                          <div class="flex items-center justify-center translate-x-60">
+                            <span class="text-md text-gray-950 font-bold">
+                              {{ $t('Total') }}
+                            </span>
+                          </div>
+
+                          <div class="flex-1 flex items-center justify-end mr-20">
+                            <span class="text-sm font-medium text-gray-800">
+                              {{ formatCurrency(totalAmount) }}
+                            </span>
+                          </div>
+                        </div>
+
+
                     </section>
                     <section class="border-t border-gray-300 pt-4 space-y-4" v-if="reservation.isHold">
                       <!-- Hold Release Date & Time Section -->

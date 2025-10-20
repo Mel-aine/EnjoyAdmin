@@ -97,7 +97,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <InputPaymentMethodSelect v-if="billingData.paymentType" :label="$t('PaymentMode')" :paymentType="billingData.paymentType"
-                  v-model="billingData.paymentMode" :hide-label="false" :disabled="!editMode" custom-class="rounded-none" />
+                  v-model="billingData.paymentMode" :hide-label="false" :disabled="!editMode"  />
               </div>
 
               <div>

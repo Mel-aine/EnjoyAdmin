@@ -1,6 +1,6 @@
 <template>
   <div class="country-autocomplete w-full max-w-md mx-auto">
-    <label for="country-input" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+    <label for="country-input" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 truncate">
       {{ $t(lb) }}
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
@@ -24,7 +24,7 @@
           props.customClass
         ]"
 
-        :placeholder="$t('search_country')"
+        :placeholder="computedPlaceholder"
         autocomplete="off"
       />
 
@@ -79,6 +79,10 @@ const props = defineProps({
   customClass: {
     type: String,
     default: '',
+  },
+  placeholder:{
+    type: String,
+    default: ''
   }
 });
 
@@ -86,6 +90,9 @@ const emits = defineEmits(['update:modelValue', 'select', 'change']);
 
 const searchQuery = ref<string>('');
 const isOpen = ref<boolean>(false);
+const computedPlaceholder = computed(() => {
+  return props.placeholder || t('search_country');
+});
 
 // A comprehensive list of all countries
 const allCountries = computed(() => [
