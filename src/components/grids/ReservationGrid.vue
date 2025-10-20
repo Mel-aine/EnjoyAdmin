@@ -2,7 +2,7 @@
   <div>
     <!-- Grid Header with Controls -->
     <div
-      class="bg-gray-50 mt-2 mb-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4 p-3 rounded-lg"
+      class="bg-white shadow-lg dark:bg-gray-800 mt-2 mb-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4 p-3 rounded-lg"
     >
       <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">

@@ -288,6 +288,8 @@ const performAutoCheckIn = async (availableRoom: any) => {
   })
 
     await refreshAvailableActions()
+  // Also refresh FoglioOperation child component (folio data)
+  foglioRef.value?.refreshFolio?.()
 }
 
 const handleCheckInSuccess = async (data: any) => {
@@ -739,6 +741,8 @@ const handlePrintError = (error: any) => {
   console.error('Print error:', error)
 }
 
+const foglioRef = ref<any>(null)
+
 const templates = ref([
   {
     id: '1',
@@ -933,7 +937,7 @@ onMounted(() => {
         <RoomCharge :reservation-id="localReservation.id" :reservation="localReservation"></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && localReservation && localReservation.id">
-        <FoglioOperation :reservation-id="localReservation.id" :reservation="localReservation" @refresh="refresReservation">
+        <FoglioOperation ref="foglioRef" :reservation-id="localReservation.id" :reservation="localReservation" @refresh="refresReservation">
         </FoglioOperation>
       </div>
       <div v-if="activeTab === 'booking_details'">

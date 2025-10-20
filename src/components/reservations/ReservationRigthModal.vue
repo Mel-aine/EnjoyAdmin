@@ -316,7 +316,7 @@
                             <slot name="footer">
                                 <!-- Amount and Payment Status -->
                                 <div
-                                    class=" w-full flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
+                                    class=" w-full flex flex-col gap-2  pt-2  border-gray-100 dark:border-gray-700">
                                     <div class="flex justify-between">
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{
