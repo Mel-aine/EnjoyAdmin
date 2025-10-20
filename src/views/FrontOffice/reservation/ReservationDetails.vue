@@ -31,6 +31,7 @@ import ReservationStatus from '../../../components/common/ReservationStatus.vue'
 import AssignRoomReservation from '../../../components/reservations/AssignRoomReservation.vue'
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation';
+import OverLoading from '../../../components/spinner/OverLoading.vue'
 
 // États des modals
 const showPrintModal = ref(false)
@@ -42,6 +43,7 @@ const toast = useToast()
 // ====== NOUVELLE APPROCHE : État local réactif ======
 const localReservation = ref<any>({})
 const isLoading = ref(false)
+const isRefreshing = ref(false)
 
 
 const tabs = computed(() => [
@@ -64,19 +66,29 @@ const updateLocalReservation = (updates: any) => {
 }
 
 const handleChildReservationUpdated = async (updated: any) => {
-  localReservation.value = { ...updated }
-  await refreshAvailableActions()
-  foglioRef.value?.refreshFolio?.()
+  isRefreshing.value = true
+  try {
+    localReservation.value = { ...updated }
+    await refreshAvailableActions()
+    foglioRef.value?.refreshFolio?.()
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 const handleChildSave = async (_payload: any) => {
-  await getBookingDetailsById()
-  await refreshAvailableActions()
-  foglioRef.value?.refreshFolio?.()
+  isRefreshing.value = true
+  try {
+    await refreshAvailableActions()
+    foglioRef.value?.refreshFolio?.()
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 // ====== FONCTION : Rafraîchir uniquement les actions disponibles ======
 const refreshAvailableActions = async () => {
+  isRefreshing.value = true
   try {
     const response = await getReservationDetailsById(Number(props.id))
     if (response.status === 200) {
@@ -89,6 +101,8 @@ const refreshAvailableActions = async () => {
   } catch (error) {
     console.error('Error refreshing available actions:', error)
     toast.error(t('Error refreshing reservation data'))
+  } finally {
+    isRefreshing.value = false
   }
 }
 
@@ -266,7 +280,12 @@ const ReservationConfirm = async () => {
 
       toast.success(t('Reservation confirmed successfully'))
 
-      await getBookingDetailsById()
+      isRefreshing.value = true
+      try {
+        await getBookingDetailsById()
+      } finally {
+        isRefreshing.value = false
+      }
     }
 
   } catch (error: any) {
@@ -285,6 +304,7 @@ onMounted(() => {
 
 <template>
   <AdminLayout>
+    <OverLoading v-if="isRefreshing" />
     <ReservationDetailsSkeleton v-if="isLoading" />
 
     <div class="h-full" v-else-if="localReservation && localReservation.id"

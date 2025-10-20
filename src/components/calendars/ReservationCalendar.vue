@@ -1,6 +1,7 @@
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
+    <OverLoading v-if="isRefreshing" />
     <AppHeader :show-sidebar="true" />
     <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
@@ -391,6 +392,7 @@ import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
 import { useStatusColor } from '@/composables/statusColorStore'
 
 const isLoading = ref(false);
+const isRefreshing = ref(false);
 const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
   switch (type) {
@@ -412,6 +414,7 @@ function getCustomerTypeIcon(type: string) {
 import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
+import OverLoading from '../spinner/OverLoading.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
 import { getRateStayViewTypeByHotelId, } from '../../services/configrationApi';
@@ -868,12 +871,17 @@ const getLocaleDailyOccupancyAndReservations = async () => {
   isLoading.value = false;
 }
 const refresh = async () => {
-  showModalAddingModal.value = false;
-  closeAssignRoomModal();
-  const serviceId = serviceStore.serviceId!
-  const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
-  serviceResponse.value = response.data
-  console.log('this is the response', serviceResponse.value)
+  isRefreshing.value = true
+  try {
+    showModalAddingModal.value = false;
+    closeAssignRoomModal();
+    const serviceId = serviceStore.serviceId!
+    const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+    serviceResponse.value = response.data
+    console.log('this is the response', serviceResponse.value)
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 // Watch for external refresh signals from the booking store

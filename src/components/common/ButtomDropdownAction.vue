@@ -1,7 +1,7 @@
 <template>
-    <div :class="'relative dropdown-container '+id " :id="id">
+    <div :class="'relative dropdown-container '+id " :id="id" ref="dropdownContainer" @mouseenter="onHoverOpen">
 
-        <button @click="toggleDropdown" :class="[
+        <button @click="handleButtonClick" :class="[
             'flex items-center gap-2 px-4 py-2 rounded-md  duration-200',
             buttonClass
         ]">
@@ -43,6 +43,7 @@ interface Props {
     buttonClass?: string
     dropdownClass?: string
     id?: string
+    openOnHover?: boolean
 }
 
 interface Emits {
@@ -53,15 +54,29 @@ const props = withDefaults(defineProps<Props>(), {
     buttonText: 'Options',
     buttonClass: 'bg-white text-black hover:text-primary',
     dropdownClass: 'w-64',
-    id:""
+    id:"",
+    openOnHover: true
 })
 
 const emit = defineEmits<Emits>()
 
 const isOpen = ref(false)
+const dropdownContainer = ref<HTMLElement | null>(null)
+
+const onHoverOpen = () => {
+    if (props.openOnHover) {
+        isOpen.value = true
+    }
+}
 
 const toggleDropdown = () => {
     isOpen.value = !isOpen.value
+}
+
+const handleButtonClick = () => {
+    if (!props.openOnHover) {
+        toggleDropdown()
+    }
 }
 
 const handleOptionClick = (option: DropdownOption) => {
@@ -72,8 +87,7 @@ const handleOptionClick = (option: DropdownOption) => {
 // Close dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
     const target = event.target as HTMLElement
-    const dropdown = document.getElementById(props.id)
-    if (dropdown && !dropdown.contains(target)) {
+    if (dropdownContainer.value && !dropdownContainer.value.contains(target)) {
         isOpen.value = false
     }
 }
