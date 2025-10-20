@@ -9,9 +9,13 @@
       </svg>
       {{ getActionLoadingText(currentAction) }}
     </div>
+    <template v-else>
+      <ButtonDropdown v-if="default" :button-class="'bg-white text-sm border border-primary text-primary'"
+        :options="dropdownOptions" :button-text="t('Options')" @option-selected="handleOptionSelected" />
+      <ButtomDropdownAction v-else :options="dropdownOptions" @option-selected="handleOptionSelected" />
+    </template>
 
-    <ButtonDropdown v-else :button-class="'bg-white text-sm border border-primary text-primary'"
-      :options="dropdownOptions" :button-text="t('Options')" @option-selected="handleOptionSelected" />
+
   </div>
 
   <!-- Action Modals -->
@@ -89,6 +93,7 @@ import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { List } from 'lucide-vue-next'
 import { ActionIcons } from '@/utils/ActionIcons'
 import { useReservation } from '../../composables/useReservation'
+import ButtomDropdownAction from '../common/ButtomDropdownAction.vue'
 
 // Lazy-loaded modals
 const CancelReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/CancelReseravtion.vue'))
@@ -107,8 +112,11 @@ const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reserv
 interface Props {
   reservation?: any
   localReservation?: any
+  default?:boolean
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  default: true
+})
 
 interface Emits {
   (e: 'reservation-updated', updated: any): void

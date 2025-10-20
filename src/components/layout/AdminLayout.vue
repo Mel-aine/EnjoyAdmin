@@ -5,7 +5,7 @@
     ><app-header />
       
       <!-- <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6"> -->
-        <div class="p-4 mx-auto bg-gray-100  md:p-6 overflow-y-scroll">
+        <div class="p-4 mx-auto bg-gray-100  md:p-6">
         <slot></slot>
       </div>
       <app-footer/>

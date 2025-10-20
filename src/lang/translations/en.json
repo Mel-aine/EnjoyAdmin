@@ -1340,6 +1340,7 @@
   "service": "services",
   "no_service_match": "No services match your search criteria.",
   "no_service_available": "No services available for this user.",
+  "free":"Free",
   "hotelAmenities": {
     "selectCategories": "1. Select Categories",
     "all": "All",
