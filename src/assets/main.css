@@ -876,7 +876,7 @@ span.flatpickr-weekday,
 
 /* Global app scaling: simulate ~70% browser zoom */
 :root {
-  --app-scale: 0.9; 
+  --app-scale: 0.93; 
 }
 
 html, body, #app {

@@ -40,12 +40,12 @@
         <!-- Footer Summary -->
         <div class="px-4 gap-1 py-2 text-sm flex flex-col border-t border-gray-200">
           <!-- Total Charges -->
-          <div class="flex justify-between text-sm text-gray-600">
+          <div class="flex justify-between text-sm text-blue-600">
             <span>{{ $t('Total') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalChargesWithTaxes) }}</span>
           </div>
           <!-- Total Tax -->
-          <div class="flex justify-between text-sm text-gray-600">
+          <div class="flex justify-between text-sm text-green-600">
             <span>{{ $t('paid') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>

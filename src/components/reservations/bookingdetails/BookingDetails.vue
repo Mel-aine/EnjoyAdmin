@@ -184,14 +184,14 @@
         <!-- Left side - Financial Summary -->
         <div class="flex text-sm">
           <div class="flex flex-col space-y-1">
-            <div class="text-gray-700 font-medium">{{ $t('Total') }}</div>
-            <div class="text-gray-700 font-medium">{{ $t('paid') }}</div>
-            <div class="font-medium text-orange-600">{{ $t('Balance') }}</div>
+            <div class="text-blue-600 font-medium">{{ $t('Total') }}</div>
+            <div class="text-green-600 font-medium">{{ $t('paid') }}</div>
+            <div class="font-medium text-red-600">{{ $t('Balance') }}</div>
           </div>
           <div class="flex flex-col space-y-1 ml-8">
-            <div class="font-medium text-gray-700">{{ formatCurrency(totalAmount) }}</div>
-            <span>{{ formatCurrency(totalPayments) }}</span>
-            <div class="font-medium text-orange-600">{{ formatCurrency(balanceAmount) }}</div>
+            <div class="font-medium text-blue-600">{{ formatCurrency(totalAmount) }}</div>
+            <span class="text-green-600">{{ formatCurrency(totalPayments) }}</span>
+            <div class="font-medium text-red-600">{{ formatCurrency(balanceAmount) }}</div>
           </div>
         </div>
 

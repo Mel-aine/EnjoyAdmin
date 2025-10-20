@@ -25,6 +25,7 @@ import Spinner from '../../components/spinner/Spinner.vue'
 import { useToast } from 'vue-toastification'
 import { getCompanyById, deleteCompany, type Company } from '../../services/companyApi'
 import ModalConfirmation from '../../components/modal/ModalConfirmation.vue'
+import { ActionIcons } from '@/utils/ActionIcons'
 
 // Simple Button component
 const Button = {
@@ -48,13 +49,8 @@ const tabs = computed(() => [
 
 const activeTab = ref<string>('company_details')
 
-// Icon mapping for different actions
-const actionIconMap = {
-  edit_company: PencilIcon,
-  delete_company: Trash2,
-  add_booking: Calendar,
-  export_data: ArrowUpDown,
-}
+// Icon mapping for different actions (centralized)
+const actionIconMap = ActionIcons.getMap()
 
 // Color mapping for different actions
 const actionColorMap = {

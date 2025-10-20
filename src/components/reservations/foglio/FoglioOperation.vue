@@ -31,15 +31,15 @@
           </div>
         </div>
         <div class="px-4 gap-1 py-2 text-sm flex flex-col">
-          <div class="flex justify-between">
+          <div class="flex justify-between text-blue-600">
             <span>{{ $t('total') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalChargesWithTaxes) }}</span>
           </div>
-          <div class="flex justify-between">
+          <div class="flex justify-between text-green-600">
             <span>{{ $t('paid') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
-          <div class="flex justify-between  text-red-200">
+          <div class="flex justify-between text-red-600">
             <span>{{ $t('Balence') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}</span>
           </div>
@@ -136,8 +136,9 @@
 
         <!-- Add Charge Modal -->
         <template v-if="isAddChargeModalOpen">
-          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" :folio-id="selectedFolio?.id" @close="closeAddChargeModal"
-            @refresh="refreshFolio"  :isEditMode="isEditMode"  :transactionData="transactionToEdit" />
+          <AddChargeModal :reservation-id="reservationId" :is-open="isAddChargeModalOpen" :folio-id="selectedFolio?.id"
+            @close="closeAddChargeModal" @refresh="refreshFolio" :isEditMode="isEditMode"
+            :transactionData="transactionToEdit" />
         </template>
 
         <!-- Add Payment Modal -->
@@ -181,7 +182,8 @@
         </div>
         <!-- Apply Discount Modal -->
         <template v-if="isApplyDiscountModal">
-          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId" :folio-id="selectedFolio?.id" :isEditMode="isEditMode" :transactionData="transactionToEdit"
+          <ApplyDiscountModal :is-open="isApplyDiscountModal" :reservation-id="reservationId"
+            :folio-id="selectedFolio?.id" :isEditMode="isEditMode" :transactionData="transactionToEdit"
             :reservation-number="reservation?.reservationNumber" @close="closeApplyDiscountModal"
             @discount-applied="handleDiscountApplied" />
         </template>
@@ -200,7 +202,7 @@ import { useI18n } from 'vue-i18n'
 import AddChargeModal from './AddChargeModal.vue'
 const AddPaymentModal = defineAsyncComponent(() => import('./AddPaymentModal.vue'))
 import CreateFolioModal from './CreateFolioModal.vue'
-import { PlusCircle, ChevronRight,Edit,Printer,Trash2 } from 'lucide-vue-next'
+import { PlusCircle, ChevronRight, Edit, Printer, Trash2 } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Action, Column } from '../../../utils/models'
@@ -214,7 +216,6 @@ import SplitFolioModal from './SplitFolioModal.vue'
 import CutFolioModal from './CutFolioModal.vue'
 import RoomChargeModal from './RoomChargeModal.vue'
 import AdjustmentFolioModal from './AdjustmentFolioModal.vue'
-import ApplyDiscountRoomCharge from './ApplyDiscountRoomCharge.vue'
 import { useAuthStore } from '@/composables/user'
 import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
 import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
@@ -404,10 +405,10 @@ const actionTransactions = computed<Action[]>(() => {
       handler: (item) => onAction('void', item),
       icon: Trash2
     },
-        {
+    {
       label: t('printVoucher'),
       handler: (item) => onAction('printVoucher', item),
-      condition: (item) => item.transactionType === 'room_posting' || item.category === 'extract_charge' ,
+      condition: (item) => item.transactionType === 'room_posting' || item.category === 'extract_charge',
       icon: Printer
     },
     {
@@ -415,7 +416,7 @@ const actionTransactions = computed<Action[]>(() => {
       handler: (item) => onAction('printReceipt', item),
       condition: (item) => item.transactionType === 'payment',
       icon: Printer
-    },{
+    }, {
       label: t('printPosReceipt'),
       handler: (item) => onAction('printPosReceipt', item),
       condition: (item) => item.transactionType === 'room_posting',
@@ -480,7 +481,7 @@ const printReceipt = async (item: any) => {
     printLoading.value = true
     showPdfExporter.value = true
     const pdfUrl = await generateReceiptPdfUrl(item.id);
-     pdfurl.value = pdfUrl;
+    pdfurl.value = pdfUrl;
   } catch (error) {
     console.error('Error printing receipt:', error)
   } finally {
@@ -494,7 +495,7 @@ const printPosReceipt = async (item: any) => {
     printLoading.value = true
     showPdfExporter.value = true
     const pdfUrl = await generatePosReceiptPdfUrl(item.id);
-     pdfurl.value = pdfUrl;
+    pdfurl.value = pdfUrl;
   } catch (error) {
     console.error('Error printing pos receipt:', error)
   } finally {
@@ -508,7 +509,7 @@ const printInvoice = async (item: any) => {
     printLoading.value = true
     showPdfExporter.value = true
     const pdfUrl = await generateInvoicePdfUrl(item.id);
-     pdfurl.value = pdfUrl;
+    pdfurl.value = pdfUrl;
   } catch (error) {
     console.error('Error printing receipt:', error)
   } finally {
@@ -602,6 +603,7 @@ const refreshFolio = async () => {
     console.log(e)
   }
 }
+defineExpose({ refreshFolio })
 const getFolosReservations = async () => {
   loading.value = true
   try {
@@ -618,7 +620,7 @@ const getFolosReservations = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null) ;
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
             if (transaction.transactionType === 'payment') {
               const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
               allTransactions.value.push({
