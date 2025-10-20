@@ -808,7 +808,6 @@ const fetchRoomTypes = async () => {
       return {
         label: room.roomTypeName,
         value: room.id,
-        count: 0
       }
     })
     RoomTypes.value = roomTypeOptions

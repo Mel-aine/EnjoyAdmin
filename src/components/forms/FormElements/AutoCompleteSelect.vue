@@ -50,7 +50,7 @@
               'bg-purple-100 text-purple-900': selectedOption?.value === option.value,
               'bg-blue-50': highlightedIndex === index && selectedOption?.value !== option.value,
               'hover:bg-gray-100': selectedOption?.value !== option.value && highlightedIndex !== index,
-              'opacity-50 cursor-not-allowed text-gray-400': disabled || option.disabled,
+              'opacity-50 cursor-not-allowed text-gray-400': disabled ,
               'hover:bg-purple-100': !disabled && !option.disabled,
               'text-red-600 bg-red-50': option.status === 'occupied',
             }
@@ -189,7 +189,7 @@ function onBlur() {
 }
 
 function selectOption(option: Option) {
-   if (props.disabled || props.isLoading || option.disabled) {
+   if (props.disabled || props.isLoading ) {
     return
   }else{
     selectedOption.value = option
