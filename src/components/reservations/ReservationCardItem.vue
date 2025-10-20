@@ -25,6 +25,7 @@ const { t, locale } = useI18n({ useScope: 'global' })
 import { getReservationById } from '@/services/reservation';
 const ExchangeRoomModal = defineAsyncComponent(() => import('./ExchangeRoomModal.vue'))
 const RoomMoveModal = defineAsyncComponent(() => import('../modal/RoomMoveModal.vue'))
+import { ActionIcons } from '@/utils/ActionIcons'
 
 // Initialize the reservation composable
 const {
@@ -389,21 +390,7 @@ const handleRoomAssignmentRefresh = async () => {
   }
 }
 // Icon mapping for different actions
-const actionIconMap = {
-  'view': Eye,
-  'check_in': CheckCircle,
-  'check_out': CheckCircle,
-  'add_payment': CreditCard,
-  'amend_stay': Calendar,
-  'room_move': ArrowUpDown,
-  'exchange_room': ArrowUpDown,
-  'stop_room_move': StopCircle,
-  'inclusion_list': List,
-  'cancel_reservation': X,
-  'no_show': Eye,
-  'void_reservation': Trash2,
-  'unassign_room': UserMinus,
-};
+const actionIconMap = ActionIcons.getMap();
 
 // Color mapping for different actions
 const actionColorMap = {

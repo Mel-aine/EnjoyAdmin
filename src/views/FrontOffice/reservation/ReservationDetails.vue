@@ -38,6 +38,7 @@ import {
   type CheckInReservationPayload,
   type CheckOutReservationPayload,
 } from '../../../composables/useReservation'
+import { ActionIcons } from '@/utils/ActionIcons'
 
 const AddPaymentModal = defineAsyncComponent(() => import('../../../components/reservations/foglio/AddPaymentModal.vue'))
 const CancelReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/CancelReseravtion.vue'))
@@ -56,6 +57,9 @@ const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reserv
 const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation';
+import RoomMoveIcon from '../../../icons/RoomMoveIcon.vue';
+import ExchangeRoomIcon from '../../../icons/ExchangeRoomIcon.vue';
+import UndoCheckInIcon from '../../../icons/UndoCheckInIcon.vue';
 
 // États des modals
 const isAddPaymentModalOpen = ref(false)
@@ -124,21 +128,7 @@ const refreshAvailableActions = async () => {
 }
 
 // Icon mapping for different actions
-const actionIconMap = {
-  check_in: CheckCircle,
-  check_out: CheckCircle,
-  add_payment: CreditCard,
-  amend_stay: Calendar,
-  room_move: ArrowUpDown,
-  exchange_room: ArrowUpDown,
-  stop_room_move: StopCircle,
-  inclusion_list: List,
-  cancel_reservation: X,
-  no_show: Eye,
-  void_reservation: Trash2,
-  unassign_room: UserMinus,
-}
-
+const actionIconMap = ActionIcons.getMap()
 const actionColorMap = {
   check_in: 'text-blue-600',
   check_out: 'text-green-600',

@@ -427,6 +427,10 @@ import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../composables/serviceStore'
 import RoomMoveModal from '../modal/RoomMoveModal.vue'
+import UndoCheckInIcon from '../../icons/UndoCheckInIcon.vue'
+import RoomMoveIcon from '../../icons/RoomMoveIcon.vue'
+import ExchangeRoomIcon from '../../icons/ExchangeRoomIcon.vue'
+import { ActionIcons } from '@/utils/ActionIcons'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -903,21 +907,7 @@ const formatDate = (dateString?: string) => {
 }
 
 
-// Icon mapping for different actions
-const actionIconMap = {
-    'check_in': CheckCircle,
-    'check_out': CheckCircle,
-    'add_payment': CreditCard,
-    'amend_stay': Calendar,
-    'room_move': ArrowUpDown,
-    'exchange_room': ArrowUpDown,
-    'stop_room_move': StopCircle,
-    'inclusion_list': List,
-    'cancel_reservation': X,
-    'no_show': Eye,
-    'void_reservation': Trash2,
-    'unassign_room': UserMinus,
-};
+const actionIconMap = ActionIcons.getMap()
 
 // Color mapping for different actions
 const actionColorMap = {
