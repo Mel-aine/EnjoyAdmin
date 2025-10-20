@@ -1153,15 +1153,15 @@ const nightsSummary = computed(() => {
 
         <!-- Amount and Payment Status -->
         <div class=" flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
-          <div class="flex justify-between">
+          <div class="flex justify-between text-blue-600">
             <span class=" font-medium">{{ $t('Total') }}</span>
             <span class="text-sm">{{ formatCurrency(localReservation.balanceSummary?.totalChargesWithTaxes) }}</span>
           </div>
-          <div class="flex justify-between">
+          <div class="flex justify-between text-green-600">
             <span class=" font-medium">{{ $t('paid') }}</span>
             <span class="text-sm">{{ formatCurrency(localReservation.balanceSummary?.totalPayments) }}</span>
           </div>
-          <div class="flex justify-between text-primary">
+          <div class="flex justify-between text-red-600">
             <span class=" font-medium">{{ $t('balance') }}</span>
             <span class="text-sm">{{ formatCurrency(localReservation.balanceSummary?.outstandingBalance) }}</span>
           </div>

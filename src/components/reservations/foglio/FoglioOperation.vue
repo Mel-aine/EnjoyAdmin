@@ -31,15 +31,15 @@
           </div>
         </div>
         <div class="px-4 gap-1 py-2 text-sm flex flex-col">
-          <div class="flex justify-between">
+          <div class="flex justify-between text-blue-600">
             <span>{{ $t('total') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalChargesWithTaxes) }}</span>
           </div>
-          <div class="flex justify-between">
+          <div class="flex justify-between text-green-600">
             <span>{{ $t('paid') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
-          <div class="flex justify-between  text-red-200">
+          <div class="flex justify-between text-red-600">
             <span>{{ $t('Balence') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}</span>
           </div>

@@ -317,19 +317,19 @@
                                 <!-- Amount and Payment Status -->
                                 <div
                                     class=" w-full flex flex-col gap-2  pt-2  border-gray-100 dark:border-gray-700">
-                                    <div class="flex justify-between">
+                                    <div class="flex justify-between text-blue-600">
                                         <span class=" font-medium">{{ $t('total') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalChargesWithTaxes ?? 0)
                                             }}</span>
                                     </div>
-                                    <div class="flex justify-between">
+                                    <div class="flex justify-between text-green-600">
                                         <span class=" font-medium">{{ $t('paid') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.totalPayments ?? 0)
                                             }}</span>
                                     </div>
-                                    <div class="flex justify-between text-primary">
+                                    <div class="flex justify-between text-red-600">
                                         <span class=" font-medium">{{ $t('balance') }}</span>
                                         <span class="text-sm">{{
                                             formatCurrency(localReservation.balanceSummary?.outstandingBalance ?? 0)
