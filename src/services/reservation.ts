@@ -101,6 +101,30 @@ export const checkOutReservations = async (reservationId: number, reservationSer
   }
 }
 
+export const undoCheckInReservation = async (reservationId: number, datas: any): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/undo-checkin`, datas, getHeaders()
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
+export const undoCheckOutReservation = async (reservationId: number, datas: any): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `/reservation/${reservationId}/undo-check-out`, datas, getHeaders()
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 export const setAvailable = async (id: number): Promise<any | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.patch(

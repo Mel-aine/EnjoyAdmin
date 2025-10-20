@@ -119,6 +119,18 @@ export const updateHotelHousekeepingStatusColors = (id:number,data:any): Promise
   return axios.put(`${API_URL}/${id}/housekeeping-status-colors`, data, getHeaders())
 }
 
+/***
+ * update hotel tax rates validator
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateHotelTaxRates = (id:number,data:any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/tax-rates`, data, getHeaders())
+}
+
+
+
 // Find reservation
 export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
   let qs = ``

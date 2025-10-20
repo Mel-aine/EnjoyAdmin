@@ -1,7 +1,7 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="$t('Booking')" />
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4">
       <!-- Left Column: Add Reservation Form -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
@@ -98,12 +98,12 @@
                 </div>
 
                 <!--arriving to-->
-                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" />
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel ="'arriving'" :placeholder="$t('ArrivingTo')" v-model="reservation.arrivingTo" />
 
                  <!--going to-->
-                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')"/>
+                  <Input :lb="$t('GoingTo')" :id="'going'" :forLabel ="'going'"  :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
                   <!--means of transportation-->
-                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" />
+                   <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel ="'means'" :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
               </div>
 
               <!-- Room Type -->
@@ -672,7 +672,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref, defineAsyncComponent } from 'vue'
+import { onMounted, computed, ref, defineAsyncComponent ,nextTick} from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
@@ -871,7 +871,9 @@ const {
   pendingUploads,
   holdReleaseData,
   canCityLedgerPay,
-  isExtraChargesIncluded
+  isExtraChargesIncluded,
+  loadDraftData,
+  loadDraftAsyncData,
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -1070,94 +1072,52 @@ const onQuickGroupBookingChange = (event: Event) => {
 
 
 
-
-
-
-// Ajoutez cette nouvelle fonction pour charger le brouillon
-const loadDraft = () => {
+// Fonction
+const loadDraft = async () => {
   const draft = loadBooking()
-  console.log('draft',draft)
+  console.log('Loading draft from localStorage:', draft)
 
   if (!draft) {
     console.log('No draft found')
-    return
+    return false
   }
 
   try {
-    // Charger les données de réservation
-    if (draft.reservation) {
-      reservation.value.checkinDate = draft.reservation.checkinDate
-      reservation.value.checkinTime = draft.reservation.checkinTime
-      reservation.value.checkoutDate = draft.reservation.checkoutDate
-      reservation.value.checkoutTime = draft.reservation.checkoutTime
-      reservation.value.bookingType = draft.reservation.bookingType
-      reservation.value.bookingSource = draft.reservation.bookingSource
-      reservation.value.businessSource = draft.reservation.businessSource
-      reservation.value.isComplementary = draft.reservation.isComplementary
-      reservation.value.isHold = draft.reservation.isHold
-      reservation.value.rooms = draft.reservation.rooms
+    const loaded = loadDraftData(draft)
+
+    if (!loaded) {
+      console.error('Failed to load draft data')
+      return false
     }
 
-    // Charger les configurations de chambres
-    if (draft.roomConfigurations && draft.roomConfigurations.length > 0) {
-      // Réinitialiser les configurations
-      roomConfigurations.value = []
+    await loadDraftAsyncData()
 
-      // Recréer les configurations depuis le brouillon
-      draft.roomConfigurations.forEach((roomDraft, index) => {
-        if (index === 0) {
-          // Utiliser la première chambre existante
-          const firstRoom = roomConfigurations.value[0] || addRoom()
-          Object.assign(firstRoom, roomDraft)
-        } else {
-          // Ajouter les chambres supplémentaires
-          const newRoom:any = addRoom()
-          Object.assign(newRoom, roomDraft)
-        }
-      })
-    }
 
-    // Charger les données du formulaire client
-    if (draft.formData) {
-      Object.assign(formData.value, draft.formData)
-    }
-
-    // Charger les autres informations
-    if (draft.otherInfo) {
-      otherInfo.value.emailBookingVouchers = draft.otherInfo.emailBookingVouchers
-      otherInfo.value.voucherEmail = draft.otherInfo.voucherEmail
-    }
-
-    // Charger les informations de facturation
-    if (draft.billing) {
-      billing.value.billTo = draft.billing.billTo
-      billing.value.paymentType = draft.billing.paymentType
-    }
-
-    // Charger les données de hold/release si présentes
-    if (draft.holdReleaseData && reservation.value.isHold) {
-      holdReleaseData.value = { ...draft.holdReleaseData }
-    }
-
-    console.log('Draft loaded successfully')
+    console.log('Draft loaded successfully!')
+    return true
 
   } catch (error) {
     console.error('Error loading draft:', error)
-
+    return false
   }
 }
+onMounted(async () => {
+  await initialize()
 
+  const draftLoaded = await loadDraft()
 
+  if (!draftLoaded) {
+    initializeForm()
+  } else {
 
-
-
-onMounted(() => {
-  initialize()
-  initializeForm()
-  loadDraft()
-
+    await nextTick()
+    console.log('Draft loaded and components updated')
+  }
 })
+
+
 </script>
+
 <style scoped>
 .sidebar-scroll {
   -ms-overflow-style: none;

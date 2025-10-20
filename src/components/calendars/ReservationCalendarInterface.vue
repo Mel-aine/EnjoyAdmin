@@ -26,7 +26,7 @@
         </button>
         <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="selectedDate" />
         <div
-          class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-300 focus:ring focus:ring-primary/30">
+          class="flex rounded-lg px-2 text-sm font-semibold transition align-middle py-3 bg-white text-primary shadow border border-gray-400 focus:ring focus:ring-primary/30">
           <label>{{ $t('show') }}</label>
           <select v-model="daysToShow" @change="setDays(Number(daysToShow))" class="outline-0">
             <option :value="7">7 {{ $t('days') }}</option>
@@ -40,12 +40,12 @@
     <!-- Main Calendar Table -->
     <div class="flex-1 flex flex-col min-h-0">
       <div class="flex-1 overflow-y-auto">
-        <table class="min-w-full border border-gray-300 rounded overflow-hidden text-sm">
+        <table class="min-w-full border border-gray-400 rounded overflow-hidden text-sm">
           <thead>
             <tr>
-              <th class="bg-gray-100 px-2 py-1 border border-gray-300 w-24 min-w-[6rem]">{{ $t('Room') }}</th>
+              <th class="bg-gray-100 px-2 py-1 border border-gray-400 w-24 min-w-[6rem]">{{ $t('Room') }}</th>
               <th v-for="(date, idx) in visibleDates" :key="idx"
-                class="bg-gray-50 px-2 py-1 text-center border border-gray-300">
+                class="bg-gray-50 px-2 py-1 text-center border border-gray-400">
                 <div>{{ formatDate(date) }}</div>
                 <div class="text-xs text-gray-400">{{ formatDay(date) }}</div>
               </th>
@@ -58,7 +58,7 @@
                 <td class="px-2 py-1">
                   <div class="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
                 </td>
-                <td v-for="j in visibleDates.length" :key="j" class="px-0 py-0 h-12">
+                <td v-for="j in visibleDates.length" :key="j" class="px-0 py-0 h-8">
                   <div class="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
                 </td>
               </tr>
@@ -70,7 +70,7 @@
                 <!-- Room Type Header -->
                 <tr>
                   <td :colspan="visibleDates.length + 1"
-                    class="font-bold bg-green-100 px-2 py-1 border border-gray-300">
+                    class="font-bold bg-green-100 px-2 py-1 border border-gray-400">
                     {{ group.room_type }}
                     <span class="text-xs text-gray-500 font-normal">({{ group.room_details.length }})</span>
                   </td>
@@ -78,22 +78,21 @@
 
                 <!-- Individual Rooms -->
                 <tr v-for="room in group.room_details" :key="room.room_number || room.room_status + Math.random()">
-                  <td class="font-semibold px-2 py-1 border border-gray-300">{{ room.room_number || '-' }}</td>
+                  <td class="font-bold text-sm uppercase px-2 py-1 border border-gray-400">{{ room.room_number || '-' }}</td>
 
                   <!-- Room Cells with Reservations -->
                   <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
                     <!-- Reservation Cell -->
                     <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                      class="relative px-0 py-0 h-12 border border-gray-300">
+                      class="relative px-0 py-0 h-8 border border-gray-400">
                       <div :class="[
-                        'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-white flex items-center gap-1 w-[80%]',
+                        'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-sm uppercase font-bold text-white flex items-center gap-1 w-[80%] min-w-0',
                         getReservationColor(cell.reservation.reservation_status),
                       ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
                         @mouseenter="showReservationTooltip(cell.reservation, $event)"
                         @mouseleave="hideReservationTooltip">
-                        <span>
+                        <span class="truncate">
                           {{ cell.reservation.guest_name }}
-                          <br>
                         </span>
                       </div>
                     </td>
@@ -101,7 +100,7 @@
                     <!-- Room Status Cell -->
                     <td
                       v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
-                      class="px-0 py-0 h-12 border border-gray-300">
+                      class="px-0 py-0 h-8 border border-gray-400">
                       <div
                         :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
                         <component :is="getRoomStatusIcon(room.room_status)"
@@ -110,7 +109,7 @@
                     </td>
 
                     <!-- Empty Cell -->
-                    <td v-else class="px-0 py-0 h-12 border border-gray-300"></td>
+                    <td v-else class="px-0 py-0 h-8 border border-gray-400"></td>
                   </template>
                 </tr>
               </template>
@@ -121,14 +120,14 @@
 
       <!-- Footer with Statistics -->
       <div class="sticky bottom-0 bg-white shadow z-10">
-        <table class="min-w-full border-t border border-gray-300 text-xs">
+        <table class="min-w-full border-t border border-gray-400 text-xs">
           <tfoot>
             <!-- Legend Row -->
             <tr class="text-md">
-              <td colspan="1" class="bg-gray-100 font-bold border border-gray-300 w-24 min-w-[6rem]">
+              <td colspan="1" class="bg-gray-100 font-bold border border-gray-400 w-24 min-w-[6rem]">
                 {{ $t('Room Legend') }}
               </td>
-              <td colspan="99" class="bg-gray-50 border border-gray-300 p-3">
+              <td colspan="99" class="bg-gray-50 border border-gray-400 p-3">
                 <span v-for="legend in legends" :key="legend.type" class="inline-flex items-center gap-1 mr-4">
                   <span :class="['inline-block w-4 h-4 rounded', getReservationColor(legend.type)]"></span>
                   <span class="text-xs">{{ $t(legend.label) }}</span>
@@ -138,26 +137,26 @@
 
             <!-- Statistics Rows -->
             <tr>
-              <td class="bg-gray-100 border border-gray-300">{{ $t('Unassigned reservations') }}</td>
-              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300"
+              <td class="bg-gray-100 border border-gray-400">{{ $t('Unassigned reservations') }}</td>
+              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-400"
                 v-html="getUnassignedApi(date)">
               </td>
             </tr>
             <tr>
-              <td class="bg-gray-100 border border-gray-300">{{ $t('Allocations') }}</td>
-              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300">
+              <td class="bg-gray-100 border border-gray-400">{{ $t('Allocations') }}</td>
+              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-400">
                 {{ getAllocatedRoomsApi(date) }}
               </td>
             </tr>
             <tr>
-              <td class="bg-gray-100 border border-gray-300">% {{ $t('Occupancy') }}</td>
-              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300">
+              <td class="bg-gray-100 border border-gray-400">% {{ $t('Occupancy') }}</td>
+              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-400">
                 {{ getOccupancyApi(date) }} %
               </td>
             </tr>
             <tr>
-              <td class="bg-gray-100 border border-gray-300">{{ $t('Available Rooms') }}</td>
-              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-300">
+              <td class="bg-gray-100 border border-gray-400">{{ $t('Available Rooms') }}</td>
+              <td v-for="(date, idx) in visibleDates" :key="idx" class="text-center border border-gray-400">
                 {{ getAvailableRoomsApi(date) }}
               </td>
             </tr>

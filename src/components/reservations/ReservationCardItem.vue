@@ -25,6 +25,7 @@ const { t, locale } = useI18n({ useScope: 'global' })
 import { getReservationById } from '@/services/reservation';
 const ExchangeRoomModal = defineAsyncComponent(() => import('./ExchangeRoomModal.vue'))
 const RoomMoveModal = defineAsyncComponent(() => import('../modal/RoomMoveModal.vue'))
+import { ActionIcons } from '@/utils/ActionIcons'
 
 // Initialize the reservation composable
 const {
@@ -215,6 +216,7 @@ const handleExchangeSuccess = async () => {
         reservationRooms: updatedReservation.reservationRooms
       })
   closeExchangeRoomModal()
+
   await refreshAvailableActions(localReservation.value.id)
 
 
@@ -388,21 +390,7 @@ const handleRoomAssignmentRefresh = async () => {
   }
 }
 // Icon mapping for different actions
-const actionIconMap = {
-  'view': Eye,
-  'check_in': CheckCircle,
-  'check_out': CheckCircle,
-  'add_payment': CreditCard,
-  'amend_stay': Calendar,
-  'room_move': ArrowUpDown,
-  'exchange_room': ArrowUpDown,
-  'stop_room_move': StopCircle,
-  'inclusion_list': List,
-  'cancel_reservation': X,
-  'no_show': Eye,
-  'void_reservation': Trash2,
-  'unassign_room': UserMinus,
-};
+const actionIconMap = ActionIcons.getMap();
 
 // Color mapping for different actions
 const actionColorMap = {
@@ -1152,15 +1140,15 @@ const nightsSummary = computed(() => {
 
         <!-- Amount and Payment Status -->
         <div class=" flex flex-col gap-2  pt-2 border-t border-gray-100 dark:border-gray-700">
-          <div class="flex justify-between">
+          <div class="flex justify-between text-blue-600">
             <span class=" font-medium">{{ $t('Total') }}</span>
             <span class="text-sm">{{ formatCurrency(localReservation.balanceSummary?.totalChargesWithTaxes) }}</span>
           </div>
-          <div class="flex justify-between">
+          <div class="flex justify-between text-green-600">
             <span class=" font-medium">{{ $t('paid') }}</span>
             <span class="text-sm">{{ formatCurrency(localReservation.balanceSummary?.totalPayments) }}</span>
           </div>
-          <div class="flex justify-between text-primary">
+          <div class="flex justify-between text-red-600">
             <span class=" font-medium">{{ $t('balance') }}</span>
             <span class="text-sm">{{ formatCurrency(localReservation.balanceSummary?.outstandingBalance) }}</span>
           </div>

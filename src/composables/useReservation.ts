@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 import {
   checkInReservation,
   checkOutReservation,
+  undoCheckInReservation,
+  undoCheckOutReservation,
   getReservationDetailsById,
   unAssignRoomReservation,
   assignRoomReservation
@@ -79,6 +81,8 @@ export function useReservation() {
   const isVoidingReservation = ref(false)
   const isAvhe = ref(false)
   const isExchangingRoom = ref(false)
+  const isUndoingCheckIn = ref(false)
+  const isUndoingCheckOut = ref(false)
 
   // Check-in reservation
   const performCheckIn = async (reservationId: number, payload: CheckInReservationPayload, refreshCallback?: () => Promise<void>) => {
@@ -402,6 +406,48 @@ export function useReservation() {
     showNoShowModal.value = false;
   };
 
+  // Undo Check-in
+  const performUndoCheckIn = async (
+    reservationId: number,
+    payload: { reservationRooms: number[]; notes?: string },
+    refreshCallback?: () => Promise<void>
+  ) => {
+    isUndoingCheckIn.value = true
+    try {
+      const response = await undoCheckInReservation(reservationId, payload)
+      toast.success(t('toast.undoCheckInSuccess') || 'Check-in undone successfully!')
+      if (refreshCallback) { await refreshCallback() }
+      return response
+    } catch (error) {
+      console.error('Undo check-in error:', error)
+      toast.error(t('toast.undoCheckInError') || 'Failed to undo check-in. Please try again.')
+      throw error
+    } finally {
+      isUndoingCheckIn.value = false
+    }
+  }
+
+  // Undo Check-out
+  const performUndoCheckOut = async (
+    reservationId: number,
+    payload: { reservationRooms: number[]; notes?: string },
+    refreshCallback?: () => Promise<void>
+  ) => {
+    isUndoingCheckOut.value = true
+    try {
+      const response = await undoCheckOutReservation(reservationId, payload)
+      toast.success(t('toast.undoCheckOutSuccess') || 'Check-out undone successfully!')
+      if (refreshCallback) { await refreshCallback() }
+      return response
+    } catch (error) {
+      console.error('Undo check-out error:', error)
+      toast.error(t('toast.undoCheckOutError') || 'Failed to undo check-out. Please try again.')
+      throw error
+    } finally {
+      isUndoingCheckOut.value = false
+    }
+  }
+ 
   return {
     // Loading states
     isCheckingIn,
@@ -416,6 +462,8 @@ export function useReservation() {
     isVoidingReservation,
     isAvhe,
     isExchangingRoom,
+    isUndoingCheckIn,
+    isUndoingCheckOut,
     showNoShowModal,
     // Methods
     performCheckIn,
@@ -431,6 +479,8 @@ export function useReservation() {
     voidReservation,
     performAvhe,
     handleNoShowConfirmed,
-
+    performUndoCheckIn,
+    performUndoCheckOut,
+ 
   }
 }

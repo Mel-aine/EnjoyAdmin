@@ -162,7 +162,7 @@ const saveCharge = async () => {
       unitPrice: safeParseFloat(selectedCharge.value?.rateInclusiveTax, 0),
       taxAmount: safeParseFloat(selectedCharge.value?.taxAmount, 0),
       departmentId: selectedCharge.value?.departmentId || '',
-      reference: formData.recVouNumber || '',
+      reference: `${formData.recVouNumber}` || '',
       notes: formData.comment || '',
       discountId: formData.discount ? Number(formData.discount) : undefined
     }

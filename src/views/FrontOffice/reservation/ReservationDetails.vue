@@ -38,6 +38,7 @@ import {
   type CheckInReservationPayload,
   type CheckOutReservationPayload,
 } from '../../../composables/useReservation'
+import { ActionIcons } from '@/utils/ActionIcons'
 
 const AddPaymentModal = defineAsyncComponent(() => import('../../../components/reservations/foglio/AddPaymentModal.vue'))
 const CancelReservation = defineAsyncComponent(() => import('../../../components/reservations/foglio/CancelReseravtion.vue'))
@@ -124,21 +125,7 @@ const refreshAvailableActions = async () => {
 }
 
 // Icon mapping for different actions
-const actionIconMap = {
-  check_in: CheckCircle,
-  check_out: CheckCircle,
-  add_payment: CreditCard,
-  amend_stay: Calendar,
-  room_move: ArrowUpDown,
-  exchange_room: ArrowUpDown,
-  stop_room_move: StopCircle,
-  inclusion_list: List,
-  cancel_reservation: X,
-  no_show: Eye,
-  void_reservation: Trash2,
-  unassign_room: UserMinus,
-}
-
+const actionIconMap = ActionIcons.getMap()
 const actionColorMap = {
   check_in: 'text-blue-600',
   check_out: 'text-green-600',
@@ -288,6 +275,8 @@ const performAutoCheckIn = async (availableRoom: any) => {
   })
 
     await refreshAvailableActions()
+  // Also refresh FoglioOperation child component (folio data)
+  foglioRef.value?.refreshFolio?.()
 }
 
 const handleCheckInSuccess = async (data: any) => {
@@ -508,6 +497,7 @@ isRoomMoveModalOpen.value = false
   await getBookingDetailsById()
 }
 const handleRoomMoveSuccess = ()=>{
+    getBookingDetailsById()
 
 }
 const closeExchangeRoomModal = async()=>{
@@ -516,6 +506,7 @@ const closeExchangeRoomModal = async()=>{
 
 }
 const handleExchangeSuccess = ()=>{
+    getBookingDetailsById()
 
 }
 // ====== GESTION DES OPTIONS ======
@@ -737,6 +728,8 @@ const handlePrintError = (error: any) => {
   console.error('Print error:', error)
 }
 
+const foglioRef = ref<any>(null)
+
 const templates = ref([
   {
     id: '1',
@@ -931,7 +924,7 @@ onMounted(() => {
         <RoomCharge :reservation-id="localReservation.id" :reservation="localReservation"></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && localReservation && localReservation.id">
-        <FoglioOperation :reservation-id="localReservation.id" :reservation="localReservation" @refresh="refresReservation">
+        <FoglioOperation ref="foglioRef" :reservation-id="localReservation.id" :reservation="localReservation" @refresh="refresReservation">
         </FoglioOperation>
       </div>
       <div v-if="activeTab === 'booking_details'">

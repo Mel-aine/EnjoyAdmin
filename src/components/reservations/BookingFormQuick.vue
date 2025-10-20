@@ -251,7 +251,10 @@ const gotoNew = () => {
       businessSource: reservation.value.businessSource,
       isComplementary: reservation.value.isComplementary,
       isHold: reservation.value.isHold,
-      rooms: reservation.value.rooms
+      rooms: reservation.value.rooms,
+      meansOfTransport:reservation.value.meansOfTransport,
+      goingTo:reservation.value.goingTo,
+      arrivingTo:reservation.value.arrivingTo,
     },
     roomConfigurations: roomConfigurations.value.map(room => ({
       id: room.id,
@@ -260,7 +263,9 @@ const gotoNew = () => {
       roomNumber: room.roomNumber,
       adultCount: room.adultCount,
       childCount: room.childCount,
-      rate: room.rate
+      rate: room.rate,
+      taxes: room.taxes || [],
+      extraCharges: room.extraCharges || []
     })),
     formData: {
       title: formData.value.title,
@@ -602,14 +607,14 @@ onMounted(() => {
                       </div>
                       <div>
                         <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'"
-                          :placeholder="$t('ArrivingTo')" />
+                          :placeholder="$t('ArrivingTo')"  v-model="reservation.arrivingTo"/>
                       </div>
                       <div>
-                        <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')" />
+                        <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
                       </div>
                       <div>
                         <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel="'means'"
-                          :placeholder="$t('MeansOfTransportation')" />
+                          :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
                       </div>
                     </div>
                     <!-- Room Type -->
@@ -725,7 +730,7 @@ onMounted(() => {
                                 </div>
                                 <div v-else>
                                   <input type="number" v-model.number="room.rate"
-                                    class="dark:bg-dark-900 h-11 w-full  border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
                                 </div>
                               </div>
 
@@ -827,8 +832,8 @@ onMounted(() => {
           <!-- Footer -->
           <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
             <div class="flex justify-between  space-x-3">
-               <BasicButton type="button" @click="gotoNew"
-                :loading="isLoading" :disabled="isLoading" variant=""
+               <BasicButton  v-if="!showCheckinButton && !pendingReservation" type="button" @click="gotoNew"
+                 :disabled="isLoading" variant=""
                 :label="$t('More Options')">
               </BasicButton>
               <BasicButton v-if="showCheckinButton && !pendingReservation" type="button" @click="handleCheckIn"
