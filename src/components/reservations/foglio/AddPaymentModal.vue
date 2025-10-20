@@ -161,7 +161,7 @@ const loadPaymentData = () => {
     formData.type = methodType === 'city_ledger' ? 'city_ledger' : 'cash'
     formData.folio = payment.folioId || ''
     formData.amount = Math.abs(payment.grossAmount || payment.amount || payment.totalAmount || 0)
-    formData.method = payment.paymentMethodId
+    formData.method = payment.paymentMethodId || 0
     formData.currency = payment.currencyCode || ''
     formData.comment = payment.notes || payment.description || ''
 
@@ -311,11 +311,11 @@ watch(() => props.isOpen, async(newVal) => {
     } else {
 
       formData.date = new Date().toISOString().split('T')[0]
-      formData.currency = ''
+      formData.currency = 'XAF'
       formData.folio = props.folioId
-      formData.amount = 0
+      formData.amount =  0
       formData.comment = ''
-      formData.type = ''
+      formData.type = 'cash'
       formData.method = 0
 
 

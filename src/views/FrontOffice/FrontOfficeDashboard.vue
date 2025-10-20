@@ -106,7 +106,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 ">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 ">
         <!-- folio unpaid Panel -->
 
         <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
@@ -237,45 +237,8 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8  ">
-        <!-- Notifications Panel -->
-        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
-          <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
-            <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
-              <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            {{ $t('frontOffice.dashboard.notifications') }}
-          </h3>
-
-          <div class="space-y-4 grid grid-cols-3 gap-4">
-            <div
-              v-for="notification in notificationItems"
-              :key="notification.key"
-              class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-            >
-              <div class="flex-shrink-0 mr-3">
-                <div
-                  class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center"
-                >
-                  <component
-                    :is="notification.icon"
-                    class="w-4 h-4 text-blue-600 dark:text-blue-400"
-                  />
-                </div>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ notification.count }}
-                </p>
-                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $t(notification.label) }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity Feeds -->
+         <!-- Activity Feeds -->
         <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
@@ -351,6 +314,8 @@
           </div>
         </div>
       </div>
+
+
     </div>
   </AdminLayout>
 </template>

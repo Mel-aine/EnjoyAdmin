@@ -1873,12 +1873,65 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
   const initialize = async () => {
     try {
       console.log('Initializing booking composable...')
-      await fetchRoomTypes()
-      await loadAllRoomCounts()
+      isLoadingRoom.value = true
+
+      //  Fetch room types data
+      const hotelId = serviceStore.serviceId
+      if (!hotelId) throw new Error('Hotel ID not found')
+      const response = await getRoomTypes(hotelId)
+      if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
+        throw new Error('Invalid room types data structure')
+      }
+      const roomTypesData = response.data.data.data
+      RoomTypesData.value = roomTypesData
+
+      //  Create a temporary array of room type options and start fetching counts
+      const roomTypePromises = roomTypesData.map(async (room: RoomTypeData) => {
+        let count = 0
+        try {
+          const countResponse = await getAvailableRoomsByTypeId(
+            Number(room.id),
+            reservation.value.checkinDate,
+            reservation.value.checkoutDate
+          )
+
+          if (countResponse?.data?.data) {
+            const roomOptions: Option[] = (countResponse.data.data.rooms || []).map((r: any) => ({
+              label: r.roomNumber,
+              value: r.id,
+              status: r.status,
+              disabled: r.status === 'occupied'
+            }))
+            roomTypeRooms.value.set(String(room.id), roomOptions)
+            count = countResponse.data.data.rooms.filter((r: any) => r.status === 'available').length || 0
+          } else {
+             roomTypeRooms.value.set(String(room.id), [])
+          }
+        } catch (error) {
+          console.error(`Failed to get count for room type ${room.id}`, error)
+          roomTypeRooms.value.set(String(room.id), [])
+        }
+
+        return {
+          label: room.roomTypeName,
+          value: room.id,
+          count: count
+        }
+      })
+
+      //  Wait for all counts to be fetched
+      const finalRoomTypeOptions = await Promise.all(roomTypePromises)
+
+      // Assign to the ref once, with all data ready
+      RoomTypes.value = finalRoomTypeOptions
+
       console.log('Booking composable initialized successfully')
     } catch (error) {
       console.error('Error initializing booking composable:', error)
       toast.error(t('toast.errorInitializing'))
+      RoomTypes.value = []
+    } finally {
+      isLoadingRoom.value = false
     }
   }
 

@@ -312,7 +312,7 @@
                 </div>
 
 
-                <div class="w-[800px]">
+                <div class="w-[500px]">
                 </div>
 
                 <div class="w-20 flex items-center justify-center">
