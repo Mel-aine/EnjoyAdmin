@@ -57,9 +57,6 @@ const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reserv
 const RoomMoveModal = defineAsyncComponent(() => import('@/components/modal/RoomMoveModal.vue'))
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation';
-import RoomMoveIcon from '../../../icons/RoomMoveIcon.vue';
-import ExchangeRoomIcon from '../../../icons/ExchangeRoomIcon.vue';
-import UndoCheckInIcon from '../../../icons/UndoCheckInIcon.vue';
 
 // États des modals
 const isAddPaymentModalOpen = ref(false)

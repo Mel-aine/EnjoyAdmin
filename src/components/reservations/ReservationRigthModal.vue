@@ -138,7 +138,7 @@
                         </div>
 
                         <button @click="closeModal"
-                            class="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            class="rounded-md p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12" />
@@ -157,24 +157,12 @@
                                         <button class="rounded-lg bg-primary text-sm text-white px-4"
                                             @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>
-                                        <div v-if="isPerformingAction"
-                                            class="flex items-center px-2 py-1 bg-purple-100 text-purple-600 rounded text-xs">
-                                            <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-purple-600"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                    stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                </path>
-                                            </svg>
-                                            {{ getActionLoadingText(currentAction) }}
-                                        </div>
-
-                                        <!-- Dropdown normal -->
-                                        <ButtonDropdown v-else
-                                            :button-class="'bg-white text-sm border border-primary text-primary'"
-                                            :options="dropdownOptions" :button-text="t('Options')"
-                                            @option-selected="handleOptionSelected" />
+                                        <ReservationAction
+                                            :reservation="reservation"
+                                            :local-reservation="localReservation"
+                                            @reservation-updated="handleChildReservationUpdated"
+                                            @save="handleChildSave"
+                                        />
 
                                         <!-- <ButtonDropdown
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
@@ -344,47 +332,6 @@
         </div>
     </div>
 
-    <!-- Cancel Reservation Modal -->
-    <template v-if="reservation">
-        <CancelReservation :is-open="showCancelModal" :reservation-data="reservation" @close="showCancelModal = false"
-            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-            @cancel-confirmed="handleCancelConfirmed" />
-        <VoidReservation :is-open="showVoidModal" :reservation-data="reservation" @close="showVoidModal = false"
-            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-            @void-confirmed="handleVoidConfirmed" />
-        <AmendStay :is-open="showAmendModal" :reservation-data="reservation" @close="showAmendModal = false"
-            :reservation-id="reservation.id" :reservation-number="reservation.reservationNumber"
-            @amend-confirmed="handleAmendConfirmed" :reservation="reservation" />
-        <!-- NoShow Reservation Modal -->
-        <NoShowReservation :is-open="showNoShowModal" :reservation-id="reservation.id" @close="showNoShowModal = false"
-            @noshow-confirmed="handleNoShowConfirmed" />
-
-        <!-- Add Payment Modal -->
-        <template v-if="isAddPaymentModalOpen">
-            <AddPaymentModal :reservation-id="reservation.id" :is-open="isAddPaymentModalOpen"
-                @close="closeAddPaymentModal" @save="handleSavePayment" />
-        </template>
-        <!--check out template-->
-        <template v-if="isCkeckOutModalOpen">
-            <CheckOutReservation :reservation-id="reservation.id" :is-open="isCkeckOutModalOpen"
-                @close="closeCheckOutReservationModal" @success="handleCheckOutSuccess" />
-        </template>
-        <!--check in template-->
-        <template v-if="isCkeckInModalOpen">
-            <CheckInReservation :reservation-id="reservation.id" :is-open="isCkeckInModalOpen"
-                @close="closeCheckInReservationModal" @success="handleCheckInSuccess" />
-        </template>
-
-        <!--unassign template-->
-        <template v-if="isUnAssignModalOpen">
-            <UnAssignRoomReservation :reservation-id="reservation.id" :is-open="isUnAssignModalOpen"
-                @close="closeUnAssignReservationModal" @success="handleUnAssignConfirmed" />
-        </template>
-        <RoomMoveModal :reservation-id="reservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal"
-            @success="handleRoomMoveSuccess" />
-        <ExchangeRoomModal v-if="isExchangeRoomModalOpen && reservation" :reservation-id="reservation.id"
-            :is-open="isExchangeRoomModalOpen" @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
-    </template>
 
 
     <!-- Print Modal -->
@@ -405,7 +352,7 @@ import { useRouter } from 'vue-router'
 import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
-import { useReservation } from '../../composables/useReservation'
+
 // Lazy load all modal components to improve code splitting
 const CancelReservation = defineAsyncComponent(() => import('./foglio/CancelReseravtion.vue'))
 import { getReservationDetailsById, printGuestReservationCard } from '../../services/reservation'
@@ -421,15 +368,14 @@ const CheckOutReservation = defineAsyncComponent(() => import('./CheckOutReserva
 const CheckInReservation = defineAsyncComponent(() => import('./CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('./UnAssignRoomReservation.vue'))
 const ExchangeRoomModal = defineAsyncComponent(() => import('./ExchangeRoomModal.vue'))
-import AssignRoomReservation from './AssignRoomReservation.vue'
+const UndoCheckInReservation = defineAsyncComponent(() => import('./UndoCheckInReservation.vue'))
+const UndoCheckOutReservation = defineAsyncComponent(() => import('./UndoCheckOutReservation.vue'))
+import ReservationAction from './ReservationAction.vue'
 import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../composables/serviceStore'
 import RoomMoveModal from '../modal/RoomMoveModal.vue'
-import UndoCheckInIcon from '../../icons/UndoCheckInIcon.vue'
-import RoomMoveIcon from '../../icons/RoomMoveIcon.vue'
-import ExchangeRoomIcon from '../../icons/ExchangeRoomIcon.vue'
 import { ActionIcons } from '@/utils/ActionIcons'
 
 const { t } = useI18n()
@@ -442,6 +388,8 @@ const toast = useToast()
 const {
     performCheckIn,
     performCheckOut,
+    performUndoCheckIn,
+    performUndoCheckOut,
     showNoShowModal,
 } = useReservation();
 interface Props {
@@ -472,6 +420,8 @@ const showAmendModal = ref(false)
 const isAddPaymentModalOpen = ref(false)
 const isCkeckOutModalOpen = ref(false)
 const isCkeckInModalOpen = ref(false)
+const isUndoCheckInModalOpen = ref(false)
+const isUndoCheckOutModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
 const isRoomMoveModalOpen = ref(false)
 const isExchangeRoomModalOpen = ref(false)
@@ -578,7 +528,6 @@ const openAddPaymentModal = () => {
 
 const openCheckOutReservationModal = () => {
     isCkeckOutModalOpen.value = true
-
 }
 
 const closeCheckOutReservationModal = () => {
@@ -597,8 +546,18 @@ const openUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = true
 }
 
-
-
+const openUndoCheckInReservationModal = () => {
+    isUndoCheckInModalOpen.value = true
+}
+const closeUndoCheckInReservationModal = () => {
+    isUndoCheckInModalOpen.value = false
+}
+const openUndoCheckOutReservationModal = () => {
+    isUndoCheckOutModalOpen.value = true
+}
+const closeUndoCheckOutReservationModal = () => {
+    isUndoCheckOutModalOpen.value = false
+}
 const closeUnAssignReservationModal = () => {
     isUnAssignModalOpen.value = false
 }
@@ -1094,6 +1053,80 @@ const performAutoCheckOut = async (availableRoom: any) => {
     })
 }
 
+// New functions for automatic undo operations
+const performAutoUndoCheckIn = async (roomToUndo: any) => {
+    const payload = {
+        reservationRooms: [roomToUndo.id],
+        notes: '',
+    }
+
+    await performUndoCheckIn(reservation.value.id, payload)
+
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+        if (room.id === roomToUndo.id) {
+            return {
+                ...room,
+                status: 'pending',
+                actualCheckInTime: null,
+                checkedIn: false
+            }
+        }
+        return room
+    })
+
+    const anyRoomCheckedIn = updatedRooms.some((room: any) =>
+        room.status === 'checked_in' || room.checkedIn
+    )
+    const reservationStatus = anyRoomCheckedIn ? 'checked_in' : 'confirmed'
+
+    updateLocalReservation({
+        reservationRooms: updatedRooms,
+        status: reservationStatus
+    })
+
+    emit('save', {
+        action: 'undo_check_in',
+        reservationId: reservation.value.id,
+        data: payload
+    })
+}
+
+const performAutoUndoCheckOut = async (roomToUndo: any) => {
+    const payload = {
+        reservationRooms: [roomToUndo.id],
+        notes: '',
+    }
+
+    await performUndoCheckOut(reservation.value.id, payload)
+
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+        if (room.id === roomToUndo.id) {
+            return {
+                ...room,
+                status: 'checked_in',
+                actualCheckOutTime: null,
+                checkedOut: false
+            }
+        }
+        return room
+    })
+
+    const allRoomsCheckedOut = updatedRooms.every((room: any) =>
+        room.status === 'checked_out' || room.checkedOut
+    )
+    const reservationStatus = allRoomsCheckedOut ? 'checked_out' : 'checked_in'
+
+    updateLocalReservation({
+        reservationRooms: updatedRooms,
+        status: reservationStatus
+    })
+
+    emit('save', {
+        action: 'undo_check_out',
+        reservationId: reservation.value.id,
+        data: payload
+    })
+}
 
 
 const handleOptionSelected = async (option: any) => {
@@ -1163,6 +1196,40 @@ const handleOptionSelected = async (option: any) => {
                 openCheckOutReservationModal()
             }
             break;
+        case 'undo_check_in':
+            const roomsForUndoCheckIn = reservation.value.reservationRooms?.filter((room: any) =>
+                room.status === 'checked_in' || room.checkedIn || !!room.actualCheckInTime
+            ) || []
+
+            if (roomsForUndoCheckIn.length === 0) {
+                toast.info(t('No rooms eligible for undo check-in'))
+                return
+            } else if (roomsForUndoCheckIn.length === 1) {
+                await executeAction(
+                    'undo_check_in',
+                    () => performAutoUndoCheckIn(roomsForUndoCheckIn[0])
+                )
+            } else {
+                openUndoCheckInReservationModal()
+            }
+            break;
+        case 'undo_check_out':
+            const roomsForUndoCheckOut = reservation.value.reservationRooms?.filter((room: any) =>
+                room.status === 'checked_out' || room.checkedOut || !!room.actualCheckOutTime
+            ) || []
+
+            if (roomsForUndoCheckOut.length === 0) {
+                toast.info(t('No rooms eligible for undo check-out'))
+                return
+            } else if (roomsForUndoCheckOut.length === 1) {
+                await executeAction(
+                    'undo_check_out',
+                    () => performAutoUndoCheckOut(roomsForUndoCheckOut[0])
+                )
+            } else {
+                openUndoCheckOutReservationModal()
+            }
+            break;
         case 'room_move':
             isRoomMoveModalOpen.value = true;
             break;
@@ -1189,6 +1256,8 @@ const getActionLoadingText = (action: string | null) => {
     const loadingTexts: Record<string, string> = {
         'check_in': t('Checking in...'),
         'check_out': t('Checking out...'),
+        'undo_check_in': t('Undoing check-in...'),
+        'undo_check_out': t('Undoing check-out...'),
         'cancel_reservation': t('Cancelling...'),
         'void_reservation': t('Voiding...'),
         'add_payment': t('Processing payment...'),
@@ -1280,6 +1349,71 @@ const handleCheckOutSuccess = (data: any) => {
         data
     })
 }
+
+const handleUndoCheckInSuccess = (data: any) => {
+    // Update local rooms: revert selected rooms to pending, clear check-in
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+        if (data.updatedRooms.includes(room.id)) {
+            return {
+                ...room,
+                status: 'pending',
+                actualCheckInTime: null,
+                checkedIn: false
+            }
+        }
+        return room
+    })
+
+    const anyRoomStillCheckedIn = updatedRooms.some((room: any) =>
+        room.status === 'checked_in' || room.checkedIn
+    )
+
+    updateLocalReservation({
+        reservationRooms: updatedRooms,
+        status: anyRoomStillCheckedIn ? 'checked_in' : 'confirmed'
+    })
+
+    closeUndoCheckInReservationModal()
+
+    emit('save', {
+        action: 'undo_check_in',
+        reservationId: localReservation.value.id,
+        data
+    })
+}
+
+const handleUndoCheckOutSuccess = (data: any) => {
+    // Update local rooms: revert selected rooms to checked_in, clear check-out
+    const updatedRooms = localReservation.value.reservationRooms.map((room: any) => {
+        if (data.updatedRooms.includes(room.id)) {
+            return {
+                ...room,
+                status: 'checked_in',
+                actualCheckOutTime: null,
+                checkedOut: false
+            }
+        }
+        return room
+    })
+
+    const allRoomsStillCheckedOut = updatedRooms.every((room: any) =>
+        room.status === 'checked_out' || room.checkedOut
+    )
+
+    updateLocalReservation({
+        reservationRooms: updatedRooms,
+        status: allRoomsStillCheckedOut ? 'checked_out' : 'checked_in'
+    })
+
+    closeUndoCheckOutReservationModal()
+
+    emit('save', {
+        action: 'undo_check_out',
+        reservationId: localReservation.value.id,
+        data
+    })
+}
+
 const loadReservationData = async () => {
     isLoading.value = true;
     const id = props.reservationData.reservation_id;
