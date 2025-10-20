@@ -4,7 +4,7 @@
         <div class="absolute inset-0 bg-black/25 bg-opacity-50 transition-opacity"></div>
 
         <!-- Modal Container -->
-        <div class="fixed inset-y-0 top-0 h-screen right-0 flex max-w-full pl-10">
+        <div class="fixed inset-y-0 top-0 h-full right-0 flex max-w-full pl-10">
             <div class="relative  max-w-7xl transform transition-transform duration-300 ease-in-out" @click.stop>
                 <!-- Modal Content -->
                 <!-- Loading Skeleton -->
