@@ -4,7 +4,7 @@
     <AppHeader :show-sidebar = "true" />
     <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
-      <div class="mb-4 bg-white px-6 py-1 flex items-center justify-between rounded-b-lg border-b">
+      <div class="bg-white px-6 py-1 flex items-center justify-between rounded-b-lg border-b">
         <div class="flex gap-2">
           <InputDatePicker class="bg-white rounded-lg w-40 h-full" v-model="selectedDate" />
           <div
@@ -156,7 +156,7 @@
                       <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
                         <!-- Réservation -->
                         <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                          class="relative px-[1px] py-[1px] h-8 border border-gray-500">
+                          class="relative px-[1px] py-[1px] h-8 border border-gray-400">
                           <div :class="[
                             'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-[80%] min-w-0 ',
                             getReservationColor(cell.reservation.reservation_status),
@@ -179,7 +179,7 @@
 
                         <!-- Room Block -->
                         <td v-else-if="cell.type === 'room_block'" :colspan="cell.colspan"
-                          class="relative px-[1px] py-[1px] h-8 border border-gray-500">
+                          class="relative px-[1px] py-[1px] h-8 border border-gray-400">
                           <div :class="[
                             'absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-[80%] min-w-0 ',
                             getRoomBlockColor(cell.roomBlock.status),
@@ -193,7 +193,7 @@
 
                         <!-- Chambres avec statut spécial (maintenance, out_of_service, cleaning) -->
                         <td v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
-                          class="px-[1px] py-[1px] h-8 border border-gray-500">
+                          class="px-[1px] py-[1px] h-8 border border-gray-400">
                           <div :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
                             <component :is="getRoomStatusIcon(room.room_status)"
                               :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
@@ -204,7 +204,7 @@
                         <td v-else-if="shouldShowCell(group, room, cell)"
                           :colspan="getUnifiedColspan(group, room, cell)"
                           :class="[
-                            'px-[1px] py-[1px] h-8 border border-gray-500 cell-transition cell-selectable cell-hoverable relative',
+                            'px-[1px] py-[1px] h-8 border border-gray-400 cell-transition cell-selectable cell-hoverable relative',
                             getUnifiedCellClass(group, room, cell)
                           ]"
                           @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
@@ -225,28 +225,28 @@
           </table>
         </div>
         <div class="sticky bottom-0 bg-white shadow z-10">
-          <table class="w-full border-t border border-gray-500 text-xs table-fixed">
+          <table class="w-full border-t border border-gray-400 text-xs table-fixed">
 
             <tfoot>
               <tr>
-                <td class="bg-gray-100 border h-7 border-gray-500 text-center" :style="`width: 200px`">{{ $t('Unassigned reservations') }}</td>
+                <td class="bg-gray-100 border h-7 border-gray-400 text-center" :style="`width: 200px`">{{ $t('Unassigned reservations') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-500', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :class="['text-center border border-gray-400', isWeekend(date) ? 'bg-gray-100' : '']"
                   :style="`width: calc((100% - 200px) / ${visibleDates.length})`"
                   v-html="getUnassignedApi(date)">
                 </td>
               </tr>
               <tr>
-                <td class="bg-gray-100 h-7 border border-gray-500 text-center" :style="`width: 200px`">% {{ $t('Occupancy') }}</td>
+                <td class="bg-gray-100 h-7 border border-gray-400 text-center" :style="`width: 200px`">% {{ $t('Occupancy') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-500', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :class="['text-center border border-gray-400', isWeekend(date) ? 'bg-gray-100' : '']"
                   :style="`width: calc((100% - 200px) / ${visibleDates.length})`"
                   >{{getOccupancyApi(date)}} %</td>
               </tr>
               <tr>
-                <td class="bg-gray-100 h-7 border border-gray-500 text-center" :style="`width: 200px`">{{ $t('Available Rooms') }}</td>
+                <td class="bg-gray-100 h-7 border border-gray-400 text-center" :style="`width: 200px`">{{ $t('Available Rooms') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
-                  :class="['text-center border border-gray-500', isWeekend(date) ? 'bg-gray-100' : '']"
+                  :class="['text-center border border-gray-400', isWeekend(date) ? 'bg-gray-100' : '']"
                   :style="`width: calc((100% - 200px) / ${visibleDates.length})`">{{getAvailableRoomsApi(date)}}
                 </td>
               </tr>
