@@ -82,6 +82,7 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 ">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 ">
         <!-- folio unpaid Panel -->
 
         <div class="bg-white dark:bg-gray-800 p-6 shadow-md">

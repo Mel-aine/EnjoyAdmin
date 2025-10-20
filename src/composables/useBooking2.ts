@@ -45,6 +45,7 @@ interface Reservation {
   meansOfTransport:string
   goingTo:string
   arrivingTo:string
+  customType:string
 }
 
 interface Guest {
@@ -87,6 +88,9 @@ interface PaymentData {
 interface Option {
   label: string
   value: number | string
+  count?:number
+  disabled?:boolean
+  status?:string
 }
 
 interface RoomTypeData {
@@ -206,9 +210,9 @@ export function useBooking() {
   // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '12:00',
+    checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '14:00',
+    checkoutTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -219,7 +223,8 @@ export function useBooking() {
     reservationStatus: 'confirmed',
     meansOfTransport:'',
     goingTo:'',
-    arrivingTo:''
+    arrivingTo:'',
+    customType:'individual'
   })
 
   const guest = ref<Guest>({
@@ -299,6 +304,13 @@ export function useBooking() {
   const guestFullName = computed(() => {
     return `${formData.value.firstName} ${formData.value.lastName}`.trim()
   })
+
+   const CustomTypes = computed(()=>[
+    { label: t('individual'), value: 'individual' },
+    { label: t('group'), value: 'group' },
+    { label: t('Company'), value: 'company' },
+    { label: t('family'), value: 'family' },
+   ])
 
   const businessSourcesLo = ref<any>([...serviceStore.businessSources])
   const bookingTypeLo = ref<any>([...serviceStore.reservationType])
@@ -444,7 +456,8 @@ watch(
       if (room.roomType) {
         // Reset la sélection de chambre car les chambres disponibles peuvent avoir changé
         room.roomNumber = ''
-        await loadRoomsForRoomType(room.roomType)
+        // await loadRoomsForRoomType(room.roomType)
+        await loadAllRoomCounts()
       }
     }
 
@@ -562,20 +575,18 @@ watch(
     }
   }
 
-  const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
+const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
   if (!roomTypeId) return
 
   const roomTypeIdNumber = Number(roomTypeId)
 
   try {
-    // Si roomConfigId est fourni, marquer seulement cette chambre comme en chargement
     if (roomConfigId) {
       const room = roomConfigurations.value.find(r => r.id === roomConfigId)
       if (room) {
         room.isLoadingRooms = true
       }
     } else {
-
       isLoadingAvailableRooms.value = true
     }
 
@@ -587,25 +598,62 @@ watch(
 
     console.log('Available rooms response:', response)
 
-    if (response?.data?.data?.rooms) {
-      const availableRooms = response.data.data.rooms.filter(
-        (room: any) => room.status === 'available',
-      )
-
-      const roomOptions: Option[] = availableRooms.map((room: any) => ({
+    if (response?.data?.data) {
+      const roomOptions: Option[] = (response.data.data.rooms || []).map((room: any) => ({
         label: room.roomNumber,
         value: room.id,
+        status: room.status,
+        disabled: room.status === 'occupied'
       }))
 
       roomTypeRooms.value.set(roomTypeId, roomOptions)
+
+      const availableCount = response.data.data.rooms.filter((r: any) => r.status === 'available').length
+
+
+
+      RoomTypes.value = RoomTypes.value.map(rt => {
+        const rtValueStr = rt.value
+        const matches = rtValueStr === roomTypeId
+
+
+        if (matches) {
+
+          return {
+            ...rt,
+            count: availableCount
+          }
+        }
+        return rt
+      })
+
     } else {
       roomTypeRooms.value.set(roomTypeId, [])
+
+      RoomTypes.value = RoomTypes.value.map(rt => {
+        if (rt.value === roomTypeId) {
+          return {
+            ...rt,
+            count: 0
+          }
+        }
+        return rt
+      })
     }
   } catch (error) {
     console.error('Error loading available rooms for room type:', error)
     roomTypeRooms.value.set(roomTypeId, [])
+
+    RoomTypes.value = RoomTypes.value.map(rt => {
+      if (rt.value === roomTypeId) {
+        return {
+          ...rt,
+          count: 0
+        }
+      }
+      return rt
+    })
   } finally {
-    // Arrêter le chargement pour cette chambre spécifique
     if (roomConfigId) {
       const room = roomConfigurations.value.find(r => r.id === roomConfigId)
       if (room) {
@@ -616,6 +664,60 @@ watch(
     }
   }
 }
+
+//   const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
+//   if (!roomTypeId) return
+
+//   const roomTypeIdNumber = Number(roomTypeId)
+
+//   try {
+//     // Si roomConfigId est fourni, marquer seulement cette chambre comme en chargement
+//     if (roomConfigId) {
+//       const room = roomConfigurations.value.find(r => r.id === roomConfigId)
+//       if (room) {
+//         room.isLoadingRooms = true
+//       }
+//     } else {
+
+//       isLoadingAvailableRooms.value = true
+//     }
+
+//     const response = await getAvailableRoomsByTypeId(
+//       roomTypeIdNumber,
+//       reservation.value.checkinDate,
+//       reservation.value.checkoutDate,
+//     )
+
+//     console.log('Available rooms response:', response)
+
+//     if (response?.data?.data?.rooms) {
+
+//       const roomOptions: Option[] = response.data.data.rooms.map((room: any) => ({
+//         label: room.roomNumber,
+//         value: room.id,
+//         status: room.status,
+//         disabled: room.status === 'occupied'
+//       }))
+
+//       roomTypeRooms.value.set(roomTypeId, roomOptions)
+//     } else {
+//       roomTypeRooms.value.set(roomTypeId, [])
+//     }
+//   } catch (error) {
+//     console.error('Error loading available rooms for room type:', error)
+//     roomTypeRooms.value.set(roomTypeId, [])
+//   } finally {
+//     // Arrêter le chargement pour cette chambre spécifique
+//     if (roomConfigId) {
+//       const room = roomConfigurations.value.find(r => r.id === roomConfigId)
+//       if (room) {
+//         room.isLoadingRooms = false
+//       }
+//     } else {
+//       isLoadingAvailableRooms.value = false
+//     }
+//   }
+// }
 
   //fonction pour récupérer le base rate
   const fetchBaseRate = async (
@@ -680,39 +782,46 @@ watch(
   const totalAmount = computed(() => billing.value.totalAmount)
 
   // Data fetching methods
-  const fetchRoomTypes = async () => {
-    try {
-      isLoadingRoom.value = true
-      const hotelId = serviceStore.serviceId
 
-      if (!hotelId) {
-        throw new Error('Hotel ID not found')
-      }
+const fetchRoomTypes = async () => {
+  try {
+    isLoadingRoom.value = true
+    const hotelId = serviceStore.serviceId
 
-      const response = await getRoomTypes(hotelId)
-      console.log('fetchRoomtype', response)
+    if (!hotelId) {
+      throw new Error('Hotel ID not found')
+    }
 
-      if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
-        throw new Error('Invalid room types data structure')
-      }
+    const response = await getRoomTypes(hotelId)
+    console.log('fetchRoomtype', response)
 
-      RoomTypesData.value = response.data.data.data
-      console.log('RoomTypesData.value',RoomTypesData.value)
+    if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
+      throw new Error('Invalid room types data structure')
+    }
 
-      const roomTypeOptions: Option[] = response.data.data.data.map((room: RoomTypeData) => ({
+    RoomTypesData.value = response.data.data.data
+    console.log('RoomTypesData.value', RoomTypesData.value)
+
+    const roomTypeOptions: Option[] = response.data.data.data.map((room: RoomTypeData) => {
+      // const availableRooms = room.rooms?.filter(r => r.status === 'available').length || 0
+
+      return {
         label: room.roomTypeName,
         value: room.id,
-      }))
-      RoomTypes.value = roomTypeOptions
-    } catch (error) {
-      console.error('Error fetching room types:', error)
-      // toast.error(t('toast.fetchError'))
-      RoomTypes.value = []
-      RoomTypesData.value = []
-    } finally {
-      isLoadingRoom.value = false
-    }
+      }
+    })
+    RoomTypes.value = roomTypeOptions
+  } catch (error) {
+    console.error('Error fetching room types:', error)
+    RoomTypes.value = []
+    RoomTypesData.value = []
+  } finally {
+    isLoadingRoom.value = false
   }
+}
+
+
+
 
   const fetchRateTypes = async (roomTypeId: any) => {
     try {
@@ -799,6 +908,25 @@ watch(
       paymentData.value.cardHolderName = ''
     }
   }
+
+  const loadAllRoomCounts = async () => {
+  if (!RoomTypes.value.length) return
+
+  try {
+    isLoadingAvailableRooms.value = true
+
+    // Charger les counts pour tous les types de chambres en parallèle
+    await Promise.all(
+      RoomTypes.value.map(roomType =>
+        loadRoomsForRoomType(roomType.value.toString())
+      )
+    )
+  } catch (error) {
+    console.error('Error loading room counts:', error)
+  } finally {
+    isLoadingAvailableRooms.value = false
+  }
+}
 
   // Fonction pour attendre que tous les uploads soient terminés
   const waitForPendingUploads = async (): Promise<boolean> => {
@@ -926,6 +1054,49 @@ const validateAllRooms = () => {
 
   return { isValid, errors };
 };
+
+const getAdultOptions = (roomTypeId: any | null) => {
+  if (!roomTypeId) return []
+
+  const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+  if (!roomType) return []
+
+  const maxAdults = roomType.maxAdult || 1
+  const options:any = []
+
+  for (let i = 1; i <= maxAdults; i++) {
+    options.push({
+      label: i.toString(),
+      value: i
+    })
+  }
+
+  return options
+}
+
+const getChildOptions = (roomTypeId: any | null) => {
+  if (!roomTypeId) return []
+
+  const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+  if (!roomType) return []
+
+  const maxChildren = roomType.maxChild || 0
+  const options: any = []
+
+  options.push({
+    label: '0',
+    value: 0
+  })
+
+  for (let i = 1; i <= maxChildren; i++) {
+    options.push({
+      label: i.toString(),
+      value: i
+    })
+  }
+
+  return options
+}
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true
@@ -1051,7 +1222,7 @@ const validateAllRooms = () => {
         reservation_type_id: reservation.value.bookingType,
         booking_source: reservation.value.bookingSource,
         business_source: reservation.value.businessSource,
-        // market_code_id: reservation.value.bookingSource,
+        customType: reservation.value.customType,
         payment_type: billing.value.paymentType ,
 
         // Hold-specific fields (only included if isHold is true)
@@ -1265,7 +1436,13 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
     room.roomNumber = ''
     room.rate = 0
 
-    if (!newRoomTypeId) return
+    if (!newRoomTypeId) {
+
+      room.adultCount = 1
+      room.childCount = 0
+      return
+    }
+
 
     try {
       // Charger les rate types et les chambres disponibles en parallèle
@@ -1276,12 +1453,12 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
 
       const selectedRoomTypeData = RoomTypesData.value.find((rt) => rt.id === Number(newRoomTypeId))
       if (selectedRoomTypeData) {
-        room.adultCount = Number(selectedRoomTypeData.baseAdult) || 1
+        room.adultCount =  Math.max(1, Number(selectedRoomTypeData.baseAdult) || 1)
         room.childCount = Number(selectedRoomTypeData.baseChild) || 0
         room.rate = Number(selectedRoomTypeData.default_price) || 0
 
         roomTypeBaseInfo.value.set(newRoomTypeId, {
-          baseAdult: Number(selectedRoomTypeData.baseAdult) || 1,
+          baseAdult: Math.max(1, Number(selectedRoomTypeData.baseAdult) || 1),
           baseChild: Number(selectedRoomTypeData.baseChild) || 0,
           extraAdultRate: 0,
           extraChildRate: 0,
@@ -1290,6 +1467,8 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
     } catch (error) {
       console.error('Error in onRoomTypeChange:', error)
       toast.error(t('toast.errorLoadingRoomTypeData'))
+      room.adultCount = 1
+      room.childCount = 0
     }
   }
 
@@ -1416,61 +1595,63 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
 }
 
   // Fonction getRoomExtraInfo
-  const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
-    const room = roomConfigurations.value.find((r) => r.id === roomId)
-    if (!room || !room.roomType) {
-      return {
-        baseAdult: 0,
-        baseChild: 0,
-        extraAdults: 0,
-        extraChildren: 0,
-        extraAdultRate: 0,
-        extraChildRate: 0,
-        extraAdultCost: 0,
-        extraChildCost: 0,
-        totalExtraCost: 0,
-      }
-    }
-
-    const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
-    if (!baseInfo) {
-      return {
-        baseAdult: 0,
-        baseChild: 0,
-        extraAdults: 0,
-        extraChildren: 0,
-        extraAdultRate: 0,
-        extraChildRate: 0,
-        extraAdultCost: 0,
-        extraChildCost: 0,
-        totalExtraCost: 0,
-      }
-    }
-
-    const adultCount = Number(room.adultCount) || 0
-    const childCount = Number(room.childCount) || 0
-    const baseAdult = Number(baseInfo.baseAdult) || 0
-    const baseChild = Number(baseInfo.baseChild) || 0
-    const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
-    const extraChildRate = Number(baseInfo.extraChildRate) || 0
-    const extraAdults = Math.max(0, adultCount - baseAdult)
-    const extraChildren = Math.max(0, childCount - baseChild)
-    const extraAdultCost = extraAdults * extraAdultRate
-    const extraChildCost = extraChildren * extraChildRate
-    const totalExtraCost = extraAdultCost + extraChildCost
-
+const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
+  const room = roomConfigurations.value.find((r) => r.id === roomId)
+  if (!room || !room.roomType) {
     return {
-      baseAdult,
-      baseChild,
-      extraAdults,
-      extraChildren,
-      extraAdultRate,
-      extraChildRate,
-      extraAdultCost: Number(extraAdultCost.toFixed(2)),
-      extraChildCost: Number(extraChildCost.toFixed(2)),
-      totalExtraCost: Number(totalExtraCost.toFixed(2)),
+      baseAdult: 0,
+      baseChild: 0,
+      extraAdults: 0,
+      extraChildren: 0,
+      extraAdultRate: 0,
+      extraChildRate: 0,
+      extraAdultCost: 0,
+      extraChildCost: 0,
+      totalExtraCost: 0,
     }
   }
+
+  const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
+  if (!baseInfo) {
+    return {
+      baseAdult: 1,
+      baseChild: 0,
+      extraAdults: 0,
+      extraChildren: 0,
+      extraAdultRate: 0,
+      extraChildRate: 0,
+      extraAdultCost: 0,
+      extraChildCost: 0,
+      totalExtraCost: 0,
+    }
+  }
+
+  const adultCount = Number(room.adultCount) || 1
+  const childCount = Number(room.childCount) || 0
+  const baseAdult = Math.max(1, Number(baseInfo.baseAdult) || 1)
+  const baseChild = Number(baseInfo.baseChild) || 0
+  const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
+  const extraChildRate = Number(baseInfo.extraChildRate) || 0
+
+  const extraAdults = Math.max(0, adultCount - baseAdult)
+  const extraChildren = Math.max(0, childCount - baseChild)
+
+  const extraAdultCost = extraAdults * extraAdultRate
+  const extraChildCost = extraChildren * extraChildRate
+  const totalExtraCost = extraAdultCost + extraChildCost
+
+  return {
+    baseAdult,
+    baseChild,
+    extraAdults,
+    extraChildren,
+    extraAdultRate,
+    extraChildRate,
+    extraAdultCost: Number(extraAdultCost.toFixed(2)),
+    extraChildCost: Number(extraChildCost.toFixed(2)),
+    totalExtraCost: Number(totalExtraCost.toFixed(2)),
+  }
+}
 
   //  watch recalculer automatiquement quand les comptes changent
   watch(
@@ -1550,9 +1731,9 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
   // Reset reservation data
   Object.assign(reservation.value, {
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: '12:00',
+    checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '14:00',
+    checkoutTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -1563,7 +1744,8 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
     reservationStatus: 'confirmed',
     meansOfTransport:'',
     goingTo:'',
-    arrivingTo:''
+    arrivingTo:'',
+    customType:'individual'
   })
 
   // Reset room configurations
@@ -1691,11 +1873,65 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
   const initialize = async () => {
     try {
       console.log('Initializing booking composable...')
-      await fetchRoomTypes()
+      isLoadingRoom.value = true
+
+      //  Fetch room types data
+      const hotelId = serviceStore.serviceId
+      if (!hotelId) throw new Error('Hotel ID not found')
+      const response = await getRoomTypes(hotelId)
+      if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
+        throw new Error('Invalid room types data structure')
+      }
+      const roomTypesData = response.data.data.data
+      RoomTypesData.value = roomTypesData
+
+      //  Create a temporary array of room type options and start fetching counts
+      const roomTypePromises = roomTypesData.map(async (room: RoomTypeData) => {
+        let count = 0
+        try {
+          const countResponse = await getAvailableRoomsByTypeId(
+            Number(room.id),
+            reservation.value.checkinDate,
+            reservation.value.checkoutDate
+          )
+
+          if (countResponse?.data?.data) {
+            const roomOptions: Option[] = (countResponse.data.data.rooms || []).map((r: any) => ({
+              label: r.roomNumber,
+              value: r.id,
+              status: r.status,
+              disabled: r.status === 'occupied'
+            }))
+            roomTypeRooms.value.set(String(room.id), roomOptions)
+            count = countResponse.data.data.rooms.filter((r: any) => r.status === 'available').length || 0
+          } else {
+             roomTypeRooms.value.set(String(room.id), [])
+          }
+        } catch (error) {
+          console.error(`Failed to get count for room type ${room.id}`, error)
+          roomTypeRooms.value.set(String(room.id), [])
+        }
+
+        return {
+          label: room.roomTypeName,
+          value: room.id,
+          count: count
+        }
+      })
+
+      //  Wait for all counts to be fetched
+      const finalRoomTypeOptions = await Promise.all(roomTypePromises)
+
+      // Assign to the ref once, with all data ready
+      RoomTypes.value = finalRoomTypeOptions
+
       console.log('Booking composable initialized successfully')
     } catch (error) {
       console.error('Error initializing booking composable:', error)
       toast.error(t('toast.errorInitializing'))
+      RoomTypes.value = []
+    } finally {
+      isLoadingRoom.value = false
     }
   }
 
@@ -2024,6 +2260,7 @@ const loadDraftAsyncData = async () => {
     // Room type data
     RoomTypes,
     RoomTypesData,
+    CustomTypes,
 
     // States
     isLoading,
@@ -2088,6 +2325,8 @@ const loadDraftAsyncData = async () => {
     completeUpload,
     waitForPendingUploads,
     holdReleaseData,
-    isExtraChargesIncluded
+    isExtraChargesIncluded,
+    getChildOptions,
+    getAdultOptions
   }
 }
