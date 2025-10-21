@@ -1,7 +1,7 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="'Add Payment'" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('EditPayment') : $t('AddPayment')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">Add Payment</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ props.isEditMode ? $t('EditPayment') : $t('AddPayment') }}</h3>
     </template>
     <!-- Form -->
     <div class="px-2 space-y-4">
@@ -56,7 +56,7 @@
     <template #footer>
       <div class="flex justify-end space-x-2">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')"></BasicButton>
-        <BasicButton variant="primary" @click="savePayment" :label="'Save Payment'" :loading="isSaving"
+        <BasicButton variant="primary" @click="savePayment" :label="isSaving ? (props.isEditMode ? $t('Updating...') : $t('Processing...')) : (props.isEditMode ? $t('Update') : $t('Save Payment'))" :loading="isSaving"
           :disabled="isSaving"></BasicButton>
       </div>
     </template>
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, computed } from 'vue'
+import { ref, reactive, watch, onMounted, computed,nextTick } from 'vue'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
@@ -72,7 +72,7 @@ import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import InputFolioSelect from './InputFolioSelect.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { createFolioTransaction } from '../../../services/foglioApi'
+import { createFolioTransaction, updateFoglio, updateFolioTransaction } from '../../../services/foglioApi'
 import { useToast } from 'vue-toastification'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { safeParseInt, prepareFolioAmount } from '../../../utils/numericUtils'
@@ -85,6 +85,8 @@ interface Props {
   reservationId: number
   reservationData?: any
   folioId?: number | string
+  isEditMode?: boolean
+  transactionData?: any
 }
 
 interface Emits {
@@ -92,7 +94,11 @@ interface Emits {
   (e: 'save', data: any): void
 }
 
-const props = defineProps<Props>()
+
+const props = withDefaults(defineProps<Props>(), {
+    isEditMode: false,
+    transactionData: null
+})
 const emit = defineEmits<Emits>()
 const isSaving = ref(false)
 const serviceStore = useServiceStore()
@@ -145,6 +151,23 @@ const initializeFormData = () => {
   }
 }
 
+const loadPaymentData = () => {
+  if (props.isEditMode && props.transactionData) {
+    const payment = props.transactionData
+    console.log("payment",props.transactionData)
+
+    formData.date = payment.postingDate || new Date().toISOString().split('T')[0]
+    const methodType = payment.paymentMethod?.type?.toLowerCase() || payment.transactionCategory || 'cash'
+    formData.type = methodType === 'city_ledger' ? 'city_ledger' : 'cash'
+    formData.folio = payment.folioId || ''
+    formData.amount = Math.abs(payment.grossAmount || payment.amount || payment.totalAmount || 0)
+    formData.method = payment.paymentMethodId || 0
+    formData.currency = payment.currencyCode || ''
+    formData.comment = payment.notes || payment.description || ''
+
+  }
+}
+
 const closeModal = () => {
   initializeFormData()
   emit('close')
@@ -185,11 +208,11 @@ const savePayment = async () => {
     isSaving.value = true
 
     // Prepare transaction data for API with safe numeric conversion
-    const transactionData = {
+    const transactionData:any = {
       folioId: safeParseInt(formData.folio),
       transactionType: 'payment',
       transactionCategory: formData.type,
-      category: 'room',
+      category: 'payment',
       description: `Payment - ${methodeSelected.value?.name || 'Unknown'}`,
       amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
@@ -204,13 +227,27 @@ const savePayment = async () => {
 
     console.log('Transaction data being sent:', transactionData)
 
-    // Call the API to create folio transaction
-    const response = await createFolioTransaction(transactionData)
+       if (props.isEditMode && props.transactionData?.id) {
+            transactionData.transactionId = props.transactionData.id
+        }
+
+        console.log('transactionData:', transactionData)
+        const response = props.isEditMode
+          ? await updateFolioTransaction(props.transactionData.id,transactionData)
+          : await createFolioTransaction(transactionData)
+
+         if (response && response.success !== false) {
+          // emit('refresh')
+           toast.success(props.isEditMode ? t('UpdateSuccessfully') : t('Payment saved successfully'))
+          closeModal()
+        } else {
+          const errorMessage = response?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} payment. Please try again.`
+          toast.error(errorMessage)
+        }
+
 
     console.log('Payment API response:', response)
 
-    // Show success message
-    toast.success('Payment saved successfully')
 
     // Émettre les données nécessaires pour la mise à jour
     const paymentData = {
@@ -247,8 +284,43 @@ const onMethodSelect = (item: any) => {
 }
 
 // Close modal on escape key
-watch(() => props.isOpen, (newVal) => {
+// watch(() => props.isOpen, (newVal) => {
+//   if (newVal) {
+//     const handleEscape = (e: KeyboardEvent) => {
+//       if (e.key === 'Escape') {
+//         closeModal()
+//       }
+//     }
+//     document.addEventListener('keydown', handleEscape)
+
+//     return () => {
+//       document.removeEventListener('keydown', handleEscape)
+//     }
+//   }
+// })
+
+watch(() => props.isOpen, async(newVal) => {
   if (newVal) {
+      console.log('Watch open triggered:', { isEditMode: props.isEditMode, tx: props.transactionData })
+    if (props.isEditMode && props.transactionData) {
+      console.log('props.isEditMode',props.isEditMode)
+      // Mode édition : charger les données
+      loadPaymentData()
+      await nextTick()
+
+    } else {
+
+      formData.date = new Date().toISOString().split('T')[0]
+      formData.currency = 'XAF'
+      formData.folio = props.folioId
+      formData.amount =  0
+      formData.comment = ''
+      formData.type = 'cash'
+      formData.method = 0
+
+
+    }
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeModal()
@@ -260,7 +332,7 @@ watch(() => props.isOpen, (newVal) => {
       document.removeEventListener('keydown', handleEscape)
     }
   }
-})
+}, { immediate: true })
 
 onMounted(() => {
   if (props.folioId)

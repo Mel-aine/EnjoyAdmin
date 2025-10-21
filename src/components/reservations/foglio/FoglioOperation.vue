@@ -143,8 +143,8 @@
 
         <!-- Add Payment Modal -->
         <template v-if="isAddPaymentModalOpen">
-          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen"
-            :folio-id="selectedFolio?.id" @close="closeAddPaymentModal" @save="handleSavePayment" />
+          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" :folio-id="selectedFolio?.id"
+            @close="closeAddPaymentModal" @save="handleSavePayment" :isEditMode="isEditMode" :transactionData="transactionToEdit"/>
         </template>
         <!-- Create Folio Modal -->
         <template v-if="isCreateFolioModalOpen">
@@ -463,7 +463,9 @@ const EditTransaction = (item: any) => {
     isApplyDiscountModal.value = true
   } else if (item.category === 'extract_charge') {
     isAddChargeModalOpen.value = true
-  } else {
+  } else if (item.category === 'payment') {
+    isAddPaymentModalOpen.value = true
+  }else {
     isRoomChargesModal.value = true
   }
 }
@@ -537,10 +539,14 @@ const closeAddChargeModal = () => {
 // Payment modal handlers
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
+   isEditMode.value = false
 }
 
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
+  isEditMode.value = false
+  transactionToEdit.value = null
+
 }
 // Function to select a folio
 const selectFolio = (folio: any) => {
@@ -567,11 +573,14 @@ const refreshFolio = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null) ;
+
+            const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
             allTransactions.value.push({
               ...transaction,
-              amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
-                grossAmount,
+              totalAmount: transaction.transactionType === 'payment' ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+              // amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+              //   grossAmount,
               category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
               folioId: folio.id,
               guest: folio.guest
@@ -613,10 +622,12 @@ const getFolosReservations = async () => {
           folio.transactions.forEach((transaction: any) => {
             transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
             if (transaction.transactionType === 'payment') {
+              const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
               allTransactions.value.push({
                 ...transaction,
-                totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
-                  totalAmount,
+                totalAmount: transaction.transactionType === 'payment' ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                //   totalAmount,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
                 folioId: folio.id,
                 guest: folio.guest

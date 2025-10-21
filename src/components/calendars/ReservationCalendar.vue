@@ -1,7 +1,8 @@
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
-    <AppHeader :show-sidebar = "true" />
+    <OverLoading v-if="isRefreshing" />
+    <AppHeader :show-sidebar="true" />
     <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
       <div class="bg-white px-6 py-1 flex items-center justify-between rounded-b-lg border-b">
@@ -25,8 +26,9 @@
           </div>
         </div>
         <div class="flex gap-2  items-center">
-          <Select :options="rateTypeOptions" v-model="selectRateType" class="min-w-[12rem]" :is-loading="loadingRates" />
-          <StatusLegend :sections="legendSections"/>
+          <Select :options="rateTypeOptions" v-model="selectRateType" class="min-w-[12rem]"
+            :is-loading="loadingRates" />
+          <StatusLegend :sections="legendSections" />
         </div>
       </div>
       <div class="flex-1 flex flex-col min-h-0">
@@ -72,7 +74,8 @@
           <table class="w-full text-sm table-fixed">
             <colgroup>
               <col :style="`width: 200px`">
-              <col v-for="(date, ind) in visibleDates" :key="ind" :style="`width: calc((100% - 200px) / ${visibleDates.length})`">
+              <col v-for="(date, ind) in visibleDates" :key="ind"
+                :style="`width: calc((100% - 200px) / ${visibleDates.length})`">
             </colgroup>
             <tbody>
               <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
@@ -107,15 +110,15 @@
                         class="bg-green-100 px-2 py-1 border border-gray-400 cursor-pointer hover:bg-green-200 text-center">
                         <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
                           <div class="flex gap-1">
-                            <span class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
-                            {{ getAvailableRoomsByType(date, group.room_type_id) }}
-                          </span>
-                          <span
-                            class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded cursor-pointer hover:bg-blue-50 transition-colors"
-                            @click="handleUnassignedRoomClick(date, group.room_type_id)"
-                          >
-                            {{ getUnassignedRoomsByType(date, group.room_type_id) }}
-                          </span>
+                            <span
+                              class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
+                              {{ getAvailableRoomsByType(date, group.room_type_id) }}
+                            </span>
+                            <span
+                              class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded cursor-pointer hover:bg-blue-50 transition-colors"
+                              @click="handleUnassignedRoomClick(date, group.room_type_id)">
+                              {{ getUnassignedRoomsByType(date, group.room_type_id) }}
+                            </span>
                           </div>
                           <span class="text-xs">{{ roomRateForDate[group.room_type_id] ?? 'N/A' }}</span>
                         </div>
@@ -156,7 +159,7 @@
                       <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
                         <!-- Réservation -->
                         <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                          class="relative px-[1px] py-[1px] h-8 border border-gray-400">
+                          class="relative px-[1px] py-[1px] h-8 border border-gray-400 group">
                           <div :class="[
                             'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-[80%] min-w-0 ',
                             getReservationColor(cell.reservation.reservation_status),
@@ -167,13 +170,48 @@
                               {{ cell.reservation.guest_name }}
                               <br>
                             </span>
+
                             <div class="absolute -top-2 flex items-center gap-1">
                               <Crown v-if="cell.reservation.is_master"
-                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0"
-                                :title="$t('Primary')" />
-                              <DollarSignIcon v-if="cell.reservation?.is_balance" class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
-                              <User2 v-if="cell.reservation?.isWomen" class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
+                                class="bg-white w-3 h-3 text-yellow-400 flex-shrink-0" :title="$t('Primary')" />
+                              <DollarSignIcon v-if="cell.reservation?.is_balance"
+                                class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
+                              <User2 v-if="cell.reservation?.isWomen"
+                                class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
                             </div>
+                          </div>
+                          <div class="absolute bottom-0 w-full flex-col items-center hidden mb-5 group-hover:flex">
+                            <div
+                              class="relative rounded-md  z-99999 p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg">
+                              <div class='flex flex-col gap-2'>
+                                <div class="flex justify-between">{{ $t('Name') }}: <span class="">{{ cell.reservation.guest_name
+                                    }}</span></div>
+                                <div class="flex justify-between">{{ $t('check-in') }}: <span class="">{{
+                                  formatDateLocal(cell.reservation.check_in_date) }} {{ cell.reservation.check_in_time
+                                    }}</span></div>
+                                <div class="flex justify-between gap-4">{{ $t('check-out') }}: <span class="">{{
+                                  formatDateLocal(cell.reservation.check_out_date) }} {{
+                                      cell.reservation.check_out_time
+                                    }}</span></div>
+                                <div class="flex justify-between text-blue-600">
+                                  <span class=" font-medium">{{ $t('Total') }}:</span>
+                                  <span class="">{{
+                                    formatCurrency(cell.reservation.balance_summary?.totalChargesWithTaxes) }}</span>
+                                </div>
+                                <div class="flex justify-between text-green-600">
+                                  <span class=" font-medium">{{ $t('paid') }}:</span>
+                                  <span class="">{{
+                                    formatCurrency(cell.reservation.balance_summary?.totalPayments)
+                                    }}</span>
+                                </div>
+                                <div class="flex justify-between text-red-600">
+                                  <span class=" font-medium">{{ $t('balance') }}:</span>
+                                  <span class="">{{
+                                    formatCurrency(cell.reservation.balance_summary?.outstandingBalance) }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="w-3 h-3 -mt-2 rotate-45 bg-blue-light-950"></div>
                           </div>
                         </td>
 
@@ -192,9 +230,11 @@
                         </td>
 
                         <!-- Chambres avec statut spécial (maintenance, out_of_service, cleaning) -->
-                        <td v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
+                        <td
+                          v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
                           class="px-[1px] py-[1px] h-8 border border-gray-400">
-                          <div :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
+                          <div
+                            :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
                             <component :is="getRoomStatusIcon(room.room_status)"
                               :class="['w-5 h-5 mr-1', getRoomStatusColor(room.room_status)]" />
                           </div>
@@ -202,17 +242,15 @@
 
                         <!-- Cellules vides/sélectionnables -->
                         <td v-else-if="shouldShowCell(group, room, cell)"
-                          :colspan="getUnifiedColspan(group, room, cell)"
-                          :class="[
+                          :colspan="getUnifiedColspan(group, room, cell)" :class="[
                             'px-[1px] py-[1px] h-8 border border-gray-400 cell-transition cell-selectable cell-hoverable relative',
                             getUnifiedCellClass(group, room, cell)
-                          ]"
-                          @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
+                          ]" @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
                           <div v-if="isCellSelected(group.room_type, room.room_number, cell.date)"
-                               class="absolute h-8 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 border-l-2 border-r-2 border-blue-700 rounded-sm"
-                               :style="getSelectionStyle(group.room_type, room.room_number, cell.date)">
+                            class="absolute h-8 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 border-l-2 border-r-2 border-blue-700 rounded-sm"
+                            :style="getSelectionStyle(group.room_type, room.room_number, cell.date)">
                           </div>
                         </td>
                       </template>
@@ -229,25 +267,27 @@
 
             <tfoot>
               <tr>
-                <td class="bg-gray-100 border h-7 border-gray-400 text-center" :style="`width: 200px`">{{ $t('Unassigned reservations') }}</td>
+                <td class="bg-gray-100 border h-7 border-gray-400 text-center" :style="`width: 200px`">
+                  {{ $t('Unassigned reservations') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-400', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`"
-                  v-html="getUnassignedApi(date)">
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`" v-html="getUnassignedApi(date)">
                 </td>
               </tr>
               <tr>
-                <td class="bg-gray-100 h-7 border border-gray-400 text-center" :style="`width: 200px`">% {{ $t('Occupancy') }}</td>
+                <td class="bg-gray-100 h-7 border border-gray-400 text-center" :style="`width: 200px`">% {{
+                  $t('Occupancy') }}
+                </td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-400', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`"
-                  >{{getOccupancyApi(date)}} %</td>
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`">{{ getOccupancyApi(date) }} %</td>
               </tr>
               <tr>
-                <td class="bg-gray-100 h-7 border border-gray-400 text-center" :style="`width: 200px`">{{ $t('Available Rooms') }}</td>
+                <td class="bg-gray-100 h-7 border border-gray-400 text-center" :style="`width: 200px`">
+                  {{ $t('Available Rooms') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-400', isWeekend(date) ? 'bg-gray-100' : '']"
-                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`">{{getAvailableRoomsApi(date)}}
+                  :style="`width: calc((100% - 200px) / ${visibleDates.length})`">{{ getAvailableRoomsApi(date) }}
                 </td>
               </tr>
             </tfoot>
@@ -255,12 +295,10 @@
         </div>
       </div>
     </div>
-     <!-- Date Selection Tooltip -->
-    <div
-      v-if="dateSelection.isSelecting && dateSelection.startDate && dateSelection.endDate"
+    <!-- Date Selection Tooltip -->
+    <div v-if="dateSelection.isSelecting && dateSelection.startDate && dateSelection.endDate"
       :style="tooltipPosition ? `position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y - 60}px;z-index:1000;` : ''"
-      class="rounded-lg bg-white shadow-lg border text-sm pointer-events-none px-4 py-2"
-    >
+      class="rounded-lg bg-white shadow-lg border text-sm pointer-events-none px-4 py-2">
       <div class="font-medium text-gray-800 mb-1">{{ $t('Selected Dates') }}</div>
       <div class="text-gray-600">
         {{ formatDate(dateSelection.startDate) }} - {{ formatDate(dateSelection.endDate) }}
@@ -271,17 +309,14 @@
     </div>
 
     <!-- Confirmed Selection Tooltip with Action -->
-   <div
-      v-if="getSelectionInfo()"
-      :style="tooltipStyle"
-      class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm"
-    >
+    <div v-if="getSelectionInfo()" :style="tooltipStyle"
+      class="w-80 bg-white border border-gray-200 rounded-lg shadow-lg text-sm">
       <div class="bg-gray-100 border-b border-gray-200 rounded-t-lg px-4 py-2">
         <h3 class="font-semibold text-gray-800">{{ $t('SelectionDetails') }}</h3>
       </div>
 
       <div class="p-4">
-        <div  class="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
           <div><strong>{{ $t('Room') }}:</strong></div>
           <div>{{ getSelectionInfo()?.roomNumber }}</div>
 
@@ -293,49 +328,22 @@
 
           <div class="capitalize"><strong>{{ $t('to') }}:</strong></div>
           <div>{{ formatDate(getSelectionInfo()?.endDate ?? new Date()) }} {{ getSelectionTimes().checkoutTime }}</div>
-
-          <!-- <div><strong>{{ $t('Nights') }}:</strong></div>
-          <div>{{ getSelectionInfo()?.totalNights }}</div> -->
         </div>
-      </div >
+      </div>
 
       <div class="bg-gray-50 border-t border-gray-200 rounded-b-lg px-4 py-3 flex justify-end gap-2">
-        <button
-          @click="clearCellSelection"
-          class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-300 transition"
-        >
+        <button @click="clearCellSelection"
+          class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-300 transition">
           {{ $t('Clear') }}
         </button>
-        <button
-          @click="navigateToAddReservationFromCells"
-          class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
-        >
+        <button @click="navigateToAddReservationFromCells"
+          class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition">
           {{ $t('Booking') }}
         </button>
       </div>
     </div>
     <!--tooltip-->
-    <div v-if="tooltipReservation && tooltipPosition"
-      :style="`position:fixed;left:${tooltipPosition.x + 12}px;top:${tooltipPosition.y + 12}px;z-index:1000;`"
-      class="rounded-lg bg-white w-90 max-w-fulltext-sm pointer-events-none">
-      <div class="bg-primary shadow-lg border text-white rounded-t-lg px-4 py-2 mb-2">
-        <div class="font-bold">{{ $t('guests') }}: {{ tooltipReservation.guests }} {{ $t('guests') }}</div>
-        <div>{{ $t('Guest name') }}: <span class="font-bold">{{ tooltipReservation.guest_name }}</span></div>
-        <div>{{ $t('reservation_id') }}: <span class="font-bold">{{ tooltipReservation.reservation_id }}</span></div>
-        <div>{{ $t('reservation_code') }}: <span class="font-bold">{{ tooltipReservation.reservation_number }}</span>
-        </div>
-        <div class="flex gap-3 mt-2">
-          <span class="flex items-center gap-1">
-            <component :is="getReservationTypeIcon(tooltipReservation.reservation_type)" class="w-4 h-4" />
-            <span class="text-xs">{{ $t(tooltipReservation.reservation_type || '-') }}</span>
-          </span>
-          <span class="flex items-center gap-1">
-            <component :is="getCustomerTypeIcon(tooltipReservation.customer_type)" class="w-4 h-4" />
-            <span class="text-xs">{{ $t(tooltipReservation.customer_type || '-') }}</span>
-          </span>
-        </div>
-      </div>
-    </div>
+
     <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
     <template v-if="modalReservation && showDetail">
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
@@ -343,30 +351,23 @@
     </template>
 
     <!-- Unassigned Reservations Modal -->
-    <UnassignedReservationsModal
-      v-if="showUnassignedModal"
-      :is-open="showUnassignedModal"
-      :date="selectedUnassignedDate"
-      :reservations="unassignedReservations"
-      @close="closeUnassignedModal"
-      @room-assigned="handleRoomAssigned"
-    />
+    <UnassignedReservationsModal v-if="showUnassignedModal" :is-open="showUnassignedModal"
+      :date="selectedUnassignedDate" :reservations="unassignedReservations" @close="closeUnassignedModal"
+      @room-assigned="handleRoomAssigned" />
 
     <!-- Assign Room Reservation Modal -->
-     <template v-if="selectedReservationForAssignment">
-          <RoomSelectionModal :is-open="showAssignRoomModal"  :reservation-id="selectedReservationForAssignment.id"
-          @close="closeAssignRoomModal"
-          @refresh="refresh"
-          />
-     </template>
+    <template v-if="selectedReservationForAssignment">
+      <RoomSelectionModal :is-open="showAssignRoomModal" :reservation-id="selectedReservationForAssignment.id"
+        @close="closeAssignRoomModal" @refresh="refresh" />
+    </template>
   </FullScreenLayout>
   <!-- </AdminLayout> -->
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon,HandIcon, Cigarette, CigaretteOff, CrownIcon, StarIcon, Paintbrush,CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2, CreditCardIcon, CheckCircleIcon, LinkIcon, WrenchIcon, HeartIcon, SplitIcon, CheckCircle} from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, HandIcon, Cigarette, CigaretteOff, CrownIcon, StarIcon, Paintbrush, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2, CreditCardIcon, CheckCircleIcon, LinkIcon, WrenchIcon, HeartIcon, SplitIcon, CheckCircle } from 'lucide-vue-next'
 
-import { watch,onUnmounted } from 'vue'
+import { watch, onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 import AddBookingModal from '../modal/AddBookingModal.vue';
 import AssignRoomReservation from '../reservations/AssignRoomReservation.vue';
@@ -391,6 +392,7 @@ import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
 import { useStatusColor } from '@/composables/statusColorStore'
 
 const isLoading = ref(false);
+const isRefreshing = ref(false);
 const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
   switch (type) {
@@ -412,14 +414,16 @@ function getCustomerTypeIcon(type: string) {
 import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
+import OverLoading from '../spinner/OverLoading.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
-import { getRateStayViewTypeByHotelId,} from '../../services/configrationApi';
+import { getRateStayViewTypeByHotelId, } from '../../services/configrationApi';
 import SelectDropdown from '../common/SelectDropdown.vue';
 import StatusLegend from '../common/StatusLegend.vue';
 import UnassignedReservationsModal from '../modal/UnassignedReservationsModal.vue';
 import { useRouter } from 'vue-router'
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
+import { formatCurrency, formatDateLocal } from '../utilities/UtilitiesFunction';
 
 
 
@@ -429,27 +433,27 @@ const selectionTooltipPosition = ref({ x: 0, y: 0 })
 const isTooltipAbove = ref(false)
 
 const tooltipStyle = computed((): Record<string, string | number> => {
-    const pos = selectionTooltipPosition.value;
-    if (!pos) return {};
-    const x = pos.x - 150;
+  const pos = selectionTooltipPosition.value;
+  if (!pos) return {};
+  const x = pos.x - 150;
 
-    if (isTooltipAbove.value) {
-        const bottom = window.innerHeight - pos.y + 20;
-        return {
-            position: 'fixed',
-            left: `${x}px`,
-            bottom: `${bottom}px`,
-            zIndex: 1000,
-        }
-    } else {
-        const top = pos.y + 20;
-        return {
-            position: 'fixed',
-            left: `${x}px`,
-            top: `${top}px`,
-            zIndex: 1000,
-        }
+  if (isTooltipAbove.value) {
+    const bottom = window.innerHeight - pos.y + 20;
+    return {
+      position: 'fixed',
+      left: `${x}px`,
+      bottom: `${bottom}px`,
+      zIndex: 1000,
     }
+  } else {
+    const top = pos.y + 20;
+    return {
+      position: 'fixed',
+      left: `${x}px`,
+      top: `${top}px`,
+      zIndex: 1000,
+    }
+  }
 });
 // Date selection state
 const dateSelection = ref({
@@ -464,7 +468,7 @@ const dateSelection = ref({
 
 
 
-const loadingRates =ref(false);
+const loadingRates = ref(false);
 function getSelectionNights(): number {
   if (!dateSelection.value.startDate || !dateSelection.value.endDate) return 0
   const start = Math.min(
@@ -580,7 +584,7 @@ function handleRoomAssignmentComplete(data: any) {
 }
 
 // Global function for handling unassigned clicks (called from HTML)
-;(window as any).handleUnassignedClick = (date: string) => {
+; (window as any).handleUnassignedClick = (date: string) => {
   openUnassignedModal(date)
 }
 
@@ -647,7 +651,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   let i = 0
 
   // --- Récupération des réservations ---
-  console.log("group",group)
+  console.log("group", group)
   const allReservations = group.reservations || []
   const reservations = allReservations.filter((r: any) => {
     return (
@@ -658,7 +662,7 @@ function getRoomRowCellsApi(group: any, room: any) {
   })
 
   // --- Récupération des room blocks ---
-  console.log("apiRoomBlocks",apiRoomBlocks.value)
+  console.log("apiRoomBlocks", apiRoomBlocks.value)
   const roomBlocks = apiRoomBlocks.value.filter(
     (b: any) => b.room && b.room.room_number === room.room_number
   )
@@ -707,19 +711,19 @@ function getRoomRowCellsApi(group: any, room: any) {
     }
 
     if (reservation) {
-          console.log('Reservation cell:', reservation)
+      console.log('Reservation cell:', reservation)
       // const start = new Date(reservation.check_in_date)
       const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
 
       const colspan = visibleDates.value.filter(
-        (d:any) => d >= date && d <= end && d <= lastVisible
+        (d: any) => d >= date && d <= end && d <= lastVisible
       ).length
 
       const is_check_in = reservation.check_in_date.startsWith(dStr)
 
       const reservationDates = visibleDates.value.filter(
-        (d:any) => d >= date && d <= end && d <= lastVisible
+        (d: any) => d >= date && d <= end && d <= lastVisible
       )
       const lastVisibleDateOfReservation =
         reservationDates.length > 0
@@ -730,7 +734,7 @@ function getRoomRowCellsApi(group: any, room: any) {
       const is_check_out =
         lastVisibleDateOfReservation &&
         lastVisibleDateOfReservation.getFullYear() ===
-          checkOutDate.getFullYear() &&
+        checkOutDate.getFullYear() &&
         lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() &&
         lastVisibleDateOfReservation.getDate() === checkOutDate.getDate()
 
@@ -841,19 +845,19 @@ function getReservationStyle(cell: any) {
       width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
     }
   }
-  if(cell.reservation && cell.reservation.reservation_status){
-  const  backgroundColor = getReservationColor(cell.reservation.reservation_status);
-  return { width, left,backgroundColor };
-  }else{
-    const  backgroundColor = getReservationColor('blocked');
-    return { width, left,backgroundColor };
+  if (cell.reservation && cell.reservation.reservation_status) {
+    const backgroundColor = getReservationColor(cell.reservation.reservation_status);
+    return { width, left, backgroundColor };
+  } else {
+    const backgroundColor = getReservationColor('blocked');
+    return { width, left, backgroundColor };
   }
 }
 const getReservationColor = statusColorStore.getReservationColor;
 
 
 function getRoomBlockColor(status: string) {
- return getReservationColor('blocked');
+  return getReservationColor('blocked');
 }
 
 
@@ -867,12 +871,17 @@ const getLocaleDailyOccupancyAndReservations = async () => {
   isLoading.value = false;
 }
 const refresh = async () => {
-  showModalAddingModal.value = false;
-  closeAssignRoomModal();
-  const serviceId = serviceStore.serviceId!
-  const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
-  serviceResponse.value = response.data
-  console.log('this is the response', serviceResponse.value)
+  isRefreshing.value = true
+  try {
+    showModalAddingModal.value = false;
+    closeAssignRoomModal();
+    const serviceId = serviceStore.serviceId!
+    const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+    serviceResponse.value = response.data
+    console.log('this is the response', serviceResponse.value)
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 // Watch for external refresh signals from the booking store
@@ -1006,48 +1015,49 @@ const legendSections = computed(() => {
   const colorGetter = statusColorStore.getReservationColor;
 
   return [
-  {
-    title: 'Booking Status',
-    items: [
-      { label: 'Arrived', color: colorGetter('checked_in') },
-      { label: 'Checked Out', color: colorGetter('checkout') },
-      { label: 'Due Out', color: colorGetter('departure') },
-      { label: 'Confirmed Reservation', color: colorGetter('confirmed') },
-      { label: 'Maintenance Block', color: colorGetter('blocked') },
-      { label: 'Stayover', color: colorGetter('inhouse') },
-      { label: 'Dayuse Reservation', color: colorGetter('dayuse') },
-      // { label: 'Dayuse', color: colorGetter('dayuse') }
-    ]
-  },
-  {
-    title: 'Booking Indicators',
-    items: [
-      { label: 'Group Owner', icon: CrownIcons },
-      { label: 'Group Booking', icon: UsersIcons },
-      { label: 'Payment Pending', icon: DollarsIcons },
-      { label: 'Stop Room Move', icon: HandIcons },
-      { label: 'Single Lady', icon: LadyIcons },
-      { label: 'VIP Guest', icon: StarIcons},
-      { label: 'Split Reservation', icon: SplitIcons }
-    ]
-  },
-  {
-    title: 'Room Indicators',
-    items: [
-      { label: 'No Smoking', icon: CigaretteOff },
-      { label: 'Smoking', icon: Cigarette },
-      { label: 'Dirty', icon:BroomIcons},
-      { label: 'Clean', icon: CheckCircleIcon },
-      { label: 'Connected Rooms', icon: LinkIcon },
-      { label: 'Work Order', icon: WorkOdersIcons },
-      { label: 'ADA / Accessible Room', icon: AccessibleIcons },
-      { label: 'Pet Friendly Room', icon: PetIcons },
-      { label: 'Unassigned Room', color: '#e5e7eb' },
-      { label: 'Inventory', color: '#fecaca' },
-      { label: 'Unconfirmed Bookings', color: '#f87171' }
-    ]
-  }
-]});
+    {
+      title: 'Booking Status',
+      items: [
+        { label: 'Arrived', color: colorGetter('checked_in') },
+        { label: 'Checked Out', color: colorGetter('checkout') },
+        { label: 'Due Out', color: colorGetter('departure') },
+        { label: 'Confirmed Reservation', color: colorGetter('confirmed') },
+        { label: 'Maintenance Block', color: colorGetter('blocked') },
+        { label: 'Stayover', color: colorGetter('inhouse') },
+        { label: 'Dayuse Reservation', color: colorGetter('dayuse') },
+        // { label: 'Dayuse', color: colorGetter('dayuse') }
+      ]
+    },
+    {
+      title: 'Booking Indicators',
+      items: [
+        { label: 'Group Owner', icon: CrownIcons },
+        { label: 'Group Booking', icon: UsersIcons },
+        { label: 'Payment Pending', icon: DollarsIcons },
+        { label: 'Stop Room Move', icon: HandIcons },
+        { label: 'Single Lady', icon: LadyIcons },
+        { label: 'VIP Guest', icon: StarIcons },
+        { label: 'Split Reservation', icon: SplitIcons }
+      ]
+    },
+    {
+      title: 'Room Indicators',
+      items: [
+        { label: 'No Smoking', icon: CigaretteOff },
+        { label: 'Smoking', icon: Cigarette },
+        { label: 'Dirty', icon: BroomIcons },
+        { label: 'Clean', icon: CheckCircleIcon },
+        { label: 'Connected Rooms', icon: LinkIcon },
+        { label: 'Work Order', icon: WorkOdersIcons },
+        { label: 'ADA / Accessible Room', icon: AccessibleIcons },
+        { label: 'Pet Friendly Room', icon: PetIcons },
+        { label: 'Unassigned Room', color: '#e5e7eb' },
+        { label: 'Inventory', color: '#fecaca' },
+        { label: 'Unconfirmed Bookings', color: '#f87171' }
+      ]
+    }
+  ]
+});
 // État de sélection modifié pour les cellules individuelles
 const cellSelection = ref({
   selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
@@ -1138,14 +1148,14 @@ function endCellSelection(event?: MouseEvent) {
     const elements = document.elementsFromPoint(event.clientX, event.clientY);
     const cellElement = elements.find(el => el.tagName === 'TD' && el.classList.contains('cell-selectable'));
     if (cellElement) {
-        const rect = cellElement.getBoundingClientRect();
-        const tooltipHeight = 180; // Estimated height in pixels
-        const spaceBelow = window.innerHeight - rect.bottom;
+      const rect = cellElement.getBoundingClientRect();
+      const tooltipHeight = 180; // Estimated height in pixels
+      const spaceBelow = window.innerHeight - rect.bottom;
 
-        isTooltipAbove.value = spaceBelow < tooltipHeight;
-        selectionTooltipPosition.value = { x: rect.left + rect.width / 2, y: isTooltipAbove.value ? rect.top : rect.bottom };
+      isTooltipAbove.value = spaceBelow < tooltipHeight;
+      selectionTooltipPosition.value = { x: rect.left + rect.width / 2, y: isTooltipAbove.value ? rect.top : rect.bottom };
     } else {
-        selectionTooltipPosition.value = { x: event.clientX, y: event.clientY };
+      selectionTooltipPosition.value = { x: event.clientX, y: event.clientY };
     }
   }
 
@@ -1155,21 +1165,21 @@ function endCellSelection(event?: MouseEvent) {
 
 // Gestionnaire de mouvement de souris
 function handleCellMouseMove(event: MouseEvent) {
-    if (cellSelection.value.isSelecting) {
-        // This is a bit of a hack to update the offsetX of the current cell
-        // as we are listening on the document, not on the cell itself.
-        // A better implementation would use a transparent overlay.
-        const currentCellInfo = cellSelection.value.currentCell;
-        if (currentCellInfo) {
-            const elements = document.elementsFromPoint(event.clientX, event.clientY);
-            const cellElement = elements.find(el => el.tagName === 'TD' && el.classList.contains('cell-selectable'));
-            if (cellElement) {
-                const rect = cellElement.getBoundingClientRect();
-                const offsetX = event.clientX - rect.left;
-                currentCellInfo.offsetX = offsetX;
-            }
-        }
+  if (cellSelection.value.isSelecting) {
+    // This is a bit of a hack to update the offsetX of the current cell
+    // as we are listening on the document, not on the cell itself.
+    // A better implementation would use a transparent overlay.
+    const currentCellInfo = cellSelection.value.currentCell;
+    if (currentCellInfo) {
+      const elements = document.elementsFromPoint(event.clientX, event.clientY);
+      const cellElement = elements.find(el => el.tagName === 'TD' && el.classList.contains('cell-selectable'));
+      if (cellElement) {
+        const rect = cellElement.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left;
+        currentCellInfo.offsetX = offsetX;
+      }
     }
+  }
 }
 
 // Fonction pour vérifier si une cellule est sélectionnée
@@ -1197,24 +1207,24 @@ function getSelectionStyle(roomType: string, roomNumber: string, date: Date) {
     let left = '0';
 
     if (isStart && isEnd) {
-        const startOffset = Math.min(startCellInfo.offsetX, endCellInfo.offsetX);
-        const endOffset = Math.max(startCellInfo.offsetX, endCellInfo.offsetX);
-        const cellWidth = startCellInfo.cellWidth;
-        if (cellWidth > 0) {
-            left = `${(startOffset / cellWidth) * 100}%`;
-            width = `${((endOffset - startOffset) / cellWidth) * 100}%`;
-        }
+      const startOffset = Math.min(startCellInfo.offsetX, endCellInfo.offsetX);
+      const endOffset = Math.max(startCellInfo.offsetX, endCellInfo.offsetX);
+      const cellWidth = startCellInfo.cellWidth;
+      if (cellWidth > 0) {
+        left = `${(startOffset / cellWidth) * 100}%`;
+        width = `${((endOffset - startOffset) / cellWidth) * 100}%`;
+      }
     } else if (isStart) {
-        const cellWidth = startCellInfo.cellWidth;
-        if (cellWidth > 0) {
-            left = `${(startCellInfo.offsetX / cellWidth) * 100}%`;
-            width = `${100 - ((startCellInfo.offsetX / cellWidth) * 100)}%`;
-        }
+      const cellWidth = startCellInfo.cellWidth;
+      if (cellWidth > 0) {
+        left = `${(startCellInfo.offsetX / cellWidth) * 100}%`;
+        width = `${100 - ((startCellInfo.offsetX / cellWidth) * 100)}%`;
+      }
     } else if (isEnd) {
-        const cellWidth = endCellInfo.cellWidth;
-        if (cellWidth > 0) {
-            width = `${(endCellInfo.offsetX / cellWidth) * 100}%`;
-        }
+      const cellWidth = endCellInfo.cellWidth;
+      if (cellWidth > 0) {
+        width = `${(endCellInfo.offsetX / cellWidth) * 100}%`;
+      }
     }
     return { width, left };
   } else {
@@ -1238,24 +1248,24 @@ function getSelectionStyle(roomType: string, roomNumber: string, date: Date) {
 
 
 function getSelectionTimes() {
-    const startCellInfo = cellSelection.value.startCell;
-    const endCellInfo = cellSelection.value.currentCell;
+  const startCellInfo = cellSelection.value.startCell;
+  const endCellInfo = cellSelection.value.currentCell;
 
-    let checkinTime = '14:00';
-    let checkoutTime = '12:00';
+  let checkinTime = '14:00';
+  let checkoutTime = '12:00';
 
-    if (startCellInfo && startCellInfo.cellWidth > 0) {
-        const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
-        const checkinHour = Math.floor(checkinPercentage * 24);
-        checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
-    }
-    if (endCellInfo && endCellInfo.cellWidth > 0) {
-        const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
-        const checkoutHour = Math.floor(checkoutPercentage * 24);
-        checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
-    }
+  if (startCellInfo && startCellInfo.cellWidth > 0) {
+    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
+    const checkinHour = Math.floor(checkinPercentage * 24);
+    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
+  }
+  if (endCellInfo && endCellInfo.cellWidth > 0) {
+    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
+    const checkoutHour = Math.floor(checkoutPercentage * 24);
+    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
+  }
 
-    return { checkinTime, checkoutTime };
+  return { checkinTime, checkoutTime };
 }
 
 // Fonction pour effacer la sélection de cellules
@@ -1271,15 +1281,15 @@ function getSelectionInfo() {
   if (cellSelection.value.selectedCells.size === 0) return null
 
   // Analyser les cellules sélectionnées pour extraire les informations
-  const cells :any[] = Array.from(cellSelection.value.selectedCells)
+  const cells: any[] = Array.from(cellSelection.value.selectedCells)
   const firstCell = cells[0].split('_')
   const roomType = firstCell[0]
   const roomNumber = firstCell[1]
 
   // Extraire toutes les dates
   const dates = cells
-    .map((cell:any) => new Date(cell.split('_')[2]))
-    .sort((a:any, b:any) => a.getTime() - b.getTime())
+    .map((cell: any) => new Date(cell.split('_')[2]))
+    .sort((a: any, b: any) => a.getTime() - b.getTime())
 
   return {
     roomType,
@@ -1335,7 +1345,7 @@ function navigateToAddReservationFromCells() {
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
   const checkoutDate = new Date(selectionInfo.endDate)
-  checkoutDate.setDate(checkoutDate.getDate() )
+  checkoutDate.setDate(checkoutDate.getDate())
   const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
 
   const startCellInfo = cellSelection.value.startCell;
@@ -1345,14 +1355,14 @@ function navigateToAddReservationFromCells() {
   let checkoutTime = '12:00';
 
   if (startCellInfo && startCellInfo.cellWidth > 0) {
-      const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
-      const checkinHour = Math.floor(checkinPercentage * 24);
-      checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
+    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
+    const checkinHour = Math.floor(checkinPercentage * 24);
+    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
   }
   if (endCellInfo && endCellInfo.cellWidth > 0) {
-      const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
-      const checkoutHour = Math.floor(checkoutPercentage * 24);
-      checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
+    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
+    const checkoutHour = Math.floor(checkoutPercentage * 24);
+    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
   }
 
 
@@ -1371,7 +1381,7 @@ function navigateToAddReservationFromCells() {
 }
 
 // Fonction pour déterminer si la cellule doit être affichée
-function shouldShowCell(group:any, room:any, cell:any) {
+function shouldShowCell(group: any, room: any, cell: any) {
   // En mode sélection, toujours afficher toutes les cellules
   if (cellSelection.value.isSelecting) {
     return true
@@ -1380,11 +1390,11 @@ function shouldShowCell(group:any, room:any, cell:any) {
   // En mode normal, ne pas afficher les cellules qui sont à l'intérieur d'une sélection
   // mais qui ne sont pas le début de cette sélection
   return !isInsideSelection(group.room_type, room.room_number, cell.date) ||
-         isStartOfSelection(group.room_type, room.room_number, cell.date)
+    isStartOfSelection(group.room_type, room.room_number, cell.date)
 }
 
 // Fonction pour déterminer le colspan unifié (que ce soit en mode sélection ou non)
-function getUnifiedColspan(group:any, room:any, cell:any) {
+function getUnifiedColspan(group: any, room: any, cell: any) {
   // Si on est en mode sélection, toujours colspan = 1
   if (cellSelection.value.isSelecting) {
     return 1
@@ -1400,8 +1410,8 @@ function getUnifiedColspan(group:any, room:any, cell:any) {
 }
 
 // Fonction pour déterminer la classe CSS unifiée
-function getUnifiedCellClass(group:any, room:any, cell:any) {
-  const baseClasses :any[]= []
+function getUnifiedCellClass(group: any, room: any, cell: any) {
+  const baseClasses: any[] = []
   baseClasses.push(isWeekend(cell.date) ? 'weekend-cell' : 'bg-white')
   return baseClasses.join(' ')
 }
@@ -1446,16 +1456,18 @@ onUnmounted(() => {
 }
 
 @layer utilities {
-      /* Chrome, Safari, Edge, Opera */
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-      }
-      /* IE, Edge, Firefox */
-      .scrollbar-hide {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
-      }
-    }
 
+  /* Chrome, Safari, Edge, Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 
+  /* IE, Edge, Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+}
 </style>

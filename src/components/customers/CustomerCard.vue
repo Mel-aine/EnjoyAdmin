@@ -54,7 +54,7 @@ type ImageUploaderInstance = InstanceType<typeof ImageUploader>
 const customers = ref<any[]>([])
 const users = ref<any[]>([])
 const serviceStore = useServiceStore()
-const showIdentitySection = ref(false)
+const showIdentitySection = ref(true)
 const showInfoSection = ref(false)
 const selectedCustomer = ref<any>({ ...props.modelValue })
 const idTypeOptions = ref<SelectOption[]>([])
@@ -480,20 +480,14 @@ console.log('modalevalue', props.modelValue)
             </div>
           </div>
 
-          <div class="mt-4">
-            <Input
-              :inputType="'text'"
-              :lb="$t('Address')"
-              :id="'address'"
-              :forLabel="'address'"
-              :placeholder="$t('Address')"
-              v-model="selectedCustomer.address"
-            />
-          </div>
+
 
           <!-- Informations complémentaires -->
           <div class="mt-3 pt-2">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <InputCountries :lb="$t('nationality')" v-model="selectedCustomer.nationality" :placeholder="$t('search_nationality')" />
+              </div>
               <div>
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="selectedCustomer.country" />
               </div>
@@ -514,6 +508,17 @@ console.log('modalevalue', props.modelValue)
                 />
               </div>
             </div>
+          </div>
+
+           <div class="mt-4">
+            <Input
+              :inputType="'text'"
+              :lb="$t('Address')"
+              :id="'address'"
+              :forLabel="'address'"
+              :placeholder="$t('Address')"
+              v-model="selectedCustomer.address"
+            />
           </div>
         </div>
       </div>

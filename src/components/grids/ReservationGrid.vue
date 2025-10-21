@@ -427,8 +427,9 @@ import { getReservationById } from '@/services/reservation';
 import ReservationCardItem from '../reservations/ReservationCardItem.vue'
 import ReservationStatus from '@/components/common/ReservationStatus.vue'
 import { Users, User } from 'lucide-vue-next'
+import { Eye, List } from 'lucide-vue-next'
 import { useAuthStore } from '../../composables/user'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, List, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { ActionIcons } from '@/utils/ActionIcons'
 import { useReservation } from '../../composables/useReservation'
 
 // Lazy load modal components
@@ -1200,23 +1201,8 @@ const clearFilter = () => {
   currentPage.value = 1
 }
 
-// Icon mapping
-const actionIconMap = {
-  'view': Eye,
-  'check_in': CheckCircle,
-  'check_out': CheckCircle,
-  'add_payment': CreditCard,
-  'amend_stay': Calendar,
-  'room_move': ArrowUpDown,
-  'exchange_room': ArrowUpDown,
-  'stop_room_move': StopCircle,
-  'inclusion_list': List,
-  'cancel_reservation': X,
-  'no_show': Eye,
-  'void_reservation': Trash2,
-  'unassign_room': UserMinus,
-}
 
+const actionIconMap = ActionIcons.getMap()
 const actionColorMap = {
   'view': 'text-blue-600',
   'check_in': 'text-blue-600',

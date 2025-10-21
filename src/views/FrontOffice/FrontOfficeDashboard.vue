@@ -1,17 +1,15 @@
 <template>
   <AdminLayout>
-    <div class="p-6">
+    <div class="p-6 pt-0">
       <!-- Header -->
       <div class="mb-6">
         <div class="flex items-center justify-between bg-white shadow-md">
-          <h1 class="font-bold text-gray-900 dark:text-white mb-2 p-3 text-md">
+          <h1 class="font-bold text-gray-900 dark:text-white p-3 text-md">
             {{ $t('frontOffice.dashboard.title') }}
           </h1>
           <div class="mr-3 flex items-center">
-            <button
-              @click="loadDashboardData"
-              class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-            >
+            <button @click="loadDashboardData"
+              class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
               <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
             </button>
           </div>
@@ -19,81 +17,58 @@
       </div>
 
       <!-- Main Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-0 mb-8 shadow-md">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 mb-8 shadow-md">
         <!-- Arrival Card -->
-        <DashboardCircle
-          :title="$t('frontOffice.dashboard.arrival')"
-          :isLoading="isLoading"
-          :data="{
+        <div class="border-e-2">
+          <DashboardCircle :title="$t('frontOffice.dashboard.arrival')" :isLoading="isLoading" :data="{
             pending: dashboardData?.arrival?.pending || 0,
             arrived: dashboardData?.arrival?.arrived || 0,
-          }"
-          :colors="['#3b82f6', '#10b981']"
-        />
+          }" :colors="['#3b82f6', '#10b981']" />
+        </div>
 
         <!-- Checked Out Card -->
-        <DashboardCircle
-          :title="$t('frontOffice.dashboard.checkedOut')"
-          :isLoading="isLoading"
-          :data="{
+        <div class="border-e-2">
+          <DashboardCircle :title="$t('frontOffice.dashboard.checkedOut')" :isLoading="isLoading" :data="{
             pending: dashboardData?.departure?.pending || 0,
             checkedOut: dashboardData?.departure?.checkedOut || 0,
-          }"
-          :colors="['#f59e0b', '#10b981']"
-        />
-
+          }" :colors="['#f59e0b', '#10b981']" />
+        </div>
         <!-- Guest In House Card -->
-        <DashboardCircle
-          :title="$t('frontOffice.dashboard.guestInHouse')"
-          :isLoading="isLoading"
-          :data="{
+        <div class="border-e-2">
+          <DashboardCircle :title="$t('frontOffice.dashboard.guestInHouse')" :isLoading="isLoading" :data="{
             adult: dashboardData?.guestInHouse?.adult || 0,
             child: dashboardData?.guestInHouse?.child || 0,
-          }"
-          :colors="['#3b82f6', '#10b981']"
-        />
+          }" :colors="['#3b82f6', '#10b981']" />
+        </div>
         <!-- Room Status Card -->
-
-        <DashboardCircle
-          :title="$t('frontOffice.dashboard.roomStatus')"
-          :isLoading="isLoading"
-          :data="{
+        <div class="border-e-2">
+          <DashboardCircle :title="$t('frontOffice.dashboard.roomStatus')" :isLoading="isLoading" :data="{
             available: dashboardData?.roomStatus?.availableRooms || 0,
             sold: dashboardData?.roomStatus?.sold || 0,
             dayUse: dashboardData?.roomStatus?.dayUse || 0,
             complimentary: dashboardData?.roomStatus?.complimentary || 0,
             blocked: dashboardData?.roomStatus?.blockedForDate || 0,
-          }"
-          :colors="['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#6b7280']"
-        />
-
+          }" :colors="['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#6b7280']" />
+        </div>
         <!-- Housekeeping Status Card -->
 
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-1">
           <div class="bg-white dark:bg-gray-800 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 justify-center">
               {{ $t('frontOffice.dashboard.housekeepingStatus') }}
             </h3>
-            <div class="flex items-center justify-center h-52">
+            <div class="flex items-center justify-center h-24">
               <!-- Loading Spinner for Bar Chart -->
               <div v-if="isLoading" class="flex items-center justify-center h-full">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
               </div>
               <!-- Bar Chart for Housekeeping Status - Corrigé -->
-             <div v-else class="flex items-end justify-center space-x-4 h-48 w-full">
-                <div
-                  v-for="stat in housekeepingStatsArray"
-                  :key="stat.key"
-                  class="flex flex-col items-center"
-                >
-                  <div
-                    class="rounded-t transition-all duration-300"
-                    :class="stat.color"
-                    :style="{
-                      height: `${Math.max((stat.value / maxHousekeepingValue) * 160, 5)}px`,
-                      width: '40px'
-                    }"
-                  ></div>
+              <div v-else class="flex items-end justify-center space-x-4 h-24 w-full">
+                <div v-for="stat in housekeepingStatsArray" :key="stat.key" class="flex flex-col items-center">
+                  <div class="rounded-t border-b-2 transition-all duration-300" :class="stat.color" :style="{
+                    height: `${Math.max((stat.value / maxHousekeepingValue) * 50, 5)}px`,
+                    width: '20px'
+                  }"></div>
                   <span class="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">
                     {{ $t(`frontOffice.dashboard.${stat.key}`) }}
                   </span>
@@ -106,252 +81,191 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 ">
-        <!-- folio unpaid Panel -->
+     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 ">
+          <!-- folio unpaid Panel -->
 
-        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
-              <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
-                <DollarSign class="w-5 h-5 text-red-600 dark:text-red-400" />
-              </div>
-              {{ $t('frontOffice.dashboard.folioUnpaidList') }}
-              <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
-                ({{ UnsettledFolios.length || 0 }})
-              </span>
-            </h3>
-          </div>
-
-          <!-- List -->
-          <div v-if="isLoading" class="flex items-center justify-center py-8 ">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-          </div>
-          <div
-            v-else-if="UnsettledFolios.length > 0"
-            class="space-y-3 max-h-96 overflow-y-auto scrollbar-hide"
-          >
-            <div
-              v-for="folio in UnsettledFolios"
-              :key="folio.id"
-              class="flex items-center justify-between p-3 bg-gray-50 dark:bg-red-900/10 rounded-xl border border-gray-200/60 dark:border-red-800/30 hover:shadow-md transition-all duration-200"
-            >
-              <div class="flex-1">
-                <div class="flex items-center justify-between">
-                  <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mr-1"
-                      >#{{ folio.folioNumber }}</span
-                    >
-                    {{ folio.guestName }}
-                  </p>
-                  <span class="text-lg font-bold text-red-600 dark:text-red-400">
-                    {{ formatCurrency(folio.balance) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty state -->
-          <div v-else class="text-center py-10">
-            <div
-              class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-green-900/20 rounded-full flex items-center justify-center"
-            >
-              <CheckCircle class="w-8 h-8 text-gray-400 dark:text-gray-500" />
-            </div>
-            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-              {{ $t('unsettledFolios.noFoliosFound') }}
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              {{ $t('unsettledFolios.allPaid') }}
-            </p>
-          </div>
-        </div>
-
-        <!-- roomtype -->
-        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
-          <div class="relative">
-            <!-- Header with Controls -->
+          <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
+            <!-- Header -->
             <div class="flex items-center justify-between mb-6">
               <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
-                <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg mr-3">
-                  <Star class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
+                  <DollarSign class="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
-                {{ $t('roomTypesOccupancy') }}
+                {{ $t('frontOffice.dashboard.folioUnpaidList') }}
                 <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
-                  ({{ Object.keys(dashboardData?.suites || {}).length }})
+                  ({{ UnsettledFolios.length || 0 }})
                 </span>
               </h3>
             </div>
 
-            <!-- List View -->
+            <!-- List -->
+            <div v-if="isLoading" class="flex items-center justify-center py-8 ">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            </div>
+            <div v-else-if="UnsettledFolios.length > 0" class="space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
+              <div v-for="folio in UnsettledFolios" :key="folio.id"
+                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-red-900/10 rounded-xl border border-gray-200/60 dark:border-red-800/30 hover:shadow-md transition-all duration-200">
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">
+                      <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">#{{ folio.folioNumber }}</span>
+                      {{ folio.guestName }}
+                    </p>
+                    <span class="text-lg font-bold text-red-600 dark:text-red-400">
+                      {{ formatCurrency(folio.balance) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty state -->
+            <div v-else class="text-center py-10">
+              <div
+                class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                <CheckCircle class="w-8 h-8 text-gray-400 dark:text-gray-500" />
+              </div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                {{ $t('unsettledFolios.noFoliosFound') }}
+              </p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">
+                {{ $t('unsettledFolios.allPaid') }}
+              </p>
+            </div>
+          </div>
+
+          <!-- roomtype -->
+          <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
+            <div class="relative">
+              <!-- Header with Controls -->
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
+                  <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg mr-3">
+                    <Star class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  {{ $t('occupancy') }}
+                  <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
+                    ({{ Object.keys(dashboardData?.suites || {}).length }})
+                  </span>
+                </h3>
+              </div>
+
+              <!-- List View -->
+              <div class="space-y-3">
+                <!-- Loader -->
+                <div v-if="isLoading" class="flex items-center justify-center py-8">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                </div>
+
+                <!-- Suites data -->
+                <div v-else-if="dashboardData?.suites?.length">
+                  <ul class="text-sm space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
+                    <li v-for="suite in dashboardData.suites" :key="suite.roomTypeId"
+                      class="flex justify-between gap- border-b py-1">
+                      <span class="font-medium w-6/12">{{ suite.roomTypeName }}</span>
+                      <span class="text-gray-600  gap-3 w-6/12 grid grid-cols-3 dark:text-gray-400 font-normal">
+                        <span>{{ $t('occupied') }}: {{ suite.occupied }}</span>
+                        <span>{{ $t('available') }}: {{ suite.free }}</span>
+                        <span class="">
+                          {{ $t('OR') }}:
+                          <span :class="{
+                            'text-green-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
+                            'text-yellow-600 font-semibold':
+                              parseFloat(suite.occupancyRate) >= 50 &&
+                              parseFloat(suite.occupancyRate) < 80,
+                            'text-red-600 font-semibold': parseFloat(suite.occupancyRate) >= 80,
+                          }">
+                            {{ suite.occupancyRate }}
+                          </span>
+                        </span>
+
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Empty state -->
+                <div v-else class="text-center py-10">
+                  <div
+                    class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                    <CheckCircle class="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    {{ $t('no_roomtype_found') }}
+                  </p>
+                  <p class="text-xs text-gray-600 dark:text-gray-400">
+                    {{ $t('all_rooms_vacant') }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Activity Feeds -->
+          <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
+                <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg mr-3">
+                  <Clock class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                {{ $t('frontOffice.dashboard.activityFeeds') }}
+              </h3>
+
+              <div class="flex space-x-2">
+                <button class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                  {{ $t('common.all') }}
+                </button>
+                <button @click="loadDashboardData"
+                  class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                  <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
+                </button>
+              </div>
+            </div>
             <div class="space-y-3">
-              <!-- Loader -->
+              <!-- Loading state -->
               <div v-if="isLoading" class="flex items-center justify-center py-8">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
               </div>
 
-              <!-- Suites data -->
-              <div v-else-if="dashboardData?.suites?.length">
-                <ul class="text-sm space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
-                  <li
-                    v-for="suite in dashboardData.suites"
-                    :key="suite.roomTypeId"
-                    class="flex justify-between border-b py-1"
-                  >
-                    <span class="font-medium">{{ suite.roomTypeName }}</span>
-                    <span class="text-gray-600 dark:text-gray-400 font-normal">
-                      Occupées: {{ suite.occupied }} / {{ suite.totalRooms }} (Libres:
-                      {{ suite.free }},
-                      <span
-                        :class="{
-                          'text-green-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
-                          'text-yellow-600 font-semibold':
-                            parseFloat(suite.occupancyRate) >= 50 &&
-                            parseFloat(suite.occupancyRate) < 80,
-                          'text-red-600 font-semibold': parseFloat(suite.occupancyRate) >= 80,
-                        }"
-                      >
-                        {{ suite.occupancyRate }}
-                      </span>
-                      )
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Empty state -->
-              <div v-else class="text-center py-10">
-                <div
-                  class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-green-900/20 rounded-full flex items-center justify-center"
-                >
-                  <CheckCircle class="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                </div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                  {{ $t('no_roomtype_found') }}
-                </p>
-                <p class="text-xs text-gray-600 dark:text-gray-400">
-                  {{ $t('all_rooms_vacant') }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8  ">
-        <!-- Notifications Panel -->
-        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
-          <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
-            <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg mr-3">
-              <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            {{ $t('frontOffice.dashboard.notifications') }}
-          </h3>
-
-          <div class="space-y-4 grid grid-cols-3 gap-4">
-            <div
-              v-for="notification in notificationItems"
-              :key="notification.key"
-              class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-            >
-              <div class="flex-shrink-0 mr-3">
-                <div
-                  class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center"
-                >
-                  <component
-                    :is="notification.icon"
-                    class="w-4 h-4 text-blue-600 dark:text-blue-400"
-                  />
-                </div>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ notification.count }}
-                </p>
-                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $t(notification.label) }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity Feeds -->
-        <div class="bg-white dark:bg-gray-800 p-6 shadow-md">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center">
-              <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg mr-3">
-                <Clock class="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              {{ $t('frontOffice.dashboard.activityFeeds') }}
-            </h3>
-
-            <div class="flex space-x-2">
-              <button
-                class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ $t('common.all') }}
-              </button>
-              <button
-                @click="loadDashboardData"
-                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-              >
-                <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
-              </button>
-            </div>
-          </div>
-          <div class="space-y-3">
-            <!-- Loading state -->
-            <div v-if="isLoading" class="flex items-center justify-center py-8">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-            </div>
-
-            <!-- Activities List -->
-            <div v-else-if="dashboardData?.activityFeeds?.length > 0" class="space-y-4">
-              <div
-                v-for="activity in dashboardData.activityFeeds"
-                :key="activity.id"
-                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-              >
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 mr-3">
-                    <div
-                      class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center"
-                    >
-                      <User class="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <!-- Activities List -->
+              <div v-else-if="dashboardData?.activityFeeds?.length > 0"
+                class="space-y-4 h-80 overflow-y-auto scrollbar-hide">
+                <div v-for="activity in dashboardData.activityFeeds" :key="activity.id"
+                  class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 mr-3">
+                      <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                        <User class="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-900 dark:text-white wrap-anywhere">{{ activity.description }}</p>
+                      <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.timestamp }}</p>
                     </div>
                   </div>
-                  <div>
-                    <p class="text-sm text-gray-900 dark:text-white">{{ activity.description }}</p>
-                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.timestamp }}</p>
-                  </div>
-                </div>
 
-                <span
-                  :class="getActivityTypeClass(activity.type)"
-                  class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
-                >
-                  {{ $t(`frontOffice.dashboard.activityTypes.${activity.type}`) }}
-                </span>
+                  <span :class="getActivityTypeClass(activity.type)"
+                    class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+                    {{ $t(`frontOffice.dashboard.activityTypes.${activity.type}`) }}
+                  </span>
+                </div>
               </div>
-            </div>
-            <!-- Empty state -->
-            <div v-else class="flex flex-col items-center justify-center py-12 text-center">
-              <div
-                class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4"
-              >
-                <Clock class="w-8 h-8 text-gray-400 dark:text-gray-500" />
+              <!-- Empty state -->
+              <div v-else class="flex flex-col items-center justify-center py-12 text-center">
+                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                  <Clock class="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                </div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                  {{ $t('no_recente_activity') }}
+                </p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                  {{ $t('new_activities') }}
+                </p>
               </div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                {{ $t('no_recente_activity') }}
-              </p>
-              <p class="text-xs text-gray-600 dark:text-gray-400">
-                {{ $t('new_activities') }}
-              </p>
             </div>
           </div>
         </div>
-      </div>
     </div>
+
   </AdminLayout>
 </template>
 
@@ -641,6 +555,7 @@ watch(
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

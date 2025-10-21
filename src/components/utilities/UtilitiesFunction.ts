@@ -99,3 +99,17 @@ export const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   return date.toISOString().substring(0, 10)
 }
+
+export const formatDateLocal = (dateString?: string) => {
+    if (!dateString) return'';
+    try {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+
+        })
+    } catch {
+        return dateString
+    }
+}

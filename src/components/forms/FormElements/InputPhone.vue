@@ -200,9 +200,9 @@ onMounted(() => {
                 :placeholder="$t('phoneNumberPlaceholder')" aria-describedby="phone-number-error" />
         </div>
         <!-- Validation Message -->
-        <p v-if="phoneNumberError" id="phone-number-error" class="mt-2 text-sm text-red-600 font-medium">
+        <!-- <p v-if="phoneNumberError" id="phone-number-error" class="mt-2 text-sm text-red-600 font-medium">
             {{ $t(phoneNumberError) }}
-        </p>
+        </p> -->
     </div>
 </template>
 

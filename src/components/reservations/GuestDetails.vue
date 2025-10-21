@@ -286,7 +286,7 @@
                 <textarea
                   v-model="guestData.address"
                   rows="2"
-                  class="w-full px-3 py-2 border border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                  class="w-full px-3 py-2 border rounded-lg border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
                   :placeholder="$t('Address')"
                   :disabled="!isEditing"
                 ></textarea>
