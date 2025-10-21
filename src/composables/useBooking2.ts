@@ -846,75 +846,110 @@ const fetchRoomTypes = async () => {
     }
   }
 
-  // Customer handling (inchangé)
-  const onCustomerSelected = (customer: any | null) => {
-    if (customer) {
-      formData.value = {
-        ...formData.value,
-        firstName: customer.firstName || '',
-        lastName: customer.lastName || '',
-        phoneNumber: customer.phoneNumber || '',
-        email: customer.email || '',
-        companyName: customer.companyName || '',
-        groupName: customer.groupName || '',
-        title: customer.title || '',
-        fax: customer.fax || '',
-        maidenName: customer.maidenName || '',
-        contactType: customer.contactType || '',
-        placeOfBirth: customer.placeOfBirth || '',
-        dateOfBirth: customer.dateOfBirth || '',
-        natonality: customer.natonality || '',
-        profession: customer.profession || '',
-        id: customer.id || 0,
-        roleId: customer.roleId || null,
-        address: customer.address || '',
-        country: customer.country || '',
-        state: customer.state || '',
-        city: customer.city || '',
-        zipcode: customer.zipcode || '',
-        idPhoto: customer.idPhoto || null,
-        idType: customer.idType,
-        idNumber: customer.idNumber,
-        idExpiryDate: customer.idExpiryDate,
-        issuingCountry: customer.issuingCountry,
-        issuingCity: customer.issuingCity,
-        profilePhoto: customer.profilePhoto || null,
-        passportNumber: null,
-        passportExpiry: null,
-        visaNumber: null,
-        visaExpiry: null,
-      }
-
-      // Mettre à jour le nom sur la carte
-      paymentData.value.cardHolderName = guestFullName.value
-    } else {
-      formData.value = {
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        fax: '',
-        placeOfBirth: '',
-        dateOfBirth: '',
-        natonality: '',
-        profession: '',
-        email: '',
-        roleId: null,
-        companyName: '',
-        groupName: '',
-        title: '',
-        id: 0,
-        address: '',
-        country: '',
-        state: '',
-        city: '',
-        zipcode: '',
-        maidenName: '',
-        contactType: '',
-      }
-      paymentData.value.cardHolderName = ''
+  // Customer handling
+ const onCustomerSelected = (customer: any | null) => {
+  if (customer) {
+    formData.value = {
+      ...formData.value,
+      firstName: customer.firstName || '',
+      lastName: customer.lastName || '',
+      phoneNumber: customer.phoneNumber || customer.phonePrimary || '',
+      email: customer.email || '',
+      companyName: customer.companyName || '',
+      groupName: customer.groupName || '',
+      title: customer.title || '',
+      fax: customer.fax || '',
+      maidenName: customer.maidenName || '',
+      contactType: customer.contactType || '',
+      placeOfBirth: customer.placeOfBirth || '',
+      dateOfBirth: customer.dateOfBirth || '',
+      nationality: customer.nationality,
+      profession: customer.profession || '',
+      id: customer.id || 0,
+      roleId: customer.roleId || null,
+      address: customer.address || customer.addressLine || '',
+      country: customer.country || '',
+      state: customer.state || customer.stateProvince || '',
+      city: customer.city || '',
+      zipcode: customer.zipcode || customer.postalCode || '',
+      idPhoto: customer.idPhoto || null,
+      profilePhoto: customer.profilePhoto || null,
+      issuingCountry: customer.issuingCountry || '',
+      issuingCity: customer.issuingCity || '',
     }
-  }
 
+    if (customer.passportNumber) {
+      formData.value.idType = customer.idType || 'Passport'
+      formData.value.idNumber = customer.passportNumber
+      formData.value.passportNumber = customer.passportNumber
+      formData.value.passportExpiry = customer.passportExpiry
+        ? customer.passportExpiry.substring(0, 10)
+        : ''
+      formData.value.idExpiryDate = customer.passportExpiry
+        ? customer.passportExpiry.substring(0, 10)
+        : ''
+    } else if (customer.visaNumber) {
+      formData.value.idType = customer.idType || 'Visa'
+      formData.value.idNumber = customer.visaNumber
+      formData.value.visaNumber = customer.visaNumber
+      formData.value.visaExpiry = customer.visaExpiry
+        ? customer.visaExpiry.substring(0, 10)
+        : ''
+      formData.value.idExpiryDate = customer.visaExpiry
+        ? customer.visaExpiry.substring(0, 10)
+        : ''
+    } else if (customer.idNumber) {
+      formData.value.idType = customer.idType || ''
+      formData.value.idNumber = customer.idNumber
+      formData.value.idExpiryDate = customer.idExpiryDate
+        ? customer.idExpiryDate.substring(0, 10)
+        : ''
+    } else {
+      formData.value.idType = customer.idType || ''
+      formData.value.idNumber = ''
+      formData.value.idExpiryDate = ''
+    }
+
+    // Mettre à jour le nom sur la carte
+    paymentData.value.cardHolderName = guestFullName.value
+  } else {
+    formData.value = {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      fax: '',
+      placeOfBirth: '',
+      dateOfBirth: '',
+      nationality: '',
+      profession: '',
+      email: '',
+      roleId: null,
+      companyName: '',
+      groupName: '',
+      title: '',
+      id: 0,
+      address: '',
+      country: '',
+      state: '',
+      city: '',
+      zipcode: '',
+      maidenName: '',
+      contactType: '',
+      idPhoto: '',
+      idType: '',
+      idNumber: '',
+      idExpiryDate: '',
+      issuingCountry: '',
+      issuingCity: '',
+      profilePhoto: '',
+      passportNumber: null,
+      passportExpiry: null,
+      visaNumber: null,
+      visaExpiry: null,
+    }
+    paymentData.value.cardHolderName = ''
+  }
+}
   const loadAllRoomCounts = async () => {
   if (!RoomTypes.value.length) return
 
@@ -1217,7 +1252,7 @@ const getChildOptions = (roomTypeId: any | null) => {
         fax: formData.value.fax,
         placeOfBirth: formData.value.placeOfBirth,
         dateOfBirth: formData.value.dateOfBirth,
-        natonality: formData.value.natonality,
+        nationality: formData.value.nationality,
         profession: formData.value.profession,
         contact_type: formData.value.contactType,
         maiden_name: formData.value.maidenName,

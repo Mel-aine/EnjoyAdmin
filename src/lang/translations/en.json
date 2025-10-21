@@ -6328,5 +6328,6 @@
     "facebook" : "Facebook",
     "whatsapp" : "WhatsApp",
     "email" :"Email"
-  }
+  },
+  "GuestRegistration" : "Guest Registration"
 }
