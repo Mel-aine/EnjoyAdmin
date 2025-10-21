@@ -85,6 +85,69 @@ const router = createRouter({
       },
     },
     {
+      path: '/ota/web-booking',
+      name: 'WebBooking',
+      component: () => import('../views/ota/WebBooking.vue'),
+      meta: {
+        title: 'Web Booking',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/ota/hotel-info',
+      name: 'OtaHotelInfo',
+      component: () => import('../views/ota/HotelInfo.vue'),
+      meta: {
+        title: 'Hotel Info',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/ota/contact-us',
+      name: 'OtaContactUs',
+      component: () => import('../views/ota/ContactUs.vue'),
+      meta: {
+        title: 'Contact Us',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/ota/map',
+      name: 'OtaMap',
+      component: () => import('../views/ota/Map.vue'),
+      meta: {
+        title: 'Map',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/ota/reviews',
+      name: 'OtaReviews',
+      component: () => import('../views/ota/Reviews.vue'),
+      meta: {
+        title: 'Reviews',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/ota/cancel-booking',
+      name: 'OtaCancelBooking',
+      component: () => import('../views/ota/CancelBooking.vue'),
+      meta: {
+        title: 'Cancel Booking',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/ota/checkout',
+      name: 'OtaCheckout',
+      component: () => import('../views/ota/Checkout.vue'),
+      meta: {
+        title: 'Checkout',
+        requiresAuth: false,
+      },
+    },
+    {
       path: '/addbooking/:id',
       name: 'AddBooking',
       component: () => import('../views/Bookings/AddBooking.vue'),

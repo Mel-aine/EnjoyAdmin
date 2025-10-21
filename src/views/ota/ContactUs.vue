@@ -1,0 +1,71 @@
+<template>
+  <FullScreenLayout>
+    <OtaHeader :brand="brand" :currency="selectedCurrency" @currency-change="setCurrency" />
+    <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
+      <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
+        <section class="bg-white rounded-lg shadow-sm border p-4">
+          <h1 class="text-xl font-bold">Contact Us</h1>
+          <p class="text-sm text-gray-700 mt-1">We’d love to hear from you. Send us your message and our team will get back to you shortly.</p>
+
+          <form class="mt-4 space-y-3" @submit.prevent="submit">
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-medium">Your Name</label>
+                <input v-model.trim="form.name" type="text" class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" required />
+              </div>
+              <div>
+                <label class="text-xs font-medium">Email</label>
+                <input v-model.trim="form.email" type="email" class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" required />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-medium">Message</label>
+              <textarea v-model.trim="form.message" rows="5" class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" required></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="text-[11px] text-gray-500">We respond within 24 hours.</div>
+              <button class="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 text-sm">Send Message</button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="space-y-4">
+          <div class="bg-white rounded-lg shadow-sm border p-4">
+            <div class="font-semibold">Property Contact</div>
+            <div class="text-sm text-gray-700 mt-1">Phone: (+237) 650 00 00 00</div>
+            <div class="text-sm text-gray-700">Email: info@suita-hotel.example</div>
+            <div class="text-sm text-gray-700">Address: 123 Example Street, Douala</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border p-4">
+            <div class="font-semibold">Need to cancel?</div>
+            <div class="text-sm text-gray-700">Use our cancellation tool to void a booking.</div>
+            <button class="mt-3 w-full bg-gray-800 hover:bg-black text-white rounded py-2 text-sm" @click="goCancel">Cancel Booking</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </FullScreenLayout>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import OtaHeader from './components/OtaHeader.vue'
+
+const router = useRouter()
+const brand = 'TAMI SARL (SUITA HOTEL)'
+const selectedCurrency = ref<string>('XAF')
+function setCurrency(c: string) { selectedCurrency.value = c }
+
+const form = ref({ name: '', email: '', message: '' })
+function submit() {
+  if (!form.value.name || !form.value.email || !form.value.message) return
+  alert(`Thanks, ${form.value.name}! We will reply to ${form.value.email}.`)
+  form.value = { name: '', email: '', message: '' }
+}
+function goCancel() { router.push('/ota/cancel-booking') }
+</script>
+
+<style scoped>
+</style>
