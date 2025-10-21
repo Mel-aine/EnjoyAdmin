@@ -36,9 +36,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2 p-4 border-t">
-        <BasicButton variant="secondary" @click="closeModal">{{ t('cancel') }}</BasicButton>
-        <BasicButton :disabled="!canSubmit || isUndoingCheckIn" :loading="isUndoingCheckIn" @click="performUndo">
-          {{ t('Undo check-in') }}
+        <BasicButton variant="secondary" @click="closeModal" :label="t('cancel')"></BasicButton>
+        <BasicButton :disabled="!canSubmit || isUndoingCheckIn" :loading="isUndoingCheckIn" @click="performUndo" :label="t('Undo check-in')">
         </BasicButton>
       </div>
     </template>
@@ -47,11 +46,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import BasicButton from '../common/BasicButton.vue'
 import { useI18n } from 'vue-i18n'
 import { getReservationDetailsById } from '../../services/reservation'
 import { useReservation } from '../../composables/useReservation'
 import RightSideModal from '../modal/RightSideModal.vue'
+import BasicButton from '../buttons/BasicButton.vue'
 
 interface Props {
   reservationId: number
