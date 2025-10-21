@@ -64,7 +64,7 @@
           <button v-if="canAddBooking"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="gotoAddReservation">
-            <PlusCircle class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
+            <AddBookinIcon class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
             <span
               class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
               {{ $t('AddBooking') }}
@@ -122,6 +122,7 @@ import router from '@/router'
 import { useAuthStore } from '../../composables/user'
 import BookingFormQuick from '../reservations/BookingFormQuick.vue'
 import GuestRegistrationModal from '../modal/GuestRegistrationModal.vue'
+import AddBookinIcon from '../../icons/AddBookinIcon.vue'
 
 const authStore = useAuthStore();
 
