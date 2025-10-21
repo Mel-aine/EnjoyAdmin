@@ -262,6 +262,8 @@ export function useBooking() {
     issuingCountry: '',
     issuingCity: '',
     profilePhoto: '',
+    maidenName: '',
+    contactType: '',
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -857,6 +859,8 @@ const fetchRoomTypes = async () => {
         groupName: customer.groupName || '',
         title: customer.title || '',
         fax: customer.fax || '',
+        maidenName: customer.maidenName || '',
+        contactType: customer.contactType || '',
         placeOfBirth: customer.placeOfBirth || '',
         dateOfBirth: customer.dateOfBirth || '',
         natonality: customer.natonality || '',
@@ -904,6 +908,8 @@ const fetchRoomTypes = async () => {
         state: '',
         city: '',
         zipcode: '',
+        maidenName: '',
+        contactType: '',
       }
       paymentData.value.cardHolderName = ''
     }
@@ -1213,6 +1219,8 @@ const getChildOptions = (roomTypeId: any | null) => {
         dateOfBirth: formData.value.dateOfBirth,
         natonality: formData.value.natonality,
         profession: formData.value.profession,
+        contact_type: formData.value.contactType,
+        maiden_name: formData.value.maidenName,
         ...identityPayload,
         reservation_status: reservation.value.reservationStatus,
         status: reservation.value.reservationStatus,
@@ -1802,6 +1810,8 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
     issuingCountry: '',
     issuingCity: '',
     profilePhoto: '',
+    maidenName: '',
+    contactType: '',
   })
 
   // Reset other info
@@ -2150,7 +2160,9 @@ const loadDraftData = (draftData: any) => {
         idExpiryDate: draftData.formData.idExpiryDate || '',
         issuingCountry: draftData.formData.issuingCountry || '',
         issuingCity: draftData.formData.issuingCity || '',
-        profilePhoto: draftData.formData.profilePhoto || ''
+        profilePhoto: draftData.formData.profilePhoto || '',
+        maidenName: draftData.formData.maidenName || '',
+        contactType: draftData.formData.contactType || '',
       }
     }
 

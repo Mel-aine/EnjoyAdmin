@@ -123,6 +123,8 @@ const selectCustomer = (customer: any) => {
   selectedCustomer.value.profession = customer.profession ?? selectedCustomer.value.profession
   selectedCustomer.value.dateOfBirth = customer.dateOfBirth ?? selectedCustomer.value.dateOfBirth
   selectedCustomer.value.nationality = customer.nationality ?? selectedCustomer.value.nationality
+  selectedCustomer.value.contactType = customer.contactType ?? selectedCustomer.value.contactType
+  selectedCustomer.value.maidenName = customer.maidenName ?? selectedCustomer.value.maidenName
   // selectedCustomer.value.idExpiryDate = customer.idExpiryDate ?? selectedCustomer.value.idExpiryDate
   selectedCustomer.value.issuingCountry =
     customer.issuingCountry ?? selectedCustomer.value.issuingCountry
@@ -343,6 +345,14 @@ const onIdPhotoRemoved = () => {
   selectedCustomer.value.idPhoto = null
 }
 
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
 onMounted(() => {
   fetchGuest()
   fetchIdentityTypes()
@@ -426,6 +436,15 @@ console.log('modalevalue', props.modelValue)
                       :lb="$t('LastName')"
                       v-model="selectedCustomer.lastName"
                       :placeholder="$t('LastName')"
+                      custom-class="rounded-none h-11 border-l-0"
+                    />
+                  </div>
+                  <!--Maiden Name-->
+                   <div class="flex-1">
+                    <Input
+                      :lb="$t('MaidenName')"
+                      v-model="selectedCustomer.maidenName"
+                      :placeholder="$t('MaidenName')"
                       custom-class="rounded-l-none h-11 border-l-0"
                     />
                   </div>
@@ -452,7 +471,7 @@ console.log('modalevalue', props.modelValue)
               </div>
 
               <!-- Profession + Phone + Email -->
-              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <Input
                   :lb="$t('profession')"
                   :id="'profession'"
@@ -474,6 +493,14 @@ console.log('modalevalue', props.modelValue)
                   placeholder="info@gmail.com"
                   :title="$t('Email')"
                   required
+                  custom-class="h-11"
+                />
+
+                <Select
+                  v-model="selectedCustomer.contactType"
+                  :placeholder="$t('-select-')"
+                  :lb="$t('contactType')"
+                  :options="TypesOfContact"
                   custom-class="h-11"
                 />
               </div>

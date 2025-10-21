@@ -72,7 +72,7 @@
                 </div>
 
                 <!-- Booking Type -->
-                <div class="flex flex-col w-auto translate-x-5">
+                <div class="flex flex-col w-auto translate-x-3">
                   <AutoCompleteSelect
                     v-model="reservation.bookingType"
                     :options="BookingType"
@@ -85,7 +85,7 @@
                 </div>
 
                 <!-- Booking Source -->
-                <div class="flex flex-col w-auto translate-x-10">
+                <div class="flex flex-col w-auto translate-x-5">
                   <AutoCompleteSelect
                     v-model="reservation.bookingSource"
                     :options="BookingSource"

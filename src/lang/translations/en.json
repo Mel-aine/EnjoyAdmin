@@ -6319,5 +6319,14 @@
   "Select children" : "Select children",
   "Save Payment" : "Save Payment",
   "Payment saved successfully" : "Payment saved successfully!",
-  "UpdateSuccessfully" : "Update Payment Successfully"
+  "UpdateSuccessfully" : "Update Payment Successfully",
+  "MaidenName" : "Maiden Name",
+  "contactType" : "Contact Type",
+  "contactTypes" : {
+    "mobile" :"Mobile",
+    "fix" : "Fix",
+    "facebook" : "Facebook",
+    "whatsapp" : "WhatsApp",
+    "email" :"Email"
+  }
 }

@@ -288,7 +288,9 @@ const gotoNew = () => {
       issuingCountry: formData.value.issuingCountry,
       issuingCity: formData.value.issuingCity,
       profilePhoto: formData.value.profilePhoto,
-      idPhoto: formData.value.idPhoto
+      idPhoto: formData.value.idPhoto,
+      maidenName: formData.value.maidenName,
+      contactType: formData.value.contactType,
     },
     otherInfo: {
       emailBookingVouchers: otherInfo.value.emailBookingVouchers,
