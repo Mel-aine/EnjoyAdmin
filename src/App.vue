@@ -25,7 +25,7 @@ if (useLanguage.language) {
 } else {
   useLanguage.set(t.locale.value)
 }
-
+ 
 // Inactivity tracking (5 minutes)
 const IDLE_TIMEOUT_MS = 10 * 60 * 1000
 const isReAuthOpen = ref(false)
