@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader :brand="brand" :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         <section class="bg-white rounded-xl shadow-sm border p-5">
@@ -74,9 +74,7 @@
           <div class="mt-4">
             <div class="font-semibold mb-1">Cancellation policy</div>
             <ul class="text-sm text-gray-700 space-y-1 list-disc pl-5">
-              <li>Free cancellation up to 24 hours before arrival.</li>
-              <li>After that, one night may be charged.</li>
-              <li>Amounts vary depending on the selected rate.</li>
+              <li>{{ cancellationPolicy }}</li>
             </ul>
           </div>
         </aside>
@@ -86,12 +84,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,computed ,onMounted} from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import { getCancellationSummary, cancelReservation } from '@/services/api'
+import { getHotelInfo } from '@/services/otaApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
-const brand = 'TAMI SARL (SUITA HOTEL)'
 const selectedCurrency = ref<string>('XAF')
 function setCurrency(c: string) { selectedCurrency.value = c }
 
@@ -103,7 +102,10 @@ const success = ref<string>('')
 const acceptPolicy = ref<boolean>(false)
 const loadingSummary = ref<boolean>(false)
 const loadingCancel = ref<boolean>(false)
-
+const serviceStore = useServiceStore()
+const hotelData = ref<any>(null)
+const loading = ref<boolean>(true)
+const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || 'Free cancellation up to 24 hours before arrival on flexible rates')
 async function loadSummary() {
   error.value = ''
   success.value = ''
@@ -145,6 +147,28 @@ function resetForm() {
   success.value = ''
   acceptPolicy.value = false
 }
+const fetchHotelInfo = async () => {
+  try {
+    loading.value = true
+    const hotelId = serviceStore.serviceId
+    const response = await getHotelInfo(hotelId!)
+    hotelData.value = response.data.data
+    console.log('Fetched hotel info:', hotelData.value)
+
+    // Update currency from API if available
+    if (hotelData.value?.finance?.currencyCode) {
+      selectedCurrency.value = hotelData.value.finance.currencyCode
+    }
+  } catch (error) {
+    console.error('Error fetching hotel info:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchHotelInfo()
+})
 </script>
 
 <style scoped>

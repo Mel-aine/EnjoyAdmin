@@ -112,7 +112,7 @@
         <aside class="bg-white rounded-xl shadow-sm border p-5 lg:sticky lg:top-24">
           <div class="font-semibold">{{ brand }}</div>
           <div class="text-[12px] text-gray-600">Carrefour Bastos, 2723, Yaounde, Cameroon</div>
-          <div class="text-[12px] text-gray-600">reservation@suita-hotel.com • (+237) 658885585</div>
+           <div class="text-[12px] text-gray-600">reservation@suita-hotel.com • (+237) 658885585</div>
 
           <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div>
@@ -179,13 +179,21 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
-
+import { useBookingSummaryStore } from '@/composables/bookingSummary'
 const router = useRouter()
 const route = useRoute()
 
 const brand = 'TAMI SARL (SUITA HOTEL)'
 const selectedCurrency = ref<string>('XAF')
 function setCurrency(c: string) { selectedCurrency.value = c }
+
+
+const bookingStore = useBookingSummaryStore()
+
+console.log('Hotel ID :', bookingStore.hotelId)
+console.log('Arrivée :', bookingStore.arrivalDate)
+console.log('Départ :', bookingStore.departureDate)
+console.log('Items :', bookingStore.items)
 
 // Read booking info from query
 const arrivalDate = ref<string>((route.query.arrivalDate as string) || (route.query.arrival as string) || new Date().toISOString().split('T')[0])

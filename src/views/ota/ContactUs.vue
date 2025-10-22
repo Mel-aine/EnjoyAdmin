@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader :brand="brand" :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
         <section class="bg-white rounded-lg shadow-sm border p-4">
@@ -48,14 +48,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,computed,onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
+import { getHotelInfo } from '@/services/otaApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
 const router = useRouter()
-const brand = 'TAMI SARL (SUITA HOTEL)'
+const brand = computed(() => hotelData.value?.name || '')
+const hotelData = ref<any>(null)
 const selectedCurrency = ref<string>('XAF')
+const serviceStore = useServiceStore()
+const loading = ref<boolean>(true)
 function setCurrency(c: string) { selectedCurrency.value = c }
 
 const form = ref({ name: '', email: '', message: '' })
@@ -64,6 +69,29 @@ function submit() {
   alert(`Thanks, ${form.value.name}! We will reply to ${form.value.email}.`)
   form.value = { name: '', email: '', message: '' }
 }
+
+const fetchHotelInfo = async () => {
+  try {
+    loading.value = true
+    const hotelId = serviceStore.serviceId
+    const response = await getHotelInfo(hotelId!)
+    hotelData.value = response.data.data
+    console.log('Fetched hotel info:', hotelData.value)
+
+    // Update currency from API if available
+    if (hotelData.value?.finance?.currencyCode) {
+      selectedCurrency.value = hotelData.value.finance.currencyCode
+    }
+  } catch (error) {
+    console.error('Error fetching hotel info:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchHotelInfo()
+})
 function goCancel() { router.push('/ota/cancel-booking') }
 </script>
 

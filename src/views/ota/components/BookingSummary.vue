@@ -15,7 +15,7 @@
             <div class="font-medium text-sm">{{ item.roomName }} – {{ item.planName }}</div>
             <div class="text-gray-500 text-xs">{{ adultsLabel(item.adults) }}, {{ childrenLabel(item.children) }}, {{ item.qty }} Room<span v-if="item.qty > 1">s</span></div>
           </div>
-          <button class="text-xs text-red-600 hover:underline" @click="$emit('onRemove', idx)">Remove</button>
+          <button class="text-xs text-red-600 hover:underline"  @click="onRemove(idx)">Remove</button>
         </div>
         <div class="mt-2 text-sm">
           <div>{{ formatCurrency(item.planPrice) }} / night</div>
@@ -48,6 +48,8 @@ interface SummaryItem {
   qty: number
 }
 
+
+
 const props = defineProps<{ items: SummaryItem[]; arrivalDate: string; departureDate: string; nights: number }>()
 
 const emit = defineEmits<{ (e: 'book'): void; (e: 'remove', index: number): void }>()
@@ -61,6 +63,15 @@ function onBook() {
 function onRemove(index: number) {
   emit('remove', index)
 }
+
+function adultsLabel(count: number) {
+  return `${count} Adult${count > 1 ? 's' : ''}`
+}
+
+function childrenLabel(count: number) {
+  return `${count} Child${count > 1 ? 'ren' : ''}`
+}
+
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(amount)

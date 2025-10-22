@@ -1,6 +1,7 @@
+
 <template>
   <FullScreenLayout>
-    <OtaHeader :brand="brand" :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div class="flex flex-wrap gap-3 items-end">
@@ -12,49 +13,106 @@
             <label class="text-sm font-medium">{{ $t('departure') }}</label>
             <InputDatePicker v-model="departureDate" class="bg-white rounded-lg w-44" />
           </div>
-          <!-- Adults/Children selectors removed per requirement -->
-          <button @click="searchRooms" class="bg-primary text-white rounded px-4 py-2 h-10">
-            Check Availability
+          <button
+            @click="searchRooms"
+            :disabled="isLoading"
+            class="bg-primary text-white rounded px-4 py-2 h-10 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ isLoading ? $t('Loading...') : $t('Check Availability') }}
           </button>
         </div>
         <div class="text-right">
           <div class="text-xs text-gray-500">{{ $t('nights') }}: {{ nights }}</div>
-          <div class="text-xs text-gray-500">{{ $t('guests') }}: {{ adults }} {{ $t('adults') }}, {{ children }} {{ $t('children') }}</div>
+          <div class="text-xs text-gray-500">
+            {{ $t('guests') }}: {{ adults }} {{ $t('adults') }}, {{ children }} {{ $t('children') }}
+          </div>
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
-        <div class="space-y-4">
-          <div v-for="room in filteredRooms" :key="room.id" class="bg-white rounded-lg shadow border p-4">
+      <!-- Loading state -->
+      <div v-if="isLoading" class="mt-6 text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p class="mt-2 text-gray-600">{{ $t('Loading availability...') }}</p>
+      </div>
+
+      <!-- Rooms display -->
+      <div v-else class="mt-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr]  h-[100vh] gap-6">
+        <div class="space-y-4 overflow-y-auto scrollbar-none">
+          <div
+            v-for="room in filteredRooms"
+            :key="room.id"
+            class="bg-white rounded-lg shadow border p-4"
+          >
             <div class="flex items-start justify-between">
               <div class="flex flex-col">
                 <h2 class="text-lg font-semibold">{{ room.name }}</h2>
                 <div class="text-xs text-gray-500">{{ room.description }}</div>
+                <div class="text-xs text-gray-400 mt-1">
+                  {{ $t('Capacity') }}: {{ room.capacity.adults }} {{ $t('adults') }},
+                  {{ room.capacity.children }} {{ $t('children') }}
+                </div>
               </div>
               <div class="text-right">
                 <span class="text-sm text-gray-600">{{ $t('Rooms Left') }}:</span>
-                <span class="ml-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs">{{ room.roomsLeft }}</span>
+                <span
+                  class="ml-1 rounded-full px-2 py-0.5 text-xs"
+                  :class="
+                    room.roomsLeft > 5
+                      ? 'bg-green-200'
+                      : room.roomsLeft > 0
+                        ? 'bg-yellow-200'
+                        : 'bg-red-200'
+                  "
+                >
+                  {{ room.roomsLeft }}
+                </span>
               </div>
             </div>
 
             <div class="mt-4 grid md:grid-cols-1 gap-4">
-              <RatePlanCard v-for="plan in room.ratePlans" :key="plan.id" :room="room" :plan="plan" :nights="nights" :currency="selectedCurrency" @add="handleAddRoom" @remove="handleRemoveRoom" />
+              <RatePlanCard
+                v-for="plan in room.ratePlans"
+                :key="plan.id"
+                :room="room"
+                :plan="plan"
+                :nights="nights"
+                :currency="selectedCurrency"
+                @add="handleAddRoom"
+                @remove="handleRemoveRoom"
+                @update="handleUpdate"
+              />
             </div>
           </div>
 
-          <div v-if="filteredRooms.length === 0" class="text-center text-gray-500 py-8">
-            {{ $t('No rooms found for the selected criteria.') }}
+          <div
+            v-if="filteredRooms.length === 0 && !isLoading"
+            class="text-center text-gray-500 py-8"
+          >
+            {{
+              hasSearched
+                ? $t('No rooms available for the selected criteria.')
+                : $t('Please search for availability')
+            }}
           </div>
         </div>
-
-        <BookingSummary :items="summaryItems" :arrivalDate="arrivalDate" :departureDate="departureDate" :nights="nights" @book="bookFromSummary" @remove="removeSummaryItem" />
+        <div class="sticky top-0 max-h-[80vh] overflow-y-auto scrollbar-none">
+        <BookingSummary
+          class="sticky top-0"
+          :items="summaryItems"
+          :arrivalDate="arrivalDate"
+          :departureDate="departureDate"
+          :nights="nights"
+          @book="bookFromSummary"
+          @remove="removeSummaryItem"
+        />
+        </div>
       </div>
     </div>
   </FullScreenLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
@@ -62,21 +120,33 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import RatePlanCard from './components/RatePlanCard.vue'
 import BookingSummary from './components/BookingSummary.vue'
 import OtaHeader from './components/OtaHeader.vue'
+import { getAvailability, type RoomAvailability } from '@/services/otaApi'
+import { useServiceStore } from '@/composables/serviceStore'
+import { useBookingSummaryStore } from '@/composables/bookingSummary'
 
 const router = useRouter()
 const { t } = useI18n()
 
-const brand = 'TAMI SARL (SUITA HOTEL)'
+// Configuration
+const serviceStore = useServiceStore()
+const hotelId = serviceStore.serviceId
 const selectedCurrency = ref<string>('XAF')
-function setCurrency(c: string) {
-  selectedCurrency.value = c
-}
 
+// État
+const brand = ref('')
 const arrivalDate = ref<string>(new Date().toISOString().split('T')[0])
-const departureDate = ref<string>(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+const departureDate = ref<string>(
+  new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+)
 const adults = ref<number>(1)
 const children = ref<number>(0)
+const isLoading = ref<boolean>(false)
+const errorMessage = ref<string>('')
+const hasSearched = ref<boolean>(false)
+const availabilityData = ref<RoomAvailability[]>([])
+const hotelMeta = ref<any>(null)
 
+// Calcul des nuits
 const nights = computed(() => {
   const start = new Date(arrivalDate.value)
   const end = new Date(departureDate.value)
@@ -84,86 +154,114 @@ const nights = computed(() => {
   return Math.max(Math.ceil(ms / (1000 * 60 * 60 * 24)), 1)
 })
 
-// Mock rooms data to mimic OTA preview UI
-const rooms = ref([
-  {
-    id: 1,
-    name: 'Lifestyle Suite',
-    description: t('Spacious suite with modern amenities'),
-    roomsLeft: 1,
-    capacity: { adults: 2, children: 1 },
-    ratePlans: [
-      { id: 'ls-room-only', name: 'Room Only', features: [t('Room Rates Inclusive of Tax')], policies: [], price: 110000 },
-      { id: 'ls-bb', name: 'B&B', features: [t('Breakfast included'), t('Free Cancellation'), t('Pay at the hotel')], policies: [], price: 133500 },
-      { id: 'ls-weekly', name: 'Lifestyle Weekly', features: [t('Pay at the hotel'), t('Free Cancellation')], policies: [], price: 887220, minNights: 7 },
-    ]
-  },
-  {
-    id: 2,
-    name: 'Home Suite Home',
-    description: t('Comfortable suite great for families'),
-    roomsLeft: 30,
-    capacity: { adults: 4, children: 1 },
-    ratePlans: [
-      { id: 'hsh-bb', name: 'B&B', features: [t('Breakfast included'), t('Free Cancellation'), t('Pay at the hotel')], policies: [], price: 208500 },
-      { id: 'hsh-room-only', name: 'Room Only', features: [t('Room Rates Inclusive of Tax')], policies: [], price: 216000 },
-    ]
-  }
-])
-
+// Transformation des données API en format UI
 const filteredRooms = computed(() => {
-  // For now, we return all. Hook filters here if needed.
-  return rooms.value
+  return availabilityData.value.map((room) => ({
+    id: room.id,
+    name: room.name,
+    shortCode: room.shortCode,
+    description: room.description || t(`room.${room.shortCode}.description`, ''),
+    images: room.images || [],
+    roomsLeft: room.roomsLeft,
+    rooms: room.rooms,
+    capacity: {
+      base: room.capacity?.base ?? 0,
+      max: room.capacity?.max ?? 0,
+      adults: room.capacity?.adults ?? 1,
+      children: room.capacity?.children ?? 0,
+    },
+    amenities: room.amenities,
+    ratePlans: room.ratePlans.map((plan) => ({
+      id: plan.id.toString(),
+      rateTypeId: plan.id.toString(),
+      name: plan.name,
+      shortCode: plan.shortCode,
+      features: plan.features ?? [],
+      policies: [],
+      price: plan.price ?? 0,
+      pricePerNight: plan.pricePerNight ?? 0,
+      breakdown: plan.breakdown ?? {},
+      currency: plan.currency ?? '',
+      minNights: plan.minNights ?? 1,
+      maxNights: plan.maxNights ?? null,
+    })),
+  }))
 })
 
-function searchRooms() {
-  // Placeholder: integrate with an API later
-  // Use arrivalDate, departureDate, adults, children to fetch availability
-}
+// Recherche de disponibilité
+async function searchRooms() {
+  isLoading.value = true
+  errorMessage.value = ''
+  hasSearched.value = true
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(amount)
-}
+  try {
+    const response = await getAvailability({
+      hotelId,
+      startDate: arrivalDate.value,
+      endDate: departureDate.value,
+      adults: adults.value,
+      children: children.value,
+    })
 
-function enquire(room: any, plan: any) {
-  // Placeholder: could open an enquiry modal or route to a contact page
-  alert(`${t('Enquiry for')} ${room.name} - ${plan.name}`)
-}
+    console.log('Full API response:', response)
 
-function book(room: any, plan: any) {
-  // Navigate to OTA checkout with preselected query params
-  router.push({
-    path: '/ota/checkout',
-    query: {
-      roomName: room.name,
-      plan: plan.name,
-      price: plan.price,
-      arrival: arrivalDate.value,
-      departure: departureDate.value,
-      adults: adults.value.toString(),
-      children: children.value.toString(),
-      nights: nights.value.toString(),
+    // Mettre à jour le nom de l'hôtel
+    if (response.meta?.hotelName) {
+      brand.value = response.meta.hotelName
     }
-  })
+
+    hotelMeta.value = response.meta
+    availabilityData.value = response.data || []
+
+    console.log('Rooms loaded:', brand.value)
+  } catch (error) {
+    console.error('Error fetching availability:', error)
+    errorMessage.value =
+      error instanceof Error ? error.message : t('An error occurred while fetching availability')
+    availabilityData.value = []
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const summaryItems = ref<Array<{ roomName: string; planName: string; planPrice: number; adults: number; children: number; qty: number }>>([])
+function setCurrency(c: string) {
+  selectedCurrency.value = c
+}
+
+// Gestion du panier
+const summaryItems = ref<
+  Array<{
+    roomId: number
+    roomName: string
+    planId: number
+    planName: string
+    planPrice: number
+    adults: number
+    children: number
+    qty: number
+  }>
+>([])
 
 function handleAddRoom(payload: any) {
-  const { room, plan, adults = 1, children = 0 } = payload || {}
+  const { room, plan, adults: a = 1, children: c = 0 } = payload || {}
   const keyRoom = room?.name ?? 'Room'
   const keyPlan = plan?.name ?? 'Plan'
-  const idx = summaryItems.value.findIndex(it => it.roomName === keyRoom && it.planName === keyPlan)
+  const idx = summaryItems.value.findIndex(
+    (it) => it.roomName === keyRoom && it.planName === keyPlan,
+  )
+
   if (idx !== -1) {
     const cap = room?.roomsLeft ?? Infinity
     summaryItems.value[idx].qty = Math.min((summaryItems.value[idx].qty || 0) + 1, cap)
   } else {
     summaryItems.value.push({
+      roomId: room?.id,
       roomName: keyRoom,
+      planId: plan?.id,
       planName: keyPlan,
       planPrice: plan?.price ?? 0,
-      adults,
-      children,
+      adults: a,
+      children: c,
       qty: 1,
     })
   }
@@ -173,7 +271,10 @@ function handleRemoveRoom(payload: any) {
   const { room, plan } = payload || {}
   const keyRoom = room?.name ?? 'Room'
   const keyPlan = plan?.name ?? 'Plan'
-  const idx = summaryItems.value.findIndex(it => it.roomName === keyRoom && it.planName === keyPlan)
+  const idx = summaryItems.value.findIndex(
+    (it) => it.roomName === keyRoom && it.planName === keyPlan,
+  )
+
   if (idx !== -1) {
     const next = (summaryItems.value[idx].qty || 1) - 1
     if (next <= 0) summaryItems.value.splice(idx, 1)
@@ -187,24 +288,88 @@ function removeSummaryItem(index: number) {
   }
 }
 
+// function bookFromSummary() {
+//   if (!summaryItems.value.length) return
+
+//   const items = summaryItems.value.map((item) => ({
+//     roomId: item.roomId,
+//     rateTypeId: item.planId,
+//     quantity: item.qty,
+//   }))
+
+//   router.push({
+//     path: '/ota/checkout',
+//     query: {
+//       hotelId: String(hotelId),
+//       arrivalDate: arrivalDate.value,
+//       departureDate: departureDate.value,
+//       adults: String(adults.value),
+//       children: String(children.value),
+//       nights: String(nights.value),
+//       items: JSON.stringify(items),
+//     },
+//   })
+// }
+
+
 function bookFromSummary() {
   if (!summaryItems.value.length) return
-  const first = summaryItems.value[0]
-  const total = (first.planPrice || 0) * nights.value * (first.qty || 1)
-  router.push({
-    path: '/ota/checkout',
-    query: {
-      arrivalDate: arrivalDate.value,
-      departureDate: departureDate.value,
-      nights: String(nights.value),
-      room: first.roomName,
-      plan: first.planName,
-      total: String(total),
-    },
+
+  const bookingStore = useBookingSummaryStore()
+
+  const items = summaryItems.value.map((item) => ({
+    roomId: item.roomId,
+    rateTypeId: item.planId,
+    quantity: item.qty,
+  }))
+
+  bookingStore.setBookingData({
+    hotelId: String(hotelId),
+    arrivalDate: arrivalDate.value,
+    departureDate: departureDate.value,
+    adults: String(adults.value),
+    children: String(children.value),
+    nights: String(nights.value),
+    items,
   })
+
+  router.push({ path: '/ota/checkout' })
 }
+
+
+function handleUpdate(payload: any) {
+  const { room, plan, adults: a, children: c } = payload || {}
+  const keyRoom = room?.name ?? 'Room'
+  const keyPlan = plan?.name ?? 'Plan'
+
+  const itemIndex = summaryItems.value.findIndex(
+    item => item.roomName === keyRoom && item.planName === keyPlan
+  )
+
+  if (itemIndex !== -1) {
+    summaryItems.value[itemIndex].adults = a
+    summaryItems.value[itemIndex].children = c
+  }
+}
+
+onMounted(() => {
+  searchRooms()
+})
 </script>
 
 <style scoped>
-/* Basic visual parity with the referenced booking page */
+/* Styles de base */
+/* Scrollbar invisible pour tous les navigateurs modernes */
+.scrollbar-none::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE 10+ */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
 </style>

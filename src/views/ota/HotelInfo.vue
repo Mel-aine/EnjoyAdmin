@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader :brand="brand" :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6 space-y-6">
       <!-- Hero -->
       <section class="relative rounded-lg overflow-hidden shadow">
@@ -9,7 +9,7 @@
           <h1 class="text-2xl md:text-3xl font-bold">{{ brand }}</h1>
           <div class="mt-1 flex items-center gap-1">
             <StaredIcon v-for="n in 5" :key="n" class="w-4 h-4 text-yellow-300" />
-            <span class="ml-2 text-xs">Excellent location • Free Wi‑Fi • 24/7 desk</span>
+            <span class="ml-2 text-xs">{{ hotelDescription }}</span>
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
             <button class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded px-4 py-2 text-sm" @click="goBooking">Check Availability</button>
@@ -24,35 +24,41 @@
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
               <div class="font-semibold">Address</div>
-              <div class="text-sm text-gray-700">123 Example Street, Douala, Cameroon</div>
+              <div class="text-sm text-gray-700">{{ hotelAddress }}</div>
             </div>
             <div>
               <div class="font-semibold">Phone</div>
-              <div class="text-sm text-gray-700">(+237) 650 00 00 00</div>
+              <div class="text-sm text-gray-700">{{ hotelPhone }}</div>
             </div>
             <div>
               <div class="font-semibold">Email</div>
-              <div class="text-sm text-gray-700">info@suita-hotel.example</div>
+              <div class="text-sm text-gray-700">{{ hotelEmail }}</div>
             </div>
             <div>
               <div class="font-semibold">Website</div>
-              <div class="text-sm text-blue-600"><a href="#" target="_blank">www.suita-hotel.example</a></div>
+              <div class="text-sm text-blue-600"><a href="#" target="_blank">{{ hotelWebsite }}</a></div>
             </div>
           </div>
 
-          <div>
+         <div>
             <div class="font-semibold mb-2">Property highlights</div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              <div class="text-[12px] bg-gray-50 rounded border p-2">Free high‑speed Wi‑Fi</div>
-              <div class="text-[12px] bg-gray-50 rounded border p-2">On‑site restaurant & bar</div>
-              <div class="text-[12px] bg-gray-50 rounded border p-2">Airport shuttle (on request)</div>
-              <div class="text-[12px] bg-gray-50 rounded border p-2">Laundry service</div>
-              <div class="text-[12px] bg-gray-50 rounded border p-2">Meeting rooms</div>
-              <div class="text-[12px] bg-gray-50 rounded border p-2">Daily housekeeping</div>
+              <div
+                v-for="(amenity, index) in filteredAmenities"
+                :key="index"
+                class="text-[12px] bg-gray-50 rounded border p-2"
+              >
+                {{ amenity }}
+              </div>
+              <div v-if="!filteredAmenities.length" class="text-[12px] text-gray-400">
+                No amenities available.
+              </div>
             </div>
           </div>
 
-          <div>
+
+
+          <div v-if="galleryImages.length">
             <div class="font-semibold mb-2">Gallery</div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
               <button v-for="(img, idx) in galleryImages" :key="idx" class="group relative rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500" @click="openLightbox(idx)">
@@ -72,13 +78,13 @@
           </div>
 
           <div>
-            <div class="font-semibold mb-2">Policies</div>
-            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
-              <li>Check‑in: 14:00 — Check‑out: 12:00</li>
-              <li>Free cancellation up to 24 hours before arrival on flexible rates</li>
-              <li>No smoking in rooms; designated outdoor areas available</li>
-            </ul>
-          </div>
+             <div class="font-semibold mb-2">Policies</div>
+                <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                  <li>Check‑in: {{ checkInTime }} — Check‑out: {{ checkOutTime }}</li>
+                  <li>{{ cancellationPolicy }}</li>
+                  <li v-for="(policy, idx) in hotelPolicies" :key="idx">{{ policy }}</li>
+                </ul>
+              </div>
         </section>
 
         <aside class="space-y-4">
@@ -99,14 +105,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
+import { getHotelInfo } from '@/services/otaApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
 const router = useRouter()
-const brand = 'TAMI SARL (SUITA HOTEL)'
+const serviceStore = useServiceStore()
+
+// Hotel data from API
+const hotelData = ref<any>(null)
+const loading = ref<boolean>(true)
+
+// Computed properties from API data
+const brand = computed(() => hotelData.value?.name || '')
+const hotelDescription = computed(() => hotelData.value?.description || '')
+const hotelAddress = computed(() => {
+  const addr = hotelData.value?.address
+  if (!addr) return ''
+  return `${addr.address}, ${addr.city}, ${addr.country.toUpperCase()}`
+})
+const hotelPhone = computed(() => hotelData.value?.contacts?.phoneNumber || '')
+const hotelEmail = computed(() => hotelData.value?.contacts?.email || '')
+const hotelWebsite = computed(() => hotelData.value?.contacts?.website || '')
+const checkInTime = computed(() => hotelData.value?.policy?.checkInTime || '')
+const checkOutTime = computed(() => hotelData.value?.policy?.checkOutTime || '')
+const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || 'Free cancellation up to 24 hours before arrival on flexible rates')
+const hotelPolicies = computed(() => {
+  const policy = hotelData.value?.policy?.hotelPolicy
+  if (!policy) return ['No smoking in rooms; designated outdoor areas available']
+  return policy.includes('|') ? policy.split('|').filter((p:any) => p.trim()) : [policy]
+})
+
 const selectedCurrency = ref<string>('XAF')
 function setCurrency(c: string) { selectedCurrency.value = c }
 function goContact() { router.push('/ota/contact-us') }
@@ -114,20 +147,46 @@ function goMap() { router.push('/ota/map') }
 function goBooking() { router.push('/ota/web-booking') }
 
 // Gallery state
-const galleryImages = ref<string[]>([
-  'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=60',
-  'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=60',
-  'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1200&q=60',
-  'https://images.unsplash.com/photo-1501117716987-c8e2a0b1e102?auto=format&fit=crop&w=1200&q=60',
-  'https://images.unsplash.com/photo-1560067174-894d3c964ae6?auto=format&fit=crop&w=1200&q=60',
-  'https://images.unsplash.com/photo-1496417263034-38ec4f0b2776?auto=format&fit=crop&w=1200&q=60'
-])
+const galleryImages = ref<string[]>([])
 const lightboxOpen = ref<boolean>(false)
 const activeIndex = ref<number>(0)
 function openLightbox(idx: number) { activeIndex.value = idx; lightboxOpen.value = true }
 function closeLightbox() { lightboxOpen.value = false }
 function prevImage() { activeIndex.value = (activeIndex.value + galleryImages.value.length - 1) % galleryImages.value.length }
 function nextImage() { activeIndex.value = (activeIndex.value + 1) % galleryImages.value.length }
+
+// Fetch hotel info
+const fetchHotelInfo = async () => {
+  try {
+    loading.value = true
+    const hotelId = serviceStore.serviceId
+    const response = await getHotelInfo(hotelId!)
+    hotelData.value = response.data.data
+    console.log('Fetched hotel info:', hotelData.value)
+
+    // Update currency from API if available
+    if (hotelData.value?.finance?.currencyCode) {
+      selectedCurrency.value = hotelData.value.finance.currencyCode
+    }
+  } catch (error) {
+    console.error('Error fetching hotel info:', error)
+  } finally {
+    loading.value = false
+  }
+}
+const filteredAmenities = computed(() => {
+  if (!hotelData.value?.amenities) return []
+
+  if (typeof hotelData.value.amenities === 'object' && !Array.isArray(hotelData.value.amenities)) {
+    return Object.values(hotelData.value.amenities).filter(Boolean)
+  }
+  // Sinon, si c'est déjà un tableau
+  return hotelData.value.amenities.filter(Boolean)
+})
+onMounted(() => {
+  fetchHotelInfo()
+})
+
 </script>
 
 <style scoped>

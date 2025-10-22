@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,onMounted,computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import HomeIcon from '@/icons/HomeIcon.vue'
 import InfoIcon from '@/icons/InfoIcon.vue'
@@ -75,17 +75,23 @@ import MappingIcon from '@/icons/MappingIcon.vue'
 import Message2Line from '@/icons/Message2Line.vue'
 import CheckIcon from '@/icons/CheckIcon.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
+import { getHotelInfo } from '@/services/otaApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
-const props = defineProps<{ brand?: string; currency?: string }>()
+const props = defineProps<{  currency?: string }>()
 const emit = defineEmits<{ (e: 'currency-change', value: string): void }>()
 
-const brand = props.brand ?? 'TAMI SARL (SUITA HOTEL)'
+// const brand = props.brand ?? 'TAMI SARL (SUITA HOTEL)'
 const currency = ref(props.currency ?? 'XAF')
 const currencies = ['XAF', 'USD', 'EUR']
+const serviceStore = useServiceStore()
+const hotelData = ref<any>(null)
+const loading = ref<boolean>(true)
 
 const loginOpen = ref(false)
 const currencyOpen = ref(false)
 const login = ref({ username: '', password: '' })
+const brand = computed(() => hotelData.value?.name || '')
 
 const router = useRouter()
 const route = useRoute()
@@ -130,6 +136,25 @@ function goReviews() {
 function goCancelBooking() {
   router.push('/ota/cancel-booking')
 }
+
+const fetchHotelInfo = async () => {
+  try {
+    loading.value = true
+    const hotelId = serviceStore.serviceId
+    const response = await getHotelInfo(hotelId!)
+    hotelData.value = response.data.data
+    console.log('Fetched hotel info:', hotelData.value)
+
+  } catch (error) {
+    console.error('Error fetching hotel info:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchHotelInfo()
+})
 </script>
 
 <style scoped>

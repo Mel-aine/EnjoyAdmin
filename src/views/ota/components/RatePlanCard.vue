@@ -6,15 +6,30 @@
       <div>
         <div class="flex items-center gap-2">
           <div class="font-medium text-sm">{{ plan.name }}</div>
-          <span v-if="plan.promo" class="text-[10px] rounded border border-red-500 text-red-600 px-2 py-0.5">PROMO OFFER</span>
+          <span
+            v-if="plan.promo"
+            class="text-[10px] rounded border border-red-500 text-red-600 px-2 py-0.5"
+            >PROMO OFFER</span
+          >
         </div>
         <div class="mt-1 text-xs text-gray-600 flex items-center gap-4">
-          <span class="flex items-center gap-1"><Adult class="inline w-3 h-3" /> {{ capacityAdults }}</span>
-          <span class="flex items-center gap-1"><Child class="inline w-3 h-3" /> {{ capacityChildren }}</span>
-          <span v-if="policiesList.length" class="text-gray-500">{{ policiesList.join(', ') }}</span>
+          <span class="flex items-center gap-1"
+            ><Adult class="inline w-3 h-3" /> {{ capacityAdults }}</span
+          >
+          <span class="flex items-center gap-1"
+            ><Child class="inline w-3 h-3" /> {{ capacityChildren }}</span
+          >
+          <span v-if="policiesList.length" class="text-gray-500">{{
+            policiesList.join(', ')
+          }}</span>
         </div>
         <div class="mt-2 flex flex-wrap gap-1">
-          <span v-for="(f, idx) in featuresList" :key="idx" class="text-[10px] bg-gray-100 text-gray-700 rounded px-2 py-0.5">{{ f }}</span>
+          <span
+            v-for="(f, idx) in featuresList"
+            :key="idx"
+            class="text-[10px] bg-gray-100 text-gray-700 rounded px-2 py-0.5"
+            >{{ f }}</span
+          >
         </div>
       </div>
       <div class="text-right">
@@ -31,14 +46,39 @@
     <!-- Toolbar: info, enquire, quantity -->
     <div class="mt-3 flex items-center justify-between">
       <div class="flex items-center gap-3 text-sm">
-        <button type="button" class="text-blue-700 hover:underline" @click="showInfo = true">Room Info</button>
-        <button type="button" class="text-blue-700 hover:underline" @click="enquireLocal">Enquire</button>
+        <button type="button" class="text-blue-700 hover:underline" @click="showInfo = true">
+          Room Info
+        </button>
+        <button type="button" class="text-blue-700 hover:underline" @click="enquireLocal">
+          Enquire
+        </button>
       </div>
-      <div class="flex items-center gap-2" v-if="selectedCount > 0">
+      <div v-if="selectedCount == 0" class="flex items-center gap-4">
+        <button
+          class="bg-primary text-white rounded px-3 py-1 text-sm"
+          :disabled="selectedCount >= room.roomsLeft || !canAdd"
+          @click="increment"
+        >
+          Add Room
+        </button>
+      </div>
+      <div v-else class="flex items-center gap-2">
         <div class="text-xs text-gray-600 mr-2">{{ room.roomsLeft }} Rooms Left</div>
-        <button class="border rounded px-2 py-1 text-sm" :disabled="selectedCount <= 0" @click="decrement">-</button>
+        <button
+          class="border rounded px-2 py-1 text-sm"
+          :disabled="selectedCount <= 0"
+          @click="decrement"
+        >
+          -
+        </button>
         <div class="w-8 text-center">{{ selectedCount }}</div>
-        <button class="border rounded px-2 py-1 text-sm" :disabled="selectedCount >= room.roomsLeft || !canAdd" @click="increment">+</button>
+        <button
+          class="border rounded px-2 py-1 text-sm"
+          :disabled="selectedCount >= room.roomsLeft || !canAdd"
+          @click="increment"
+        >
+          +
+        </button>
       </div>
     </div>
 
@@ -47,12 +87,14 @@
       <div class="flex gap-3 items-center">
         <span class="text-xs text-gray-600">Room {{ selectedCount }}</span>
         <label class="text-xs text-gray-600">Adult</label>
-        <select v-model.number="qtyAdults" class="border rounded px-2 py-1 text-xs w-16" :disabled="true">
-          <option v-for="n in 6" :key="`a-${n}`" :value="n">{{ n }}</option>
+        <select v-model.number="qtyAdults" class="border rounded px-2 py-1 text-xs w-16">
+          <option v-for="n in capacityAdults" :key="`a-${n}`" :value="n">{{ n }}</option>
         </select>
         <label class="text-xs text-gray-600">Child</label>
-        <select v-model.number="qtyChildren" class="border rounded px-2 py-1 text-xs w-16" :disabled="true">
-          <option v-for="n in 6" :key="`c-${n}`" :value="n">{{ n }}</option>
+        <select v-model.number="qtyChildren" class="border rounded px-2 py-1 text-xs w-16">
+          <option v-for="n in capacityChildren + 1" :key="`c-${n}`" :value="n - 1">
+            {{ n - 1 }}
+          </option>
         </select>
         <label class="text-xs text-gray-600">Add To Compare</label>
         <input type="checkbox" class="ml-1" v-model="compare" />
@@ -62,7 +104,9 @@
     <!-- Validation messages -->
     <div v-if="!canAdd" class="text-[11px] text-red-600 mt-2" role="alert">
       <span v-if="roomsLeftZero">No rooms left</span>
-      <span v-else-if="needsMoreNights">You need {{ minNightsRemaining }} more nights to book this room.</span>
+      <span v-else-if="needsMoreNights"
+        >You need {{ minNightsRemaining }} more nights to book this room.</span
+      >
     </div>
 
     <!-- Room Info Modal -->
@@ -78,8 +122,12 @@
         <div class="p-4 space-y-3 text-sm text-gray-700">
           <div class="font-medium">Capacity</div>
           <div class="flex items-center gap-3">
-            <span class="flex items-center gap-1"><Adult class="inline w-4 h-4" /> {{ capacityAdults }} Adults</span>
-            <span class="flex items-center gap-1"><Child class="inline w-4 h-4" /> {{ capacityChildren }} Children</span>
+            <span class="flex items-center gap-1"
+              ><Adult class="inline w-4 h-4" /> {{ capacityAdults }} Adults</span
+            >
+            <span class="flex items-center gap-1"
+              ><Child class="inline w-4 h-4" /> {{ capacityChildren }} Children</span
+            >
           </div>
           <div v-if="featuresList.length">
             <div class="font-medium mt-2">Features</div>
@@ -96,7 +144,6 @@
         </div>
         <div class="p-4 border-t flex items-center justify-end gap-2">
           <button class="border rounded px-3 py-1 text-sm" @click="showInfo = false">Close</button>
-          <button class="bg-primary text-white rounded px-3 py-1 text-sm" :disabled="selectedCount >= room.roomsLeft || !canAdd" @click="increment">Add Room</button>
         </div>
       </div>
     </div>
@@ -104,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Adult from '@/icons/Adult.vue'
 import Child from '@/icons/Child.vue'
@@ -131,37 +178,83 @@ const props = defineProps<{ room: RoomInfo; plan: RatePlan; nights: number; curr
 const emit = defineEmits<{
   (e: 'add', payload: { room: RoomInfo; plan: RatePlan; adults: number; children: number }): void
   (e: 'remove', payload: { room: RoomInfo; plan: RatePlan }): void
+  (e: 'update', payload: { room: RoomInfo; plan: RatePlan; adults: number; children: number }): void
 }>()
 
 const router = useRouter()
 
-const qtyAdults = ref(1)
+const capacityAdults = computed(() => props.room?.capacity?.adults ?? 2)
+const capacityChildren = computed(() => props.room?.capacity?.children ?? 0)
+
+// Initialiser avec les valeurs max de capacité
+const qtyAdults = ref(capacityAdults.value)
 const qtyChildren = ref(0)
 const compare = ref(false)
 const selectedCount = ref(0)
 const showInfo = ref(false)
+
+// Mettre à jour qtyAdults si la capacité change
+watch(capacityAdults, (newVal) => {
+  if (qtyAdults.value > newVal) {
+    qtyAdults.value = newVal
+  }
+})
+
+watch(qtyAdults, (newVal) => {
+  if (selectedCount.value > 0) {
+    emit('update', { room: props.room, plan: props.plan, adults: newVal, children: qtyChildren.value })
+  }
+})
+
+watch(qtyChildren, (newVal) => {
+  if (selectedCount.value > 0) {
+    emit('update', { room: props.room, plan: props.plan, adults: qtyAdults.value, children: newVal })
+  }
+})
+
 
 const roomsLeftZero = computed(() => props.room.roomsLeft <= 0)
 const needsMoreNights = computed(() => (props.plan.minNights ?? 1) > props.nights)
 const minNightsRemaining = computed(() => Math.max((props.plan.minNights ?? 1) - props.nights, 0))
 const canAdd = computed(() => !roomsLeftZero.value && !needsMoreNights.value)
 
-const capacityAdults = computed(() => props.room?.capacity?.adults ?? 2)
-const capacityChildren = computed(() => props.room?.capacity?.children ?? 0)
-const featuresList = computed(() => Array.isArray(props.plan.features) ? props.plan.features : (props.plan.features ? [props.plan.features] : []))
-const policiesList = computed(() => Array.isArray(props.plan.policies) ? props.plan.policies : (props.plan.policies ? [props.plan.policies] : []))
+const featuresList = computed(() =>
+  Array.isArray(props.plan.features)
+    ? props.plan.features
+    : props.plan.features
+      ? [props.plan.features]
+      : [],
+)
+const policiesList = computed(() =>
+  Array.isArray(props.plan.policies)
+    ? props.plan.policies
+    : props.plan.policies
+      ? [props.plan.policies]
+      : [],
+)
 
-const imageUrl = computed(() => 'https://images.unsplash.com/photo-1560067174-8947b9bf0f59?auto=format&fit=crop&w=640&q=60')
+const imageUrl = computed(
+  () => 'https://images.unsplash.com/photo-1560067174-8947b9bf0f59?auto=format&fit=crop&w=640&q=60',
+)
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: props.currency || 'XAF', maximumFractionDigits: 0 }).format(amount)
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: props.currency || 'XAF',
+    maximumFractionDigits: 0,
+  }).format(amount)
 }
 
 function increment() {
   if (!canAdd.value) return
   if (selectedCount.value >= props.room.roomsLeft) return
   selectedCount.value++
-  emit('add', { room: props.room, plan: props.plan, adults: qtyAdults.value, children: qtyChildren.value })
+  emit('add', {
+    room: props.room,
+    plan: props.plan,
+    adults: qtyAdults.value,
+    children: qtyChildren.value,
+  })
 }
 
 function decrement() {
@@ -175,5 +268,4 @@ function enquireLocal() {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
