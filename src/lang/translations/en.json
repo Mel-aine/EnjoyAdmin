@@ -498,7 +498,12 @@
     "noReservationFound": "Reservation not found.",
     "InvalidReservationForCheckout": "Invalid reservation data for check-out.",
     "errorfetchRateTypes": "Error fetching rate types",
-    "selectedItems": "No item selected for void, please select an item"
+    "selectedItems": "No item selected for void, please select an item",
+    "undoCheckInSuccess" : "Check-in undone successfully!",
+    "undoCheckInError" : "Failed to undo check-in. Please try again.",
+    "undoCheckOutSuccess" : "Check-out undone successfully!",
+    "undoCheckOutError" : "Failed to undo check-out. Please try again.",
+    "errorInitializing" : "Error Initializing"
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",

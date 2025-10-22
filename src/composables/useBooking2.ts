@@ -1973,7 +1973,7 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
       console.log('Booking composable initialized successfully')
     } catch (error) {
       console.error('Error initializing booking composable:', error)
-      toast.error(t('toast.errorInitializing'))
+      // toast.error(t('toast.errorInitializing'))
       RoomTypes.value = []
     } finally {
       isLoadingRoom.value = false

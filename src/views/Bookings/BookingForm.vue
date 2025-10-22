@@ -20,59 +20,62 @@
             <!-- Left Side: Reservation Form -->
             <div class="space-y-6 ">
 
-            <!-- Check-in/out dates, nights, and booking info -->
-              <div class="flex md:flex-nowrap flex-wrap items-start ">
-                <!-- Check-In -->
-                <div class="flex flex-col w-auto">
-                  <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('check_in_date') }}
-                  </label>
-                  <div class="flex">
-                    <InputDatePicker
-                      v-model="reservation.checkinDate"
-                      class="rounded-r-none"
-                      :allowPastDates="false"
-                      :placeholder="$t('Selectdate')"
-                      :custom-class="'rounded-r-none'"
-                    />
-                    <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
-                  </div>
-                </div>
+              <div class="flex md:flex-nowrap flex-wrap items-start gap-4">
+                <!-- Check-In + Nights + Check-Out  -->
+                <div class="flex flex-col flex-1">
+                  <div class="flex items-end">
+                    <!-- Check-In -->
+                    <div class="flex flex-col flex-1">
+                      <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                        {{ $t('check_in_date') }}
+                      </label>
+                      <div class="flex">
+                        <InputDatePicker
+                          v-model="reservation.checkinDate"
+                          :allowPastDates="false"
+                          :placeholder="$t('Selectdate')"
+                          :custom-class="'rounded-r-none'"
+                        />
+                        <InputTimePicker v-model="reservation.checkinTime" class="rounded-none" />
+                      </div>
+                    </div>
 
-                <!-- Nights -->
-                <div class="flex flex-col w-10">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('nights') }}
-                  </label>
-                  <input
-                    type="text"
-                    id="id"
-                    disabled
-                    :value="numberOfNights.toString()"
-                    class="dark:bg-dark-900 h-11 w-full rounded-none bg-black text-white px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  />
-                </div>
+                    <!-- Nights -->
+                    <div class="flex flex-col w-10">
+                      <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 text-center">
+                        {{ $t('nights') }}
+                      </label>
+                      <input
+                        type="text"
+                        id="id"
+                        disabled
+                        :value="numberOfNights.toString()"
+                        class="dark:bg-dark-900 h-11 w-full rounded-none bg-black text-white px-2 py-2.5 text-sm text-center shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                      />
+                    </div>
 
-                <!-- Check-Out -->
-                <div class="flex flex-col w-auto">
-                  <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 ml-2">
-                    {{ $t('check_out_date') }}
-                  </label>
-                  <div class="flex">
-                    <InputDatePicker
-                      v-model="reservation.checkoutDate"
-                      :placeholder="$t('Selectdate')"
-                      :custom-class="'rounded-none'"
-                    />
-                    <InputTimePicker v-model="reservation.checkoutTime" customClass="rounded-r-lg" />
+                    <!-- Check-Out -->
+                    <div class="flex flex-col flex-1">
+                      <label for="checkout" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 ml-2">
+                        {{ $t('check_out_date') }}
+                      </label>
+                      <div class="flex">
+                        <InputDatePicker
+                          v-model="reservation.checkoutDate"
+                          :placeholder="$t('Selectdate')"
+                          :custom-class="'rounded-none'"
+                        />
+                        <InputTimePicker v-model="reservation.checkoutTime" customClass="rounded-r-lg" />
+                      </div>
+                    </div>
                   </div>
-                  <p v-if="dateError" class="text-sm text-red-600">
+                  <p v-if="dateError" class="text-sm text-red-600 mt-1">
                     {{ $t(dateError) }}
                   </p>
                 </div>
 
                 <!-- Booking Type -->
-                <div class="flex flex-col w-auto translate-x-3">
+                <div class="flex flex-col w-auto min-w-[200px]">
                   <AutoCompleteSelect
                     v-model="reservation.bookingType"
                     :options="BookingType"
@@ -85,7 +88,7 @@
                 </div>
 
                 <!-- Booking Source -->
-                <div class="flex flex-col w-auto translate-x-5">
+                <div class="flex flex-col w-auto min-w-[200px]">
                   <AutoCompleteSelect
                     v-model="reservation.bookingSource"
                     :options="BookingSource"
@@ -97,7 +100,6 @@
                   />
                 </div>
               </div>
-
 
 
               <div class="grid md:grid-cols-5 grid-cols-1 gap-4">

@@ -567,7 +567,7 @@ onMounted(() => {
                       </div>
 
                       <!-- Nights -->
-                       <div class="flex flex-col w-20">
+                       <div class="flex flex-col w-1/5">
                           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                               {{ $t('nights') }}
                           </label>
