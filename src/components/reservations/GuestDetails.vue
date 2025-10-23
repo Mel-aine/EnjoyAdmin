@@ -205,13 +205,20 @@
                     </div>
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                      <Input
+                      <!-- <Input
                         :lb="$t('profession')"
                         :id="'profession'"
                         v-model="guestData.profession"
                         :placeholder="$t('profession')"
                         :disabled="!isEditing"
-                      />
+                      /> -->
+                       <ProfessionAutocomplete
+                          v-model="guestData.profession"
+                          :lb="$t('profession')"
+                          :placeholder="$t('profession')"
+                          custom-class="h-11"
+                          :disabled="!isEditing"
+                        />
                     </div>
 
                     <div>
@@ -618,6 +625,7 @@ import { toggleGuestBlacklist } from '@/services/guestApi'
 import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
+import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 
 interface GuestData {
   title: string
@@ -844,7 +852,8 @@ watch(
 const titleOptions = computed(() => [
   { label: t('Mr'), value: 'Mr' },
   { label: t('Mrs'), value: 'Mrs' },
-  { label: t('Ms'), value: 'Ms' },
+  { label: t('Miss'), value: 'Miss' },
+  { label: t('Dr'), value: 'Dr' },
 ])
 const genderOptions = computed(() => [
   { label: t('Male'), value: 'male' },

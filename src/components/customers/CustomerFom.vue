@@ -69,12 +69,18 @@
           />
         </div>
         <div>
-          <Input
+          <!-- <Input
             :lb="$t('profession')"
             :id="'profession'"
             v-model="form.profession"
             :placeholder="$t('profession')"
-          />
+          /> -->
+           <ProfessionAutocomplete
+                  v-model="form.profession"
+                  :lb="$t('profession')"
+                  :placeholder="$t('profession')"
+                  custom-class="h-11"
+                />
         </div>
 
          <div>
@@ -314,6 +320,7 @@ import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import { ChevronDownIcon } from 'lucide-vue-next'
 import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
+import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -461,7 +468,6 @@ const idTypeOptions = ref<SelectOption[]>([])
 const titleOptions = computed(() => [
   { label: t('Mr'), value: 'Mr' },
   { label: t('Mrs'), value: 'Mrs' },
-  { label: t('Ms'), value: 'Ms' },
   { label: t('Dr'), value: 'Dr' },
   { label: t('Miss'), value: 'Miss' },
 ])

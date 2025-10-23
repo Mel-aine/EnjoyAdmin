@@ -215,7 +215,8 @@ const {
   pendingUploads,
   holdReleaseData,
    getChildOptions,
-    getAdultOptions
+    getAdultOptions,
+    TransportationModes,
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -236,6 +237,17 @@ const checkinButtonLabel = computed(() => {
   return t('Quick Check-In')
 })
 
+
+const copyFirstRoomRate = () => {
+  if (roomConfigurations.value.length > 0) {
+    const firstRoomRate = roomConfigurations.value[0].rate
+
+    for (let i = 1; i < roomConfigurations.value.length; i++) {
+      roomConfigurations.value[i].rate = firstRoomRate
+    }
+
+  }
+}
 
 
 const gotoNew = () => {
@@ -517,7 +529,7 @@ onMounted(() => {
     <!-- Modal panel -->
     <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
       <div
-        class="pointer-events-auto relative w-screen max-w-4xl transform transition-transform duration-300 ease-in-out"
+        class="pointer-events-auto relative w-screen max-w-5xl transform transition-transform duration-300 ease-in-out"
         :class="{
           'translate-x-0': isOpen,
           'translate-x-full': !isOpen
@@ -621,8 +633,15 @@ onMounted(() => {
                         <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
                       </div>
                       <div>
-                        <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel="'means'"
-                          :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
+                          <AutoCompleteSelect
+                            v-model="reservation.meansOfTransport"
+                            :options="TransportationModes"
+                            :defaultValue="$t('MeansOfTransportation')"
+                            :lb="$t('MeansOfTransportation')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownBooking"
+                            @clear-error="emits('clear-error')"
+                          />
                       </div>
                     </div>
                     <!-- Room Type -->
@@ -749,16 +768,33 @@ onMounted(() => {
                               </div>
 
                             </div>
-                            <div class=" flex flex-col justify-center">
-                              <button v-if="roomConfigurations.length > 1" @click="removeRoom(room.id)" type="button"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                                :title="$t('RemoveRoom')">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </button>
-                            </div>
+
+                              <div class="flex flex-col justify-center">
+
+                                <button
+                                  v-if="index === 0 && roomConfigurations.length > 1"
+                                  @click="copyFirstRoomRate"
+                                  type="button"
+                                  class="inline-flex items-center justify-center w-8 h-8 rounded-full text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                  :title="$t('CopyRate')">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy">
+                                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                                  </svg>
+                                </button>
+
+
+                                <button
+                                  v-if="index !== 0 && roomConfigurations.length > 1"
+                                  @click="removeRoom(room.id)"
+                                  type="button"
+                                  class="inline-flex items-center justify-center w-8 h-8 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                                  :title="$t('RemoveRoom')">
+                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
                           </div>
                         </div>
                       </div>

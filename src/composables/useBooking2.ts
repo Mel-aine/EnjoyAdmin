@@ -212,7 +212,7 @@ export function useBooking() {
     checkinDate: new Date().toISOString().split('T')[0],
     checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    checkoutTime: '12:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -334,6 +334,12 @@ export function useBooking() {
     { label: t('Guest'), value: 'guest' },
     { label: t('Company'), value: 'company' },
     { label: t('Agent'), value: 'agent' },
+  ])
+
+  const TransportationModes = computed(() => [
+    { label: t('Aerien'), value: 'Aerien' },
+    { label: t('Maritime'), value: 'Maritime' },
+    { label: t('Terrestre'), value: 'Terrestre' },
   ])
 
   const getMarketCode = async () => {
@@ -1776,7 +1782,7 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
     checkinDate: new Date().toISOString().split('T')[0],
     checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    checkoutTime: '12:00',
     rooms: 1,
     bookingType: '',
     bookingSource: '',
@@ -2340,7 +2346,7 @@ const loadDraftAsyncData = async () => {
     BookingType,
     creditTypes,
     billToOptions,
-
+    TransportationModes,
     // Room configuration methods
     addRoom,
     removeRoom,
