@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, ref, watch } from 'vue';
+import { onMounted, ref, watch,onUnmounted } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import { getCustomer } from '@/services/reservation'
 import { useServiceStore } from '@/composables/serviceStore';
@@ -12,6 +12,7 @@ const props = defineProps({
 const customers = ref<any[]>([]);
 const users = ref<any[]>([]);
 const serviceStore = useServiceStore();
+const isLoading = ref(false)
 
 const filteredCustomers = ref<any[]>([]);
 const searchQuery = ref('');
@@ -93,6 +94,7 @@ const clearSearch = () => {
 
 const fetchCustomers = async () => {
   try {
+     isLoading.value = true;
     const serviceId = serviceStore.serviceId;
     const response = await getCustomer(serviceId!);
     console.log('Fetched customers:', response);
@@ -110,12 +112,31 @@ const fetchCustomers = async () => {
 
   } catch (error) {
     console.error('Failed to fetch reservations:', error);
+  }finally {
+    isLoading.value = false;
+  }
+
+};
+
+
+
+const dropdownContainer = ref<HTMLElement | null>(null);
+
+// Ajoutez cette fonction
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
+    filteredCustomers.value = [];
   }
 };
 
 
-onBeforeMount(() => {
-  fetchCustomers()
+onMounted(() => {
+  fetchCustomers();
+  document.addEventListener('mousedown', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside);
 });
 
 
@@ -123,7 +144,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative" ref="dropdownContainer">
     <form @submit.prevent>
       <div class="relative">
         <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'" custom-class="rounded-none" :placeholder="$t('FirstName')"
@@ -131,7 +152,7 @@ onBeforeMount(() => {
       </div>
 
       <!-- Search results dropdown -->
-      <ul v-if="filteredCustomers.length > 0 && searchQuery"
+      <ul v-if="filteredCustomers.length > 0"
         class="absolute left-0 right-0 bg-white z-20 max-h-60 overflow-y-auto rounded-b-lg shadow-lg border-l border-r border-b border-gray-200 mt-1">
         <li class="px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
           v-for="customer in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)">

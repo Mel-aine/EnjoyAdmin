@@ -1445,16 +1445,8 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/test',
-      name: 'test',
-      component: () => import('../components/calendars/ReservationCalendarInterface.vue'),
-      meta: {
-        title: 'Reservation Calendar',
-        requiresAuth: true,
-      },
-    },
-   
+  
+
      {
       path: '/stay_view',
       name: 'ReservationCalendar',
@@ -1798,6 +1790,10 @@ router.beforeEach(async (to, from, next) => {
     }
     if (to.path === '/reports' || to.path === '/reports/') {
       return next('/reports/dashboard')
+    }
+
+    if (to.path === '/configuration' || to.path === '/configuration/') {
+      return next('/configuration/rooms/amenities')
     }
 
     if (to.path === '/') {

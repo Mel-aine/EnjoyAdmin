@@ -130,7 +130,7 @@
                       $t('Name')
                     }}</label>
                     <div class="flex">
-                      <div class="w-20 -translate-y-1.5">
+                      <div class="w-20 -translate-y-1/9">
                         <Select
                           v-model="guestData.title"
                           :options="titleOptions"
@@ -169,6 +169,15 @@
                             :disabled="!isEditing"
                           />
                         </div>
+                         <div class="flex-1">
+                          <input
+                            v-model="guestData.maidenName"
+                            type="text"
+                            :placeholder="$t('MaidenName')"
+                            class="h-11 w-full  rounded-r-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                            :disabled="!isEditing"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -192,6 +201,9 @@
                         :disabled="!isEditing"
                       />
                     </div>
+
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                       <Input
                         :lb="$t('profession')"
@@ -200,6 +212,16 @@
                         :placeholder="$t('profession')"
                         :disabled="!isEditing"
                       />
+                    </div>
+
+                    <div>
+                       <Select
+                          v-model="guestData.contactType"
+                          :placeholder="$t('-select-')"
+                          :lb="$t('contactType')"
+                          :options="TypesOfContact"
+                           :disabled="!isEditing"
+                        />
                     </div>
 
                   <!-- Téléphone -->
@@ -286,7 +308,7 @@
                 <textarea
                   v-model="guestData.address"
                   rows="2"
-                  class="w-full px-3 py-2 border border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                  class="w-full px-3 py-2 border rounded-lg border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
                   :placeholder="$t('Address')"
                   :disabled="!isEditing"
                 ></textarea>
@@ -627,6 +649,8 @@ interface GuestData {
   issuingCountry: string
   issuingCity: string
   preferences?: any;
+  contactType?:string
+  maidenName?:string
 }
 
 interface Props {
@@ -667,6 +691,14 @@ const loading = ref(false)
 const vipStatusOptions = ref<any[]>([])
 const idTypeOptions = ref<SelectOption[]>([])
 const showPdfExporter = ref(false);
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
 
 const selectedGuest = ref(
   props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null,
@@ -710,6 +742,8 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     address: customer?.addressLine || customer?.address || '',
     country: customer?.country || '',
     stateProvince: customer?.stateProvince || '',
+    contactType :customer?.contactType || '',
+    maidenName :customer?.maidenName || '',
     city: customer?.city || '',
     postalCode: customer?.postalCode || '',
     nationality: customer?.nationality || '',
@@ -784,6 +818,8 @@ const initializeGuestData = (guest: any = null): GuestData => {
     idExpiryDate: '',
     issuingCountry: '',
     issuingCity: '',
+    contactType: '',
+    maidenName: '',
     preferences: []
   }
 }
@@ -792,7 +828,7 @@ const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
 // Computed properties
 const guestList = computed(() => props.reservation?.guests || [])
-const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName).trim() || '')
+const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName + ' ' + guestData.maidenName).trim() || '')
 
 // Watch for changes in selected guest
 watch(
@@ -966,6 +1002,8 @@ const prepareGuestPayload = (): GuestPayload => {
     idExpiryDate: guestData.idExpiryDate,
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,
+    contactType : guestData.contactType,
+    maidenName : guestData.maidenName,
     preferences: formatPreferencesForDB(guestData.preferences)
   }
 

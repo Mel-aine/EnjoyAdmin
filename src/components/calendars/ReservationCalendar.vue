@@ -1,6 +1,7 @@
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
+    <OverLoading v-if="isRefreshing" />
     <AppHeader :show-sidebar="true" />
     <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
@@ -80,10 +81,10 @@
               <template v-if="isLoading || !apiRoomGroups || !apiOccupancyMetrics">
                 <tr v-for="i in 8" :key="i">
                   <td class="px-2 py-1">
-                    <div class="h-4  w-50 bg-gray-200 rounded animate-pulse"></div>
+                    <div class="h-4  w-50 bg-gray-100 rounded animate-pulse"></div>
                   </td>
-                  <td v-for="j in visibleDates.length" :key="j" class="px-0 py-0 h-4">
-                    <div class="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
+                  <td v-for="j in visibleDates.length" :key="j" class="px-0 py-2 h-4">
+                    <div class="h-4  w-full bg-gray-100 rounded animate-pulse"></div>
                   </td>
                 </tr>
               </template>
@@ -110,10 +111,10 @@
                         <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
                           <div class="flex gap-1">
                             <span
-                              class="text-xs font-medium text-red-600 border border-red-600 bg-white px-1 py-0 rounded">
+                              class="text-xs font-medium text-red-200 border border-orange-300 bg-white px-1 py-0 rounded">
                               {{ getAvailableRoomsByType(date, group.room_type_id) }}
                             </span>
-                            <span
+                            <span v-if="getUnassignedRoomsByType(date, group.room_type_id)"
                               class="text-xs font-medium text-blue-500 border border-blue-500 bg-white px-1 py-0 rounded cursor-pointer hover:bg-blue-50 transition-colors"
                               @click="handleUnassignedRoomClick(date, group.room_type_id)">
                               {{ getUnassignedRoomsByType(date, group.room_type_id) }}
@@ -179,16 +180,18 @@
                                 class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
                             </div>
                           </div>
-                          <div class="absolute bottom-0 w-full flex-col items-center hidden mb-5 group-hover:flex">
+                          <div
+                            class="absolute bottom-0  z-[99999] over  w-full flex-col items-center hidden mb-5 group-hover:flex">
                             <div
-                              class="relative rounded-md  z-99999 p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg">
+                              class="relative rounded-md  z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg">
                               <div class='flex flex-col gap-2'>
-                                <div class="flex justify-between">{{ $t('Name') }}: <span class="">{{ cell.reservation.guest_name
+                                <div class="flex justify-between">{{ $t('Name') }}: <span class="">{{
+                                  cell.reservation.guest_name
                                     }}</span></div>
-                                <div class="flex justify-between">{{ $t('check-in') }}: <span class="">{{
+                                <div class="flex justify-between">{{ $t('Check-in Date') }}: <span class="">{{
                                   formatDateLocal(cell.reservation.check_in_date) }} {{ cell.reservation.check_in_time
                                     }}</span></div>
-                                <div class="flex justify-between gap-4">{{ $t('check-out') }}: <span class="">{{
+                                <div class="flex justify-between gap-4">{{ $t('Check-out Date') }}: <span class="">{{
                                   formatDateLocal(cell.reservation.check_out_date) }} {{
                                       cell.reservation.check_out_time
                                     }}</span></div>
@@ -201,7 +204,7 @@
                                   <span class=" font-medium">{{ $t('paid') }}:</span>
                                   <span class="">{{
                                     formatCurrency(cell.reservation.balance_summary?.totalPayments)
-                                    }}</span>
+                                  }}</span>
                                 </div>
                                 <div class="flex justify-between text-red-600">
                                   <span class=" font-medium">{{ $t('balance') }}:</span>
@@ -391,6 +394,8 @@ import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
 import { useStatusColor } from '@/composables/statusColorStore'
 
 const isLoading = ref(false);
+const isRefreshing = ref(false);
+const laoded = ref(false);
 const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
   switch (type) {
@@ -412,6 +417,7 @@ function getCustomerTypeIcon(type: string) {
 import { ErrorIcon, WarningIcon, UserCircleIcon, GridIcon } from '@/icons'
 import AppHeader from '../layout/AppHeader.vue'
 import FullScreenLayout from '../layout/FullScreenLayout.vue'
+import OverLoading from '../spinner/OverLoading.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
 import { getRateStayViewTypeByHotelId, } from '../../services/configrationApi';
@@ -860,20 +866,28 @@ function getRoomBlockColor(status: string) {
 
 // --- API CALL ---
 const getLocaleDailyOccupancyAndReservations = async () => {
-  isLoading.value = true;
+  isLoading.value = !laoded.value;
+  isRefreshing.value = laoded.value;
   const serviceId = serviceStore.serviceId!
   const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
   serviceResponse.value = response.data
   console.log('this is the response', response)
   isLoading.value = false;
+  isRefreshing.value = false;
+  laoded.value = true;
 }
 const refresh = async () => {
-  showModalAddingModal.value = false;
-  closeAssignRoomModal();
-  const serviceId = serviceStore.serviceId!
-  const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
-  serviceResponse.value = response.data
-  console.log('this is the response', serviceResponse.value)
+  isRefreshing.value = true
+  try {
+    showModalAddingModal.value = false;
+    closeAssignRoomModal();
+    const serviceId = serviceStore.serviceId!
+    const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+    serviceResponse.value = response.data
+    console.log('this is the response', serviceResponse.value)
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 // Watch for external refresh signals from the booking store
@@ -1054,6 +1068,7 @@ const legendSections = computed(() => {
 const cellSelection = ref({
   selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
   isSelecting: false,
+  inprogress: false,
   startCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
   currentCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
 })
@@ -1071,6 +1086,7 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
   const cellWidth = target.offsetWidth;
 
   cellSelection.value.isSelecting = true
+  cellSelection.value.inprogress = true;
   cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
   cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
@@ -1133,7 +1149,6 @@ function calculateSelectedCells() {
 // Fonction pour terminer la sélection de cellules
 function endCellSelection(event?: MouseEvent) {
   if (!cellSelection.value.isSelecting) return
-
   cellSelection.value.isSelecting = false
 
   if (event) {
@@ -1177,6 +1192,7 @@ function handleCellMouseMove(event: MouseEvent) {
 // Fonction pour vérifier si une cellule est sélectionnée
 function isCellSelected(roomType: string, roomNumber: string, date: Date): boolean {
   const cellKey = getCellKey(roomType, roomNumber, date)
+  //if(!getSelectionInfo()) return false
   return cellSelection.value.selectedCells.has(cellKey)
 }
 
@@ -1270,7 +1286,7 @@ function clearCellSelection() {
 
 // Fonction pour obtenir les informations de la sélection actuelle
 function getSelectionInfo() {
-  if (cellSelection.value.selectedCells.size === 0) return null
+  if (cellSelection.value.selectedCells.size === 0 || cellSelection.value.isSelecting) return null
 
   // Analyser les cellules sélectionnées pour extraire les informations
   const cells: any[] = Array.from(cellSelection.value.selectedCells)
@@ -1282,7 +1298,8 @@ function getSelectionInfo() {
   const dates = cells
     .map((cell: any) => new Date(cell.split('_')[2]))
     .sort((a: any, b: any) => a.getTime() - b.getTime())
-
+  if (dates[0].getTime() === dates[dates.length - 1].getTime())
+    return null
   return {
     roomType,
     roomNumber,

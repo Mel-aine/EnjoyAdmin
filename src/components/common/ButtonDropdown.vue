@@ -1,7 +1,7 @@
 <template>
-  <div ref="dropdownContainer" class="relative dropdown-container">
+  <div ref="dropdownContainer" class="relative dropdown-container" @mouseenter="onHoverOpen">
     <button 
-      @click="toggleDropdown"
+      @click="handleButtonClick"
       :class="[
         'flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200',
         buttonClass
@@ -50,6 +50,7 @@ interface Props {
   buttonText?: string
   buttonClass?: string
   dropdownClass?: string
+  openOnHover?: boolean
 }
 
 interface Emits {
@@ -59,15 +60,28 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   buttonText: 'Options',
   buttonClass: 'bg-blue-600 text-white hover:bg-blue-700',
-  dropdownClass: 'w-64'
+  dropdownClass: 'w-64',
+  openOnHover: true
 })
 
 const emit = defineEmits<Emits>()
 
 const isOpen = ref(false)
 
+const onHoverOpen = () => {
+  if (props.openOnHover) {
+    isOpen.value = true
+  }
+}
+
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
+}
+
+const handleButtonClick = () => {
+  if (!props.openOnHover) {
+    toggleDropdown()
+  }
 }
 
 const handleOptionClick = (option: DropdownOption) => {

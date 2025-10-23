@@ -64,10 +64,21 @@
           <button v-if="canAddBooking"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="gotoAddReservation">
-            <PlusCircle class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
+            <AddBookinIcon class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
             <span
               class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
               {{ $t('AddBooking') }}
+            </span>
+          </button>
+
+          <!-- Nouveau bouton: Fiche d'enregistrement client -->
+          <button
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="openGuestRegistration">
+            <PlusCircle class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ $t('GuestRegistration') }}
             </span>
           </button>
 
@@ -94,6 +105,9 @@
   <template v-if="showModalAddingModal">
     <BookingFormQuick :is-open='showModalAddingModal' v-if="showModalAddingModal" @close="showModalAddingModal = false" />
   </template>
+  <template v-if="showGuestRegistration">
+    <GuestRegistrationModal v-if="showGuestRegistration" @close="showGuestRegistration = false" />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -107,10 +121,13 @@ import { Calendar, X, PlusCircle, List } from 'lucide-vue-next'
 import router from '@/router'
 import { useAuthStore } from '../../composables/user'
 import BookingFormQuick from '../reservations/BookingFormQuick.vue'
+import GuestRegistrationModal from '../modal/GuestRegistrationModal.vue'
+import AddBookinIcon from '../../icons/AddBookinIcon.vue'
 
 const authStore = useAuthStore();
 
 const showModalAddingModal = ref(false);
+const showGuestRegistration = ref(false);
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
 
 const handleToggle = () => {
@@ -137,6 +154,9 @@ const gotoReservation = () => {
 }
 const gotoAddReservation = () => {
   showModalAddingModal.value = true;
+}
+const openGuestRegistration = () => {
+  showGuestRegistration.value = true;
 }
 const canAddBooking = computed(() => {
   return authStore.hasPermission("add_reservation")

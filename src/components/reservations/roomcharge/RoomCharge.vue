@@ -67,7 +67,7 @@
     <!-- Right Content Area -->
     <div class="w-10/12 flex flex-col">
       <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
+      <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 bg-white">
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
         <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
 

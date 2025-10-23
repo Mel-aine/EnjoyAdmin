@@ -54,7 +54,7 @@ type ImageUploaderInstance = InstanceType<typeof ImageUploader>
 const customers = ref<any[]>([])
 const users = ref<any[]>([])
 const serviceStore = useServiceStore()
-const showIdentitySection = ref(false)
+const showIdentitySection = ref(true)
 const showInfoSection = ref(false)
 const selectedCustomer = ref<any>({ ...props.modelValue })
 const idTypeOptions = ref<SelectOption[]>([])
@@ -123,6 +123,8 @@ const selectCustomer = (customer: any) => {
   selectedCustomer.value.profession = customer.profession ?? selectedCustomer.value.profession
   selectedCustomer.value.dateOfBirth = customer.dateOfBirth ?? selectedCustomer.value.dateOfBirth
   selectedCustomer.value.nationality = customer.nationality ?? selectedCustomer.value.nationality
+  selectedCustomer.value.contactType = customer.contactType ?? selectedCustomer.value.contactType
+  selectedCustomer.value.maidenName = customer.maidenName ?? selectedCustomer.value.maidenName
   // selectedCustomer.value.idExpiryDate = customer.idExpiryDate ?? selectedCustomer.value.idExpiryDate
   selectedCustomer.value.issuingCountry =
     customer.issuingCountry ?? selectedCustomer.value.issuingCountry
@@ -343,6 +345,14 @@ const onIdPhotoRemoved = () => {
   selectedCustomer.value.idPhoto = null
 }
 
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
 onMounted(() => {
   fetchGuest()
   fetchIdentityTypes()
@@ -426,6 +436,15 @@ console.log('modalevalue', props.modelValue)
                       :lb="$t('LastName')"
                       v-model="selectedCustomer.lastName"
                       :placeholder="$t('LastName')"
+                      custom-class="rounded-none h-11 border-l-0"
+                    />
+                  </div>
+                  <!--Maiden Name-->
+                   <div class="flex-1">
+                    <Input
+                      :lb="$t('MaidenName')"
+                      v-model="selectedCustomer.maidenName"
+                      :placeholder="$t('MaidenName')"
                       custom-class="rounded-l-none h-11 border-l-0"
                     />
                   </div>
@@ -452,7 +471,7 @@ console.log('modalevalue', props.modelValue)
               </div>
 
               <!-- Profession + Phone + Email -->
-              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <Input
                   :lb="$t('profession')"
                   :id="'profession'"
@@ -476,24 +495,26 @@ console.log('modalevalue', props.modelValue)
                   required
                   custom-class="h-11"
                 />
+
+                <Select
+                  v-model="selectedCustomer.contactType"
+                  :placeholder="$t('-select-')"
+                  :lb="$t('contactType')"
+                  :options="TypesOfContact"
+                  custom-class="h-11"
+                />
               </div>
             </div>
           </div>
 
-          <div class="mt-4">
-            <Input
-              :inputType="'text'"
-              :lb="$t('Address')"
-              :id="'address'"
-              :forLabel="'address'"
-              :placeholder="$t('Address')"
-              v-model="selectedCustomer.address"
-            />
-          </div>
+
 
           <!-- Informations complémentaires -->
           <div class="mt-3 pt-2">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <InputCountries :lb="$t('nationality')" v-model="selectedCustomer.nationality" :placeholder="$t('search_nationality')" />
+              </div>
               <div>
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="selectedCustomer.country" />
               </div>
@@ -514,6 +535,17 @@ console.log('modalevalue', props.modelValue)
                 />
               </div>
             </div>
+          </div>
+
+           <div class="mt-4">
+            <Input
+              :inputType="'text'"
+              :lb="$t('Address')"
+              :id="'address'"
+              :forLabel="'address'"
+              :placeholder="$t('Address')"
+              v-model="selectedCustomer.address"
+            />
           </div>
         </div>
       </div>
