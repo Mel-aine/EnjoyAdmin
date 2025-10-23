@@ -1,5 +1,13 @@
 import { ref } from 'vue'
 
+export interface Tax {
+  id: number
+  name: string
+  rate: string
+  percent: string
+  type: 'flat_percentage' | 'flat_amount'
+}
+
 export interface BookingItem {
   roomId: number
   roomName: string
@@ -26,7 +34,7 @@ export interface BookingData {
   items: BookingItem[]
   totalPrice?: number
   currency?: string
-  taxe?: number
+  taxes: Tax[]
   taxIncluded?: boolean
   policies?: string
   cancellationPolicy?: string

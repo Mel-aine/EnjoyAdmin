@@ -142,12 +142,12 @@
                     <div>
                       <div class="font-semibold text-slate-900">{{ item.roomName }}</div>
                       <div class="text-xs text-slate-600">{{ item.planName }}</div>
-                      <span
+                      <!-- <span
                         v-if="item.taxIncluded"
                         class="inline-block mt-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
                       >
                         Tax Included
-                      </span>
+                      </span> -->
                     </div>
                     <div class="text-right text-xs">
                       <div class="text-slate-500">{{ item.quantity }} room(s)</div>
@@ -172,7 +172,7 @@
                   <span class="text-gray-950">Room Charges</span>
                   <span class="font-semibold ">{{ formatCurrency(totalRoomCharges) }}</span>
                 </div>
-                <div
+                <!-- <div
                   class="flex justify-between"
                   :class="taxDisplayInfo.isIncluded ? 'text-green-300' : 'text-gray-500'"
                 >
@@ -180,7 +180,7 @@
                   <span class="font-semibold">
                     {{ taxDisplayInfo.showAmount ? formatCurrency(taxes) : formatCurrency(0) }}
                   </span>
-                </div>
+                </div> -->
                 <div v-if="discount > 0" class="flex justify-between text-green-300">
                   <span>Promo Discount</span>
                   <span class="font-semibold">-{{ formatCurrency(discount) }}</span>

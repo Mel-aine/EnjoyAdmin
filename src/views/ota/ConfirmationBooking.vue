@@ -97,13 +97,17 @@
               </svg>
             </div>
             <h1 class="text-xl font-bold text-gray-900 mb-1">Booking Confirmed!</h1>
-            <p class="text-gray-600 text-sm mb-2">Your reservation is confirmed</p>
+            <p class="text-gray-600 text-sm mb-2">Your reservation is confirmed </p>
+
             <div
               class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium"
             >
               <span>Confirmation:</span>
               <span class="font-bold">{{ reservation.confirmationNumber }}</span>
+
             </div>
+            <div>   <span class="font-bold">ID : {{ reservation.id }}</span></div>
+
           </div>
 
           <!-- Details -->

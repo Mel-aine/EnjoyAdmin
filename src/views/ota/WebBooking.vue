@@ -124,6 +124,10 @@ import OtaHeader from './components/OtaHeader.vue'
 import { getAvailability, type RoomAvailability } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useBookingSummaryStore } from '@/views/ota/composables/bookingSummary'
+import type { Tax } from '@/views/ota/composables/bookingSummary'
+
+
+const hotelTaxes = ref<Tax[]>([])
 
 const router = useRouter()
 const { t } = useI18n()
@@ -211,6 +215,9 @@ async function searchRooms() {
       brand.value = response.meta.hotelName
     }
 
+    if (response.meta?.taxes) {
+      hotelTaxes.value = response.meta.taxes
+    }
     hotelMeta.value = response.meta
     availabilityData.value = response.data || []
 
@@ -349,16 +356,15 @@ function bookFromSummary() {
     return sum + (item.planPrice * item.qty)
   }, 0)
 
-  // Sauvegarder toutes les données
   bookingStore.setBookingData({
     hotelId: String(hotelId),
     hotelName: brand.value || hotelMeta.value?.hotelName || '',
-    address : hotelMeta.value?.address || 'Unknown Address',
+    address: hotelMeta.value?.address || 'Unknown Address',
     email: hotelMeta.value?.email || '',
-    phoneNumber : hotelMeta.value?.phoneNumber || '',
+    phoneNumber: hotelMeta.value?.phoneNumber || '',
     cancellationPolicy: hotelMeta.value?.cancellation || '',
     policies: hotelMeta.value?.policies || '',
-    taxe: hotelMeta.value?.taxe || 1 ,
+    taxes: hotelTaxes.value || [],
     arrivalDate: arrivalDate.value,
     departureDate: departureDate.value,
     adults: String(adults.value),
@@ -373,7 +379,6 @@ function bookFromSummary() {
   // Naviguer vers le checkout
   router.push({ path: '/ota/checkout' })
 }
-
 
 function handleUpdate(payload: any) {
   const { room, plan, adults: a, children: c } = payload || {}

@@ -63,6 +63,7 @@ export interface AvailabilityResponse {
     hotelName: string | null
     policies: string | null
     cancellationPolicy: string | null
+    taxes?: any
   }
   data: RoomAvailability[]
 }
@@ -239,12 +240,13 @@ export function transformOTAPayloadToReservation(
       const itemTaxes = (itemSubtotal / otaPayload.subtotal) * otaPayload.taxes
       taxesPerNight = itemTaxes / otaPayload.nights
     }
+    console.log('Item Taxes Per Night:', taxesPerNight)
 
     return Array.from({ length: item.quantity }, () => ({
       room_type_id: item.roomId,
       rate_type_id: parseInt(item.rateTypeId),
       room_id: null,
-      room_rate: item.planPrice,
+      room_rate: item.planPrice + (taxesPerNight / item.quantity),
       adult_count: item.adults,
       child_count: item.children,
       quantity: 1,
@@ -257,7 +259,7 @@ export function transformOTAPayloadToReservation(
   })
 
   // Calculer les totaux
-  const totalAmount = otaPayload.subtotal
+  const totalAmount = otaPayload.totalPrice
   const taxAmount = otaPayload.taxes
   const finalAmount = otaPayload.totalPrice
 
