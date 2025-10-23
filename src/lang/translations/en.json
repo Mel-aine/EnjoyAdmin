@@ -1,4 +1,16 @@
 {
+  "tableColumns": {
+    "resNo": "Res. No",
+    "guest": "Guest",
+    "room": "Room",
+    "rate": "Rate",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "pax": "PAX",
+    "businessSource": "Business Source",
+    "resType": "Reservation Type",
+    "user": "User"
+  },
   "login": "Login",
   "french": "French",
   "english": "English",

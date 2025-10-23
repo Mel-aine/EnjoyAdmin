@@ -313,9 +313,7 @@
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ hotelName }}</span> • 
-            <span>{{ t('common.dateFrom') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span> • 
-            <span>{{ t('common.orderBy') }}: {{ t('common.room') }}</span> • 
-            <span>{{ t('reports.reservation.taxInclusiveRates') }}: {{ filters.taxInclusive ? t('common.yes') : t('common.no') }}</span>
+            <span>{{ t('common.dateFrom') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span>
           </div>
         </div>
         
@@ -436,7 +434,9 @@ interface Filters {
 }
 
 // États de l'interface
-const hotelName = ref<string>('Hotel Nihal')
+const hotelName = computed(() => {
+  return serviceStore.getCurrentService?.hotelName || 'Hotel Name'
+})
 const showResults = ref<boolean>(false)
 const exportMenuOpen = ref<boolean>(false)
 const exportLoading = ref<boolean>(false)
