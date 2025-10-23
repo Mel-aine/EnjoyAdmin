@@ -1,8 +1,8 @@
 <template>
   <div class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-end z-50">
-    <div class="bg-white rounded-l-lg shadow-xl w-full max-w-7xl max-h-[100vh] overflow-hidden h-full flex flex-col">
+    <div class="bg-white shadow-xl w-full max-w-6xl  overflow-hidden h-full flex flex-col">
       <!-- Modal Header -->
-      <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
         <h2 class="text-xl font-semibold text-gray-900">{{ $t('add') }}</h2>
         <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -12,7 +12,7 @@
       </div>
 
       <!-- Modal Content -->
-      <div class="p-6 overflow-y-scroll max-h-[calc(100vh-140px)] flex-1">
+      <div class="p-6 overflow-y-auto h-full flex-1">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <!-- Left Column -->
           <!-- Contact Information -->
@@ -26,17 +26,13 @@
               @search="searchGuest" @customerSelected="handleCustomerSelected" />
           </div>
 
-
-
-
-
           <div class="space-y-4">
             <InputDatePicker v-model="form.voucherDate" :title="$t('date')"></InputDatePicker>
           </div>
 
         </div>
         <!-- payment -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-5">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap- mt-5">
 
           <!-- Payment Information -->
           <div class="space-y-4">
@@ -68,49 +64,45 @@
 
           <div class="overflow-visible">
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+              <thead class="bg-gray-200">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('sr_no') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 capitalize tracking-wider">{{
-                    $t('ref_no') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{  
                     $t('particular') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('Qty') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('discount') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('comments') }}</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-right text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('amount') }}</th>
-                  <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 capitalize tracking-wider">{{
+                  <th class="px-2 py-3 text-center text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('action') }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
                 <tr v-for="(charge, index) in form.charges" :key="index">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ index + 1 }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    {{ charge.refNo }}
-                  </td>
-                  <td class=" w-50 px-6 py-4 whitespace-nowrap">
+                  <td class="px-2 py-4 whitespace-nowrap text-sm text-gray-900">{{ index + 1 }}</td>
+                 
+                  <td class=" w-50 px-2 py-4 whitespace-nowrap">
                     <InputExtractChargeSelect v-model="charge.particular" :hide-label="true" @select="(selectedCharge) => handleChargeChange(selectedCharge, index)" />
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td class="px-0 py-4 whitespace-nowrap">
                     <Input type="number" v-model="charge.quantity" class="w-20 text-center" min="1" step="1" />
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td class="px-2 py-4 whitespace-nowrap">
                     <InputDiscountSelect v-model="charge.discount" hide-label />
                   </td>
 
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td class="px-2 py-4 whitespace-nowrap">
                     <Input v-model="charge.comments" :placeholder="$t('comments')" />
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                  <td class="px-2 py-4 whitespace-nowrap text-right">
                     <InputCurrency v-model="charge.amount" />
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <td class="px-2 py-4 whitespace-nowrap text-center">
                     <BasicButton :label="$t('add')" variant="primary" size="sm" @click="addCharge"
                       v-if="index === form.charges.length - 1" />
                     <button v-else @click="removeCharge(index)" class="text-red-600 hover:text-red-800">
