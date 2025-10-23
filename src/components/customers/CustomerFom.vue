@@ -39,6 +39,13 @@
               <Input
                 v-model="form.lastName"
                 :placeholder="$t('LastName')"
+                custom-class="rounded-none"
+              />
+            </div>
+            <div class="flex-1">
+              <Input
+                v-model="form.maidenName"
+                :placeholder="$t('MaidenName')"
                 custom-class="rounded-l-none"
               />
             </div>
@@ -67,6 +74,16 @@
             :id="'profession'"
             v-model="form.profession"
             :placeholder="$t('profession')"
+          />
+        </div>
+
+         <div>
+          <Select
+             v-model="form.contactType"
+             :placeholder="$t('-select-')"
+             :lb="$t('contactType')"
+            :options="TypesOfContact"
+
           />
         </div>
 
@@ -272,8 +289,8 @@
       <BasicButton
         :label="saveButtonLabel"
         variant="secondary"
-        :loading="loading || isUploading"
-        :disabled="isUploading"
+        :loading="isLoading"
+        :disabled="isLoading"
         type="submit"
       />
     </div>
@@ -333,6 +350,8 @@ interface CustomerForm {
   dateOfBirth: string
   placeOfBirth: string
   profession:string
+  maidenName:string
+  contactType:string
   preferences: string[]
 }
 
@@ -382,8 +401,17 @@ const globalError = ref('')
 const pendingImages = ref<string[]>([])
 const Preferences = ref<SelectOption[]>([])
 const loading = ref(false)
+const isLoading = ref(false)
 const vipStatusOptions = ref<any[]>([])
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
 
 // CustomerFom.vue
 
@@ -416,6 +444,8 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   dateOfBirth: '',
   placeOfBirth: '',
   profession:'',
+  contactType:'',
+  maidenName:'',
   preferences: [],
 })
 
@@ -528,6 +558,7 @@ const handleSubmit = async () => {
   try {
     globalError.value = ''
     isUploading.value = true
+    isLoading.value = true
 
     //
     let profilePhotoPromise = Promise.resolve(form.profilePhoto)
@@ -580,6 +611,7 @@ const handleSubmit = async () => {
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'
   } finally {
     isUploading.value = false
+    isLoading.value = false
   }
 }
 

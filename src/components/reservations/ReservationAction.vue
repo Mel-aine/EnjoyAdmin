@@ -94,6 +94,7 @@ import { List } from 'lucide-vue-next'
 import { ActionIcons } from '@/utils/ActionIcons'
 import { useReservation } from '../../composables/useReservation'
 import ButtomDropdownAction from '../common/ButtomDropdownAction.vue'
+import { getReservationById } from '@/services/reservation'
 
 // Lazy-loaded modals
 const CancelReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/CancelReseravtion.vue'))
@@ -216,6 +217,21 @@ const executeAction = async (actionId: string, actionFn: () => Promise<void>, lo
 }
 
 // Auto actions
+const refreshAvailableActions = async () => {
+  if (!localRes.value?.id) return
+  try {
+    const updatedReservation = await getReservationById(localRes.value.id)
+    if (updatedReservation.availableActions) {
+      updateLocalReservation({
+        availableActions: updatedReservation.availableActions,
+        status: updatedReservation.status,
+        balanceSummary: updatedReservation.balanceSummary
+      })
+    }
+  } catch (error) {
+    console.error('Error refreshing available actions:', error)
+  }
+}
 const performAutoCheckIn = async (availableRoom: any) => {
   const checkInDateTime = new Date().toISOString()
   const payload = {
@@ -233,6 +249,7 @@ const performAutoCheckIn = async (availableRoom: any) => {
   const allRoomsCheckedIn = updatedRooms.every((room: any) => room.status === 'checked_in')
   const reservationStatus = allRoomsCheckedIn ? 'checked_in' : localRes.value.status
   updateLocalReservation({ reservationRooms: updatedRooms, status: reservationStatus })
+  await refreshAvailableActions()
   emit('save', { action: 'checkIn', reservationId: localRes.value.id, data: payload })
 }
 
@@ -247,6 +264,7 @@ const performAutoCheckOut = async (availableRoom: any) => {
   const allRoomsCheckedOut = updatedRooms.every((room: any) => room.status === 'checked_out')
   const reservationStatus = allRoomsCheckedOut ? 'checked_out' : localRes.value.status
   updateLocalReservation({ reservationRooms: updatedRooms, status: reservationStatus })
+  await refreshAvailableActions()
   emit('save', { action: 'checkOut', reservationId: localRes.value.id, data: payload })
 }
 
@@ -260,6 +278,7 @@ const performAutoUndoCheckIn = async (roomToUndo: any) => {
   const anyRoomCheckedIn = updatedRooms.some((room: any) => room.status === 'checked_in' || room.checkedIn)
   const reservationStatus = anyRoomCheckedIn ? 'checked_in' : 'confirmed'
   updateLocalReservation({ reservationRooms: updatedRooms, status: reservationStatus })
+  await refreshAvailableActions()
   emit('save', { action: 'undo_check_in', reservationId: localRes.value.id, data: payload })
 }
 
@@ -273,6 +292,7 @@ const performAutoUndoCheckOut = async (roomToUndo: any) => {
   const allRoomsCheckedOut = updatedRooms.every((room: any) => room.status === 'checked_out' || room.checkedOut)
   const reservationStatus = allRoomsCheckedOut ? 'checked_out' : 'checked_in'
   updateLocalReservation({ reservationRooms: updatedRooms, status: reservationStatus })
+  await refreshAvailableActions()
   emit('save', { action: 'undo_check_out', reservationId: localRes.value.id, data: payload })
 }
 
@@ -410,7 +430,7 @@ const closeRoomMoveModal = () => { isRoomMoveModalOpen.value = false }
 const closeExchangeRoomModal = () => { isExchangeRoomModalOpen.value = false }
 
 // Success handlers
-const handleCheckInSuccess = (data: any) => {
+const handleCheckInSuccess = async(data: any) => {
   const updatedRooms = localRes.value.reservationRooms.map((room: any) =>
     data.updatedRooms.includes(room.id)
       ? { ...room, status: 'checked_in', actualCheckInTime: data.checkInDateTime, checkedIn: true }
@@ -420,10 +440,12 @@ const handleCheckInSuccess = (data: any) => {
   const reservationStatus = allRoomsCheckedIn ? 'checked_in' : localRes.value.status
   updateLocalReservation({ reservationRooms: updatedRooms, status: reservationStatus })
   closeCheckInReservationModal()
+  await refreshAvailableActions()
+
   emit('save', { action: 'checkIn', reservationId: localRes.value.id, data })
 }
 
-const handleCheckOutSuccess = (data: any) => {
+const handleCheckOutSuccess = async(data: any) => {
   const updatedRooms = localRes.value.reservationRooms.map((room: any) =>
     data.updatedRooms.includes(room.id)
       ? { ...room, status: 'checked_out', actualCheckOutTime: data.checkOutDateTime, checkedOut: true }
@@ -433,6 +455,7 @@ const handleCheckOutSuccess = (data: any) => {
   const reservationStatus = allRoomsCheckedOut ? 'checked_out' : localRes.value.status
   updateLocalReservation({ reservationRooms: updatedRooms, status: reservationStatus })
   closeCheckOutReservationModal()
+  await refreshAvailableActions()
   emit('save', { action: 'checkOut', reservationId: localRes.value.id, data })
 }
 
@@ -445,6 +468,7 @@ const handleUndoCheckInSuccess = (data: any) => {
   const anyRoomStillCheckedIn = updatedRooms.some((room: any) => room.status === 'checked_in' || room.checkedIn)
   updateLocalReservation({ reservationRooms: updatedRooms, status: anyRoomStillCheckedIn ? 'checked_in' : 'confirmed' })
   closeUndoCheckInReservationModal()
+  refreshAvailableActions()
   emit('save', { action: 'undo_check_in', reservationId: localRes.value.id, data })
 }
 
@@ -457,6 +481,7 @@ const handleUndoCheckOutSuccess = (data: any) => {
   const allRoomsStillCheckedOut = updatedRooms.every((room: any) => room.status === 'checked_out' || room.checkedOut)
   updateLocalReservation({ reservationRooms: updatedRooms, status: allRoomsStillCheckedOut ? 'checked_out' : 'checked_in' })
   closeUndoCheckOutReservationModal()
+  refreshAvailableActions()
   emit('save', { action: 'undo_check_out', reservationId: localRes.value.id, data })
 }
 

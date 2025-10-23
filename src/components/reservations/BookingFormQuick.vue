@@ -288,7 +288,9 @@ const gotoNew = () => {
       issuingCountry: formData.value.issuingCountry,
       issuingCity: formData.value.issuingCity,
       profilePhoto: formData.value.profilePhoto,
-      idPhoto: formData.value.idPhoto
+      idPhoto: formData.value.idPhoto,
+      maidenName: formData.value.maidenName,
+      contactType: formData.value.contactType,
     },
     otherInfo: {
       emailBookingVouchers: otherInfo.value.emailBookingVouchers,
@@ -565,7 +567,7 @@ onMounted(() => {
                       </div>
 
                       <!-- Nights -->
-                       <div class="flex flex-col w-20">
+                       <div class="flex flex-col w-1/5">
                           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                               {{ $t('nights') }}
                           </label>

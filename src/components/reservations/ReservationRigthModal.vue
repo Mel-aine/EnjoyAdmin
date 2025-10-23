@@ -1,7 +1,7 @@
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-50 h-screen overflow-hidden">
+    <div v-if="isOpen" class="fixed inset-0 z-50 h-full overflow-hidden">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/25 bg-opacity-50 transition-opacity"></div>
+        <div class="absolute inset-0 bg-black/25 bg-opacity-50 transition-opacity h-full"></div>
 
         <!-- Modal Container -->
         <div class="fixed inset-y-0 top-0 h-full right-0 flex max-w-full pl-10">

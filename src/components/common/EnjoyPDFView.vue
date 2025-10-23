@@ -9,11 +9,11 @@
     </div>
 
     <!-- PDF Viewer -->
-    <div v-else-if="pdfUrl" class="h-screen overflow-hidden">
+    <div v-else-if="pdfUrl" class="h-full overflow-hidden">
       <VuePdfApp 
         :pdf="pdfUrl"
         :config="pdfViewerConfig"
-        class="w-full h-full border-0"
+        class=""
         @after-created="onPdfViewerCreated"
         @pages-rendered="onPagesRendered"
         @page-rendered="onPageRendered"

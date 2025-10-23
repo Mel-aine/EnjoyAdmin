@@ -1,6 +1,6 @@
 <template>
     <AdminLayout>
-        <div class="bg-white shadow-sm border-b border-gray-200 p-4">
+        <div class="bg-white shadow-lg border-b border-black/30 p-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-4">
                     <h2 class="text-xl font-bold text-gray-900 me-16">{{ $t('incidental_invoices') }}</h2>
@@ -32,9 +32,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex h-screen bg-gray-50">
+        <div class="flex h-full bg-gray-50">
             <!-- Left Sidebar - Invoice List -->
-            <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col mt-6">
+            <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col ">
                 <div class="flex-1 overflow-y-auto">
 
                     <!-- Invoice Table -->
@@ -67,32 +67,30 @@
             <!-- Main Content Area -->
             <div class="flex-1 flex flex-col">
                 <!-- Invoice Details -->
-                <div class="flex-1 p-6 overflow-y-auto">
-                    <div v-if="selectedInvoice" class="bg-white rounded-lg shadow-sm border border-gray-200"
+                <div class="flex-1 p-0 overflow-y-auto">
+                    <div v-if="selectedInvoice" class="bg-white  shadow-sm border border-gray-200"
                         :class="{ 'voided-invoice-details': selectedInvoice.status === 'voided' }">
                         <!-- Invoice Header -->
                         <div class="p-6 border-b border-gray-200">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h3 class="text-2xl font-bold text-gray-900">{{ selectedInvoice.invoiceNumber }}
+                                    <h3 class="text-2xl font-bold text-gray-900">{{ selectedInvoice.guest.displayName }}
                                     </h3>
                                     <div class="mt-2 space-y-1">
-                                        <div class="text-sm text-gray-600">
-                                            <span class="font-medium">{{ $t('customer') }}:</span> {{
-                                                selectedInvoice.guest.displayName }}
-                                        </div>
+                                        
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('voucher_date') }}:</span> {{
                                                 formatDate(selectedInvoice.createdAt) }}
                                         </div>
                                         <div class="text-sm text-gray-600">
                                             <span class="font-medium">{{ $t('prepared_by') }}:</span> {{
-                                                selectedInvoice.creator.firstName + ' ' + selectedInvoice.creator.lastName
+                                                selectedInvoice.creator.fullName
                                             }}
                                         </div>
                                         <div class="text-sm text-gray-600">
-                                            <span class="font-medium">{{ $t('total_charges') }}:</span> {{
-                                                formatCurrency(parseFloat(selectedInvoice.amount)) }}
+                                            <span class="font-medium">{{ $t('total_charges') }}:</span> 
+                                            <span class="text-blue-500">{{
+                                                formatCurrency(parseFloat(selectedInvoice.amount)) }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -123,7 +121,7 @@
                                 :empty-state-message="$t('no_charges_available')">
                                 <!-- Custom amount column -->
                                 <template #column-totalAmount="{ item }">
-                                    <div class="text-right font-medium">
+                                    <div class="text-left font-medium text-blue-500">
                                         {{ formatCurrency(parseFloat(item.totalAmount || 0)) }}
                                     </div>
                                 </template>
@@ -139,7 +137,7 @@
                                 :empty-state-message="$t('no_payments_available')">
                                 <!-- Custom amount column -->
                                 <template #column-totalAmount="{ item }">
-                                    <div class="text-right font-medium text-green-600">
+                                    <div class="text-left font-medium text-green-600">
                                         {{ formatCurrency(parseFloat(item.totalAmount || 0)) }}
                                     </div>
                                 </template>
@@ -234,7 +232,7 @@ const chargesColumns = ref<Column[]>([
         type: 'text'
     },
     {
-        key: 'description',
+        key: 'particular',
         label: t('particular'),
         type: 'text'
     },
@@ -293,7 +291,7 @@ const chargesTableData = computed(() => {
     return folioCharges.value.map((charge: any, index: number) => ({
         ...charge,
         srNo: index + 1,
-        transactionNumber: charge.transactionNumber || charge.reference || '-',
+        transactionNumber: charge.originalTransactionId?'-':(charge.transactionNumber || charge.reference || '-'),
         description: charge.description || charge.category || '-',
         notes: charge.notes || '-'
     }))
@@ -348,7 +346,7 @@ async function loadFolioStatement(folioId: number) {
     try {
         isLoadingFolio.value = true
         const response = await getFolioStatement(folioId)
-        console.log('reservation', response)
+        console.log('loadFolioStatement', response)
 
         // Extract transactions from the response
         const transactions = response.data?.transactions || []
@@ -444,7 +442,7 @@ function handleVoidConfirmed() {
 
 function editInvoice() {
     console.log('Editing invoice:', selectedInvoice.value)
-    // Implement edit functionality
+    showAddInvoiceModal.value = true
 }
 
 // Lifecycle

@@ -7,7 +7,7 @@
         @success="handleSuccess" />
     </SidebarProvider>
   </ThemeProvider>
-</template>  
+</template>   
 <script setup lang="ts">
 import ThemeProvider from './components/layout/ThemeProvider.vue'
 import SidebarProvider from './components/layout/SidebarProvider.vue'
@@ -25,7 +25,7 @@ if (useLanguage.language) {
 } else {
   useLanguage.set(t.locale.value)
 }
-
+ 
 // Inactivity tracking (5 minutes)
 const IDLE_TIMEOUT_MS = 10 * 60 * 1000
 const isReAuthOpen = ref(false)

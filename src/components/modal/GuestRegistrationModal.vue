@@ -1,9 +1,10 @@
 <template>
-  <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end bg-black/25 bg-opacity-40">
-    <div class="bg-white dark:bg-gray-900 rounded-l-lg shadow-lg w-full max-w-5xl h-full mr-0 relative flex flex-col">
+  <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end">
+    <div class="bg-white dark:bg-gray-900 shadow-lg w-full max-w-4xl h-full mr-0 relative flex flex-col">
       <!-- Header -->
-      <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('Guest Registration Form') }}</h2>
+      <div
+        class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('QuickBooking') }}</h2>
         <button class="text-gray-500 hover:text-red-500" @click="$emit('close')">
           <span class="sr-only">Close</span>
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -14,220 +15,507 @@
 
       <!-- Content Area -->
       <div class="flex-1 overflow-y-auto p-5 space-y-6">
-        <!-- First Section -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input :lb="'Room n°'" v-model="form.roomNumber" :id="'roomNumber'" :placeholder="'Room n°'" />
-          <Input :lb="'N° of persons'" :inputType="'Number'" v-model="form.numPersons" :id="'numPersons'" :placeholder="'N° of persons'" />
-          
-          <!-- Arrival Date with Time -->
-          <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Arrival date
-            </label>
-            <div class="flex gap-0">
-              <div class="relative flex-1">
-                <flat-pickr v-model="form.arrivalDate" :config="flatpickrDateOnlyConfig"
-                  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-l-lg rounded-r-none border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  :placeholder="'Select date'" />
-                <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-                  <CalendarIcon />
-                </span>
+        <form @submit.prevent="handleSubmit">
+          <!-- Room Configuration Section -->
+          <section class="space-y-4">
+            <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end">
+              <!-- Room Type -->
+              <div class="relative col-span-3">
+                <p v-if="submitted && !roomConfig.roomType" class="text-sm text-red-600 mb-1">
+                  {{ $t('validation.invalidRoomType') }}
+                </p>
+                <AutoCompleteSelect v-model="roomConfig.roomType" :lb="$t('roomType')" :options="RoomTypes"
+                  :defaultValue="$t('SelectRoomType')" :is-required="false" :use-dropdown="useDropdownRoomType"
+                  :disabled="isLoadingRoom" @update:modelValue="handleRoomTypeChange"
+                  :class="{ 'border-red-500': submitted && !roomConfig.roomType }" />
               </div>
-              <InputTimePicker v-model="form.arrivalTime" custom-class="rounded-l-none border-l-0" />
-            </div>
-          </div>
-          
-          <!-- Departure Date with Time -->
-          <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Departure date
-            </label>
-            <div class="flex gap-0">
-              <div class="relative flex-1">
-                <flat-pickr v-model="form.departureDate" :config="flatpickrDateOnlyConfig"
-                  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-l-lg rounded-r-none border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  :placeholder="'Select date'" />
-                <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-                  <CalendarIcon />
-                </span>
+
+              <!-- Rate Type -->
+              <div class="relative col-span-2">
+                <p v-if="submitted && !roomConfig.rateType" class="text-sm text-red-600 mb-1">
+                  {{ $t('validation.invalidRateType') }}
+                </p>
+                <AutoCompleteSelect v-model="roomConfig.rateType" :lb="$t('rateType')" :options="rateTypeOptions"
+                  :defaultValue="$t('SelectRateType')" :is-required="false" :use-dropdown="useDropdownRateType"
+                  :disabled="!roomConfig.roomType" @update:modelValue="handleRateTypeChange"
+                  :class="{ 'border-red-500': submitted && !roomConfig.rateType }" />
               </div>
-              <InputTimePicker v-model="form.departureTime" custom-class="rounded-l-none border-l-0" />
-            </div>
-            <p v-if="dateError" class="text-sm text-red-600 mt-1">
-              {{ dateError }}
-            </p>
-          </div>
-          
-          <Input :lb="'Arriving from'" v-model="form.arrivingFrom" :id="'arrivingFrom'" :placeholder="'Arriving from'" />
-          <Input :lb="'Going to'" v-model="form.goingTo" :id="'goingTo'" :placeholder="'Going to'" />
-          <div class="sm:col-span-2">
-            <Input :lb="'Means of transportation'" v-model="form.transport" :id="'transport'" :placeholder="'Means of transportation'" />
-          </div>
-          <div class="sm:col-span-2">
-            <InputPaymentMethodSelect :label="$t('PaymentMethod')" v-model="form.paymentMethodId" />
-          </div>
-        </div>
 
-        <!-- Personal Information Section -->
-        <div class="grid grid-cols-1 gap-4">
-          <Input :lb="'GIVEN NAME'" v-model="form.givenName" :id="'givenName'" :placeholder="'GIVEN NAME'" />
-          <Input :lb="'SURNAME'" v-model="form.surname" :id="'surname'" :placeholder="'SURNAME'" />
-          <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Date of Birth
-            </label>
-            <div class="relative">
-              <flat-pickr v-model="form.birthDate" :config="flatpickrDateConfig"
-                class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                :placeholder="'Select date'" />
-              <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-                <CalendarIcon />
-              </span>
-            </div>
-          </div>
-          <Input :lb="'Place of Birth'" v-model="form.birthPlace" :id="'birthPlace'" :placeholder="'Place of Birth'" />
-          <Input :lb="'Nationality'" v-model="form.nationality" :id="'nationality'" :placeholder="'Nationality'" />
-          <Input :lb="'Country of permanent residence'" v-model="form.residenceCountry" :id="'residenceCountry'" :placeholder="'Country of permanent residence'" />
-        </div>
+              <!-- Room Number -->
+              <div class="relative col-span-2">
 
-        <!-- Contact Information Section -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input :lb="'Tel'" v-model="form.tel" :id="'tel'" :placeholder="'Tel'" />
-          <Input :lb="'Fax'" v-model="form.fax" :id="'fax'" :placeholder="'Fax'" />
-          <Input :lb="'E-mail address'" :inputType="'email'" v-model="form.email" :id="'email'" :placeholder="'E-mail address'" />
-          <Input :lb="'B.P'" v-model="form.bp" :id="'bp'" :placeholder="'B.P'" />
-        </div>
+                <AutoCompleteSelect v-model="roomConfig.roomNumber" :lb="$t('Room')" :options="roomOptions"
+                  :defaultValue="$t('SelectRoom')" :is-required="false" :use-dropdown="useDropdownRoom"
+                  :disabled="!roomConfig.roomType" :isLoading="roomConfig.isLoadingRooms"
+                  @update:modelValue="handleRoomNumberChange"
+                  :class="{ 'border-red-500': submitted && !roomConfig.roomNumber }" />
+              </div>
 
-        <!-- Document Information Section -->
-        <div class="grid grid-cols-1 gap-4">
-          <Input :lb="'Profession'" v-model="form.profession" :id="'profession'" :placeholder="'Profession'" />
-          <Input :lb="'Passport N° / Identification card'" v-model="form.documentNumber" :id="'documentNumber'" :placeholder="'Passport N° / Identification card'" />
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Delivered on the
-              </label>
-              <div class="relative">
-                <flat-pickr v-model="form.documentDeliveredOn" :config="flatpickrDateConfig"
-                  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                  :placeholder="'Select date'" />
-                <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-                  <CalendarIcon />
-                </span>
+              <!-- Adult Count -->
+              <div class="col-span-1">
+                <Select v-model="roomConfig.adultCount" :lb="$t('Adult')" :options="adultOptions"
+                  :disabled="!roomConfig.roomType" :placeholder="$t('1')"
+                  @change="handleOccupancyChange('adultCount', $event)" />
+              </div>
+
+              <!-- Child Count -->
+              <div class="col-span-1">
+                <Select v-model="roomConfig.childCount" :lb="$t('child')" :options="childOptions"
+                  :disabled="!roomConfig.roomType" :placeholder="$t('0')"
+                  @change="handleOccupancyChange('childCount', $event)" />
+              </div>
+
+              <!-- Rate -->
+              <div class="flex align-center self-center col-span-2">
+                <div class="relative inline-block w-full">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {{ $t('rate') }} (XAF)
+                  </label>
+                  <div v-if="!isCustomPrize"
+                    class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 px-4 py-2.5 text-sm"
+                    :class="{ 'opacity-50': roomConfig.isLoadingRate }">
+                    <span class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer" @click="isCustomPrize = true">
+                      <PencilLine :size="18" />
+                    </span>
+
+                    <div v-if="roomConfig.isLoadingRate" class="flex-grow flex justify-end items-end">
+                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
+                    </div>
+
+                    <div v-else class="flex-grow">
+                      <div class="font-medium text-gray-800 justify-end flex">
+                        {{ roomConfig.rate }}
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <input type="number" v-model.number="roomConfig.rate"
+                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10" />
+                  </div>
+                </div>
               </div>
             </div>
-            <Input :lb="'at'" v-model="form.documentDeliveredAt" :id="'documentDeliveredAt'" :placeholder="'at'" />
-          </div>
-        </div>
+          </section>
+
+          <!-- Check-in/out Section -->
+          <section class="pt-4 space-y-4">
+            <div class="md:flex relative items-start gap-0">
+              <div class="flex flex-col w-full">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('check_in_date') }}
+                </label>
+                <div class="flex gap-0">
+                  <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
+                    :allowPastDates="false" :placeholder="$t('Selectdate')" />
+                  <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
+                </div>
+              </div>
+
+              <div class="flex flex-col  w-1/8">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('nights') }}
+                </label>
+                <input type="text" disabled :value="numberOfNights.toString()"
+                  class="h-11 w-full rounded-none bg-black text-white px-4 py-2.5 text-sm">
+              </div>
+
+              <div class="flex flex-col w-full">
+                <label class="mb-1.5 ml-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  {{ $t('check_out_date') }}
+                </label>
+                <div class="flex gap-0">
+                  <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
+                    custom-class="rounded-none" />
+                  <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
+                </div>
+                <p v-if="dateError" class="text-sm text-red-600 mt-1">
+                  {{ $t(dateError) }}
+                </p>
+              </div>
+
+              <div class="flex-col flex w-[500px] ms-2">
+                <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
+                  :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
+                  :use-dropdown="useDropdownBooking" />
+              </div>
+            </div>
+          </section>
+
+          <!-- Additional Info Section -->
+          <section class="pt-4 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'" :placeholder="$t('ArrivingTo')"
+                  v-model="reservation.arrivingTo" />
+              </div>
+              <div>
+                <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')"
+                  v-model="reservation.goingTo" />
+              </div>
+              <div>
+                <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel="'means'"
+                  :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
+              </div>
+              <div>
+                <InputPaymentMethodSelect :label="$t('PaymentMethod')" v-model="billing.paymentMode" />
+              </div>
+            </div>
+          </section>
+
+          <!-- Personal Information Section -->
+          <section class="pt-4 space-y-4 border-t border-black/50 mt-3">
+
+
+            <div class="flex items-end w-full space-x-0">
+              <div class="w-18">
+                <Select :lb="$t('Title')" :options="GuestTitles" v-model="formData.title"
+                  :default-value="$t('guestTitles.mr')" custom-class="rounded-r-none h-11" />
+              </div>
+
+              <div class="flex-1">
+                <CustomerSearch @customer-selected="onCustomerSelected" v-model="formData" />
+              </div>
+
+              <div class="flex-1">
+                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')"
+                  custom-class="rounded-none h-11 border-l-0" />
+              </div>
+
+              <div class="flex-1">
+                <Input :lb="$t('MaidenName')" v-model="formData.maidenName" :placeholder="$t('MaidenName')"
+                  custom-class="rounded-l-none h-11 border-l-0" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div>
+                <InputDatePicker :title="$t('Date of Birth')"  v-model="formData.dateOfBirth" :placeholder="$t('Select date')" />
+              </div>
+
+              <Input :lb="$t('Place of Birth')" v-model="formData.placeOfBirth" :placeholder="$t('Place of Birth')" />
+
+              <div>
+                <InputCountries :lb="$t('nationality')" v-model="formData.nationality"
+                  :placeholder="$t('search_nationality')" />
+              </div>
+              <div>
+                <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="formData.country" />
+              </div>
+            </div>
+          </section>
+
+          <!-- Contact Information Section -->
+          <section class="pt-4 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <InputPhone :title="$t('Phone')" v-model="formData.phoneNumber" :id="'phone'" :is-required="false"
+                custom-class="h-11" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+
+              <Input :lb="$t('Fax')" v-model="formData.fax" :placeholder="$t('Fax')" />
+              <InputEmail v-model="formData.email" placeholder="info@gmail.com" :title="$t('Email')" required
+                custom-class="h-11" />
+
+              <Input :lb="$t('B.P')" v-model="formData.zipcode" :placeholder="$t('B.P')" />
+              <Input :lb="$t('profession')" v-model="formData.profession" :placeholder="$t('profession')" />
+            </div>
+          </section>
+
+          <!-- Document Information Section -->
+          <section class="pt-4">
+            <button @click.prevent="toggleIdentitySection" type="button"
+              class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
+              <h2 class="text-md font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
+                  </path>
+                </svg>
+                {{ $t('IdentityInformation') }}
+              </h2>
+
+              <div class="flex items-center">
+                <ChevronDownIcon :class="[
+                  'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
+                  { 'rotate-180': showIdentitySection },
+                ]" />
+              </div>
+            </button>
+
+            <div v-show="showIdentitySection" class="mt-6 transition-all duration-300 ease-in-out">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <Select :lb="$t('IDType')" v-model="formData.idType" :options="idTypeOptions"
+                    :placeholder="$t('Select ID Type')" />
+                </div>
+                <div class="">
+                  <Input :lb="idNumberLabel" v-model="formData.idNumber" type="text" :placeholder="idNumberLabel" />
+                </div>
+              </div>
+               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
+               
+                <div>
+                  <InputDatePicker :title="$t('ExpiryDate')" v-model="formData.idExpiryDate"
+                    :placeholder="$t('Select Date')" />
+                </div>
+                <div>
+                  <InputCountries :lb="$t('Countryofissue')" v-model="formData.issuingCountry" />
+                </div>
+                <div>
+                  <Input :lb="$t('Cityofissue')" v-model="formData.issuingCity" :placeholder="$t('Cityofissue')" />
+                </div>
+              </div>
+            </div>
+          </section>
+        </form>
       </div>
 
       <!-- Footer with buttons -->
       <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-        <button 
-          type="button" 
-          @click="$emit('close')" 
-          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
-        >
-          Cancel
+        <button type="button" @click="$emit('close')"
+          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200">
+          {{ $t('Cancel') }}
         </button>
-        <ButtonComponent 
-          type="button" 
-          @click="save"
-        >
-          Save Guest
-        </ButtonComponent>
+        <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
+          @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
+          :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
+        </BasicButton>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import Input from '@/components/forms/FormElements/Input.vue'
-import flatPickr from 'vue-flatpickr-component'
-import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
-import 'flatpickr/dist/flatpickr.css'
-import CalendarIcon from '@/icons/CalendarIcon.vue'
+import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
+import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
+import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import CustomerSearch from '@/components/customers/CustomerSarch.vue'
 import InputPaymentMethodSelect from '@/components/reservations/foglio/InputPaymentMethodSelect.vue'
+import BasicButton from '../../components/buttons/BasicButton.vue'
+import InputEmail from '../forms/FormElements/InputEmail.vue'
+import InputPhone from '../forms/FormElements/InputPhone.vue'
+import { PencilLine, ChevronDownIcon } from 'lucide-vue-next'
+import { getIdentityTypesByHotelId } from '@/services/configrationApi'
+import { useI18n } from 'vue-i18n'
+import { useBooking } from '@/composables/useBooking2'
+import { useRouter } from 'vue-router'
+import { useServiceStore } from '@/composables/serviceStore'
 
+
+interface SelectOption {
+  value: string
+  label: string
+  label_fr?: string
+}
+
+interface RichSelectOption extends SelectOption {
+  numberField: string
+  dateField: string
+  label_fr: string
+}
+const { t } = useI18n()
 const emit = defineEmits(['close', 'save'])
 
-const form = reactive({
-  roomNumber: '',
-  numPersons: 1,
-  arrivalDate: '',
-  arrivalTime: '14:00', // Heure par défaut pour le check-in
-  departureDate: '',
-  departureTime: '12:00', // Heure par défaut pour le check-out
-  arrivingFrom: '',
-  goingTo: '',
-  transport: '',
-  paymentMethodId: null as number | null,
-  givenName: '',
-  surname: '',
-  birthDate: '',
-  birthPlace: '',
-  nationality: '',
-  residenceCountry: '',
-  tel: '',
-  fax: '',
-  email: '',
-  bp: '',
-  profession: '',
-  documentNumber: '',
-  documentDeliveredOn: '',
-  documentDeliveredAt: '',
+// Utiliser le composable useBooking
+const {
+  reservation,
+  reservationId,
+  formData,
+  billing,
+  roomConfigurations,
+  RoomTypes,
+  BookingType,
+  isLoading,
+  isLoadingRoom,
+  dateError,
+  numberOfNights,
+  confirmReservation,
+  isCustomPrize,
+  pendingUploads,
+  onRoomTypeChange,
+  onRateTypeChange,
+  onCustomerSelected,
+  onOccupancyChange,
+  getRateTypesForRoom,
+  getRoomsForRoom,
+  saveReservation,
+  initialize,
+  onRoomNumberChange,
+  getAdultOptions,
+  getChildOptions
+} = useBooking()
+
+// State management
+const submitted = ref(false)
+const showIdentitySection = ref(true)
+
+// Dropdown controls
+const useDropdownRoomType = ref(true)
+const useDropdownRateType = ref(true)
+const useDropdownRoom = ref(true)
+const useDropdownBooking = ref(true)
+const router = useRouter()
+const serviceStore = useServiceStore()
+
+// Utiliser la première configuration de chambre
+const roomConfig = computed(() => roomConfigurations.value[0])
+
+// Options
+const GuestTitles = computed(() => [
+  { label: t('guestTitles.mr'), value: 'Mr' },
+  { label: t('guestTitles.mrs'), value: 'Mrs' },
+  { label: t('guestTitles.ms'), value: 'Ms' },
+  { label: t('guestTitles.miss'), value: 'Miss' },
+  { label: t('guestTitles.dr'), value: 'Dr' },
+])
+
+const idTypeOptions = ref([])
+
+// Computed properties
+const rateTypeOptions = computed(() => {
+  return getRateTypesForRoom(roomConfig.value.id)
 })
 
-// Validation des dates avec prise en compte de l'heure
-const dateError = computed(() => {
-  if (form.arrivalDate && form.departureDate) {
-    const arrivalDateTime = new Date(`${form.arrivalDate}T${form.arrivalTime || '00:00'}`)
-    const departureDateTime = new Date(`${form.departureDate}T${form.departureTime || '00:00'}`)
-    
-    if (departureDateTime <= arrivalDateTime) {
-      return 'Departure date and time must be after arrival date and time'
-    }
-  }
-  return null
+const roomOptions = computed(() => {
+  return getRoomsForRoom(roomConfig.value.id)
 })
 
-const save = () => {
-  if (dateError.value) {
-    return // Empêcher la sauvegarde si erreur de date
+const adultOptions = computed(() => {
+  return getAdultOptions(roomConfig.value.roomType)
+})
+
+const childOptions = computed(() => {
+  return getChildOptions(roomConfig.value.roomType)
+})
+const fetchIdentityTypes = async () => {
+  try {
+    const hotelId = serviceStore.serviceId
+    if (!hotelId) return
+
+    const res = await getIdentityTypesByHotelId(hotelId)
+
+    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+      const normalizedName = type.name.toLowerCase().replace(/ /g, '')
+
+      switch (normalizedName) {
+        case 'passport':
+        case 'passeport':
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'passportNumber',
+            dateField: 'passportExpiry',
+            label_fr: t('identity.passport_number'),
+          }
+        case 'visa':
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'visaNumber',
+            dateField: 'visaExpiry',
+            label_fr: t('identity.visa_number'),
+          }
+        default:
+          return {
+            label: type.name,
+            value: type.name,
+            numberField: 'idNumber',
+            dateField: 'idExpiryDate',
+            label_fr: t('identity.id_number'),
+          }
+      }
+    })
+  } catch (err) {
+    console.error('Erreur lors de la récupération des types de pièces:', err)
   }
-  emit('save', { ...form })
-  emit('close')
 }
 
-// Configuration flatpickr pour date seulement (sans heure)
-const flatpickrDateOnlyConfig = {
-  altInput: true,
-  altFormat: 'd-m-Y',
-  dateFormat: 'Y-m-d'
+const selectedIdTypeInfo = computed(() => {
+  return (idTypeOptions.value as RichSelectOption[]).find(
+    (opt: any) => opt.value === formData.value.idType,
+  )
+})
+
+const idNumberLabel = computed(() => {
+  return selectedIdTypeInfo.value?.label_fr || t('identity.id_number')
+})
+
+const hasPendingUploads = computed(() => {
+  return pendingUploads.value.size > 0
+})
+
+// Methods
+const handleRoomTypeChange = async (value: string) => {
+  await onRoomTypeChange(roomConfig.value.id, value)
 }
 
-// Configuration pour les dates simples (sans heure) - comme date de naissance
-const flatpickrDateConfig = {
-  altInput: true,
-  altFormat: 'd-m-Y',
-  dateFormat: 'Y-m-d'
+const handleRateTypeChange = async (value: string) => {
+  await onRateTypeChange(roomConfig.value.id, value)
 }
 
+const handleRoomNumberChange = async (value: string) => {
+  await onRoomNumberChange(roomConfig.value)
+}
+
+const handleOccupancyChange = (type: string, event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const value = parseInt(target.value)
+  onOccupancyChange(roomConfig.value.id, type as 'adultCount' | 'childCount', value)
+}
+
+const toggleIdentitySection = () => {
+  showIdentitySection.value = !showIdentitySection.value
+}
+
+const handleSubmit = async () => {
+  submitted.value = true
+
+  // Validation
+  if (!roomConfig.value.roomType || !roomConfig.value.rateType || dateError.value) {
+    return
+  }
+
+  if (hasPendingUploads.value) {
+    return
+  }
+
+  try {
+    await saveReservation()
+    emit('save', {
+      reservation: reservation.value,
+      guest: formData.value
+    })
+    await router.push({
+      name: 'ReservationDetails',
+      params: { id: reservationId.value },
+    })
+    emit('close')
+  } catch (error) {
+    console.error('Error submitting form:', error)
+  }
+}
+
+// Initialize on mount
+onMounted(async () => {
+  await fetchIdentityTypes()
+  await initialize()
+
+
+})
 </script>
 
 <style scoped>
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
-}
-
-.input {
-  @apply dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90;
+  display: none;
 }
 </style>

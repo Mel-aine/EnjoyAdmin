@@ -1,9 +1,7 @@
 <template>
-  <div>
     <AdminLayout>
-      <FullScreenLayout>
         <PageBreadcrumb :pageTitle="$t('guest_database')" :breadcrumb="breadcrumb" />
-        <div class="mt-10">
+        <div class="mt-5">
           <ReusableTable
             :title="$t('guest_database')"
             :columns="columns"
@@ -53,7 +51,6 @@
               @page-change="handlePageChange"
             />
         </div>
-      </FullScreenLayout>
     </AdminLayout>
 
     <ModalCustomer
@@ -85,7 +82,6 @@
       @confirm="confirmDeleteCustomer"
     />
 
-  </div>
 </template>
 
 <script setup lang="ts">

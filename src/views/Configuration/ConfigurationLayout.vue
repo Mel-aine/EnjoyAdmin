@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-[95vh] bg-gray-50">
     <!-- Configuration Sidebar -->
     <ConfigurationSidebar />
     
@@ -9,18 +9,21 @@
     <!-- Main content -->
     <div :class="[
       'transition-all duration-300 ease-in-out',
-      sidebarStore.isExpanded ? 'lg:ml-64' : 'lg:ml-16'
+      sidebarStore.isExpanded ? 'lg:ml-64' : 'lg:ml-16',
+      'flex flex-col min-h-[107vh]'
     ]">
       <!-- Header -->
       <ConfigurationHeader />
       
       <!-- Page content -->
-      <main >
+      <main class="flex-1 overflow-y-auto">
         <slot />
       </main>
       
       <!-- Footer -->
-      <AppFooter />
+      <footer class="mt-auto">
+        <AppFooter />
+      </footer>
     </div>
   </div>
 </template>

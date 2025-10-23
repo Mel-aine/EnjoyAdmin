@@ -52,7 +52,7 @@ watch(() => props.modelValue, (newValue) => {
 
 <template>
     <div>
-        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400" v-if="lb">
             {{ lb }}<span v-if="isRequired" class="text-red-500">*</span>
         </label>
         <input :type="inputType" :id="id" :required="isRequired" :disabled="disabled" :min="min" v-model="value"

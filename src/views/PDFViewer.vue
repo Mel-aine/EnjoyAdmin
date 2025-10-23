@@ -1,5 +1,5 @@
 <template>
-  <div class="pdf-viewer-page">
+  <div class="pdf-viewer-page h-full">
     <!-- PDF Viewer Content -->
     <div class="pdf-content flex-1">
       <EnjoyPDFView 
@@ -147,7 +147,6 @@ watch(() => route.query.url, () => {
 .pdf-viewer-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   background-color: #f8fafc;
 }
 
