@@ -60,11 +60,6 @@ export const LazyReservationCalendar = createLazyComponent(
   { delay: 150 }
 )
 
-export const LazyReservationCalendarInterface = createLazyComponent(
-  () => import('@/components/calendars/ReservationCalendarInterface.vue'),
-  { delay: 150 }
-)
-
 /**
  * Lazy load PDF and document components
  */
