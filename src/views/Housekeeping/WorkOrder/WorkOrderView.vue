@@ -1,6 +1,5 @@
 <template>
   <AdminLayout>
-    <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('work_order')" :breadcrumb="breadcrumb"/>
 
       <div class="mt-10">
@@ -124,7 +123,6 @@
         </template>
       </ConfirmationModal>
 
-    </FullScreenLayout>
   </AdminLayout>
 </template>
 

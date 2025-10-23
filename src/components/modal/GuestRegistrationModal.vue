@@ -1,9 +1,10 @@
 <template>
   <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end">
-    <div class="bg-white dark:bg-gray-900 shadow-lg w-full max-w-5xl h-full mr-0 relative flex flex-col">
+    <div class="bg-white dark:bg-gray-900 shadow-lg w-full max-w-4xl h-full mr-0 relative flex flex-col">
       <!-- Header -->
-      <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('Guest Registration Form') }}</h2>
+      <div
+        class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('QuickBooking') }}</h2>
         <button class="text-gray-500 hover:text-red-500" @click="$emit('close')">
           <span class="sr-only">Close</span>
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -23,17 +24,10 @@
                 <p v-if="submitted && !roomConfig.roomType" class="text-sm text-red-600 mb-1">
                   {{ $t('validation.invalidRoomType') }}
                 </p>
-                <AutoCompleteSelect
-                  v-model="roomConfig.roomType"
-                  :lb="$t('roomType')"
-                  :options="RoomTypes"
-                  :defaultValue="$t('SelectRoomType')"
-                  :is-required="false"
-                  :use-dropdown="useDropdownRoomType"
-                  :disabled="isLoadingRoom"
-                  @update:modelValue="handleRoomTypeChange"
-                  :class="{ 'border-red-500': submitted && !roomConfig.roomType }"
-                />
+                <AutoCompleteSelect v-model="roomConfig.roomType" :lb="$t('roomType')" :options="RoomTypes"
+                  :defaultValue="$t('SelectRoomType')" :is-required="false" :use-dropdown="useDropdownRoomType"
+                  :disabled="isLoadingRoom" @update:modelValue="handleRoomTypeChange"
+                  :class="{ 'border-red-500': submitted && !roomConfig.roomType }" />
               </div>
 
               <!-- Rate Type -->
@@ -41,71 +35,46 @@
                 <p v-if="submitted && !roomConfig.rateType" class="text-sm text-red-600 mb-1">
                   {{ $t('validation.invalidRateType') }}
                 </p>
-                <AutoCompleteSelect
-                  v-model="roomConfig.rateType"
-                  :lb="$t('rateType')"
-                  :options="rateTypeOptions"
-                  :defaultValue="$t('SelectRateType')"
-                  :is-required="false"
-                  :use-dropdown="useDropdownRateType"
-                  :disabled="!roomConfig.roomType"
-                  @update:modelValue="handleRateTypeChange"
-                  :class="{ 'border-red-500': submitted && !roomConfig.rateType }"
-                />
+                <AutoCompleteSelect v-model="roomConfig.rateType" :lb="$t('rateType')" :options="rateTypeOptions"
+                  :defaultValue="$t('SelectRateType')" :is-required="false" :use-dropdown="useDropdownRateType"
+                  :disabled="!roomConfig.roomType" @update:modelValue="handleRateTypeChange"
+                  :class="{ 'border-red-500': submitted && !roomConfig.rateType }" />
               </div>
 
               <!-- Room Number -->
               <div class="relative col-span-2">
 
-                <AutoCompleteSelect
-                  v-model="roomConfig.roomNumber"
-                  :lb="$t('Room')"
-                  :options="roomOptions"
-                  :defaultValue="$t('SelectRoom')"
-                  :is-required="false"
-                  :use-dropdown="useDropdownRoom"
-                  :disabled="!roomConfig.roomType"
-                  :isLoading="roomConfig.isLoadingRooms"
+                <AutoCompleteSelect v-model="roomConfig.roomNumber" :lb="$t('Room')" :options="roomOptions"
+                  :defaultValue="$t('SelectRoom')" :is-required="false" :use-dropdown="useDropdownRoom"
+                  :disabled="!roomConfig.roomType" :isLoading="roomConfig.isLoadingRooms"
                   @update:modelValue="handleRoomNumberChange"
-                  :class="{ 'border-red-500': submitted && !roomConfig.roomNumber }"
-                />
+                  :class="{ 'border-red-500': submitted && !roomConfig.roomNumber }" />
               </div>
 
               <!-- Adult Count -->
               <div class="col-span-1">
-                <Select
-                  v-model="roomConfig.adultCount"
-                  :lb="$t('Adult')"
-                  :options="adultOptions"
-                  :disabled="!roomConfig.roomType"
-                  :placeholder="$t('1')"
-                  @change="handleOccupancyChange('adultCount', $event)"
-                />
+                <Select v-model="roomConfig.adultCount" :lb="$t('Adult')" :options="adultOptions"
+                  :disabled="!roomConfig.roomType" :placeholder="$t('1')"
+                  @change="handleOccupancyChange('adultCount', $event)" />
               </div>
 
               <!-- Child Count -->
               <div class="col-span-1">
-                <Select
-                  v-model="roomConfig.childCount"
-                  :lb="$t('child')"
-                  :options="childOptions"
-                  :disabled="!roomConfig.roomType"
-                  :placeholder="$t('0')"
-                  @change="handleOccupancyChange('childCount', $event)"
-                />
+                <Select v-model="roomConfig.childCount" :lb="$t('child')" :options="childOptions"
+                  :disabled="!roomConfig.roomType" :placeholder="$t('0')"
+                  @change="handleOccupancyChange('childCount', $event)" />
               </div>
 
               <!-- Rate -->
               <div class="flex align-center self-center col-span-2">
                 <div class="relative inline-block w-full">
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('rate')}} (XAF)
+                    {{ $t('rate') }} (XAF)
                   </label>
                   <div v-if="!isCustomPrize"
                     class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 px-4 py-2.5 text-sm"
                     :class="{ 'opacity-50': roomConfig.isLoadingRate }">
-                    <span class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer"
-                      @click="isCustomPrize = true">
+                    <span class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer" @click="isCustomPrize = true">
                       <PencilLine :size="18" />
                     </span>
 
@@ -120,11 +89,8 @@
                     </div>
                   </div>
                   <div v-else>
-                    <input
-                      type="number"
-                      v-model.number="roomConfig.rate"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10"
-                    />
+                    <input type="number" v-model.number="roomConfig.rate"
+                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10" />
                   </div>
                 </div>
               </div>
@@ -139,12 +105,8 @@
                   {{ $t('check_in_date') }}
                 </label>
                 <div class="flex gap-0">
-                  <InputDatePicker
-                    v-model="reservation.checkinDate"
-                    custom-class="rounded-r-none"
-                    :allowPastDates="false"
-                    :placeholder="$t('Selectdate')"
-                  />
+                  <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
+                    :allowPastDates="false" :placeholder="$t('Selectdate')" />
                   <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
                 </div>
               </div>
@@ -153,12 +115,8 @@
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   {{ $t('nights') }}
                 </label>
-                <input
-                  type="text"
-                  disabled
-                  :value="numberOfNights.toString()"
-                  class="h-11 w-full rounded-none bg-black text-white px-4 py-2.5 text-sm"
-                >
+                <input type="text" disabled :value="numberOfNights.toString()"
+                  class="h-11 w-full rounded-none bg-black text-white px-4 py-2.5 text-sm">
               </div>
 
               <div class="flex flex-col w-full">
@@ -166,11 +124,8 @@
                   {{ $t('check_out_date') }}
                 </label>
                 <div class="flex gap-0">
-                  <InputDatePicker
-                    v-model="reservation.checkoutDate"
-                    :placeholder="$t('Selectdate')"
-                    custom-class="rounded-none"
-                  />
+                  <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
+                    custom-class="rounded-none" />
                   <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
                 </div>
                 <p v-if="dateError" class="text-sm text-red-600 mt-1">
@@ -179,14 +134,9 @@
               </div>
 
               <div class="flex-col flex w-[500px] ms-2">
-                <AutoCompleteSelect
-                  v-model="reservation.bookingType"
-                  :options="BookingType"
-                  :defaultValue="$t('SelectReservationType')"
-                  :lb="$t('ReservationType')"
-                  :is-required="false"
-                  :use-dropdown="useDropdownBooking"
-                />
+                <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
+                  :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
+                  :use-dropdown="useDropdownBooking" />
               </div>
             </div>
           </section>
@@ -195,12 +145,12 @@
           <section class="pt-4 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'"
-                  :placeholder="$t('ArrivingTo')" v-model="reservation.arrivingTo"/>
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'" :placeholder="$t('ArrivingTo')"
+                  v-model="reservation.arrivingTo" />
               </div>
               <div>
-                <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'"
-                  :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
+                <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')"
+                  v-model="reservation.goingTo" />
               </div>
               <div>
                 <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel="'means'"
@@ -213,65 +163,40 @@
           </section>
 
           <!-- Personal Information Section -->
-          <section class="pt-4 space-y-4">
+          <section class="pt-4 space-y-4 border-t border-black/50 mt-3">
 
 
             <div class="flex items-end w-full space-x-0">
-              <div class="w-24">
-                <Select
-                  :lb="$t('Title')"
-                  :options="GuestTitles"
-                  v-model="formData.title"
-                  :default-value="$t('guestTitles.mr')"
-                  custom-class="rounded-r-none h-11"
-                />
+              <div class="w-18">
+                <Select :lb="$t('Title')" :options="GuestTitles" v-model="formData.title"
+                  :default-value="$t('guestTitles.mr')" custom-class="rounded-r-none h-11" />
               </div>
 
               <div class="flex-1">
-                <CustomerSearch
-                  @customer-selected="onCustomerSelected"
-                  v-model="formData"
-                />
+                <CustomerSearch @customer-selected="onCustomerSelected" v-model="formData" />
               </div>
 
               <div class="flex-1">
-                <Input
-                  :lb="$t('LastName')"
-                  v-model="formData.lastName"
-                  :placeholder="$t('LastName')"
-                  custom-class="rounded-none h-11 border-l-0"
-                />
+                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')"
+                  custom-class="rounded-none h-11 border-l-0" />
               </div>
 
               <div class="flex-1">
-                <Input
-                  :lb="$t('MaidenName')"
-                  v-model="formData.maidenName"
-                  :placeholder="$t('MaidenName')"
-                  custom-class="rounded-l-none h-11 border-l-0"
-                />
+                <Input :lb="$t('MaidenName')" v-model="formData.maidenName" :placeholder="$t('MaidenName')"
+                  custom-class="rounded-l-none h-11 border-l-0" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  {{ $t('Date of Birth') }}
-                </label>
-                <InputDatePicker
-                  v-model="formData.dateOfBirth"
-                  :placeholder="$t('Select date')"
-                />
+                <InputDatePicker :title="$t('Date of Birth')"  v-model="formData.dateOfBirth" :placeholder="$t('Select date')" />
               </div>
 
-              <Input
-                :lb="$t('Place of Birth')"
-                v-model="formData.placeOfBirth"
-                :placeholder="$t('Place of Birth')"
-              />
+              <Input :lb="$t('Place of Birth')" v-model="formData.placeOfBirth" :placeholder="$t('Place of Birth')" />
 
-               <div>
-                <InputCountries :lb="$t('nationality')" v-model="formData.nationality" :placeholder="$t('search_nationality')" />
+              <div>
+                <InputCountries :lb="$t('nationality')" v-model="formData.nationality"
+                  :placeholder="$t('search_nationality')" />
               </div>
               <div>
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="formData.country" />
@@ -281,27 +206,16 @@
 
           <!-- Contact Information Section -->
           <section class="pt-4 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <InputPhone :title="$t('Phone')" v-model="formData.phoneNumber" :id="'phone'" :is-required="false"
+                custom-class="h-11" />
+            </div>
 
-
-            <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
-
-               <InputPhone
-                  :title="$t('Phone')"
-                  v-model="formData.phoneNumber"
-                  :id="'phone'"
-                  :is-required="false"
-                  custom-class="h-11"
-                />
-
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
 
               <Input :lb="$t('Fax')" v-model="formData.fax" :placeholder="$t('Fax')" />
-               <InputEmail
-                  v-model="formData.email"
-                  placeholder="info@gmail.com"
-                  :title="$t('Email')"
-                  required
-                  custom-class="h-11"
-                />
+              <InputEmail v-model="formData.email" placeholder="info@gmail.com" :title="$t('Email')" required
+                custom-class="h-11" />
 
               <Input :lb="$t('B.P')" v-model="formData.zipcode" :placeholder="$t('B.P')" />
               <Input :lb="$t('profession')" v-model="formData.profession" :placeholder="$t('profession')" />
@@ -310,9 +224,7 @@
 
           <!-- Document Information Section -->
           <section class="pt-4">
-            <button
-              @click.prevent="toggleIdentitySection"
-              type="button"
+            <button @click.prevent="toggleIdentitySection" type="button"
               class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
               <h2 class="text-md font-semibold text-gray-900 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,42 +244,26 @@
             </button>
 
             <div v-show="showIdentitySection" class="mt-6 transition-all duration-300 ease-in-out">
-              <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <Select
-                    :lb="$t('IDType')"
-                    v-model="formData.idType"
-                    :options="idTypeOptions"
-                    :placeholder="$t('Select ID Type')"
-                  />
+                  <Select :lb="$t('IDType')" v-model="formData.idType" :options="idTypeOptions"
+                    :placeholder="$t('Select ID Type')" />
                 </div>
                 <div class="">
-                  <Input
-                    :lb="idNumberLabel"
-                    v-model="formData.idNumber"
-                    type="text"
-                    :placeholder="idNumberLabel"
-                  />
+                  <Input :lb="idNumberLabel" v-model="formData.idNumber" type="text" :placeholder="idNumberLabel" />
+                </div>
+              </div>
+               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
+               
+                <div>
+                  <InputDatePicker :title="$t('ExpiryDate')" v-model="formData.idExpiryDate"
+                    :placeholder="$t('Select Date')" />
                 </div>
                 <div>
-                  <InputDatePicker
-                    :title="$t('ExpiryDate')"
-                    v-model="formData.idExpiryDate"
-                    :placeholder="$t('Select Date')"
-                  />
+                  <InputCountries :lb="$t('Countryofissue')" v-model="formData.issuingCountry" />
                 </div>
                 <div>
-                  <InputCountries
-                    :lb="$t('Countryofissue')"
-                    v-model="formData.issuingCountry"
-                  />
-                </div>
-                <div>
-                  <Input
-                    :lb="$t('Cityofissue')"
-                    v-model="formData.issuingCity"
-                    :placeholder="$t('Cityofissue')"
-                  />
+                  <Input :lb="$t('Cityofissue')" v-model="formData.issuingCity" :placeholder="$t('Cityofissue')" />
                 </div>
               </div>
             </div>
@@ -377,20 +273,12 @@
 
       <!-- Footer with buttons -->
       <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-        <button
-          type="button"
-          @click="$emit('close')"
-          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
-        >
+        <button type="button" @click="$emit('close')"
+          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200">
           {{ $t('Cancel') }}
         </button>
-        <BasicButton
-          v-if="!confirmReservation"
-          variant="info"
-          :loading="isLoading"
-          type="submit"
-          @click="handleSubmit()"
-          :disabled="isLoading || hasPendingUploads"
+        <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
+          @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
           :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
         </BasicButton>
       </div>
@@ -603,9 +491,9 @@ const handleSubmit = async () => {
       guest: formData.value
     })
     await router.push({
-        name: 'ReservationDetails',
-        params: { id: reservationId.value },
-      })
+      name: 'ReservationDetails',
+      params: { id: reservationId.value },
+    })
     emit('close')
   } catch (error) {
     console.error('Error submitting form:', error)
@@ -614,7 +502,7 @@ const handleSubmit = async () => {
 
 // Initialize on mount
 onMounted(async () => {
-   await fetchIdentityTypes()
+  await fetchIdentityTypes()
   await initialize()
 
 

@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex h-screen bg-gray-50">
+        <div class="flex h-full bg-gray-50">
             <!-- Left Sidebar - Invoice List -->
             <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col mt-6">
                 <div class="flex-1 overflow-y-auto">

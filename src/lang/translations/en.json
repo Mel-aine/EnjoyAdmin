@@ -6311,7 +6311,7 @@
   "PlaceOfBirth" : "Place Of Birth",
   "DateOfBirth" : "Date Of Birth",
   "QuickBooking" : "Quick Reservation",
-  "countryOfPermanentResidence" : "Country Of Permanent Residence",
+  "countryOfPermanentResidence" : "Country of residence",
   "AllActions" : "All Actions",
   "AllUsers" : "All Users",
   "check_out_date" : "Check Out Date",
@@ -6325,7 +6325,7 @@
   "Save Payment" : "Save Payment",
   "Payment saved successfully" : "Payment saved successfully!",
   "UpdateSuccessfully" : "Update Payment Successfully",
-  "MaidenName" : "Maiden Name",
+  "MaidenName" : "Middle Name",
   "contactType" : "Contact Type",
   "contactTypes" : {
     "mobile" :"Mobile",

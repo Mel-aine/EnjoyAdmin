@@ -1,7 +1,7 @@
 <template>
   <aside>
     <div :class="[
-      'fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
+      'fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-full transition-all duration-300 ease-in-out z-99999 border-r border-gray-200',
       {
         'lg:w-[290px]': isExpanded || isMobileOpen || isHovered,
         'lg:w-[90px]': !isExpanded && !isHovered,
@@ -312,11 +312,6 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { useSidebar } from '@/composables/useSidebar'
-import HomeIcon from '@/icons/HomeIcon.vue'
-import BarChartIcon from '@/icons/BarChartIcon.vue'
-import CheckIcon from '@/icons/CheckIcon.vue'
-import PieChartIcon from '@/icons/PieChartIcon.vue'
-import SettingsIcon from '@/icons/SettingsIcon.vue'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
 
 const route = useRoute()

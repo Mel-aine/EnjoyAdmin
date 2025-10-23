@@ -1,6 +1,5 @@
 <template>
   <AdminLayout>
-    <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('maintenance_block')" :breadcrumb="breadcrumb" />
 
       <div class="space-y-6 mt-10">
@@ -144,7 +143,6 @@
         @close="handleBlockClose"
         @save="handleBlockSave"
       />
-    </FullScreenLayout>
   </AdminLayout>
 </template>
 
@@ -154,7 +152,6 @@ import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import CreateBlockModal from '@/components/Housekeeping/CreateBlockModal.vue'
