@@ -173,7 +173,10 @@ interface RoomInfo {
   capacity?: { adults: number; children: number }
 }
 
-const props = defineProps<{ room: RoomInfo; plan: RatePlan; nights: number; currency?: string }>()
+
+
+
+const props = defineProps<{ room: RoomInfo; plan: RatePlan; nights: number; currency?: string,selectedCount?: number  }>()
 
 const emit = defineEmits<{
   (e: 'add', payload: { room: RoomInfo; plan: RatePlan; adults: number; children: number }): void
@@ -190,7 +193,11 @@ const capacityChildren = computed(() => props.room?.capacity?.children ?? 0)
 const qtyAdults = ref(capacityAdults.value)
 const qtyChildren = ref(0)
 const compare = ref(false)
-const selectedCount = ref(0)
+const selectedCount = computed({
+  get: () => props.selectedCount || 0,
+  set: () => {}
+})
+
 const showInfo = ref(false)
 
 // Mettre à jour qtyAdults si la capacité change
@@ -248,7 +255,6 @@ function formatCurrency(amount: number) {
 function increment() {
   if (!canAdd.value) return
   if (selectedCount.value >= props.room.roomsLeft) return
-  selectedCount.value++
   emit('add', {
     room: props.room,
     plan: props.plan,
@@ -259,9 +265,11 @@ function increment() {
 
 function decrement() {
   if (selectedCount.value <= 0) return
-  selectedCount.value--
   emit('remove', { room: props.room, plan: props.plan })
 }
+
+
+
 
 function enquireLocal() {
   router.push('/ota/contact-us')

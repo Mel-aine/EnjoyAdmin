@@ -32,9 +32,9 @@
         <aside class="space-y-4">
           <div class="bg-white rounded-lg shadow-sm border p-4">
             <div class="font-semibold">Property Contact</div>
-            <div class="text-sm text-gray-700 mt-1">Phone: (+237) 650 00 00 00</div>
-            <div class="text-sm text-gray-700">Email: info@suita-hotel.example</div>
-            <div class="text-sm text-gray-700">Address: 123 Example Street, Douala</div>
+            <div class="text-sm text-gray-700 mt-1">Phone: {{ hotelPhone }}</div>
+            <div class="text-sm text-gray-700">Email: {{ hotelEmail }}</div>
+            <div class="text-sm text-gray-700">Address: {{ hotelAddress }}</div>
           </div>
           <div class="bg-white rounded-lg shadow-sm border p-4">
             <div class="font-semibold">Need to cancel?</div>
@@ -52,7 +52,7 @@ import { ref,computed,onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
-import { getHotelInfo } from '@/services/otaApi'
+import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const router = useRouter()
@@ -62,6 +62,14 @@ const selectedCurrency = ref<string>('XAF')
 const serviceStore = useServiceStore()
 const loading = ref<boolean>(true)
 function setCurrency(c: string) { selectedCurrency.value = c }
+const hotelAddress = computed(() => {
+  const addr = hotelData.value?.address
+  if (!addr) return ''
+  return `${addr.address}, ${addr.city}, ${addr.country.toUpperCase()}`
+})
+const hotelPhone = computed(() => hotelData.value?.contacts?.phoneNumber || '')
+const hotelEmail = computed(() => hotelData.value?.contacts?.email || '')
+const hotelWebsite = computed(() => hotelData.value?.contacts?.website || '')
 
 const form = ref({ name: '', email: '', message: '' })
 function submit() {

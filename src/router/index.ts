@@ -147,6 +147,15 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
+     {
+      path: '/ota/confirmation',
+      name: 'ConfirmationBooking',
+      component: () => import('../views/ota/ConfirmationBooking.vue'),
+      meta: {
+        title: 'Confirmation Booking',
+        requiresAuth: false,
+      },
+    },
     {
       path: '/addbooking/:id',
       name: 'AddBooking',
@@ -1517,7 +1526,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-   
+
      {
       path: '/stay_view',
       name: 'ReservationCalendar',

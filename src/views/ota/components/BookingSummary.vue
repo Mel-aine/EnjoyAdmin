@@ -76,4 +76,6 @@ function childrenLabel(count: number) {
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(amount)
 }
+
+
 </script>

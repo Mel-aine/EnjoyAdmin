@@ -87,8 +87,8 @@
 import { ref,computed ,onMounted} from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
-import { getCancellationSummary, cancelReservation } from '@/services/api'
-import { getHotelInfo } from '@/services/otaApi'
+import { getCancellationSummary, cancelReservationById } from '@/views/ota/services/otaApi'
+import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const selectedCurrency = ref<string>('XAF')
@@ -105,7 +105,7 @@ const loadingCancel = ref<boolean>(false)
 const serviceStore = useServiceStore()
 const hotelData = ref<any>(null)
 const loading = ref<boolean>(true)
-const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || 'Free cancellation up to 24 hours before arrival on flexible rates')
+const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || '')
 async function loadSummary() {
   error.value = ''
   success.value = ''
@@ -116,6 +116,7 @@ async function loadSummary() {
     if (!reservationId.value) throw new Error('Please enter a reservation ID.')
     const { data } = await getCancellationSummary(reservationId.value)
     summary.value = data || {}
+    console.log('Loaded cancellation summary:', summary.value)
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Unable to load summary. Please try again.'
   } finally {
@@ -130,7 +131,7 @@ async function confirmCancel() {
   try {
     if (!reservationId.value) throw new Error('Missing reservation ID.')
     const payload: any = { reason: reason.value }
-    await cancelReservation(reservationId.value, payload)
+    await cancelReservationById(reservationId.value, payload)
     success.value = 'Reservation cancelled successfully.'
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Cancellation failed. Please try again later.'

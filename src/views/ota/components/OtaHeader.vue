@@ -75,7 +75,7 @@ import MappingIcon from '@/icons/MappingIcon.vue'
 import Message2Line from '@/icons/Message2Line.vue'
 import CheckIcon from '@/icons/CheckIcon.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
-import { getHotelInfo } from '@/services/otaApi'
+import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const props = defineProps<{  currency?: string }>()

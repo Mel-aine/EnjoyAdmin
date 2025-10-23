@@ -77,6 +77,7 @@
                 :plan="plan"
                 :nights="nights"
                 :currency="selectedCurrency"
+                :selected-count="roomCounts[`${room.name}-${plan.name}`] || 0"
                 @add="handleAddRoom"
                 @remove="handleRemoveRoom"
                 @update="handleUpdate"
@@ -120,9 +121,9 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import RatePlanCard from './components/RatePlanCard.vue'
 import BookingSummary from './components/BookingSummary.vue'
 import OtaHeader from './components/OtaHeader.vue'
-import { getAvailability, type RoomAvailability } from '@/services/otaApi'
+import { getAvailability, type RoomAvailability } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
-import { useBookingSummaryStore } from '@/composables/bookingSummary'
+import { useBookingSummaryStore } from '@/views/ota/composables/bookingSummary'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -178,7 +179,7 @@ const filteredRooms = computed(() => {
       shortCode: plan.shortCode,
       features: plan.features ?? [],
       policies: [],
-      price: plan.price ?? 0,
+      price: plan.basePrice ?? 0,
       pricePerNight: plan.pricePerNight ?? 0,
       breakdown: plan.breakdown ?? {},
       currency: plan.currency ?? '',
@@ -282,57 +283,94 @@ function handleRemoveRoom(payload: any) {
   }
 }
 
+// function removeSummaryItem(index: number) {
+//   if (index >= 0 && index < summaryItems.value.length) {
+//     summaryItems.value.splice(index, 1)
+//   }
+
+// }
+//  removeSummaryItem
 function removeSummaryItem(index: number) {
   if (index >= 0 && index < summaryItems.value.length) {
+    const item = summaryItems.value[index]
     summaryItems.value.splice(index, 1)
+
+    const room = filteredRooms.value.find(r => r.id === item.roomId)
+    if (room) {
+
+      handleRemoveRoom({ room: { ...room, name: item.roomName }, plan: { id: item.planId, name: item.planName } })
+    }
   }
 }
 
-// function bookFromSummary() {
-//   if (!summaryItems.value.length) return
 
-//   const items = summaryItems.value.map((item) => ({
-//     roomId: item.roomId,
-//     rateTypeId: item.planId,
-//     quantity: item.qty,
-//   }))
-
-//   router.push({
-//     path: '/ota/checkout',
-//     query: {
-//       hotelId: String(hotelId),
-//       arrivalDate: arrivalDate.value,
-//       departureDate: departureDate.value,
-//       adults: String(adults.value),
-//       children: String(children.value),
-//       nights: String(nights.value),
-//       items: JSON.stringify(items),
-//     },
-//   })
-// }
+const roomCounts = computed(() => {
+  const counts: Record<string, number> = {}
+  summaryItems.value.forEach(item => {
+    const key = `${item.roomName}-${item.planName}`
+    counts[key] = item.qty
+  })
+  return counts
+})
 
 
 function bookFromSummary() {
-  if (!summaryItems.value.length) return
+  if (!summaryItems.value.length) {
+    alert('Veuillez sélectionner au moins une chambre')
+    return
+  }
 
   const bookingStore = useBookingSummaryStore()
 
-  const items = summaryItems.value.map((item) => ({
-    roomId: item.roomId,
-    rateTypeId: item.planId,
-    quantity: item.qty,
-  }))
+  const items = summaryItems.value.map((item) => {
+    const room = filteredRooms.value.find(r => r.name === item.roomName)
+    const plan = room?.ratePlans.find(p => p.name === item.planName)
+    const taxIncluded = plan?.features?.some(
+      feature => feature.toLowerCase().includes('tax included')
+    ) || false
 
+    return {
+      roomId: item.roomId,
+      roomName: item.roomName,
+      rateTypeId: item.planId,
+      planName: item.planName,
+      planPrice: item.planPrice,
+      quantity: item.qty,
+      adults: item.adults,
+      children: item.children,
+      taxIncluded: taxIncluded,
+    }
+  })
+
+  const allTaxIncluded = items.every(item => item.taxIncluded === true)
+
+  // Calculer le prix total
+  const totalPrice = summaryItems.value.reduce((sum, item) => {
+    return sum + (item.planPrice * item.qty)
+  }, 0)
+
+  // Sauvegarder toutes les données
   bookingStore.setBookingData({
     hotelId: String(hotelId),
+    hotelName: brand.value || hotelMeta.value?.hotelName || '',
+    address : hotelMeta.value?.address || 'Unknown Address',
+    email: hotelMeta.value?.email || '',
+    phoneNumber : hotelMeta.value?.phoneNumber || '',
+    cancellationPolicy: hotelMeta.value?.cancellation || '',
+    policies: hotelMeta.value?.policies || '',
+    taxe: hotelMeta.value?.taxe || 1 ,
     arrivalDate: arrivalDate.value,
     departureDate: departureDate.value,
     adults: String(adults.value),
     children: String(children.value),
     nights: String(nights.value),
     items,
+    totalPrice,
+    currency: selectedCurrency.value,
+    taxIncluded: allTaxIncluded,
   })
 
+  // Naviguer vers le checkout
   router.push({ path: '/ota/checkout' })
 }
 

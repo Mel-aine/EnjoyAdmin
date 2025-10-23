@@ -110,7 +110,7 @@ import { useRouter } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
-import { getHotelInfo } from '@/services/otaApi'
+import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const router = useRouter()
@@ -133,10 +133,10 @@ const hotelEmail = computed(() => hotelData.value?.contacts?.email || '')
 const hotelWebsite = computed(() => hotelData.value?.contacts?.website || '')
 const checkInTime = computed(() => hotelData.value?.policy?.checkInTime || '')
 const checkOutTime = computed(() => hotelData.value?.policy?.checkOutTime || '')
-const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || 'Free cancellation up to 24 hours before arrival on flexible rates')
+const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || '')
 const hotelPolicies = computed(() => {
   const policy = hotelData.value?.policy?.hotelPolicy
-  if (!policy) return ['No smoking in rooms; designated outdoor areas available']
+  if (!policy) return []
   return policy.includes('|') ? policy.split('|').filter((p:any) => p.trim()) : [policy]
 })
 

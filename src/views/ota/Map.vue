@@ -97,7 +97,7 @@
 import { ref, computed, onMounted } from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
-import { getHotelInfo } from '@/services/otaApi'
+import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 const serviceStore = useServiceStore()
