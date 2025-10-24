@@ -45,7 +45,7 @@ const props = defineProps<{
   lb?: string
   defaultValue?: string
   isRequired?: boolean
-  modelValue?: string | number
+  modelValue?: string | number | null
   placeholder?: string
   options: Option[]
   disabled?: boolean,
