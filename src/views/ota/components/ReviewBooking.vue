@@ -72,7 +72,7 @@
               </h3>
               <div class="grid grid-cols-2 gap-2">
                 <div class="bg-slate-50 rounded p-2 flex justify-between items-center">
-                  <div class="text-xs text-slate-500 uppercase ">Check-In</div>
+                  <div class="text-xs text-slate-500 uppercase">Check-In</div>
                   <div class="font-medium text-slate-900">{{ formatDate(bookingData?.arrivalDate) }}</div>
                 </div>
                 <div class="bg-slate-50 rounded p-2 flex justify-between items-center">
@@ -142,12 +142,18 @@
                     <div>
                       <div class="font-semibold text-slate-900">{{ item.roomName }}</div>
                       <div class="text-xs text-slate-600">{{ item.planName }}</div>
-                      <!-- <span
+                      <span
                         v-if="item.taxIncluded"
-                        class="inline-block mt-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
+                        class="inline-block mt-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full"
                       >
-                        Tax Included
-                      </span> -->
+                        Tax Included in Price
+                      </span>
+                      <span
+                        v-else
+                        class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full"
+                      >
+                        Tax Not Included
+                      </span>
                     </div>
                     <div class="text-right text-xs">
                       <div class="text-slate-500">{{ item.quantity }} room(s)</div>
@@ -165,32 +171,62 @@
             </section>
 
             <!-- Price Summary -->
-            <section class="bg-brand-50 rounded-lg p-3 text-gray-950">
-              <h3 class="text-base font-semibold mb-2">Price Summary</h3>
-              <div class="space-y-1 text-xs">
+            <section class="bg-gradient-to-br from-blue-50 to-slate-50 rounded-lg p-3 border border-blue-100">
+              <h3 class="text-base font-semibold text-slate-800 mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Price Summary
+              </h3>
+              <div class="space-y-1.5 text-xs">
+                <!-- Prix HT -->
                 <div class="flex justify-between">
-                  <span class="text-gray-950">Room Charges</span>
-                  <span class="font-semibold ">{{ formatCurrency(totalRoomCharges) }}</span>
+                  <span class="text-slate-600">Room Charges (excl. tax)</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(taxCalculation.roomChargesHT) }}</span>
                 </div>
-                <!-- <div
-                  class="flex justify-between"
-                  :class="taxDisplayInfo.isIncluded ? 'text-green-300' : 'text-gray-500'"
-                >
-                  <span>{{ taxDisplayInfo.label }}</span>
-                  <span class="font-semibold">
-                    {{ taxDisplayInfo.showAmount ? formatCurrency(taxes) : formatCurrency(0) }}
+
+                <!-- Détail des taxes -->
+                <div v-if="taxCalculation.breakdown.length > 0" class="space-y-1 pl-2 border-l-2 border-blue-200">
+                  <div v-for="tax in taxCalculation.breakdown" :key="tax.taxId" class="flex justify-between text-slate-600">
+                    <span>{{ tax.taxName }}</span>
+                    <span class="font-medium">{{ formatCurrency(tax.amount) }}</span>
+                  </div>
+                  <div class="flex justify-between font-semibold text-slate-700 pt-1 border-t border-slate-200">
+                    <span>Total Taxes & Fees</span>
+                    <span>{{ formatCurrency(taxCalculation.total) }}</span>
+                  </div>
+                </div>
+
+                <!-- Note informative -->
+                <div v-if="taxCalculation.hasItemsWithTaxIncluded" class="text-[10px] text-blue-600 bg-blue-50 p-1.5 rounded">
+                  <span v-if="allTaxesIncluded">
+                    ℹ️ All displayed prices include taxes. Taxes shown separately for transparency.
                   </span>
-                </div> -->
-                <div v-if="discount > 0" class="flex justify-between text-green-300">
+                  <span v-else>
+                    ℹ️ Some prices include taxes ({{ formatCurrency(taxCalculation.extractedTaxes) }} extracted from total)
+                  </span>
+                </div>
+
+                <!-- Réduction -->
+                <div v-if="discount > 0" class="flex justify-between text-green-600">
                   <span>Promo Discount</span>
                   <span class="font-semibold">-{{ formatCurrency(discount) }}</span>
                 </div>
-                <div class="border-t border-white/20 pt-1 mt-1">
-                  <div class="flex justify-between text-sm font-bold">
+
+                <!-- Total final -->
+                <div class="border-t border-slate-300 pt-2 mt-2">
+                  <div class="flex justify-between text-base font-bold text-slate-900">
                     <span>Total Amount</span>
-                    <span>{{ formatCurrency(finalTotal) }}</span>
+                    <span class="text-blue-700">{{ formatCurrency(finalTotal) }}</span>
                   </div>
-                  <div class="text-[11px] text-gray-950 mt-0.5">Payment at hotel</div>
+                  <div class="text-[11px] text-slate-600 mt-0.5 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Payment due at hotel
+                  </div>
                 </div>
               </div>
             </section>
@@ -222,17 +258,10 @@
             <div class="flex gap-2">
               <button
                 @click="editBooking"
-                class="px-4 py-1 rounded-md bg-slate-700 text-white text-sm hover:bg-slate-800"
+                class="px-4 py-1 rounded-md bg-slate-700 text-white text-sm hover:bg-slate-800 transition"
               >
-                Edit
+                Edit Booking
               </button>
-              <!-- <button
-                @click="confirmBooking"
-                :disabled="!acceptPolicy"
-                class="px-4 py-2 rounded-md bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50"
-              >
-                Confirm
-              </button> -->
             </div>
           </div>
         </div>
@@ -240,7 +269,6 @@
     </Transition>
   </Teleport>
 </template>
-
 
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -257,7 +285,7 @@ const props = defineProps<{
   taxes: number
   discount: number
   finalTotal: number
-  taxDisplayInfo: any
+  taxCalculation: any
   acceptPolicy: boolean
 }>()
 
@@ -267,6 +295,12 @@ const emit = defineEmits<{
   confirm: []
   edit: []
 }>()
+
+// Computed
+const allTaxesIncluded = computed(() => {
+  const items = props.bookingData?.items || []
+  return items.length > 0 && items.every((item: any) => item.taxIncluded === true)
+})
 
 // Methods
 function closeModal() {
@@ -323,13 +357,10 @@ function formatDate(dateStr?: string) {
 
 .sidebar-scroll {
   -ms-overflow-style: none;
-  /* Internet Explorer 10+ */
   scrollbar-width: none;
-  /* Firefox */
 }
 
 .sidebar-scroll::-webkit-scrollbar {
   display: none;
-  /* Safari and Chrome */
 }
 </style>

@@ -185,19 +185,14 @@
 
             <!-- Prix total section -->
             <div class="pt-3 space-y-2 border-t mt-3">
-              <!-- Total des chambres -->
+              <!-- Total des chambres HT (hors taxes) -->
               <div class="flex justify-between text-sm">
-                <div class="text-gray-600">Room Charges</div>
-                <div class="font-semibold">{{ formatCurrency(totalRoomCharges) }}</div>
+                <div class="text-gray-600">Room Charges (excl. tax)</div>
+                <div class="font-semibold">{{ formatCurrency(taxCalculation.roomChargesHT) }}</div>
               </div>
 
               <!-- Affichage des taxes -->
-              <div v-if="allTaxesIncluded" class="flex justify-between text-sm text-green-600">
-                <div>Taxes (included in price)</div>
-                <div>{{ formatCurrency(0) }}</div>
-              </div>
-
-              <div v-else-if="taxCalculation.breakdown.length > 0" class="space-y-1">
+              <div v-if="taxCalculation.breakdown.length > 0" class="space-y-1">
                 <!-- Afficher chaque taxe individuellement -->
                 <div v-for="tax in taxCalculation.breakdown" :key="tax.taxId" class="flex justify-between text-sm text-gray-600">
                   <div class="flex items-center gap-1">
@@ -211,17 +206,20 @@
 
                 <!-- Total des taxes -->
                 <div class="flex justify-between text-sm font-semibold border-t pt-2">
-                  <div>Total Taxes</div>
+                  <div>Total Taxes & Fees</div>
                   <div>{{ formatCurrency(taxCalculation.total) }}</div>
                 </div>
               </div>
 
-              <!-- Note pour les taxes mixtes -->
-              <div v-if="hasMixedTaxStatus" class="flex items-start gap-1 text-xs text-amber-600 bg-amber-50 p-2 rounded">
+              <!-- Note pour les taxes incluses -->
+              <div v-if="taxCalculation.hasItemsWithTaxIncluded" class="flex items-start gap-1 text-xs text-blue-600 bg-blue-50 p-2 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
-                <span>Some rooms have taxes included in the price, others don't</span>
+                <span>
+                  <span v-if="allTaxesIncluded">All prices include taxes. Taxes shown separately for transparency.</span>
+                  <span v-else>Some prices include taxes ({{ formatCurrency(taxCalculation.extractedTaxes) }} extracted)</span>
+                </span>
               </div>
 
               <!-- Réduction promo -->
@@ -253,36 +251,50 @@
                     <span>{{ item.quantity }} room × {{ nights }} nights × {{ formatCurrency(item.planPrice) }}</span>
                     <span>{{ formatCurrency(item.planPrice * item.quantity * nights) }}</span>
                   </div>
-                  <div v-if="item.taxIncluded" class="text-green-600 text-[10px]">✓ Taxes included</div>
+                  <div v-if="item.taxIncluded" class="text-blue-600 text-[10px]">
+                    ✓ Price includes taxes ({{ formatCurrency(item.planPrice) }} TTC)
+                  </div>
+                  <div v-else class="text-amber-600 text-[10px]">
+                    ⚠ Price excludes taxes ({{ formatCurrency(item.planPrice) }} HT)
+                  </div>
                 </div>
               </div>
 
               <!-- Totaux -->
               <div class="flex justify-between font-medium pt-2 border-t">
-                <span>Subtotal ({{ nights }} nights)</span>
+                <span>Total Displayed ({{ nights }} nights)</span>
                 <span>{{ formatCurrency(totalRoomCharges) }}</span>
               </div>
 
+              <div class="flex justify-between text-gray-600">
+                <span>Room Charges (excl. tax)</span>
+                <span>{{ formatCurrency(taxCalculation.roomChargesHT) }}</span>
+              </div>
+
               <!-- Détail des taxes -->
-              <div v-if="!allTaxesIncluded && taxCalculation.breakdown.length > 0" class="space-y-1">
+              <div v-if="taxCalculation.breakdown.length > 0" class="space-y-1 border-t pt-1 mt-1">
+                <div class="text-[10px] font-semibold text-gray-500 uppercase">Tax Breakdown:</div>
                 <div v-for="tax in taxCalculation.breakdown" :key="tax.taxId" class="flex justify-between">
                   <span>{{ formatTaxLabel(bookingData?.taxes?.find(t => t.id === tax.taxId)) }}</span>
                   <span>{{ formatCurrency(tax.amount) }}</span>
                 </div>
+                <div class="flex justify-between font-medium border-t pt-1">
+                  <span>Total Taxes</span>
+                  <span>{{ formatCurrency(taxCalculation.total) }}</span>
+                </div>
+                <div v-if="taxCalculation.extractedTaxes > 0" class="flex justify-between text-blue-600 text-[10px]">
+                  <span>└─ Extracted from prices</span>
+                  <span>{{ formatCurrency(taxCalculation.extractedTaxes) }}</span>
+                </div>
               </div>
 
-              <div v-else-if="allTaxesIncluded" class="flex justify-between text-green-700">
-                <span>Taxes (included in price)</span>
-                <span>{{ formatCurrency(0) }}</span>
-              </div>
-
-              <div v-if="discount > 0" class="flex justify-between text-green-700">
+              <div v-if="discount > 0" class="flex justify-between text-green-700 border-t pt-1 mt-1">
                 <span>Promo discount</span>
                 <span>-{{ formatCurrency(discount) }}</span>
               </div>
 
-              <div class="flex justify-between font-bold border-t pt-1 mt-1">
-                <span>Total</span>
+              <div class="flex justify-between font-bold border-t pt-1 mt-1 text-sm">
+                <span>Total to Pay</span>
                 <span>{{ formatCurrency(finalTotal) }}</span>
               </div>
             </div>
@@ -292,7 +304,11 @@
             <div class="text-sm">Pay at Hotel</div>
             <div>
               <div class="text-xl font-bold text-blue-800">{{ formatCurrency(finalTotal) }}</div>
-              <div v-if="allTaxesIncluded" class="text-xs text-gray-600 mt-1">All taxes included</div>
+              <div class="text-xs text-gray-600 mt-1">
+                <span v-if="allTaxesIncluded">Taxes included</span>
+                <span v-else-if="hasMixedTaxStatus">Taxes vary by room</span>
+                <span v-else>+ {{ formatCurrency(taxCalculation.total) }} taxes</span>
+              </div>
             </div>
           </div>
 
@@ -408,10 +424,6 @@ const hasMixedTaxStatus = computed(() => {
 
 // Calculer les taxes avec la fonction utilitaire
 const taxCalculation = computed(() => {
-  if (allTaxesIncluded.value) {
-    return { total: 0, breakdown: [] }
-  }
-
   const items = (bookingData.value?.items || []).map(item => ({
     roomId: item.roomId,
     roomName: item.roomName,
@@ -428,7 +440,19 @@ const taxCalculation = computed(() => {
   return calculateCartTaxes(items, taxes, nights.value)
 })
 
-const grandTotal = computed(() => totalRoomCharges.value + taxCalculation.value.total)
+// Le grand total est basé sur le prix TTC affiché
+const grandTotal = computed(() => {
+  const displayedTotal = totalRoomCharges.value
+
+  if (allTaxesIncluded.value) {
+    return displayedTotal
+  } else if (taxCalculation.value.hasItemsWithoutTax && !taxCalculation.value.hasItemsWithTaxIncluded) {
+    return displayedTotal + taxCalculation.value.total
+  } else {
+    return displayedTotal + (taxCalculation.value.total - taxCalculation.value.extractedTaxes)
+  }
+})
+
 const discount = computed(() => (promoApplied.value ? Math.round(grandTotal.value * 0.1) : 0))
 const finalTotal = computed(() => Math.max(grandTotal.value - discount.value, 0))
 
@@ -498,7 +522,7 @@ async function bookNow() {
         ...item,
         totalPrice: item.planPrice * item.quantity * nights.value,
       })) || [],
-      subtotal: totalRoomCharges.value,
+      subtotal: taxCalculation.value.roomChargesHT,
       taxes: taxCalculation.value.total,
       taxBreakdown: taxCalculation.value.breakdown,
       discount: discount.value,
