@@ -319,6 +319,14 @@ interface ReportData {
   };
 }
 
+// Définition des dates par défaut
+const today = new Date()
+const yesterday = new Date(today)
+yesterday.setDate(yesterday.getDate() - 1)
+
+const todayFormatted = today.toISOString().split('T')[0]
+const yesterdayFormatted = yesterday.toISOString().split('T')[0]
+
 // Reactive data
 const showResults = ref<boolean>(false)
 const loading = ref<boolean>(false)
@@ -329,18 +337,19 @@ const reportData = ref<ReportData | null>(null)
 const pdfUrl = ref('')
 const idHotel = serviceStore.serviceId
 
-// Filtres pour l'interface utilisateur
+// Filtres pour l'interface utilisateur avec les valeurs par défaut
 const filters = ref<Filters>({
-  dateFrom: '',
-  dateTo: '',
-  type: ''
+  dateFrom: yesterdayFormatted,  // Date de la veille
+  dateTo: todayFormatted,         // Date du jour
+  type: 'Both'                    // Both par défaut
 })
 
 // Filtres pour l'API - correspond aux données attendues par le backend
 const apiFilters = ref<PickupDropoffFilters>({
-  startDate: '',
-  endDate: '',
-  hotelId: idHotel !== null ? idHotel : 0 // Use 0 or a default value if required
+  startDate: yesterdayFormatted,  // Date de la veille
+  endDate: todayFormatted,         // Date du jour
+  type: 'Both',                    // Both par défaut
+  hotelId: idHotel !== null ? idHotel : 0
 })
 
 // Options pour les sélecteurs - correspondent aux valeurs attendues par le backend
@@ -486,9 +495,9 @@ const formatDate = (dateString: string): string => {
 
 const resetForm = (): void => {
   filters.value = {
-    dateFrom: '',
-    dateTo: '',
-    type: ''
+    dateFrom: yesterdayFormatted,  // Réinitialiser à la veille
+    dateTo: todayFormatted,         // Réinitialiser au jour actuel
+    type: 'Both'                    // Réinitialiser à Both
   }
   showResults.value = false
   reportData.value = null
