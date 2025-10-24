@@ -1,4 +1,16 @@
 {
+  "tableColumns": {
+    "resNo": "N° réservation",
+    "guest": "Client",
+    "room": "Chambre",
+    "rate": "Tarif",
+    "arrival": "Arrivée",
+    "departure": "Départ",
+    "pax": "PAX",
+    "businessSource": "Source d'affaires",
+    "resType": "Type de réservation",
+    "user": "Utilisateur"
+  },
   "login": "Connexion",
   "french": "Français",
   "english": "Anglais",
