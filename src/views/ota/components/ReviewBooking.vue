@@ -257,7 +257,7 @@ const props = defineProps<{
   taxes: number
   discount: number
   finalTotal: number
-  taxDisplayInfo: any
+  taxDisplayInfo?: any
   acceptPolicy: boolean
 }>()
 
