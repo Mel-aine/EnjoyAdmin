@@ -517,6 +517,7 @@ const handleNoShowConfirmed = async () => {
 
 const handleUnAssignConfirmed = () => {
   isUnAssignModalOpen.value = false
+  updateLocalReservation({ reservationRooms: localRes.value.reservationRooms.filter((room: any) => !room.unassigned), availableActions: [] })
   emit('save', { action: 'unassign', reservationId: localRes.value?.id })
 }
 const handleRoomMoveSuccess = () => {
