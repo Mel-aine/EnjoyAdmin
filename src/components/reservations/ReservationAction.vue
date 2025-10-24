@@ -515,7 +515,7 @@ const handleNoShowConfirmed = async () => {
   emit('save', { action: 'noshow', reservationId: localRes.value?.id })
 }
 
-const handleUnAssignConfirmed = () => {
+const handleUnAssignConfirmed = async (data: any) => {
   isUnAssignModalOpen.value = false
   const updatedRooms = localRes.value.reservationRooms.map((room: any) => {
     if (data.reservationRooms.includes(room.id)) {

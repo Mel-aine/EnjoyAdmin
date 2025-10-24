@@ -61,14 +61,14 @@
           <span>{{ option.label }}</span>
           <span v-if="option.count !== undefined"   class="bg-red-200 text-red-800 px-3 py-0.5 rounded-full text-sm font-medium min-w-[24px] text-center">{{ option.count }}</span>
             <span v-if="option.status === 'occupied'" class="ml-auto text-xs">({{ $t('Occupied') }})</span>
-          <svg
+          <!-- <svg
             v-if="selectedOption?.value === option.value"
             class="w-4 h-4 text-purple-600"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-          </svg>
+          </svg> -->
         </li>
       </ul>
 

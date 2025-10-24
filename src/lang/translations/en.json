@@ -6372,7 +6372,9 @@
   "journalist": "Journalist",
   "police_officer": "Police Officer",
   "firefighter": "Firefighter",
-  "civil_servant": "Civil Servant"
+  "civil_servant": "Civil Servant",
+  "AddReservation" : "Add Reservation",
+  "error_fetching_reservation_details" :"Error fetching reservation details"
 
 
 }

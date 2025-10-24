@@ -90,6 +90,7 @@ const emits = defineEmits(['update:modelValue', 'select', 'change']);
 
 const searchQuery = ref<string>('');
 const isOpen = ref<boolean>(false);
+const selectedCountry = ref<any | null>(null);
 const computedPlaceholder = computed(() => {
   return props.placeholder || t('search_country');
 });
@@ -329,20 +330,37 @@ const handleFocus = () => {
 };
 
 // Handles blur event with a slight delay to allow click on suggestions
-const handleBlur = () => {
+
+function handleBlur() {
   setTimeout(() => {
-    isOpen.value = false;
-  }, 200);
-};
+    isOpen.value = false
 
-// Selects a country from the filtered list, only works when not disabled
+    // Vérifie si l’entrée correspond à un pays valide
+    const match = allCountries.value.find(
+      (c) => c.label.toLowerCase() === searchQuery.value.toLowerCase()
+    )
+
+    if (match) {
+      selectedCountry.value = match
+      searchQuery.value = match.label
+      emits('update:modelValue', match.value)
+    } else {
+      selectedCountry.value = null
+      searchQuery.value = ''
+      emits('update:modelValue', '')
+    }
+  }, 200)
+}
+
 const selectCountry = (country: { value: string; label: string }) => {
-  if (props.disabled) return;
+  if (props.disabled) return
+  selectedCountry.value = country
+  searchQuery.value = country.label
+  emits('update:modelValue', country.value)
+  emits('select', country.value)
+  emits('change', country.value)
+  isOpen.value = false
+}
 
-  searchQuery.value = country.label;
-  emits('update:modelValue', country.value);
-  emits('select', country.value);
-  emits('change', country.value);
-  isOpen.value = false;
-};
+
 </script>

@@ -202,9 +202,14 @@
                       />
                     </div>
 
+
                     </div>
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
+                    <div :class="[
+                      'mt-4 grid grid-cols-1 gap-4',
+                      guestData.contactType ? 'md:grid-cols-4' : 'md:grid-cols-3',
+                    ]">
+
+                       <div>
                       <!-- <Input
                         :lb="$t('profession')"
                         :id="'profession'"
@@ -216,12 +221,11 @@
                           v-model="guestData.profession"
                           :lb="$t('profession')"
                           :placeholder="$t('profession')"
-                          custom-class="h-11"
+                          custom-class="w-20"
                           :disabled="!isEditing"
                         />
                     </div>
-
-                    <div>
+                    <!-- <div>
                        <Select
                           v-model="guestData.contactType"
                           :placeholder="$t('-select-')"
@@ -229,7 +233,50 @@
                           :options="TypesOfContact"
                            :disabled="!isEditing"
                         />
-                    </div>
+                    </div> -->
+                     <div>
+                    <AutoCompleteSelect
+                      v-model="guestData.contactType"
+                      :options="TypesOfContact"
+                      :defaultValue="$t('contactType')"
+                      :lb="$t('contactType')"
+                      :is-required="false"
+                      :use-dropdown="useDropdownBooking"
+                      @clear-error="emit('clear-error')"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+
+                  <div v-if="guestData.contactType">
+                    <InputPhone
+                      v-if="contactInputComponent === 'InputPhone'"
+                      :title="contactInputLabel"
+                      v-model="contactValue"
+                      :id="'contact-input'"
+                      :is-required="false"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+
+                    <InputEmail
+                      v-else-if="contactInputComponent === 'InputEmail'"
+                      v-model="contactValue"
+                      :placeholder="contactInputLabel"
+                      :title="contactInputLabel"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+
+                    <Input
+                      v-else-if="contactInputComponent === 'Input'"
+                      :lb="contactInputLabel"
+                      v-model="contactValue"
+                      :placeholder="contactInputLabel"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+                  </div>
 
                   <!-- Téléphone -->
 
@@ -244,7 +291,7 @@
                   </div>
 
                   <!-- Mobile -->
-                  <div>
+                  <!-- <div>
                       <InputPhone
                       :title="$t('mobile')"
                       v-model="guestData.mobile"
@@ -253,7 +300,7 @@
                       :disabled="!isEditing"
                     />
 
-                  </div>
+                  </div> -->
                 </div>
 
                 <!-- Ligne Email, Genre, Type de client, Statut VIP -->
@@ -626,6 +673,7 @@ import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 
 interface GuestData {
   title: string
@@ -659,6 +707,7 @@ interface GuestData {
   preferences?: any;
   contactType?:string
   maidenName?:string
+  contactTypeValue?:string
 }
 
 interface Props {
@@ -679,13 +728,14 @@ interface RichSelectOption extends SelectOption {
   dateField: string
   label_fr: string
 }
-
+const emit = defineEmits(['clear-error'])
 const props = defineProps<Props>()
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
 const Preferences = ref<SelectOption[]>([])
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
+const useDropdownBooking = ref(true)
 
 // State
 const isSaving = ref(false)
@@ -767,6 +817,7 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     idExpiryDate: '',
     issuingCountry: customer?.issuingCountry || '',
     issuingCity: customer?.issuingCity || '',
+    contactTypeValue : customer?.contactTypeValue || '',
     preferences: parsePreferencesFromDB(customer?.preferences)
   }
 
@@ -828,6 +879,7 @@ const initializeGuestData = (guest: any = null): GuestData => {
     issuingCity: '',
     contactType: '',
     maidenName: '',
+    contactTypeValue: '',
     preferences: []
   }
 }
@@ -909,6 +961,56 @@ const toggleOtherInfoSection = () => {
   showOtherInfoSection.value = !showOtherInfoSection.value
 }
 
+const contactInputComponent = computed(() => {
+  if (!guestData.contactType) return null
+
+  switch (guestData.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = guestData.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+watch(() => guestData.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    guestData.contactTypeValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+const contactValue = computed({
+  get: () => guestData.contactTypeValue,
+  set: (value) => {
+    guestData.contactTypeValue = value
+  }
+})
 const fetchVipStatuses = async () => {
   try {
     loading.value = true
@@ -1012,6 +1114,7 @@ const prepareGuestPayload = (): GuestPayload => {
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,
     contactType : guestData.contactType,
+    contactTypeValue : guestData.contactTypeValue,
     maidenName : guestData.maidenName,
     preferences: formatPreferencesForDB(guestData.preferences)
   }

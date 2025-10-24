@@ -21,6 +21,7 @@ import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import { useBooking } from '@/composables/useBooking2'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 
 interface SelectOption {
   value: string
@@ -49,6 +50,7 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: 'customerSelected', payload: any): void
   (e: 'update:modelValue', value: any): void
+  (e:'clear-error'):void
 }>()
 
 type ImageUploaderInstance = InstanceType<typeof ImageUploader>
@@ -66,7 +68,7 @@ const pendingImages = ref<string[]>([])
 const profilePhotoUploader = ref<ImageUploaderInstance | null>(null)
 const idPhotoUploader = ref<ImageUploaderInstance | null>(null)
 const { trackUpload, completeUpload } = useBooking()
-
+const useDropdownBooking = ref(true)
 const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
 }
@@ -151,6 +153,9 @@ const selectCustomer = (customer: any) => {
     selectedCustomer.value.idType = customer.idType ?? selectedCustomer.value.idType
     selectedCustomer.value.idNumber = selectedCustomer.value.idNumber
     selectedCustomer.value.idExpiryDate = selectedCustomer.value.idExpiryDate
+  }
+  if (customer.contactTypeValue) {
+    selectedCustomer.value.contactValue = customer.contactTypeValue
   }
 
   emit('customerSelected', selectedCustomer.value)
@@ -353,6 +358,63 @@ const TypesOfContact = computed(() => [
   { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
 ])
 
+
+
+const contactInputComponent = computed(() => {
+  if (!selectedCustomer.value.contactType) return null
+
+  switch (selectedCustomer.value.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = selectedCustomer.value.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+
+
+
+// Watcher pour synchroniser avec le type de contact sélectionné
+watch(() => selectedCustomer.value.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    selectedCustomer.value.contactValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+const contactValue = computed({
+  get: () => selectedCustomer.value.contactValue,
+  set: (value) => {
+    selectedCustomer.value.contactValue = value
+  }
+})
+
 onMounted(() => {
   fetchGuest()
   fetchIdentityTypes()
@@ -471,14 +533,75 @@ console.log('modalevalue', props.modelValue)
               </div>
 
               <!-- Profession + Phone + Email -->
-              <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <!-- <Input
-                  :lb="$t('profession')"
-                  :id="'profession'"
+
+              <div :class="[
+              'md:col-span-12 grid grid-cols-1  gap-4 items-end',
+              selectedCustomer.contactType ? ' md:grid-cols-5' : ' md:grid-cols-4'
+            ]"
+              >
+                <ProfessionAutocomplete
                   v-model="selectedCustomer.profession"
+                  :lb="$t('profession')"
                   :placeholder="$t('profession')"
                   custom-class="h-11"
-                /> -->
+                />
+                 <InputPhone
+                  :title="$t('Phone')"
+                  v-model="selectedCustomer.phoneNumber"
+                  :id="'phone'"
+                  :is-required="false"
+                  custom-class="h-11"
+                />
+
+                <InputEmail
+                  v-model="selectedCustomer.email"
+                  placeholder="info@gmail.com"
+                  :title="$t('Email')"
+                  required
+                  custom-class="h-11"
+                />
+
+                <AutoCompleteSelect
+                  v-model="selectedCustomer.contactType"
+                  :options="TypesOfContact"
+                  :defaultValue="$t('contactType')"
+                  :lb="$t('contactType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                  custom-class="h-11"
+                />
+
+                <!-- Input conditionnel basé sur le type de contact -->
+                <div v-if="selectedCustomer.contactType">
+                  <InputPhone
+                    v-if="contactInputComponent === 'InputPhone'"
+                    :title="contactInputLabel"
+                    v-model="contactValue"
+                    :id="'contact-input'"
+                    :is-required="false"
+                    custom-class="h-11"
+                  />
+
+                  <InputEmail
+                    v-else-if="contactInputComponent === 'InputEmail'"
+                    v-model="contactValue"
+                    :placeholder="contactInputLabel"
+                    :title="contactInputLabel"
+                    custom-class="h-11"
+                  />
+
+                  <Input
+                    v-else-if="contactInputComponent === 'Input'"
+                    :lb="contactInputLabel"
+                    v-model="contactValue"
+                    :placeholder="contactInputLabel"
+                    custom-class="h-11"
+                  />
+                </div>
+              </div>
+              <!-- <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+
                 <ProfessionAutocomplete
                   v-model="selectedCustomer.profession"
                   :lb="$t('profession')"
@@ -503,14 +626,20 @@ console.log('modalevalue', props.modelValue)
                   custom-class="h-11"
                 />
 
-                <Select
+                 <AutoCompleteSelect
                   v-model="selectedCustomer.contactType"
-                  :placeholder="$t('-select-')"
-                  :lb="$t('contactType')"
                   :options="TypesOfContact"
-                  custom-class="h-11"
+                  :defaultValue="$t('contactType')"
+                  :lb="$t('contactType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                   custom-class="h-11"
                 />
-              </div>
+
+
+
+              </div> -->
             </div>
           </div>
 

@@ -6,7 +6,7 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
-import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import CustomerSearch from '../customers/CustomerSarch.vue'
 import {
   PencilLine,
   CircleChevronDown,
@@ -19,7 +19,7 @@ import { useBooking } from '@/composables/useBooking2'
 import router from '../../router'
 import { useRoute } from 'vue-router'
 import BasicButton from '../../components/buttons/BasicButton.vue'
-import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
+import InputPhone from '../forms/FormElements/InputPhone.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById, confirmBooking } from '../../services/reservation'
@@ -75,6 +75,12 @@ const toast = useToast()
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
+const GuestTitles = computed(() => [
+  { label: t('guestTitles.mr'), value: 'Mr' },
+  { label: t('guestTitles.mrs'), value: 'Mrs' },
+  { label: t('guestTitles.miss'), value: 'Miss' },
+  { label: t('guestTitles.dr'), value: 'Dr' },
+])
 
 const showTaxDetails = ref<Record<string, boolean>>({})
 const showChargesDetails = ref<Record<string, boolean>>({})
@@ -303,6 +309,7 @@ const gotoNew = () => {
       idPhoto: formData.value.idPhoto,
       maidenName: formData.value.maidenName,
       contactType: formData.value.contactType,
+      contactValue: formData.value.contactValue,
     },
     otherInfo: {
       emailBookingVouchers: otherInfo.value.emailBookingVouchers,
@@ -396,6 +403,8 @@ const handleCheckIn = async () => {
   }
 }
 
+
+
 // Ajoutez
 const handleConfirmReservation = async () => {
   if (!reservationId.value) {
@@ -437,6 +446,16 @@ const handleConfirmReservation = async () => {
 const initializeForm = () => {
   // Call the original initialize from useBooking if it sets default values
   initialize()
+
+
+   const walkInOption = BookingSource.value.find((source: any) =>
+    source.label === 'Walk-in')
+     console.log('walkInOption:', walkInOption)
+
+  if (walkInOption) {
+    reservation.value.bookingSource = walkInOption.id
+  }
+
 
   // Check for query parameters and update reservation object
   if (route.query.checkin) {
@@ -509,6 +528,67 @@ const onQuickGroupBookingChange = (event: Event) => {
   }
 }
 
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
+const contactInputComponent = computed(() => {
+  if (!formData.value.contactType) return null
+
+  switch (formData.value.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = formData.value.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+
+watch(() => formData.value.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    formData.value.contactTypeValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+
+const contactValue = computed({
+  get: () => formData.value.contactValue,
+  set: (value) => {
+    formData.value.contactValue = value
+  }
+})
+
 onMounted(() => {
   initialize()
   initializeForm()
@@ -529,7 +609,7 @@ onMounted(() => {
     <!-- Modal panel -->
     <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
       <div
-        class="pointer-events-auto relative w-screen max-w-5xl transform transition-transform duration-300 ease-in-out"
+        class="pointer-events-auto relative w-screen max-w-4xl transform transition-transform duration-300 ease-in-out"
         :class="{
           'translate-x-0': isOpen,
           'translate-x-full': !isOpen
@@ -571,10 +651,10 @@ onMounted(() => {
                         <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                           {{ $t('check_in_date') }}
                         </label>
-                        <div class="flex gap-0">
+                        <div class="flex gap-0 ">
                           <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
-                            :allowPastDates="false" :placeholder="$t('Selectdate')" />
-                          <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
+                            :allowPastDates="false" :placeholder="$t('Selectdate')" class="w-[110px]" />
+                          <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none w-[100px]" />
                         </div>
                       </div>
 
@@ -594,8 +674,8 @@ onMounted(() => {
                         </label>
                         <div class="flex gap-0">
                           <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
-                            custom-class="rounded-none" />
-                          <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
+                            custom-class="rounded-none" class="w-[110px]" />
+                          <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" class="w-[100px]"/>
                         </div>
 
                         <p v-if="dateError" class="text-sm text-red-600">
@@ -613,37 +693,14 @@ onMounted(() => {
                           :defaultValue="$t('SelectBookingSource')" :lb="$t('booking_source')" :is-required="false"
                           :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
-                    </div>
-
-                    <div class="grid md:grid-cols-5 grid-cols-1 gap-2">
-                      <div>
-                        <Select :lb="$t('customType')" :options="CustomTypes" :placeholder="$t('select_custom_type')" v-model="reservation.customType"/>
-                      </div>
-
-                      <div>
+                      <div class="flex-col flex w-[500px] ms-2">
                         <AutoCompleteSelect v-model="reservation.businessSource" :options="BusinessSource"
                           :defaultValue="$t('SelectBusinessSource')" :lb="$t('business_source')" :is-required="false"
                           :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
-                      <div>
-                        <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'"
-                          :placeholder="$t('ArrivingTo')"  v-model="reservation.arrivingTo"/>
-                      </div>
-                      <div>
-                        <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
-                      </div>
-                      <div>
-                          <AutoCompleteSelect
-                            v-model="reservation.meansOfTransport"
-                            :options="TransportationModes"
-                            :defaultValue="$t('MeansOfTransportation')"
-                            :lb="$t('MeansOfTransportation')"
-                            :is-required="false"
-                            :use-dropdown="useDropdownBooking"
-                            @clear-error="emits('clear-error')"
-                          />
-                      </div>
                     </div>
+
+
                     <!-- Room Type -->
                     <section class="border-t border-gray-300 pt-4 space-y-4">
                       <!-- Room Configurations -->
@@ -885,9 +942,114 @@ onMounted(() => {
                     <!-- Guest Information -->
                     <section class="border-t border-gray-300 pt-2 space-y-4">
 
-                      <div>
-                        <CustomerCard :show-image="false" @customerSelected="onCustomerSelected" v-model="formData" />
+                     <div class="flex items-end w-full space-x-0">
+                        <!-- Titre -->
+                        <div class="w-20">
+                          <Select
+                            :lb="$t('Title')"
+                            :options="GuestTitles"
+                            v-model="formData.title"
+                            :default-value="$t('guestTitles.mr')"
+                            custom-class="rounded-r-none h-11 w-full"
+                          />
+                        </div>
+
+                        <!-- Recherche client -->
+                        <div class="w-[110px]">
+                          <CustomerSearch
+                            @customer-selected="onCustomerSelected"
+                            v-model="formData"
+
+                          />
+                        </div>
+
+                        <!-- Nom -->
+                        <div class="w-[110px]">
+                          <Input
+                            :lb="$t('LastName')"
+                            v-model="formData.lastName"
+                            :placeholder="$t('LastName')"
+                            custom-class="rounded-none h-11 border-l-0 w-full"
+                          />
+                        </div>
+
+                        <!-- Nom de jeune fille -->
+                        <div class="w-[110px]">
+                          <Input
+                            :lb="$t('MaidenName')"
+                            v-model="formData.maidenName"
+                            :placeholder="$t('MaidenName')"
+                            custom-class="rounded-l-none h-11 border-l-0 w-full"
+                          />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="flex-1 ml-2">
+                          <InputEmail
+                            v-model="formData.email"
+                            placeholder="info@gmail.com"
+                            :title="$t('Email')"
+                            required
+                            custom-class=" h-11  w-full"
+                          />
+                        </div>
+
+                        <!-- Téléphone -->
+                        <div class="flex-1  ml-2">
+                          <InputPhone
+                            :title="$t('Phone')"
+                            v-model="formData.phoneNumber"
+                            :id="'phone'"
+                            :is-required="false"
+                            custom-class="rounded-l-none h-11 border-l-0 w-full"
+                          />
+                        </div>
                       </div>
+
+                      <div :class="[
+                        'grid grid-cols-1 gap-4',
+                        formData.contactType ? 'sm:grid-cols-2' : 'sm:grid-cols-2'
+                      ]">
+
+
+                        <AutoCompleteSelect
+                            v-model="formData.contactType"
+                            :options="TypesOfContact"
+                            :defaultValue="$t('contactType')"
+                            :lb="$t('contactType')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownBooking"
+                            @clear-error="emits('clear-error')"
+                            custom-class="h-11"
+                          />
+
+                          <div v-if="formData.contactType">
+                            <InputPhone
+                              v-if="contactInputComponent === 'InputPhone'"
+                              :title="contactInputLabel"
+                              v-model="contactValue"
+                              :id="'contact-input'"
+                              :is-required="false"
+                              custom-class="h-11"
+                            />
+
+                            <InputEmail
+                              v-else-if="contactInputComponent === 'InputEmail'"
+                              v-model="contactValue"
+                              :placeholder="contactInputLabel"
+                              :title="contactInputLabel"
+                              custom-class="h-11"
+                            />
+
+                            <Input
+                              v-else-if="contactInputComponent === 'Input'"
+                              :lb="contactInputLabel"
+                              v-model="contactValue"
+                              :placeholder="contactInputLabel"
+                              custom-class="h-11"
+                            />
+                        </div>
+                        </div>
                     </section>
 
                   </div>
@@ -907,9 +1069,9 @@ onMounted(() => {
                 :loading="isLoading" :disabled="isLoading" variant="info"
                 :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
               </BasicButton>
-              <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
+              <BasicButton v-if="!confirmReservation" variant="success" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
-                :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
+                :label="hasPendingUploads ? $t('UploadingImages') : $t('Confirm')">
               </BasicButton>
             </div>
           </div>

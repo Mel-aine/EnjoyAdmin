@@ -213,9 +213,50 @@
 
           <!-- Contact Information Section -->
           <section class="pt-4 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div :class="[
+              'grid grid-cols-1 gap-4',
+               formData.contactType ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+            ]">
                 <InputPhone :title="$t('Phone')" v-model="formData.phoneNumber" :id="'phone'" :is-required="false"
                 custom-class="h-11" />
+
+              <AutoCompleteSelect
+                  v-model="formData.contactType"
+                  :options="TypesOfContact"
+                  :defaultValue="$t('contactType')"
+                  :lb="$t('contactType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                  custom-class="h-11"
+                />
+                <!-- Input conditionnel basé sur le type de contact -->
+                <div v-if="formData.contactType">
+                  <InputPhone
+                    v-if="contactInputComponent === 'InputPhone'"
+                    :title="contactInputLabel"
+                    v-model="contactValue"
+                    :id="'contact-input'"
+                    :is-required="false"
+                    custom-class="h-11"
+                  />
+
+                  <InputEmail
+                    v-else-if="contactInputComponent === 'InputEmail'"
+                    v-model="contactValue"
+                    :placeholder="contactInputLabel"
+                    :title="contactInputLabel"
+                    custom-class="h-11"
+                  />
+
+                  <Input
+                    v-else-if="contactInputComponent === 'Input'"
+                    :lb="contactInputLabel"
+                    v-model="contactValue"
+                    :placeholder="contactInputLabel"
+                    custom-class="h-11"
+                  />
+               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -384,7 +425,6 @@ const roomConfig = computed(() => roomConfigurations.value[0])
 const GuestTitles = computed(() => [
   { label: t('guestTitles.mr'), value: 'Mr' },
   { label: t('guestTitles.mrs'), value: 'Mrs' },
-  { label: t('guestTitles.ms'), value: 'Ms' },
   { label: t('guestTitles.miss'), value: 'Miss' },
   { label: t('guestTitles.dr'), value: 'Dr' },
 ])
@@ -514,6 +554,65 @@ const handleSubmit = async () => {
     console.error('Error submitting form:', error)
   }
 }
+
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
+
+
+const contactInputComponent = computed(() => {
+  if (!formData.value.contactType) return null
+
+  switch (formData.value.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = formData.value.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+const contactValue = computed({
+  get: () => formData.value.contactValue,
+  set: (value) => {
+    formData.value.contactValue = value
+  }
+})
+watch(() => formData.value.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    formData.value.contactTypeValue = ''
+  }
+})
 
 // Initialize on mount
 onMounted(async () => {
